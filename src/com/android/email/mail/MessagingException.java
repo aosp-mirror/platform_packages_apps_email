@@ -16,18 +16,22 @@
 
 package com.android.email.mail;
 
+import com.android.email.R;
+
+import android.content.Context;
+
 /**
  * This exception is used for most types of failures that occur during server interactions.
- * 
+ *
  * Data passed through this exception should be considered non-localized.  Any strings should
  * either be internal-only (for debugging) or server-generated.
- * 
+ *
  * TO DO: Does it make sense to further collapse AuthenticationFailedException and
  * CertificateValidationException and any others into this?
  */
 public class MessagingException extends Exception {
     public static final long serialVersionUID = -1;
-    
+
     public static final int NO_ERROR = -1;
     /** Any exception that does not specify a specific issue */
     public static final int UNSPECIFIED_EXCEPTION = 0;
@@ -53,9 +57,9 @@ public class MessagingException extends Exception {
     public static final int CERTIFICATE_VALIDATION_ERROR = 10;
     /** Authentication failed during autodiscover */
     public static final int AUTODISCOVER_AUTHENTICATION_FAILED = 11;
-    
+
     protected int mExceptionType;
-     
+
     public MessagingException(String message) {
         super(message);
         mExceptionType = UNSPECIFIED_EXCEPTION;
@@ -70,7 +74,7 @@ public class MessagingException extends Exception {
         super(message, throwable);
         mExceptionType = exceptionType;
     }
-    
+
     /**
      * Constructs a MessagingException with an exceptionType and a null message.
      * @param exceptionType The exception type to set for this exception.
@@ -79,7 +83,7 @@ public class MessagingException extends Exception {
         super();
         mExceptionType = exceptionType;
     }
-    
+
     /**
      * Constructs a MessagingException with an exceptionType and a message.
      * @param exceptionType The exception type to set for this exception.
@@ -88,13 +92,41 @@ public class MessagingException extends Exception {
         super(message);
         mExceptionType = exceptionType;
     }
-    
+
     /**
      * Return the exception type.  Will be OTHER_EXCEPTION if not explicitly set.
-     * 
+     *
      * @return Returns the exception type.
      */
     public int getExceptionType() {
         return mExceptionType;
+    }
+
+    /**
+     * @return the error message associated with this exception.
+     */
+    public final String getUiErrorMessage(Context context) {
+        return context.getResources().getString(getUiErrorMessageResourceId());
+    }
+
+    /**
+     * @return the resource ID of the error message associated with this exception.
+     */
+    public int getUiErrorMessageResourceId() {
+        switch (getExceptionType()) {
+            case MessagingException.IOERROR:
+                return R.string.account_setup_failed_ioerror;
+            case MessagingException.TLS_REQUIRED:
+                return R.string.account_setup_failed_tls_required;
+            case MessagingException.AUTH_REQUIRED:
+                return R.string.account_setup_failed_auth_required;
+            case MessagingException.GENERAL_SECURITY:
+                return R.string.account_setup_failed_security;
+            // TODO Generate a unique string for this case, which is the case
+            // where the security policy needs to be updated.
+            case MessagingException.SECURITY_POLICIES_REQUIRED:
+                return R.string.account_setup_failed_security;
+        }
+       return R.string.status_network_error; // default
     }
 }

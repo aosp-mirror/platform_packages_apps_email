@@ -16,6 +16,8 @@
 
 package com.android.email.mail;
 
+import com.android.email.R;
+
 public class CertificateValidationException extends MessagingException {
     public static final long serialVersionUID = -1;
 
@@ -25,5 +27,10 @@ public class CertificateValidationException extends MessagingException {
 
     public CertificateValidationException(String message, Throwable throwable) {
         super(MessagingException.CERTIFICATE_VALIDATION_ERROR, message, throwable);
+    }
+
+    @Override
+    public int getUiErrorMessageResourceId() {
+        return R.string.account_setup_failed_dlg_certificate_message;
     }
 }

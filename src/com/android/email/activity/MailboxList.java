@@ -22,8 +22,6 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
-import com.android.email.mail.AuthenticationFailedException;
-import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
@@ -189,7 +187,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
                 onAccounts();
                 return true;
             case R.id.refresh:
-                onRefresh(-1);
+                onRefresh();
                 return true;
             case R.id.compose:
                 onCompose();
@@ -210,17 +208,12 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     }
 
     /**
-     * Refresh the mailbox list, or a single mailbox
-     * @param mailboxId -1 for all
+     * Refresh the mailbox list
      */
-    private void onRefresh(long mailboxId) {
+    private void onRefresh() {
         Controller controller = Controller.getInstance(getApplication());
         showProgressIcon(true);
-        if (mailboxId >= 0) {
-            controller.updateMailbox(mAccountId, mailboxId);
-        } else {
-            controller.updateMailboxList(mAccountId);
-        }
+        mListFragment.onRefresh();
     }
 
     private void onAccounts() {
@@ -274,7 +267,6 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
      */
     private class ControllerResults extends Controller.Result {
 
-        // TODO report errors into UI
         @Override
         public void updateMailboxListCallback(MessagingException result, long accountKey,
                 int progress) {
@@ -284,13 +276,9 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
             }
         }
 
-        // TODO report errors into UI
         @Override
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
-            if (result != null || progress == 100) {
-                Email.updateMailboxRefreshTime(mailboxKey);
-            }
             if (accountKey == mAccountId) {
                 updateBanner(result, progress);
                 updateProgress(result, progress);
@@ -321,28 +309,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
          */
         private void updateBanner(MessagingException result, int progress) {
             if (result != null) {
-                int id = R.string.status_network_error;
-                if (result instanceof AuthenticationFailedException) {
-                    id = R.string.account_setup_failed_dlg_auth_message;
-                } else if (result instanceof CertificateValidationException) {
-                    id = R.string.account_setup_failed_dlg_certificate_message;
-                } else {
-                    switch (result.getExceptionType()) {
-                        case MessagingException.IOERROR:
-                            id = R.string.account_setup_failed_ioerror;
-                            break;
-                        case MessagingException.TLS_REQUIRED:
-                            id = R.string.account_setup_failed_tls_required;
-                            break;
-                        case MessagingException.AUTH_REQUIRED:
-                            id = R.string.account_setup_failed_auth_required;
-                            break;
-                        case MessagingException.GENERAL_SECURITY:
-                            id = R.string.account_setup_failed_security;
-                            break;
-                    }
-                }
-                showErrorBanner(getString(id));
+                showErrorBanner(result.getUiErrorMessage(MailboxList.this));
             } else if (progress > 0) {
                 showErrorBanner(null);
             }

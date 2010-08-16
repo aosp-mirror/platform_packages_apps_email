@@ -572,26 +572,6 @@ public class Controller {
     }
 
     /**
-     * Call {@link #sendPendingMessages} for all accounts.
-     */
-    public void sendPendingMessagesForAllAccounts(final Context context) {
-        Utility.runAsync(new Runnable() {
-            public void run() {
-                Cursor c = context.getContentResolver().query(Account.CONTENT_URI,
-                        Account.ID_PROJECTION, null, null, null);
-                try {
-                    while (c.moveToNext()) {
-                        long accountId = c.getLong(Account.ID_PROJECTION_COLUMN);
-                        sendPendingMessages(accountId);
-                    }
-                } finally {
-                    c.close();
-                }
-            }
-        });
-    }
-
-    /**
      * Reset visible limits for all accounts.
      * For each account:
      *   look up limit

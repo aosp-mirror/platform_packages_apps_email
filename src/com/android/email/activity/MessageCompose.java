@@ -145,7 +145,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private TextView mRightTitle;
 
     private Controller mController;
-    private Listener mListener;
     private boolean mDraftNeedsSaving;
     private boolean mMessageLoaded;
     private AsyncTask mLoadAttachmentsTask;
@@ -270,7 +269,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.list_title);
 
         mController = Controller.getInstance(getApplication());
-        mListener = new Listener();
         initViews();
         setDraftNeedsSaving(false);
 
@@ -342,7 +340,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     public void onResume() {
         super.onResume();
-        mController.addResultCallback(mListener);
 
         // Exit immediately if the accounts list has changed (e.g. externally deleted)
         if (Email.getNotifyUiAccountsChanged()) {
@@ -356,7 +353,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     public void onPause() {
         super.onPause();
         saveIfNeeded();
-        mController.removeResultCallback(mListener);
     }
 
     /**
@@ -1521,16 +1517,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         } else {
             mMessageContentView.requestFocus();
             setMessageContentSelection((mAccount != null) ? mAccount.mSignature : null);
-        }
-    }
-
-    private class Listener extends Controller.Result {
-        @Override
-        public void updateMailboxCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, int numNewMessages) {
-            if (result != null || progress == 100) {
-                Email.updateMailboxRefreshTime(mailboxId);
-            }
         }
     }
 }

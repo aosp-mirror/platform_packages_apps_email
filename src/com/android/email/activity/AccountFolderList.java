@@ -322,9 +322,6 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
         @Override
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
-            if (result != null || progress == 100) {
-                Email.updateMailboxRefreshTime(mailboxKey);
-            }
             updateProgress(result, progress);
         }
 

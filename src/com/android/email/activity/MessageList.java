@@ -23,8 +23,6 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
-import com.android.email.mail.AuthenticationFailedException;
-import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -542,7 +540,6 @@ public class MessageList extends Activity implements OnClickListener,
     private void showProgressIcon(boolean show) {
         int visibility = show ? View.VISIBLE : View.GONE;
         mProgressIcon.setVisibility(visibility);
-        mListFragment.showProgressIcon(show);
     }
 
     private void showErrorBanner(String message) {
@@ -579,9 +576,6 @@ public class MessageList extends Activity implements OnClickListener,
         public void updateMailboxCallback(MessagingException result, long accountKey,
                 long mailboxKey, int progress, int numNewMessages) {
             updateBanner(result, progress, mailboxKey);
-            if (result != null || progress == 100) {
-                Email.updateMailboxRefreshTime(mailboxKey);
-            }
             updateProgress(result, progress);
         }
 
@@ -632,33 +626,7 @@ public class MessageList extends Activity implements OnClickListener,
                 return;
             }
             if (result != null) {
-                int id = R.string.status_network_error;
-                if (result instanceof AuthenticationFailedException) {
-                    id = R.string.account_setup_failed_dlg_auth_message;
-                } else if (result instanceof CertificateValidationException) {
-                    id = R.string.account_setup_failed_dlg_certificate_message;
-                } else {
-                    switch (result.getExceptionType()) {
-                        case MessagingException.IOERROR:
-                            id = R.string.account_setup_failed_ioerror;
-                            break;
-                        case MessagingException.TLS_REQUIRED:
-                            id = R.string.account_setup_failed_tls_required;
-                            break;
-                        case MessagingException.AUTH_REQUIRED:
-                            id = R.string.account_setup_failed_auth_required;
-                            break;
-                        case MessagingException.GENERAL_SECURITY:
-                            id = R.string.account_setup_failed_security;
-                            break;
-                        // TODO Generate a unique string for this case, which is the case
-                        // where the security policy needs to be updated.
-                        case MessagingException.SECURITY_POLICIES_REQUIRED:
-                            id = R.string.account_setup_failed_security;
-                            break;
-                    }
-                }
-                showErrorBanner(getString(id));
+                showErrorBanner(result.getUiErrorMessage(MessageList.this));
             } else if (progress > 0) {
                 showErrorBanner(null);
             }

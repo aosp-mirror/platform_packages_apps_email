@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
+import com.android.email.RefreshManager;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettings;
@@ -54,6 +55,9 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private static final int LOADER_ID_ACCOUNT_LIST = 0;
 
     private Context mContext;
+    private RefreshManager mRefreshManager;
+    private final RefreshListener mMailRefreshManagerListener
+            = new RefreshListener();
 
     private View mMessageViewButtonPanel;
     private View mMoveToNewerButton;
@@ -91,6 +95,8 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         final boolean isRestoring = (savedInstanceState != null);
 
         mContext = getApplicationContext();
+        mRefreshManager = RefreshManager.getInstance(this);
+        mRefreshManager.registerListener(mMailRefreshManagerListener);
 
         mFragmentManager.setMailboxListFragmentCallback(new MailboxListFragmentCallback());
         mFragmentManager.setMessageListFragmentCallback(new MessageListFragmentCallback());
@@ -171,6 +177,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     @Override
     protected void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onDestroy");
+        mRefreshManager.unregisterListener(mMailRefreshManagerListener);
         super.onDestroy();
     }
 
@@ -492,11 +499,44 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         }
     }
 
+    private class RefreshListener
+            implements RefreshManager.Listener {
+        @Override
+        public void onMessagingError(long accountId, long mailboxId, String message) {
+            Utility.showToast(MessageListXL.this, message); // STOPSHIP temporary UI
+            invalidateOptionsMenu();
+        }
+
+        @Override
+        public void onRefreshStatusChanged(long accountId, long mailboxId) {
+            invalidateOptionsMenu();
+        }
+    }
+
+    private boolean isProgressActive() {
+        final long mailboxId = mFragmentManager.getMailboxId();
+        return (mailboxId >= 0) && mRefreshManager.isMessageListRefreshing(mailboxId);
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_list_xl_option, menu);
         return true;
+    }
+
+    // STOPSHIP - this is a placeholder if/until there's support for progress in actionbar
+    // Remove it, or replace with a better icon
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.refresh);
+        if (isProgressActive()) {
+            item.setIcon(android.R.drawable.progress_indeterminate_horizontal);
+        } else {
+            item.setIcon(R.drawable.ic_menu_refresh);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -505,7 +545,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             case R.id.compose:
                 return onCompose();
             case R.id.refresh:
-                // TODO Implement this
+                onRefresh();
                 return true;
             case R.id.account_settings:
                 return onAccountSettings();
@@ -537,6 +577,27 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private boolean onAddNewAccount() {
         AccountSetupBasics.actionNewAccount(this);
         return true;
+    }
+
+    private void onRefresh() {
+        // Temporary implementation
+        if (mFragmentManager.isMailboxSelected()) {
+            mRefreshManager.refreshMessageList(mFragmentManager.getAccountId(),
+                    mFragmentManager.getMailboxId());
+        }
+
+        // TODO implement this
+        // - Refresh mailbox list.  But don't do that always; implement a min interval.
+        //
+        // - Refresh the selected mailbox, if it's supported.
+        //   (regardless if the right-pane is MessageList or MessageView)
+        // - If not suppoted (e.g. outbox, draft, or push mailboxes), refresh the inbox of the
+        //   current account.
+
+        // To do that, we need a way to tell the type of the currently selected mailbox.
+        // We can do this with MessageListFragment, but it's gone it if a message is being viewed.
+        // Maybe we should always have a MessageListFragment instance?
+        // That way it'll be easier to restore the scroll position.
     }
 
     /**

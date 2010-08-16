@@ -16,7 +16,9 @@
 
 package com.android.email.activity;
 
+import com.android.email.Controller;
 import com.android.email.Email;
+import com.android.email.RefreshManager;
 import com.android.email.Utility;
 
 import android.app.Activity;
@@ -237,5 +239,11 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         mCallback.onMailboxSelected(mAccountId, id);
+    }
+
+    public void onRefresh() {
+        if (mAccountId != -1) {
+            RefreshManager.getInstance(getActivity()).refreshMailboxList(mAccountId);
+        }
     }
 }

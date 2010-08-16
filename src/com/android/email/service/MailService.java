@@ -655,8 +655,6 @@ public class MailService extends Service {
                         updateAccountReport(accountId, -1);
                     }
                 }
-                // Call the global refresh tracker for all mailboxes
-                Email.updateMailboxRefreshTime(mailboxId);
             }
         }
 

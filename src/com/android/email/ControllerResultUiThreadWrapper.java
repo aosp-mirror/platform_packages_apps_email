@@ -24,6 +24,9 @@ import android.os.Handler;
 /**
  * A {@link Result} that wraps another {@link Result} and makes sure methods gets called back
  * on the UI thread.
+ *
+ * <p>Optionally it supports the "synchronous" mode, if you pass null for the {@code handler}
+ * parameter, which allows unit tests to run synchronously.
  */
 public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
     private final Handler mHandler;
@@ -38,10 +41,18 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
         return mWrappee;
     }
 
+    private void run(Runnable runnable) {
+        if (mHandler == null) {
+            runnable.run();
+        } else {
+            mHandler.post(runnable);
+        }
+    }
+
     @Override
     public void loadAttachmentCallback(final MessagingException result, final long messageId,
             final long attachmentId, final int progress) {
-        mHandler.post(new Runnable() {
+        run(new Runnable() {
             public void run() {
                 mWrappee.loadAttachmentCallback(result, messageId, attachmentId, progress);
             }
@@ -51,7 +62,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
     @Override
     public void loadMessageForViewCallback(final MessagingException result,
             final long messageId, final int progress) {
-        mHandler.post(new Runnable() {
+        run(new Runnable() {
             public void run() {
                 mWrappee.loadMessageForViewCallback(result, messageId, progress);
             }
@@ -61,7 +72,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
     @Override
     public void sendMailCallback(final MessagingException result, final long accountId,
             final long messageId, final int progress) {
-        mHandler.post(new Runnable() {
+        run(new Runnable() {
             public void run() {
                 mWrappee.sendMailCallback(result, accountId, messageId, progress);
             }
@@ -71,7 +82,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
     @Override
     public void serviceCheckMailCallback(final MessagingException result, final long accountId,
             final long mailboxId, final int progress, final long tag) {
-        mHandler.post(new Runnable() {
+        run(new Runnable() {
             public void run() {
                 mWrappee.serviceCheckMailCallback(result, accountId, mailboxId, progress, tag);
             }
@@ -81,7 +92,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
     @Override
     public void updateMailboxCallback(final MessagingException result, final long accountId,
             final long mailboxId, final int progress, final int numNewMessages) {
-        mHandler.post(new Runnable() {
+        run(new Runnable() {
             public void run() {
                 mWrappee.updateMailboxCallback(result, accountId, mailboxId, progress,
                         numNewMessages);
@@ -92,7 +103,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
     @Override
     public void updateMailboxListCallback(final MessagingException result, final long accountId,
             final int progress) {
-        mHandler.post(new Runnable() {
+        run(new Runnable() {
             public void run() {
                 mWrappee.updateMailboxListCallback(result, accountId, progress);
             }
@@ -101,7 +112,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
 
     @Override
     public void deleteAccountCallback(final long accountId) {
-        mHandler.post(new Runnable() {
+        run(new Runnable() {
             public void run() {
                 mWrappee.deleteAccountCallback(accountId);
             }

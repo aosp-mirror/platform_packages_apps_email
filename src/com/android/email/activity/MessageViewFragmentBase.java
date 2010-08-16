@@ -1024,14 +1024,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 attachment.downloadButton.setEnabled(enable);
             }
         }
-
-        @Override
-        public void updateMailboxCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, int numNewMessages) {
-            if (result != null || progress == 100) {
-                Email.updateMailboxRefreshTime(mailboxId);
-            }
-        }
     }
 
     public boolean isMessageLoadedForTest() {

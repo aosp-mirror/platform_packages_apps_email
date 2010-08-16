@@ -2026,14 +2026,13 @@ public class MessagingController implements Runnable {
     }
 
     /**
-     * Checks mail for one or multiple accounts. If account is null all accounts
-     * are checked.  This entry point is for use by the mail checking service only, because it
+     * Checks mail for an account.
+     * This entry point is for use by the mail checking service only, because it
      * gives slightly different callbacks (so the service doesn't get confused by callbacks
      * triggered by/for the foreground UI.
      *
      * TODO clean up the execution model which is unnecessarily threaded due to legacy code
      *
-     * @param context
      * @param accountId the account to check
      * @param listener
      */

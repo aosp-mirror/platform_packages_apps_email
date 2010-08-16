@@ -141,9 +141,6 @@ public class Email extends Application {
      */
     public static final int MAX_ATTACHMENT_UPLOAD_SIZE = (5 * 1024 * 1024);
 
-    private static HashMap<Long, Long> sMailboxSyncTimes = new HashMap<Long, Long>();
-    private static final long UPDATE_INTERVAL = 5 * DateUtils.MINUTE_IN_MILLIS;
-
     /**
      * This is used to force stacked UI to return to the "welcome" screen any time we change
      * the accounts list (e.g. deleting accounts in the Account Manager preferences.)
@@ -271,6 +268,8 @@ public class Email extends Application {
         DEBUG = prefs.getEnableDebugLogging();
         setTempDirectory(this);
 
+        // Tie MailRefreshManager to the Controller.
+        RefreshManager.getInstance(this);
         // Reset all accounts to default visible window
         Controller.getInstance(this).resetVisibleLimits();
 
@@ -284,30 +283,6 @@ public class Email extends Application {
      */
     public static void log(String message) {
         Log.d(LOG_TAG, message);
-    }
-
-    /**
-     * Update the time when the mailbox is refreshed
-     * @param mailboxId mailbox which need to be updated
-     */
-    public static void updateMailboxRefreshTime(long mailboxId) {
-        synchronized (sMailboxSyncTimes) {
-            sMailboxSyncTimes.put(mailboxId, System.currentTimeMillis());
-        }
-    }
-
-    /**
-     * Check if the mailbox is need to be refreshed
-     * @param mailboxId mailbox checked the need of refreshing
-     * @return the need of refreshing
-     */
-    public static boolean mailboxRequiresRefresh(long mailboxId) {
-        synchronized (sMailboxSyncTimes) {
-            return
-                !sMailboxSyncTimes.containsKey(mailboxId)
-                || (System.currentTimeMillis() - sMailboxSyncTimes.get(mailboxId)
-                        > UPDATE_INTERVAL);
-        }
     }
 
     /**

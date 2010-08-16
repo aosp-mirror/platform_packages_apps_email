@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Controller;
 import com.android.email.Email;
+import com.android.email.RefreshManager;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.data.MailboxAccountLoader;
@@ -62,6 +63,8 @@ import java.util.Set;
  * </ul>
  * We run them sequentially.  i.e. First starts {@link MailboxAccountLoader}, and when it finishes
  * starts the other.
+ *
+ * TODO Add "send all messages" button to outboxes
  */
 public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback {
@@ -90,6 +93,8 @@ public class MessageListFragment extends ListFragment
 
     // Controller access
     private Controller mController;
+    private RefreshManager mRefreshManager;
+    private RefreshListener mRefreshListener = new RefreshListener();
 
     // Misc members
     private boolean mDoAutoRefresh;
@@ -151,6 +156,8 @@ public class MessageListFragment extends ListFragment
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
         mController = Controller.getInstance(mActivity);
+        mRefreshManager = RefreshManager.getInstance(mActivity);
+        mRefreshManager.registerListener(mRefreshListener);
     }
 
     @Override
@@ -218,7 +225,7 @@ public class MessageListFragment extends ListFragment
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessageListFragment onDestroy");
         }
-
+        mRefreshManager.unregisterListener(mRefreshListener);
         super.onDestroy();
     }
 
@@ -391,9 +398,9 @@ public class MessageListFragment extends ListFragment
      * Refresh the list.  NOOP for special mailboxes (e.g. combined inbox).
      */
     public void onRefresh() {
-        final long accountId = getAccountId();
+        long accountId = getAccountId();
         if (accountId != -1) {
-            mController.updateMailbox(accountId, mMailboxId);
+            mRefreshManager.refreshMessageList(accountId, mMailboxId);
         }
     }
 
@@ -410,16 +417,18 @@ public class MessageListFragment extends ListFragment
      * Load more messages.  NOOP for special mailboxes (e.g. combined inbox).
      */
     private void onLoadMoreMessages() {
-        if (!isMagicMailbox()) {
-            mController.loadMoreMessages(mMailboxId);
+        long accountId = getAccountId();
+        if (accountId != -1) {
+            mRefreshManager.loadMoreMessages(accountId, mMailboxId);
         }
     }
 
     public void onSendPendingMessages() {
+        RefreshManager rm = RefreshManager.getInstance(mActivity);
         if (getMailboxId() == Mailbox.QUERY_ALL_OUTBOX) {
-            mController.sendPendingMessagesForAllAccounts(mActivity);
+            rm.sendPendingMessagesForAllAccounts();
         } else if (!isMagicMailbox()) { // Magic boxes don't have a specific account id.
-            mController.sendPendingMessages(getAccountId());
+            rm.sendPendingMessages(getAccountId());
         }
     }
 
@@ -618,22 +627,10 @@ public class MessageListFragment extends ListFragment
             return;
         }
         mDoAutoRefresh = false;
-        if (!Email.mailboxRequiresRefresh(mMailboxId)) {
+        if (!mRefreshManager.isMailboxStale(mMailboxId)) {
             return;
         }
         onRefresh();
-    }
-
-    /**
-     * Show/hide the progress icon on the list footer.  It's called by the host activity.
-     * TODO: It might be cleaner if the fragment listen to the controller events and show it by
-     *     itself, rather than letting the activity controll this.
-     */
-    public void showProgressIcon(boolean show) {
-        if (mListFooterProgress != null) {
-            mListFooterProgress.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
-        updateListFooterText(show);
     }
 
     /** Implements {@link MessagesAdapter.Callback} */
@@ -651,6 +648,10 @@ public class MessageListFragment extends ListFragment
 
     private void determineFooterMode() {
         mListFooterMode = LIST_FOOTER_MODE_NONE;
+        if ((mMailbox == null) || (mMailbox.mType == Mailbox.TYPE_OUTBOX)
+                || (mMailbox.mType == Mailbox.TYPE_DRAFTS)) {
+            return; // No footer
+        }
         if (mAccount != null && !mAccount.isEasAccount()) {
             // IMAP, POP has "load more"
             mListFooterMode = LIST_FOOTER_MODE_MORE;
@@ -658,12 +659,12 @@ public class MessageListFragment extends ListFragment
     }
 
     private void addFooterView() {
+        ListView lv = getListView();
+        if (mListFooterView != null) {
+            lv.removeFooterView(mListFooterView);
+        }
         determineFooterMode();
         if (mListFooterMode != LIST_FOOTER_MODE_NONE) {
-            ListView lv = getListView();
-            if (mListFooterView != null) {
-                lv.removeFooterView(mListFooterView);
-            }
 
             lv.addFooterView(mListFooterView);
             lv.setAdapter(mListAdapter);
@@ -671,22 +672,22 @@ public class MessageListFragment extends ListFragment
             mListFooterProgress = mListFooterView.findViewById(R.id.progress);
             mListFooterText = (TextView) mListFooterView.findViewById(R.id.main_text);
 
-            // TODO We don't know if it's really "inactive". Someone has to
-            // remember all sync status.
-            updateListFooterText(false);
+            updateListFooter();
         }
     }
 
     /**
-     * Set the list footer text based on mode and "network active" status
+     * Set the list footer text based on mode and the current "network active" status
      */
-    private void updateListFooterText(boolean networkActive) {
+    private void updateListFooter() {
         if (mListFooterMode != LIST_FOOTER_MODE_NONE) {
             int footerTextId = 0;
             switch (mListFooterMode) {
                 case LIST_FOOTER_MODE_MORE:
-                    footerTextId = networkActive ? R.string.status_loading_messages
+                    boolean active = mRefreshManager.isMessageListRefreshing(mMailboxId);
+                    footerTextId = active ? R.string.status_loading_messages
                             : R.string.message_list_load_more_messages_action;
+                    mListFooterProgress.setVisibility(active ? View.VISIBLE : View.GONE);
                     break;
             }
             mListFooterText.setText(footerTextId);
@@ -912,6 +913,17 @@ public class MessageListFragment extends ListFragment
         public void onDestroyActionMode(ActionMode mode) {
             onDeselectAll();
             mSelectionMode = null;
+        }
+    }
+
+    private class RefreshListener implements RefreshManager.Listener {
+        @Override
+        public void onMessagingError(long accountId, long mailboxId, String message) {
+        }
+
+        @Override
+        public void onRefreshStatusChanged(long accountId, long mailboxId) {
+            updateListFooter();
         }
     }
 }
