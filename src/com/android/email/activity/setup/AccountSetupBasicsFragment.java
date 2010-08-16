@@ -338,7 +338,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
                     incomingUri.getHost(), incomingUsername);
             if (account != null) {
                 DuplicateAccountDialogFragment dialogFragment =
-                    new DuplicateAccountDialogFragment(account.mDisplayName, getId());
+                    DuplicateAccountDialogFragment.newInstance(account.mDisplayName);
                 dialogFragment.show(getActivity(), DuplicateAccountDialogFragment.TAG);
                 return;
             }
@@ -385,7 +385,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
             if (mProvider != null) {
                 if (mProvider.note != null) {
                     NoteDialogFragment dialogFragment =
-                        new NoteDialogFragment(mProvider.note, getId());
+                        NoteDialogFragment.newInstance(mProvider.note, this);
                     dialogFragment.show(getActivity(), NoteDialogFragment.TAG);
                 } else {
                     finishAutoSetup();
@@ -446,71 +446,39 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
 
     /**
      * Dialog fragment to show "setup note" dialog
-     *
-     * NOTE:  There is some duplication in the following DialogFragments, because this area of
-     * the framework is going to get some new features (to better handle callbacks to the "owner"
-     * of the dialog) and I'll wait for that before I combine the duplicate code.
      */
     public static class NoteDialogFragment extends DialogFragment {
         private final static String TAG = "NoteDialogFragment";
-        private String mNote;
-        private int mParentFragmentId;
 
-        // Note: Linkage back to parent fragment is TBD, due to upcoming framework changes
-        // Until then, we'll implement in each dialog
-        private final static String BUNDLE_KEY_PARENT_ID = "NoteDialogFragment.ParentId";
+        // Argument bundle keys
         private final static String BUNDLE_KEY_NOTE = "NoteDialogFragment.Note";
-
-        /**
-         * This is required because the non-default constructor hides it, preventing auto-creation
-         */
-        public NoteDialogFragment() {
-            super();
-        }
 
         /**
          * Create the dialog with parameters
          */
-        public NoteDialogFragment(String note, int parentFragmentId) {
-            super();
-            mNote = note;
-            mParentFragmentId = parentFragmentId;
-        }
-
-        /**
-         * If created automatically (e.g. after orientation change) restore parameters
-         */
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            if (savedInstanceState != null) {
-                mParentFragmentId = savedInstanceState.getInt(BUNDLE_KEY_PARENT_ID);
-                mNote = savedInstanceState.getString(BUNDLE_KEY_NOTE);
-            }
-        }
-
-        /**
-         * Save parameters to support auto-recreation
-         */
-        @Override
-        public void onSaveInstanceState(Bundle outState) {
-            super.onSaveInstanceState(outState);
-            outState.putInt(BUNDLE_KEY_PARENT_ID, mParentFragmentId);
-            outState.putString(BUNDLE_KEY_NOTE, mNote);
+        public static NoteDialogFragment newInstance(String note, Fragment parentFragment) {
+            NoteDialogFragment f = new NoteDialogFragment();
+            Bundle b = new Bundle();
+            b.putString(BUNDLE_KEY_NOTE, note);
+            f.setArguments(b);
+            f.setTargetFragment(parentFragment, 0);
+            return f;
         }
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             Context context = getActivity();
+            final String note = getArguments().getString(BUNDLE_KEY_NOTE);
+
             return new AlertDialog.Builder(context)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(android.R.string.dialog_alert_title)
-                .setMessage(mNote)
+                .setMessage(note)
                 .setPositiveButton(
                         R.string.okay_action,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                Fragment f = getActivity().findFragmentById(mParentFragmentId);
+                                Fragment f = getTargetFragment();
                                 if (f instanceof AccountSetupBasicsFragment) {
                                     ((AccountSetupBasicsFragment)f).finishAutoSetup();
                                 }

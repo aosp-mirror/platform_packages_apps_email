@@ -389,7 +389,7 @@ public class AccountSetupExchangeFragment extends Fragment implements OnCheckedC
                     uri.getHost(), mCacheLoginCredential);
             if (account != null) {
                 DuplicateAccountDialogFragment dialogFragment =
-                    new DuplicateAccountDialogFragment(account.mDisplayName, getId());
+                    DuplicateAccountDialogFragment.newInstance(account.mDisplayName);
                 dialogFragment.show(getActivity(), DuplicateAccountDialogFragment.TAG);
                 return;
             }
