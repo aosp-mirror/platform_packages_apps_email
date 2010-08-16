@@ -21,6 +21,7 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
+import com.android.email.Utility;
 import com.android.email.activity.MessageList;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
@@ -818,7 +819,11 @@ public class MailService extends Service {
      */
     public class AccountsUpdatedListener implements OnAccountsUpdateListener {
         public void onAccountsUpdated(android.accounts.Account[] accounts) {
-            reconcilePopImapAccounts(MailService.this);
+            Utility.runAsync(new Runnable() {
+               @Override
+                public void run() {
+                    reconcilePopImapAccounts(MailService.this);
+                }});
         }
     }
 
