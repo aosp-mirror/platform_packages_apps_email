@@ -27,7 +27,7 @@
 
         <fragment
             android:id="@+id/setup_outgoing_fragment"
-            android:name="com.android.email.activity.setup.AccountSetupOutgoingFragment"
+            class="com.android.email.activity.setup.AccountSetupOutgoingFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"

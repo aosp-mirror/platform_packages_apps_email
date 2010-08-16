@@ -20,7 +20,7 @@
     android:layout_height="match_parent">
     <fragment
         android:id="@+id/settings_fragment"
-        android:name="com.android.email.activity.setup.AccountSettingsFragment"
+        class="com.android.email.activity.setup.AccountSettingsFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
     />

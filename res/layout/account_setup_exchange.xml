@@ -27,7 +27,7 @@
 
         <fragment
             android:id="@+id/setup_exchange_fragment"
-            android:name="com.android.email.activity.setup.AccountSetupExchangeFragment"
+            class="com.android.email.activity.setup.AccountSetupExchangeFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
