@@ -49,6 +49,11 @@ import android.os.Handler;
 public class Welcome extends Activity {
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
 
+    /**
+     * Extra for debugging.  Set 1 to force one-pane.  Set 2 to force two-pane.
+     */
+    private static final String EXTRA_DEBUG_PANE_MODE = "DEBUG_PANE_MODE";
+
     private AccountsUpdatedListener mAccountsUpdatedListener;
     private Handler mHandler = new Handler();
 
@@ -89,6 +94,23 @@ public class Welcome extends Activity {
         fromActivity.startActivity(createOpenAccountInboxIntent(fromActivity, accountId));
     }
 
+    /**
+     * Parse the {@link #EXTRA_DEBUG_PANE_MODE} extra and return 1 or 2, if it's set to "1" or "2".
+     * Return 0 otherwise.
+     */
+    private static int getDebugPaneMode(Intent i) {
+        Bundle extras = i.getExtras();
+        if (extras != null) {
+            String s = extras.getString(EXTRA_DEBUG_PANE_MODE);
+            if ("1".equals(s)) {
+                return 1;
+            } else if ("2".equals(s)) {
+                return 2;
+            }
+        }
+        return 0;
+    }
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -125,7 +147,8 @@ public class Welcome extends Activity {
         mAccountsUpdatedListener.onAccountsUpdated(null);
 
         final long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        new MainActivityLauncher(this, accountId).execute();
+        final int debugPaneMode = getDebugPaneMode(getIntent());
+        new MainActivityLauncher(this, accountId, debugPaneMode).execute();
     }
 
     @Override
@@ -157,11 +180,13 @@ public class Welcome extends Activity {
      */
     private static class MainActivityLauncher extends AsyncTask<Void, Void, Void> {
         private final Activity mFromActivity;
+        private final int mDebugPaneMode;
         private final long mAccountId;
 
-        public MainActivityLauncher(Activity fromActivity, long accountId) {
+        public MainActivityLauncher(Activity fromActivity, long accountId, int debugPaneMode) {
             mFromActivity = fromActivity;
             mAccountId = accountId;
+            mDebugPaneMode = debugPaneMode;
         }
 
         @Override
@@ -176,7 +201,10 @@ public class Welcome extends Activity {
                     accountId = EmailContent.Account.getDefaultAccountId(mFromActivity);
                 }
 
-                if (useTwoPane(mFromActivity)) {
+                final boolean useTwoPane = (mDebugPaneMode == 2)
+                        || (useTwoPane(mFromActivity) && mDebugPaneMode == 0);
+
+                if (useTwoPane) {
                     MessageListXL.actionStart(mFromActivity, accountId);
                 } else {
                     MessageList.actionHandleAccount(mFromActivity, accountId, Mailbox.TYPE_INBOX);

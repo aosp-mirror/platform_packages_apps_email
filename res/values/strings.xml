@@ -737,9 +737,5 @@
     <string name="summary_fix_all_bugs_preference" translatable="false">Cheaper than beer</string>
 
     <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
-    <string name="activity_label_2pane" translatable="false">Email 2 Pane</string>
-    <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
-    <string name="activity_label_1pane" translatable="false">Email 1 Pane</string>
-    <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
     <string name="menu_change_orientation" translatable="false">Change orientation</string>
 </resources>
