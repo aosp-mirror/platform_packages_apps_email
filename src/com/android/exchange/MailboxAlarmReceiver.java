@@ -34,7 +34,6 @@ public class MailboxAlarmReceiver extends BroadcastReceiver {
         if (mailboxId == SyncManager.SYNC_MANAGER_SERVICE_ID) {
             context.startService(new Intent(context, SyncManager.class));
         } else {
-            SyncManager.log("Alarm received for: " + SyncManager.alarmOwner(mailboxId));
             SyncManager.alert(context, mailboxId);
         }
     }
