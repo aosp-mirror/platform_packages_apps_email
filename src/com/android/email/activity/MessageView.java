@@ -188,9 +188,7 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
         // first move to older/newer before the actual delete
         long messageIdToDelete = mMessageId;
         boolean moved = moveToOlder() || moveToNewer();
-        getController().deleteMessage(messageIdToDelete, -1);
-        Utility.showToast(this,
-                getResources().getQuantityString(R.plurals.message_deleted_toast, 1));
+        ActivityHelper.deleteMessage(this, messageIdToDelete);
         if (!moved) {
             // this generates a benign warning "Duplicate finish request" because
             // MessageOrderManager detects that the current message is gone, and we finish() it
@@ -337,11 +335,6 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
 
     @Override
     public void onCalendarLinkClicked(long epochEventStartTime) {
-        Uri uri = Uri.parse("content://com.android.calendar/time/" + epochEventStartTime);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(uri);
-        intent.putExtra("VIEW", "DAY");
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        startActivity(intent);
+        ActivityHelper.openCalendar(this, epochEventStartTime);
     }
 }

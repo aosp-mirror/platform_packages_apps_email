@@ -61,8 +61,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Callback interface that owning activities must implement
      */
     public interface Callback {
-        /** @deprecated There'll be no context menu, so no refresh. */
-        public void onRefresh(long accountId, long mailboxId);
         public void onMailboxSelected(long accountId, long mailboxId);
     }
 
@@ -70,11 +68,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         public static final Callback INSTANCE = new EmptyCallback();
         @Override
         public void onMailboxSelected(long accountId, long mailboxId) {
-        }
-
-        /** @deprecated */
-        @Override
-        public void onRefresh(long accountId, long mailboxId) {
         }
     }
 

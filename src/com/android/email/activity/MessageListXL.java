@@ -101,6 +101,11 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         mMoveToOlderButton = findViewById(R.id.moveToOlder);
         mMoveToNewerButton.setOnClickListener(this);
         mMoveToOlderButton.setOnClickListener(this);
+        findViewById(R.id.delete).setOnClickListener(this);
+        findViewById(R.id.unread).setOnClickListener(this);
+        findViewById(R.id.reply).setOnClickListener(this);
+        findViewById(R.id.reply_all).setOnClickListener(this);
+        findViewById(R.id.forward).setOnClickListener(this);
 
         mAccountsSelectorAdapter = new AccountSelectorAdapter(mContext, null);
 
@@ -189,10 +194,19 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             // position.
             // TODO: FragmentTransaction *does* support backstack, but the behavior isn't too clear
             // at this point.
-            mFragmentManager.selectMailbox(mFragmentManager.getMailboxId(), false);
+            openMailbox();
         } else {
             // Perform the default behavior == close the activity.
             super.onBackPressed();
+        }
+    }
+
+    /**
+     * (Re-)open the current mailbox.  Used to go back to MessageList from MessageView.
+     */
+    private void openMailbox() {
+        if (mFragmentManager.isMailboxSelected()) {
+            mFragmentManager.selectMailbox(mFragmentManager.getMailboxId(), false);
         }
     }
 
@@ -205,7 +219,39 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             case R.id.moveToNewer:
                 moveToNewer();
                 break;
+            case R.id.delete:
+                onDeleteMessage();
+                break;
+            case R.id.unread:
+                onSetMessageUnread();
+                break;
+            case R.id.reply:
+                MessageCompose.actionReply(this, mFragmentManager.getMessageId(), false);
+                break;
+            case R.id.reply_all:
+                MessageCompose.actionReply(this, mFragmentManager.getMessageId(), true);
+                break;
+            case R.id.forward:
+                MessageCompose.actionForward(this, mFragmentManager.getMessageId());
+                break;
         }
+    }
+
+    private void onDeleteMessage() {
+        // the delete triggers mCursorObserver in MessageOrderManager.
+        // first move to older/newer before the actual delete
+        long messageIdToDelete = mFragmentManager.getMessageId();
+        if (!moveToOlder()) moveToNewer();
+        ActivityHelper.deleteMessage(this, messageIdToDelete);
+        // If this was the last message, moveToOlder/Newer didn't move the current position.
+        // MessageOrderManager detects the current message is gone, and we go back to the message
+        // list in onMessageNotFound().
+    }
+
+    private void onSetMessageUnread() {
+        MessageViewFragment f = mFragmentManager.getMessageViewFragment();
+        f.onMarkMessageAsRead(false);
+        openMailbox();
     }
 
     /**
@@ -233,7 +279,8 @@ public class MessageListXL extends Activity implements View.OnClickListener,
 
         @Override
         public void onMessageNotFound() {
-            // TODO Current message gone
+            // Current message gone.
+            openMailbox();
         }
     }
 
@@ -285,12 +332,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
 
     private class MailboxListFragmentCallback implements MailboxListFragment.Callback {
         @Override
-        public void onRefresh(long accountId, long mailboxId) {
-            // Will be removed.
-        }
-
-        // TODO Rename to onSelectMailbox
-        @Override
         public void onMailboxSelected(long accountId, long mailboxId) {
             mFragmentManager.selectMailbox(mailboxId, true);
         }
@@ -310,7 +351,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         }
 
         @Override
-        public void onMailboxNotFound() { // RENAME: NotExists? (see MessageViewFragment)
+        public void onMailboxNotFound() {
             // TODO: What to do??
         }
     }
@@ -318,47 +359,63 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private class MessageViewFragmentCallback implements MessageViewFragment.Callback {
         @Override
         public boolean onUrlInMessageClicked(String url) {
-            return false;
-        }
-
-        @Override
-        public void onRespondedToInvite(int response) {
+            return ActivityHelper.openUrlInMessage(MessageListXL.this, url,
+                    mFragmentManager.getAccountId());
         }
 
         @Override
         public void onMessageSetUnread() {
+            openMailbox();
         }
 
         @Override
         public void onMessageNotExists() {
+            openMailbox();
         }
 
         @Override
         public void onLoadMessageStarted() {
+            // We show indeterminate progress on one-pane.
+            // TODO Any nice UI for this?
         }
 
         @Override
         public void onLoadMessageFinished() {
+            // We hide indeterminate progress on one-pane.
+            // TODO Any nice UI for this?
         }
 
         @Override
         public void onLoadMessageError() {
+            // We hide indeterminate progress on one-pane.
+            // TODO Any nice UI for this?
         }
 
         @Override
         public void onFetchAttachmentStarted(String attachmentName) {
+            // TODO Will probably be deprecate, then remove.
         }
 
         @Override
         public void onFetchAttachmentFinished() {
+            // TODO Will probably be deprecate, then remove.
         }
 
         @Override
         public void onFetchAttachmentError() {
+            // TODO Will probably be deprecate, then remove.
+        }
+
+        @Override
+        public void onRespondedToInvite(int response) {
+            if (!moveToOlder()) {
+                openMailbox(); // if this is the last message, move up to message-list.
+            }
         }
 
         @Override
         public void onCalendarLinkClicked(long epochEventStartTime) {
+            ActivityHelper.openCalendar(MessageListXL.this, epochEventStartTime);
         }
     }
 

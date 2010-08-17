@@ -210,13 +210,6 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     }
 
     /**
-     * Implements MailboxFragment.Callback
-     */
-    public void onRefresh(long accountId, long mailboxId) {
-        onRefresh(mailboxId);
-    }
-
-    /**
      * Refresh the mailbox list, or a single mailbox
      * @param mailboxId -1 for all
      */

@@ -97,43 +97,12 @@ public abstract class MessageViewBase extends Activity implements MessageViewFra
      */
     protected abstract long getAccountId();
 
-    /**
-     * {@inheritDoc}
-     *
-     * This is intended to mirror the operation of the original
-     * (see android.webkit.CallbackProxy) with one addition of intent flags
-     * "FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET".  This improves behavior when sublaunching
-     * other apps via embedded URI's.
-     *
-     * We also use this hook to catch "mailto:" links and handle them locally.
-     */
     @Override
     public boolean onUrlInMessageClicked(String url) {
-        // hijack mailto: uri's and handle locally
-        if (url != null && url.toLowerCase().startsWith("mailto:")) {
-            // If it's showing an EML file, we pass -1 as the account id, and MessageCompose
-            // uses the default account.  If there's no accounts set up, MessageCompose will close
-            // itself.
-            long senderAccountId = getAccountId();
-
-            // TODO if MessageCompose implements the account selector, we'll be able to just pass -1
-            // as the account id.
-            return MessageCompose.actionCompose(MessageViewBase.this, url, senderAccountId);
-        }
-
-        // Handle most uri's via intent launch
-        boolean result = false;
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        intent.addCategory(Intent.CATEGORY_BROWSABLE);
-        intent.putExtra(Browser.EXTRA_APPLICATION_ID, getPackageName());
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        try {
-            startActivity(intent);
-            result = true;
-        } catch (ActivityNotFoundException ex) {
-            // No applications can handle it.  Ignore.
-        }
-        return result;
+        // If it's showing an EML file, we pass -1 as the account id, and MessageCompose
+        // uses the default account.  If there's no accounts set up, MessageCompose will close
+        // itself.
+        return ActivityHelper.openUrlInMessage(this, url, getAccountId());
     }
 
     @Override

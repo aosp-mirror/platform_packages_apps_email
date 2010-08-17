@@ -159,6 +159,18 @@ class MessageListXLFragmentManager {
         return getMessageId() != -1;
     }
 
+    public MailboxListFragment getMailboxListFragment() {
+        return mMailboxListFragment;
+    }
+
+    public MessageListFragment getMessageListFragment() {
+        return mMessageListFragment;
+    }
+
+    public MessageViewFragment getMessageViewFragment() {
+        return mMessageViewFragment;
+    }
+
     /**
      * Called from {@link MessageListXL#onStart()}.
      *
@@ -308,10 +320,10 @@ class MessageListXLFragmentManager {
      * {@link #selectAccount}.
      *
      * @param mailboxId ID of mailbox
-     * @param byUserAction set true if the user is explicitly opening the mailbox, in which case
-     *     we perform "auto-refresh".
+     * @param byExplicitUserAction set true if the user is explicitly opening the mailbox,
+     *     in which case we perform "auto-refresh".
      */
-    public void selectMailbox(long mailboxId, boolean byUserAction) {
+    public void selectMailbox(long mailboxId, boolean byExplicitUserAction) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "selectMailbox mMailboxId=" + mailboxId);
         }
@@ -329,7 +341,7 @@ class MessageListXLFragmentManager {
         // Update fragments.
         if (mMessageListFragment == null) {
             MessageListFragment f = new MessageListFragment();
-            if (byUserAction) {
+            if (byExplicitUserAction) {
                 f.doAutoRefresh();
             }
             mFragmentManager.openTransaction().replace(R.id.right_pane, f).commit();
@@ -340,7 +352,7 @@ class MessageListXLFragmentManager {
                 mTargetActivity.onMessageViewFragmentHidden(); // Don't forget to tell the activity.
             }
         } else {
-            if (byUserAction) {
+            if (byExplicitUserAction) {
                 mMessageListFragment.doAutoRefresh();
             }
             updateMessageListFragment(mMessageListFragment);
