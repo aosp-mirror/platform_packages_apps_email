@@ -208,6 +208,12 @@
 
     <!-- Appears at the bottom of list of messages; user selects to load more messages from that folder. -->
     <string name="message_list_load_more_messages_action">Load more messages</string>
+    <!--  The number of messages that are currently selected for various operations such as
+          "delete message(s)" [CHAR LIMIT=32] -->
+    <plurals name="message_view_selected_message_count">
+        <item quantity="one"  ><xliff:g id="message_count" example="1">%d</xliff:g> selected</item>
+        <item quantity="other"><xliff:g id="message_count" example="9">%d</xliff:g> selected</item>
+    </plurals>
     <!-- Hint text in To field -->
     <string name="message_compose_to_hint">To</string>
     <!-- Hint text in Cc field -->

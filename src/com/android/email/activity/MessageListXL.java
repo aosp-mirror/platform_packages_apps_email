@@ -298,11 +298,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
 
     private class MessageListFragmentCallback implements MessageListFragment.Callback {
         @Override
-        public void onSelectionChanged() {
-            // TODO Context mode
-        }
-
-        @Override
         public void onMessageOpen(long messageId, long messageMailboxId, long listMailboxId,
                 int type) {
             if (type == MessageListFragment.Callback.TYPE_DRAFT) {
