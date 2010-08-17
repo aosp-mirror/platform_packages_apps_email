@@ -786,7 +786,7 @@ public class MailService extends Service {
             while (c.moveToNext()) {
                 long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
                 String protocol = Account.getProtocol(context, accountId);
-                if ("pop3".equals(protocol) || "imap".equals(protocol)) {
+                if ((protocol != null) && ("pop3".equals(protocol) || "imap".equals(protocol))) {
                     Account account = Account.restoreAccountWithId(context, accountId);
                     if (account != null) {
                         providerAccounts.add(account);
