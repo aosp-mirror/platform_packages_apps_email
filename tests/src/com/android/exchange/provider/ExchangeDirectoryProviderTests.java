@@ -21,6 +21,7 @@ import com.android.exchange.provider.GalResult.GalData;
 
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.net.Uri;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
 import android.test.AndroidTestCase;
@@ -111,7 +112,8 @@ public class ExchangeDirectoryProviderTests extends AndroidTestCase {
         assertEquals(DISPLAY_NAME_TEST_FIELDS.length, c.getCount());
         for (int i = 0; i < EXPECTED_DISPLAY_NAMES.length; i++) {
             assertTrue(c.moveToNext());
-            PackedString ps = new PackedString(c.getString(GAL_RESULT_COLUMN_LOOKUP_KEY));
+            PackedString ps =
+                new PackedString(Uri.decode(c.getString(GAL_RESULT_COLUMN_LOOKUP_KEY)));
             String[] testFields = DISPLAY_NAME_TEST_FIELDS[i];
             assertEquals(testFields[TEST_FIELD_FIRST_NAME], ps.get(GalData.FIRST_NAME));
             assertEquals(testFields[TEST_FIELD_LAST_NAME], ps.get(GalData.LAST_NAME));
