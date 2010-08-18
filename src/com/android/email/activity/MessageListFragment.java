@@ -18,8 +18,8 @@ package com.android.email.activity;
 
 import com.android.email.Controller;
 import com.android.email.Email;
-import com.android.email.RefreshManager;
 import com.android.email.R;
+import com.android.email.RefreshManager;
 import com.android.email.Utility;
 import com.android.email.data.MailboxAccountLoader;
 import com.android.email.provider.EmailContent;
@@ -37,13 +37,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,7 +71,8 @@ import java.util.Set;
  * TODO Add "send all messages" button to outboxes
  */
 public class MessageListFragment extends ListFragment
-        implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback {
+        implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
+        OnClickListener {
 
     private static final int LOADER_ID_MAILBOX_LOADER = 1;
     private static final int LOADER_ID_MESSAGES_LOADER = 2;
@@ -79,6 +84,7 @@ public class MessageListFragment extends ListFragment
     private View mListFooterView;
     private TextView mListFooterText;
     private View mListFooterProgress;
+    private View mSendPanel;
 
     private static final int LIST_FOOTER_MODE_NONE = 0;
     private static final int LIST_FOOTER_MODE_MORE = 2;
@@ -158,6 +164,16 @@ public class MessageListFragment extends ListFragment
         mController = Controller.getInstance(mActivity);
         mRefreshManager = RefreshManager.getInstance(mActivity);
         mRefreshManager.registerListener(mRefreshListener);
+    }
+
+    @Override
+    public View onCreateView(
+            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Use a custom layout, which includes the original layout with "send messages" panel.
+        View root = inflater.inflate(R.layout.message_list_fragment,null);
+        mSendPanel = root.findViewById(R.id.send_panel);
+        ((Button) mSendPanel.findViewById(R.id.send_messages)).setOnClickListener(this);
+        return root;
     }
 
     @Override
@@ -300,19 +316,6 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
-     * @return true if it's an outbox. false otherwise, or the mailbox type is
-     *         unknown yet.
-     * @deprecated It's used by MessageList to see if we should show a progress
-     *             for sending messages. The logic here means we can't catch
-     *             callbacks while the mailbox type isn't figured out yet. That
-     *             show/hide progress logic isn't working in the way it should
-     *             in the first place, so fix it and remove this method.
-     */
-    public boolean isOutbox() {
-        return mMailbox == null ? false : (mMailbox.mType == Mailbox.TYPE_OUTBOX);
-    }
-
-    /**
      * @return the number of messages that are currently selecteed.
      */
     public int getSelectedCount() {
@@ -324,6 +327,15 @@ public class MessageListFragment extends ListFragment
      */
     private boolean isInSelectionMode() {
         return mSelectionMode != null;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.send_messages:
+                onSendPendingMessages();
+                break;
+        }
     }
 
     /**
@@ -423,12 +435,23 @@ public class MessageListFragment extends ListFragment
         }
     }
 
+    /**
+     * @return if it's an outbox or "all outboxes".
+     *
+     * TODO make it private.  It's only used by MessageList, but the callsite is obsolete.
+     */
+    public boolean isOutbox() {
+        return (getMailboxId() == Mailbox.QUERY_ALL_OUTBOX)
+            || ((mMailbox != null) && (mMailbox.mType == Mailbox.TYPE_OUTBOX));
+    }
+
     public void onSendPendingMessages() {
         RefreshManager rm = RefreshManager.getInstance(mActivity);
         if (getMailboxId() == Mailbox.QUERY_ALL_OUTBOX) {
-            rm.sendPendingMessagesForAllAccounts();
-        } else if (!isMagicMailbox()) { // Magic boxes don't have a specific account id.
-            rm.sendPendingMessages(getAccountId());
+            // rm.sendPendingMessagesForAllAccounts();
+            Utility.showToast(getActivity(), "STOPSHIP Not implemented");
+        } else if (mMailbox != null) { // Magic boxes don't have a specific account id.
+            rm.sendPendingMessages(mMailbox.mId);
         }
     }
 
@@ -707,10 +730,23 @@ public class MessageListFragment extends ListFragment
         }
     }
 
+    private void hideSendPanel() {
+        mSendPanel.setVisibility(View.GONE);
+    }
+
+    private void showSendPanelIfNecessary() {
+        final boolean show =
+                isOutbox()
+                && (mListAdapter != null)
+                && (mListAdapter.getCount() > 0);
+        mSendPanel.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
     private void startLoading() {
         // Clear the list. (ListFragment will show the "Loading" animation)
         setListAdapter(null);
         setListShown(false);
+        hideSendPanel();
 
         // Start loading...
         final LoaderManager lm = getLoaderManager();
@@ -804,6 +840,7 @@ public class MessageListFragment extends ListFragment
             autoRefreshStaleMailbox();
             addFooterView();
             updateSelectionMode();
+            showSendPanelIfNecessary();
         }
     }
 
