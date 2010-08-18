@@ -582,8 +582,13 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private void onRefresh() {
         // Temporary implementation
         if (mFragmentManager.isMailboxSelected()) {
-            mRefreshManager.refreshMessageList(mFragmentManager.getAccountId(),
-                    mFragmentManager.getMailboxId());
+            long mailboxId = mFragmentManager.getMailboxId();
+            // TODO This class here shouldn't really know what can be refreshable.
+            // (The test below is only to prevent a crash... It's not enough.  e.g. no refresh
+            // for outboxes.)
+            if (mailboxId >= 0) {
+                mRefreshManager.refreshMessageList(mFragmentManager.getAccountId(), mailboxId);
+            }
         }
 
         // TODO implement this
