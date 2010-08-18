@@ -35,6 +35,10 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -94,17 +98,17 @@ public class MessageListFragment extends ListFragment
     private boolean mResumed;
 
     /**
+     * {@link ActionMode} shown when 1 or more message is selected.
+     */
+    private ActionMode mSelectionMode;
+
+    /**
      * Callback interface that owning activities must implement
      */
     public interface Callback {
         public static final int TYPE_REGULAR = 0;
         public static final int TYPE_DRAFT = 1;
         public static final int TYPE_TRASH = 2;
-
-        /**
-         * Called when selected messages have been changed.
-         */
-        public void onSelectionChanged();
 
         /**
          * Called when the specified mailbox does not exist.
@@ -132,9 +136,6 @@ public class MessageListFragment extends ListFragment
 
         @Override
         public void onMailboxNotFound() {
-        }
-        @Override
-        public void onSelectionChanged() {
         }
         @Override
         public void onMessageOpen(
@@ -258,6 +259,7 @@ public class MessageListFragment extends ListFragment
 
         mMailboxId = mailboxId;
 
+        onDeselectAll();
         if (mResumed) {
             startLoading();
         }
@@ -314,7 +316,7 @@ public class MessageListFragment extends ListFragment
      * @return true if the list is in the "selection" mode.
      */
     private boolean isInSelectionMode() {
-        return getSelectedCount() > 0;
+        return mSelectionMode != null;
     }
 
     /**
@@ -396,9 +398,12 @@ public class MessageListFragment extends ListFragment
     }
 
     public void onDeselectAll() {
+        if ((mListAdapter == null) || (mListAdapter.getSelectedSet().size() == 0)) {
+            return;
+        }
         mListAdapter.getSelectedSet().clear();
         getListView().invalidateViews();
-        mCallback.onSelectionChanged();
+        finishSelectionMode();
     }
 
     /**
@@ -482,7 +487,6 @@ public class MessageListFragment extends ListFragment
         Toast.makeText(mActivity, mActivity.getResources().getQuantityString(
                 R.plurals.message_deleted_toast, cloneSet.size()), Toast.LENGTH_SHORT).show();
         selectedSet.clear();
-        mCallback.onSelectionChanged();
     }
 
     private interface MultiToggleHelper {
@@ -642,7 +646,7 @@ public class MessageListFragment extends ListFragment
     @Override
     public void onAdapterSelectedChanged(
             MessageListItem itemView, boolean newSelected, int mSelectedCount) {
-        mCallback.onSelectionChanged();
+        updateSelectionMode();
     }
 
     private void determineFooterMode() {
@@ -798,6 +802,7 @@ public class MessageListFragment extends ListFragment
             // (resetNewMessageCount should be here. See above.)
             autoRefreshStaleMailbox();
             addFooterView();
+            updateSelectionMode();
         }
     }
 
@@ -816,6 +821,97 @@ public class MessageListFragment extends ListFragment
             MailService.resetNewMessageCount(context, -1);
         } else if (mailboxId >= 0 && accountId != -1) {
             MailService.resetNewMessageCount(context, accountId);
+        }
+    }
+
+    /**
+     * Show/hide the "selection" action mode, according to the number of selected messages,
+     * and update the content (title and menus) if necessary.
+     */
+    public void updateSelectionMode() {
+        final int numSelected = getSelectedCount();
+        if (numSelected == 0) {
+            finishSelectionMode();
+            return;
+        }
+        if (isInSelectionMode()) {
+            updateSelectionModeView();
+        } else {
+            getActivity().startActionMode(new SelectionModeCallback());
+        }
+    }
+
+    /** Finish the "selection" action mode */
+    private void finishSelectionMode() {
+        if (isInSelectionMode()) {
+            mSelectionMode.finish();
+            mSelectionMode = null;
+        }
+    }
+
+    /** Update the "selection" action mode bar */
+    private void updateSelectionModeView() {
+        mSelectionMode.invalidate();
+    }
+
+    private class SelectionModeCallback implements ActionMode.Callback {
+        private MenuItem mMarkRead;
+        private MenuItem mMarkUnread;
+        private MenuItem mAddStar;
+        private MenuItem mRemoveStar;
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            mSelectionMode = mode;
+
+            MenuInflater inflater = getActivity().getMenuInflater();
+            inflater.inflate(R.menu.message_list_selection_mode, menu);
+            mMarkRead = menu.findItem(R.id.mark_read);
+            mMarkUnread = menu.findItem(R.id.mark_unread);
+            mAddStar = menu.findItem(R.id.add_star);
+            mRemoveStar = menu.findItem(R.id.remove_star);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            int num = getSelectedCount();
+            // Set title -- "# selected"
+            mSelectionMode.setTitle(getActivity().getResources().getQuantityString(
+                    R.plurals.message_view_selected_message_count, num, num));
+
+            // Show appropriate menu items.
+            boolean nonStarExists = doesSelectionContainNonStarredMessage();
+            boolean readExists = doesSelectionContainReadMessage();
+            mMarkRead.setVisible(!readExists);
+            mMarkUnread.setVisible(readExists);
+            mAddStar.setVisible(nonStarExists);
+            mRemoveStar.setVisible(!nonStarExists);
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.mark_read:
+                case R.id.mark_unread:
+                    onMultiToggleRead();
+                    break;
+                case R.id.add_star:
+                case R.id.remove_star:
+                    onMultiToggleFavorite();
+                    break;
+                case R.id.delete:
+                    onMultiDelete();
+                    break;
+            }
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            onDeselectAll();
+            mSelectionMode = null;
         }
     }
 }

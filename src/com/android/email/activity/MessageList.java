@@ -387,11 +387,17 @@ public class MessageList extends Activity implements OnClickListener,
     /**
      * Show multi-selection panel, if one or more messages are selected.   Button labels will be
      * updated too.
+     *
+     * @deprecated not used any longer.  remove them.
      */
     public void onSelectionChanged() {
         showMultiPanel(mListFragment.getSelectedCount() > 0);
     }
 
+    /**
+     * @deprecated not used any longer.  remove them.  (with associated resources, strings,
+     * members, etc)
+     */
     private void updateFooterButtonNames () {
         // Show "unread_action" when one or more read messages are selected.
         if (mListFragment.doesSelectionContainReadMessage()) {
@@ -409,6 +415,8 @@ public class MessageList extends Activity implements OnClickListener,
 
     /**
      * Show or hide the panel of multi-select options
+     *
+     * @deprecated not used any longer.  remove them.
      */
     private void showMultiPanel(boolean show) {
         if (show && mMultiSelectPanel.getVisibility() != View.VISIBLE) {
