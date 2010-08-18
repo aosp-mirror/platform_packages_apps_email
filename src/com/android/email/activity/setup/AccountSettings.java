@@ -23,14 +23,13 @@ import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
-import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 
 /**
  * TODO: This implements preferences for a single account.  We need to move this to the
@@ -39,7 +38,8 @@ import android.view.KeyEvent;
  *
  * TODO: Move all "Restore" ops & other queries out of lifecycle methods and out of UI thread
  */
-public class AccountSettings extends Activity implements AccountSettingsFragment.Callback {
+public class AccountSettings extends Activity
+        implements AccountSettingsFragment.Callback, AccountSettingsFragment.OnAttachListener {
     // NOTE: This string must match the one in res/xml/account_preferences.xml
     private static final String ACTION_ACCOUNT_MANAGER_ENTRY =
         "com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY";
@@ -53,7 +53,6 @@ public class AccountSettings extends Activity implements AccountSettingsFragment
 
     // Account data values
     private long mAccountId = -1;
-    private Account mAccount;
 
     /**
      * Display (and edit) settings for a specific account
@@ -83,25 +82,12 @@ public class AccountSettings extends Activity implements AccountSettingsFragment
             return;
         }
 
-        mAccount = Account.restoreAccountWithId(this, mAccountId);
-        // Similarly, if the account has been deleted
-        if (mAccount == null) {
-            finish();
-            return;
-        }
-        mAccount.mHostAuthRecv = HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeyRecv);
-        mAccount.mHostAuthSend = HostAuth.restoreHostAuthWithId(this, mAccount.mHostAuthKeySend);
-        // Or if HostAuth's have been deleted
-        if (mAccount.mHostAuthRecv == null || mAccount.mHostAuthSend == null) {
-            finish();
-            return;
-        }
-
         // Now set up the UI and the fragment
         setContentView(R.layout.account_settings);
-        mFragment = (AccountSettingsFragment) findFragmentById(R.id.settings_fragment);
+        mFragment = (AccountSettingsFragment)
+                getFragmentManager().findFragmentById(R.id.settings_fragment);
         mFragment.setCallback(this);
-        mFragment.setAccount(mAccount);
+        mFragment.startLoadingAccount(mAccountId);
     }
 
     private void setAccountIdFromAccountManagerIntent() {
@@ -134,27 +120,19 @@ public class AccountSettings extends Activity implements AccountSettingsFragment
         }
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            mFragment.saveSettings();
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
     /**
      * Implements AccountSettingsFragment.Callback
      */
     @Override
-    public void onIncomingSettings() {
+    public void onIncomingSettings(Account account) {
         try {
-            Store store = Store.getInstance(mAccount.getStoreUri(this), getApplication(), null);
+            Store store = Store.getInstance(account.getStoreUri(this), getApplication(), null);
             if (store != null) {
                 Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
                 if (setting != null) {
                     java.lang.reflect.Method m = setting.getMethod("actionEditIncomingSettings",
                             Activity.class, int.class, Account.class);
-                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, mAccount);
+                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, account);
                 }
             }
         } catch (Exception e) {
@@ -166,15 +144,15 @@ public class AccountSettings extends Activity implements AccountSettingsFragment
      * Implements AccountSettingsFragment.Callback
      */
     @Override
-    public void onOutgoingSettings() {
+    public void onOutgoingSettings(Account account) {
         try {
-            Sender sender = Sender.getInstance(getApplication(), mAccount.getSenderUri(this));
+            Sender sender = Sender.getInstance(getApplication(), account.getSenderUri(this));
             if (sender != null) {
                 Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
                 if (setting != null) {
                     java.lang.reflect.Method m = setting.getMethod("actionEditOutgoingSettings",
                             Activity.class, int.class, Account.class);
-                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, mAccount);
+                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, account);
                 }
             }
         } catch (Exception e) {
@@ -188,5 +166,13 @@ public class AccountSettings extends Activity implements AccountSettingsFragment
     @Override
     public void abandonEdit() {
         finish();
+    }
+
+    /**
+     * Implements AccountSettingsFragment.OnAttachListener
+     * Does nothing (this activity sets up the fragment in onCreate via its layout)
+     */
+    @Override
+    public void onAttach(Fragment f) {
     }
 }

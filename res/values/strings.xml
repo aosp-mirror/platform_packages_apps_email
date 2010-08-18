@@ -726,6 +726,16 @@
     <string name="gal_completed_limited_fmt">First <xliff:g id="results" example="20">%1$d</xliff:g>
         results from <xliff:g id="domain">%2$s</xliff:g></string>
 
+    <!-- General Preferences Screen -->
+    <!-- Label in preferences header to describe general preferences -->
+    <string name="header_label_general_preferences">Email Preferences</string>
+    <!-- First category in general preferences -->
+    <string name="category_general_preferences">Application Preferences</string>
+    <!-- STOPSHIP remove this fake preference -->
+    <string name="title_fix_all_bugs_preference" translatable="false">Fix All Bugs</string>
+    <!-- STOPSHIP remove this fake preference -->
+    <string name="summary_fix_all_bugs_preference" translatable="false">Cheaper than beer</string>
+
     <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
     <string name="activity_label_2pane" translatable="false">Email 2 Pane</string>
     <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->

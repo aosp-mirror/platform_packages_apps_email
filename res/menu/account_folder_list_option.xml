@@ -31,6 +31,11 @@
         android:title="@string/add_account_action"
         android:icon="@android:drawable/ic_menu_add"
     />
+    <item android:id="@+id/account_settings"
+        android:title="@string/account_settings_action"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:showAsAction="ifRoom"
+    />
     <!--
     <item android:id="@+id/search"
         android:title="@string/search_action" />

@@ -133,6 +133,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <!-- STOPSHIP - AccountSettingsXL is a parallel implementation and eventually
+             it simply replaces activity.setup.AccountSettings -->
+        <activity
+            android:name=".activity.setup.AccountSettingsXL"
+            android:label="@string/account_settings_action"
+            >
+        </activity>
         <activity
             android:name=".activity.setup.AccountSecurity"
             android.label="@string/account_security_title"

@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
@@ -25,9 +26,11 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -45,10 +48,16 @@ import android.util.Log;
  * fragments for server settings.
  *
  * TODO: Move all "Restore" ops & other queries out of lifecycle methods and out of UI thread
+ * TODO: Can we defer calling addPreferencesFromResource() until after we load the account?  This
+ *       could reduce flicker.
  *
  * STOPSHIP: Remove fragment lifecycle logging
  */
 public class AccountSettingsFragment extends PreferenceFragment {
+
+    // Keys used for arguments bundle
+    private static final String BUNDLE_KEY_ACCOUNT_ID = "AccountSettingsFragment.AccountId";
+
     private static final String PREFERENCE_TOP_CATEGORY = "account_settings";
     private static final String PREFERENCE_DESCRIPTION = "account_description";
     private static final String PREFERENCE_NAME = "account_name";
@@ -87,21 +96,56 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private Callback mCallback = EmptyCallback.INSTANCE;
     private boolean mStarted;
     private boolean mLoaded;
+    private boolean mSaveOnExit;
+
+    // Async Tasks
+    private AsyncTask<?,?,?> mLoadAccountTask;
 
     /**
-     * Callback interface that owning activities must implement
+     * Callback interface that owning activities must provide
      */
     public interface Callback {
-        public void onIncomingSettings();
-        public void onOutgoingSettings();
+        public void onIncomingSettings(Account account);
+        public void onOutgoingSettings(Account account);
         public void abandonEdit();
     }
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onIncomingSettings() { }
-        @Override public void onOutgoingSettings() { }
+        @Override public void onIncomingSettings(Account account) { }
+        @Override public void onOutgoingSettings(Account account) { }
         @Override public void abandonEdit() { }
+    }
+
+    /**
+     * Callback interface that owning activities must implement
+     */
+    public interface OnAttachListener {
+        public void onAttach(Fragment f);
+    }
+
+    /**
+     * If launching with an arguments bundle, use this method to build the arguments.
+     * @param accountId The account being modified
+     */
+    public static Bundle buildArguments(long accountId) {
+        Bundle b = new Bundle();
+        b.putLong(BUNDLE_KEY_ACCOUNT_ID, accountId);
+        return b;
+    }
+
+    /**
+     * Called when a fragment is first attached to its activity.
+     * {@link #onCreate(Bundle)} will be called after this.
+     */
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        mContext = activity;
+
+        // Notify the activity that we're here.  Single-pane preference activities ignore this;
+        // multi-pane settings uses this as a trigger to attach the account info
+        ((OnAttachListener)activity).onAttach(this);
     }
 
     /**
@@ -117,6 +161,16 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.account_settings_preferences);
+
+        // Start loading the account data, if provided in the arguments
+        // If not, activity must call startLoadingAccount() directly
+        Bundle b = getArguments();
+        if (b != null) {
+            long accountId = b.getLong(BUNDLE_KEY_ACCOUNT_ID, -1);
+            if (accountId >= 0 && !mLoaded) {
+                startLoadingAccount(accountId);
+            }
+        }
     }
 
     @Override
@@ -139,6 +193,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
         }
         super.onStart();
         mStarted = true;
+
+        // If the loaded account is ready now, load the UI
         if (mAccount != null && !mLoaded) {
             loadSettings();
         }
@@ -167,6 +223,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
             Account refreshedAccount = Account.restoreAccountWithId(mContext, mAccount.mId);
             if (refreshedAccount == null || mAccount.mHostAuthRecv == null
                     || mAccount.mHostAuthSend == null) {
+                mSaveOnExit = false;
                 mCallback.abandonEdit();
                 return;
             }
@@ -204,6 +261,15 @@ public class AccountSettingsFragment extends PreferenceFragment {
             Log.d(Email.LOG_TAG, "MailboxListFragment onDestroy");
         }
         super.onDestroy();
+
+        Utility.cancelTaskInterrupt(mLoadAccountTask);
+        mLoadAccountTask = null;
+
+        // If there is good account data and we have not abandoned it, save it now
+        if (mSaveOnExit) {
+            saveSettings();
+            mSaveOnExit = false;
+        }
     }
 
     @Override
@@ -222,18 +288,46 @@ public class AccountSettingsFragment extends PreferenceFragment {
     }
 
     /**
-     * Set the account, and start loading if ready to.  Note, this is a one-shot, because
-     * once we mutate the preferences UX to match the account provided, we cannot re-mute
-     * it (the fragment must be replaced.)
+     * Start loading a single account in preparation for editing it
      */
-    public void setAccount(Account account) {
-        if (mAccount != null) {
-            throw new IllegalStateException();
+    public void startLoadingAccount(long accountId) {
+        Utility.cancelTaskInterrupt(mLoadAccountTask);
+        mLoadAccountTask = new LoadAccountTask().execute(accountId);
+    }
+
+    /**
+     * Async task to load account in order to view/edit it
+     */
+    private class LoadAccountTask extends AsyncTask<Long, Void, Account> {
+        @Override
+        protected Account doInBackground(Long... params) {
+            long accountId = params[0];
+            Account account = Account.restoreAccountWithId(mContext, accountId);
+            if (account != null) {
+                account.mHostAuthRecv =
+                    HostAuth.restoreHostAuthWithId(mContext, account.mHostAuthKeyRecv);
+                account.mHostAuthSend =
+                    HostAuth.restoreHostAuthWithId(mContext, account.mHostAuthKeySend);
+                if (account.mHostAuthRecv == null || account.mHostAuthSend == null) {
+                    account = null;
+                }
+            }
+            return account;
         }
-        mAccount = account;
-        mContext = getActivity();
-        if (mStarted && !mLoaded) {
-            loadSettings();
+
+        @Override
+        protected void onPostExecute(Account account) {
+            if (!isCancelled()) {
+                if (account == null) {
+                    mSaveOnExit = false;
+                    mCallback.abandonEdit();
+                } else {
+                    mAccount = account;
+                    if (mStarted && !mLoaded) {
+                        loadSettings();
+                    }
+                }
+            }
         }
     }
 
@@ -243,6 +337,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private void loadSettings() {
         // We can only do this once, so prevent repeat
         mLoaded = true;
+        // Once loaded the data is ready to be saved, as well
+        mSaveOnExit = true;
 
         PreferenceCategory topCategory =
             (PreferenceCategory) findPreference(PREFERENCE_TOP_CATEGORY);
@@ -360,7 +456,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                 new Preference.OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         mAccountDirty = true;
-                        mCallback.onIncomingSettings();
+                        mCallback.onIncomingSettings(mAccount);
                         return true;
                     }
                 });
@@ -382,7 +478,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     new Preference.OnPreferenceClickListener() {
                         public boolean onPreferenceClick(Preference preference) {
                             mAccountDirty = true;
-                            mCallback.onOutgoingSettings();
+                            mCallback.onOutgoingSettings(mAccount);
                             return true;
                         }
                     });
@@ -409,6 +505,10 @@ public class AccountSettingsFragment extends PreferenceFragment {
         }
     }
 
+    /*
+     * TODO: Should collect the data in the UI thread, but should spin out a thread to write
+     * to sync settings, provider, and service enabler.
+     */
     public void saveSettings() {
         int newFlags = mAccount.getFlags() &
                 ~(Account.FLAGS_NOTIFY_NEW_MAIL |

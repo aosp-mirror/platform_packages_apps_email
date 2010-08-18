@@ -21,6 +21,7 @@ import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSettings;
+import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
@@ -138,7 +139,12 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
 
     /* Implements AccountFolderListFragment.Callback */
     public void onEditAccount(long accountId) {
-        AccountSettings.actionSettings(this, accountId);
+        // STOPSHIP - retaining entry point to "old" settings until "new" settings is working
+        if (accountId >= 0) {
+            AccountSettings.actionSettings(this, accountId);
+        } else {
+            AccountSettingsXL.actionSettings(this, -1);
+        }
     }
 
     /* Implements AccountFolderListFragment.Callback */
@@ -254,6 +260,9 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
                 break;
             case R.id.compose:
                 onCompose(-1);
+                break;
+            case R.id.account_settings:
+                onEditAccount(-1);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
