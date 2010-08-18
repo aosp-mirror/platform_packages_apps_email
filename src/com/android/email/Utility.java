@@ -56,6 +56,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -66,6 +67,7 @@ public class Utility {
     public static final Charset ASCII = Charset.forName("US-ASCII");
 
     public static final String[] EMPTY_STRINGS = new String[0];
+    public static final Long[] EMPTY_LONGS = new Long[0];
 
     // "GMT" + "+" or "-" + 4 digits
     private static final Pattern DATE_CLEANUP_PATTERN_WRONG_TIMEZONE =
@@ -854,5 +856,52 @@ public class Utility {
                 (activity.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
                 ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
+    /**
+     * Class that supports running any operation for each account.
+     */
+    public abstract static class ForEachAccount extends AsyncTask<Void, Void, Long[]> {
+        private final Context mContext;
+
+        public ForEachAccount(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        protected final Long[] doInBackground(Void... params) {
+            ArrayList<Long> ids = new ArrayList<Long>();
+            Cursor c = mContext.getContentResolver().query(EmailContent.Account.CONTENT_URI,
+                    EmailContent.Account.ID_PROJECTION, null, null, null);
+            try {
+                while (c.moveToNext()) {
+                    ids.add(c.getLong(EmailContent.Account.ID_PROJECTION_COLUMN));
+                }
+            } finally {
+                c.close();
+            }
+            return ids.toArray(EMPTY_LONGS);
+        }
+
+        @Override
+        protected final void onPostExecute(Long[] ids) {
+            if (ids != null && !isCancelled()) {
+                for (long id : ids) {
+                    performAction(id);
+                }
+            }
+            onFinished();
+        }
+
+        /**
+         * This method will be called for each account.
+         */
+        protected abstract void performAction(long accountId);
+
+        /**
+         * Called when the iteration is finished.
+         */
+        protected void onFinished() {
+        }
     }
 }

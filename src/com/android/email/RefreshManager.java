@@ -244,30 +244,20 @@ public class RefreshManager {
 
     /**
      * Call {@link #sendPendingMessages} for all accounts.
-     *
-     * FIXME: This will end up calling callbacks in a worker thread.
      */
     public void sendPendingMessagesForAllAccounts() {
         Log.i(Email.LOG_TAG, "sendPendingMessagesForAllAccounts");
-        Utility.runAsync(new Runnable() {
-            public void run() {
-                sendPendingMessagesForAllAccountsSync();
-            }
-        });
+        new SendPendingMessagesForAllAccountsImpl().execute();
     }
 
-    /**
-     * Synced internal method for {@link #sendPendingMessagesForAllAccounts} for testing.
-     */
-    /* package */ void sendPendingMessagesForAllAccountsSync() {
-        Cursor c = mContext.getContentResolver().query(EmailContent.Account.CONTENT_URI,
-                EmailContent.Account.ID_PROJECTION, null, null, null);
-        try {
-            while (c.moveToNext()) {
-                sendPendingMessages(c.getLong(EmailContent.Account.ID_PROJECTION_COLUMN));
-            }
-        } finally {
-            c.close();
+    private class SendPendingMessagesForAllAccountsImpl extends Utility.ForEachAccount {
+        public SendPendingMessagesForAllAccountsImpl() {
+            super(mContext);
+        }
+
+        @Override
+        protected void performAction(long accountId) {
+            sendPendingMessages(accountId);
         }
     }
 

@@ -22,19 +22,21 @@ import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
-import android.test.AndroidTestCase;
-import android.test.MoreAsserts;
+import android.test.InstrumentationTestCase;
+import android.test.suitebuilder.annotation.LargeTest;
 import android.util.Log;
-
-import java.util.ArrayList;
 
 import junit.framework.Assert;
 
-public class RefreshManagerTest extends AndroidTestCase {
+@LargeTest
+public class RefreshManagerTest extends InstrumentationTestCase {
+    private static final int WAIT_UNTIL_TIMEOUT_SECONDS = 15;
     private MockClock mClock;
     private MockController mController;
     private RefreshManager mTarget;
     private RefreshListener mListener;
+
+    private Context mContext;
 
     // Isolated Context for providers.
     private Context mProviderContext;
@@ -52,7 +54,8 @@ public class RefreshManagerTest extends AndroidTestCase {
         super.setUp();
 
         mClock = new MockClock();
-        mController = new MockController(getContext());
+        mContext = getInstrumentation().getTargetContext();
+        mController = new MockController(mContext);
         mListener = new RefreshListener();
         mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
                 mContext, EmailProvider.class);
@@ -435,23 +438,41 @@ public class RefreshManagerTest extends AndroidTestCase {
         assertFalse(mTarget.isSendingAnyMessage());
     }
 
-    public void testSendPendingMessagesForAllAccounts() {
+    public void testSendPendingMessagesForAllAccounts() throws Throwable {
         Account acct1 = ProviderTestUtils.setupAccount("acct1", true, mProviderContext);
         Account acct2 = ProviderTestUtils.setupAccount("acct2", true, mProviderContext);
 
-        mTarget.sendPendingMessagesForAllAccountsSync();
-        assertTrue(mController.mCalledSendPendingMessages);
+        // AsyncTask needs to be created on the UI thread.
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTarget.sendPendingMessagesForAllAccounts();
+            }
+        });
 
-        MoreAsserts.assertEquals(new Long[] {acct1.mId, acct2.mId}, mListener.getAccountIds());
+        // sendPendingMessagesForAllAccounts uses Utility.ForEachAccount, which has it's own test,
+        // so we don't really have to check everything.
+        // Here, we just check if sendPendingMessages() has been called at least for once,
+        // which is a enough check.
+        TestUtils.waitUntil(new TestUtils.Condition() {
+            @Override
+            public boolean isMet() {
+                // The write to this is done on the UI thread, but we're checking it here
+                // on the test thread, so mCalledSendPendingMessages needs to be volatile.
+                return mController.mCalledSendPendingMessages;
+            }
+        }, WAIT_UNTIL_TIMEOUT_SECONDS);
     }
 
+    // volatile is necessary for testSendPendingMessagesForAllAccounts().
+    // (Not all of them are actually necessary, but added for consistency.)
     private static class MockController extends Controller {
-        public long mAccountId = -1;
-        public long mMailboxId = -1;
-        public boolean mCalledSendPendingMessages;
-        public boolean mCalledUpdateMailbox;
-        public boolean mCalledUpdateMailboxList;
-        public Result mListener;
+        public volatile long mAccountId = -1;
+        public volatile long mMailboxId = -1;
+        public volatile boolean mCalledSendPendingMessages;
+        public volatile boolean mCalledUpdateMailbox;
+        public volatile boolean mCalledUpdateMailboxList;
+        public volatile Result mListener;
 
         protected MockController(Context context) {
             super(context);
@@ -497,13 +518,11 @@ public class RefreshManagerTest extends AndroidTestCase {
         public String mMessage;
         public boolean mCalledOnConnectionError;
         public boolean mCalledOnRefreshStatusChanged;
-        private final ArrayList<Long> mAccountIds = new ArrayList<Long>();
 
         public void reset() {
             mAccountId = -1;
             mMailboxId = -1;
             mMessage = null;
-            mAccountIds.clear();
             mCalledOnConnectionError = false;
             mCalledOnRefreshStatusChanged = false;
         }
@@ -512,7 +531,6 @@ public class RefreshManagerTest extends AndroidTestCase {
         public void onRefreshStatusChanged(long accountId, long mailboxId) {
             mAccountId = accountId;
             mMailboxId = mailboxId;
-            mAccountIds.add(mAccountId);
             mCalledOnRefreshStatusChanged = true;
         }
 
@@ -521,12 +539,7 @@ public class RefreshManagerTest extends AndroidTestCase {
             mAccountId = accountId;
             mMailboxId = mailboxId;
             mMessage = message;
-            mAccountIds.add(mAccountId);
             mCalledOnConnectionError = true;
-        }
-
-        public Long[] getAccountIds() {
-            return mAccountIds.toArray(new Long[0]);
         }
     }
 }
