@@ -32,11 +32,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 /**
- * TODO: This implements preferences for a single account.  We need to move this to the
- * newer "header" oriented preferences UI for proper XL operation;  The open question is the
- * desired phone UX behavior.
- *
- * TODO: Move all "Restore" ops & other queries out of lifecycle methods and out of UI thread
+ * TODO: At this point this is used only to support the Account Manager, and needs to be removed.
  */
 public class AccountSettings extends Activity
         implements AccountSettingsFragment.Callback, AccountSettingsFragment.OnAttachListener {

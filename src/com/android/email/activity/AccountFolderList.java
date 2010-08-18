@@ -20,7 +20,6 @@ import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.activity.setup.AccountSettings;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.mail.MessagingException;
@@ -139,12 +138,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
 
     /* Implements AccountFolderListFragment.Callback */
     public void onEditAccount(long accountId) {
-        // STOPSHIP - retaining entry point to "old" settings until "new" settings is working
-        if (accountId >= 0) {
-            AccountSettings.actionSettings(this, accountId);
-        } else {
-            AccountSettingsXL.actionSettings(this, -1);
-        }
+        AccountSettingsXL.actionSettings(this, -1);
     }
 
     /* Implements AccountFolderListFragment.Callback */

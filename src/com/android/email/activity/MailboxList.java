@@ -21,7 +21,7 @@ import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.activity.setup.AccountSettings;
+import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
@@ -222,7 +222,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     }
 
     private void onEditAccount() {
-        AccountSettings.actionSettings(this, mAccountId);
+        AccountSettingsXL.actionSettings(this, mAccountId);
     }
 
     private void onOpenMailbox(long mailboxId) {

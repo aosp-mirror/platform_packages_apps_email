@@ -416,29 +416,5 @@
         </provider>
         <!--EXCHANGE-REMOVE-SECTION-END-->
 
-        <!--
-            STOPSHIP: These aliases are only for development.  Remove them.
-        -->
-        <activity-alias
-            android:name="dev_one_pane"
-            android:label="@string/activity_label_1pane"
-            android:targetActivity=".activity.AccountFolderList"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-        <activity-alias
-            android:name="dev_two_pane"
-            android:label="@string/activity_label_2pane"
-            android:targetActivity=".activity.MessageListXL"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-
     </application>
 </manifest>

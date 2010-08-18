@@ -17,10 +17,10 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
-import com.android.email.RefreshManager;
 import com.android.email.R;
+import com.android.email.RefreshManager;
 import com.android.email.Utility;
-import com.android.email.activity.setup.AccountSettings;
+import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.activity.setup.AccountSetupBasics;
 
 import android.app.ActionBar;
@@ -567,10 +567,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     }
 
     private boolean onAccountSettings() {
-        if (!mFragmentManager.isAccountSelected()) {
-            return false; // this shouldn't really happen
-        }
-        AccountSettings.actionSettings(this, mFragmentManager.getAccountId());
+        AccountSettingsXL.actionSettings(this, mFragmentManager.getAccountId());
         return true;
     }
 

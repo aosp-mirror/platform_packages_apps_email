@@ -39,16 +39,21 @@ import java.util.List;
 /**
  * Handles account preferences using multi-pane arrangement when possible.
  *
+ * TODO: Go directly to specific account when requested - post runnable after onBuildHeaders
  * TODO: Incorporate entry point & other stuff to support launch from AccountManager
  * TODO: In Account settings in Phone UI, change title
  * TODO: Action bar?  Need to work out the handling of next/back type buttons
+ * TODO: Rework all remaining calls to DB from UI thread
+ * TODO: Handle dynamic changes to the account list (exit if necessary)
+ * TODO: Add account
+ * TODO: Delete account
  */
 public class AccountSettingsXL extends PreferenceActivity
         implements AccountSettingsFragment.OnAttachListener {
 
     private static final String EXTRA_ACCOUNT_ID = "AccountSettingsXL.account_id";
 
-    private long mAccountId;
+    private long mRequestedAccountId;
     private Header[] mAccountListHeaders;
     private Header mAppPreferencesHeader;
     private int mCurrentHeaderPosition;
@@ -79,7 +84,7 @@ public class AccountSettingsXL extends PreferenceActivity
         super.onCreate(savedInstanceState);
 
         Intent i = getIntent();
-        mAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        mRequestedAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
     }
 
     @Override

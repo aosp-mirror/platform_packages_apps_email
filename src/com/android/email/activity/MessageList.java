@@ -22,7 +22,7 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSecurity;
-import com.android.email.activity.setup.AccountSettings;
+import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -377,9 +377,7 @@ public class MessageList extends Activity implements OnClickListener,
     }
 
     private void onEditAccount() {
-        if (!mListFragment.isMagicMailbox()) { // Magic boxes don't have "accout settings" option.
-            AccountSettings.actionSettings(this, mListFragment.getAccountId());
-        }
+        AccountSettingsXL.actionSettings(this, mListFragment.getAccountId());
     }
 
     /**
