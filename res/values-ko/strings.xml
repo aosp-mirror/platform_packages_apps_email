@@ -16,6 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="status_sending_messages" msgid="3971880826111264523">"메시지를 보내는 중..."</string>
+    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"발신 메시지 보내기"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"이메일 첨부파일 읽기"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"애플리케이션이 이메일 첨부파일을 읽도록 허용합니다."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"이메일 제공업체 데이터 액세스"</string>
@@ -56,8 +58,8 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"첨부파일 추가"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"덤프 설정"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"첨부파일 선택"</string>
-    <string name="status_loading_more" msgid="1580386959044617884">"메시지 로드 중... "</string>
-    <string name="status_sending_messages" msgid="3971880826111264523">"메시지를 보내는 중..."</string>
+    <!-- no translation found for status_loading_messages (6552307237621292344) -->
+    <skip />
     <string name="status_network_error" msgid="6045933332005067021">"연결 오류"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"새 이메일"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"문자 메시지를 로드하는 중에 예기치 못한 오류가 발생했습니다. 메시지가 너무 커서 표시할 수 없기 때문일 수 있습니다."</string>
@@ -88,7 +90,6 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"새로고침하려면 계정을 길게 누르세요."</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"편지함"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"더 많은 메시지 로드"</string>
-    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"발신 메시지 보내기"</string>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"받는사람"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"참조"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"숨은 참조"</string>

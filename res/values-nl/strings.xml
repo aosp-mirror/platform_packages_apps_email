@@ -16,6 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="status_sending_messages" msgid="3971880826111264523">"Berichten verzenden…"</string>
+    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Uitgaande berichten verzenden"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"Bijlagen van e-mail lezen"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"Staat deze toepassing toe om uw e-mailbijlagen te lezen."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Gegevens e-mailprovider openen"</string>
@@ -56,8 +58,8 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"Bijlage toevoegen"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Dumpinstellingen"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Bijlage kiezen"</string>
-    <string name="status_loading_more" msgid="1580386959044617884">"Berichten laden..."</string>
-    <string name="status_sending_messages" msgid="3971880826111264523">"Berichten verzenden…"</string>
+    <!-- no translation found for status_loading_messages (6552307237621292344) -->
+    <skip />
     <string name="status_network_error" msgid="6045933332005067021">"Verbindingsfout"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Nieuwe e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Onverwachte fout bij laden van berichttekst. Bericht is mogelijk te groot om weer te geven."</string>
@@ -88,7 +90,6 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Druk lang op een account om het te vernieuwen"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Mailbox"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Meer berichten laden"</string>
-    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Uitgaande berichten verzenden"</string>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Naar"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>

@@ -16,6 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="status_sending_messages" msgid="3971880826111264523">"A enviar mensagens..."</string>
+    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Enviar mensagens a enviar"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"Ler anexos de e-mail"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"Permite que esta aplicação leia os seus anexos de e-mail."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Aceder a dados do fornecedor de e-mail"</string>
@@ -56,8 +58,8 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"Adicionar anexo"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Definições de imagem de erro"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Seleccionar anexo"</string>
-    <string name="status_loading_more" msgid="1580386959044617884">"A carregar mensagens..."</string>
-    <string name="status_sending_messages" msgid="3971880826111264523">"A enviar mensagens..."</string>
+    <!-- no translation found for status_loading_messages (6552307237621292344) -->
+    <skip />
     <string name="status_network_error" msgid="6045933332005067021">"Erro de ligação"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Novo e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Erro inesperado durante o carregamento do texto da mensagem. É possível que a mensagem seja demasiado extensa para visualização. "</string>
@@ -88,7 +90,6 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Prima prolongadamente uma conta para a actualizar"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Caixa de correio"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Carregar mais mensagens"</string>
-    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Enviar mensagens a enviar"</string>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Para"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>

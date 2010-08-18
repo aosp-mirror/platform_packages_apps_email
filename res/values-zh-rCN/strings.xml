@@ -16,6 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="status_sending_messages" msgid="3971880826111264523">"正在发送邮件..."</string>
+    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"外发邮件"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"查看电子邮件附件"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"允许此应用程序读取您的电子邮件附件。"</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"访问电子邮件提供者数据"</string>
@@ -56,8 +58,8 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"添加附件"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"转储设置"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"选择附件"</string>
-    <string name="status_loading_more" msgid="1580386959044617884">"正在载入邮件..."</string>
-    <string name="status_sending_messages" msgid="3971880826111264523">"正在发送邮件..."</string>
+    <!-- no translation found for status_loading_messages (6552307237621292344) -->
+    <skip />
     <string name="status_network_error" msgid="6045933332005067021">"连接错误"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"新电子邮件"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"载入消息文本时出现意外错误。可能是讯息太大，无法查看。"</string>
@@ -88,7 +90,6 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"请长按帐户，将其刷新"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"邮箱"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"载入更多邮件"</string>
-    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"外发邮件"</string>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"收件人"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"抄送"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"密送"</string>
