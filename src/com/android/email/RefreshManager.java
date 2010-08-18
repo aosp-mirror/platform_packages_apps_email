@@ -44,6 +44,9 @@ import java.util.HashMap;
  * already being refreshed.
  *
  * <p>Conceptually it can be a part of {@link Controller}, but extracted for easy testing.
+ *
+ * (All public method musb be called on the UI thread.  All callbacks will be called on the UI
+ * thread.)
  */
 public class RefreshManager {
     private static final boolean DEBUG_CALLBACK_LOG = true;
@@ -241,6 +244,8 @@ public class RefreshManager {
 
     /**
      * Call {@link #sendPendingMessages} for all accounts.
+     *
+     * FIXME: This will end up calling callbacks in a worker thread.
      */
     public void sendPendingMessagesForAllAccounts() {
         Log.i(Email.LOG_TAG, "sendPendingMessagesForAllAccounts");
