@@ -16,6 +16,8 @@
 
 package com.android.email;
 
+import com.android.email.mail.MessagingException;
+
 import android.content.Context;
 
 import java.util.Set;
@@ -170,6 +172,14 @@ public class GroupMessagingListener extends MessagingListener {
     }
 
     @Override
+    synchronized public void loadAttachmentProgress(
+            int progress) {
+        for (MessagingListener l : mListeners) {
+            l.loadAttachmentProgress(progress);
+        }
+    }
+
+    @Override
     synchronized public void loadAttachmentFinished(
             long accountId,
             long messageId,
@@ -184,9 +194,9 @@ public class GroupMessagingListener extends MessagingListener {
             long accountId,
             long messageId,
             long attachmentId,
-            String reason) {
+            MessagingException me) {
         for (MessagingListener l : mListeners) {
-            l.loadAttachmentFailed(accountId, messageId, attachmentId, reason);
+            l.loadAttachmentFailed(accountId, messageId, attachmentId, me);
         }
     }
 

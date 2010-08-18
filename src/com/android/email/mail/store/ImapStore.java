@@ -21,6 +21,7 @@ import com.android.email.Preferences;
 import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.AuthenticationFailedException;
+import com.android.email.mail.Body;
 import com.android.email.mail.CertificateValidationException;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
@@ -30,6 +31,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
+import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
@@ -59,6 +61,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -97,6 +100,8 @@ public class ImapStore extends Store {
 
     // Always check in FALSE
     private static final boolean DEBUG_FORCE_SEND_ID = false;
+
+    private static final int COPY_BUFFER_SIZE = 16*1024;
 
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
 
@@ -995,9 +1000,8 @@ public class ImapStore extends Store {
                             // decodeBody creates BinaryTempFileBody, but we could avoid this
                             // if we implement ImapStringBody.
                             // (We'll need to share a temp file.  Protect it with a ref-count.)
-                            fetchPart.setBody(MimeUtility.decodeBody(
-                                    bodyStream,
-                                    contentTransferEncoding));
+                            fetchPart.setBody(decodeBody(bodyStream, contentTransferEncoding,
+                                    fetchPart.getSize(), listener));
                         }
 
                         if (listener != null) {
@@ -1010,6 +1014,30 @@ public class ImapStore extends Store {
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
+        }
+
+        /**
+         * Removes any content transfer encoding from the stream and returns a Body.
+         * This code is taken/condensed from MimeUtility.decodeBody
+         */
+        private Body decodeBody(InputStream in, String contentTransferEncoding, int size,
+                MessageRetrievalListener listener) throws IOException {
+            // Get a properly wrapped input stream
+            in = MimeUtility.getInputStreamForContentTransferEncoding(in, contentTransferEncoding);
+            BinaryTempFileBody tempBody = new BinaryTempFileBody();
+            OutputStream out = tempBody.getOutputStream();
+            byte[] buffer = new byte[COPY_BUFFER_SIZE];
+            int n = 0;
+            int count = 0;
+            while (-1 != (n = in.read(buffer))) {
+                out.write(buffer, 0, n);
+                count += n;
+                if (listener != null) {
+                    listener.loadAttachmentProgress(count * 100 / size);
+                }
+            }
+            out.close();
+            return tempBody;
         }
 
         @Override

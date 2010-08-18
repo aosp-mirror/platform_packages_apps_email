@@ -16,6 +16,8 @@
 
 package com.android.email;
 
+import com.android.email.mail.MessagingException;
+
 import android.content.Context;
 
 /**
@@ -26,6 +28,17 @@ import android.content.Context;
  * changes in this class.
  */
 public class MessagingListener {
+    long messageId = -1;
+    long attachmentId = -1;
+
+    public MessagingListener(long _messageId, long _attachmentId) {
+        messageId = _messageId;
+        attachmentId = _attachmentId;
+    }
+
+    public MessagingListener() {
+    }
+
     public void listFoldersStarted(long accountId) {
     }
 
@@ -81,6 +94,8 @@ public class MessagingListener {
             boolean requiresDownload) {
     }
 
+    public void loadAttachmentProgress(int progress) {}
+
     public void loadAttachmentFinished(
             long accountId,
             long messageId,
@@ -91,7 +106,7 @@ public class MessagingListener {
             long accountId,
             long messageId,
             long attachmentId,
-            String reason) {
+            MessagingException me) {
     }
 
     /**

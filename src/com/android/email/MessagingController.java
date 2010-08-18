@@ -50,7 +50,6 @@ import android.net.Uri;
 import android.os.Process;
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -122,10 +121,11 @@ public class MessagingController implements Runnable {
     private final GroupMessagingListener mListeners = new GroupMessagingListener();
     private boolean mBusy;
     private final Context mContext;
+    private final Controller mController;
 
-    protected MessagingController(Context _context) {
+    protected MessagingController(Context _context, Controller _controller) {
         mContext = _context.getApplicationContext();
-
+        mController = _controller;
         mThread = new Thread(this);
         mThread.start();
     }
@@ -134,9 +134,10 @@ public class MessagingController implements Runnable {
      * Gets or creates the singleton instance of MessagingController. Application is used to
      * provide a Context to classes that need it.
      */
-    public synchronized static MessagingController getInstance(Context _context) {
+    public synchronized static MessagingController getInstance(Context _context,
+            Controller _controller) {
         if (sInstance == null) {
-            sInstance = new MessagingController(_context);
+            sInstance = new MessagingController(_context, _controller);
         }
         return sInstance;
     }
@@ -636,6 +637,10 @@ public class MessagingController implements Runnable {
                                         "Error while storing downloaded message." + e.toString());
                             }
                         }
+
+                        @Override
+                        public void loadAttachmentProgress(int progress) {
+                        }
                     });
         }
 
@@ -767,6 +772,10 @@ public class MessagingController implements Runnable {
                         // Store the updated message locally and mark it fully loaded
                         copyOneMessageToProvider(message, account, folder,
                                 EmailContent.Message.FLAG_LOADED_COMPLETE);
+                    }
+
+                    @Override
+                    public void loadAttachmentProgress(int progress) {
                     }
         });
 
@@ -1816,16 +1825,14 @@ public class MessagingController implements Runnable {
             public void run() {
                 try {
                     //1. Check if the attachment is already here and return early in that case
-                    File saveToFile = AttachmentProvider.getAttachmentFilename(mContext, accountId,
-                            attachmentId);
                     Attachment attachment =
                         Attachment.restoreAttachmentWithId(mContext, attachmentId);
                     if (attachment == null) {
                         mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
-                                "Attachment is null");
+                                   new MessagingException("The attachment is null"));
                         return;
                     }
-                    if (saveToFile.exists() && attachment.mContentUri != null) {
+                    if (Utility.attachmentExists(mContext, accountId, attachment)) {
                         mListeners.loadAttachmentFinished(accountId, messageId, attachmentId);
                         return;
                     }
@@ -1841,13 +1848,10 @@ public class MessagingController implements Runnable {
 
                     if (account == null || mailbox == null || message == null) {
                         mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
-                                "Account, mailbox, message or attachment are null");
+                                new MessagingException(
+                                        "Account, mailbox, message or attachment are null"));
                         return;
                     }
-
-                    // Pruning.  Policy is to have one downloaded attachment at a time,
-                    // per account, to reduce disk storage pressure.
-                    pruneCachedAttachments(accountId);
 
                     Store remoteStore =
                         Store.getInstance(account.getStoreUri(mContext), mContext, null);
@@ -1879,7 +1883,14 @@ public class MessagingController implements Runnable {
                     // 4. Now ask for the attachment to be fetched
                     FetchProfile fp = new FetchProfile();
                     fp.add(storePart);
-                    remoteFolder.fetch(new Message[] { storeMessage }, fp, null);
+                    remoteFolder.fetch(new Message[] { storeMessage }, fp,
+                            mController.new LegacyListener(messageId, attachmentId));
+
+                    // If we failed to load the attachment, throw an Exception here, so that
+                    // AttachmentDownloadService knows that we failed
+                    if (storePart.getBody() == null) {
+                        throw new MessagingException("Attachment not loaded.");
+                    }
 
                     // 5. Save the downloaded file and update the attachment as necessary
                     LegacyConversions.saveAttachmentBody(mContext, storePart, attachment,
@@ -1890,55 +1901,11 @@ public class MessagingController implements Runnable {
                 }
                 catch (MessagingException me) {
                     if (Email.LOGD) Log.v(Email.LOG_TAG, "", me);
-                    mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
-                            me.getMessage());
+                    mListeners.loadAttachmentFailed(accountId, messageId, attachmentId, me);
                 } catch (IOException ioe) {
                     Log.e(Email.LOG_TAG, "Error while storing attachment." + ioe.toString());
                 }
             }});
-    }
-
-    /**
-     * Erase all stored attachments for a given account.  Rules:
-     *   1.  All files in attachment directory are up for deletion
-     *   2.  If filename does not match an known attachment id, it's deleted
-     *   3.  If the attachment has location data (implying that it's reloadable), it's deleted
-     */
-    /* package */ void pruneCachedAttachments(long accountId) {
-        ContentResolver resolver = mContext.getContentResolver();
-        File cacheDir = AttachmentProvider.getAttachmentDirectory(mContext, accountId);
-        File[] fileList = cacheDir.listFiles();
-        // fileList can be null if the directory doesn't exist or if there's an IOException
-        if (fileList == null) return;
-        for (File file : fileList) {
-            if (file.exists()) {
-                long id;
-                try {
-                    // the name of the file == the attachment id
-                    id = Long.valueOf(file.getName());
-                    Uri uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, id);
-                    Cursor c = resolver.query(uri, PRUNE_ATTACHMENT_PROJECTION, null, null, null);
-                    try {
-                        if (c.moveToNext()) {
-                            // if there is no way to reload the attachment, don't delete it
-                            if (c.getString(0) == null) {
-                                continue;
-                            }
-                        }
-                    } finally {
-                        c.close();
-                    }
-                    // Clear the content URI field since we're losing the attachment
-                    resolver.update(uri, PRUNE_ATTACHMENT_CV, null, null);
-                } catch (NumberFormatException nfe) {
-                    // ignore filename != number error, and just delete it anyway
-                }
-                // This file can be safely deleted
-                if (!file.delete()) {
-                    file.deleteOnExit();
-                }
-            }
-        }
     }
 
     /**
@@ -1996,6 +1963,14 @@ public class MessagingController implements Runnable {
                 try {
                     messageId = c.getLong(0);
                     mListeners.sendPendingMessagesStarted(account.mId, messageId);
+                    // Don't send messages with unloaded attachments
+                    if (Utility.hasUnloadedAttachments(mContext, messageId)) {
+                        if (Email.DEBUG) {
+                            Log.d(Email.LOG_TAG, "Can't send #" + messageId +
+                                    "; unloaded attachments");
+                        }
+                        continue;
+                    }
                     sender.sendMessage(messageId);
                 } catch (MessagingException me) {
                     // report error for this message, but keep trying others
@@ -2006,6 +1981,15 @@ public class MessagingController implements Runnable {
                 Uri syncedUri =
                     ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
                 if (requireMoveMessageToSentFolder) {
+                    // If this is a forwarded message and it has attachments, delete them, as they
+                    // duplicate information found elsewhere (on the server).  This saves storage.
+                    EmailContent.Message msg =
+                        EmailContent.Message.restoreMessageWithId(mContext, messageId);
+                    if (msg != null &&
+                            ((msg.mFlags & EmailContent.Message.FLAG_TYPE_FORWARD) != 0)) {
+                        AttachmentProvider.deleteAllAttachmentFiles(mContext, account.mId,
+                                messageId);
+                    }
                     resolver.update(syncedUri, moveToSentValues, null, null);
                 } else {
                     AttachmentProvider.deleteAllAttachmentFiles(mContext, account.mId, messageId);

@@ -277,6 +277,12 @@
         </service>
 
         <service
+            android:name=".Controller"
+            android:enabled="false"
+            >
+        </service>
+
+        <service
             android:name=".service.AttachmentDownloadService"
             android:enabled="false"
             >

@@ -48,6 +48,7 @@ public abstract class Folder {
      */
     public interface MessageRetrievalListener {
         public void messageRetrieved(Message message);
+        public void loadAttachmentProgress(int progress);
     }
 
     /**

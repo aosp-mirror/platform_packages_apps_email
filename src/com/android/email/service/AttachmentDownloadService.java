@@ -507,8 +507,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             if (protocol.equals("eas")) {
                 serviceClass = SyncManager.class;
             } else {
-                // Uncomment this when Controller has been made a Service
-                //serviceClass = Controller.class;
+                serviceClass = com.android.email.Controller.class;
             }
             mAccountServiceMap.put(accountId, serviceClass);
         }
