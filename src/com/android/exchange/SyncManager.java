@@ -1400,6 +1400,7 @@ public class SyncManager extends Service implements Runnable {
         final SyncManager syncManager = INSTANCE;
         checkSyncManagerServiceRunning();
         if (id < 0) {
+            log("SyncManager alert");
             kick("ping SyncManager");
         } else if (syncManager == null) {
             context.startService(new Intent(context, SyncManager.class));
@@ -1418,6 +1419,9 @@ public class SyncManager extends Service implements Runnable {
                        if (m != null) {
                            // We ignore drafts completely (doesn't sync).  Changes in Outbox are
                            // handled in the checkMailboxes loop, so we can ignore these pings.
+                           if (Eas.DEBUG) {
+                               Log.d(TAG, "Alert for mailbox " + id + " (" + m.mDisplayName + ")");
+                           }
                            if (m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_OUTBOX) {
                                String[] args = new String[] {Long.toString(m.mId)};
                                ContentResolver resolver = INSTANCE.mResolver;
