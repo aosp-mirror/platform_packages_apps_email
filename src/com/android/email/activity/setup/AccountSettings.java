@@ -165,6 +165,16 @@ public class AccountSettings extends Activity
     }
 
     /**
+     * Implements AccountSettingsFragment.Callback
+     */
+    @Override
+    public void deleteAccount(Account account) {
+        // STOPSHIP - this is not implemented because this entire activity is deprecated
+        // If you need to delete an account, use the AccountSettingsXL, which will eventually
+        // become the only settings activity.
+    }
+
+    /**
      * Implements AccountSettingsFragment.OnAttachListener
      * Does nothing (this activity sets up the fragment in onCreate via its layout)
      */

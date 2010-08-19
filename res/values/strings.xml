@@ -640,7 +640,13 @@
     <!-- Title of Remove account confirmation dialog box -->
     <string name="account_delete_dlg_title">Remove account</string>
     <!-- Message of Remove account confirmation dialog box -->
-    <string name="account_delete_dlg_instructions_fmt">The account \"<xliff:g id="account">%s</xliff:g>\" will be removed from Email.</string>
+    <string name="account_delete_dlg_instructions_fmt">
+    The account \"<xliff:g id="account">%s</xliff:g>\" will be removed from Email.</string>
+
+    <!-- On Settings screen, section heading for delete account [CHAR LIMIT=none] -->
+    <string name="account_settings_category_delete_account">Remove account</string>
+    <!-- On Settings screen, settings option for delete account [CHAR LIMIT=none] -->
+    <string name="account_settings_delete_account_label">Remove account</string>
 
     <!-- Title of Upgrade Accounts activity -->
     <string name="upgrade_accounts_title">Upgrade accounts</string>

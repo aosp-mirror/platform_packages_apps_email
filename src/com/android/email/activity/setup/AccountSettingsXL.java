@@ -33,6 +33,8 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import java.util.List;
 
@@ -42,11 +44,10 @@ import java.util.List;
  * TODO: Go directly to specific account when requested - post runnable after onBuildHeaders
  * TODO: Incorporate entry point & other stuff to support launch from AccountManager
  * TODO: In Account settings in Phone UI, change title
- * TODO: Action bar?  Need to work out the handling of next/back type buttons
  * TODO: Rework all remaining calls to DB from UI thread
  * TODO: Handle dynamic changes to the account list (exit if necessary)
- * TODO: Add account
- * TODO: Delete account
+ * TODO: Clean up show/hide icon for add account
+ * TODO: Finish delete account
  */
 public class AccountSettingsXL extends PreferenceActivity
         implements AccountSettingsFragment.OnAttachListener {
@@ -58,6 +59,7 @@ public class AccountSettingsXL extends PreferenceActivity
     private Header mAppPreferencesHeader;
     private int mCurrentHeaderPosition;
     private Fragment mCurrentFragment;
+    private long mDeletingAccountId = -1;
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
@@ -101,12 +103,64 @@ public class AccountSettingsXL extends PreferenceActivity
     }
 
     /**
+     * Only show "add account" when header showing and not in a sub-fragment (like incoming)
+     *
+     * TODO: it might make more sense to do this by having fragments add the items, except for
+     * this problem:  How do we add items that are shown in single pane headers-only mode?
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        if (shouldShowNewAccount()) {
+            getMenuInflater().inflate(R.menu.account_settings_option, menu);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add_new_account:
+                onAddNewAccount();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        return true;
+    }
+
+    /**
+     * Decide if "add account" should be shown
+     *
+     * TODO: it might make more sense to do this by having fragments add the items, except for
+     * this problem:  How do we add items that are shown in single pane headers-only mode?
+     */
+    private boolean shouldShowNewAccount() {
+        // If in single pane mode, only add accounts at top level
+        if (!isMultiPane()) {
+            if (!hasHeaders()) return false;
+        } else {
+            // If in multi pane mode, only add accounts when showing a top level fragment
+            // Note: null is OK; This is the case when we first launch the activity
+            if ((mCurrentFragment != null)
+                && !(mCurrentFragment instanceof AccountSettingsFragment)
+                && !(mCurrentFragment instanceof AccountSettingsFragment)) return false;
+        }
+        return true;
+    }
+
+    private void onAddNewAccount() {
+        AccountSetupBasics.actionNewAccount(this);
+    }
+
+    /**
      * Start the async reload of the accounts list (if the headers are being displayed)
      */
     private void updateAccounts() {
         if (hasHeaders()) {
             Utility.cancelTaskInterrupt(mLoadAccountListTask);
-            mLoadAccountListTask = (LoadAccountListTask) new LoadAccountListTask().execute();
+            mLoadAccountListTask = (LoadAccountListTask) 
+                    new LoadAccountListTask().execute(mDeletingAccountId);
         }
     }
 
@@ -141,12 +195,14 @@ public class AccountSettingsXL extends PreferenceActivity
      *
      * TODO: Smaller projection
      * TODO: Convert to Loader
+     * TODO: Write a test, including operation of deletingAccountId param
      */
-    private class LoadAccountListTask extends AsyncTask<Void, Void, Header[]> {
+    private class LoadAccountListTask extends AsyncTask<Long, Void, Header[]> {
 
         @Override
-        protected Header[] doInBackground(Void... params) {
+        protected Header[] doInBackground(Long... params) {
             Header[] result = null;
+            long deletingAccountId = params[0];
 
             Cursor c = getContentResolver().query(
                     EmailContent.Account.CONTENT_URI,
@@ -157,14 +213,18 @@ public class AccountSettingsXL extends PreferenceActivity
                 result = new Header[headerCount];
 
                 while (c.moveToNext()) {
+                    long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+                    if (accountId == deletingAccountId) {
+                        continue;
+                    }
                     String title = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
                     String summary = c.getString(Account.CONTENT_EMAIL_ADDRESS_COLUMN);
-                    long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
                     Header newHeader = new Header();
                     newHeader.title = title;
                     newHeader.summary = summary;
                     newHeader.fragment = AccountSettingsFragment.class.getCanonicalName();
-                    newHeader.fragmentArguments = AccountSettingsFragment.buildArguments(accountId);
+                    newHeader.fragmentArguments =
+                        AccountSettingsFragment.buildArguments(accountId);
                     result[index++] = newHeader;
                 }
             } finally {
@@ -177,6 +237,8 @@ public class AccountSettingsXL extends PreferenceActivity
 
         @Override
         protected void onPostExecute(Header[] headers) {
+            if (this.isCancelled()) return;
+            // report the settings
             mAccountListHeaders = headers;
             AccountSettingsXL.this.invalidateHeaders();
         }
@@ -213,6 +275,8 @@ public class AccountSettingsXL extends PreferenceActivity
         } else if (f instanceof AccountSetupExchangeFragment) {
             // TODO
         }
+        // Since we're changing fragments, reset the options menu (not all choices are shown)
+        invalidateOptionsMenu();
     }
 
     /**
@@ -227,6 +291,9 @@ public class AccountSettingsXL extends PreferenceActivity
         }
         public void abandonEdit() {
             finish();
+        }
+        public void deleteAccount(Account account) {
+            AccountSettingsXL.this.deleteAccount(account);
         }
     }
 
@@ -265,6 +332,24 @@ public class AccountSettingsXL extends PreferenceActivity
             }
         } catch (Exception e) {
             Log.d(Email.LOG_TAG, "Error while trying to invoke sender settings.", e);
+        }
+    }
+
+    /**
+     * Delete the selected account
+     */
+    public void deleteAccount(Account account) {
+        Utility.showToast(this, "Pretend to delete " + account.getDisplayName());
+        // Kick off the work to delete the account
+            // TODO copy this logic from AccountFolderList
+        // If single pane, return to the header list.  If multi, rebuild header list
+        if (isMultiPane()) {
+            mDeletingAccountId = account.mId;
+            invalidateHeaders();
+        } else {
+            // We should only be calling this while showing AccountSettingsFragment,
+            // so a finish() should bring us back to headers.  No point hiding the deleted account.
+            finish();
         }
     }
 

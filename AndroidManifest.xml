@@ -138,6 +138,7 @@
         <activity
             android:name=".activity.setup.AccountSettingsXL"
             android:label="@string/account_settings_action"
+            android:theme="@android:style/Theme.WithActionBar" >
             >
         </activity>
         <activity
