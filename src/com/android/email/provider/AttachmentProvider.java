@@ -478,4 +478,12 @@ public class AttachmentProvider extends ContentProvider {
             c.close();
         }
     }
+
+    /**
+     * Need this to suppress warning in unit tests.
+     */
+    @Override
+    public void shutdown() {
+        // Don't call super.shutdown(), which emits a warning...
+    }
 }
