@@ -328,8 +328,8 @@ public class MailboxFinderTest extends InstrumentationTestCase {
      * A {@link Controller} that remembers if updateMailboxList has been called.
      */
     private static class MockController extends Controller {
-        public long mPassedAccountId;
-        public boolean mCalledUpdateMailboxList;
+        public volatile long mPassedAccountId;
+        public volatile boolean mCalledUpdateMailboxList;
 
         public void reset() {
             mPassedAccountId = -1;
@@ -351,13 +351,13 @@ public class MailboxFinderTest extends InstrumentationTestCase {
      * Callback that logs what method is called with what arguments.
      */
     private static class MockCallback implements MailboxFinder.Callback {
-        public boolean mCalledAccountNotFound;
-        public boolean mCalledAccountSecurityHold;
-        public boolean mCalledMailboxFound;
-        public boolean mCalledMailboxNotFound;
+        public volatile boolean mCalledAccountNotFound;
+        public volatile boolean mCalledAccountSecurityHold;
+        public volatile boolean mCalledMailboxFound;
+        public volatile boolean mCalledMailboxNotFound;
 
-        public long mAccountId = -1;
-        public long mMailboxId = -1;
+        public volatile long mAccountId = -1;
+        public volatile long mMailboxId = -1;
 
         public boolean isAnyMethodCalled() {
             return mCalledAccountNotFound || mCalledAccountSecurityHold || mCalledMailboxFound
