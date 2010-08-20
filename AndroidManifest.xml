@@ -277,9 +277,10 @@
             >
         </service>
 
-        <service
+        <!-- Controller runs at all times -->
+         --><service
             android:name=".Controller"
-            android:enabled="false"
+            android:enabled="true"
             >
         </service>
 

@@ -125,7 +125,7 @@ public class Debug extends Activity implements OnCheckedChangeListener {
         int exchangeLogging = prefs.getEnableExchangeLogging() ? Eas.DEBUG_EXCHANGE_BIT : 0;
         int fileLogging = prefs.getEnableExchangeFileLogging() ? Eas.DEBUG_FILE_BIT : 0;
         int debugBits = debugLogging | exchangeLogging | fileLogging;
-        Controller.getInstance(context).serviceLogging(debugBits);
+        Controller.getInstance().serviceLogging(debugBits);
         //EXCHANGE-REMOVE-SECTION-END
     }
 }

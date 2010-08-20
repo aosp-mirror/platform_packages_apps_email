@@ -38,14 +38,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CursorAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.AdapterView.OnItemClickListener;
 
 public class AccountFolderListFragment extends ListFragment
         implements OnItemClickListener, AccountsAdapter.Callback  {
@@ -139,7 +139,7 @@ public class AccountFolderListFragment extends ListFragment
     @Override
     public void onResume() {
         super.onResume();
-        Controller.getInstance(mActivity).addResultCallback(mControllerCallback);
+        Controller.getInstance().addResultCallback(mControllerCallback);
         updateAccounts();
     }
 
@@ -149,7 +149,7 @@ public class AccountFolderListFragment extends ListFragment
     @Override
     public void onPause() {
         super.onPause();
-        Controller.getInstance(mActivity).removeResultCallback(mControllerCallback);
+        Controller.getInstance().removeResultCallback(mControllerCallback);
     }
 
     /**

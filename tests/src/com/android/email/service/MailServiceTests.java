@@ -163,7 +163,7 @@ public class MailServiceTests extends AccountTestCase {
     public static class TestController extends Controller {
 
         protected TestController(Context providerContext, Context systemContext) {
-            super(systemContext);
+            super();
             setProviderContext(providerContext);
         }
     }

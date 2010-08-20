@@ -88,7 +88,7 @@ public final class ActivityHelper {
     }
 
     public static void deleteMessage(Activity activity, long messageId) {
-        Controller.getInstance(activity).deleteMessage(messageId, -1);
+        Controller.getInstance().deleteMessage(messageId, -1);
         Utility.showToast(activity,
                 activity.getResources().getQuantityString(R.plurals.message_deleted_toast, 1));
     }

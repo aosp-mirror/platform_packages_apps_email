@@ -17,10 +17,8 @@
 package com.android.email;
 
 import com.android.email.mail.MessagingException;
-import com.android.email.provider.EmailContent;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Handler;
 import android.util.Log;
 
@@ -153,7 +151,7 @@ public class RefreshManager {
      */
     public static synchronized RefreshManager getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new RefreshManager(context, Controller.getInstance(context),
+            sInstance = new RefreshManager(context, Controller.getInstance(),
                     Clock.INSTANCE, new Handler());
         }
         return sInstance;

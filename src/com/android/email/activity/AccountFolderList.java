@@ -106,7 +106,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
     @Override
     public void onPause() {
         super.onPause();
-        Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
+        Controller.getInstance().removeResultCallback(mControllerCallback);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
                 getSystemService(Context.NOTIFICATION_SERVICE);
         notifMgr.cancel(1);
 
-        Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
+        Controller.getInstance().addResultCallback(mControllerCallback);
 
         // Exit immediately if the accounts list has changed (e.g. externally deleted)
         if (Email.getNotifyUiAccountsChanged()) {
@@ -150,7 +150,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
                     Toast.LENGTH_LONG).show();
         } else {
             showProgressIcon(true);
-            Controller.getInstance(getApplication()).updateMailboxList(accountId);
+            Controller.getInstance().updateMailboxList(accountId);
             // TODO update the inbox too
         }
     }
@@ -214,7 +214,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
                             Account.CONTENT_URI, null, null);
                     mListFragment.hideDeletingAccount(mSelectedContextAccount.mId);
 
-                    Controller.getInstance(AccountFolderList.this).deleteAccount(
+                    Controller.getInstance().deleteAccount(
                             mSelectedContextAccount.mId);
                     if (numAccounts == 1) {
                         AccountSetupBasics.actionNewAccount(AccountFolderList.this);

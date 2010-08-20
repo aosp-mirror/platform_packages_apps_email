@@ -66,7 +66,7 @@ public class MailboxFinder {
             throw new UnsupportedOperationException();
         }
         mContext = context.getApplicationContext();
-        mController = Controller.getInstance(context);
+        mController = Controller.getInstance();
         mAccountId = accountId;
         mMailboxType = mailboxType;
         mCallback = callback;
