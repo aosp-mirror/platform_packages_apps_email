@@ -16,13 +16,14 @@
 
 package com.android.email.service;
 
+import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
@@ -32,14 +33,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.IntentFilter.MalformedMimeTypeException;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.format.DateUtils;
@@ -47,8 +44,10 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.TreeMap;
+import java.util.Iterator;
+import java.util.TreeSet;
 
 public class AttachmentDownloadService extends Service implements Runnable {
     public static final String TAG = "AttachmentService";
@@ -56,11 +55,14 @@ public class AttachmentDownloadService extends Service implements Runnable {
     // Our idle time, waiting for notifications; this is something of a failsafe
     private static final int PROCESS_QUEUE_WAIT_TIME = 30 * ((int)DateUtils.MINUTE_IN_MILLIS);
 
-    private static final long PRIORITY_NONE = -1;
+    private static final int PRIORITY_NONE = -1;
     @SuppressWarnings("unused")
-    private static final long PRIORITY_LOW = 0;
-    private static final long PRIORITY_NORMAL = 1;
-    private static final long PRIORITY_HIGH = 2;
+    // Low priority will be used for opportunistic downloads
+    private static final int PRIORITY_LOW = 0;
+    // Normal priority is for forwarded downloads in outgoing mail
+    private static final int PRIORITY_NORMAL = 1;
+    // High priority is for user requests
+    private static final int PRIORITY_HIGH = 2;
 
     // We can try various values here; I think 2 is completely reasonable as a first pass
     private static final int MAX_SIMULTANEOUS_DOWNLOADS = 2;
@@ -68,21 +70,22 @@ public class AttachmentDownloadService extends Service implements Runnable {
     // Note that a limit of 1 is currently enforced by both Services (MailService and Controller)
     private static final int MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT = 1;
 
-    private static AttachmentDownloadService sRunningService = null;
+    /*package*/ static AttachmentDownloadService sRunningService = null;
 
-    private AttachmentReceiver mAttachmentReceiver;
-    private Context mContext;
-    private final AttachmentMap mAttachmentMap = new AttachmentMap();
+    /*package*/ Context mContext;
+    /*package*/ final DownloadSet mDownloadSet = new DownloadSet(new DownloadComparator());
     private final HashMap<Long, Class<? extends Service>> mAccountServiceMap =
         new HashMap<Long, Class<? extends Service>>();
     private final ServiceCallback mServiceCallback = new ServiceCallback();
     private final Object mLock = new Object();
     private volatile boolean mStop = false;
 
-    private static class DownloadRequest {
-        long attachmentId;
-        long messageId = -1;
-        long accountId;
+    public static class DownloadRequest {
+        final int priority;
+        final long time;
+        final long attachmentId;
+        final long messageId;
+        final long accountId;
         boolean inProgress = false;
 
         private DownloadRequest(Context context, Attachment attachment) {
@@ -91,41 +94,70 @@ public class AttachmentDownloadService extends Service implements Runnable {
             if (msg != null) {
                 accountId = msg.mAccountKey;
                 messageId = msg.mId;
+            } else {
+                accountId = messageId = -1;
             }
+            priority = getPriority(attachment);
+            time = System.currentTimeMillis();
+        }
+
+        @Override
+        public int hashCode() {
+            return (int)attachmentId;
+        }
+
+        /**
+         * Two download requests are equals if their attachment id's are equals
+         */
+        @Override
+        public boolean equals(Object object) {
+            if (!(object instanceof DownloadRequest)) return false;
+            DownloadRequest req = (DownloadRequest)object;
+            return req.attachmentId == attachmentId;
         }
     }
 
     /**
-     * The AttachmentMap is a TreeMap sorted by "priority key", which is determined first by the
-     * priority class (e.g. low, high, etc.) and the time of the request.  Higher priority requests
+     * Comparator class for the download set; we first compare by priority.  Requests with equal
+     * priority are compared by the time the request was created (older requests come first)
+     */
+    /*protected*/ static class DownloadComparator implements Comparator<DownloadRequest> {
+        @Override
+        public int compare(DownloadRequest req1, DownloadRequest req2) {
+            int res;
+            if (req1.priority != req2.priority) {
+                res = (req1.priority < req2.priority) ? -1 : 1;
+            } else {
+                if (req1.time == req2.time) {
+                    res = 0;
+                } else {
+                    res = (req1.time > req2.time) ? -1 : 1;
+                }
+            }
+            //Log.d(TAG, "Compare " + req1.attachmentId + " to " + req2.attachmentId + " = " + res);
+            return res;
+        }
+    }
+
+    /**
+     * The DownloadSet is a TreeSet sorted by priority class (e.g. low, high, etc.) and the
+     * time of the request.  Higher priority requests
      * are always processed first; among equals, the oldest request is processed first.  The
      * priority key represents this ordering.  Note: All methods that change the attachment map are
      * synchronized on the map itself
      */
-    private class AttachmentMap extends TreeMap<Long, DownloadRequest> {
+    /*package*/ class DownloadSet extends TreeSet<DownloadRequest> {
         private static final long serialVersionUID = 1L;
 
-        private final HashMap<Long, DownloadRequest> mDownloadsInProgress =
-            new HashMap<Long, DownloadRequest>();
+        /*package*/ DownloadSet(Comparator<? super DownloadRequest> comparator) {
+            super(comparator);
+        }
 
         /**
-         * Calculate the download priority of an Attachment.  A priority of zero means that the
-         * attachment is not marked for download.
-         * @param att the Attachment
-         * @return the priority key of the Attachment
+         * Maps attachment id to DownloadRequest
          */
-        private long getPriorityKey(Attachment att) {
-            long priorityClass = PRIORITY_NONE;
-            int flags = att.mFlags;
-            if ((flags & Attachment.FLAG_DOWNLOAD_FORWARD) != 0) {
-                priorityClass = PRIORITY_NORMAL;
-            } else if ((flags & Attachment.FLAG_DOWNLOAD_USER_REQUEST) != 0) {
-                priorityClass = PRIORITY_HIGH;
-            } else {
-                return 0;
-            }
-            return (priorityKey(priorityClass, System.currentTimeMillis()));
-        }
+        /*package*/ final HashMap<Long, DownloadRequest> mDownloadsInProgress =
+            new HashMap<Long, DownloadRequest>();
 
         /**
          * onChange is called by the AttachmentReceiver upon receipt of a valid notification from
@@ -134,91 +166,72 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * existence of an attachment before acting on it.
          */
         public synchronized void onChange(Attachment att) {
-            long attKey = findPriorityKey(att.mId);
-            long priorityKey = getPriorityKey(att);
-            if (priorityKey == 0) {
+            DownloadRequest req = findDownloadRequest(att.mId);
+            long priority = getPriority(att);
+            if (priority == PRIORITY_NONE) {
                 if (Email.DEBUG) {
                     Log.d(TAG, "== Attachment changed: " + att.mId);
                 }
                 // In this case, there is no download priority for this attachment
-                if (attKey != 0) {
-                    // If it exists in the map, remove it and try to stop any download in progress
+                if (req != null) {
+                    // If it exists in the map, remove it
                     // NOTE: We don't yet support deleting downloads in progress
                     if (Email.DEBUG) {
                         Log.d(TAG, "== Attachment " + att.mId + " was in queue, removing");
                     }
-                    remove(attKey, true);
+                    remove(req);
                 }
             } else {
                 // Ignore changes that occur during download
                 if (mDownloadsInProgress.containsKey(att.mId)) return;
-                // Remove from the map, but don't stop a download in progress
-                DownloadRequest req = remove(attKey, false);
+                // If this is new, add the request to the queue
                 if (req == null) {
                     req = new DownloadRequest(mContext, att);
+                    add(req);
                 }
                 // If the request already existed, we'll update the priority (so that the time is
                 // up-to-date); otherwise, we create a new request
                 if (Email.DEBUG) {
                     Log.d(TAG, "== Download queued for attachment " + att.mId + ", class " +
-                            priorityClass(priorityKey) + ", priority time " +
-                            priorityTime(priorityKey));
+                            req.priority + ", priority time " + req.time);
                 }
-                // Store the request away
-                put(priorityKey, req);
             }
             // Process the queue if we're in a wait
             kick();
         }
 
         /**
-         * Remove a DownloadRequest from the queue, given its priority key
-         * @param priorityKey the priority key to remove (a Long)
-         * @param stopDownload whether we should try to stop an in-progress download of the
-         * attachment with this priority key (not implemented)
-         * @return the DownloadRequest for this priority key (or null, if none)
-         */
-        public synchronized DownloadRequest remove(Object priorityKey, boolean stopDownload) {
-            DownloadRequest req = remove(priorityKey);
-            if ((req != null) && req.inProgress && stopDownload) {
-                // TODO: Stop download
-                if (Email.DEBUG) {
-                    Log.d(TAG, "== Download of " + req.attachmentId + " stopped; NOT implemented");
-                }
-            }
-            return req;
-        }
-
-        /**
-         * Find the priority key of a queued DownloadRequest, given the attachment's id
+         * Find a queued DownloadRequest, given the attachment's id
          * @param id the id of the attachment
-         * @return the priority key for that attachment (or zero, if none)
+         * @return the DownloadRequest for that attachment (or null, if none)
          */
-        private synchronized long findPriorityKey(long id) {
-            for (Entry<Long, DownloadRequest> entry: entrySet()) {
-                if (entry.getValue().attachmentId == id) {
-                    return entry.getKey();
+        /*package*/ synchronized DownloadRequest findDownloadRequest(long id) {
+            Iterator<DownloadRequest> iterator = iterator();
+            while(iterator.hasNext()) {
+                DownloadRequest req = iterator.next();
+                if (req.attachmentId == id) {
+                    return req;
                 }
             }
-            return 0;
+            return null;
         }
 
         /**
          * Run through the AttachmentMap and find DownloadRequests that can be executed, enforcing
          * the limit on maximum downloads
          */
-        private synchronized void processQueue() {
+        /*package*/ synchronized void processQueue() {
             if (Email.DEBUG) {
-                Log.d(TAG, "== Checking attachment queue, " + mAttachmentMap.size() + " entries");
+                Log.d(TAG, "== Checking attachment queue, " + mDownloadSet.size() + " entries");
             }
-            Entry<Long, DownloadRequest> entry = mAttachmentMap.lastEntry();
+            Iterator<DownloadRequest> iterator = mDownloadSet.descendingIterator();
             // First, start up any required downloads, in priority order
-            while ((entry != null) && (mDownloadsInProgress.size() < MAX_SIMULTANEOUS_DOWNLOADS)) {
-                DownloadRequest req = entry.getValue();
+            while (iterator.hasNext() &&
+                    (mDownloadsInProgress.size() < MAX_SIMULTANEOUS_DOWNLOADS)) {
+                DownloadRequest req = iterator.next();
                 if (!req.inProgress) {
-                    mAttachmentMap.tryStartDownload(req);
+                    mDownloadSet.tryStartDownload(req);
                 }
-                entry = mAttachmentMap.lowerEntry(entry.getKey());
             }
             // Then, try opportunistic download of appropriate attachments
             int backgroundDownloads = MAX_SIMULTANEOUS_DOWNLOADS - mDownloadsInProgress.size();
@@ -236,7 +249,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * @param accountId the id of the account
          * @return the count of running downloads
          */
-        private int downloadsForAccount(long accountId) {
+        /*package*/ synchronized int downloadsForAccount(long accountId) {
             int count = 0;
             for (DownloadRequest req: mDownloadsInProgress.values()) {
                 if (req.accountId == accountId) {
@@ -252,7 +265,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * @param req the DownloadRequest
          * @return whether or not the download was started
          */
-        private synchronized boolean tryStartDownload(DownloadRequest req) {
+        /*package*/ synchronized boolean tryStartDownload(DownloadRequest req) {
             // Enforce per-account limit
             if (downloadsForAccount(req.accountId) >= MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT) {
                 if (Email.DEBUG) {
@@ -271,9 +284,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 if (Email.DEBUG) {
                     Log.d(TAG, ">> Starting download for attachment #" + req.attachmentId);
                 }
-                proxy.loadAttachment(req.attachmentId, file.getAbsolutePath(),
-                        AttachmentProvider.getAttachmentUri(req.accountId, req.attachmentId)
+                // Don't actually run the load if this is the NullEmailService (used in unit tests)
+                if (!serviceClass.equals(NullEmailService.class)) {
+                    proxy.loadAttachment(req.attachmentId, file.getAbsolutePath(),
+                            AttachmentProvider.getAttachmentUri(req.accountId, req.attachmentId)
                             .toString());
+                }
                 mDownloadsInProgress.put(req.attachmentId, req);
                 req.inProgress = true;
             } catch (RemoteException e) {
@@ -290,27 +306,26 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * @param attachmentId the id of the attachment whose download is finished
          * @param statusCode the EmailServiceStatus code returned by the Service
          */
-        private synchronized void endDownload(long attachmentId, int statusCode) {
+        /*package*/ synchronized void endDownload(long attachmentId, int statusCode) {
             // Say we're no longer downloading this
             mDownloadsInProgress.remove(attachmentId);
-            long priorityKey = mAttachmentMap.findPriorityKey(attachmentId);
+            DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
             if (statusCode == EmailServiceStatus.CONNECTION_ERROR) {
                 // If this needs to be retried, just process the queue again
                 if (Email.DEBUG) {
                     Log.d(TAG, "== The download for attachment #" + attachmentId +
                             " will be retried");
                 }
-                DownloadRequest req = mAttachmentMap.get(priorityKey);
                 if (req != null) {
                     req.inProgress = false;
                 }
                 kick();
                 return;
             }
-            DownloadRequest req = mAttachmentMap.remove(priorityKey);
+            // Remove the request from the queue
+            remove(req);
             if (Email.DEBUG) {
-                long secs = (priorityTime(System.currentTimeMillis()) -
-                        priorityKeyToSystemTime(priorityKey)) / 1000;
+                long secs = (System.currentTimeMillis() - req.time) / 1000;
                 String status = (statusCode == EmailServiceStatus.SUCCESS) ? "Success" :
                     "Error " + statusCode;
                 Log.d(TAG, "<< Download finished for attachment #" + attachmentId + "; " + secs +
@@ -321,7 +336,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 boolean deleted = false;
                 if ((attachment.mFlags & Attachment.FLAG_DOWNLOAD_FORWARD) != 0) {
                     if (statusCode == EmailServiceStatus.ATTACHMENT_NOT_FOUND) {
-                        // If this is a forwarding download, and the attachment doesn't exist (or 
+                        // If this is a forwarding download, and the attachment doesn't exist (or
                         // can't be downloaded) delete it from the outgoing message, lest that
                         // message never get sent
                         EmailContent.delete(mContext, Attachment.CONTENT_URI, attachment.mId);
@@ -356,64 +371,26 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
     }
 
-    private static int systemTimeToPriorityTime(long systemTime) {
-        return Integer.MAX_VALUE - priorityTime(systemTime);
-    }
-
-    private static long priorityKeyToSystemTime(long priorityKey) {
-        return Integer.MAX_VALUE - priorityTime(priorityKey);
-    }
-
-    private static int priorityTime(long priorityKeyOrSystemTime) {
-        return (int)(priorityKeyOrSystemTime & 0xFFFFFFFF);
-    }
-
-    private static long priorityClass(long priorityKey) {
-        return priorityKey >> 32;
-    }
-
-    private static long priorityKey(long priorityClass, long timeInMillis) {
-        // High 32 bits = priority class
-        // Low 32 bits = priority time
-        return (priorityClass<<32) | systemTimeToPriorityTime(timeInMillis);        
+    /**
+     * Calculate the download priority of an Attachment.  A priority of zero means that the
+     * attachment is not marked for download.
+     * @param att the Attachment
+     * @return the priority key of the Attachment
+     */
+    private static int getPriority(Attachment att) {
+        int priorityClass = PRIORITY_NONE;
+        int flags = att.mFlags;
+        if ((flags & Attachment.FLAG_DOWNLOAD_FORWARD) != 0) {
+            priorityClass = PRIORITY_NORMAL;
+        } else if ((flags & Attachment.FLAG_DOWNLOAD_USER_REQUEST) != 0) {
+            priorityClass = PRIORITY_HIGH;
+        }
+        return priorityClass;
     }
 
     private void kick() {
         synchronized(mLock) {
             mLock.notify();
-        }
-    }
-
-    /**
-     * The AttachmentReceiver handles broadcasts from EmailProvider when an attachment is inserted
-     * or updated.  Assuming that the attachment still exists, we just call the AttachmentMap's
-     * onChange() method
-     */
-    public class AttachmentReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final Uri attachmentUri = intent.getData();
-            String action = intent.getAction();
-            if (action.equals(EmailProvider.ACTION_ATTACHMENT_UPDATED)) {
-                // We need to look at the flags and see if loading is appropriate
-                final int flags =
-                    intent.getIntExtra(EmailProvider.ATTACHMENT_UPDATED_EXTRA_FLAGS, -1);
-                // If the flags didn't change, we're done
-                if (flags == -1) return;
-                new Thread(new Runnable() {
-                    public void run() {
-                        long id = Long.parseLong(attachmentUri.getLastPathSegment());
-                        Attachment attachment =
-                            Attachment.restoreAttachmentWithId(AttachmentDownloadService.this, id);
-                        if (attachment != null) {
-                            // Store the flags we got from EmailProvider; given that all of this
-                            // activity is asynchronous, we need to use the newest data from
-                            // EmailProvider
-                            attachment.mFlags = flags;
-                            mAttachmentMap.onChange(attachment);
-                        }
-                    }}).run();
-            }
         }
     }
 
@@ -446,7 +423,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 case EmailServiceStatus.IN_PROGRESS:
                     break;
                 default:
-                    mAttachmentMap.endDownload(attachmentId, statusCode);
+                    mDownloadSet.endDownload(attachmentId, statusCode);
                     break;
             }
         }
@@ -507,26 +484,32 @@ public class AttachmentDownloadService extends Service implements Runnable {
             if (protocol.equals("eas")) {
                 serviceClass = SyncManager.class;
             } else {
-                serviceClass = com.android.email.Controller.class;
+                serviceClass = Controller.class;
             }
             mAccountServiceMap.put(accountId, serviceClass);
         }
         return serviceClass;
     }
 
-    private void onChange(Attachment att) {
-        mAttachmentMap.onChange(att);
+    /*protected*/ void addServiceClass(long accountId, Class<? extends Service> serviceClass) {
+        mAccountServiceMap.put(accountId, serviceClass);
     }
 
-    private boolean isQueued(long attachmentId) {
-        return mAttachmentMap.findPriorityKey(attachmentId) != 0;
+    /*package*/ void onChange(Attachment att) {
+        mDownloadSet.onChange(att);
     }
 
-    private boolean dequeue(long attachmentId) {
-        long priority = mAttachmentMap.findPriorityKey(attachmentId);
-        if (priority == 0) return false;
-        DownloadRequest req = mAttachmentMap.remove(priority);
-        return req != null;
+    /*package*/ boolean isQueued(long attachmentId) {
+        return mDownloadSet.findDownloadRequest(attachmentId) != null;
+    }
+
+    /*package*/ boolean dequeue(long attachmentId) {
+        DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
+        if (req != null) {
+            mDownloadSet.remove(req);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -559,6 +542,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * @param flags the new flags for the attachment
      */
     public static void attachmentChanged(final long id, final int flags) {
+        if (sRunningService == null) return;
         Utility.runAsync(new Runnable() {
             public void run() {
                 final Attachment attachment =
@@ -575,16 +559,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
     public void run() {
         mContext = this;
-        // Set up our receiver for EmailProvider attachment updates
-        mAttachmentReceiver = new AttachmentReceiver();
-        try {
-            getApplicationContext().registerReceiver(mAttachmentReceiver,
-                    new IntentFilter(EmailProvider.ACTION_ATTACHMENT_UPDATED,
-                            EmailProvider.EMAIL_ATTACHMENT_MIME_TYPE));
-        } catch (MalformedMimeTypeException e1) {
-            // Since we're passing in a constant mime type, this can't happen
-        }
-
         // Run through all attachments in the database that require download and add them to
         // the queue
         int mask = Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
@@ -597,7 +571,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 Attachment attachment = Attachment.restoreAttachmentWithId(
                         this, c.getLong(EmailContent.ID_PROJECTION_COLUMN));
                 if (attachment != null) {
-                    mAttachmentMap.onChange(attachment);
+                    mDownloadSet.onChange(attachment);
                 }
             }
         } catch (Exception e) {
@@ -610,7 +584,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         // Loop until stopped, with a 30 minute wait loop
         while (!mStop) {
             // Here's where we run our attachment loading logic...
-            mAttachmentMap.processQueue();
+            mDownloadSet.processQueue();
             synchronized(mLock) {
                 try {
                     mLock.wait(PROCESS_QUEUE_WAIT_TIME);

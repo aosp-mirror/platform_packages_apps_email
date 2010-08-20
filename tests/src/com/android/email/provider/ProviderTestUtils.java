@@ -30,7 +30,6 @@ import android.test.MoreAsserts;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 import junit.framework.Assert;
 
@@ -198,11 +197,12 @@ public class ProviderTestUtils extends Assert {
      * @param messageId the message to attach to
      * @param fileName the "file" to indicate in the attachment
      * @param length the "length" of the attachment
+     * @param flags the flags to set in the attachment
      * @param saveIt if true, write the new attachment directly to the DB
      * @param context use this context
      */
     public static Attachment setupAttachment(long messageId, String fileName, long length,
-            boolean saveIt, Context context) {
+            int flags, boolean saveIt, Context context) {
         Attachment att = new Attachment();
         att.mSize = length;
         att.mFileName = fileName;
@@ -213,12 +213,26 @@ public class ProviderTestUtils extends Assert {
         att.mLocation = "location " + fileName;
         att.mEncoding = "encoding " + fileName;
         att.mContent = "content " + fileName;
-        att.mFlags = 0;
+        att.mFlags = flags;
         att.mContentBytes = Utility.toUtf8("content " + fileName);
         if (saveIt) {
             att.save(context);
         }
         return att;
+    }
+
+    /**
+     * Create a test attachment with flags = 0 (see above)
+     *
+     * @param messageId the message to attach to
+     * @param fileName the "file" to indicate in the attachment
+     * @param length the "length" of the attachment
+     * @param saveIt if true, write the new attachment directly to the DB
+     * @param context use this context
+     */
+    public static Attachment setupAttachment(long messageId, String fileName, long length,
+            boolean saveIt, Context context) {
+        return setupAttachment(messageId, fileName, length, 0, saveIt, context);
     }
 
     private static void assertEmailContentEqual(String caller, EmailContent expect,

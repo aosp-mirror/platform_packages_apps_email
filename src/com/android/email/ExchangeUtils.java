@@ -22,6 +22,7 @@ import com.android.email.service.IEmailServiceCallback;
 import com.android.exchange.CalendarSyncEnabler;
 import com.android.exchange.SyncManager;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -78,7 +79,7 @@ public class ExchangeUtils {
      * class.  However, there are a few places we do use the service even if there's no exchange
      * accounts (e.g. setLogging), so this class is added for safety and simplicity.
      */
-    private static class NullEmailService implements IEmailService {
+    public static class NullEmailService extends Service implements IEmailService {
         public static final NullEmailService INSTANCE = new NullEmailService();
 
         public Bundle autoDiscover(String userName, String password) throws RemoteException {
@@ -132,6 +133,11 @@ public class ExchangeUtils {
         }
 
         public IBinder asBinder() {
+            return null;
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
             return null;
         }
     }
