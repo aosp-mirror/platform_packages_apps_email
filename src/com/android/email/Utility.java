@@ -54,6 +54,7 @@ import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -854,9 +855,25 @@ public class Utility {
     }
 
     public static boolean attachmentExists(Context context, long accountId, Attachment attachment) {
-        File saveToFile =
-            AttachmentProvider.getAttachmentFilename(context, accountId, attachment.mId);
-        return saveToFile.exists() && attachment.mContentUri != null;
+        if ((attachment == null) || (TextUtils.isEmpty(attachment.mContentUri))) {
+            Log.w(Email.LOG_TAG, "ContentUri null.");
+            return false;
+        }
+        if (Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "attachmentExists URI=" + attachment.mContentUri);
+        }
+        Uri fileUri = Uri.parse(attachment.mContentUri);
+        try {
+            InputStream inStream = context.getContentResolver().openInputStream(fileUri);
+            try {
+                inStream.close();
+            } catch (IOException e) {
+                // Nothing to be done if can't close the stream
+            }
+            return true;
+        } catch (FileNotFoundException e) {
+            return false;
+        }
     }
 
     /**
