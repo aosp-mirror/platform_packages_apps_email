@@ -856,22 +856,27 @@ public class Utility {
 
     public static boolean attachmentExists(Context context, long accountId, Attachment attachment) {
         if ((attachment == null) || (TextUtils.isEmpty(attachment.mContentUri))) {
-            Log.w(Email.LOG_TAG, "ContentUri null.");
+            Log.w(Email.LOG_TAG, "attachmentExists ContentUri null.");
             return false;
         }
         if (Email.DEBUG) {
             Log.d(Email.LOG_TAG, "attachmentExists URI=" + attachment.mContentUri);
         }
-        Uri fileUri = Uri.parse(attachment.mContentUri);
         try {
-            InputStream inStream = context.getContentResolver().openInputStream(fileUri);
+            Uri fileUri = Uri.parse(attachment.mContentUri);
             try {
-                inStream.close();
-            } catch (IOException e) {
-                // Nothing to be done if can't close the stream
+                InputStream inStream = context.getContentResolver().openInputStream(fileUri);
+                try {
+                    inStream.close();
+                } catch (IOException e) {
+                    // Nothing to be done if can't close the stream
+                }
+                return true;
+            } catch (FileNotFoundException e) {
+                return false;
             }
-            return true;
-        } catch (FileNotFoundException e) {
+        } catch (RuntimeException re) {
+            Log.w(Email.LOG_TAG, "attachmentExists RuntimeException=" + re);
             return false;
         }
     }
