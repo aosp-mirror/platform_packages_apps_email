@@ -73,6 +73,7 @@ import java.util.Set;
 public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
         OnClickListener {
+    private static final String BUNDLE_LIST_STATE = "MessageListFragment.state.listState";
 
     private static final int LOADER_ID_MAILBOX_LOADER = 1;
     private static final int LOADER_ID_MESSAGES_LOADER = 2;
@@ -112,6 +113,8 @@ public class MessageListFragment extends ListFragment
      * {@link ActionMode} shown when 1 or more message is selected.
      */
     private ActionMode mSelectionMode;
+
+    private Utility.ListStateSaver mRestoredListState;
 
     /**
      * Callback interface that owning activities must implement
@@ -252,11 +255,13 @@ public class MessageListFragment extends ListFragment
         }
         super.onSaveInstanceState(outState);
         mListAdapter.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_LIST_STATE, new Utility.ListStateSaver(getListView()));
     }
 
     // Unit tests use it
     /* package */void loadState(Bundle savedInstanceState) {
         mListAdapter.loadState(savedInstanceState);
+        mRestoredListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
     }
 
     public void setCallback(Callback callback) {
@@ -824,15 +829,18 @@ public class MessageListFragment extends ListFragment
 
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
-            final Utility.ListStateSaver lss = new Utility.ListStateSaver(lv);
+            final Utility.ListStateSaver lss;
+            if (mRestoredListState != null) {
+                lss = mRestoredListState;
+                mRestoredListState = null;
+            } else {
+                lss = new Utility.ListStateSaver(lv);
+            }
 
             // Update the list
             mListAdapter.changeCursor(cursor);
             setListAdapter(mListAdapter);
             setListShown(true);
-
-            // Restore the state
-            lss.restore(lv);
 
             // Various post processing...
             // (resetNewMessageCount should be here. See above.)
@@ -840,6 +848,10 @@ public class MessageListFragment extends ListFragment
             addFooterView();
             updateSelectionMode();
             showSendPanelIfNecessary();
+
+            // Restore the state -- it has to be the last.
+            // (Some of the "post processing" resets the state.)
+            lss.restore(lv);
         }
     }
 
