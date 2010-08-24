@@ -46,8 +46,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -69,7 +69,7 @@ public class MessageList extends Activity implements OnClickListener,
     private Button mDeleteButton;
     private TextView mErrorBanner;
 
-    private final Controller mController = Controller.getInstance();
+    private final Controller mController = Controller.getInstance(getApplication());
     private ControllerResultUiThreadWrapper<ControllerResults> mControllerCallback;
 
     private TextView mLeftTitle;
@@ -386,7 +386,6 @@ public class MessageList extends Activity implements OnClickListener,
      *
      * @deprecated not used any longer.  remove them.
      */
-    @Deprecated
     public void onSelectionChanged() {
         showMultiPanel(mListFragment.getSelectedCount() > 0);
     }
@@ -395,7 +394,6 @@ public class MessageList extends Activity implements OnClickListener,
      * @deprecated not used any longer.  remove them.  (with associated resources, strings,
      * members, etc)
      */
-    @Deprecated
     private void updateFooterButtonNames () {
         // Show "unread_action" when one or more read messages are selected.
         if (mListFragment.doesSelectionContainReadMessage()) {
@@ -416,7 +414,6 @@ public class MessageList extends Activity implements OnClickListener,
      *
      * @deprecated not used any longer.  remove them.
      */
-    @Deprecated
     private void showMultiPanel(boolean show) {
         if (show && mMultiSelectPanel.getVisibility() != View.VISIBLE) {
             mMultiSelectPanel.setVisibility(View.VISIBLE);

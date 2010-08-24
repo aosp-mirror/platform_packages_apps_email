@@ -17,6 +17,7 @@
 package com.android.email;
 
 import com.android.email.activity.AccountShortcutPicker;
+import com.android.email.activity.Debug;
 import com.android.email.activity.MessageCompose;
 import com.android.email.provider.EmailContent;
 import com.android.email.service.AttachmentDownloadService;
@@ -28,9 +29,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import java.io.File;
+import java.util.HashMap;
 
 public class Email extends Application {
     public static final String LOG_TAG = "Email";
@@ -263,11 +266,7 @@ public class Email extends Application {
              * And now if accounts do exist then we've just enabled the service and we want to
              * schedule alarms for the new accounts.
              */
-            // If this is running at start-up, Controller might not be running as a Service yet
-            // In this case, ignore - when it starts, it will call MailService.actionReschedule()
-            if (Controller.getInstance() != null) {
-                MailService.actionReschedule(context);
-            }
+            MailService.actionReschedule(context);
         }
         // Start/stop the AttachmentDownloadService, depending on whether there are any accounts
         Intent intent = new Intent(context, AttachmentDownloadService.class);
@@ -276,7 +275,6 @@ public class Email extends Application {
         } else {
             context.stopService(intent);
         }
-        context.startService(new Intent(context, Controller.class));
     }
 
     @Override
@@ -285,6 +283,14 @@ public class Email extends Application {
         Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.getEnableDebugLogging();
         setTempDirectory(this);
+
+        // Tie MailRefreshManager to the Controller.
+        RefreshManager.getInstance(this);
+        // Reset all accounts to default visible window
+        Controller.getInstance(this).resetVisibleLimits();
+
+        // Enable logging in the EAS service, so it starts up as early as possible.
+        Debug.updateLoggingFlags(this);
     }
 
     /**

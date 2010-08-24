@@ -117,7 +117,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
                 if (result == null) {
                     return;
                 }
-                final String accountName = result[0];
+                final String accountName = (String) result[0];
                 // accountName is null if account name can't be retrieved or query exception
                 if (accountName == null) {
                     // something is wrong with this account
@@ -134,13 +134,13 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     @Override
     public void onPause() {
         super.onPause();
-        Controller.getInstance().removeResultCallback(mControllerCallback);
+        Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Controller.getInstance().addResultCallback(mControllerCallback);
+        Controller.getInstance(getApplication()).addResultCallback(mControllerCallback);
 
         // Exit immediately if the accounts list has changed (e.g. externally deleted)
         if (Email.getNotifyUiAccountsChanged()) {
@@ -211,7 +211,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
      * Refresh the mailbox list
      */
     private void onRefresh() {
-        Controller controller = Controller.getInstance();
+        Controller controller = Controller.getInstance(getApplication());
         showProgressIcon(true);
         mListFragment.onRefresh();
     }

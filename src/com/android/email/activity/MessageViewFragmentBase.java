@@ -210,7 +210,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mDateFormat = android.text.format.DateFormat.getDateFormat(mContext); // short format
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(mContext); // 12/24 date format
 
-        mController = Controller.getInstance();
+        mController = Controller.getInstance(mContext);
     }
 
     @Override

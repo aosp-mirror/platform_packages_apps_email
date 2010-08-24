@@ -22,10 +22,10 @@ import com.android.email.Email;
 import com.android.email.TestUtils;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
 import android.test.InstrumentationTestCase;
@@ -337,7 +337,7 @@ public class MailboxFinderTest extends InstrumentationTestCase {
         }
 
         protected MockController(Context context) {
-            super();
+            super(context);
         }
 
         @Override

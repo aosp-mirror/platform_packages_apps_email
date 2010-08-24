@@ -206,7 +206,7 @@ public class MailService extends Service {
         this.mStartId = startId;
         String action = intent.getAction();
 
-        mController = Controller.getInstance();
+        mController = Controller.getInstance(this);
         mController.addResultCallback(mControllerCallback);
         mContentResolver = getContentResolver();
 
@@ -336,7 +336,7 @@ public class MailService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Controller.getInstance().removeResultCallback(mControllerCallback);
+        Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
         // Unregister our account listener
         if (mAccountsUpdatedListener != null) {
             AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);

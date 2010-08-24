@@ -17,13 +17,13 @@
 package com.android.email;
 
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
 import android.net.Uri;
@@ -72,7 +72,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
     public static class TestController extends Controller {
 
         protected TestController(Context providerContext, Context systemContext) {
-            super();
+            super(systemContext);
             setProviderContext(providerContext);
         }
     }
