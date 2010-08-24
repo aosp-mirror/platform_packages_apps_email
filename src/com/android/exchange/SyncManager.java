@@ -427,6 +427,9 @@ public class SyncManager extends Service implements Runnable {
         public void setCallback(IEmailServiceCallback cb) throws RemoteException {
             mCallbackList.register(cb);
         }
+
+        public void moveMessage(long messageId, long mailboxId) throws RemoteException {
+        }
     };
 
     static class AccountList extends ArrayList<Account> {

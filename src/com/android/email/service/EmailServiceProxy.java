@@ -317,6 +317,17 @@ public class EmailServiceProxy implements IEmailService {
         return false;
     }
 
+    public void moveMessage(final long messageId, final long mailboxId) throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    mService.moveMessage(messageId, mailboxId);
+                } catch (RemoteException e) {
+                }
+            }
+        });
+    }
+
     public IBinder asBinder() {
         return null;
     }
