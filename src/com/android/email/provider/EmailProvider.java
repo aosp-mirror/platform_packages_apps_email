@@ -635,6 +635,19 @@ public class EmailProvider extends ContentProvider {
         return helper.getReadableDatabase();
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public void shutdown() {
+        if (mDatabase != null) {
+            mDatabase.close();
+            mDatabase = null;
+        }
+        if (mBodyDatabase != null) {
+            mBodyDatabase.close();
+            mBodyDatabase = null;
+        }
+    }
+
     /*package*/ static void deleteOrphans(SQLiteDatabase database, String tableName) {
         if (database != null) {
             // We'll look at all of the items in the table; there won't be many typically
