@@ -2368,7 +2368,7 @@ public class SyncManager extends Service implements Runnable {
             int exitStatus = svc.mExitStatus;
             switch (exitStatus) {
                 case AbstractSyncService.EXIT_DONE:
-                    if (!svc.mRequests.isEmpty()) {
+                    if (svc.hasPendingRequests()) {
                         // TODO Handle this case
                     }
                     errorMap.remove(mailboxId);

@@ -2028,7 +2028,7 @@ public class EasSyncService extends AbstractSyncService {
 
         boolean moreAvailable = true;
         int loopingCount = 0;
-        while (!mStop && moreAvailable) {
+        while (!mStop && (moreAvailable || hasPendingRequests())) {
             // If we have no connectivity, just exit cleanly.  SyncManager will start us up again
             // when connectivity has returned
             if (!hasConnectivity()) {
@@ -2046,12 +2046,11 @@ public class EasSyncService extends AbstractSyncService {
             // Now, handle various requests
             while (true) {
                 Request req = null;
-                synchronized (mRequests) {
-                    if (mRequests.isEmpty()) {
-                        break;
-                    } else {
-                        req = mRequests.get(0);
-                    }
+
+                if (mRequestQueue.isEmpty()) {
+                    break;
+                } else {
+                    req = mRequestQueue.peek();
                 }
 
                 // Our two request types are PartRequest (loading attachment) and
@@ -2064,9 +2063,12 @@ public class EasSyncService extends AbstractSyncService {
 
                 // If there's an exception handling the request, we'll throw it
                 // Otherwise, we remove the request
-                synchronized(mRequests) {
-                    mRequests.remove(req);
-                }
+                mRequestQueue.remove();
+            }
+
+            // Don't sync if we've got nothing to do
+            if (!moreAvailable) {
+                continue;
             }
 
             Serializer s = new Serializer();
@@ -2134,7 +2136,6 @@ public class EasSyncService extends AbstractSyncService {
                 if (header != null && header.getValue().equals("0")) {
                     // If this happens, exit cleanly, and change the interval from push to ping
                     // if necessary
-                    mExitStatus = EXIT_DONE;
                     userLog("Empty sync response; finishing");
                     if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
                         userLog("Changing mailbox from push to ping");
@@ -2144,7 +2145,12 @@ public class EasSyncService extends AbstractSyncService {
                                 ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId), cv,
                                 null, null);
                     }
-                    return;
+                    if (mRequestQueue.isEmpty()) {
+                        mExitStatus = EXIT_DONE;
+                        return;
+                    } else {
+                        continue;
+                    }
                 }
                 InputStream is = resp.getEntity().getContent();
                 if (is != null) {
