@@ -1959,4 +1959,33 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         account.mHostAuthRecv.mProtocol = "eas";
         assertTrue(account.isEasAccount());
     }
+
+    public void testGetKeyColumnLong() {
+        final Context c = mMockContext;
+        Account a = ProviderTestUtils.setupAccount("acct", true, c);
+        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a.mId, true, c, Mailbox.TYPE_MAIL);
+        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", a.mId, true, c, Mailbox.TYPE_MAIL);
+        Message m1 = createMessage(c, b1, false, false);
+        Message m2 = createMessage(c, b2, false, false);
+        assertEquals(a.mId, Message.getKeyColumnLong(c, m1.mId, MessageColumns.ACCOUNT_KEY));
+        assertEquals(a.mId, Message.getKeyColumnLong(c, m2.mId, MessageColumns.ACCOUNT_KEY));
+        assertEquals(b1.mId, Message.getKeyColumnLong(c, m1.mId, MessageColumns.MAILBOX_KEY));
+        assertEquals(b2.mId, Message.getKeyColumnLong(c, m2.mId, MessageColumns.MAILBOX_KEY));
+    }
+
+    public void testGetAccountMailboxFromMessageId() {
+        final Context c = mMockContext;
+        Account a = ProviderTestUtils.setupAccount("acct", true, c);
+        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a.mId, true, c, Mailbox.TYPE_MAIL);
+        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", a.mId, true, c, Mailbox.TYPE_MAIL);
+        Message m1 = createMessage(c, b1, false, false);
+        Message m2 = createMessage(c, b2, false, false);
+        ProviderTestUtils.assertAccountEqual("x", a, Account.getAccountForMessageId(c, m1.mId));
+        ProviderTestUtils.assertAccountEqual("x", a, Account.getAccountForMessageId(c, m2.mId));
+        // Restore the mailboxes, since the unread & total counts will have changed
+        b1 = Mailbox.restoreMailboxWithId(c, b1.mId);
+        b2 = Mailbox.restoreMailboxWithId(c, b2.mId);
+        ProviderTestUtils.assertMailboxEqual("x", b1, Mailbox.getMailboxForMessageId(c, m1.mId));
+        ProviderTestUtils.assertMailboxEqual("x", b2, Mailbox.getMailboxForMessageId(c, m2.mId));
+    }
 }
