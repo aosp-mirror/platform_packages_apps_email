@@ -278,8 +278,8 @@
         </service>
 
         <service
-            android:name=".Controller"
-            android:enabled="false"
+            android:name=".Controller$ControllerService"
+            android:enabled="true"
             >
         </service>
 

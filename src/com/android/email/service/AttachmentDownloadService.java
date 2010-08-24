@@ -16,10 +16,10 @@
 
 package com.android.email.service;
 
-import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.Controller.ControllerService;
 import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.AttachmentProvider;
@@ -484,7 +484,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             if (protocol.equals("eas")) {
                 serviceClass = SyncManager.class;
             } else {
-                serviceClass = Controller.class;
+                serviceClass = ControllerService.class;
             }
             mAccountServiceMap.put(accountId, serviceClass);
         }

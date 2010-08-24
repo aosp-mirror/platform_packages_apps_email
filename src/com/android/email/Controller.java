@@ -61,7 +61,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * based code.  We implement Service to allow loadAttachment calls to be sent in a consistent manner
  * to IMAP, POP3, and EAS by AttachmentDownloadService
  */
-public class Controller extends Service {
+public class Controller {
     private static final String TAG = "Controller";
     private static Controller sInstance;
     private final Context mContext;
@@ -120,29 +120,6 @@ public class Controller extends Service {
      */
     public void cleanupForTest() {
         mLegacyController.removeListener(mLegacyListener);
-    }
-
-    /**
-     * As a Service, Controller needs this no-argument constructor, but only because there is
-     * another constructor defined for the class.  In the typical case for a Service, there are
-     * no defined constructors, so the default constructor is used when the Service is instantiated
-     * by ServiceManager (initialization would be performed in onCreate or onStartCommand, etc.)
-     *
-     * Because of this, the Controller Service, when bound, creates a second instance of the class,
-     * i.e. in addition to the "singleton" created/returned by getInstance.  This is unfortunate,
-     * but not disruptive, as the Service Controller instance references members of sInstance (the
-     * previously-singleton Controller); it's perhaps best to think of the Service instance as a
-     * delegate.
-     *
-     * TODO: Have Controller behave more like a real Service.  This means that the lifecycle of
-     * the Service (and thus the singleton instance) should be managed by ServiceManager (as happens
-     * with AttachmentDownloadService and MailService), its initialization should be handled in
-     * onCreate(), etc.  When this is done (and it should be relatively simple), we will be back
-     * to a true singleton
-     */
-    public Controller() {
-        mContext = mProviderContext = this;
-        mLegacyController = null;
     }
 
     /**
@@ -1478,99 +1455,103 @@ public class Controller extends Service {
         }
     };
 
-    /**
-     * Create our EmailService implementation here.  For now, only loadAttachment is supported; the
-     * intention, however, is to move more functionality to the service interface
-     */
-    private final IEmailService.Stub mBinder = new IEmailService.Stub() {
+    public static class ControllerService extends Service {
+        /**
+         * Create our EmailService implementation here.  For now, only loadAttachment is supported; the
+         * intention, however, is to move more functionality to the service interface
+         */
+        private final IEmailService.Stub mBinder = new IEmailService.Stub() {
 
-        public Bundle validate(String protocol, String host, String userName, String password,
-                int port, boolean ssl, boolean trustCertificates) throws RemoteException {
-            return null;
-        }
-
-        public Bundle autoDiscover(String userName, String password) throws RemoteException {
-            return null;
-        }
-
-        public void startSync(long mailboxId) throws RemoteException {
-        }
-
-        public void stopSync(long mailboxId) throws RemoteException {
-        }
-
-        public void loadAttachment(long attachmentId, String destinationFile,
-                String contentUriString) throws RemoteException {
-            if (Email.DEBUG) {
-                Log.d(TAG, "loadAttachment: " + attachmentId + " to " + destinationFile);
+            public Bundle validate(String protocol, String host, String userName, String password,
+                    int port, boolean ssl, boolean trustCertificates) throws RemoteException {
+                return null;
             }
-            Attachment att = Attachment.restoreAttachmentWithId(Controller.this, attachmentId);
-            if (att != null) {
-                Message msg = Message.restoreMessageWithId(Controller.this, att.mMessageKey);
-                if (msg != null) {
-                    // If the message is a forward and the attachment needs downloading, we need
-                    // to retrieve the message from the source, rather than from the message
-                    // itself
-                    if ((msg.mFlags & Message.FLAG_TYPE_FORWARD) != 0) {
-                        String[] cols = Utility.getRowColumns(Controller.this, Body.CONTENT_URI,
-                                BODY_SOURCE_KEY_PROJECTION, WHERE_MESSAGE_KEY,
-                                new String[] {Long.toString(msg.mId)});
-                        if (cols != null) {
-                            msg = Message.restoreMessageWithId(Controller.this,
-                                    Long.parseLong(cols[BODY_SOURCE_KEY_COLUMN]));
-                            if (msg == null) {
-                                // TODO: We can try restoring from the deleted table at this point...
-                                return;
+
+            public Bundle autoDiscover(String userName, String password) throws RemoteException {
+                return null;
+            }
+
+            public void startSync(long mailboxId) throws RemoteException {
+            }
+
+            public void stopSync(long mailboxId) throws RemoteException {
+            }
+
+            public void loadAttachment(long attachmentId, String destinationFile,
+                    String contentUriString) throws RemoteException {
+                if (Email.DEBUG) {
+                    Log.d(TAG, "loadAttachment: " + attachmentId + " to " + destinationFile);
+                }
+                Attachment att = Attachment.restoreAttachmentWithId(ControllerService.this,
+                        attachmentId);
+                if (att != null) {
+                    Message msg = Message.restoreMessageWithId(ControllerService.this,
+                            att.mMessageKey);
+                    if (msg != null) {
+                        // If the message is a forward and the attachment needs downloading, we need
+                        // to retrieve the message from the source, rather than from the message
+                        // itself
+                        if ((msg.mFlags & Message.FLAG_TYPE_FORWARD) != 0) {
+                            String[] cols = Utility.getRowColumns(ControllerService.this,
+                                    Body.CONTENT_URI, BODY_SOURCE_KEY_PROJECTION, WHERE_MESSAGE_KEY,
+                                    new String[] {Long.toString(msg.mId)});
+                            if (cols != null) {
+                                msg = Message.restoreMessageWithId(ControllerService.this,
+                                        Long.parseLong(cols[BODY_SOURCE_KEY_COLUMN]));
+                                if (msg == null) {
+                                    // TODO: We can try restoring from the deleted table at this point...
+                                    return;
+                                }
                             }
                         }
+                        MessagingController legacyController = sInstance.mLegacyController;
+                        LegacyListener legacyListener = sInstance.mLegacyListener;
+                        legacyController.loadAttachment(msg.mAccountKey, msg.mId, msg.mMailboxKey,
+                                attachmentId, legacyListener);
                     }
-                    MessagingController legacyController = sInstance.mLegacyController;
-                    LegacyListener legacyListener = sInstance.mLegacyListener;
-                    legacyController.loadAttachment(msg.mAccountKey, msg.mId, msg.mMailboxKey,
-                            attachmentId, legacyListener);
                 }
             }
-        }
 
-        public void updateFolderList(long accountId) throws RemoteException {
-        }
+            public void updateFolderList(long accountId) throws RemoteException {
+            }
 
-        public void hostChanged(long accountId) throws RemoteException {
-        }
+            public void hostChanged(long accountId) throws RemoteException {
+            }
 
-        public void setLogging(int on) throws RemoteException {
-        }
+            public void setLogging(int on) throws RemoteException {
+            }
 
-        public void sendMeetingResponse(long messageId, int response) throws RemoteException {
-        }
+            public void sendMeetingResponse(long messageId, int response) throws RemoteException {
+            }
 
-        public void loadMore(long messageId) throws RemoteException {
-        }
+            public void loadMore(long messageId) throws RemoteException {
+            }
 
-        // The following three methods are not implemented in this version
-        public boolean createFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
+            // The following three methods are not implemented in this version
+            public boolean createFolder(long accountId, String name) throws RemoteException {
+                return false;
+            }
 
-        public boolean deleteFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
+            public boolean deleteFolder(long accountId, String name) throws RemoteException {
+                return false;
+            }
 
-        public boolean renameFolder(long accountId, String oldName, String newName)
-                throws RemoteException {
-            return false;
-        }
+            public boolean renameFolder(long accountId, String oldName, String newName)
+                    throws RemoteException {
+                return false;
+            }
 
-        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
-            sCallbackList.register(cb);
-        }
+            public void setCallback(IEmailServiceCallback cb) throws RemoteException {
+                sCallbackList.register(cb);
+            }
 
-        public void moveMessage(long messageId, long mailboxId) throws RemoteException {
-        }
-    };
+            public void moveMessage(long messageId, long mailboxId) throws RemoteException {
+            }
+        };
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
+        @Override
+        public IBinder onBind(Intent intent) {
+            return mBinder;
+        }
     }
 }
