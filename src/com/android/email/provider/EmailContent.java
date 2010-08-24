@@ -793,6 +793,15 @@ public abstract class EmailContent {
         public static int getFavoriteMessageCount(Context context) {
             return count(context, Message.CONTENT_URI, FAVORITE_COUNT_SELECTION, null);
         }
+
+        public static long getKeyColumnLong(Context context, long messageId, String column) {
+            String[] columns =
+                Utility.getRowColumns(context, Message.CONTENT_URI, messageId, column);
+            if (columns != null && columns[0] != null) {
+                return Long.parseLong(columns[0]);
+            }
+            return -1;
+        }
     }
 
     public interface AccountColumns {
@@ -1388,6 +1397,21 @@ public abstract class EmailContent {
             HostAuth hostAuth = HostAuth.restoreHostAuthWithId(context, mHostAuthKeyRecv);
             if (hostAuth != null) {
                 return hostAuth.mProtocol;
+            }
+            return null;
+        }
+
+        /**
+         * Return the account for a message with a given id
+         * @param context the caller's context
+         * @param messageId the id of the message
+         * @return the account, or null if the account doesn't exist
+         */
+        public static Account getAccountForMessageId(Context context, long messageId) {
+            long accountId = Message.getKeyColumnLong(context, messageId,
+                    MessageColumns.ACCOUNT_KEY);
+            if (accountId != -1) {
+                return Account.restoreAccountWithId(context, accountId);
             }
             return null;
         }
@@ -2227,6 +2251,21 @@ public abstract class EmailContent {
                     MAILBOX_TYPE_SELECTION,
                     new String[] { String.valueOf(type) }, null, MESSAGE_COUNT_COUNT_COLUMN)
                             .intValue();
+        }
+
+        /**
+         * Return the mailbox for a message with a given id
+         * @param context the caller's context
+         * @param messageId the id of the message
+         * @return the mailbox, or null if the mailbox doesn't exist
+         */
+        public static Mailbox getMailboxForMessageId(Context context, long messageId) {
+            long mailboxId = Message.getKeyColumnLong(context, messageId,
+                    MessageColumns.MAILBOX_KEY);
+            if (mailboxId != -1) {
+                return Mailbox.restoreMailboxWithId(context, mailboxId);
+            }
+            return null;
         }
     }
 
