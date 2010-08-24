@@ -429,6 +429,7 @@ public class SyncManager extends Service implements Runnable {
         }
 
         public void moveMessage(long messageId, long mailboxId) throws RemoteException {
+            sendMessageRequest(new MessageMoveRequest(messageId, mailboxId));
         }
     };
 

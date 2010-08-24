@@ -35,6 +35,7 @@ import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.email.service.MailService;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
+import com.android.exchange.MessageMoveRequest;
 import com.android.exchange.utility.CalendarUtilities;
 
 import android.content.ContentProviderOperation;
@@ -775,9 +776,22 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     boolean flagChange = false;
                     boolean readChange = false;
 
-                    int flag = 0;
+                    long mailbox = currentCursor.getLong(UPDATES_MAILBOX_KEY_COLUMN);
+                    if (mailbox != c.getLong(Message.LIST_MAILBOX_KEY_COLUMN)) {
+                        // The message has moved to another mailbox; add a request for this
+                        // Note: The Sync command doesn't handle moving messages, so we need
+                        // to handle this as a "request" (similar to meeting response and
+                        // attachment load)
+                        mService.addRequest(new MessageMoveRequest(id, mailbox));
+                        // Regardless of other changes that might be made, we don't want to indicate
+                        // that this message has been updated until the move request has been
+                        // handled (without this, a crash between the flag upsync and the move
+                        // would cause the move to be lost)
+                        mUpdatedIdList.remove(id);
+                    }
 
                     // We can only send flag changes to the server in 12.0 or later
+                    int flag = 0;
                     if (mService.mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
                         flag = currentCursor.getInt(UPDATES_FLAG_COLUMN);
                         if (flag != c.getInt(Message.LIST_FAVORITE_COLUMN)) {

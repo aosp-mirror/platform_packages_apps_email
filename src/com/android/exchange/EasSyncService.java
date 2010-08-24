@@ -32,6 +32,7 @@ import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.EmailServiceConstants;
 import com.android.email.service.EmailServiceProxy;
 import com.android.email.service.EmailServiceStatus;
@@ -43,6 +44,7 @@ import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
 import com.android.exchange.adapter.GalParser;
 import com.android.exchange.adapter.MeetingResponseParser;
+import com.android.exchange.adapter.MoveItemsParser;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
@@ -1062,6 +1064,69 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     /**
+     * Responds to a move request.  The MessageMoveRequest is basically our
+     * wrapper for the MoveItems service call
+     * @param req the request (message id and "to" mailbox id)
+     * @throws IOException
+     */
+    protected void messageMoveRequest(MessageMoveRequest req) throws IOException {
+        // Retrieve the message and mailbox; punt if either are null
+        Message msg = Message.restoreMessageWithId(mContext, req.mMessageId);
+        if (msg == null) return;
+        Cursor c = mContentResolver.query(ContentUris.withAppendedId(Message.UPDATED_CONTENT_URI,
+                msg.mId), new String[] {MessageColumns.MAILBOX_KEY}, null, null, null);
+        Mailbox srcMailbox = null;
+        try {
+            if (!c.moveToNext()) return;
+            srcMailbox = Mailbox.restoreMailboxWithId(mContext, c.getLong(0));
+        } finally {
+            c.close();
+        }
+        if (srcMailbox == null) return;
+        Mailbox dstMailbox = Mailbox.restoreMailboxWithId(mContext, req.mMailboxId);
+        if (dstMailbox == null) return;
+        Serializer s = new Serializer();
+        s.start(Tags.MOVE_MOVE_ITEMS).start(Tags.MOVE_MOVE);
+        s.data(Tags.MOVE_SRCMSGID, msg.mServerId);
+        s.data(Tags.MOVE_SRCFLDID, srcMailbox.mServerId);
+        s.data(Tags.MOVE_DSTFLDID, dstMailbox.mServerId);
+        s.end().end().done();
+        HttpResponse res = sendHttpClientPost("MoveItems", s.toByteArray());
+        int status = res.getStatusLine().getStatusCode();
+        if (status == HttpStatus.SC_OK) {
+            HttpEntity e = res.getEntity();
+            int len = (int)e.getContentLength();
+            InputStream is = res.getEntity().getContent();
+            if (len != 0) {
+                MoveItemsParser p = new MoveItemsParser(is, this);
+                p.parse();
+                int statusCode = p.getStatusCode();
+                if (statusCode == MoveItemsParser.STATUS_CODE_REVERT) {
+                    // Restore the old mailbox id
+                    ContentValues cv = new ContentValues();
+                    cv.put(MessageColumns.MAILBOX_KEY, srcMailbox.mServerId);
+                    mContentResolver.update(ContentUris.withAppendedId(
+                            Message.CONTENT_URI, req.mMessageId), cv, null, null);
+                }
+                if (statusCode == MoveItemsParser.STATUS_CODE_SUCCESS ||
+                        statusCode == MoveItemsParser.STATUS_CODE_REVERT) {
+                    // If we revert or if we succeeded, we no longer need the update information
+                    mContentResolver.delete(ContentUris.withAppendedId(
+                            Message.UPDATED_CONTENT_URI, req.mMessageId), null, null);
+                } else {
+                    // In this case, we're retrying, so do nothing.  The request will be handled
+                    // next sync
+                }
+            }
+        } else if (isAuthError(status)) {
+            throw new EasAuthenticationException();
+        } else {
+            userLog("Move items request failed, code: " + status);
+            throw new IOException();
+        }
+    }
+
+    /**
      * Responds to a meeting request.  The MeetingResponseRequest is basically our
      * wrapper for the meetingResponse service call
      * @param req the request (message id and response code)
@@ -2059,6 +2124,8 @@ public class EasSyncService extends AbstractSyncService {
                     loadAttachment((PartRequest)req);
                 } else if (req instanceof MeetingResponseRequest) {
                     sendMeetingResponse((MeetingResponseRequest)req);
+                } else if (req instanceof MessageMoveRequest) {
+                    messageMoveRequest((MessageMoveRequest)req);
                 }
 
                 // If there's an exception handling the request, we'll throw it
