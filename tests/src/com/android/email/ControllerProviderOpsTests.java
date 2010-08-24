@@ -17,19 +17,20 @@
 package com.android.email;
 
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
 import android.net.Uri;
 import android.test.ProviderTestCase2;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Tests of the Controller class that depend on the underlying provider.
@@ -156,11 +157,39 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
     }
 
     /**
+     * Test the "move message" function.
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public void testMoveMessage() throws InterruptedException, ExecutionException {
+        Account account1 = ProviderTestUtils.setupAccount("message-move", true, mProviderContext);
+        long account1Id = account1.mId;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mProviderContext);
+        long box1Id = box1.mId;
+        Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, true, mProviderContext);
+        long box2Id = box2.mId;
+
+        Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
+                true, mProviderContext);
+        long message1Id = message1.mId;
+
+        // Because moveMessage runs asynchronously, call get() to force it to complete
+        mTestController.moveMessage(message1Id, box2Id).get();
+
+        // now read back a fresh copy and confirm it's in the trash
+        Message message1get = EmailContent.Message.restoreMessageWithId(mProviderContext,
+                message1Id);
+        assertEquals(box2Id, message1get.mMailboxKey);
+    }
+
+    /**
      * Test the "delete message" function.  Sunny day:
      *    - message/mailbox/account all exist
      *    - trash mailbox exists
+     * @throws ExecutionException
+     * @throws InterruptedException
      */
-    public void testDeleteMessage() {
+    public void testDeleteMessage() throws InterruptedException, ExecutionException {
         Account account1 = ProviderTestUtils.setupAccount("message-delete", true, mProviderContext);
         long account1Id = account1.mId;
         Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mProviderContext);
@@ -174,7 +203,8 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                 true, mProviderContext);
         long message1Id = message1.mId;
 
-        mTestController.deleteMessage(message1Id, account1Id);
+        // Because deleteMessage now runs asynchronously, call get() to force it to complete
+        mTestController.deleteMessage(message1Id, account1Id).get();
 
         // now read back a fresh copy and confirm it's in the trash
         Message message1get = EmailContent.Message.restoreMessageWithId(mProviderContext,
@@ -186,7 +216,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                 true, mProviderContext);
         long message2Id = message2.mId;
 
-        mTestController.deleteMessage(message2Id, -1);
+        mTestController.deleteMessage(message2Id, -1).get();
 
         // now read back a fresh copy and confirm it's in the trash
         Message message2get = EmailContent.Message.restoreMessageWithId(mProviderContext,
@@ -196,8 +226,10 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
 
     /**
      * Test deleting message when there is no trash mailbox
+     * @throws ExecutionException
+     * @throws InterruptedException
      */
-    public void testDeleteMessageNoTrash() {
+    public void testDeleteMessageNoTrash() throws InterruptedException, ExecutionException {
         Account account1 =
                 ProviderTestUtils.setupAccount("message-delete-notrash", true, mProviderContext);
         long account1Id = account1.mId;
@@ -209,7 +241,8 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                         mProviderContext);
         long message1Id = message1.mId;
 
-        mTestController.deleteMessage(message1Id, account1Id);
+        // Because deleteMessage now runs asynchronously, call get() to force it to complete
+        mTestController.deleteMessage(message1Id, account1Id).get();
 
         // now read back a fresh copy and confirm it's in the trash
         Message message1get =

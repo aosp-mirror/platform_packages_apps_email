@@ -42,6 +42,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
@@ -675,67 +676,75 @@ public class Controller {
      *
      * @param messageId The id of the message to "delete".
      * @param accountId The id of the message's account, or -1 if not known by caller
-     *
-     * TODO: Move out of UI thread
-     * TODO: "get account a for message m" should be a utility
-     * TODO: "get mailbox of type n for account a" should be a utility
+     * @return the AsyncTask used to execute the deletion
      */
-    public void deleteMessage(long messageId, long accountId) {
-        ContentResolver resolver = mProviderContext.getContentResolver();
+    public AsyncTask<Void, Void, Void> deleteMessage(final long messageId, long accountId) {
+        return Utility.runAsync(new Runnable() {
+            public void run() {
+                // 1. Get the message's account
+                Account account = Account.getAccountForMessageId(mProviderContext, messageId);
 
-        // 1.  Look up acct# for message we're deleting
-        if (accountId == -1) {
-            accountId = lookupAccountForMessage(messageId);
-        }
-        if (accountId == -1) {
-            return;
-        }
+                // 2. Confirm that there is a trash mailbox available.  If not, create one
+                long trashMailboxId = findOrCreateMailboxOfType(account.mId, Mailbox.TYPE_TRASH);
 
-        // 2. Confirm that there is a trash mailbox available.  If not, create one
-        long trashMailboxId = findOrCreateMailboxOfType(accountId, Mailbox.TYPE_TRASH);
+                // 3. Get the message's original mailbox
+                Mailbox mailbox = Mailbox.getMailboxForMessageId(mProviderContext, messageId);
 
-        // 3.  Are we moving to trash or deleting?  It depends on where the message currently sits.
-        long sourceMailboxId = -1;
-        Cursor c = resolver.query(EmailContent.Message.CONTENT_URI,
-                MESSAGEID_TO_MAILBOXID_PROJECTION, EmailContent.RECORD_ID + "=?",
-                new String[] { Long.toString(messageId) }, null);
-        try {
-            sourceMailboxId = c.moveToFirst()
-                ? c.getLong(MESSAGEID_TO_MAILBOXID_COLUMN_MAILBOXID)
-                : -1;
-        } finally {
-            c.close();
-        }
+                // 4.  Drop non-essential data for the message (e.g. attachment files)
+                AttachmentProvider.deleteAllAttachmentFiles(mProviderContext, account.mId,
+                        messageId);
 
-        // 4.  Drop non-essential data for the message (e.g. attachment files)
-        AttachmentProvider.deleteAllAttachmentFiles(mProviderContext, accountId, messageId);
+                Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI,
+                        messageId);
+                ContentResolver resolver = mProviderContext.getContentResolver();
 
-        Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
-
-        // 5. Perform "delete" as appropriate
-        if (sourceMailboxId == trashMailboxId) {
-            // 5a. Delete from trash
-            resolver.delete(uri, null, null);
-        } else {
-            // 5b. Move to trash
-            ContentValues cv = new ContentValues();
-            cv.put(EmailContent.MessageColumns.MAILBOX_KEY, trashMailboxId);
-            resolver.update(uri, cv, null, null);
-        }
-
-        // 6.  Service runs automatically, MessagingController needs a kick
-        Account account = Account.restoreAccountWithId(mProviderContext, accountId);
-        if (account == null) {
-            return; // isMessagingController returns false for null, but let's make it clear.
-        }
-        if (isMessagingController(account)) {
-            final long syncAccountId = accountId;
-            Utility.runAsync(new Runnable() {
-                public void run() {
-                    mLegacyController.processPendingActions(syncAccountId);
+                // 5. Perform "delete" as appropriate
+                if (mailbox.mId == trashMailboxId) {
+                    // 5a. Delete from trash
+                    resolver.delete(uri, null, null);
+                } else {
+                    // 5b. Move to trash
+                    ContentValues cv = new ContentValues();
+                    cv.put(EmailContent.MessageColumns.MAILBOX_KEY, trashMailboxId);
+                    resolver.update(uri, cv, null, null);
                 }
-            });
-        }
+
+                if (isMessagingController(account)) {
+                    mLegacyController.processPendingActions(account.mId);
+                }
+            }
+        });
+    }
+
+    /**
+     * Moving a message to another folder
+     *
+     * This function has no callback, no result reporting, because the desired outcome
+     * is reflected entirely by changes to one or more cursors.
+     *
+     * @param messageId The id of the message to move
+     * @param mailboxId The id of the folder we're supposed to move the folder to
+     * @return the AsyncTask that will execute the move
+     */
+    public AsyncTask<Void, Void, Void> moveMessage(final long messageId, final long mailboxId) {
+        return Utility.runAsync(new Runnable() {
+            public void run() {
+                Account account = Account.getAccountForMessageId(mProviderContext, messageId);
+                if (account != null) {
+                    Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI,
+                            messageId);
+                    ContentValues cv = new ContentValues();
+                    cv.put(EmailContent.MessageColumns.MAILBOX_KEY, mailboxId);
+                    // Set the serverId to 0, since we don't know what the new server id will be
+                    // TODO: Check if this could be cv.setNull(EmailContent.Message.SERVER_ID)
+                    cv.put(EmailContent.Message.SERVER_ID, "0");
+                    mProviderContext.getContentResolver().update(uri, cv, null, null);
+                    if (isMessagingController(account)) {
+                        mLegacyController.processPendingActions(account.mId);
+                    }
+                }
+            }
+        });
     }
 
     /**
