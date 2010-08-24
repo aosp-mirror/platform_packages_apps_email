@@ -884,7 +884,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         // this attachment is new so save it to DB.
                         attachment.mMessageKey = mDraft.mId;
                         attachment.save(MessageCompose.this);
-                    } else if (attachment.mContentUri == null) {
+                    } else {
                         // We clone the attachment and save it again; otherwise, it will
                         // continue to point to the source message.  From this point forward,
                         // the attachments will be independent of the original message in the
