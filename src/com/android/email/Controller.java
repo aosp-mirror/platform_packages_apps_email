@@ -16,7 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.activity.Debug;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
@@ -34,7 +33,6 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.EmailServiceStatus;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
-import com.android.email.service.MailService;
 
 import android.app.Service;
 import android.content.ContentResolver;
@@ -66,9 +64,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Controller extends Service {
     private static final String TAG = "Controller";
     private static Controller sInstance;
-    private Context mContext;
+    private final Context mContext;
     private Context mProviderContext;
-    private MessagingController mLegacyController;
+    private final MessagingController mLegacyController;
     private final LegacyListener mLegacyListener = new LegacyListener();
     private final ServiceCallback mServiceCallback = new ServiceCallback();
     private final HashSet<Result> mListeners = new HashSet<Result>();
@@ -107,31 +105,11 @@ public class Controller extends Service {
     private static RemoteCallbackList<IEmailServiceCallback> sCallbackList =
         new RemoteCallbackList<IEmailServiceCallback>();
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        sInstance = this;
-        mContext = getApplicationContext();
-        mProviderContext = mContext;
+    protected Controller(Context _context) {
+        mContext = _context.getApplicationContext();
+        mProviderContext = _context;
         mLegacyController = MessagingController.getInstance(mProviderContext, this);
         mLegacyController.addListener(mLegacyListener);
-        // Tie MailRefreshManager to the Controller.
-        RefreshManager.getInstance(this);
-        // Reset all accounts to default visible window
-        resetVisibleLimits();
-        // Enable logging in the EAS service, so it starts up as early as possible.
-        Debug.updateLoggingFlags(this);
-        MailService.actionReschedule(this);
-        return 0;
-    }
-
-    @Override
-    public void onDestroy() {
-        sInstance = null;
-        Log.d(TAG, "Controller.onDestroy()");
-    }
-
-    public static Controller getInstance() {
-        return sInstance;
     }
 
     /**
@@ -142,6 +120,39 @@ public class Controller extends Service {
      */
     public void cleanupForTest() {
         mLegacyController.removeListener(mLegacyListener);
+    }
+
+    /**
+     * As a Service, Controller needs this no-argument constructor, but only because there is
+     * another constructor defined for the class.  In the typical case for a Service, there are
+     * no defined constructors, so the default constructor is used when the Service is instantiated
+     * by ServiceManager (initialization would be performed in onCreate or onStartCommand, etc.)
+     *
+     * Because of this, the Controller Service, when bound, creates a second instance of the class,
+     * i.e. in addition to the "singleton" created/returned by getInstance.  This is unfortunate,
+     * but not disruptive, as the Service Controller instance references members of sInstance (the
+     * previously-singleton Controller); it's perhaps best to think of the Service instance as a
+     * delegate.
+     *
+     * TODO: Have Controller behave more like a real Service.  This means that the lifecycle of
+     * the Service (and thus the singleton instance) should be managed by ServiceManager (as happens
+     * with AttachmentDownloadService and MailService), its initialization should be handled in
+     * onCreate(), etc.  When this is done (and it should be relatively simple), we will be back
+     * to a true singleton
+     */
+    public Controller() {
+        mContext = mProviderContext = this;
+        mLegacyController = null;
+    }
+
+    /**
+     * Gets or creates the singleton instance of Controller.
+     */
+    public synchronized static Controller getInstance(Context _context) {
+        if (sInstance == null) {
+            sInstance = new Controller(_context);
+        }
+        return sInstance;
     }
 
     /**

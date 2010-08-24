@@ -266,7 +266,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setContentView(R.layout.message_compose);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.list_title);
 
-        mController = Controller.getInstance();
+        mController = Controller.getInstance(getApplication());
         initViews();
         setDraftNeedsSaving(false);
 

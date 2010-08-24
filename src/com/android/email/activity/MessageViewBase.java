@@ -20,7 +20,11 @@ import com.android.email.Controller;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Browser;
 
 /**
  * Base class for {@link MessageView} and {@link MessageFileView}.
@@ -62,7 +66,7 @@ public abstract class MessageViewBase extends Activity implements MessageViewFra
         mFetchAttachmentProgressDialog.setIndeterminate(true);
         mFetchAttachmentProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
-        mController = Controller.getInstance();
+        mController = Controller.getInstance(getApplication());
     }
 
     @Override

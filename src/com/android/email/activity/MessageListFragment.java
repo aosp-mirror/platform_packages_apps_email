@@ -42,15 +42,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 import java.security.InvalidParameterException;
 import java.util.HashSet;
@@ -161,7 +161,7 @@ public class MessageListFragment extends ListFragment
         }
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
-        mController = Controller.getInstance();
+        mController = Controller.getInstance(mActivity);
         mRefreshManager = RefreshManager.getInstance(mActivity);
         mRefreshManager.registerListener(mRefreshListener);
     }
