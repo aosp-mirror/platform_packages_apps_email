@@ -56,8 +56,16 @@
                 android:description="@string/permission_access_provider_desc"/>
     <uses-permission android:name="com.android.email.permission.ACCESS_PROVIDER"/>
 
+    <!--
+      Regarding android:theme
+      Some of the activities can't handle ActionBar, which comes with the new
+      default theme "Holo".  Explicitly set the traditional default theme.
+      TODO This should go away.  (Or make Light.Holo default)
+    -->
     <application android:icon="@drawable/icon" android:label="@string/app_name"
-        android:name="Email">
+        android:name="Email"
+        android:theme="@android:style/Theme"
+        >
         <activity
             android:name=".activity.Welcome"
             android:theme="@android:style/Theme.WithActionBar" >
