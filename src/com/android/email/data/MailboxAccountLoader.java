@@ -30,6 +30,7 @@ public class MailboxAccountLoader extends AsyncTaskLoader<MailboxAccountLoader.R
     public static class Result {
         public Account mAccount;
         public Mailbox mMailbox;
+        public boolean mIsEasAccount;
 
         public boolean isFound() {
             return (mAccount != null) && (mMailbox != null);
@@ -55,6 +56,9 @@ public class MailboxAccountLoader extends AsyncTaskLoader<MailboxAccountLoader.R
             if (result.mMailbox != null) {
                 result.mAccount = Account.restoreAccountWithId(mContext,
                         result.mMailbox.mAccountKey);
+                if (result.mAccount != null) {
+                    result.mIsEasAccount = result.mAccount.isEasAccount(mContext) ;
+                }
             }
             if (result.mAccount == null) { // account removed??
                 result.mMailbox = null;

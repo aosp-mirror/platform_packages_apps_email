@@ -1943,21 +1943,21 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
                 read);
     }
 
-    public static void testAccountIsEasAccount() {
+    public void testAccountIsEasAccount() {
         Account account = new Account();
-        assertFalse(account.isEasAccount());
+        assertFalse(account.isEasAccount(mMockContext));
 
         account.mHostAuthRecv = new HostAuth();
-        assertFalse(account.isEasAccount());
+        assertFalse(account.isEasAccount(mMockContext));
 
         account.mHostAuthRecv.mProtocol = "";
-        assertFalse(account.isEasAccount());
+        assertFalse(account.isEasAccount(mMockContext));
 
         account.mHostAuthRecv.mProtocol = "x";
-        assertFalse(account.isEasAccount());
+        assertFalse(account.isEasAccount(mMockContext));
 
         account.mHostAuthRecv.mProtocol = "eas";
-        assertTrue(account.isEasAccount());
+        assertTrue(account.isEasAccount(mMockContext));
     }
 
     public void testGetKeyColumnLong() {

@@ -88,7 +88,7 @@ public class MessageListFragment extends ListFragment
     private View mSendPanel;
 
     private static final int LIST_FOOTER_MODE_NONE = 0;
-    private static final int LIST_FOOTER_MODE_MORE = 2;
+    private static final int LIST_FOOTER_MODE_MORE = 1;
     private int mListFooterMode;
 
     private MessagesAdapter mListAdapter;
@@ -97,6 +97,7 @@ public class MessageListFragment extends ListFragment
     private long mLastLoadedMailboxId = -1;
     private Account mAccount;
     private Mailbox mMailbox;
+    private boolean mIsEasAccount;
 
     // Controller access
     private Controller mController;
@@ -679,7 +680,7 @@ public class MessageListFragment extends ListFragment
                 || (mMailbox.mType == Mailbox.TYPE_DRAFTS)) {
             return; // No footer
         }
-        if (mAccount != null && !mAccount.isEasAccount()) {
+        if (!mIsEasAccount) {
             // IMAP, POP has "load more"
             mListFooterMode = LIST_FOOTER_MODE_MORE;
         }
@@ -792,6 +793,7 @@ public class MessageListFragment extends ListFragment
             mLastLoadedMailboxId = mMailboxId;
             mAccount = result.mAccount;
             mMailbox = result.mMailbox;
+            mIsEasAccount = result.mIsEasAccount;
             getLoaderManager().initLoader(LOADER_ID_MESSAGES_LOADER, null,
                     new MessagesLoaderCallback());
         }
