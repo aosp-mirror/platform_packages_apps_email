@@ -1553,6 +1553,9 @@ public class Controller extends Service {
         public void setCallback(IEmailServiceCallback cb) throws RemoteException {
             sCallbackList.register(cb);
         }
+
+        public void moveMessage(long messageId, long mailboxId) throws RemoteException {
+        }
     };
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Marc Blank
+ * Copyright (C) 2008-2010 Marc Blank
  * Licensed to The Android Open Source Project.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,4 +44,6 @@ interface IEmailService {
     Bundle autoDiscover(String userName, String password);
 
     void sendMeetingResponse(long messageId, int response);
+
+    void moveMessage(long messageId, long mailboxId);
 }

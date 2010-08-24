@@ -132,6 +132,9 @@ public class ExchangeUtils {
             return null;
         }
 
+        public void moveMessage(long messageId, long mailboxId) throws RemoteException {
+        }
+
         public IBinder asBinder() {
             return null;
         }
