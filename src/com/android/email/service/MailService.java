@@ -22,14 +22,14 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.Utility;
-import com.android.email.activity.MessageList;
+import com.android.email.activity.Welcome;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailProvider;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -73,7 +73,7 @@ public class MailService extends Service {
 
     private static final String LOG_TAG = "Email-MailService";
 
-    public static final int NOTIFICATION_ID_NEW_MESSAGES = 1;
+    private static final int NOTIFICATION_ID_NEW_MESSAGES = 1;
     public static final int NOTIFICATION_ID_SECURITY_NEEDED = 2;
     public static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 3;
     public static final int NOTIFICATION_ID_WARNING = 4;
@@ -188,6 +188,12 @@ public class MailService extends Service {
         context.startService(i);
     }
 
+    public static void cancelNewMessageNotification(Context context) {
+        NotificationManager notificationManager = (NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(MailService.NOTIFICATION_ID_NEW_MESSAGES);
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -282,9 +288,7 @@ public class MailService extends Service {
             // As a precaution, clear any outstanding Email notifications
             // We could be smarter and only do this when the list of accounts changes,
             // but that's an edge condition and this is much safer.
-            NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(NOTIFICATION_ID_NEW_MESSAGES);
+            cancelNewMessageNotification(this);
 
             // When called externally, we refresh the sync reports table to pick up
             // any changes in the account list or account settings
@@ -754,14 +758,14 @@ public class MailService extends Service {
             reportString = getResources().getQuantityString(
                     R.plurals.notification_new_one_account_fmt, numNewMessages,
                     numNewMessages, reportName);
-            intent = MessageList.createIntent(this, accountId, -1, Mailbox.TYPE_INBOX);
+            intent = Welcome.createOpenAccountInboxIntent(this, accountId);
         } else {
             // Prepare a report for multiple accounts
             // "4 accounts"
             reportString = getResources().getQuantityString(
                     R.plurals.notification_new_multi_account_fmt, accountsWithNewMessages,
                     accountsWithNewMessages);
-            intent = MessageList.createIntent(this, -1, Mailbox.QUERY_ALL_INBOXES, -1);
+            intent = Welcome.createOpenCombinedInboxIntent(this);
         }
 
         // prepare appropriate pending intent, set up notification, and send

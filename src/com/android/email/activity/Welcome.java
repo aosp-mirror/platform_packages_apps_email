@@ -39,15 +39,37 @@ import android.os.Handler;
 /**
  * The Welcome activity initializes the application and decides what Activity
  * the user should start with.
- * If no accounts are configured the user is taken to the AccountSetupBasics Activity where they
- * can configure an account.
- * If a single account is configured the user is taken directly to the MessageList for
- * the INBOX of that account.
- * If more than one account is configured the user is taken to the AccountFolderList Activity so
- * they can select an account.
+ *
+ * This class knows which activity should be launched under the current configuration (screen size)
+ * and the number of accounts configured.  So if you want to open an account or a mailbox,
+ * you should alawys do so via its static methods, such as {@link #actionOpenAccountInbox}.
  */
 public class Welcome extends Activity {
-    private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
+    /*
+     * Commands for testing...
+     *  Open 1 pane
+        adb shell am start -a android.intent.action.MAIN \
+            -n com.google.android.email/com.android.email.activity.Welcome \
+            -e DEBUG_PANE_MODE 1
+
+     *  Open 2 pane
+        adb shell am start -a android.intent.action.MAIN \
+            -n com.google.android.email/com.android.email.activity.Welcome \
+            -e DEBUG_PANE_MODE 2
+
+     *  Open an account (ID=2) in 2 pane
+        adb shell am start -a android.intent.action.MAIN \
+            -n com.google.android.email/com.android.email.activity.Welcome \
+            -e DEBUG_PANE_MODE 2 --el ACCOUNT_ID 2
+
+     *  Open Combined Inbox (ID=-2) in 2 pane
+        adb shell am start -a android.intent.action.MAIN \
+            -n com.google.android.email/com.android.email.activity.Welcome \
+            -e DEBUG_PANE_MODE 2 --el MAILBOX_ID -2
+
+     */
+    private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
+    private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
 
     /**
      * Extra for debugging.  Set 1 to force one-pane.  Set 2 to force two-pane.
@@ -79,11 +101,20 @@ public class Welcome extends Activity {
     /**
      * Create an Intent to open account's inbox.
      */
-    public static Intent createOpenAccountInboxIntent(Activity fromActivity, long accountId) {
-        Intent i = new Intent(fromActivity, Welcome.class);
+    public static Intent createOpenAccountInboxIntent(Context context, long accountId) {
+        Intent i = new Intent(context, Welcome.class);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         }
+        return i;
+    }
+
+    /**
+     * Create an Intent to open "Combined Inbox".
+     */
+    public static Intent createOpenCombinedInboxIntent(Context context) {
+        Intent i = new Intent(context, Welcome.class);
+        i.putExtra(EXTRA_MAILBOX_ID, Mailbox.QUERY_ALL_INBOXES);
         return i;
     }
 
@@ -147,8 +178,9 @@ public class Welcome extends Activity {
         mAccountsUpdatedListener.onAccountsUpdated(null);
 
         final long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        final long mailboxId = getIntent().getLongExtra(EXTRA_MAILBOX_ID, -1);
         final int debugPaneMode = getDebugPaneMode(getIntent());
-        new MainActivityLauncher(this, accountId, debugPaneMode).execute();
+        new MainActivityLauncher(this, accountId, mailboxId, debugPaneMode).execute();
     }
 
     @Override
@@ -182,11 +214,18 @@ public class Welcome extends Activity {
         private final Activity mFromActivity;
         private final int mDebugPaneMode;
         private final long mAccountId;
+        private final long mMailboxId;
 
-        public MainActivityLauncher(Activity fromActivity, long accountId, int debugPaneMode) {
+        public MainActivityLauncher(Activity fromActivity, long accountId, long mailboxId,
+                int debugPaneMode) {
             mFromActivity = fromActivity;
             mAccountId = accountId;
+            mMailboxId = mailboxId;
             mDebugPaneMode = debugPaneMode;
+        }
+
+        private boolean isMailboxSelected() {
+            return mMailboxId != -1;
         }
 
         @Override
@@ -205,9 +244,18 @@ public class Welcome extends Activity {
                         || (useTwoPane(mFromActivity) && mDebugPaneMode == 0);
 
                 if (useTwoPane) {
-                    MessageListXL.actionStart(mFromActivity, accountId);
+                    if (isMailboxSelected()) {
+                        MessageListXL.actionOpenMailbox(mFromActivity, accountId, mMailboxId);
+                    } else {
+                        MessageListXL.actionOpenAccount(mFromActivity, accountId);
+                    }
                 } else {
-                    MessageList.actionHandleAccount(mFromActivity, accountId, Mailbox.TYPE_INBOX);
+                    if (isMailboxSelected()) {
+                        MessageList.actionHandleMailbox(mFromActivity, mMailboxId);
+                    } else {
+                        MessageList.actionHandleAccount(
+                                mFromActivity, accountId, Mailbox.TYPE_INBOX);
+                    }
                 }
             }
             return null;
