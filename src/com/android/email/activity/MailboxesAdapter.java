@@ -21,6 +21,7 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
@@ -43,10 +44,9 @@ import android.widget.TextView;
 /**
  * The adapter for displaying mailboxes.
  *
- * TODO Add "combined inbox/star/etc.".
- * TODO Throttle auto-requery.
  * TODO New UI will probably not distinguish unread counts from # of messages.
  *      i.e. we won't need two different viewes for them.
+ * TODO Show "Starred" per account?  (Right now we have only "All Starred")
  * TODO Unit test, when UI is settled.
  */
 /* package */ class MailboxesAdapter extends CursorAdapter {
@@ -64,6 +64,16 @@ import android.widget.TextView;
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
             " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
+
+    private static final String MAILBOX_ORDER_BY = "CASE " + MailboxColumns.TYPE +
+            " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0" +
+            " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN 1" +
+            " WHEN " + Mailbox.TYPE_SENT    + " THEN 2" +
+            " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN 3" +
+            " WHEN " + Mailbox.TYPE_TRASH   + " THEN 20" + // After standard mailboxes
+            " WHEN " + Mailbox.TYPE_JUNK    + " THEN 21" + // After standard mailboxes
+            " ELSE 10 END" + // for Mailbox.TYPE_MAIL, standard mailboxes
+            " ," + MailboxColumns.DISPLAY_NAME;
 
     private final LayoutInflater mInflater;
 
@@ -151,42 +161,48 @@ import android.widget.TextView;
                     MailboxesAdapter.PROJECTION,
                     MAILBOX_SELECTION,
                     new String[] { String.valueOf(accountId) },
-                    MailboxColumns.TYPE + "," + MailboxColumns.DISPLAY_NAME, AUTO_REQUERY_TIMEOUT);
+                    MAILBOX_ORDER_BY, AUTO_REQUERY_TIMEOUT);
             mContext = context;
         }
 
         @Override
         public Cursor loadInBackground() {
             final Cursor mailboxes = super.loadInBackground();
+            final int numAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
+
             return new MergeCursor(
-                    new Cursor[] {getSpecialMailboxesCursor(mContext), mailboxes});
+                    new Cursor[] {getSpecialMailboxesCursor(mContext, numAccounts > 1), mailboxes});
         }
     }
 
-    /* package */ static Cursor getSpecialMailboxesCursor(Context context) {
+    /* package */ static Cursor getSpecialMailboxesCursor(Context context, boolean mShowCombined) {
         MatrixCursor cursor = new MatrixCursor(PROJECTION);
 
         // TODO show combined boxes only if # accounts > 1 (wait for UI) but we always need starred.
 
-        // Combined inbox -- show unread count
-        addSummaryMailboxRow(context, cursor,
-                Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
-                Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX));
+        if (mShowCombined) {
+            // Combined inbox -- show unread count
+            addSummaryMailboxRow(context, cursor,
+                    Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
+                    Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX));
+        }
 
-        // Favorite -- show # of favorites
+        // Favorite (starred) -- show # of favorites
         addSummaryMailboxRow(context, cursor,
                 Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
                 Message.getFavoriteMessageCount(context));
 
-        // Drafts -- show # of drafts
-        addSummaryMailboxRow(context, cursor,
-                Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS,
-                Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS));
+        if (mShowCombined) {
+            // Drafts -- show # of drafts
+            addSummaryMailboxRow(context, cursor,
+                    Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS,
+                    Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS));
 
-        // Outbox -- # of sent messages
-        addSummaryMailboxRow(context, cursor,
-                Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX,
-                Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX));
+            // Outbox -- # of sent messages
+            addSummaryMailboxRow(context, cursor,
+                    Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX,
+                    Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX));
+        }
 
         return cursor;
     }
