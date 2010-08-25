@@ -4,9 +4,9 @@
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
-  
+
           http://www.apache.org/licenses/LICENSE-2.0
-  
+
      Unless required by applicable law or agreed to in writing, software
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,7 @@
                     android:id="@+id/to" android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorSecondaryInverse"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:layout_marginLeft="6dip"
                     android:layout_marginRight="6dip"
                     android:inputType="textEmailAddress|textMultiLine"
@@ -40,7 +40,7 @@
                     android:id="@+id/cc" android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorSecondaryInverse"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:layout_marginLeft="6dip"
                     android:layout_marginRight="6dip"
                     android:inputType="textEmailAddress|textMultiLine"
@@ -51,7 +51,7 @@
                     android:id="@+id/bcc" android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorSecondaryInverse"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:layout_marginLeft="6dip"
                     android:layout_marginRight="6dip"
                     android:inputType="textEmailAddress|textMultiLine"
@@ -62,11 +62,12 @@
                     android:layout_width="match_parent"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:layout_height="wrap_content"
-                    android:textColor="?android:attr/textColorSecondaryInverse"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:layout_marginLeft="6dip"
                     android:layout_marginRight="6dip"
                     android:hint="@string/message_compose_subject_hint"
-                    android:inputType="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine" 
+                    android:inputType
+                        ="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine"
                     android:imeOptions="actionNext"
                     />
                 <!--
@@ -82,7 +83,7 @@
                     android:background="@drawable/divider_horizontal_email" />
             </LinearLayout>
             <EditText android:id="@+id/message_content"
-                android:textColor="?android:attr/textColorSecondaryInverse"
+                android:textColor="?android:attr/textColorSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
@@ -116,7 +117,7 @@
                 android:layout_width="match_parent" />
         </LinearLayout>
     </ScrollView>
-    
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -124,7 +125,7 @@
         android:paddingTop="5dip"
         android:paddingLeft="4dip"
         android:paddingRight="4dip"
-        android:paddingBottom="1dip"   
+        android:paddingBottom="1dip"
         android:background="@android:drawable/bottom_bar" >
         <Button
             android:id="@+id/send"
