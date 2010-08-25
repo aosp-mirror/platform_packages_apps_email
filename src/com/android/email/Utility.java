@@ -16,7 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
@@ -42,6 +41,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.security.MessageDigest;
 import android.telephony.TelephonyManager;
@@ -839,11 +839,13 @@ public class Utility {
 
     /**
      * A class used to restore ListView state (e.g. scroll position) when changing adapter.
-     *
-     * TODO For some reason it doesn't always work.  Investigate and fix it.
      */
-    public static class ListStateSaver {
+    public static class ListStateSaver implements Parcelable {
         private final Parcelable mState;
+
+        private ListStateSaver(Parcel p) {
+            mState = p.readParcelable(null);
+        }
 
         public ListStateSaver(AbsListView lv) {
             mState = lv.onSaveInstanceState();
@@ -852,6 +854,27 @@ public class Utility {
         public void restore(AbsListView lv) {
             lv.onRestoreInstanceState(mState);
         }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeParcelable(mState, flags);
+        }
+
+        public static final Parcelable.Creator<ListStateSaver> CREATOR
+                = new Parcelable.Creator<ListStateSaver>() {
+                    public ListStateSaver createFromParcel(Parcel in) {
+                        return new ListStateSaver(in);
+                    }
+
+                    public ListStateSaver[] newArray(int size) {
+                        return new ListStateSaver[size];
+                    }
+                };
     }
 
     public static boolean attachmentExists(Context context, long accountId, Attachment attachment) {

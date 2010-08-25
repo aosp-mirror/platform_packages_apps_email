@@ -285,9 +285,8 @@
             >
         </service>
 
-        <!-- Controller runs at all times -->
-         --><service
-            android:name=".Controller"
+        <service
+            android:name=".Controller$ControllerService"
             android:enabled="true"
             >
         </service>

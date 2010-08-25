@@ -427,6 +427,9 @@ public class SyncManager extends Service implements Runnable {
         public void setCallback(IEmailServiceCallback cb) throws RemoteException {
             mCallbackList.register(cb);
         }
+
+        public void moveMessage(long messageId, long mailboxId) throws RemoteException {
+        }
     };
 
     static class AccountList extends ArrayList<Account> {
@@ -2365,7 +2368,7 @@ public class SyncManager extends Service implements Runnable {
             int exitStatus = svc.mExitStatus;
             switch (exitStatus) {
                 case AbstractSyncService.EXIT_DONE:
-                    if (!svc.mRequests.isEmpty()) {
+                    if (svc.hasPendingRequests()) {
                         // TODO Handle this case
                     }
                     errorMap.remove(mailboxId);

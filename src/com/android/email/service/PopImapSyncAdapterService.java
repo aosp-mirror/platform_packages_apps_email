@@ -96,7 +96,7 @@ public class PopImapSyncAdapterService extends Service {
                         Mailbox.TYPE_INBOX);
                 if (mailboxId > 0) {
                     Log.d(TAG, "Starting manual sync for account " + emailAddress);
-                    Controller.getInstance().updateMailbox(accountId, mailboxId);
+                    Controller.getInstance(context).updateMailbox(accountId, mailboxId);
                 }
             }
         }

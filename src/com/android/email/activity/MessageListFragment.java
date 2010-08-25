@@ -42,15 +42,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 import java.security.InvalidParameterException;
 import java.util.HashSet;
@@ -73,6 +73,7 @@ import java.util.Set;
 public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
         OnClickListener {
+    private static final String BUNDLE_LIST_STATE = "MessageListFragment.state.listState";
 
     private static final int LOADER_ID_MAILBOX_LOADER = 1;
     private static final int LOADER_ID_MESSAGES_LOADER = 2;
@@ -87,7 +88,7 @@ public class MessageListFragment extends ListFragment
     private View mSendPanel;
 
     private static final int LIST_FOOTER_MODE_NONE = 0;
-    private static final int LIST_FOOTER_MODE_MORE = 2;
+    private static final int LIST_FOOTER_MODE_MORE = 1;
     private int mListFooterMode;
 
     private MessagesAdapter mListAdapter;
@@ -96,6 +97,7 @@ public class MessageListFragment extends ListFragment
     private long mLastLoadedMailboxId = -1;
     private Account mAccount;
     private Mailbox mMailbox;
+    private boolean mIsEasAccount;
 
     // Controller access
     private Controller mController;
@@ -112,6 +114,8 @@ public class MessageListFragment extends ListFragment
      * {@link ActionMode} shown when 1 or more message is selected.
      */
     private ActionMode mSelectionMode;
+
+    private Utility.ListStateSaver mRestoredListState;
 
     /**
      * Callback interface that owning activities must implement
@@ -161,7 +165,7 @@ public class MessageListFragment extends ListFragment
         }
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
-        mController = Controller.getInstance();
+        mController = Controller.getInstance(mActivity);
         mRefreshManager = RefreshManager.getInstance(mActivity);
         mRefreshManager.registerListener(mRefreshListener);
     }
@@ -252,11 +256,13 @@ public class MessageListFragment extends ListFragment
         }
         super.onSaveInstanceState(outState);
         mListAdapter.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_LIST_STATE, new Utility.ListStateSaver(getListView()));
     }
 
     // Unit tests use it
     /* package */void loadState(Bundle savedInstanceState) {
         mListAdapter.loadState(savedInstanceState);
+        mRestoredListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
     }
 
     public void setCallback(Callback callback) {
@@ -674,7 +680,7 @@ public class MessageListFragment extends ListFragment
                 || (mMailbox.mType == Mailbox.TYPE_DRAFTS)) {
             return; // No footer
         }
-        if (mAccount != null && !mAccount.isEasAccount()) {
+        if (!mIsEasAccount) {
             // IMAP, POP has "load more"
             mListFooterMode = LIST_FOOTER_MODE_MORE;
         }
@@ -787,6 +793,7 @@ public class MessageListFragment extends ListFragment
             mLastLoadedMailboxId = mMailboxId;
             mAccount = result.mAccount;
             mMailbox = result.mMailbox;
+            mIsEasAccount = result.mIsEasAccount;
             getLoaderManager().initLoader(LOADER_ID_MESSAGES_LOADER, null,
                     new MessagesLoaderCallback());
         }
@@ -824,15 +831,18 @@ public class MessageListFragment extends ListFragment
 
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
-            final Utility.ListStateSaver lss = new Utility.ListStateSaver(lv);
+            final Utility.ListStateSaver lss;
+            if (mRestoredListState != null) {
+                lss = mRestoredListState;
+                mRestoredListState = null;
+            } else {
+                lss = new Utility.ListStateSaver(lv);
+            }
 
             // Update the list
             mListAdapter.changeCursor(cursor);
             setListAdapter(mListAdapter);
             setListShown(true);
-
-            // Restore the state
-            lss.restore(lv);
 
             // Various post processing...
             // (resetNewMessageCount should be here. See above.)
@@ -840,6 +850,10 @@ public class MessageListFragment extends ListFragment
             addFooterView();
             updateSelectionMode();
             showSendPanelIfNecessary();
+
+            // Restore the state -- it has to be the last.
+            // (Some of the "post processing" resets the state.)
+            lss.restore(lv);
         }
     }
 

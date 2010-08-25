@@ -29,7 +29,7 @@ import android.net.NetworkInfo.DetailedState;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Base class for all protocol services SyncManager (extends Service, implements
@@ -70,7 +70,7 @@ public abstract class AbstractSyncService implements Runnable {
     protected Object mSynchronizer = new Object();
 
     protected volatile long mRequestTime = 0;
-    protected ArrayList<Request> mRequests = new ArrayList<Request>();
+    protected LinkedBlockingQueue<Request> mRequestQueue = new LinkedBlockingQueue<Request>();
     protected PartRequest mPendingRequest = null;
 
     /**
@@ -294,15 +294,15 @@ public abstract class AbstractSyncService implements Runnable {
      */
 
     public void addRequest(Request req) {
-        synchronized (mRequests) {
-            mRequests.add(req);
-            mRequestTime = System.currentTimeMillis();
-        }
+        mRequestQueue.offer(req);
     }
 
     public void removeRequest(Request req) {
-        synchronized (mRequests) {
-            mRequests.remove(req);
-        }
+        mRequestQueue.remove(req);
     }
+
+    public boolean hasPendingRequests() {
+        return !mRequestQueue.isEmpty();
+}
+
 }

@@ -16,7 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.activity.Debug;
 import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
@@ -34,7 +33,6 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.EmailServiceStatus;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
-import com.android.email.service.MailService;
 
 import android.app.Service;
 import android.content.ContentResolver;
@@ -63,12 +61,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * based code.  We implement Service to allow loadAttachment calls to be sent in a consistent manner
  * to IMAP, POP3, and EAS by AttachmentDownloadService
  */
-public class Controller extends Service {
+public class Controller {
     private static final String TAG = "Controller";
     private static Controller sInstance;
-    private Context mContext;
+    private final Context mContext;
     private Context mProviderContext;
-    private MessagingController mLegacyController;
+    private final MessagingController mLegacyController;
     private final LegacyListener mLegacyListener = new LegacyListener();
     private final ServiceCallback mServiceCallback = new ServiceCallback();
     private final HashSet<Result> mListeners = new HashSet<Result>();
@@ -107,31 +105,11 @@ public class Controller extends Service {
     private static RemoteCallbackList<IEmailServiceCallback> sCallbackList =
         new RemoteCallbackList<IEmailServiceCallback>();
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        sInstance = this;
-        mContext = getApplicationContext();
-        mProviderContext = mContext;
+    protected Controller(Context _context) {
+        mContext = _context.getApplicationContext();
+        mProviderContext = _context;
         mLegacyController = MessagingController.getInstance(mProviderContext, this);
         mLegacyController.addListener(mLegacyListener);
-        // Tie MailRefreshManager to the Controller.
-        RefreshManager.getInstance(this);
-        // Reset all accounts to default visible window
-        resetVisibleLimits();
-        // Enable logging in the EAS service, so it starts up as early as possible.
-        Debug.updateLoggingFlags(this);
-        MailService.actionReschedule(this);
-        return 0;
-    }
-
-    @Override
-    public void onDestroy() {
-        sInstance = null;
-        Log.d(TAG, "Controller.onDestroy()");
-    }
-
-    public static Controller getInstance() {
-        return sInstance;
     }
 
     /**
@@ -142,6 +120,16 @@ public class Controller extends Service {
      */
     public void cleanupForTest() {
         mLegacyController.removeListener(mLegacyListener);
+    }
+
+    /**
+     * Gets or creates the singleton instance of Controller.
+     */
+    public synchronized static Controller getInstance(Context _context) {
+        if (sInstance == null) {
+            sInstance = new Controller(_context);
+        }
+        return sInstance;
     }
 
     /**
@@ -1467,96 +1455,103 @@ public class Controller extends Service {
         }
     };
 
-    /**
-     * Create our EmailService implementation here.  For now, only loadAttachment is supported; the
-     * intention, however, is to move more functionality to the service interface
-     */
-    private final IEmailService.Stub mBinder = new IEmailService.Stub() {
+    public static class ControllerService extends Service {
+        /**
+         * Create our EmailService implementation here.  For now, only loadAttachment is supported; the
+         * intention, however, is to move more functionality to the service interface
+         */
+        private final IEmailService.Stub mBinder = new IEmailService.Stub() {
 
-        public Bundle validate(String protocol, String host, String userName, String password,
-                int port, boolean ssl, boolean trustCertificates) throws RemoteException {
-            return null;
-        }
-
-        public Bundle autoDiscover(String userName, String password) throws RemoteException {
-            return null;
-        }
-
-        public void startSync(long mailboxId) throws RemoteException {
-        }
-
-        public void stopSync(long mailboxId) throws RemoteException {
-        }
-
-        public void loadAttachment(long attachmentId, String destinationFile,
-                String contentUriString) throws RemoteException {
-            if (Email.DEBUG) {
-                Log.d(TAG, "loadAttachment: " + attachmentId + " to " + destinationFile);
+            public Bundle validate(String protocol, String host, String userName, String password,
+                    int port, boolean ssl, boolean trustCertificates) throws RemoteException {
+                return null;
             }
-            Attachment att = Attachment.restoreAttachmentWithId(Controller.this, attachmentId);
-            if (att != null) {
-                Message msg = Message.restoreMessageWithId(Controller.this, att.mMessageKey);
-                if (msg != null) {
-                    // If the message is a forward and the attachment needs downloading, we need
-                    // to retrieve the message from the source, rather than from the message
-                    // itself
-                    if ((msg.mFlags & Message.FLAG_TYPE_FORWARD) != 0) {
-                        String[] cols = Utility.getRowColumns(Controller.this, Body.CONTENT_URI,
-                                BODY_SOURCE_KEY_PROJECTION, WHERE_MESSAGE_KEY,
-                                new String[] {Long.toString(msg.mId)});
-                        if (cols != null) {
-                            msg = Message.restoreMessageWithId(Controller.this,
-                                    Long.parseLong(cols[BODY_SOURCE_KEY_COLUMN]));
-                            if (msg == null) {
-                                // TODO: We can try restoring from the deleted table at this point...
-                                return;
+
+            public Bundle autoDiscover(String userName, String password) throws RemoteException {
+                return null;
+            }
+
+            public void startSync(long mailboxId) throws RemoteException {
+            }
+
+            public void stopSync(long mailboxId) throws RemoteException {
+            }
+
+            public void loadAttachment(long attachmentId, String destinationFile,
+                    String contentUriString) throws RemoteException {
+                if (Email.DEBUG) {
+                    Log.d(TAG, "loadAttachment: " + attachmentId + " to " + destinationFile);
+                }
+                Attachment att = Attachment.restoreAttachmentWithId(ControllerService.this,
+                        attachmentId);
+                if (att != null) {
+                    Message msg = Message.restoreMessageWithId(ControllerService.this,
+                            att.mMessageKey);
+                    if (msg != null) {
+                        // If the message is a forward and the attachment needs downloading, we need
+                        // to retrieve the message from the source, rather than from the message
+                        // itself
+                        if ((msg.mFlags & Message.FLAG_TYPE_FORWARD) != 0) {
+                            String[] cols = Utility.getRowColumns(ControllerService.this,
+                                    Body.CONTENT_URI, BODY_SOURCE_KEY_PROJECTION, WHERE_MESSAGE_KEY,
+                                    new String[] {Long.toString(msg.mId)});
+                            if (cols != null) {
+                                msg = Message.restoreMessageWithId(ControllerService.this,
+                                        Long.parseLong(cols[BODY_SOURCE_KEY_COLUMN]));
+                                if (msg == null) {
+                                    // TODO: We can try restoring from the deleted table at this point...
+                                    return;
+                                }
                             }
                         }
+                        MessagingController legacyController = sInstance.mLegacyController;
+                        LegacyListener legacyListener = sInstance.mLegacyListener;
+                        legacyController.loadAttachment(msg.mAccountKey, msg.mId, msg.mMailboxKey,
+                                attachmentId, legacyListener);
                     }
-                    MessagingController legacyController = sInstance.mLegacyController;
-                    LegacyListener legacyListener = sInstance.mLegacyListener;
-                    legacyController.loadAttachment(msg.mAccountKey, msg.mId, msg.mMailboxKey,
-                            attachmentId, legacyListener);
                 }
             }
-        }
 
-        public void updateFolderList(long accountId) throws RemoteException {
-        }
+            public void updateFolderList(long accountId) throws RemoteException {
+            }
 
-        public void hostChanged(long accountId) throws RemoteException {
-        }
+            public void hostChanged(long accountId) throws RemoteException {
+            }
 
-        public void setLogging(int on) throws RemoteException {
-        }
+            public void setLogging(int on) throws RemoteException {
+            }
 
-        public void sendMeetingResponse(long messageId, int response) throws RemoteException {
-        }
+            public void sendMeetingResponse(long messageId, int response) throws RemoteException {
+            }
 
-        public void loadMore(long messageId) throws RemoteException {
-        }
+            public void loadMore(long messageId) throws RemoteException {
+            }
 
-        // The following three methods are not implemented in this version
-        public boolean createFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
+            // The following three methods are not implemented in this version
+            public boolean createFolder(long accountId, String name) throws RemoteException {
+                return false;
+            }
 
-        public boolean deleteFolder(long accountId, String name) throws RemoteException {
-            return false;
-        }
+            public boolean deleteFolder(long accountId, String name) throws RemoteException {
+                return false;
+            }
 
-        public boolean renameFolder(long accountId, String oldName, String newName)
-                throws RemoteException {
-            return false;
-        }
+            public boolean renameFolder(long accountId, String oldName, String newName)
+                    throws RemoteException {
+                return false;
+            }
 
-        public void setCallback(IEmailServiceCallback cb) throws RemoteException {
-            sCallbackList.register(cb);
-        }
-    };
+            public void setCallback(IEmailServiceCallback cb) throws RemoteException {
+                sCallbackList.register(cb);
+            }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
+            public void moveMessage(long messageId, long mailboxId) throws RemoteException {
+            }
+        };
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            return mBinder;
+        }
     }
 }
