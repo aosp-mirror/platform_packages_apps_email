@@ -20,10 +20,9 @@ import com.android.email.data.NoAutoRequeryCursorLoader;
 import com.android.email.provider.EmailContent;
 
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
-import android.net.Uri;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
@@ -54,6 +53,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
     private static final String ORDER_BY =
             EmailContent.Account.IS_DEFAULT + " desc, " + EmailContent.Account.RECORD_ID;
 
+    private final LayoutInflater mInflater;
+
     public static Loader<Cursor> createLoader(Context context) {
         return new NoAutoRequeryCursorLoader(context, EmailContent.Account.CONTENT_URI, PROJECTION,
                 null, null, ORDER_BY);
@@ -61,21 +62,40 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
     public AccountSelectorAdapter(Context context, Cursor c) {
         super(context, c, 0 /* no auto-requery */);
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    @Override
+    public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        View view = mInflater.inflate(android.R.layout.simple_spinner_dropdown_item, null);
+        TextView textView = (TextView) view.findViewById(android.R.id.text1);
+        textView.setText(getAccountName(position));
+        return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        TextView v = (TextView) view;
-        v.setText(cursor.getString(EMAIL_ADDRESS_COLUMN));
+        TextView textView = (TextView) view.findViewById(android.R.id.text1);
+        textView.setText(getAccountName(cursor));
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return new TextView(context);
+        return mInflater.inflate(android.R.layout.simple_spinner_item, null);
     }
 
     /** @return Account id extracted from a Cursor. */
     public static long getAccountId(Cursor c) {
         return c.getLong(ID_COLUMN);
+    }
+
+    private String getAccountName(int position) {
+        final Cursor c = getCursor();
+        return c.moveToPosition(position) ? getAccountName(c) : null;
+    }
+
+    /** @return Account name extracted from a Cursor. */
+    public static String getAccountName(Cursor cursor) {
+        return cursor.getString(EMAIL_ADDRESS_COLUMN);
     }
 }
