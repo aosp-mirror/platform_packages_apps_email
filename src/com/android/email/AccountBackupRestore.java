@@ -58,7 +58,7 @@ public class AccountBackupRestore {
      */
     public static void restoreAccountsIfNeeded(final Context context) {
         // Don't log here;  This is called often.
-        boolean restored = doRestoreAccounts(context, Preferences.getPreferences(context));
+        boolean restored = doRestoreAccounts(context, Preferences.getPreferences(context), false);
         if (restored) {
             // after restoring accounts, register services appropriately
             Log.w(Email.LOG_TAG, "Register services after restoring accounts");
@@ -151,7 +151,7 @@ public class AccountBackupRestore {
      * @return true if accounts were restored (meaning services should be restarted, etc.)
      */
     /* package */ synchronized static boolean doRestoreAccounts(Context context,
-            Preferences preferences) {
+            Preferences preferences, boolean unitTest) {
         boolean result = false;
 
         // 1. Quick check - if we have any accounts, get out
@@ -194,8 +194,12 @@ public class AccountBackupRestore {
             }
 
             toAccount.save(context);
-            MailService.setupAccountManagerAccount(context, toAccount, email, calendar, contacts,
-                    null);
+            // Don't simulate AccountManager in unit tests; this results in an NPE
+            // The unit tests only check EmailProvider based functionality
+            if (!unitTest) {
+                MailService.setupAccountManagerAccount(context, toAccount, email, calendar,
+                        contacts, null);
+            }
             result = true;
         }
         return result;
