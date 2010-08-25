@@ -35,6 +35,12 @@ import android.provider.Browser;
  * over-designed or totally useless.  For now this pattern will do...
  */
 public final class ActivityHelper {
+    /**
+     * Loader IDs have to be unique in a fragment.  We reserve ID(s) here for loaders created
+     * outside of fragments.
+     */
+    public static final int GLOBAL_LOADER_ID_MOVE_TO_DIALOG_LOADER = 1000;
+
     private ActivityHelper() {
     }
 
@@ -91,5 +97,13 @@ public final class ActivityHelper {
         Controller.getInstance(activity).deleteMessage(messageId, -1);
         Utility.showToast(activity,
                 activity.getResources().getQuantityString(R.plurals.message_deleted_toast, 1));
+    }
+
+    public static void moveMessages(Activity activity, long newMailboxId, long[] messageIds) {
+        // TODO Support moving multiple messages
+        Controller.getInstance(activity).moveMessage(messageIds[0], newMailboxId);
+        String message = activity.getResources().getQuantityString(R.plurals.message_moved_toast,
+                messageIds.length, messageIds.length , "a mailbox"); // STOPSHIP get mailbox name
+        Utility.showToast(activity, message);
     }
 }

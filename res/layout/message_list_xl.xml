@@ -72,6 +72,12 @@
             android:visibility="gone"
             >
             <Button
+                android:id="@+id/move"
+                android:text="@string/move_action"
+                android:layout_height="match_parent"
+                android:layout_width="0dip"
+                android:layout_weight="1" />
+            <Button
                 android:id="@+id/delete"
                 android:text="@string/delete_action"
                 android:layout_height="match_parent"

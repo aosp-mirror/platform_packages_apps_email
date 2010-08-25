@@ -43,12 +43,16 @@
             android:orientation="vertical"
             android:gravity="center_vertical"
             android:paddingLeft="4dip">
+            <!--
+                STOPSHIP android:textColor="?android:attr/textColorPrimary"
+                which was somehow white in the "move to" dialog.
+            -->
             <TextView
                 android:id="@+id/mailbox_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="?android:attr/textColorPrimary" />
+                android:textColor="#000" />
         </LinearLayout>
         <TextView
             android:id="@+id/new_message_count"

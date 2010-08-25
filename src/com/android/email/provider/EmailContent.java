@@ -2110,6 +2110,10 @@ public abstract class EmailContent {
         private static final String WHERE_TYPE_AND_ACCOUNT_KEY =
             MailboxColumns.TYPE + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
 
+        public static final String MOVE_TO_TARGET_MAILBOX_SELECTION =
+            MailboxColumns.TYPE + " NOT IN (" + Mailbox.TYPE_DRAFTS + "," +
+            Mailbox.TYPE_OUTBOX + "," + Mailbox.TYPE_SENT + "," + Mailbox.TYPE_TRASH + ")";
+
         // Types of mailboxes.  The list is ordered to match a typical UI presentation, e.g.
         // placing the inbox at the top.
         // The "main" mailbox for the account, almost always referred to as "Inbox"

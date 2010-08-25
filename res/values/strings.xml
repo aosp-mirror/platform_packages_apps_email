@@ -116,6 +116,8 @@
     <string name="mark_as_read_action">Mark as read</string>
     <!-- Menu item -->
     <string name="mark_as_unread_action">Mark as unread</string>
+    <!-- Menu item for moving messages to folders [CHAR LIMIT=10] -->
+    <string name="move_action" translatable="false">Move</string>
     <!-- Menu item -->
     <string name="add_cc_bcc_action">Add Cc/Bcc</string>
     <!-- Menu item -->
@@ -124,6 +126,8 @@
     <string name="dump_settings_action">Dump settings</string>
     <!-- Appears in choose attachment dialog title -->
     <string name="choose_attachment_dialog_title">Choose attachment</string>
+    <!-- Dialog title to select a mailbox to which the user moves messages [CHAR LIMIT=20] -->
+    <string name="move_to_folder_dialog_title">Move to</string>
     <!-- Appears in message list view while messages are being loaded -->
     <string name="status_loading_messages">Loading messages\u2026</string>
     <!-- Appears in message list view when there's a network error. -->
@@ -305,6 +309,13 @@
         <xliff:g id="filename">%s</xliff:g>\" could not be loaded.</string>
     <!-- String that is displayed when a long message is being parsed. -->
     <string name="message_view_parse_message_toast">Opening message\u2026</string>
+    <!-- Toast shown after moving a message to a different mailbox. [CHAR LIMIT=none]-->
+    <plurals name="message_moved_toast">
+        <item quantity="one"  ><xliff:g id="num_message" example="1" >%1$d</xliff:g>
+        message moved to <xliff:g id="mailbox_name" example="Inbox" >%2$s</xliff:g></item>
+        <item quantity="other"  ><xliff:g id="num_message" example="5" >%1$d</xliff:g>
+        messages moved to <xliff:g id="mailbox_name" example="Inbox" >%2$s</xliff:g></item>
+    </plurals>
     <!-- Notification ticker when a forwarded attachment couldn't be sent [CHAR LIMIT=none] -->
     <string name="forward_download_failed_ticker">"An attachment couldn't be forwarded"</string>
     <!-- Notification text when a forwarded attachment couldn't be sent -->
