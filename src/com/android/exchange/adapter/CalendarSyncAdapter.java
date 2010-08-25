@@ -786,6 +786,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             cv.put(Events.EVENT_LOCATION, parentCv.getAsString(Events.EVENT_LOCATION));
             cv.put(Events.VISIBILITY, parentCv.getAsString(Events.VISIBILITY));
             cv.put(Events.EVENT_TIMEZONE, parentCv.getAsString(Events.EVENT_TIMEZONE));
+            // Exceptions should always have this set to zero, since EAS has no concept of
+            // separate attendee lists for exceptions; if we fail to do this, then the UI will
+            // allow the user to change attendee data, and this change would never get reflected
+            // on the server.
+            cv.put(Events.HAS_ATTENDEE_DATA, 0);
 
             int allDayEvent = 0;
 
