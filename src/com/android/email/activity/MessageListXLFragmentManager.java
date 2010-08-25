@@ -357,6 +357,9 @@ class MessageListXLFragmentManager {
             }
             updateMessageListFragment(mMessageListFragment);
         }
+        if (mMailboxListFragment != null) {
+            mMailboxListFragment.setSelectedMailbox(mMailboxId);
+        }
     }
 
     private void updateMessageListFragment(MessageListFragment fragment) {

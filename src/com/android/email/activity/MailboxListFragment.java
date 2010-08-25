@@ -16,7 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.RefreshManager;
 import com.android.email.Utility;
@@ -46,16 +45,21 @@ import java.security.InvalidParameterException;
  * TODO Restoring ListView state -- don't do this when changing accounts
  */
 public class MailboxListFragment extends ListFragment implements OnItemClickListener {
+    private static final String BUNDLE_KEY_ACCOUNT_ID
+            = "MailboxListFragment.state.selected_mailbox_id";
     private static final int LOADER_ID_MAILBOX_LIST = 1;
 
     private long mLastLoadedAccountId = -1;
     private long mAccountId = -1;
+    private long mSelectedMailboxId = -1;
 
     // UI Support
     private Activity mActivity;
     private MailboxesAdapter mListAdapter;
     private Callback mCallback = EmptyCallback.INSTANCE;
     private final MyLoaderCallbacks mMyLoaderCallbacks = new MyLoaderCallbacks();
+
+    private ListView mListView;
 
     private boolean mResumed;
 
@@ -86,6 +90,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         mActivity = getActivity();
         mListAdapter = new MailboxesAdapter(mActivity);
+        if (savedInstanceState != null) {
+            restoreInstanceState(savedInstanceState);
+        }
     }
 
     @Override
@@ -95,10 +102,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         super.onActivityCreated(savedInstanceState);
 
-        ListView listView = getListView();
-        listView.setOnItemClickListener(this);
-        listView.setItemsCanFocus(false);
-        registerForContextMenu(listView);
+        mListView = getListView();
+        mListView.setOnItemClickListener(this);
+        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        registerForContextMenu(mListView);
     }
 
     public void setCallback(Callback callback) {
@@ -121,6 +128,13 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mAccountId = accountId;
         if (mResumed) {
             startLoading();
+        }
+    }
+
+    public void setSelectedMailbox(long mailboxId) {
+        mSelectedMailboxId = mailboxId;
+        if (mResumed) {
+            highlightSelectedMailbox();
         }
     }
 
@@ -188,6 +202,11 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Email.LOG_TAG, "MailboxListFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
+        outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mSelectedMailboxId);
+    }
+
+    private void restoreInstanceState(Bundle savedInstanceState) {
+        mSelectedMailboxId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID);
     }
 
     private void startLoading() {
@@ -234,6 +253,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
             // Restore the state
             lss.restore(lv);
+
+            highlightSelectedMailbox();
         }
     }
 
@@ -244,6 +265,24 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     public void onRefresh() {
         if (mAccountId != -1) {
             RefreshManager.getInstance(getActivity()).refreshMailboxList(mAccountId);
+        }
+    }
+
+    /**
+     * Highlight the selected mailbox.
+     */
+    private void highlightSelectedMailbox() {
+        if (mSelectedMailboxId == -1) {
+            // No mailbox selected
+            mListView.clearChoices();
+            return;
+        }
+        final int count = mListView.getCount();
+        for (int i = 0; i < count; i++) {
+            if (mListView.getItemIdAtPosition(i) == mSelectedMailboxId) {
+                mListView.setItemChecked(i, true);
+                break;
+            }
         }
     }
 }

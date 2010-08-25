@@ -31,6 +31,9 @@ import android.test.suitebuilder.annotation.MediumTest;
  * Technically these are functional because they use the underlying preferences framework.
  *
  * NOTE:  These tests are destructive of any "legacy" accounts that might be lying around.
+ *
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.AccountBackupRestoreTests email
  */
 @MediumTest
 public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> {
@@ -164,7 +167,8 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
             ProviderTestUtils.setupAccount("existing", true, mMockContext);
 
         // run the restore
-        boolean anyRestored = AccountBackupRestore.doRestoreAccounts(mMockContext, mPreferences);
+        boolean anyRestored =
+            AccountBackupRestore.doRestoreAccounts(mMockContext, mPreferences, true);
         assertFalse(anyRestored);
 
         // make sure accounts still there
@@ -186,7 +190,8 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
         assertEquals(0, numAccounts);
 
         // run the restore
-        boolean anyRestored = AccountBackupRestore.doRestoreAccounts(mMockContext, mPreferences);
+        boolean anyRestored =
+            AccountBackupRestore.doRestoreAccounts(mMockContext, mPreferences, true);
         assertFalse(anyRestored);
 
         // make sure accounts still there
@@ -211,7 +216,8 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
         backupAccount2.save(mPreferences);
 
         // run the restore
-        boolean anyRestored = AccountBackupRestore.doRestoreAccounts(mMockContext, mPreferences);
+        boolean anyRestored =
+            AccountBackupRestore.doRestoreAccounts(mMockContext, mPreferences, true);
         assertTrue(anyRestored);
 
         // Check the restored accounts
@@ -248,7 +254,7 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
         backupAccount4.save(mPreferences);
 
         // run the restore
-        AccountBackupRestore.doRestoreAccounts(mMockContext, mPreferences);
+        AccountBackupRestore.doRestoreAccounts(mMockContext, mPreferences, true);
 
         // Check the restored accounts
         // Deep inspection is not performed here - see LegacyConversionsTests for that
