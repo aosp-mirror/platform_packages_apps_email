@@ -28,7 +28,6 @@ import com.android.email.service.MailService;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -37,6 +36,7 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -59,6 +59,19 @@ public class AccountSettingsXL extends PreferenceActivity
         implements AccountSettingsFragment.OnAttachListener {
 
     private static final String EXTRA_ACCOUNT_ID = "AccountSettingsXL.account_id";
+    private static final String EXTRA_ENABLE_DEBUG = "AccountSettingsXL.enable_debug";
+
+    // Key codes used to open a debug settings fragment.
+    private static final int[] SECRET_KEY_CODES = {
+            KeyEvent.KEYCODE_D, KeyEvent.KEYCODE_E, KeyEvent.KEYCODE_B, KeyEvent.KEYCODE_U,
+            KeyEvent.KEYCODE_G
+            };
+    private int mSecretKeyCodeIndex = 0;
+
+    /**
+     * When the user taps "Email Preferences" 10 times in a row, we'll enable the debug settings.
+     */
+    private int mNumGeneralHeaderClicked = 0;
 
     private long mRequestedAccountId;
     private ExtendedHeader[] mAccountListHeaders;
@@ -66,6 +79,7 @@ public class AccountSettingsXL extends PreferenceActivity
     private int mCurrentHeaderPosition;
     private Fragment mCurrentFragment;
     private long mDeletingAccountId = -1;
+    private boolean mShowDebugMenu;
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
@@ -84,8 +98,14 @@ public class AccountSettingsXL extends PreferenceActivity
     }
 
     /**
-     * Header for general app preferences
+     * Launch generic settings and pre-enable the debug preferences
      */
+    public static void actionSettingsWithDebug(Context fromContext) {
+        Intent i = new Intent(fromContext, AccountSettingsXL.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra(EXTRA_ENABLE_DEBUG, true);
+        fromContext.startActivity(i);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,6 +113,7 @@ public class AccountSettingsXL extends PreferenceActivity
 
         Intent i = getIntent();
         mRequestedAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
     }
 
     @Override
@@ -136,6 +157,28 @@ public class AccountSettingsXL extends PreferenceActivity
     }
 
     /**
+     * Listen for secret sequence and, if heard, enable debug menu
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.getKeyCode() == SECRET_KEY_CODES[mSecretKeyCodeIndex]) {
+            mSecretKeyCodeIndex++;
+            if (mSecretKeyCodeIndex == SECRET_KEY_CODES.length) {
+                mSecretKeyCodeIndex = 0;
+                enableDebugMenu();
+            }
+        } else {
+            mSecretKeyCodeIndex = 0;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void enableDebugMenu() {
+        mShowDebugMenu = true;
+        invalidateHeaders();
+    }
+
+    /**
      * Decide if "add account" should be shown
      */
     private boolean shouldShowNewAccount() {
@@ -147,6 +190,7 @@ public class AccountSettingsXL extends PreferenceActivity
             // Note: null is OK; This is the case when we first launch the activity
             if ((mCurrentFragment != null)
                 && !(mCurrentFragment instanceof GeneralPreferences)
+                && !(mCurrentFragment instanceof DebugFragment)
                 && !(mCurrentFragment instanceof AccountSettingsFragment)) return false;
         }
         return true;
@@ -185,6 +229,18 @@ public class AccountSettingsXL extends PreferenceActivity
                     target.add(mAccountListHeaders[index]);
                 }
             }
+        }
+        // finally, if debug header is enabled, show it
+        if (mShowDebugMenu) {
+            // setup lightweight header for debugging
+            Header debugHeader = new Header();
+            debugHeader.title = getText(R.string.debug_title);
+            debugHeader.summary = null;
+            debugHeader.iconRes = 0;
+            debugHeader.icon = null;
+            debugHeader.fragment = DebugFragment.class.getCanonicalName();
+            debugHeader.fragmentArguments = null;
+            target.add(debugHeader);
         }
     }
 
@@ -288,6 +344,14 @@ public class AccountSettingsXL extends PreferenceActivity
      */
     @Override
     public void onHeaderClick(Header header, int position) {
+        if (position == 0) {
+            mNumGeneralHeaderClicked++;
+            if (mNumGeneralHeaderClicked == 10) {
+                enableDebugMenu();
+            }
+        } else {
+            mNumGeneralHeaderClicked = 0;
+        }
         if (position != mCurrentHeaderPosition) {
             // if showing a sub-panel (e.g. server settings) we need to trap & post a dialog
         }
@@ -416,5 +480,4 @@ public class AccountSettingsXL extends PreferenceActivity
             addPreferencesFromResource(R.xml.general_preferences);
         }
     }
-
 }

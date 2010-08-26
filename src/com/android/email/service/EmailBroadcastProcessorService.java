@@ -20,7 +20,8 @@ import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.Preferences;
 import com.android.email.VendorPolicyLoader;
-import com.android.email.activity.Debug;
+import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.setup.AccountSettingsXL;
 
 import android.app.IntentService;
 import android.content.ComponentName;
@@ -81,7 +82,7 @@ public class EmailBroadcastProcessorService extends IntentService {
             enableComponentsIfNecessary();
         } else if (SECRET_CODE_ACTION.equals(action)
                 && SECRET_CODE_HOST_DEBUG_SCREEN.equals(original.getData().getHost())) {
-            Debug.actionShow(this);
+            AccountSettingsXL.actionSettingsWithDebug(this);
         }
     }
 
