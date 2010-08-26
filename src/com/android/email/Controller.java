@@ -838,7 +838,7 @@ public class Controller {
             final long accountId) {
 
         Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);
-        if (Utility.attachmentExists(mProviderContext, accountId, attachInfo)) {
+        if (Utility.attachmentExists(mProviderContext, attachInfo)) {
             // The attachment has already been downloaded, so we will just "pretend" to download it
             // This presumably is for POP3 messages
             synchronized (mListeners) {

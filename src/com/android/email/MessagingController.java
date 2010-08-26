@@ -1832,7 +1832,7 @@ public class MessagingController implements Runnable {
                                    new MessagingException("The attachment is null"));
                         return;
                     }
-                    if (Utility.attachmentExists(mContext, accountId, attachment)) {
+                    if (Utility.attachmentExists(mContext, attachment)) {
                         mListeners.loadAttachmentFinished(accountId, messageId, attachmentId);
                         return;
                     }
