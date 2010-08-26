@@ -31,12 +31,6 @@
         android:title="@string/account_settings_action"
         android:icon="@android:drawable/ic_menu_preferences"
     />
-    <!-- STOPSHIP: Dev version only.  Remove this. -->
-    <item android:id="@+id/add_new_account"
-        android:title="@string/add_account_action"
-        android:icon="@android:drawable/ic_menu_add"
-    />
-    <!-- STOPSHIP: Dev version only.  Remove this. -->
     <item android:id="@+id/change_orientation"
         android:title="@string/menu_change_orientation"
     />

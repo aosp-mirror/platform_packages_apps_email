@@ -34,6 +34,7 @@ import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.exchange.provider.GalEmailAddressAdapter;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
@@ -58,7 +59,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.webkit.WebView;
@@ -76,6 +76,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Activity to compose a message.
+ *
+ * TODO Revive shortcuts command for removed menu options.
+ * S: send
+ * D: save draft
+ * Q: discard
+ */
 public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener {
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
     private static final String ACTION_REPLY_ALL = "com.android.email.intent.action.REPLY_ALL";
@@ -128,6 +136,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     private boolean mSourceMessageProcessed = false;
 
+    private ActionBar mActionBar;
     private MultiAutoCompleteTextView mToView;
     private MultiAutoCompleteTextView mCcView;
     private MultiAutoCompleteTextView mBccView;
@@ -140,8 +149,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private View mQuotedTextBar;
     private ImageButton mQuotedTextDelete;
     private WebView mQuotedText;
-    private TextView mLeftTitle;
-    private TextView mRightTitle;
 
     private Controller mController;
     private boolean mDraftNeedsSaving;
@@ -252,7 +259,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private void setAccount(Account account) {
         mAccount = account;
         if (account != null) {
-            mRightTitle.setText(account.mDisplayName);
+            mActionBar.setSubtitle(account.mDisplayName);
             mAddressAdapterTo.setAccount(account);
             mAddressAdapterCc.setAccount(account);
             mAddressAdapterBcc.setAccount(account);
@@ -262,9 +269,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.message_compose);
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.list_title);
 
         mController = Controller.getInstance(getApplication());
         initViews();
@@ -325,7 +330,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
              */
             // TODO: signal the controller to load the message
         }
-        updateTitle();
     }
 
     // needed for unit tests
@@ -420,6 +424,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void initViews() {
+        mActionBar = getActionBar();
         mToView = (MultiAutoCompleteTextView)findViewById(R.id.to);
         mCcView = (MultiAutoCompleteTextView)findViewById(R.id.cc);
         mBccView = (MultiAutoCompleteTextView)findViewById(R.id.bcc);
@@ -432,8 +437,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mQuotedTextBar = findViewById(R.id.quoted_text_bar);
         mQuotedTextDelete = (ImageButton)findViewById(R.id.quoted_text_delete);
         mQuotedText = (WebView)findViewById(R.id.quoted_text);
-        mLeftTitle = (TextView)findViewById(R.id.title_left_text);
-        mRightTitle = (TextView)findViewById(R.id.title_right_text);
 
         TextWatcher watcher = new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start,
@@ -672,18 +675,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private void updateTitle() {
-        if (mSubjectView.getText().length() == 0) {
-            mLeftTitle.setText(R.string.compose_title);
-        } else {
-            mLeftTitle.setText(mSubjectView.getText().toString());
-        }
-    }
-
     public void onFocusChange(View view, boolean focused) {
-        if (!focused) {
-            updateTitle();
-        } else {
+        if (focused) {
             switch (view.getId()) {
                 case R.id.message_content:
                     setMessageContentSelection((mAccount != null) ? mAccount.mSignature : null);

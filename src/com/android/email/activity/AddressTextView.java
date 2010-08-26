@@ -16,14 +16,11 @@
 
 package com.android.email.activity;
 
-import android.widget.AutoCompleteTextView.Validator;
-import android.widget.MultiAutoCompleteTextView;
-import android.view.KeyEvent;
+import com.android.email.R;
+
 import android.content.Context;
 import android.util.AttributeSet;
-import android.graphics.drawable.Drawable;
-import android.graphics.Rect;
-import com.android.email.R;
+import android.widget.MultiAutoCompleteTextView;
 
 /**
  * This is a MultiAutoCompleteTextView which sets the error state
