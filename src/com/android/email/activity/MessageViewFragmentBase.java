@@ -791,7 +791,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         // If the attachment is loaded, show 100% progress
         // Note that for POP3 messages, the user will only see "Open" and "Save" since the entire
         // message is loaded before being shown.
-        if (Utility.attachmentExists(mContext, mAccountId, attachment)) {
+        if (Utility.attachmentExists(mContext, attachment)) {
             // Hide "Load", show "View" and "Save"
             attachmentProgress.setVisibility(View.VISIBLE);
             attachmentProgress.setProgress(100);

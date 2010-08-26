@@ -877,8 +877,12 @@ public class Utility {
                 };
     }
 
-    public static boolean attachmentExists(Context context, long accountId, Attachment attachment) {
-        if ((attachment == null) || (TextUtils.isEmpty(attachment.mContentUri))) {
+    public static boolean attachmentExists(Context context, Attachment attachment) {
+        if (attachment == null) {
+            return false;
+        } else if (attachment.mContentBytes != null) {
+            return true;
+        } else if (TextUtils.isEmpty(attachment.mContentUri)) {
             Log.w(Email.LOG_TAG, "attachmentExists ContentUri null.");
             return false;
         }
@@ -917,7 +921,7 @@ public class Utility {
         if (msg == null) return false;
         Attachment[] atts = Attachment.restoreAttachmentsWithMessageId(context, messageId);
         for (Attachment att: atts) {
-            if (!attachmentExists(context, msg.mAccountKey, att)) {
+            if (!attachmentExists(context, att)) {
                 // If the attachment doesn't exist and isn't marked for download, we're in trouble
                 // since the outbound message will be stuck indefinitely in the Outbox.  Instead,
                 // we'll just delete the attachment and continue; this is far better than the
