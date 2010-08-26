@@ -162,7 +162,7 @@ public class AccountSettingsXL extends PreferenceActivity
     private void updateAccounts() {
         if (hasHeaders()) {
             Utility.cancelTaskInterrupt(mLoadAccountListTask);
-            mLoadAccountListTask = (LoadAccountListTask) 
+            mLoadAccountListTask = (LoadAccountListTask)
                     new LoadAccountListTask().execute(mDeletingAccountId);
         }
     }
@@ -374,13 +374,11 @@ public class AccountSettingsXL extends PreferenceActivity
     /**
      * Delete the selected account
      */
-    public void deleteAccount(Account account) {        
+    public void deleteAccount(Account account) {
         // Kick off the work to actually delete the account
 
         // Clear notifications, which may become stale here
-        NotificationManager notificationManager = (NotificationManager)
-                getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(MailService.NOTIFICATION_ID_NEW_MESSAGES);
+        MailService.cancelNewMessageNotification(this);
 
         // Delete the account (note, this is async.  Would be nice to get a callback.
         Controller.getInstance(this).deleteAccount(account.mId);
