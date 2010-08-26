@@ -37,7 +37,7 @@ public class Eas {
     public static final int DEBUG_EXCHANGE_BIT = 2;
     public static final int DEBUG_FILE_BIT = 4;
 
-    public static final String VERSION = "0.3";
+    public static final String CLIENT_VERSION = "EAS-1.2";
     public static final String ACCOUNT_MAILBOX_PREFIX = "__eas";
 
     // Define our default protocol version as 2.5 (Exchange 2003)

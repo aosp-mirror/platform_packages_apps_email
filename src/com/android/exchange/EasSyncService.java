@@ -80,6 +80,7 @@ import android.content.Context;
 import android.content.Entity;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -1206,7 +1207,8 @@ public class EasSyncService extends AbstractSyncService {
         method.setHeader("Authorization", mAuthString);
         method.setHeader("MS-ASProtocolVersion", mProtocolVersion);
         method.setHeader("Connection", "keep-alive");
-        method.setHeader("User-Agent", mDeviceType + '/' + Eas.VERSION);
+        method.setHeader("User-Agent", mDeviceType + '-' + Build.VERSION.RELEASE + '/' +
+                Eas.CLIENT_VERSION);
         if (usePolicyKey) {
             // If there's an account in existence, use its key; otherwise (we're creating the
             // account), send "0".  The server will respond with code 449 if there are policies
