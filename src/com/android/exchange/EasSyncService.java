@@ -1113,6 +1113,12 @@ public class EasSyncService extends AbstractSyncService {
                     // If we revert or if we succeeded, we no longer need the update information
                     mContentResolver.delete(ContentUris.withAppendedId(
                             Message.UPDATED_CONTENT_URI, req.mMessageId), null, null);
+                    // Set the serverId to 0, since we don't know what the new server id will be
+                    ContentValues cv = new ContentValues();
+                    cv.put(Message.SERVER_ID, "0");
+                    mContentResolver.update(ContentUris.withAppendedId(
+                            Message.CONTENT_URI, msg.mId), cv, null, null);
+
                 } else {
                     // In this case, we're retrying, so do nothing.  The request will be handled
                     // next sync
