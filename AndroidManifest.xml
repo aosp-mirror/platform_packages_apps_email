@@ -56,19 +56,12 @@
                 android:description="@string/permission_access_provider_desc"/>
     <uses-permission android:name="com.android.email.permission.ACCESS_PROVIDER"/>
 
-    <!--
-      Regarding android:theme
-      Some of the activities can't handle ActionBar, which comes with the new
-      default theme "Holo".  Explicitly set the traditional default theme.
-      TODO This should go away.  (Or make Light.Holo default)
-    -->
     <application android:icon="@drawable/icon" android:label="@string/app_name"
         android:name="Email"
-        android:theme="@android:style/Theme"
+        android:theme="@android:style/Theme.Light.Holo"
         >
         <activity
             android:name=".activity.Welcome"
-            android:theme="@android:style/Theme.WithActionBar" >
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -80,28 +73,33 @@
             android:name=".activity.UpgradeAccounts"
             android:label="@string/upgrade_accounts_title"
             android:theme="@android:style/Theme.NoTitleBar"
-            android:configChanges="keyboardHidden|orientation" >
+            android:configChanges="keyboardHidden|orientation"
+            >
         </activity>
         <!-- Must be exported in order for the AccountManager to launch it -->
         <activity
             android:name=".activity.setup.AccountSetupBasics"
             android:label="@string/account_setup_basics_title"
+            android:theme="@android:style/Theme"
             android:exported="true"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupAccountType"
             android:label="@string/account_setup_account_type_title"
+            android:theme="@android:style/Theme"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupIncoming"
             android:label="@string/account_setup_incoming_title"
+            android:theme="@android:style/Theme"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupOutgoing"
             android:label="@string/account_setup_outgoing_title"
+            android:theme="@android:style/Theme"
             >
         </activity>
         <!--EXCHANGE-REMOVE-SECTION-START-->
@@ -110,6 +108,7 @@
         <activity
             android:name=".activity.setup.AccountSetupExchange"
             android:label="@string/account_setup_exchange_title"
+            android:theme="@android:style/Theme"
             android:configChanges="keyboardHidden|orientation"
             >
         </activity>
@@ -117,11 +116,13 @@
         <activity
             android:name=".activity.setup.AccountSetupOptions"
             android:label="@string/account_setup_options_title"
+            android:theme="@android:style/Theme"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupNames"
             android:label="@string/account_setup_names_title"
+            android:theme="@android:style/Theme"
             >
         </activity>
         <!-- XXX Note: this activity is hacked to ignore config changes,
@@ -129,12 +130,14 @@
         <activity
             android:name=".activity.setup.AccountSetupCheckSettings"
             android:label="@string/account_setup_check_settings_title"
+            android:theme="@android:style/Theme"
             android:configChanges="keyboardHidden|orientation"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSettings"
             android:label="@string/account_settings_action"
+            android:theme="@android:style/Theme"
             >
             <intent-filter>
                 <action android:name="com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY" />
@@ -146,7 +149,6 @@
         <activity
             android:name=".activity.setup.AccountSettingsXL"
             android:label="@string/account_settings_action"
-            android:theme="@android:style/Theme.WithActionBar" >
             >
         </activity>
         <activity
@@ -157,12 +159,13 @@
 
         <activity
             android:name=".activity.Debug"
-            android:label="@string/debug_title">
+            android:label="@string/debug_title"
+            >
         </activity>
         <activity
             android:name=".activity.AccountFolderList"
             android:launchMode="singleTop"
-            android:theme="@android:style/Theme.WithActionBar" >
+            >
         </activity>
 
         <activity
@@ -178,16 +181,16 @@
 
         <activity
             android:name=".activity.MailboxList"
-            android:theme="@android:style/Theme.WithActionBar" >
+            >
         </activity>
 
         <activity
             android:name=".activity.MessageList"
-            android:theme="@style/ThemeNoTitleBar">
+            android:theme="@style/ThemeNoTitleBar"
+            >
         </activity>
         <activity
             android:name=".activity.MessageListXL"
-            android:theme="@android:style/Theme.WithActionBar"
             >
         </activity>
 
@@ -210,11 +213,11 @@
 
         <activity
             android:name=".activity.MessageView"
-            android:theme="@android:style/Theme.NoTitleBar" >
+            >
         </activity>
         <activity
             android:name=".activity.MessageFileView"
-            android:theme="@android:style/Theme.NoTitleBar" >
+            >
             <intent-filter android:label="@string/app_name">
                 <action android:name="android.intent.action.VIEW" />
                 <data android:mimeType="application/eml" />

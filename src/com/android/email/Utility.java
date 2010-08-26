@@ -699,10 +699,12 @@ public class Utility {
     }
 
     /**
-     * Run {@code r} on a worker thread.
+     * Run {@code r} on a worker thread, returning the AsyncTask
+     * @return the AsyncTask; this is primarily for use by unit tests, which require the
+     * result of the task
      */
-    public static void runAsync(final Runnable r) {
-        new AsyncTask<Void, Void, Void>() {
+    public static AsyncTask<Void, Void, Void> runAsync(final Runnable r) {
+        return new AsyncTask<Void, Void, Void>() {
             @Override protected Void doInBackground(Void... params) {
                 r.run();
                 return null;

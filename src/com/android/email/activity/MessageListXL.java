@@ -446,8 +446,18 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     }
 
     private void updateAccountList(Cursor accountsCursor) {
-        if (accountsCursor.getCount() == 0) {
+        final int count = accountsCursor.getCount();
+        if (count == 0) {
             onNoAccountFound();
+            return;
+        }
+
+        // If ony one acount, don't show dropdown.
+        final ActionBar ab = getActionBar();
+        if (count == 1) {
+            accountsCursor.moveToFirst();
+            ab.setStandardNavigationMode();
+            ab.setTitle(AccountSelectorAdapter.getAccountName(accountsCursor));
             return;
         }
 
@@ -467,7 +477,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         }
 
         // Update the dropdown list.
-        final ActionBar ab = getActionBar();
         mAccountsSelectorAdapter.changeCursor(accountsCursor);
         if (ab.getNavigationMode() != ActionBar.NAVIGATION_MODE_DROPDOWN_LIST) {
             ab.setDropdownNavigationMode(mAccountsSelectorAdapter,

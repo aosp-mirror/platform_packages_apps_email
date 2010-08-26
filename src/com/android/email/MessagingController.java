@@ -1278,6 +1278,7 @@ public class MessagingController implements Runnable {
                 boolean changeMoveToTrash = false;
                 boolean changeRead = false;
                 boolean changeFlagged = false;
+                boolean changeMailbox = false;
 
                 EmailContent.Message oldMessage =
                     EmailContent.getContent(updates, EmailContent.Message.class);
@@ -1291,14 +1292,20 @@ public class MessagingController implements Runnable {
                             continue; // Mailbox removed. Move to the next message.
                         }
                     }
-                    changeMoveToTrash = (oldMessage.mMailboxKey != newMessage.mMailboxKey)
-                            && (mailbox.mType == Mailbox.TYPE_TRASH);
+                    if (oldMessage.mMailboxKey != newMessage.mMailboxKey) {
+                        if (mailbox.mType == Mailbox.TYPE_TRASH) {
+                            changeMoveToTrash = true;
+                        } else {
+                            changeMailbox = true;
+                        }
+                    }
                     changeRead = oldMessage.mFlagRead != newMessage.mFlagRead;
                     changeFlagged = oldMessage.mFlagFavorite != newMessage.mFlagFavorite;
-                }
+               }
 
                 // Load the remote store if it will be needed
-                if (remoteStore == null && (changeMoveToTrash || changeRead || changeFlagged)) {
+                if (remoteStore == null &&
+                        (changeMoveToTrash || changeRead || changeFlagged || changeMailbox)) {
                     remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext, null);
                 }
 
@@ -1307,9 +1314,9 @@ public class MessagingController implements Runnable {
                     // Move message to trash
                     processPendingMoveToTrash(remoteStore, account, mailbox, oldMessage,
                             newMessage);
-                } else if (changeRead || changeFlagged) {
-                    processPendingFlagChange(remoteStore, mailbox, changeRead, changeFlagged,
-                            newMessage);
+                } else if (changeRead || changeFlagged || changeMailbox) {
+                    processPendingDataChange(remoteStore, mailbox, changeRead, changeFlagged,
+                            changeMailbox, oldMessage, newMessage);
                 }
 
                 // Finally, delete the update
@@ -1378,21 +1385,33 @@ public class MessagingController implements Runnable {
     }
 
     /**
-     * Upsync changes to read or flagged
+     * Upsync changes to read, flagged, or mailbox
      *
-     * @param remoteStore
-     * @param mailbox
-     * @param changeRead
-     * @param changeFlagged
-     * @param newMessage
+     * @param remoteStore the remote store for this mailbox
+     * @param mailbox the mailbox the message is stored in
+     * @param changeRead whether the message's read state has changed
+     * @param changeFlagged whether the message's flagged state has changed
+     * @param changeMailbox whether the message's mailbox has changed
+     * @param oldMessage the message in it's pre-change state
+     * @param newMessage the current version of the message
      */
-    private void processPendingFlagChange(Store remoteStore, Mailbox mailbox, boolean changeRead,
-            boolean changeFlagged, EmailContent.Message newMessage) throws MessagingException {
+    private void processPendingDataChange(Store remoteStore, Mailbox mailbox, boolean changeRead,
+            boolean changeFlagged, boolean changeMailbox, EmailContent.Message oldMessage,
+            EmailContent.Message newMessage) throws MessagingException {
+        Mailbox newMailbox = null;;
 
         // 0. No remote update if the message is local-only
         if (newMessage.mServerId == null || newMessage.mServerId.equals("")
-                || newMessage.mServerId.startsWith(LOCAL_SERVERID_PREFIX)) {
+                || newMessage.mServerId.startsWith(LOCAL_SERVERID_PREFIX) || (mailbox == null)) {
             return;
+        }
+
+        // 0.5 If the mailbox has changed, use the original mailbox for operations
+        // After any flag changes (which we execute in the original mailbox), we then
+        // copy the message to the new mailbox
+        if (changeMailbox) {
+            newMailbox = mailbox;
+            mailbox = Mailbox.restoreMailboxWithId(mContext, oldMessage.mMailboxKey);
         }
 
         // 1. No remote update for DRAFTS or OUTBOX
@@ -1417,9 +1436,10 @@ public class MessagingController implements Runnable {
         }
         if (Email.DEBUG) {
             Log.d(Email.LOG_TAG,
-                    "Update flags for msg id=" + newMessage.mId
+                    "Update for msg id=" + newMessage.mId
                     + " read=" + newMessage.mFlagRead
-                    + " flagged=" + newMessage.mFlagFavorite);
+                    + " flagged=" + newMessage.mFlagFavorite
+                    + " new mailbox=" + newMessage.mMailboxKey);
         }
         Message[] messages = new Message[] { remoteMessage };
         if (changeRead) {
@@ -1428,6 +1448,18 @@ public class MessagingController implements Runnable {
         if (changeFlagged) {
             remoteFolder.setFlags(messages, FLAG_LIST_FLAGGED, newMessage.mFlagFavorite);
         }
+        if (changeMailbox) {
+            Folder toFolder = remoteStore.getFolder(newMailbox.mDisplayName);
+            if (!remoteFolder.exists()) {
+                return;
+            }
+            // Copy the message to its new folder
+            remoteFolder.copyMessages(messages, toFolder, null);
+            // Delete the message from the remote source folder
+            remoteMessage.setFlag(Flag.DELETED, true);
+            remoteFolder.expunge();
+        }
+        remoteFolder.close(false);
     }
 
     /**
@@ -1540,9 +1572,7 @@ public class MessagingController implements Runnable {
                 public void onMessageNotFound(Message message) {
                     mContext.getContentResolver().delete(newMessage.getUri(), null, null);
                 }
-
-            }
-            );
+            });
             remoteTrashFolder.close(false);
         }
 
