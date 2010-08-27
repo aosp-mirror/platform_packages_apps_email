@@ -22,19 +22,19 @@ import android.content.Context;
 import android.content.Intent;
 
 /**
- * MailboxAlarmReceiver is used to "wake up" the SyncManager at the appropriate time(s).  It may
+ * MailboxAlarmReceiver is used to "wake up" the ExchangeService at the appropriate time(s).  It may
  * also be used for individual sync adapters, but this isn't implemented at the present time.
  *
  */
 public class MailboxAlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        long mailboxId = intent.getLongExtra("mailbox", SyncManager.SYNC_MANAGER_ID);
-        // SYNC_MANAGER_SERVICE_ID tells us that the service is asking to be started
-        if (mailboxId == SyncManager.SYNC_MANAGER_SERVICE_ID) {
-            context.startService(new Intent(context, SyncManager.class));
+        long mailboxId = intent.getLongExtra("mailbox", ExchangeService.EXTRA_MAILBOX_ID);
+        // EXCHANGE_SERVICE_MAILBOX_ID tells us that the service is asking to be started
+        if (mailboxId == ExchangeService.EXCHANGE_SERVICE_MAILBOX_ID) {
+            context.startService(new Intent(context, ExchangeService.class));
         } else {
-            SyncManager.alert(context, mailboxId);
+            ExchangeService.alert(context, mailboxId);
         }
     }
 }

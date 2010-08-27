@@ -22,7 +22,7 @@ import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.exchange.SyncManager.SyncError;
+import com.android.exchange.ExchangeService.SyncError;
 
 import android.content.Context;
 
@@ -30,14 +30,14 @@ import java.util.HashMap;
 
 /**
  * You can run this entire test case with:
- *   runtest -c com.android.exchange.SyncManagerAccountTests email
+ *   runtest -c com.android.exchange.ExchangeServiceAccountTests email
  */
-public class SyncManagerAccountTests extends AccountTestCase {
+public class ExchangeServiceAccountTests extends AccountTestCase {
 
     EmailProvider mProvider;
     Context mMockContext;
 
-    public SyncManagerAccountTests() {
+    public ExchangeServiceAccountTests() {
         super();
     }
 
@@ -49,13 +49,13 @@ public class SyncManagerAccountTests extends AccountTestCase {
 
     public void testReleaseSyncHolds() {
         Context context = mMockContext;
-        SyncManager syncManager = new SyncManager();
+        ExchangeService exchangeService = new ExchangeService();
         SyncError securityErrorAccount1 =
-            syncManager.new SyncError(AbstractSyncService.EXIT_SECURITY_FAILURE, false);
+            exchangeService.new SyncError(AbstractSyncService.EXIT_SECURITY_FAILURE, false);
         SyncError ioError =
-            syncManager.new SyncError(AbstractSyncService.EXIT_IO_ERROR, false);
+            exchangeService.new SyncError(AbstractSyncService.EXIT_IO_ERROR, false);
         SyncError securityErrorAccount2 =
-            syncManager.new SyncError(AbstractSyncService.EXIT_SECURITY_FAILURE, false);
+            exchangeService.new SyncError(AbstractSyncService.EXIT_SECURITY_FAILURE, false);
         // Create account and two mailboxes
         Account acct1 = ProviderTestUtils.setupAccount("acct1", true, context);
         Mailbox box1 = ProviderTestUtils.setupMailbox("box1", acct1.mId, true, context);
@@ -64,7 +64,7 @@ public class SyncManagerAccountTests extends AccountTestCase {
         Mailbox box3 = ProviderTestUtils.setupMailbox("box3", acct2.mId, true, context);
         Mailbox box4 = ProviderTestUtils.setupMailbox("box4", acct2.mId, true, context);
 
-        HashMap<Long, SyncError> errorMap = syncManager.mSyncErrorMap;
+        HashMap<Long, SyncError> errorMap = exchangeService.mSyncErrorMap;
         // Add errors into the map
         errorMap.put(box1.mId, securityErrorAccount1);
         errorMap.put(box2.mId, ioError);
@@ -73,7 +73,7 @@ public class SyncManagerAccountTests extends AccountTestCase {
         // We should have 4
         assertEquals(4, errorMap.keySet().size());
         // Release the holds on acct2 (there are two of them)
-        syncManager.releaseSyncHolds(context, AbstractSyncService.EXIT_SECURITY_FAILURE, acct2);
+        exchangeService.releaseSyncHolds(context, AbstractSyncService.EXIT_SECURITY_FAILURE, acct2);
         // There should be two left
         assertEquals(2, errorMap.keySet().size());
         // And these are the two...
@@ -86,19 +86,19 @@ public class SyncManagerAccountTests extends AccountTestCase {
         // We should have 4 again
         assertEquals(4, errorMap.keySet().size());
         // Release all of the security holds
-        syncManager.releaseSyncHolds(context, AbstractSyncService.EXIT_SECURITY_FAILURE, null);
+        exchangeService.releaseSyncHolds(context, AbstractSyncService.EXIT_SECURITY_FAILURE, null);
         // There should be one left
         assertEquals(1, errorMap.keySet().size());
         // And this is the one
         assertNotNull(errorMap.get(box2.mId));
 
         // Release the i/o holds on account 2 (there aren't any)
-        syncManager.releaseSyncHolds(context, AbstractSyncService.EXIT_IO_ERROR, acct2);
+        exchangeService.releaseSyncHolds(context, AbstractSyncService.EXIT_IO_ERROR, acct2);
         // There should still be one left
         assertEquals(1, errorMap.keySet().size());
 
         // Release the i/o holds on account 1 (there's one)
-        syncManager.releaseSyncHolds(context, AbstractSyncService.EXIT_IO_ERROR, acct1);
+        exchangeService.releaseSyncHolds(context, AbstractSyncService.EXIT_IO_ERROR, acct1);
         // There should still be one left
         assertEquals(0, errorMap.keySet().size());
     }
@@ -116,11 +116,11 @@ public class SyncManagerAccountTests extends AccountTestCase {
                 Mailbox.TYPE_NOT_SYNCABLE + 64);
         Mailbox box5 = ProviderTestUtils.setupMailbox("box2", acct1.mId, true, context,
                 Mailbox.TYPE_MAIL);
-        assertFalse(SyncManager.isSyncable(null));
-        assertFalse(SyncManager.isSyncable(box1));
-        assertFalse(SyncManager.isSyncable(box2));
-        assertFalse(SyncManager.isSyncable(box3));
-        assertFalse(SyncManager.isSyncable(box4));
-        assertTrue(SyncManager.isSyncable(box5));
+        assertFalse(ExchangeService.isSyncable(null));
+        assertFalse(ExchangeService.isSyncable(box1));
+        assertFalse(ExchangeService.isSyncable(box2));
+        assertFalse(ExchangeService.isSyncable(box3));
+        assertFalse(ExchangeService.isSyncable(box4));
+        assertTrue(ExchangeService.isSyncable(box5));
     }
 }

@@ -27,7 +27,7 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
-import com.android.exchange.SyncManager;
+import com.android.exchange.ExchangeService;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -396,7 +396,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
     /**
      * We use an EmailServiceCallback to keep track of the progress of downloads.  These callbacks
-     * come from either Controller (IMAP) or SyncManager (EAS).  Note that we only implement the
+     * come from either Controller (IMAP) or ExchangeService (EAS).  Note that we only implement the
      * single callback that's defined by the EmailServiceCallback interface.
      */
     private class ServiceCallback extends IEmailServiceCallback.Stub {
@@ -482,7 +482,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         if (serviceClass == null) {
             String protocol = Account.getProtocol(mContext, accountId);
             if (protocol.equals("eas")) {
-                serviceClass = SyncManager.class;
+                serviceClass = ExchangeService.class;
             } else {
                 serviceClass = ControllerService.class;
             }

@@ -275,7 +275,7 @@ public abstract class Parser {
         }
         // Otherwise, we've prematurely hit end of document, so exception out
         // EodException is a subclass of IOException; this will be treated as an IO error by
-        // SyncManager.
+        // ExchangeService
         throw new EodException();
     }
 

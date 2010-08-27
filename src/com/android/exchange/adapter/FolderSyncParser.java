@@ -24,8 +24,8 @@ import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.exchange.Eas;
+import com.android.exchange.ExchangeService;
 import com.android.exchange.MockParserStream;
-import com.android.exchange.SyncManager;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;
@@ -114,7 +114,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                         mContentResolver.delete(Mailbox.CONTENT_URI, ALL_BUT_ACCOUNT_MAILBOX,
                                 new String[] {Long.toString(mAccountId)});
                         // Stop existing syncs and reconstruct _main
-                        SyncManager.folderListReloaded(mAccountId);
+                        ExchangeService.folderListReloaded(mAccountId);
                         res = true;
                         resetFolders = true;
                     } else {
@@ -223,8 +223,9 @@ public class FolderSyncParser extends AbstractSyncParser {
                     m.mSyncInterval = mAccount.mSyncInterval;
                     break;
                 case OUTBOX_TYPE:
-                    // TYPE_OUTBOX mailboxes are known by SyncManager to sync whenever they aren't
-                    // empty.  The value of mSyncFrequency is ignored for this kind of mailbox.
+                    // TYPE_OUTBOX mailboxes are known by ExchangeService to sync whenever they
+                    // aren't empty.  The value of mSyncFrequency is ignored for this kind of
+                    // mailbox.
                     m.mType = Mailbox.TYPE_OUTBOX;
                     break;
                 case SENT_TYPE:

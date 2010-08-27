@@ -27,7 +27,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
-import com.android.exchange.SyncManager;
+import com.android.exchange.ExchangeService;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
 
@@ -325,7 +325,8 @@ public class CalendarUtilities {
         String tziString = sTziStringCache.get(tz);
         if (tziString != null) {
             if (Eas.USER_LOG) {
-                SyncManager.log(TAG, "TZI string for " + tz.getDisplayName() + " found in cache.");
+                ExchangeService.log(TAG, "TZI string for " + tz.getDisplayName() +
+                        " found in cache.");
             }
             return tziString;
         }
@@ -698,14 +699,14 @@ public class CalendarUtilities {
         TimeZone timeZone = sTimeZoneCache.get(timeZoneString);
         if (timeZone != null) {
             if (Eas.USER_LOG) {
-                SyncManager.log(TAG, " Using cached TimeZone " + timeZone.getDisplayName());
+                ExchangeService.log(TAG, " Using cached TimeZone " + timeZone.getDisplayName());
             }
         } else {
             timeZone = tziStringToTimeZoneImpl(timeZoneString);
             if (timeZone == null) {
                 // If we don't find a match, we just return the current TimeZone.  In theory, this
                 // shouldn't be happening...
-                SyncManager.alwaysLog("TimeZone not found using default: " + timeZoneString);
+                ExchangeService.alwaysLog("TimeZone not found using default: " + timeZoneString);
                 timeZone = TimeZone.getDefault();
             }
             sTimeZoneCache.put(timeZoneString, timeZone);
@@ -743,7 +744,7 @@ public class CalendarUtilities {
                 // is the offset, and we know that all of the zoneId's match; we'll take the first
                 timeZone = TimeZone.getTimeZone(zoneIds[0]);
                 if (Eas.USER_LOG) {
-                    SyncManager.log(TAG, "TimeZone without DST found by offset: " +
+                    ExchangeService.log(TAG, "TimeZone without DST found by offset: " +
                             timeZone.getDisplayName());
                 }
                 return timeZone;
@@ -790,7 +791,8 @@ public class CalendarUtilities {
                 // is the offset, and we know that all of the zoneId's match; we'll take the first
                 timeZone = TimeZone.getTimeZone(zoneIds[0]);
                 if (Eas.USER_LOG) {
-                    SyncManager.log(TAG, "No TimeZone with correct DST settings; using first: " +
+                    ExchangeService.log(TAG,
+                            "No TimeZone with correct DST settings; using first: " +
                             timeZone.getDisplayName());
                 }
                 return timeZone;
@@ -1036,7 +1038,7 @@ public class CalendarUtilities {
     static public void recurrenceFromRrule(String rrule, long startTime, Serializer s)
             throws IOException {
         if (Eas.USER_LOG) {
-            SyncManager.log(TAG, "RRULE: " + rrule);
+            ExchangeService.log(TAG, "RRULE: " + rrule);
         }
         String freq = tokenFromRrule(rrule, "FREQ=");
         // If there's no FREQ=X, then we don't write a recurrence

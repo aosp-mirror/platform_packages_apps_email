@@ -21,7 +21,7 @@ import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.PackedString;
 import com.android.email.provider.EmailContent.Account;
 import com.android.exchange.EasSyncService;
-import com.android.exchange.SyncManager;
+import com.android.exchange.ExchangeService;
 import com.android.exchange.provider.GalResult.GalData;
 
 import android.accounts.AccountManager;
@@ -223,7 +223,7 @@ public class ExchangeDirectoryProvider extends ContentProvider {
                     return null;
                 }
 
-                Account account = SyncManager.getAccountByName(accountName);
+                Account account = ExchangeService.getAccountByName(accountName);
                 if (account == null) {
                     return null;
                 }

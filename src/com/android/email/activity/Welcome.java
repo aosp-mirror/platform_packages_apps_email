@@ -164,9 +164,9 @@ public class Welcome extends Activity {
         AccountBackupRestore.restoreAccountsIfNeeded(this);
 
         // Because the app could be reloaded (for debugging, etc.), we need to make sure that
-        // SyncManager gets a chance to start.  There is no harm to starting it if it has already
-        // been started
-        // TODO More completely separate SyncManager from Email app
+        // ExchangeService gets a chance to start.  There is no harm to starting it if it has
+        // already been started
+        // TODO More completely separate ExchangeService from Email app
         ExchangeUtils.startExchangeService(this);
 
         // TODO Move this listener code to a more central location
