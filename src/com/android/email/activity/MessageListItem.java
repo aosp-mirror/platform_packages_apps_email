@@ -29,20 +29,22 @@ import android.widget.RelativeLayout;
  * 2.  It handles internal clicks such as the checkbox or the favorite star
  */
 public class MessageListItem extends RelativeLayout {
-
-    public long mMessageId;
-    public long mMailboxId;
-    public long mAccountId;
-    public boolean mRead;
-    public boolean mFavorite;
+    // Note: messagesAdapter directly fiddles with these fields.
+    /* package */ long mMessageId;
+    /* package */ long mMailboxId;
+    /* package */ long mAccountId;
+    /* package */ boolean mRead;
+    /* package */ boolean mFavorite;
 
     private MessagesAdapter mAdapter;
 
     private boolean mDownEvent;
     private boolean mCachedViewPositions;
+    private int mCheckRight;
     private int mStarLeft;
 
-    // Padding to increase clickable areas on right of each list item
+    // Padding to increase clickable areas on left & right of each list item
+    private final static float CHECKMARK_PAD = 10.0F;
     private final static float STAR_PAD = 10.0F;
 
     public MessageListItem(Context context) {
@@ -77,8 +79,10 @@ public class MessageListItem extends RelativeLayout {
         int touchX = (int) event.getX();
 
         if (!mCachedViewPositions) {
-            float paddingScale = getContext().getResources().getDisplayMetrics().density;
-            int starPadding = (int) ((STAR_PAD * paddingScale) + 0.5);
+            final float paddingScale = getContext().getResources().getDisplayMetrics().density;
+            final int checkPadding = (int) ((CHECKMARK_PAD * paddingScale) + 0.5);
+            final int starPadding = (int) ((STAR_PAD * paddingScale) + 0.5);
+            mCheckRight = findViewById(R.id.selected).getRight() + checkPadding;
             mStarLeft = findViewById(R.id.favorite).getLeft() - starPadding;
             mCachedViewPositions = true;
         }
@@ -86,7 +90,7 @@ public class MessageListItem extends RelativeLayout {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDownEvent = true;
-                if (touchX > mStarLeft) {
+                if ((touchX < mCheckRight) || (touchX > mStarLeft)) {
                     handled = true;
                 }
                 break;
@@ -97,7 +101,10 @@ public class MessageListItem extends RelativeLayout {
 
             case MotionEvent.ACTION_UP:
                 if (mDownEvent) {
-                    if (touchX > mStarLeft) {
+                    if (touchX < mCheckRight) {
+                        mAdapter.toggleSelected(this);
+                        handled = true;
+                    } else if (touchX > mStarLeft) {
                         mFavorite = !mFavorite;
                         mAdapter.updateFavorite(this, mFavorite);
                         handled = true;

@@ -192,7 +192,7 @@ public class MessageListFragment extends ListFragment
         listView.setOnItemLongClickListener(this);
         listView.setItemsCanFocus(false);
 
-        mListAdapter = new MessagesAdapter(mActivity, new Handler(), this);
+        mListAdapter = new MessagesAdapter(mActivity, this);
 
         mListFooterView = getActivity().getLayoutInflater().inflate(
                 R.layout.message_list_item_footer, listView, false);
@@ -373,7 +373,7 @@ public class MessageListFragment extends ListFragment
     }
 
     private void toggleSelection(MessageListItem itemView) {
-        mListAdapter.updateSelected(itemView, !mListAdapter.isSelected(itemView));
+        mListAdapter.toggleSelected(itemView);
     }
 
     private void onMessageOpen(final long mailboxId, final long messageId) {

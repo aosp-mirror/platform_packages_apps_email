@@ -80,6 +80,8 @@ import java.util.Set;
     private final Drawable mInvitationIcon;
     private final Drawable mFavoriteIconOn;
     private final Drawable mFavoriteIconOff;
+    private final Drawable mSelectedIconOn;
+    private final Drawable mSelectedIconOff;
 
     private final ColorStateList mTextColorPrimary;
     private final ColorStateList mTextColorSecondary;
@@ -91,7 +93,10 @@ import java.util.Set;
     private final java.text.DateFormat mDateFormat;
     private final java.text.DateFormat mTimeFormat;
 
-    private final HashSet<Long> mSelected = new HashSet<Long>();
+    /**
+     * Set of seleced message IDs.  Note for performac{@link MessageListItem
+     */
+    private final HashSet<Long> mSelectedSet = new HashSet<Long>();
 
     /**
      * Callback from MessageListAdapter.  All methods are called on the UI thread.
@@ -106,14 +111,8 @@ import java.util.Set;
 
     private final Callback mCallback;
 
-    /**
-     * Used to call callbacks in the UI thread.
-     */
-    private final Handler mHandler;
-
-    public MessagesAdapter(Context context, Handler handler, Callback callback) {
+    public MessagesAdapter(Context context, Callback callback) {
         super(context.getApplicationContext(), null, 0 /* no auto requery */);
-        mHandler = handler;
         mCallback = callback;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -122,6 +121,8 @@ import java.util.Set;
         mInvitationIcon = resources.getDrawable(R.drawable.ic_calendar_event_small);
         mFavoriteIconOn = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_on);
         mFavoriteIconOff = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_off);
+        mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_dark_on);
+        mSelectedIconOff = resources.getDrawable(R.drawable.btn_check_buttonless_dark_off);
 
         Theme theme = context.getTheme();
         TypedArray array;
@@ -153,11 +154,11 @@ import java.util.Set;
     }
 
     public Set<Long> getSelectedSet() {
-        return mSelected;
+        return mSelectedSet;
     }
 
     public boolean isSelected(MessageListItem itemView) {
-        return mSelected.contains(itemView.mMessageId);
+        return mSelectedSet.contains(itemView.mMessageId);
     }
 
     @Override
@@ -218,6 +219,7 @@ import java.util.Set;
                     R.drawable.message_list_item_background_unread));
         }
 
+        updateCheckBox(itemView);
         ImageView favoriteView = (ImageView) view.findViewById(R.id.favorite);
         favoriteView.setImageDrawable(itemView.mFavorite ? mFavoriteIconOn : mFavoriteIconOff);
         updateBackgroundColor(itemView);
@@ -228,6 +230,15 @@ import java.util.Set;
         return mInflater.inflate(R.layout.message_list_item, parent, false);
     }
 
+    private void updateCheckBox(MessageListItem itemView) {
+        ImageView selectedView = (ImageView) itemView.findViewById(R.id.selected);
+        selectedView.setImageDrawable(isSelected(itemView) ? mSelectedIconOn : mSelectedIconOff);
+    }
+
+    public void toggleSelected(MessageListItem itemView) {
+        updateSelected(itemView, !isSelected(itemView));
+    }
+
     /**
      * This is used as a callback from the list items, to set the selected state
      *
@@ -236,17 +247,16 @@ import java.util.Set;
      * @param itemView the item being changed
      * @param newSelected the new value of the selected flag (checkbox state)
      */
-    public void updateSelected(MessageListItem itemView, boolean newSelected) {
-        // Set checkbox state in list, and show/hide panel if necessary
-        Long id = Long.valueOf(itemView.mMessageId);
+    private void updateSelected(MessageListItem itemView, boolean newSelected) {
         if (newSelected) {
-            mSelected.add(id);
+            mSelectedSet.add(itemView.mMessageId);
         } else {
-            mSelected.remove(id);
+            mSelectedSet.remove(itemView.mMessageId);
         }
+        updateCheckBox(itemView);
         updateBackgroundColor(itemView);
         if (mCallback != null) {
-            mCallback.onAdapterSelectedChanged(itemView, newSelected, mSelected.size());
+            mCallback.onAdapterSelectedChanged(itemView, newSelected, mSelectedSet.size());
         }
     }
 
