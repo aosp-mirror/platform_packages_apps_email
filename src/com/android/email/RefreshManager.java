@@ -17,10 +17,8 @@
 package com.android.email;
 
 import com.android.email.mail.MessagingException;
-import com.android.email.provider.EmailContent;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Handler;
 import android.util.Log;
 
@@ -45,7 +43,7 @@ import java.util.HashMap;
  *
  * <p>Conceptually it can be a part of {@link Controller}, but extracted for easy testing.
  *
- * (All public method musb be called on the UI thread.  All callbacks will be called on the UI
+ * (All public methods must be called on the UI thread.  All callbacks will be called on the UI
  * thread.)
  */
 public class RefreshManager {
@@ -159,7 +157,7 @@ public class RefreshManager {
         return sInstance;
     }
 
-    /* package */ RefreshManager(Context context, Controller controller, Clock clock,
+    protected RefreshManager(Context context, Controller controller, Clock clock,
             Handler handler) {
         mClock = clock;
         mContext = context.getApplicationContext();
@@ -167,6 +165,14 @@ public class RefreshManager {
         mControllerResult = new ControllerResultUiThreadWrapper<ControllerResult>(
                 handler, new ControllerResult());
         mController.addResultCallback(mControllerResult);
+    }
+
+    /**
+     * MUST be called for mock instances.  (The actual instance is a singleton, so no cleanup
+     * is necessary.)
+     */
+    public void cleanUpForTest() {
+        mController.removeResultCallback(mControllerResult);
     }
 
     public void registerListener(Listener listener) {
@@ -259,6 +265,18 @@ public class RefreshManager {
         protected void performAction(long accountId) {
             sendPendingMessages(accountId);
         }
+    }
+
+    public long getLastMailboxListRefreshTime(long accountId) {
+        return mMailboxListStatus.get(accountId).getLastRefreshTime();
+    }
+
+    public long getLastMessageListRefreshTime(long mailboxId) {
+        return mMessageListStatus.get(mailboxId).getLastRefreshTime();
+    }
+
+    public long getLastSendMessageTime(long accountId) {
+        return mOutboxStatus.get(accountId).getLastRefreshTime();
     }
 
     public boolean isMailboxListRefreshing(long accountId) {

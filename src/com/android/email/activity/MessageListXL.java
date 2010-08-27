@@ -16,12 +16,14 @@
 
 package com.android.email.activity;
 
+import com.android.email.Clock;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.service.MailService;
 
@@ -33,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -58,6 +61,8 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     private static final int LOADER_ID_ACCOUNT_LIST = 0;
+    /* package */ static final int MAILBOX_REFRESH_MIN_INTERVAL = 30 * 1000; // in milliseconds
+    /* package */ static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
 
     private Context mContext;
     private RefreshManager mRefreshManager;
@@ -79,6 +84,8 @@ public class MessageListXL extends Activity implements View.OnClickListener,
 
     private final MessageOrderManagerCallback mMessageOrderManagerCallback
             = new MessageOrderManagerCallback();
+
+    private RefreshTask mRefreshTask;
 
     /**
      * Launch and open account's inbox.
@@ -210,6 +217,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     @Override
     protected void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onDestroy");
+        Utility.cancelTaskInterrupt(mRefreshTask);
         mRefreshManager.unregisterListener(mMailRefreshManagerListener);
         super.onDestroy();
     }
@@ -543,7 +551,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private boolean isProgressActive() {
         final long mailboxId = mFragmentManager.getMailboxId();
         return (mailboxId >= 0) && mRefreshManager.isMessageListRefreshing(mailboxId);
-
     }
 
     @Override
@@ -604,29 +611,114 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     }
 
     private void onRefresh() {
-        // Temporary implementation
-        if (mFragmentManager.isMailboxSelected()) {
-            long mailboxId = mFragmentManager.getMailboxId();
-            // TODO This class here shouldn't really know what can be refreshable.
-            // (The test below is only to prevent a crash... It's not enough.  e.g. no refresh
-            // for outboxes.)
-            if (mailboxId >= 0) {
-                mRefreshManager.refreshMessageList(mFragmentManager.getAccountId(), mailboxId);
+        // Cancel previously running instance if any.
+        Utility.cancelTaskInterrupt(mRefreshTask);
+        mRefreshTask = new RefreshTask(this, mFragmentManager.getAccountId(),
+                mFragmentManager.getMailboxId());
+        mRefreshTask.execute();
+    }
+
+    /**
+     * Class to handle refresh.
+     *
+     * When the user press "refresh",
+     * <ul>
+     *   <li>Refresh the current mailbox, if it's refreshable.  (e.g. don't refresh combined inbox,
+     *       drafts, etc.
+     *   <li>Refresh the mailbox list, if it hasn't been refreshed in the last
+     *       {@link #MAILBOX_REFRESH_MIN_INTERVAL}.
+     *   <li>Refresh inbox, if it's not the current mailbox and it hasn't been refreshed in the last
+     *       {@link #INBOX_AUTO_REFRESH_MIN_INTERVAL}.
+     * </ul>
+     */
+    /* package */ static class RefreshTask extends AsyncTask<Void, Void, Boolean> {
+        private final Clock mClock;
+        private final Context mContext;
+        private final long mAccountId;
+        private final long mMailboxId;
+        private final RefreshManager mRefreshManager;
+        /* package */ long mInboxId;
+
+        public RefreshTask(Context context, long accountId, long mailboxId) {
+            this(context, accountId, mailboxId, Clock.INSTANCE,
+                    RefreshManager.getInstance(context));
+        }
+
+        /* package */ RefreshTask(Context context, long accountId, long mailboxId, Clock clock,
+                RefreshManager refreshManager) {
+            mClock = clock;
+            mContext = context;
+            mRefreshManager = refreshManager;
+            mAccountId = accountId;
+            mMailboxId = mailboxId;
+        }
+
+        /**
+         * Do DB access on a worker thread.
+         */
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            mInboxId = Account.getInboxId(mContext, mAccountId);
+            return Mailbox.isRefreshable(mContext, mMailboxId);
+        }
+
+        /**
+         * Do the actual refresh.
+         */
+        @Override
+        protected void onPostExecute(Boolean isCurrentMailboxRefreshable) {
+            if (isCancelled() || isCurrentMailboxRefreshable == null) {
+                return;
+            }
+            if (isCurrentMailboxRefreshable) {
+                mRefreshManager.refreshMessageList(mAccountId, mMailboxId);
+            }
+            // Refresh mailbox list
+            if (mAccountId != -1) {
+                if (shouldRefreshMailboxList()) {
+                    mRefreshManager.refreshMailboxList(mAccountId);
+                }
+            }
+            // Refresh inbox
+            if (shouldAutoRefreshInbox()) {
+                mRefreshManager.refreshMessageList(mAccountId, mInboxId);
             }
         }
 
-        // TODO implement this
-        // - Refresh mailbox list.  But don't do that always; implement a min interval.
-        //
-        // - Refresh the selected mailbox, if it's supported.
-        //   (regardless if the right-pane is MessageList or MessageView)
-        // - If not suppoted (e.g. outbox, draft, or push mailboxes), refresh the inbox of the
-        //   current account.
+        /**
+         * @return true if the mailbox list of the current account hasn't been refreshed
+         * in the last {@link #MAILBOX_REFRESH_MIN_INTERVAL}.
+         */
+        /* package */ boolean shouldRefreshMailboxList() {
+            if (mRefreshManager.isMailboxListRefreshing(mAccountId)) {
+                return false;
+            }
+            final long nextRefreshTime = mRefreshManager.getLastMailboxListRefreshTime(mAccountId)
+                    + MAILBOX_REFRESH_MIN_INTERVAL;
+            if (nextRefreshTime > mClock.getTime()) {
+                return false;
+            }
+            return true;
+        }
 
-        // To do that, we need a way to tell the type of the currently selected mailbox.
-        // We can do this with MessageListFragment, but it's gone it if a message is being viewed.
-        // Maybe we should always have a MessageListFragment instance?
-        // That way it'll be easier to restore the scroll position.
+        /**
+         * @return true if the inbox of the current account hasn't been refreshed
+         * in the last {@link #INBOX_AUTO_REFRESH_MIN_INTERVAL}.
+         */
+        /* package */ boolean shouldAutoRefreshInbox() {
+            if (mInboxId == mMailboxId) {
+                return false; // Current ID == inbox.  No need to auto-refresh.
+            }
+            if (mRefreshManager.isMessageListRefreshing(mInboxId)) {
+                return false;
+            }
+            final long nextRefreshTime = mRefreshManager.getLastMessageListRefreshTime(mInboxId)
+                    + INBOX_AUTO_REFRESH_MIN_INTERVAL;
+            if (nextRefreshTime > mClock.getTime()) {
+                return false;
+            }
+            return true;
+        }
     }
 
     /**

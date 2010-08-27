@@ -35,45 +35,68 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
                 getContext(), EmailProvider.class);
     }
 
-    private long createAccount() {
-        Account acct = ProviderTestUtils.setupAccount("acct1", true, mProviderContext);
+    private long createAccount(boolean isEas) {
+        Account acct = ProviderTestUtils.setupAccount("acct1", false, mProviderContext);
+        String proto = isEas ? "eas" : "non-eas";
+        acct.mHostAuthRecv = ProviderTestUtils.setupHostAuth(proto, "hostauth", -1, false,
+                mProviderContext);
+        acct.save(mProviderContext);
         return acct.mId;
     }
 
-    private long createMailbox(long accountId) {
-        Mailbox box = ProviderTestUtils.setupMailbox("name", accountId, true, mProviderContext);
+    private long createMailbox(long accountId, int type) {
+        Mailbox box = ProviderTestUtils.setupMailbox("name", accountId, false, mProviderContext);
+        box.mType = type;
+        box.save(mProviderContext);
         return box.mId;
-    }
-
-    /**
-     * Test for {@link MailboxAccountLoader.Result#isFound()}
-     */
-    public void testIsFound() {
-        MailboxAccountLoader.Result result = new MailboxAccountLoader.Result();
-        assertFalse(result.isFound());
-
-        result.mAccount = new Account();
-        assertFalse(result.isFound());
-
-        result.mMailbox = new Mailbox();
-        assertTrue(result.isFound());
-
-        result.mAccount = null;
-        assertFalse(result.isFound());
     }
 
     /**
      * Test for normal case.  (account, mailbox found)
      */
     public void testLoad() {
-        final long accountId = createAccount();
-        final long mailboxId = createMailbox(accountId);
+        final long accountId = createAccount(false);
+        final long mailboxId = createMailbox(accountId, Mailbox.TYPE_MAIL);
 
         MailboxAccountLoader.Result result = getLoaderResultSynchronously(
                 new MailboxAccountLoader(mProviderContext, mailboxId));
-        assertTrue(result.isFound());
+        assertTrue(result.mIsFound);
         assertEquals(accountId, result.mAccount.mId);
         assertEquals(mailboxId, result.mMailbox.mId);
+        assertFalse(result.mIsEasAccount);
+        assertTrue(result.mIsRefreshable);
+    }
+
+    /**
+     * Load - isEas = true
+     */
+    public void testLoadEas() {
+        final long accountId = createAccount(true);
+        final long mailboxId = createMailbox(accountId, Mailbox.TYPE_MAIL);
+
+        MailboxAccountLoader.Result result = getLoaderResultSynchronously(
+                new MailboxAccountLoader(mProviderContext, mailboxId));
+        assertTrue(result.mIsFound);
+        assertEquals(accountId, result.mAccount.mId);
+        assertEquals(mailboxId, result.mMailbox.mId);
+        assertTrue(result.mIsEasAccount);
+        assertTrue(result.mIsRefreshable);
+    }
+
+    /**
+     * Load -- drafts, not refreshable.
+     */
+    public void testLoadNotRefreshable() {
+        final long accountId = createAccount(false);
+        final long mailboxId = createMailbox(accountId, Mailbox.TYPE_DRAFTS);
+
+        MailboxAccountLoader.Result result = getLoaderResultSynchronously(
+                new MailboxAccountLoader(mProviderContext, mailboxId));
+        assertTrue(result.mIsFound);
+        assertEquals(accountId, result.mAccount.mId);
+        assertEquals(mailboxId, result.mMailbox.mId);
+        assertFalse(result.mIsEasAccount);
+        assertFalse(result.mIsRefreshable);
     }
 
     /**
@@ -82,21 +105,38 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
     public void testMailboxNotFound() {
         MailboxAccountLoader.Result result = getLoaderResultSynchronously(
                 new MailboxAccountLoader(mProviderContext, 123));
-        assertFalse(result.isFound());
+        assertFalse(result.mIsFound);
         assertNull(result.mAccount);
         assertNull(result.mMailbox);
+        assertFalse(result.mIsEasAccount);
+        assertFalse(result.mIsRefreshable);
     }
 
     /**
      * Account not found.
      */
     public void testAccountNotFound() {
-        final long mailboxId = createMailbox(1);
+        final long mailboxId = createMailbox(1, Mailbox.TYPE_MAIL);
 
         MailboxAccountLoader.Result result = getLoaderResultSynchronously(
                 new MailboxAccountLoader(mProviderContext, mailboxId));
-        assertFalse(result.isFound());
+        assertFalse(result.mIsFound);
         assertNull(result.mAccount);
         assertNull(result.mMailbox);
+        assertFalse(result.mIsEasAccount);
+        assertFalse(result.mIsRefreshable);
+    }
+
+    /**
+     * Magic mailbox.  (always found)
+     */
+    public void testMagicMailbox() {
+        MailboxAccountLoader.Result result = getLoaderResultSynchronously(
+                new MailboxAccountLoader(mProviderContext, Mailbox.QUERY_ALL_INBOXES));
+        assertTrue(result.mIsFound);
+        assertNull(result.mAccount);
+        assertNull(result.mMailbox);
+        assertFalse(result.mIsEasAccount);
+        assertFalse(result.mIsRefreshable);
     }
 }
