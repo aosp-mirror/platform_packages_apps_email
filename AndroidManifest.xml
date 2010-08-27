@@ -361,9 +361,9 @@
                        android:resource="@xml/syncadapter_calendar" />
         </service>
 
-        <!-- Add android:process=":remote" below to enable SyncManager as a separate process -->
+        <!-- Add android:process=":remote" below to enable ExchangeService as a separate process -->
         <service
-            android:name="com.android.exchange.SyncManager"
+            android:name="com.android.exchange.ExchangeService"
             android:enabled="true"
             >
         </service>
