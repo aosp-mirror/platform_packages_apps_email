@@ -64,7 +64,7 @@ public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
         return ProviderTestUtils.setupAccount(username, true, getMockContext());
     }
 
-    protected ArrayList<Account> makeSyncManagerAccountList() {
+    protected ArrayList<Account> makeExchangeServiceAccountList() {
         ArrayList<Account> accountList = new ArrayList<Account>();
         Cursor c = getMockContext().getContentResolver().query(Account.CONTENT_URI,
                 Account.CONTENT_PROJECTION, null, null, null);

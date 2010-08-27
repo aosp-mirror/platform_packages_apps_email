@@ -136,7 +136,7 @@ public class MailServiceTests extends AccountTestCase {
         // Run the reconciler
         ContentResolver resolver = mMockContext.getContentResolver();
         MailService.reconcileAccountsWithAccountManager(context,
-                makeSyncManagerAccountList(), accountManagerAccounts, true, resolver);
+                makeExchangeServiceAccountList(), accountManagerAccounts, true, resolver);
 
         // There should now be only two EmailProvider accounts
         assertEquals(2, EmailContent.count(mMockContext, Account.CONTENT_URI, null, null));
@@ -149,7 +149,7 @@ public class MailServiceTests extends AccountTestCase {
 
         // Run the reconciler
         MailService.reconcileAccountsWithAccountManager(context,
-                makeSyncManagerAccountList(), accountManagerAccounts, true, resolver);
+                makeExchangeServiceAccountList(), accountManagerAccounts, true, resolver);
 
         // There should now be only one AccountManager account
         accountManagerAccounts = getAccountManagerAccounts(baselineAccounts);

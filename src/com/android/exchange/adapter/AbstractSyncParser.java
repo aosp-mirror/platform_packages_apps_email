@@ -21,7 +21,7 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.exchange.EasSyncService;
-import com.android.exchange.SyncManager;
+import com.android.exchange.ExchangeService;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -127,7 +127,7 @@ public abstract class AbstractSyncParser extends Parser {
                     } else if (status == 8) {
                         // This is Bad; it means the server doesn't recognize the serverId it
                         // sent us.  What's needed is a refresh of the folder list.
-                        SyncManager.reloadFolderList(mContext, mAccount.mId, true);
+                        ExchangeService.reloadFolderList(mContext, mAccount.mId, true);
                     }
                     // TODO Look at other error codes and consider what's to be done
                 }
@@ -192,7 +192,7 @@ public abstract class AbstractSyncParser extends Parser {
 
         if (abortSyncs) {
             userLog("Aborting account syncs due to mailbox change to ping...");
-            SyncManager.stopAccountSyncs(mAccount.mId);
+            ExchangeService.stopAccountSyncs(mAccount.mId);
         }
 
         // Let the caller know that there's more to do

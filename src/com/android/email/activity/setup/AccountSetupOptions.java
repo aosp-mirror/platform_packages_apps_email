@@ -201,7 +201,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         AccountSettingsUtils.commitSettings(this, account);
         Email.setServicesEnabled(this);
         AccountSetupNames.actionSetNames(this);
-        // Start up SyncManager (if it isn't already running)
+        // Start up ExchangeService (if it isn't already running)
         ExchangeUtils.startExchangeService(this);
         finish();
     }
@@ -224,7 +224,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
 
         // Setup up the AccountManager account
         if (!account.isSaved() && account.mHostAuthRecv != null) {
-            // Set the incomplete flag here to avoid reconciliation issues in SyncManager
+            // Set the incomplete flag here to avoid reconciliation issues in ExchangeService
             account.mFlags |= Account.FLAGS_INCOMPLETE;
             boolean calendar = false;
             boolean contacts = false;

@@ -265,7 +265,7 @@ public class Controller {
      * Generally this should be called by anybody who changes Email.DEBUG
      */
     public void serviceLogging(int debugEnabled) {
-        IEmailService service = ExchangeUtils.getExchangeEmailService(mContext, mServiceCallback);
+        IEmailService service = ExchangeUtils.getExchangeService(mContext, mServiceCallback);
         try {
             service.setLogging(debugEnabled);
         } catch (RemoteException e) {
@@ -891,7 +891,7 @@ public class Controller {
     }
 
     private IEmailService getExchangeEmailService() {
-        return ExchangeUtils.getExchangeEmailService(mContext, mServiceCallback);
+        return ExchangeUtils.getExchangeService(mContext, mServiceCallback);
     }
 
     /**

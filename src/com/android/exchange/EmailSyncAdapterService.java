@@ -83,8 +83,8 @@ public class EmailSyncAdapterService extends Service {
     }
 
     /**
-     * Partial integration with system SyncManager; we tell our EAS SyncManager to start an inbox
-     * sync when we get the signal from the system SyncManager.
+     * Partial integration with system SyncManager; we tell our EAS ExchangeService to start an
+     * inbox sync when we get the signal from the system SyncManager.
      */
     private static void performSync(Context context, Account account, Bundle extras,
             String authority, ContentProviderClient provider, SyncResult syncResult)
@@ -106,7 +106,8 @@ public class EmailSyncAdapterService extends Service {
                      if (mailboxCursor.moveToFirst()) {
                         Log.i(TAG, "Mail sync requested for " + account.name);
                         // Ask for a sync from our sync manager
-                        SyncManager.serviceRequest(mailboxCursor.getLong(0), SyncManager.SYNC_KICK);
+                        ExchangeService.serviceRequest(mailboxCursor.getLong(0),
+                                ExchangeService.SYNC_KICK);
                     }
                 } finally {
                     mailboxCursor.close();

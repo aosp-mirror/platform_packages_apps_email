@@ -30,7 +30,7 @@ import android.util.Log;
 
 /**
  * The EmailServiceProxy class provides a simple interface for the UI to call into the various
- * EmailService classes (e.g. SyncManager for EAS).  It wraps the service connect/disconnect
+ * EmailService classes (e.g. ExchangeService for EAS).  It wraps the service connect/disconnect
  * process so that the caller need not be concerned with it.
  *
  * Use the class like this:
@@ -58,7 +58,7 @@ public class EmailServiceProxy implements IEmailService {
     private final Class<?> mClass;
     private final IEmailServiceCallback mCallback;
     private Runnable mRunnable;
-    private final ServiceConnection mSyncManagerConnection = new EmailServiceConnection ();
+    private final ServiceConnection mExchangeServiceConnection = new EmailServiceConnection ();
     private IEmailService mService = null;
     private Object mReturn = null;
     // Service call timeout (in seconds)
@@ -115,18 +115,18 @@ public class EmailServiceProxy implements IEmailService {
         }
 
         try {
-            mContext.unbindService(mSyncManagerConnection);
+            mContext.unbindService(mExchangeServiceConnection);
         } catch (IllegalArgumentException e) {
             // This can happen if the user ended the activity that was using the service
             // This is harmless, but we've got to catch it
         }
 
         mDead = true;
-        synchronized(mSyncManagerConnection) {
+        synchronized(mExchangeServiceConnection) {
             if (DEBUG_PROXY) {
                 Log.v(TAG, "Service task completed; disconnecting");
             }
-            mSyncManagerConnection.notify();
+            mExchangeServiceConnection.notify();
         }
     }
 
@@ -138,18 +138,18 @@ public class EmailServiceProxy implements IEmailService {
         if (DEBUG_PROXY) {
             Log.v(TAG, "Service " + mClass.getSimpleName() + " bind requested");
         }
-        mContext.bindService(new Intent(mContext, mClass), mSyncManagerConnection,
+        mContext.bindService(new Intent(mContext, mClass), mExchangeServiceConnection,
                 Context.BIND_AUTO_CREATE);
     }
 
     public void waitForCompletion() {
-        synchronized (mSyncManagerConnection) {
+        synchronized (mExchangeServiceConnection) {
             long time = System.currentTimeMillis();
             try {
                 if (DEBUG_PROXY) {
                     Log.v(TAG, "Waiting for task to complete...");
                 }
-                mSyncManagerConnection.wait(mTimeout * 1000L);
+                mExchangeServiceConnection.wait(mTimeout * 1000L);
             } catch (InterruptedException e) {
                 // Can be ignored safely
             }

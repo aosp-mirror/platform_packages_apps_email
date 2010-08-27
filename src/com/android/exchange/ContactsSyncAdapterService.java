@@ -86,8 +86,8 @@ public class ContactsSyncAdapterService extends Service {
     }
 
     /**
-     * Partial integration with system SyncManager; we tell our EAS SyncManager to start a contacts
-     * sync when we get the signal from the system SyncManager.
+     * Partial integration with system SyncManager; we tell our EAS ExchangeService to start a
+     * contacts sync when we get the signal from SyncManager.
      * The missing piece at this point is integration with the push/ping mechanism in EAS; this will
      * be put in place at a later time.
      */
@@ -127,8 +127,8 @@ public class ContactsSyncAdapterService extends Service {
                      if (mailboxCursor.moveToFirst()) {
                         Log.i(TAG, "Contact sync requested for " + account.name);
                         // Ask for a sync from our sync manager
-                        SyncManager.serviceRequest(mailboxCursor.getLong(0),
-                                SyncManager.SYNC_UPSYNC);
+                        ExchangeService.serviceRequest(mailboxCursor.getLong(0),
+                                ExchangeService.SYNC_UPSYNC);
                     }
                 } finally {
                     mailboxCursor.close();
