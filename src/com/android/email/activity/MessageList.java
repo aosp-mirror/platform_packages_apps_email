@@ -252,7 +252,7 @@ public class MessageList extends Activity implements OnClickListener,
         super.onDestroy();
 
         if (mMailboxFinder != null) {
-            mMailboxFinder.close();
+            mMailboxFinder.cancel();
             mMailboxFinder = null;
         }
         Utility.cancelTaskInterrupt(mSetTitleTask);

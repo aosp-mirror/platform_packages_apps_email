@@ -67,13 +67,29 @@ public class MailboxFinderTest extends InstrumentationTestCase {
         mCallback = new MockCallback();
         mMockController = new MockController(getContext());
         Controller.injectMockControllerForTest(mMockController);
+        assertEquals(0, mMockController.getResultCallbacksForTest().size());
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
+        if (mMailboxFinder != null) {
+            mMailboxFinder.cancel();
+
+            // MailboxFinder should unregister its listener when closed.
+            checkControllerResultRemoved(mMockController);
+        }
         mMockController.cleanupForTest();
         Controller.injectMockControllerForTest(null);
+    }
+
+    /**
+     * Make sure no {@link MailboxFinder.Callback} is left registered to the controller.
+     */
+    private static void checkControllerResultRemoved(Controller controller) {
+        for (Controller.Result callback : controller.getResultCallbacksForTest()) {
+            assertFalse(callback instanceof MailboxFinder.Callback);
+        }
     }
 
     /**
@@ -113,6 +129,7 @@ public class MailboxFinderTest extends InstrumentationTestCase {
                 mMailboxFinder = new MailboxFinder(mProviderContext, accountId, mailboxType,
                         mCallback);
                 mMailboxFinder.startLookup();
+                assertTrue(mMailboxFinder.isStartedForTest());
             }
         });
     }
@@ -144,6 +161,8 @@ public class MailboxFinderTest extends InstrumentationTestCase {
         assertFalse(mCallback.mCalledMailboxFound);
         assertFalse(mCallback.mCalledMailboxNotFound);
         assertFalse(mMockController.mCalledUpdateMailboxList);
+
+        assertTrue(mMailboxFinder.isReallyClosedForTest());
     }
 
     /**
@@ -158,6 +177,8 @@ public class MailboxFinderTest extends InstrumentationTestCase {
         assertFalse(mCallback.mCalledMailboxFound);
         assertFalse(mCallback.mCalledMailboxNotFound);
         assertFalse(mMockController.mCalledUpdateMailboxList);
+
+        assertTrue(mMailboxFinder.isReallyClosedForTest());
     }
 
     /**
@@ -178,19 +199,19 @@ public class MailboxFinderTest extends InstrumentationTestCase {
 
         assertEquals(accountId, mCallback.mAccountId);
         assertEquals(mailboxId, mCallback.mMailboxId);
+
+        assertTrue(mMailboxFinder.isReallyClosedForTest());
     }
 
     /**
-     * Test: Account exists, but mailbox doesn't -> Get {@link Controller} to update the mailbox
-     * list -> mailbox still doesn't exist.
+     * Common initialization for tests that involves network-lookup.
      */
-    public void testMailboxNotFound() throws Throwable {
-        final long accountId = createAccount(false);
-
+    private void prepareForNetworkLookupTest(final long accountId) throws Throwable {
+        // Look for non-existing mailbox.
         createAndStartFinder(accountId, Mailbox.TYPE_INBOX);
         waitUntilCallbackCalled();
 
-        // Mailbox not found, so the finder try network-looking up.
+        // Mailbox not found, so the finder should try network-looking up.
         assertFalse(mCallback.mCalledAccountNotFound);
         assertFalse(mCallback.mCalledAccountSecurityHold);
         assertFalse(mCallback.mCalledMailboxFound);
@@ -201,6 +222,18 @@ public class MailboxFinderTest extends InstrumentationTestCase {
         assertEquals(accountId, mMockController.mPassedAccountId);
 
         mMockController.reset();
+
+        assertFalse(mMailboxFinder.isReallyClosedForTest()); // Not closed yet
+    }
+
+    /**
+     * Test: Account exists, but mailbox doesn't -> Get {@link Controller} to update the mailbox
+     * list -> mailbox still doesn't exist.
+     */
+    public void testMailboxNotFound() throws Throwable {
+        final long accountId = createAccount(false);
+
+        prepareForNetworkLookupTest(accountId);
 
         // Imitate the mCallback...
         runTestOnUiThread(new Runnable() {
@@ -219,6 +252,8 @@ public class MailboxFinderTest extends InstrumentationTestCase {
         assertFalse(mCallback.mCalledMailboxFound);
         assertTrue(mCallback.mCalledMailboxNotFound);
         assertFalse(mMockController.mCalledUpdateMailboxList);
+
+        assertTrue(mMailboxFinder.isReallyClosedForTest());
     }
 
     /**
@@ -228,20 +263,7 @@ public class MailboxFinderTest extends InstrumentationTestCase {
     public void testMailboxFoundOnNetwork() throws Throwable {
         final long accountId = createAccount(false);
 
-        createAndStartFinder(accountId, Mailbox.TYPE_INBOX);
-        waitUntilCallbackCalled();
-
-        // Mailbox not found, so the finder try network-looking up.
-        assertFalse(mCallback.mCalledAccountNotFound);
-        assertFalse(mCallback.mCalledAccountSecurityHold);
-        assertFalse(mCallback.mCalledMailboxFound);
-        assertFalse(mCallback.mCalledMailboxNotFound);
-
-        // Controller.updateMailboxList() should have been called, with the account id.
-        assertTrue(mMockController.mCalledUpdateMailboxList);
-        assertEquals(accountId, mMockController.mPassedAccountId);
-
-        mMockController.reset();
+        prepareForNetworkLookupTest(accountId);
 
         // Create mailbox at this point.
         final long mailboxId = createMailbox(accountId, Mailbox.TYPE_INBOX);
@@ -266,6 +288,8 @@ public class MailboxFinderTest extends InstrumentationTestCase {
 
         assertEquals(accountId, mCallback.mAccountId);
         assertEquals(mailboxId, mCallback.mMailboxId);
+
+        assertTrue(mMailboxFinder.isReallyClosedForTest());
     }
 
     /**
@@ -275,20 +299,7 @@ public class MailboxFinderTest extends InstrumentationTestCase {
     public void testMailboxNotFoundNetworkError() throws Throwable {
         final long accountId = createAccount(false);
 
-        createAndStartFinder(accountId, Mailbox.TYPE_INBOX);
-        waitUntilCallbackCalled();
-
-        // Mailbox not found, so the finder try network-looking up.
-        assertFalse(mCallback.mCalledAccountNotFound);
-        assertFalse(mCallback.mCalledAccountSecurityHold);
-        assertFalse(mCallback.mCalledMailboxFound);
-        assertFalse(mCallback.mCalledMailboxNotFound);
-
-        // Controller.updateMailboxList() should have been called, with the account id.
-        assertTrue(mMockController.mCalledUpdateMailboxList);
-        assertEquals(accountId, mMockController.mPassedAccountId);
-
-        mMockController.reset();
+        prepareForNetworkLookupTest(accountId);
 
         // Imitate the mCallback...
         runTestOnUiThread(new Runnable() {
@@ -305,6 +316,36 @@ public class MailboxFinderTest extends InstrumentationTestCase {
         assertFalse(mCallback.mCalledMailboxFound);
         assertTrue(mCallback.mCalledMailboxNotFound);
         assertFalse(mMockController.mCalledUpdateMailboxList);
+
+        assertTrue(mMailboxFinder.isReallyClosedForTest());
+    }
+
+    /**
+     * Test: updateMailboxListCallback won't respond to update of a non-target account.
+     */
+    public void testUpdateMailboxListCallbackNonTarget() throws Throwable {
+        final long accountId = createAccount(false);
+
+        prepareForNetworkLookupTest(accountId);
+
+        // Callback from Controller, but for a different account.
+        runTestOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                long nonTargetAccountId = accountId + 1;
+                mMailboxFinder.getControllerResultsForTest().updateMailboxListCallback(
+                        new MessagingException("Network error"), nonTargetAccountId, 0);
+            }
+        });
+
+        // Nothing happened.
+        assertFalse(mCallback.mCalledAccountNotFound);
+        assertFalse(mCallback.mCalledAccountSecurityHold);
+        assertFalse(mCallback.mCalledMailboxFound);
+        assertFalse(mCallback.mCalledMailboxNotFound);
+        assertFalse(mMockController.mCalledUpdateMailboxList);
+
+        assertFalse(mMailboxFinder.isReallyClosedForTest()); // Not closed yet
     }
 
     /**
@@ -322,6 +363,30 @@ public class MailboxFinderTest extends InstrumentationTestCase {
         assertFalse(mCallback.mCalledMailboxFound);
         assertFalse(mCallback.mCalledMailboxNotFound);
         assertTrue(mMockController.mCalledUpdateMailboxList);
+
+        assertFalse(mMailboxFinder.isReallyClosedForTest()); // Not closed yet -- network lookup.
+    }
+
+    /**
+     * Test: Call {@link MailboxFinder#startLookup()} twice, which should throw an ISE.
+     */
+    public void testRunTwice() throws Throwable {
+        final long accountId = createAccount(true);
+
+        createAndStartFinder(accountId, Mailbox.TYPE_INBOX);
+        try {
+            mMailboxFinder.startLookup();
+            fail("Expected exception not thrown");
+        } catch (IllegalStateException ok) {
+        }
+    }
+
+    public void testCancel() throws Throwable {
+        final long accountId = createAccount(true);
+
+        createAndStartFinder(accountId, Mailbox.TYPE_INBOX);
+        mMailboxFinder.cancel();
+        assertTrue(mMailboxFinder.isReallyClosedForTest());
     }
 
     /**

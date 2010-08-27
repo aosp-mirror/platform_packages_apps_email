@@ -34,17 +34,22 @@ import android.util.Log;
  *
  * If an account doesn't have a mailbox of a specified type, it refreshes the mailbox list and
  * try looking for again.
+ *
+ * This is a "one-shot" class.  You create an instance, call {@link #startLookup}, get a result
+ * or call {@link #cancel}, and that's it.  The instance can't be re-used.
  */
 public class MailboxFinder {
     private final Context mContext;
     private final Controller mController;
-    private final Controller.Result mControllerResults;
+    private Controller.Result mControllerResults; // Not final, we null it out when done.
 
     private final long mAccountId;
     private final int mMailboxType;
     private final Callback mCallback;
 
     private FindMailboxTask mTask;
+    private boolean mStarted;
+    private boolean mClosed;
 
     /**
      * Callback for results.
@@ -81,41 +86,56 @@ public class MailboxFinder {
      * Must be called on the UI thread.
      */
     public void startLookup() {
-        stop();
+        if (mStarted) {
+            throw new IllegalStateException(); // Can't start twice.
+        }
+        mStarted = true;
         mTask = new FindMailboxTask(true);
         mTask.execute();
     }
 
     /**
-     * Stop the running worker task, if exists.
+     * Cancel the operation.  It's safe to call it multiple times, or even if the operation is
+     * already finished.
      */
-    public void stop() {
-        Utility.cancelTaskInterrupt(mTask);
-        mTask = null;
+    public void cancel() {
+        if (!mClosed) {
+            close();
+        }
     }
 
     /**
-     * Stop the running task, if exists, and clean up internal resources.  (MUST be called.)
+     * Stop the running task, if exists, and clean up internal resources.
      */
-    public void close() {
-        mController.removeResultCallback(mControllerResults);
-        stop();
+    private void close() {
+        mClosed = true;
+        if (mControllerResults != null) {
+            mController.removeResultCallback(mControllerResults);
+            mControllerResults = null;
+        }
+        Utility.cancelTaskInterrupt(mTask);
+        mTask = null;
     }
 
     private class ControllerResults extends Controller.Result {
         @Override
         public void updateMailboxListCallback(MessagingException result, long accountId,
                 int progress) {
+            if (mClosed || (accountId != mAccountId)) {
+                return; // Already closed, or non-target account.
+            }
             Log.i(Email.LOG_TAG, "MailboxFinder: updateMailboxListCallback");
             if (result != null) {
                 // Error while updating the mailbox list.  Notify the UI...
-                mCallback.onMailboxNotFound(mAccountId);
-            } else {
-                // Messagebox list updated, look for mailbox again...
-                if (progress == 100 && accountId == mAccountId) {
-                    mTask = new FindMailboxTask(false);
-                    mTask.execute();
+                try {
+                    mCallback.onMailboxNotFound(mAccountId);
+                } finally {
+                    close();
                 }
+            } else if (progress == 100) {
+                // Mailbox list updated, look for mailbox again...
+                mTask = new FindMailboxTask(false);
+                mTask.execute();
             }
         }
     }
@@ -180,31 +200,58 @@ public class MailboxFinder {
             switch (mResult) {
                 case RESULT_ACCOUNT_SECURITY_HOLD:
                     Log.w(Email.LOG_TAG, "MailboxFinder: Account security hold.");
-                    mCallback.onAccountSecurityHold(mAccountId);
+                    try {
+                        mCallback.onAccountSecurityHold(mAccountId);
+                    } finally {
+                        close();
+                    }
                     return;
                 case RESULT_ACCOUNT_NOT_FOUND:
                     Log.w(Email.LOG_TAG, "MailboxFinder: Account not found.");
-                    mCallback.onAccountNotFound();
+                    try {
+                        mCallback.onAccountNotFound();
+                    } finally {
+                        close();
+                    }
                     return;
                 case RESULT_MAILBOX_NOT_FOUND:
                     Log.w(Email.LOG_TAG, "MailboxFinder: Mailbox not found.");
-                    mCallback.onMailboxNotFound(mAccountId);
+                    try {
+                        mCallback.onMailboxNotFound(mAccountId);
+                    } finally {
+                        close();
+                    }
+                    return;
+                case RESULT_MAILBOX_FOUND:
+                    if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, "MailboxFinder: mailbox found: id=" + mailboxId);
+                    }
+                    try {
+                        mCallback.onMailboxFound(mAccountId, mailboxId);
+                    } finally {
+                        close();
+                    }
                     return;
                 case RESULT_START_NETWORK_LOOK_UP:
                     // Not found locally.  Let's sync the mailbox list...
                     Log.i(Email.LOG_TAG, "MailboxFinder: Starting network lookup.");
                     mController.updateMailboxList(mAccountId);
                     return;
-                case RESULT_MAILBOX_FOUND:
-                    if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                        Log.d(Email.LOG_TAG, "MailboxFinder: mailbox found: id=" + mailboxId);
-                    }
-                    mCallback.onMailboxFound(mAccountId, mailboxId);
-                    return;
                 default:
                     throw new RuntimeException();
             }
         }
+    }
+
+    /* package */ boolean isStartedForTest() {
+        return mStarted;
+    }
+
+    /**
+     * Called by unit test.  Return true if all the internal resources are really released.
+     */
+    /* package */ boolean isReallyClosedForTest() {
+        return mClosed && (mTask == null) && (mControllerResults == null);
     }
 
     /* package */ Controller.Result getControllerResultsForTest() {
