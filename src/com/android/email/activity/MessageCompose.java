@@ -32,7 +32,6 @@ import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
-import com.android.exchange.provider.GalEmailAddressAdapter;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -380,13 +379,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mLoadMessageTask = null;
 
         if (mAddressAdapterTo != null) {
-            mAddressAdapterTo.changeCursor(null);
+            mAddressAdapterTo.close();
         }
         if (mAddressAdapterCc != null) {
-            mAddressAdapterCc.changeCursor(null);
+            mAddressAdapterCc.close();
         }
         if (mAddressAdapterBcc != null) {
-            mAddressAdapterBcc.changeCursor(null);
+            mAddressAdapterBcc.close();
         }
     }
 
@@ -558,19 +557,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     @SuppressWarnings("all")
     private void setupAddressAdapters() {
-        /* EXCHANGE-REMOVE-SECTION-START */
-        if (true) {
-            mAddressAdapterTo = new GalEmailAddressAdapter(this);
-            mAddressAdapterCc = new GalEmailAddressAdapter(this);
-            mAddressAdapterBcc = new GalEmailAddressAdapter(this);
-        } else {
-            /* EXCHANGE-REMOVE-SECTION-END */
-            mAddressAdapterTo = new EmailAddressAdapter(this);
-            mAddressAdapterCc = new EmailAddressAdapter(this);
-            mAddressAdapterBcc = new EmailAddressAdapter(this);
-            /* EXCHANGE-REMOVE-SECTION-START */
-        }
-        /* EXCHANGE-REMOVE-SECTION-END */
+        mAddressAdapterTo = new EmailAddressAdapter(this);
+        mAddressAdapterCc = new EmailAddressAdapter(this);
+        mAddressAdapterBcc = new EmailAddressAdapter(this);
     }
 
     // TODO: is there any way to unify this with MessageView.LoadMessageTask?

@@ -24,7 +24,7 @@ LOCAL_SRC_FILES += \
     src/com/android/email/service/IEmailServiceCallback.aidl
 # EXCHANGE-REMOVE-SECTION-END
 
-LOCAL_JAVA_STATIC_LIBRARIES := android-common
+LOCAL_STATIC_JAVA_LIBRARIES := android-common
 
 LOCAL_PACKAGE_NAME := Email
 

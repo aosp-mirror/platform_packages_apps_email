@@ -59,6 +59,7 @@ public class ExchangeDirectoryProvider extends ContentProvider {
     private static final int GAL_FILTER = GAL_BASE + 1;
     private static final int GAL_CONTACT = GAL_BASE + 2;
     private static final int GAL_CONTACT_WITH_ID = GAL_BASE + 3;
+    private static final int GAL_EMAIL_FILTER = GAL_BASE + 4;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -68,6 +69,7 @@ public class ExchangeDirectoryProvider extends ContentProvider {
         sURIMatcher.addURI(EXCHANGE_GAL_AUTHORITY, "contacts/lookup/*/entities", GAL_CONTACT);
         sURIMatcher.addURI(EXCHANGE_GAL_AUTHORITY, "contacts/lookup/*/#/entities",
                 GAL_CONTACT_WITH_ID);
+        sURIMatcher.addURI(EXCHANGE_GAL_AUTHORITY, "data/emails/filter/*", GAL_EMAIL_FILTER);
     }
 
     @Override
@@ -211,7 +213,8 @@ public class ExchangeDirectoryProvider extends ContentProvider {
                 return cursor;
             }
 
-            case GAL_FILTER: {
+            case GAL_FILTER:
+            case GAL_EMAIL_FILTER: {
                 String filter = uri.getLastPathSegment();
                 // We should have at least two characters before doing a GAL search
                 if (filter == null || filter.length() < 2) {

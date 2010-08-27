@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 The Android Open Source Project
+ * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,76 +16,65 @@
 
 package com.android.email;
 
-import com.android.email.mail.Address;
+import com.android.common.contacts.BaseEmailAddressAdapter;
 import com.android.email.provider.EmailContent.Account;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.ContactsContract.Contacts;
-import android.provider.ContactsContract.Data;
-import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ResourceCursorAdapter;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class EmailAddressAdapter extends ResourceCursorAdapter {
-    public static final int ID_INDEX = 0;
-    public static final int NAME_INDEX = 1;
-    public static final int DATA_INDEX = 2;
+/**
+ * An adaptation of {@link BaseEmailAddressAdapter} for the Email app. The main
+ * purpose of the class is to bind the generic implementation to the resources
+ * defined locally: strings and layouts.
+ */
+public class EmailAddressAdapter extends BaseEmailAddressAdapter {
 
-    protected static final String SORT_ORDER =
-            Contacts.TIMES_CONTACTED + " DESC, " + Contacts.DISPLAY_NAME;
-
-    protected final ContentResolver mContentResolver;
-
-    protected static final String[] PROJECTION = {
-        Data._ID,               // 0
-        Contacts.DISPLAY_NAME,  // 1
-        Email.DATA              // 2
-    };
+    private LayoutInflater mInflater;
 
     public EmailAddressAdapter(Context context) {
-        super(context, R.layout.recipient_dropdown_item, null);
-        mContentResolver = context.getContentResolver();
+        super(context);
+        mInflater = LayoutInflater.from(context);
     }
 
     @Override
-    public final String convertToString(Cursor cursor) {
-        String name = cursor.getString(NAME_INDEX);
-        String address = cursor.getString(DATA_INDEX);
-
-        return new Address(address, name).toString();
+    protected View inflateItemView(ViewGroup parent) {
+        return mInflater.inflate(R.layout.recipient_dropdown_item, parent, false);
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    protected View inflateItemViewLoading(ViewGroup parent) {
+        return mInflater.inflate(R.layout.recipient_dropdown_item_loading, parent, false);
+    }
+
+    @Override
+    protected void bindView(View view, String directoryType, String directoryName,
+            String displayName, String emailAddress) {
+      TextView text1 = (TextView)view.findViewById(R.id.text1);
+      TextView text2 = (TextView)view.findViewById(R.id.text2);
+      text1.setText(displayName);
+      text2.setText(emailAddress);
+    }
+
+    @Override
+    protected void bindViewLoading(View view, String directoryType, String directoryName) {
         TextView text1 = (TextView)view.findViewById(R.id.text1);
-        TextView text2 = (TextView)view.findViewById(R.id.text2);
-        text1.setText(cursor.getString(NAME_INDEX));
-        text2.setText(cursor.getString(DATA_INDEX));
-    }
-
-    @Override
-    public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
-        String filter = constraint == null ? "" : constraint.toString();
-        Uri uri = Uri.withAppendedPath(Email.CONTENT_FILTER_URI, Uri.encode(filter));
-        Cursor c = mContentResolver.query(uri, PROJECTION, null, null, SORT_ORDER);
-        // To prevent expensive execution in the UI thread
-        // Cursors get lazily executed, so if you don't call anything on the cursor before
-        // returning it from the background thread you'll have a complied program for the cursor,
-        // but it won't have been executed to generate the data yet. Often the execution is more
-        // expensive than the compilation...
-        if (c != null) {
-            c.getCount();
-        }
-        return c;
+        String text = getContext().getString(R.string.gal_searching_fmt,
+                TextUtils.isEmpty(directoryName) ? directoryType : directoryName);
+        text1.setText(text);
     }
 
     /**
-     * Set the account when known.  Not used for generic contacts lookup;  Use when
-     * linking lookup to specific account.
+     * Set the account when known. Causes the search to prioritize contacts
+     * from that account.
      */
-    public void setAccount(Account account) { }
+    public void setAccount(Account account) {
+        if (account != null) {
+            // TODO: figure out how to infer the contacts account type from the email account
+            super.setAccount(new android.accounts.Account(account.mEmailAddress, "unknown"));
+        }
+    }
 }
