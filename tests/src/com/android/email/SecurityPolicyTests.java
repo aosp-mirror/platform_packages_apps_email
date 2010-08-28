@@ -112,12 +112,15 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
             fail("Illegal password mode allowed");
         } catch (IllegalArgumentException e) {
         }
+
         PolicySet ps = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE, 0,
                 PolicySet.SCREEN_LOCK_TIME_MAX + 1, false, 0, 0, 0);
         assertEquals(PolicySet.SCREEN_LOCK_TIME_MAX, ps.getMaxScreenLockTime());
+
         ps = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE,
                 PolicySet.PASSWORD_MAX_FAILS_MAX + 1, 0, false, 0, 0, 0);
         assertEquals(PolicySet.PASSWORD_MAX_FAILS_MAX, ps.getMaxPasswordFails());
+
         // All password related fields should be zero when password mode is NONE
         // Illegal values for these fields should be ignored
         ps = new PolicySet(999/*length*/, PolicySet.PASSWORD_MODE_NONE,
@@ -128,6 +131,12 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, ps.mMaxPasswordFails);
         assertEquals(0, ps.mPasswordExpiration);
         assertEquals(0, ps.mPasswordHistory);
+        assertEquals(0, ps.mPasswordComplexChars);
+
+        // With a simple password, we should set complex chars to zero
+        ps = new PolicySet(4/*length*/, PolicySet.PASSWORD_MODE_SIMPLE,
+                0, 0, false, 0, 0, 3/*complex*/);
+        assertEquals(4, ps.mMinPasswordLength);
         assertEquals(0, ps.mPasswordComplexChars);
     }
 
@@ -303,9 +312,9 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mPasswordComplexChars);
         assertFalse(p.mRequireRemoteWipe);
 
-        p = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, false, 0, 0,
+        p = new PolicySet(0, PolicySet.PASSWORD_MODE_STRONG, 0, 0, false, 0, 0,
                 PolicySet.PASSWORD_COMPLEX_CHARS_MAX);
-        assertEquals(PolicySet.PASSWORD_MODE_SIMPLE, p.mPasswordMode);
+        assertEquals(PolicySet.PASSWORD_MODE_STRONG, p.mPasswordMode);
         assertEquals(0, p.mMinPasswordLength);
         assertEquals(0, p.mMaxPasswordFails);
         assertEquals(0, p.mMaxScreenLockTime);
