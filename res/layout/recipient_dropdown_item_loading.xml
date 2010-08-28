@@ -21,7 +21,7 @@
     android:layout_centerVertical="true"
     android:layout_gravity="center_vertical">
     <TextView android:id="@+id/text1"
-        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:textColor="?android:attr/textColorSecondary"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -32,13 +32,13 @@
         android:singleLine="true"
         android:ellipsize="end"
         />
-    <ProgressBar android:id="@+id/progress"
-        style="?android:attr/progressBarStyleSmallTitle"
-        android:minWidth="10dip"
-        android:paddingRight="4dip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+    <ProgressBar android:id="@+id/progress_circular"
+        style="?android:attr/progressBarStyleSmall"
+        android:max="10000"
         android:layout_centerVertical="true"
-        />
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="6dip"
+        android:layout_marginRight="6dip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </RelativeLayout>
