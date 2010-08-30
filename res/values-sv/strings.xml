@@ -18,6 +18,8 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="status_sending_messages" msgid="3971880826111264523">"Skickar meddelanden..."</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Skicka utgående meddelanden"</string>
+    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Hämtar bilaga."</string>
+    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Hämtar bilaga <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"Läs meddelandets bifogade filer"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"Tillåter att programmet läser bifogade filer i meddelanden."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Använd e-postleverantörens data"</string>
@@ -90,6 +92,8 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Tryck länge på ett konto om du vill uppdatera det"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"E-postkonto"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Hämta fler meddelanden"</string>
+    <!-- no translation found for message_view_selected_message_count:one (5064657358375178519) -->
+    <!-- no translation found for message_view_selected_message_count:other (7901361399231876038) -->
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Till"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Kopia"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Hemlig kopia"</string>
@@ -100,19 +104,24 @@
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Citerad text"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Du måste lägga till minst en mottagare."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Några av e-postadresserna är ogiltiga."</string>
-    <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"Vissa meddelanden går inte att vidarebefordra eftersom de inte har hämtats."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Filen är för stor för att bifogas."</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> och <xliff:g id="NUMBER">%2$d</xliff:g> andra"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Till:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kopia:"</string>
-    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Öppna"</string>
-    <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Spara"</string>
+    <!-- no translation found for message_view_attachment_view_action (4408093860407096078) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_load_action (8645178445048233745) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_save_action (4704436274670997903) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
+    <skip />
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Bilagan har sparats som <xliff:g id="FILENAME">%s</xliff:g> på SD-kortet."</string>
     <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Det gick inte att spara bilaga på SD-kortet."</string>
+    <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
+    <skip />
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Välj Visa bilder om du vill visa inbäddade bilder."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Visa bilder"</string>
-    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Hämtar bilaga."</string>
-    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Hämtar bilaga <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <!-- no translation found for message_view_invite_view (5521032519960111675) -->
     <skip />
     <string name="message_view_invite_title" msgid="5024473745902772299">"Kalenderinbjudan"</string>
@@ -130,7 +139,13 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"Meddelandet slängs."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Meddelande sparat som utkast."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Bilagan kan inte visas."</string>
+    <!-- no translation found for message_view_load_attachment_failed_toast (342798484092215350) -->
+    <skip />
     <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
+    <skip />
+    <!-- no translation found for forward_download_failed_ticker (6654377128589312623) -->
+    <skip />
+    <!-- no translation found for forward_download_failed_notification (3239753701377399676) -->
     <skip />
     <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
     <!-- no translation found for message_view_attachment_bytes:other (4613385949384337840) -->
@@ -271,6 +286,10 @@
     <string name="account_settings_servers" msgid="4925493817981624242">"Serverinställningar"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Ta bort konto"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Kontot <xliff:g id="ACCOUNT">%s</xliff:g> tas bort från E-post."</string>
+    <!-- no translation found for account_settings_category_delete_account (5128545184407925226) -->
+    <skip />
+    <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Uppgradera konton"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Det går inte att uppgradera kontot"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"Vi stöder inte åtkomst till postlådan för visa typer av Yahoo!-konton. Om du har problem att ansluta besöker du yahoo.com. Där hittar du mer information."</string>
@@ -299,4 +318,8 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultat från <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"De första <xliff:g id="RESULTS">%1$d</xliff:g> resultaten från <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
+    <!-- no translation found for header_label_general_preferences (7548527595339881066) -->
+    <skip />
+    <!-- no translation found for category_general_preferences (6810399722493971651) -->
+    <skip />
 </resources>

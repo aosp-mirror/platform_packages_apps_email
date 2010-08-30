@@ -18,6 +18,8 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="status_sending_messages" msgid="3971880826111264523">"메시지를 보내는 중..."</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"발신 메시지 보내기"</string>
+    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"첨부파일을 가져오는 중입니다."</string>
+    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)을 가져오는 중"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"이메일 첨부파일 읽기"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"애플리케이션이 이메일 첨부파일을 읽도록 허용합니다."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"이메일 제공업체 데이터 액세스"</string>
@@ -90,6 +92,8 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"새로고침하려면 계정을 길게 누르세요."</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"편지함"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"더 많은 메시지 로드"</string>
+    <!-- no translation found for message_view_selected_message_count:one (5064657358375178519) -->
+    <!-- no translation found for message_view_selected_message_count:other (7901361399231876038) -->
     <string name="message_compose_to_hint" msgid="2891895306418177013">"받는사람"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"참조"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"숨은 참조"</string>
@@ -100,19 +104,24 @@
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"받은메일"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"받는 사람을 한 명 이상 추가해야 합니다."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"일부 이메일 주소가 올바르지 않습니다."</string>
-    <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"일부 첨부파일이 다운로드되지 않았기 때문에 전달할 수 없습니다."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"파일이 너무 커서 첨부할 수 없습니다."</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> 외 <xliff:g id="NUMBER">%2$d</xliff:g>명"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"받는사람:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"참조: "</string>
-    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"열기"</string>
-    <string name="message_view_attachment_download_action" msgid="7552530274014544406">"저장"</string>
+    <!-- no translation found for message_view_attachment_view_action (4408093860407096078) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_load_action (8645178445048233745) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_save_action (4704436274670997903) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
+    <skip />
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)이 SD 카드에 저장되었습니다."</string>
     <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"SD 카드에 첨부파일을 저장할 수 없습니다."</string>
+    <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
+    <skip />
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"\'사진 표시\'를 선택하여 삽입된 사진을 표시합니다."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"사진 표시"</string>
-    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"첨부파일을 가져오는 중입니다."</string>
-    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)을 가져오는 중"</string>
     <!-- no translation found for message_view_invite_view (5521032519960111675) -->
     <skip />
     <string name="message_view_invite_title" msgid="5024473745902772299">"캘린더 초대"</string>
@@ -130,7 +139,13 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"메시지를 삭제했습니다."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"메일이 임시보관함에 저장되었습니다."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"첨부파일을 표시할 수 없습니다."</string>
+    <!-- no translation found for message_view_load_attachment_failed_toast (342798484092215350) -->
+    <skip />
     <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
+    <skip />
+    <!-- no translation found for forward_download_failed_ticker (6654377128589312623) -->
+    <skip />
+    <!-- no translation found for forward_download_failed_notification (3239753701377399676) -->
     <skip />
     <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
     <!-- no translation found for message_view_attachment_bytes:other (4613385949384337840) -->
@@ -271,6 +286,10 @@
     <string name="account_settings_servers" msgid="4925493817981624242">"서버 설정"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"계정 삭제"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"<xliff:g id="ACCOUNT">%s</xliff:g> 계정이 이메일에서 삭제됩니다."</string>
+    <!-- no translation found for account_settings_category_delete_account (5128545184407925226) -->
+    <skip />
+    <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"계정 업그레이드"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"계정을 업그레이드할 수 없음"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"일부 Yahoo! 메일 계정의 경우 편지함에 액세스할 수 없습니다. 접속에 문제가 있을 경우 자세한 정보는 yahoo.com을 참조하세요."</string>
@@ -299,4 +318,8 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="DOMAIN">%2$s</xliff:g>의 검색결과 <xliff:g id="RESULTS">%1$d</xliff:g>개"</item>
   </plurals>
     <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="DOMAIN">%2$s</xliff:g>의 처음 <xliff:g id="RESULTS">%1$d</xliff:g>개 검색결과"</string>
+    <!-- no translation found for header_label_general_preferences (7548527595339881066) -->
+    <skip />
+    <!-- no translation found for category_general_preferences (6810399722493971651) -->
+    <skip />
 </resources>
