@@ -85,7 +85,7 @@ public class ProviderTestUtils extends Assert {
             boolean saveIt, Context context) {
         HostAuth hostAuth = new HostAuth();
 
-        hostAuth.mProtocol = protocol + "-" + name;
+        hostAuth.mProtocol = protocol;
         hostAuth.mAddress = "address-" + name;
         hostAuth.mPort = 100;
         hostAuth.mFlags = 200;

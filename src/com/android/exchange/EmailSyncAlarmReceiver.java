@@ -65,7 +65,7 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
         int messageCount = 0;
         
         // Get a selector for EAS accounts (we don't want to sync on changes to POP/IMAP messages)
-        String selector = SyncManager.getEasAccountSelector();
+        String selector = ExchangeService.getEasAccountSelector();
         
         // Find all of the deletions
         Cursor c = cr.query(Message.DELETED_CONTENT_URI, MAILBOX_DATA_PROJECTION, selector,
@@ -101,7 +101,7 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
 
         // Request service from the mailbox
         for (Long mailboxId: mailboxesToNotify) {
-            SyncManager.serviceRequest(mailboxId, SyncManager.SYNC_UPSYNC);
+            ExchangeService.serviceRequest(mailboxId, ExchangeService.SYNC_UPSYNC);
         }
         Log.v(TAG, "Changed/Deleted messages: " + messageCount + ", mailboxes: " +
                 mailboxesToNotify.size());

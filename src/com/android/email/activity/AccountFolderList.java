@@ -207,9 +207,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
                 public void onClick(DialogInterface dialog, int whichButton) {
                     dismissDialog(DIALOG_REMOVE_ACCOUNT);
                     // Clear notifications, which may become stale here
-                    NotificationManager notificationManager = (NotificationManager)
-                            getSystemService(Context.NOTIFICATION_SERVICE);
-                    notificationManager.cancel(MailService.NOTIFICATION_ID_NEW_MESSAGES);
+                    MailService.cancelNewMessageNotification(AccountFolderList.this);
                     int numAccounts = EmailContent.count(AccountFolderList.this,
                             Account.CONTENT_URI, null, null);
                     mListFragment.hideDeletingAccount(mSelectedContextAccount.mId);

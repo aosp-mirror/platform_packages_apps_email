@@ -23,7 +23,7 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
-import com.android.exchange.SyncManager;
+import com.android.exchange.ExchangeService;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -38,9 +38,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import java.io.IOException;
 import java.net.URI;
@@ -135,7 +135,7 @@ public class AccountSetupExchangeFragment extends Fragment implements OnCheckedC
         //EXCHANGE-REMOVE-SECTION-START
         // Show device ID
         try {
-            String deviceId = SyncManager.getDeviceId(context);
+            String deviceId = ExchangeService.getDeviceId(context);
             ((TextView) view.findViewById(R.id.device_id)).setText(deviceId);
         } catch (IOException ignore) {
             // There's nothing we can do here...
@@ -314,9 +314,9 @@ public class AccountSetupExchangeFragment extends Fragment implements OnCheckedC
             account.mHostAuthRecv.update(mContext, account.mHostAuthRecv.toContentValues());
             account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
             if (account.mHostAuthRecv.mProtocol.equals("eas")) {
-                // For EAS, notify SyncManager that the password has changed
+                // For EAS, notify ExchangeService that the password has changed
                 try {
-                    ExchangeUtils.getExchangeEmailService(mContext, null).hostChanged(account.mId);
+                    ExchangeUtils.getExchangeService(mContext, null).hostChanged(account.mId);
                 } catch (RemoteException e) {
                     // Nothing to be done if this fails
                 }

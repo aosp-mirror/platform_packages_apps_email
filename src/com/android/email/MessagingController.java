@@ -1458,6 +1458,11 @@ public class MessagingController implements Runnable {
             // Delete the message from the remote source folder
             remoteMessage.setFlag(Flag.DELETED, true);
             remoteFolder.expunge();
+            // Set the serverId to 0, since we don't know what the new server id will be
+            ContentValues cv = new ContentValues();
+            cv.put(EmailContent.Message.SERVER_ID, "0");
+            mContext.getContentResolver().update(ContentUris.withAppendedId(
+                    EmailContent.Message.CONTENT_URI, newMessage.mId), cv, null, null);
         }
         remoteFolder.close(false);
     }

@@ -265,7 +265,7 @@ public class Controller {
      * Generally this should be called by anybody who changes Email.DEBUG
      */
     public void serviceLogging(int debugEnabled) {
-        IEmailService service = ExchangeUtils.getExchangeEmailService(mContext, mServiceCallback);
+        IEmailService service = ExchangeUtils.getExchangeService(mContext, mServiceCallback);
         try {
             service.setLogging(debugEnabled);
         } catch (RemoteException e) {
@@ -735,9 +735,6 @@ public class Controller {
                             messageId);
                     ContentValues cv = new ContentValues();
                     cv.put(EmailContent.MessageColumns.MAILBOX_KEY, mailboxId);
-                    // Set the serverId to 0, since we don't know what the new server id will be
-                    // TODO: Check if this could be cv.setNull(EmailContent.Message.SERVER_ID)
-                    cv.put(EmailContent.Message.SERVER_ID, "0");
                     mProviderContext.getContentResolver().update(uri, cv, null, null);
                     if (isMessagingController(account)) {
                         mLegacyController.processPendingActions(account.mId);
@@ -894,7 +891,7 @@ public class Controller {
     }
 
     private IEmailService getExchangeEmailService() {
-        return ExchangeUtils.getExchangeEmailService(mContext, mServiceCallback);
+        return ExchangeUtils.getExchangeService(mContext, mServiceCallback);
     }
 
     /**

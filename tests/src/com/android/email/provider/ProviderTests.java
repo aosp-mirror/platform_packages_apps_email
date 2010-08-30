@@ -178,8 +178,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         account1.mHostAuthSend = ProviderTestUtils.setupHostAuth("foo", "account-hostauth-send", -1,
                 false, mMockContext);
         account1.save(mMockContext);
-        assertEquals("eas-account-hostauth-recv", Account.getProtocol(mMockContext, account1.mId));
-        assertEquals("eas-account-hostauth-recv", account1.getProtocol(mMockContext));
+        assertEquals("eas", Account.getProtocol(mMockContext, account1.mId));
+        assertEquals("eas", account1.getProtocol(mMockContext));
         Account account2 = ProviderTestUtils.setupAccount("account-nohostauth", false,
                 mMockContext);
         account2.save(mMockContext);
@@ -1945,19 +1945,21 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
     public void testAccountIsEasAccount() {
         Account account = new Account();
+        // No hostauth
         assertFalse(account.isEasAccount(mMockContext));
 
-        account.mHostAuthRecv = new HostAuth();
-        assertFalse(account.isEasAccount(mMockContext));
+        checkAccountIsEasAccount(null, false);
+        checkAccountIsEasAccount("", false);
+        checkAccountIsEasAccount("x", false);
+        checkAccountIsEasAccount("eas", true);
+    }
 
-        account.mHostAuthRecv.mProtocol = "";
-        assertFalse(account.isEasAccount(mMockContext));
-
-        account.mHostAuthRecv.mProtocol = "x";
-        assertFalse(account.isEasAccount(mMockContext));
-
-        account.mHostAuthRecv.mProtocol = "eas";
-        assertTrue(account.isEasAccount(mMockContext));
+    private void checkAccountIsEasAccount(String protocol, boolean expected) {
+        Account account = ProviderTestUtils.setupAccount("account", false, mMockContext);
+        account.mHostAuthRecv = ProviderTestUtils.setupHostAuth(protocol, "account-hostauth-recv",
+                account.mId, false, mMockContext);
+        account.save(mMockContext);
+        assertEquals(expected, account.isEasAccount(mMockContext));
     }
 
     public void testGetKeyColumnLong() {

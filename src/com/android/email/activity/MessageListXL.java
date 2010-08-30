@@ -22,6 +22,8 @@ import com.android.email.RefreshManager;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.service.MailService;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -38,6 +40,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.security.InvalidParameterException;
+
 // TODO Where/when/how do we close loaders??  Do we have to?  Getting this error:
 // Finalizing a Cursor that has not been deactivated or closed.
 // database = /data/data/com.google.android.email/databases/EmailProvider.db,
@@ -51,7 +55,8 @@ import android.view.View;
  */
 public class MessageListXL extends Activity implements View.OnClickListener,
         MessageListXLFragmentManager.TargetActivity {
-    private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
+    private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
+    private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     private static final int LOADER_ID_ACCOUNT_LIST = 0;
 
     private Context mContext;
@@ -77,12 +82,32 @@ public class MessageListXL extends Activity implements View.OnClickListener,
 
     /**
      * Launch and open account's inbox.
+     *
+     * @param accountId If -1, default account will be used.
      */
-    public static void actionStart(Activity fromActivity, long accountId) {
+    public static void actionOpenAccount(Activity fromActivity, long accountId) {
         Intent i = new Intent(fromActivity, MessageListXL.class);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         }
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        fromActivity.startActivity(i);
+    }
+
+    /**
+     * Launch and open a mailbox.
+     *
+     * @param accountId must not be -1.
+     * @param mailboxId must not be -1.
+     */
+    public static void actionOpenMailbox(Activity fromActivity, long accountId, long mailboxId) {
+        Intent i = new Intent(fromActivity, MessageListXL.class);
+        if (accountId == -1 || mailboxId == -1) {
+            throw new InvalidParameterException();
+        }
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        i.putExtra(EXTRA_MAILBOX_ID, Mailbox.QUERY_ALL_INBOXES);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
 
@@ -126,8 +151,14 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private void initFromIntent() {
         final Intent i = getIntent();
         final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        final long mailboxId = i.getLongExtra(EXTRA_MAILBOX_ID, -1);
+        if (Email.DEBUG) {
+            Log.d(Email.LOG_TAG,
+                    String.format("Welcome: %d %d", accountId, mailboxId));
+        }
+
         if (accountId != -1) {
-            mFragmentManager.selectAccount(accountId);
+            mFragmentManager.selectAccount(accountId, mailboxId, true);
         }
     }
 
@@ -156,6 +187,8 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     protected void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onResume");
         super.onResume();
+
+        MailService.cancelNewMessageNotification(this);
         // TODO Add stuff that's done in MessageList.onResume().
     }
 
@@ -488,7 +521,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         @Override
         public boolean onNavigationItemSelected(int itemPosition, long accountId) {
             if (Email.DEBUG) Log.d(Email.LOG_TAG, "Account selected: accountId=" + accountId);
-            mFragmentManager.selectAccount(accountId);
+            mFragmentManager.selectAccount(accountId, -1, true);
             return true;
         }
     }

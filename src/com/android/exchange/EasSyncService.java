@@ -32,6 +32,7 @@ import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.service.EmailServiceConstants;
 import com.android.email.service.EmailServiceProxy;
 import com.android.email.service.EmailServiceStatus;
@@ -43,6 +44,7 @@ import com.android.exchange.adapter.EmailSyncAdapter;
 import com.android.exchange.adapter.FolderSyncParser;
 import com.android.exchange.adapter.GalParser;
 import com.android.exchange.adapter.MeetingResponseParser;
+import com.android.exchange.adapter.MoveItemsParser;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
@@ -78,6 +80,7 @@ import android.content.Context;
 import android.content.Entity;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -798,7 +801,7 @@ public class EasSyncService extends AbstractSyncService {
      * TODO: figure out why sendHttpClientPost() hangs - possibly pool exhaustion
      */
     static public GalResult searchGal(Context context, long accountId, String filter) {
-        Account acct = SyncManager.getAccountById(accountId);
+        Account acct = ExchangeService.getAccountById(accountId);
         if (acct != null) {
             HostAuth ha = HostAuth.restoreHostAuthWithId(context, acct.mHostAuthKeyRecv);
             EasSyncService svc = new EasSyncService("%GalLookupk%");
@@ -818,7 +821,7 @@ public class EasSyncService extends AbstractSyncService {
                 svc.mPassword = ha.mPassword;
                 svc.mSsl = (ha.mFlags & HostAuth.FLAG_SSL) != 0;
                 svc.mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES) != 0;
-                svc.mDeviceId = SyncManager.getDeviceId();
+                svc.mDeviceId = ExchangeService.getDeviceId();
                 svc.mAccount = acct;
                 Serializer s = new Serializer();
                 s.start(Tags.SEARCH_SEARCH).start(Tags.SEARCH_STORE);
@@ -851,7 +854,7 @@ public class EasSyncService extends AbstractSyncService {
 
     private void doStatusCallback(long messageId, long attachmentId, int status) {
         try {
-            SyncManager.callback().loadAttachmentStatus(messageId, attachmentId, status, 0);
+            ExchangeService.callback().loadAttachmentStatus(messageId, attachmentId, status, 0);
         } catch (RemoteException e) {
             // No danger if the client is no longer around
         }
@@ -859,7 +862,7 @@ public class EasSyncService extends AbstractSyncService {
 
     private void doProgressCallback(long messageId, long attachmentId, int progress) {
         try {
-            SyncManager.callback().loadAttachmentStatus(messageId, attachmentId,
+            ExchangeService.callback().loadAttachmentStatus(messageId, attachmentId,
                     EmailServiceStatus.IN_PROGRESS, progress);
         } catch (RemoteException e) {
             // No danger if the client is no longer around
@@ -1062,6 +1065,75 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     /**
+     * Responds to a move request.  The MessageMoveRequest is basically our
+     * wrapper for the MoveItems service call
+     * @param req the request (message id and "to" mailbox id)
+     * @throws IOException
+     */
+    protected void messageMoveRequest(MessageMoveRequest req) throws IOException {
+        // Retrieve the message and mailbox; punt if either are null
+        Message msg = Message.restoreMessageWithId(mContext, req.mMessageId);
+        if (msg == null) return;
+        Cursor c = mContentResolver.query(ContentUris.withAppendedId(Message.UPDATED_CONTENT_URI,
+                msg.mId), new String[] {MessageColumns.MAILBOX_KEY}, null, null, null);
+        Mailbox srcMailbox = null;
+        try {
+            if (!c.moveToNext()) return;
+            srcMailbox = Mailbox.restoreMailboxWithId(mContext, c.getLong(0));
+        } finally {
+            c.close();
+        }
+        if (srcMailbox == null) return;
+        Mailbox dstMailbox = Mailbox.restoreMailboxWithId(mContext, req.mMailboxId);
+        if (dstMailbox == null) return;
+        Serializer s = new Serializer();
+        s.start(Tags.MOVE_MOVE_ITEMS).start(Tags.MOVE_MOVE);
+        s.data(Tags.MOVE_SRCMSGID, msg.mServerId);
+        s.data(Tags.MOVE_SRCFLDID, srcMailbox.mServerId);
+        s.data(Tags.MOVE_DSTFLDID, dstMailbox.mServerId);
+        s.end().end().done();
+        HttpResponse res = sendHttpClientPost("MoveItems", s.toByteArray());
+        int status = res.getStatusLine().getStatusCode();
+        if (status == HttpStatus.SC_OK) {
+            HttpEntity e = res.getEntity();
+            int len = (int)e.getContentLength();
+            InputStream is = res.getEntity().getContent();
+            if (len != 0) {
+                MoveItemsParser p = new MoveItemsParser(is, this);
+                p.parse();
+                int statusCode = p.getStatusCode();
+                if (statusCode == MoveItemsParser.STATUS_CODE_REVERT) {
+                    // Restore the old mailbox id
+                    ContentValues cv = new ContentValues();
+                    cv.put(MessageColumns.MAILBOX_KEY, srcMailbox.mServerId);
+                    mContentResolver.update(ContentUris.withAppendedId(
+                            Message.CONTENT_URI, req.mMessageId), cv, null, null);
+                }
+                if (statusCode == MoveItemsParser.STATUS_CODE_SUCCESS ||
+                        statusCode == MoveItemsParser.STATUS_CODE_REVERT) {
+                    // If we revert or if we succeeded, we no longer need the update information
+                    mContentResolver.delete(ContentUris.withAppendedId(
+                            Message.UPDATED_CONTENT_URI, req.mMessageId), null, null);
+                    // Set the serverId to 0, since we don't know what the new server id will be
+                    ContentValues cv = new ContentValues();
+                    cv.put(Message.SERVER_ID, "0");
+                    mContentResolver.update(ContentUris.withAppendedId(
+                            Message.CONTENT_URI, msg.mId), cv, null, null);
+
+                } else {
+                    // In this case, we're retrying, so do nothing.  The request will be handled
+                    // next sync
+                }
+            }
+        } else if (isAuthError(status)) {
+            throw new EasAuthenticationException();
+        } else {
+            userLog("Move items request failed, code: " + status);
+            throw new IOException();
+        }
+    }
+
+    /**
      * Responds to a meeting request.  The MeetingResponseRequest is basically our
      * wrapper for the meetingResponse service call
      * @param req the request (message id and response code)
@@ -1135,7 +1207,8 @@ public class EasSyncService extends AbstractSyncService {
         method.setHeader("Authorization", mAuthString);
         method.setHeader("MS-ASProtocolVersion", mProtocolVersion);
         method.setHeader("Connection", "keep-alive");
-        method.setHeader("User-Agent", mDeviceType + '/' + Eas.VERSION);
+        method.setHeader("User-Agent", mDeviceType + '-' + Build.VERSION.RELEASE + '/' +
+                Eas.CLIENT_VERSION);
         if (usePolicyKey) {
             // If there's an account in existence, use its key; otherwise (we're creating the
             // account), send "0".  The server will respond with code 449 if there are policies
@@ -1152,7 +1225,7 @@ public class EasSyncService extends AbstractSyncService {
     }
 
     private ClientConnectionManager getClientConnectionManager() {
-        return SyncManager.getClientConnectionManager();
+        return ExchangeService.getClientConnectionManager();
     }
 
     private HttpClient getHttpClient(int timeout) {
@@ -1203,9 +1276,9 @@ public class EasSyncService extends AbstractSyncService {
             mPendingPost = method;
             long alarmTime = timeout + WATCHDOG_TIMEOUT_ALLOWANCE;
             if (isPingCommand) {
-                SyncManager.runAsleep(mMailboxId, alarmTime);
+                ExchangeService.runAsleep(mMailboxId, alarmTime);
             } else {
-                SyncManager.setWatchdogAlarm(mMailboxId, alarmTime);
+                ExchangeService.setWatchdogAlarm(mMailboxId, alarmTime);
             }
         }
         try {
@@ -1213,9 +1286,9 @@ public class EasSyncService extends AbstractSyncService {
         } finally {
             synchronized(getSynchronizer()) {
                 if (isPingCommand) {
-                    SyncManager.runAwake(mMailboxId);
+                    ExchangeService.runAwake(mMailboxId);
                 } else {
-                    SyncManager.clearWatchdogAlarm(mMailboxId);
+                    ExchangeService.clearWatchdogAlarm(mMailboxId);
                 }
                 mPendingPost = null;
             }
@@ -1317,7 +1390,7 @@ public class EasSyncService extends AbstractSyncService {
                     // Write the final policy key to the Account and say we've been successful
                     ps.writeAccount(mAccount, policyKey, true, mContext);
                     // Release any mailboxes that might be in a security hold
-                    SyncManager.releaseSecurityHold(mAccount);
+                    ExchangeService.releaseSecurityHold(mAccount);
                     return true;
                 }
             } else {
@@ -1430,7 +1503,7 @@ public class EasSyncService extends AbstractSyncService {
         mExitStatus = EXIT_DONE;
         try {
             try {
-                SyncManager.callback()
+                ExchangeService.callback()
                     .syncMailboxListStatus(mAccount.mId, EmailServiceStatus.IN_PROGRESS, 0);
             } catch (RemoteException e1) {
                 // Don't care if this fails
@@ -1461,7 +1534,7 @@ public class EasSyncService extends AbstractSyncService {
             if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
                     WHERE_ACCOUNT_AND_SYNC_INTERVAL_PING,
                     new String[] {Long.toString(mAccount.mId)}) > 0) {
-                SyncManager.kick("change ping boxes to push");
+                ExchangeService.kick("change ping boxes to push");
             }
 
             // Determine our protocol version, if we haven't already and save it in the Account
@@ -1508,7 +1581,7 @@ public class EasSyncService extends AbstractSyncService {
                 cv.clear();
                 cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PUSH);
                 if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
-                        SyncManager.WHERE_IN_ACCOUNT_AND_PUSHABLE,
+                        ExchangeService.WHERE_IN_ACCOUNT_AND_PUSHABLE,
                         new String[] {Long.toString(mAccount.mId)}) > 0) {
                     userLog("Push account; set pushable boxes to push...");
                 }
@@ -1564,7 +1637,7 @@ public class EasSyncService extends AbstractSyncService {
                 }
 
                 try {
-                    SyncManager.callback()
+                    ExchangeService.callback()
                         .syncMailboxListStatus(mAccount.mId, mExitStatus, 0);
                 } catch (RemoteException e1) {
                     // Don't care if this fails
@@ -1608,7 +1681,7 @@ public class EasSyncService extends AbstractSyncService {
             // A folder sync failed callback will get sent from run()
             try {
                 if (!mStop) {
-                    SyncManager.callback()
+                    ExchangeService.callback()
                         .syncMailboxListStatus(mAccount.mId,
                                 EmailServiceStatus.CONNECTION_ERROR, 0);
                 }
@@ -1671,7 +1744,7 @@ public class EasSyncService extends AbstractSyncService {
         mContentResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
                 cv, null, null);
         errorLog("*** PING ERROR LOOP: Set " + mailbox.mDisplayName + " to " + mins + " min sync");
-        SyncManager.kick("push fallback");
+        ExchangeService.kick("push fallback");
     }
 
     /**
@@ -1719,12 +1792,12 @@ public class EasSyncService extends AbstractSyncService {
                 while (c.moveToNext()) {
                     pushCount++;
                     // Two requirements for push:
-                    // 1) SyncManager tells us the mailbox is syncable (not running, not stopped)
+                    // 1) ExchangeService tells us the mailbox is syncable (not running/not stopped)
                     // 2) The syncKey isn't "0" (i.e. it's synced at least once)
                     long mailboxId = c.getLong(Mailbox.CONTENT_ID_COLUMN);
-                    int pingStatus = SyncManager.pingStatus(mailboxId);
+                    int pingStatus = ExchangeService.pingStatus(mailboxId);
                     String mailboxName = c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
-                    if (pingStatus == SyncManager.PING_STATUS_OK) {
+                    if (pingStatus == ExchangeService.PING_STATUS_OK) {
                         String syncKey = c.getString(Mailbox.CONTENT_SYNC_KEY_COLUMN);
                         if ((syncKey == null) || syncKey.equals("0")) {
                             // We can't push until the initial sync is done
@@ -1747,10 +1820,10 @@ public class EasSyncService extends AbstractSyncService {
                             .data(Tags.PING_CLASS, folderClass)
                             .end();
                         readyMailboxes.add(mailboxName);
-                    } else if ((pingStatus == SyncManager.PING_STATUS_RUNNING) ||
-                            (pingStatus == SyncManager.PING_STATUS_WAITING)) {
+                    } else if ((pingStatus == ExchangeService.PING_STATUS_RUNNING) ||
+                            (pingStatus == ExchangeService.PING_STATUS_WAITING)) {
                         notReadyMailboxes.add(mailboxName);
-                    } else if (pingStatus == SyncManager.PING_STATUS_UNABLE) {
+                    } else if (pingStatus == ExchangeService.PING_STATUS_UNABLE) {
                         pushCount--;
                         userLog(mailboxName, " in error state; ignore");
                         continue;
@@ -1803,7 +1876,7 @@ public class EasSyncService extends AbstractSyncService {
 
                     if (code == HttpStatus.SC_OK) {
                         // Make sure to clear out any pending sync errors
-                        SyncManager.removeFromSyncErrorMap(mMailboxId);
+                        ExchangeService.removeFromSyncErrorMap(mMailboxId);
                         HttpEntity e = res.getEntity();
                         int len = (int)e.getContentLength();
                         InputStream is = res.getEntity().getContent();
@@ -1841,8 +1914,8 @@ public class EasSyncService extends AbstractSyncService {
                     boolean hasMessage = message != null;
                     userLog("IOException runPingLoop: " + (hasMessage ? message : "[no message]"));
                     if (mPostReset) {
-                        // Nothing to do in this case; this is SyncManager telling us to try another
-                        // ping.
+                        // Nothing to do in this case; this is ExchangeService telling us to try
+                        // another ping.
                     } else if (mPostAborted || isLikelyNatFailure(message)) {
                         long pingLength = SystemClock.elapsedRealtime() - pingTime;
                         if ((pingHeartbeat > mPingMinHeartbeat) &&
@@ -1857,7 +1930,7 @@ public class EasSyncService extends AbstractSyncService {
                             // There's no point in throwing here; this can happen in two cases
                             // 1) An alarm, which indicates minutes without activity; no sense
                             //    backing off
-                            // 2) SyncManager abort, due to sync of mailbox.  Again, we want to
+                            // 2) ExchangeService abort, due to sync of mailbox.  Again, we want to
                             //    keep on trying to ping
                             userLog("Ping aborted; retry");
                         } else if (pingLength < 2000) {
@@ -1881,7 +1954,7 @@ public class EasSyncService extends AbstractSyncService {
                 sleep(60*SECONDS, true);
             } else if (pushCount > 0) {
                 // If we want to Ping, but can't just yet, wait a little bit
-                // TODO Change sleep to wait and use notify from SyncManager when a sync ends
+                // TODO Change sleep to wait and use notify from ExchangeService when a sync ends
                 sleep(2*SECONDS, false);
                 pingWaitCount++;
                 //userLog("pingLoop waited 2s for: ", (pushCount - canPushCount), " box(es)");
@@ -1905,7 +1978,7 @@ public class EasSyncService extends AbstractSyncService {
 
     private void sleep(long ms, boolean runAsleep) {
         if (runAsleep) {
-            SyncManager.runAsleep(mMailboxId, ms+(5*SECONDS));
+            ExchangeService.runAsleep(mMailboxId, ms+(5*SECONDS));
         }
         try {
             Thread.sleep(ms);
@@ -1913,7 +1986,7 @@ public class EasSyncService extends AbstractSyncService {
             // Doesn't matter whether we stop early; it's the thought that counts
         } finally {
             if (runAsleep) {
-                SyncManager.runAwake(mMailboxId);
+                ExchangeService.runAwake(mMailboxId);
             }
         }
     }
@@ -1950,10 +2023,10 @@ public class EasSyncService extends AbstractSyncService {
 
                         // Check the status of the last sync
                         String status = c.getString(Mailbox.CONTENT_SYNC_STATUS_COLUMN);
-                        int type = SyncManager.getStatusType(status);
+                        int type = ExchangeService.getStatusType(status);
                         // This check should always be true...
-                        if (type == SyncManager.SYNC_PING) {
-                            int changeCount = SyncManager.getStatusChangeCount(status);
+                        if (type == ExchangeService.SYNC_PING) {
+                            int changeCount = ExchangeService.getStatusChangeCount(status);
                             if (changeCount > 0) {
                                 errorMap.remove(serverId);
                             } else if (changeCount == 0) {
@@ -1976,8 +2049,8 @@ public class EasSyncService extends AbstractSyncService {
                         }
 
                         // If there were no problems with previous sync, we'll start another one
-                        SyncManager.startManualSync(c.getLong(Mailbox.CONTENT_ID_COLUMN),
-                                SyncManager.SYNC_PING, null);
+                        ExchangeService.startManualSync(c.getLong(Mailbox.CONTENT_ID_COLUMN),
+                                ExchangeService.SYNC_PING, null);
                     }
                 } finally {
                     c.close();
@@ -2029,7 +2102,7 @@ public class EasSyncService extends AbstractSyncService {
         boolean moreAvailable = true;
         int loopingCount = 0;
         while (!mStop && (moreAvailable || hasPendingRequests())) {
-            // If we have no connectivity, just exit cleanly.  SyncManager will start us up again
+            // If we have no connectivity, just exit cleanly. ExchangeService will start us up again
             // when connectivity has returned
             if (!hasConnectivity()) {
                 userLog("No connectivity in sync; finishing sync");
@@ -2059,6 +2132,8 @@ public class EasSyncService extends AbstractSyncService {
                     loadAttachment((PartRequest)req);
                 } else if (req instanceof MeetingResponseRequest) {
                     sendMeetingResponse((MeetingResponseRequest)req);
+                } else if (req instanceof MessageMoveRequest) {
+                    messageMoveRequest((MessageMoveRequest)req);
                 }
 
                 // If there's an exception handling the request, we'll throw it
@@ -2219,14 +2294,15 @@ public class EasSyncService extends AbstractSyncService {
         if (!setupService()) return;
 
         try {
-            SyncManager.callback().syncMailboxStatus(mMailboxId, EmailServiceStatus.IN_PROGRESS, 0);
+            ExchangeService.callback().syncMailboxStatus(mMailboxId, EmailServiceStatus.IN_PROGRESS,
+                    0);
         } catch (RemoteException e1) {
             // Don't care if this fails
         }
 
         // Whether or not we're the account mailbox
         try {
-            mDeviceId = SyncManager.getDeviceId();
+            mDeviceId = ExchangeService.getDeviceId();
             if ((mMailbox == null) || (mAccount == null)) {
                 return;
             } else if (mMailbox.mType == Mailbox.TYPE_EAS_ACCOUNT_MAILBOX) {
@@ -2264,7 +2340,7 @@ public class EasSyncService extends AbstractSyncService {
 
             if (!mStop) {
                 userLog("Sync finished");
-                SyncManager.done(this);
+                ExchangeService.done(this);
                 switch (mExitStatus) {
                     case EXIT_IO_ERROR:
                         status = EmailServiceStatus.CONNECTION_ERROR;
@@ -2285,7 +2361,7 @@ public class EasSyncService extends AbstractSyncService {
                         status = EmailServiceStatus.SECURITY_FAILURE;
                         // Ask for a new folder list.  This should wake up the account mailbox; a
                         // security error in account mailbox should start the provisioning process
-                        SyncManager.reloadFolderList(mContext, mAccount.mId, true);
+                        ExchangeService.reloadFolderList(mContext, mAccount.mId, true);
                         break;
                     default:
                         status = EmailServiceStatus.REMOTE_EXCEPTION;
@@ -2298,13 +2374,13 @@ public class EasSyncService extends AbstractSyncService {
             }
 
             try {
-                SyncManager.callback().syncMailboxStatus(mMailboxId, status, 0);
+                ExchangeService.callback().syncMailboxStatus(mMailboxId, status, 0);
             } catch (RemoteException e1) {
                 // Don't care if this fails
             }
 
-            // Make sure SyncManager knows about this
-            SyncManager.kick("sync finished");
+            // Make sure ExchangeService knows about this
+            ExchangeService.kick("sync finished");
        }
     }
 }

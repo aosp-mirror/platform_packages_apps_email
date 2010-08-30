@@ -22,7 +22,7 @@ import android.test.AndroidTestCase;
 
 import java.io.File;
 
-public class SyncManagerTest extends AndroidTestCase {
+public class ExchangeServiceTest extends AndroidTestCase {
     private static class MyContext extends ContextWrapper {
         public boolean isGetFileStreamPathCalled;
 
@@ -40,7 +40,7 @@ public class SyncManagerTest extends AndroidTestCase {
     public void testGetDeviceId() throws Exception {
         final MyContext context = new MyContext(getContext());
 
-        final String id = SyncManager.getDeviceId(context);
+        final String id = ExchangeService.getDeviceId(context);
 
         // Consists of alpha-numeric
         assertTrue(id.matches("^[a-zA-Z0-9]+$"));
@@ -49,7 +49,7 @@ public class SyncManagerTest extends AndroidTestCase {
         // isGetFileStreamPathCalled here.
 
         context.isGetFileStreamPathCalled = false;
-        final String cachedId = SyncManager.getDeviceId(context);
+        final String cachedId = ExchangeService.getDeviceId(context);
 
         // Should be the same.
         assertEquals(id, cachedId);

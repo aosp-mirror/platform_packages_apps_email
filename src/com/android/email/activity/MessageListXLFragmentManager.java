@@ -252,8 +252,13 @@ class MessageListXLFragmentManager {
 
     /**
      * Call it to select an account.
+     *
+     * @param accountId account ID.  Must not be -1.
+     * @param mailboxId mailbox ID.  Pass -1 to open account's inbox.
+     * @param byExplicitUserAction set true if the user is explicitly opening the mailbox,
+     *     in which case we perform "auto-refresh".
      */
-    public void selectAccount(long accountId) {
+    public void selectAccount(long accountId, long mailboxId, boolean byExplicitUserAction) {
         // TODO Handle "combined mailboxes".
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "selectAccount mAccountId=" + accountId);
@@ -298,7 +303,11 @@ class MessageListXLFragmentManager {
             Log.w(Email.LOG_TAG, "MailboxListFragment not set yet.");
         }
 
-        startInboxLookup();
+        if (mailboxId == -1) {
+            startInboxLookup();
+        } else {
+            selectMailbox(mailboxId, byExplicitUserAction);
+        }
     }
 
     private void updateMailboxListFragment(MailboxListFragment fragment) {
@@ -311,6 +320,9 @@ class MessageListXLFragmentManager {
         mMailboxListFragment = fragment;
         fragment.setCallback(mMailboxListFragmentCallback);
         fragment.openMailboxes(mAccountId);
+        if (mMailboxId != -1) {
+            mMailboxListFragment.setSelectedMailbox(mMailboxId);
+        }
     }
 
     /**

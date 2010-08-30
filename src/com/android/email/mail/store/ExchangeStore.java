@@ -200,7 +200,7 @@ public class ExchangeStore extends Store {
             boolean tssl = uri.getScheme().contains("+trustallcerts");
             try {
                 int port = ssl ? 443 : 80;
-                return ExchangeUtils.getExchangeEmailService(mContext, null)
+                return ExchangeUtils.getExchangeService(mContext, null)
                     .validate("eas", mHost, mUsername, mPassword, port, ssl, tssl);
             } catch (RemoteException e) {
                 throw new MessagingException("Call to validate generated an exception", e);
@@ -216,7 +216,7 @@ public class ExchangeStore extends Store {
     public Bundle autoDiscover(Context context, String username, String password)
             throws MessagingException {
         try {
-            return ExchangeUtils.getExchangeEmailService(context, null)
+            return ExchangeUtils.getExchangeService(context, null)
                 .autoDiscover(username, password);
         } catch (RemoteException e) {
             return null;

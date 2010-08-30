@@ -68,7 +68,7 @@ public class EasOutboxService extends EasSyncService {
 
     private void sendCallback(long msgId, String subject, int status) {
         try {
-            SyncManager.callback().sendMessageStatus(msgId, subject, status, 0);
+            ExchangeService.callback().sendMessageStatus(msgId, subject, status, 0);
         } catch (RemoteException e) {
             // It's all good
         }
@@ -82,7 +82,7 @@ public class EasOutboxService extends EasSyncService {
     /**
      * Send a single message via EAS
      * Note that we mark messages SEND_FAILED when there is a permanent failure, rather than an
-     * IOException, which is handled by SyncManager with retries, backoffs, etc.
+     * IOException, which is handled by ExchangeService with retries, backoffs, etc.
      *
      * @param cacheDir the cache directory for this context
      * @param msgId the _id of the message to send
@@ -197,7 +197,7 @@ public class EasOutboxService extends EasSyncService {
         setupService();
         File cacheDir = mContext.getCacheDir();
         try {
-            mDeviceId = SyncManager.getDeviceId();
+            mDeviceId = ExchangeService.getDeviceId();
             Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI,
                     Message.ID_COLUMN_PROJECTION, MAILBOX_KEY_AND_NOT_SEND_FAILED,
                     new String[] {Long.toString(mMailbox.mId)}, null);
@@ -233,7 +233,7 @@ public class EasOutboxService extends EasSyncService {
         } finally {
             userLog(mMailbox.mDisplayName, ": sync finished");
             userLog("Outbox exited with status ", mExitStatus);
-            SyncManager.done(this);
+            ExchangeService.done(this);
         }
     }
 

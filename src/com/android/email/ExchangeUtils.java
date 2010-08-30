@@ -20,7 +20,7 @@ import com.android.email.service.EmailServiceProxy;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
 import com.android.exchange.CalendarSyncEnabler;
-import com.android.exchange.SyncManager;
+import com.android.exchange.ExchangeService;
 
 import android.app.Service;
 import android.content.Context;
@@ -38,7 +38,7 @@ public class ExchangeUtils {
      */
     public static void startExchangeService(Context context) {
         //EXCHANGE-REMOVE-SECTION-START
-        context.startService(new Intent(context, SyncManager.class));
+        context.startService(new Intent(context, ExchangeService.class));
         //EXCHANGE-REMOVE-SECTION-END
     }
 
@@ -49,11 +49,11 @@ public class ExchangeUtils {
      * @param context
      * @param callback Object to get callback, or can be null
      */
-    public static IEmailService getExchangeEmailService(Context context,
+    public static IEmailService getExchangeService(Context context,
             IEmailServiceCallback callback) {
         IEmailService ret = null;
         //EXCHANGE-REMOVE-SECTION-START
-        ret = new EmailServiceProxy(context, SyncManager.class, callback);
+        ret = new EmailServiceProxy(context, ExchangeService.class, callback);
         //EXCHANGE-REMOVE-SECTION-END
         if (ret == null) {
             ret = NullEmailService.INSTANCE;
@@ -72,7 +72,7 @@ public class ExchangeUtils {
 
     /**
      * An empty {@link IEmailService} implementation which is used instead of
-     * {@link com.android.exchange.SyncManager} on the build with no exchange support.
+     * {@link com.android.exchange.ExchangeService} on the build with no exchange support.
      *
      * <p>In theory, the service in question isn't used on the no-exchange-support build,
      * because we won't have any exchange accounts in that case, so we wouldn't have to have this

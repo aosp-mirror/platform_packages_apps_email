@@ -32,7 +32,6 @@ import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
-import com.android.exchange.provider.GalEmailAddressAdapter;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -61,6 +60,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.Window;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -70,6 +70,7 @@ import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -105,10 +106,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
 
-    private static final String[] ATTACHMENT_META_COLUMNS = {
-        OpenableColumns.DISPLAY_NAME,
+    private static final String[] ATTACHMENT_META_NAME_PROJECTION = {
+        OpenableColumns.DISPLAY_NAME
+    };
+    private static final int ATTACHMENT_META_NAME_COLUMN_DISPLAY_NAME = 0;
+
+    private static final String[] ATTACHMENT_META_SIZE_PROJECTION = {
         OpenableColumns.SIZE
     };
+    private static final int ATTACHMENT_META_SIZE_COLUMN_SIZE = 0;
 
     // Is set while the draft is saved by a background thread.
     // Is static in order to be shared between the two activity instances
@@ -373,13 +379,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mLoadMessageTask = null;
 
         if (mAddressAdapterTo != null) {
-            mAddressAdapterTo.changeCursor(null);
+            mAddressAdapterTo.close();
         }
         if (mAddressAdapterCc != null) {
-            mAddressAdapterCc.changeCursor(null);
+            mAddressAdapterCc.close();
         }
         if (mAddressAdapterBcc != null) {
-            mAddressAdapterBcc.changeCursor(null);
+            mAddressAdapterBcc.close();
         }
     }
 
@@ -551,19 +557,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     @SuppressWarnings("all")
     private void setupAddressAdapters() {
-        /* EXCHANGE-REMOVE-SECTION-START */
-        if (true) {
-            mAddressAdapterTo = new GalEmailAddressAdapter(this);
-            mAddressAdapterCc = new GalEmailAddressAdapter(this);
-            mAddressAdapterBcc = new GalEmailAddressAdapter(this);
-        } else {
-            /* EXCHANGE-REMOVE-SECTION-END */
-            mAddressAdapterTo = new EmailAddressAdapter(this);
-            mAddressAdapterCc = new EmailAddressAdapter(this);
-            mAddressAdapterBcc = new EmailAddressAdapter(this);
-            /* EXCHANGE-REMOVE-SECTION-START */
-        }
-        /* EXCHANGE-REMOVE-SECTION-END */
+        mAddressAdapterTo = new EmailAddressAdapter(this);
+        mAddressAdapterCc = new EmailAddressAdapter(this);
+        mAddressAdapterBcc = new EmailAddressAdapter(this);
     }
 
     // TODO: is there any way to unify this with MessageView.LoadMessageTask?
@@ -1009,23 +1005,54 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private Attachment loadAttachmentInfo(Uri uri) {
-        int size = -1;
+        long size = -1;
         String name = null;
         ContentResolver contentResolver = getContentResolver();
-        Cursor metadataCursor = contentResolver.query(uri,
-                ATTACHMENT_META_COLUMNS, null, null, null);
+
+        // Load name & size independently, because not all providers support both
+        Cursor metadataCursor = contentResolver.query(uri, ATTACHMENT_META_NAME_PROJECTION,
+                null, null, null);
         if (metadataCursor != null) {
             try {
                 if (metadataCursor.moveToFirst()) {
-                    name = metadataCursor.getString(0);
-                    size = metadataCursor.getInt(1);
+                    name = metadataCursor.getString(ATTACHMENT_META_NAME_COLUMN_DISPLAY_NAME);
                 }
             } finally {
                 metadataCursor.close();
             }
         }
+        metadataCursor = contentResolver.query(uri, ATTACHMENT_META_SIZE_PROJECTION,
+                null, null, null);
+        if (metadataCursor != null) {
+            try {
+                if (metadataCursor.moveToFirst()) {
+                    size = metadataCursor.getLong(ATTACHMENT_META_SIZE_COLUMN_SIZE);
+                }
+            } finally {
+                metadataCursor.close();
+            }
+        }
+
+        // When the name or size are not provided, we need to generate them locally.
         if (name == null) {
             name = uri.getLastPathSegment();
+        }
+        if (size < 0) {
+            // if the URI is a file: URI, ask file system for its size
+            if ("file".equalsIgnoreCase(uri.getScheme())) {
+                String path = uri.getPath();
+                if (path != null) {
+                    File file = new File(path);
+                    size = file.length();  // Returns 0 for file not found
+                }
+            }
+
+            if (size <= 0) {
+                // The size was not measurable;  This attachment is not safe to use.
+                // Quick hack to force a relevant error into the UI
+                // TODO: A proper announcement of the problem
+                size = Email.MAX_ATTACHMENT_UPLOAD_SIZE + 1;
+            }
         }
 
         String contentType = contentResolver.getType(uri);

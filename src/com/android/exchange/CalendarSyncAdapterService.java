@@ -89,8 +89,8 @@ public class CalendarSyncAdapterService extends Service {
     }
 
     /**
-     * Partial integration with system SyncManager; we tell our EAS SyncManager to start a calendar
-     * sync when we get the signal from the system SyncManager.
+     * Partial integration with system SyncManager; we tell our EAS ExchangeService to start a
+     * calendar sync when we get the signal from SyncManager.
      * The missing piece at this point is integration with the push/ping mechanism in EAS; this will
      * be put in place at a later time.
      */
@@ -138,8 +138,8 @@ public class CalendarSyncAdapterService extends Service {
                             return;
                         }
                         // Ask for a sync from our sync manager
-                        SyncManager.serviceRequest(mailboxCursor.getLong(ID_SYNC_KEY_MAILBOX_ID),
-                                SyncManager.SYNC_UPSYNC);
+                        ExchangeService.serviceRequest(mailboxCursor.getLong(
+                                ID_SYNC_KEY_MAILBOX_ID), ExchangeService.SYNC_UPSYNC);
                     }
                 } finally {
                     mailboxCursor.close();

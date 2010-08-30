@@ -17,11 +17,8 @@
 package com.android.email.service;
 
 import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent;
-import com.android.exchange.provider.ExchangeDirectoryProvider;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
@@ -30,14 +27,12 @@ import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
 import android.app.Service;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Calendar;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.Directory;
 
 /**
  * A very basic authenticator service for EAS.  At the moment, it has no UI hooks.  When called
@@ -73,7 +68,7 @@ public class EasAuthenticatorService extends Service {
                 AccountManager.get(EasAuthenticatorService.this).addAccountExplicitly(
                             account, options.getString(OPTIONS_PASSWORD), null);
 
-                // Set up contacts syncing.  SyncManager will use information from ContentResolver
+                // Set up contacts syncing.  ExchangeService will use info from ContentResolver
                 // to determine syncability of Contacts for Exchange
                 boolean syncContacts = false;
                 if (options.containsKey(OPTIONS_CONTACTS_SYNC_ENABLED) &&
