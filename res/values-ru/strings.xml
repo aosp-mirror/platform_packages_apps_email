@@ -98,7 +98,7 @@
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Некоторые адреса электронной почты являются недопустимыми."</string>
     <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"Некоторые приложения нельзя переслать, так как они не были загружены."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Файл имеет слишком большой размер и не может быть приложен."</string>
-    <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> и еще <xliff:g id="NUMBER">%2$d</xliff:g>"</string>
+    <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> и ещё <xliff:g id="NUMBER">%2$d</xliff:g>"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"На:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Копия: "</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Открыть"</string>
