@@ -20,6 +20,10 @@
     <skip />
     <!-- no translation found for message_list_send_pending_messages_action (9100624762133992435) -->
     <skip />
+    <!-- no translation found for message_view_fetching_attachment_toast (8812363375155391184) -->
+    <skip />
+    <!-- no translation found for message_view_fetching_attachment_progress (8238550182655758164) -->
+    <skip />
     <!-- no translation found for read_attachment_label (1162255191991555285) -->
     <skip />
     <!-- no translation found for read_attachment_desc (7594746717616308643) -->
@@ -160,8 +164,6 @@
     <skip />
     <!-- no translation found for message_compose_error_invalid_email (1817633338629885643) -->
     <skip />
-    <!-- no translation found for message_compose_attachments_skipped_toast (5611815773808423460) -->
-    <skip />
     <!-- no translation found for message_compose_attachment_size (4401081828287333647) -->
     <skip />
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> e <xliff:g id="NUMBER">%2$d</xliff:g> auters"</string>
@@ -169,20 +171,23 @@
     <skip />
     <!-- no translation found for message_view_cc_label (6322992216371163122) -->
     <skip />
-    <!-- no translation found for message_view_attachment_view_action (5353550848340829134) -->
+    <!-- no translation found for message_view_attachment_view_action (4408093860407096078) -->
     <skip />
-    <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Arcunar"</string>
+    <!-- no translation found for message_view_attachment_load_action (8645178445048233745) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_save_action (4704436274670997903) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
+    <skip />
     <!-- no translation found for message_view_status_attachment_saved (2802843795251453632) -->
     <skip />
     <!-- no translation found for message_view_status_attachment_not_saved (5039599647697750874) -->
     <skip />
+    <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
+    <skip />
     <!-- no translation found for message_view_show_pictures_instructions (1156525837417031085) -->
     <skip />
     <!-- no translation found for message_view_show_pictures_action (5059936981743072545) -->
-    <skip />
-    <!-- no translation found for message_view_fetching_attachment_toast (8812363375155391184) -->
-    <skip />
-    <!-- no translation found for message_view_fetching_attachment_progress (8238550182655758164) -->
     <skip />
     <!-- no translation found for message_view_invite_view (5521032519960111675) -->
     <skip />
@@ -207,7 +212,13 @@
     <skip />
     <!-- no translation found for message_view_display_attachment_toast (6096315816776330821) -->
     <skip />
+    <!-- no translation found for message_view_load_attachment_failed_toast (342798484092215350) -->
+    <skip />
     <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
+    <skip />
+    <!-- no translation found for forward_download_failed_ticker (6654377128589312623) -->
+    <skip />
+    <!-- no translation found for forward_download_failed_notification (3239753701377399676) -->
     <skip />
     <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
     <!-- no translation found for message_view_attachment_bytes:other (4613385949384337840) -->
@@ -446,6 +457,10 @@
     <!-- no translation found for account_delete_dlg_title (6806087520856396608) -->
     <skip />
     <!-- no translation found for account_delete_dlg_instructions_fmt (8236846322040271280) -->
+    <skip />
+    <!-- no translation found for account_settings_category_delete_account (5128545184407925226) -->
+    <skip />
+    <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
     <!-- no translation found for upgrade_accounts_title (5444140226380754014) -->
     <skip />
