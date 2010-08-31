@@ -179,11 +179,14 @@ public class EasSyncService extends AbstractSyncService {
     // The EAS protocol Provision status meaning "we partially implement the policies"
     static private final String PROVISION_STATUS_PARTIAL = "2";
 
+    static /*package*/ final String DEVICE_TYPE = "Android";
+    static private final String USER_AGENT = DEVICE_TYPE + '/' + Build.VERSION.RELEASE + '-' +
+        Eas.CLIENT_VERSION;
+
     // Reasonable default
     public String mProtocolVersion = Eas.DEFAULT_PROTOCOL_VERSION;
     public Double mProtocolVersionDouble;
     protected String mDeviceId = null;
-    /*package*/ String mDeviceType = "Android";
     /*package*/ String mAuthString = null;
     /*package*/ String mCmdString = null;
     public String mHostAddress;
@@ -1179,7 +1182,7 @@ public class EasSyncService extends AbstractSyncService {
         String cs = mUserName + ':' + mPassword;
         mAuthString = "Basic " + Base64.encodeToString(cs.getBytes(), Base64.NO_WRAP);
         mCmdString = "&User=" + safeUserName + "&DeviceId=" + mDeviceId +
-            "&DeviceType=" + mDeviceType;
+            "&DeviceType=" + DEVICE_TYPE;
     }
 
     /*package*/ String makeUriString(String cmd, String extra) throws IOException {
@@ -1207,8 +1210,7 @@ public class EasSyncService extends AbstractSyncService {
         method.setHeader("Authorization", mAuthString);
         method.setHeader("MS-ASProtocolVersion", mProtocolVersion);
         method.setHeader("Connection", "keep-alive");
-        method.setHeader("User-Agent", mDeviceType + '-' + Build.VERSION.RELEASE + '/' +
-                Eas.CLIENT_VERSION);
+        method.setHeader("User-Agent", USER_AGENT);
         if (usePolicyKey) {
             // If there's an account in existence, use its key; otherwise (we're creating the
             // account), send "0".  The server will respond with code 449 if there are policies
