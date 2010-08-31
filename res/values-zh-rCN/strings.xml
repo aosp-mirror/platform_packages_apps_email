@@ -18,6 +18,8 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="status_sending_messages" msgid="3971880826111264523">"正在发送邮件..."</string>
     <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"外发邮件"</string>
+    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"正在提取附件。"</string>
+    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"正在获取附件<xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"查看电子邮件附件"</string>
     <string name="read_attachment_desc" msgid="7594746717616308643">"允许此应用程序读取您的电子邮件附件。"</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"访问电子邮件提供者数据"</string>
@@ -90,6 +92,8 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"请长按帐户，将其刷新"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"邮箱"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"载入更多邮件"</string>
+    <!-- no translation found for message_view_selected_message_count:one (5064657358375178519) -->
+    <!-- no translation found for message_view_selected_message_count:other (7901361399231876038) -->
     <string name="message_compose_to_hint" msgid="2891895306418177013">"收件人"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"抄送"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"密送"</string>
@@ -100,19 +104,24 @@
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"引用文字"</string>
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"必须至少添加一个收件人。"</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"某些电子邮件地址无效。"</string>
-    <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"某些附件无法转发，因为还未下载。"</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"文件太大，无法附加。"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g>以及其他 <xliff:g id="NUMBER">%2$d</xliff:g> 人"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"收件人："</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"抄送："</string>
-    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"打开"</string>
-    <string name="message_view_attachment_download_action" msgid="7552530274014544406">"保存"</string>
+    <!-- no translation found for message_view_attachment_view_action (4408093860407096078) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_load_action (8645178445048233745) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_save_action (4704436274670997903) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
+    <skip />
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"附件已保存到 SD 卡，名为<xliff:g id="FILENAME">%s</xliff:g>。"</string>
     <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"无法将附件保存到 SD 卡。"</string>
+    <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
+    <skip />
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"选择“显示图片”可以显示内嵌的图片。"</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"显示图片"</string>
-    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"正在提取附件。"</string>
-    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"正在获取附件<xliff:g id="FILENAME">%s</xliff:g>"</string>
     <!-- no translation found for message_view_invite_view (5521032519960111675) -->
     <skip />
     <string name="message_view_invite_title" msgid="5024473745902772299">"日历邀请"</string>
@@ -130,7 +139,13 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"邮件已舍弃。"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"信息已存为草稿。"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"该附件无法显示。"</string>
+    <!-- no translation found for message_view_load_attachment_failed_toast (342798484092215350) -->
+    <skip />
     <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
+    <skip />
+    <!-- no translation found for forward_download_failed_ticker (6654377128589312623) -->
+    <skip />
+    <!-- no translation found for forward_download_failed_notification (3239753701377399676) -->
     <skip />
     <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
     <!-- no translation found for message_view_attachment_bytes:other (4613385949384337840) -->
@@ -271,6 +286,10 @@
     <string name="account_settings_servers" msgid="4925493817981624242">"服务器设置"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"删除帐户"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"将会从电子邮件中删除“<xliff:g id="ACCOUNT">%s</xliff:g>”帐户。"</string>
+    <!-- no translation found for account_settings_category_delete_account (5128545184407925226) -->
+    <skip />
+    <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"升级帐户"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"无法升级帐户"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"对于某些类型的 Yahoo! 邮件帐户，不支持邮箱访问。如果您遇到连接问题，请访问 yahoo.com 了解详细信息。"</string>
@@ -299,4 +318,8 @@
     <item quantity="other" msgid="7816121892960632123">"来自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的 <xliff:g id="RESULTS">%1$d</xliff:g> 条结果"</item>
   </plurals>
     <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"来自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的前 <xliff:g id="RESULTS">%1$d</xliff:g> 条结果"</string>
+    <!-- no translation found for header_label_general_preferences (7548527595339881066) -->
+    <skip />
+    <!-- no translation found for category_general_preferences (6810399722493971651) -->
+    <skip />
 </resources>

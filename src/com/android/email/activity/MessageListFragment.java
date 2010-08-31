@@ -524,6 +524,7 @@ public class MessageListFragment extends ListFragment
         Toast.makeText(mActivity, mActivity.getResources().getQuantityString(
                 R.plurals.message_deleted_toast, cloneSet.size()), Toast.LENGTH_SHORT).show();
         selectedSet.clear();
+        // Message deletion is async... Can't refresh the list immediately.
     }
 
     private interface MultiToggleHelper {
@@ -585,6 +586,8 @@ public class MessageListFragment extends ListFragment
                 }
             }
         }
+
+        refreshList();
 
         return numChanged;
     }
@@ -797,6 +800,14 @@ public class MessageListFragment extends ListFragment
             getLoaderManager().initLoader(LOADER_ID_MESSAGES_LOADER, null,
                     new MessagesLoaderCallback());
         }
+    }
+
+    /**
+     * Reload the data and refresh the list view.
+     */
+    private void refreshList() {
+        getLoaderManager().restartLoader(LOADER_ID_MESSAGES_LOADER, null,
+                new MessagesLoaderCallback());
     }
 
     /**
