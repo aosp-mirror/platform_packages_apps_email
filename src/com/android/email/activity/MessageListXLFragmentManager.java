@@ -448,7 +448,7 @@ class MessageListXLFragmentManager {
 
     private void closeMailboxFinder() {
         if (mMailboxFinder != null) {
-            mMailboxFinder.close();
+            mMailboxFinder.cancel();
             mMailboxFinder = null;
         }
     }

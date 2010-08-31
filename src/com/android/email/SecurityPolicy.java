@@ -483,6 +483,11 @@ public class SecurityPolicy {
                         (passwordMode != PASSWORD_MODE_STRONG)) {
                     throw new IllegalArgumentException("password mode");
                 }
+                // If we're only requiring a simple password, set complex chars to zero; note
+                // that EAS can erroneously send non-zero values in this case
+                if (passwordMode == PASSWORD_MODE_SIMPLE) {
+                    passwordComplexChars = 0;
+                }
                 // The next four values have hard limits which cannot be supported if exceeded.
                 if (minPasswordLength > PASSWORD_LENGTH_MAX) {
                     throw new IllegalArgumentException("password length");

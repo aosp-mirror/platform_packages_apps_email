@@ -53,6 +53,7 @@ import android.util.Log;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -174,6 +175,10 @@ public class Controller {
         synchronized (mListeners) {
             mListeners.remove(listener);
         }
+    }
+
+    public Collection<Result> getResultCallbacksForTest() {
+        return mListeners;
     }
 
     /**
