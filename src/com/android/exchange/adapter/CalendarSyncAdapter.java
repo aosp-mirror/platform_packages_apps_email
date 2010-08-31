@@ -499,7 +499,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cv.put(Events.EVENT_LOCATION, getValue());
                         break;
                     case Tags.CALENDAR_RECURRENCE:
-                        String rrule = recurrenceParser(ops);
+                        String rrule = recurrenceParser();
                         if (rrule != null) {
                             cv.put(Events.RRULE, rrule);
                         }
@@ -723,7 +723,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             return true;
         }
 
-        private String recurrenceParser(CalendarOperations ops) throws IOException {
+        public String recurrenceParser() throws IOException {
             // Turn this information into an RRULE
             int type = -1;
             int occurrences = -1;
@@ -830,7 +830,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                         cv.put(Events.EVENT_LOCATION, getValue());
                         break;
                     case Tags.CALENDAR_RECURRENCE:
-                        String rrule = recurrenceParser(ops);
+                        String rrule = recurrenceParser();
                         if (rrule != null) {
                             cv.put(Events.RRULE, rrule);
                         }

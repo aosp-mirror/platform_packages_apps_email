@@ -107,7 +107,7 @@ import java.util.List;
  */
 public class ExchangeService extends Service implements Runnable {
 
-    private static final String TAG = "EAS ExchangeService";
+    private static final String TAG = "ExchangeService";
 
     // The ExchangeService's mailbox "id"
     public static final int EXTRA_MAILBOX_ID = -1;

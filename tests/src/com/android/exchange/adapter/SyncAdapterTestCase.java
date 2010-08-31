@@ -86,7 +86,7 @@ public class SyncAdapterTestCase<T extends AbstractSyncAdapter>
         return service;
     }
 
-    T getTestSyncAdapter(Class<T> klass) {
+    protected T getTestSyncAdapter(Class<T> klass) {
         EasSyncService service = getTestService();
         Constructor<T> c;
         try {
