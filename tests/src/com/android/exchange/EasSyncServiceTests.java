@@ -40,7 +40,6 @@ public class EasSyncServiceTests extends AndroidTestCase {
     static private final String PASSWORD = "password";
     static private final String HOST = "xxx.host.zzz";
     static private final String ID = "id";
-    static private final String TYPE = "type";
 
     Context mMockContext;
 
@@ -97,7 +96,6 @@ public class EasSyncServiceTests extends AndroidTestCase {
         EasSyncService svc = new EasSyncService();
         svc.mAuthString = "auth";
         svc.mProtocolVersion = "12.1";
-        svc.mDeviceType = "android";
         svc.mAccount = null;
         // With second argument false, there should be no header
         svc.setHeaders(method, false);
@@ -143,7 +141,6 @@ public class EasSyncServiceTests extends AndroidTestCase {
         svc.mUserName = user;
         svc.mPassword = PASSWORD;
         svc.mDeviceId = ID;
-        svc.mDeviceType = TYPE;
         svc.mHostAddress = HOST;
         return svc;
     }
@@ -157,7 +154,8 @@ public class EasSyncServiceTests extends AndroidTestCase {
         assertNotNull(svc.mCmdString);
         assertEquals("Basic " + Base64.encodeToString((USER+":"+PASSWORD).getBytes(),
                 Base64.NO_WRAP), svc.mAuthString);
-        assertEquals("&User=" + USER + "&DeviceId=" + ID + "&DeviceType=" + TYPE, svc.mCmdString);
+        assertEquals("&User=" + USER + "&DeviceId=" + ID + "&DeviceType=" +
+                EasSyncService.DEVICE_TYPE, svc.mCmdString);
         assertEquals("https://" + HOST + "/Microsoft-Server-ActiveSync?Cmd=OPTIONS" +
                 svc.mCmdString, uriString);
         // User name that requires encoding
@@ -167,8 +165,8 @@ public class EasSyncServiceTests extends AndroidTestCase {
         assertEquals("Basic " + Base64.encodeToString((user+":"+PASSWORD).getBytes(),
                 Base64.NO_WRAP), svc.mAuthString);
         String safeUserName = "name_with_underscore%40foo%25bar.com";
-        assertEquals("&User=" + safeUserName + "&DeviceId=" + ID + "&DeviceType=" + TYPE,
-                svc.mCmdString);
+        assertEquals("&User=" + safeUserName + "&DeviceId=" + ID + "&DeviceType=" +
+                EasSyncService.DEVICE_TYPE, svc.mCmdString);
         assertEquals("https://" + HOST + "/Microsoft-Server-ActiveSync?Cmd=OPTIONS" +
                 svc.mCmdString, uriString);
     }
