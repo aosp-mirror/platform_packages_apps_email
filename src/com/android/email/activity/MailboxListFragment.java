@@ -47,6 +47,7 @@ import java.security.InvalidParameterException;
 public class MailboxListFragment extends ListFragment implements OnItemClickListener {
     private static final String BUNDLE_KEY_ACCOUNT_ID
             = "MailboxListFragment.state.selected_mailbox_id";
+    private static final String BUNDLE_LIST_STATE = "MailboxListFragment.state.listState";
     private static final int LOADER_ID_MAILBOX_LIST = 1;
 
     private long mLastLoadedAccountId = -1;
@@ -61,7 +62,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private ListView mListView;
 
+    private boolean mOpenRequested;
     private boolean mResumed;
+
+    private Utility.ListStateSaver mSavedListState;
 
     /**
      * Callback interface that owning activities must implement
@@ -125,6 +129,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (mAccountId == accountId) {
             return;
         }
+        mOpenRequested = true;
         mAccountId = accountId;
         if (mResumed) {
             startLoading();
@@ -158,9 +163,11 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Email.LOG_TAG, "MailboxListFragment onResume");
         }
         super.onResume();
-
         mResumed = true;
-        if (mAccountId != -1) {
+
+        // If we're recovering from the stopped state, we don't have to reload.
+        // (when mOpenRequested = false)
+        if (mAccountId != -1 && mOpenRequested) {
             startLoading();
         }
     }
@@ -172,6 +179,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         mResumed = false;
         super.onPause();
+        mSavedListState = new Utility.ListStateSaver(getListView());
     }
 
     /**
@@ -203,16 +211,19 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         super.onSaveInstanceState(outState);
         outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mSelectedMailboxId);
+        outState.putParcelable(BUNDLE_LIST_STATE, new Utility.ListStateSaver(getListView()));
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
         mSelectedMailboxId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID);
+        mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
     }
 
     private void startLoading() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MailboxListFragment startLoading");
         }
+        mOpenRequested = false;
         // Clear the list.  (ListFragment will show the "Loading" animation)
         setListShown(false);
 
@@ -244,17 +255,22 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
-            final Utility.ListStateSaver lss = new Utility.ListStateSaver(lv);
+            final Utility.ListStateSaver lss;
+            if (mSavedListState != null) {
+                lss = mSavedListState;
+                mSavedListState = null;
+            } else {
+                lss = new Utility.ListStateSaver(lv);
+            }
 
             // Set the adapter.
             mListAdapter.changeCursor(cursor);
             setListAdapter(mListAdapter);
             setListShown(true);
+            highlightSelectedMailbox();
 
             // Restore the state
             lss.restore(lv);
-
-            highlightSelectedMailbox();
         }
     }
 

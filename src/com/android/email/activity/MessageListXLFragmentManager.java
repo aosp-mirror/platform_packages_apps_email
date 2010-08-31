@@ -53,6 +53,8 @@ class MessageListXLFragmentManager {
     private static final String BUNDLE_KEY_ACCOUNT_ID = "MessageListXl.state.account_id";
     private static final String BUNDLE_KEY_MAILBOX_ID = "MessageListXl.state.mailbox_id";
     private static final String BUNDLE_KEY_MESSAGE_ID = "MessageListXl.state.message_id";
+    private static final String BUNDLE_KEY_MESSAGE_LIST_STATE
+            = "MessageListXl.state.message_list_state";
 
     private final Context mContext;
 
@@ -83,6 +85,11 @@ class MessageListXLFragmentManager {
 
     private MailboxFinder mMailboxFinder;
     private final MailboxFinderCallback mMailboxFinderCallback = new MailboxFinderCallback();
+
+    /**
+     * Save state for the "message list -> message view -[back press]-> message list" transition.
+     */
+    private MessageListFragment.State mMessageListFragmentState;
 
     /**
      * The interface that {@link MessageListXL} implements.  We don't call its methods directly,
@@ -195,21 +202,37 @@ class MessageListXLFragmentManager {
         }
         mIsActivityStarted = false;
         closeMailboxFinder();
+        saveMessageListFragmentState();
     }
 
     public void onSaveInstanceState(Bundle outState) {
         outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mAccountId);
         outState.putLong(BUNDLE_KEY_MAILBOX_ID, mMailboxId);
         outState.putLong(BUNDLE_KEY_MESSAGE_ID, mMessageId);
+        outState.putParcelable(BUNDLE_KEY_MESSAGE_LIST_STATE, mMessageListFragmentState);
     }
 
     public void loadState(Bundle savedInstanceState) {
         mAccountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, -1);
         mMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, -1);
         mMessageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, -1);
+        mMessageListFragmentState = savedInstanceState.getParcelable(BUNDLE_KEY_MESSAGE_LIST_STATE);
         if (Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessageListXLFragmentManager: Restoring "
                     + mAccountId + "," + mMailboxId + "," + mMessageId);
+        }
+    }
+
+    private void saveMessageListFragmentState() {
+        if (mMessageListFragment != null) {
+            mMessageListFragmentState = mMessageListFragment.getState();
+        }
+    }
+
+    private void restoreMesasgeListState() {
+        if ((mMessageListFragment != null) && (mMessageListFragmentState != null)) {
+            mMessageListFragmentState.restore(mMessageListFragment);
+            mMessageListFragmentState = null;
         }
     }
 
@@ -275,6 +298,9 @@ class MessageListXLFragmentManager {
         mMailboxId = -1;
         mMessageId = -1;
 
+        // In case of "message list -> message view -> change account", we don't have to keep it.
+        mMessageListFragmentState = null;
+
         // Replace fragments if necessary.
         final FragmentTransaction ft = mFragmentManager.openTransaction();
         if (mMailboxListFragment == null) {
@@ -322,6 +348,15 @@ class MessageListXLFragmentManager {
         fragment.openMailboxes(mAccountId);
         if (mMailboxId != -1) {
             mMailboxListFragment.setSelectedMailbox(mMailboxId);
+        }
+    }
+
+    /**
+     * If the current view is MessageView, go back to MessageList.
+     */
+    public void goBackToMailbox() {
+        if (isMessageSelected()) {
+            selectMailbox(getMailboxId(), false);
         }
     }
 
@@ -383,8 +418,9 @@ class MessageListXLFragmentManager {
         }
         mMessageListFragment = fragment;
 
-        fragment.setCallback(mMessageListFragmentCallback);
-        fragment.openMailbox(mMailboxId);
+        mMessageListFragment.setCallback(mMessageListFragmentCallback);
+        mMessageListFragment.openMailbox(mMailboxId);
+        restoreMesasgeListState();
     }
 
     /**
@@ -404,6 +440,9 @@ class MessageListXLFragmentManager {
             return;
         }
 
+        // Save state for back
+        saveMessageListFragmentState();
+
         // Update member.
         mMessageId = messageId;
 
@@ -411,8 +450,7 @@ class MessageListXLFragmentManager {
         if (mMessageViewFragment == null) {
             MessageViewFragment f = new MessageViewFragment();
 
-            // TODO We want to support message view -> [back] -> message list, but the back behavior
-            // with addToBackStack() is not too clear.  We do it manually for now.
+            // We don't use the built-in back mechanism.
             // See MessageListXL.onBackPressed().
             mFragmentManager.openTransaction().replace(R.id.right_pane, f)
 //                    .addToBackStack(null)

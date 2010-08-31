@@ -21,6 +21,7 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.Utility;
+import com.android.email.Utility.ListStateSaver;
 import com.android.email.data.MailboxAccountLoader;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -34,7 +35,8 @@ import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -108,6 +110,8 @@ public class MessageListFragment extends ListFragment
     // Misc members
     private boolean mDoAutoRefresh;
 
+    private boolean mOpenRequested;
+
     /** true between {@link #onResume} and {@link #onPause}. */
     private boolean mResumed;
 
@@ -116,7 +120,7 @@ public class MessageListFragment extends ListFragment
      */
     private ActionMode mSelectionMode;
 
-    private Utility.ListStateSaver mRestoredListState;
+    private Utility.ListStateSaver mSavedListState;
 
     /**
      * Callback interface that owning activities must implement
@@ -219,7 +223,10 @@ public class MessageListFragment extends ListFragment
         }
         super.onResume();
         mResumed = true;
-        if (mMailboxId != -1) {
+
+        // If we're recovering from the stopped state, we don't have to reload.
+        // (when mOpenRequested = false)
+        if (mMailboxId != -1 && mOpenRequested) {
             startLoading();
         }
     }
@@ -231,6 +238,7 @@ public class MessageListFragment extends ListFragment
         }
         mResumed = false;
         super.onStop();
+        mSavedListState = new Utility.ListStateSaver(getListView());
     }
 
     @Override
@@ -263,7 +271,7 @@ public class MessageListFragment extends ListFragment
     // Unit tests use it
     /* package */void loadState(Bundle savedInstanceState) {
         mListAdapter.loadState(savedInstanceState);
-        mRestoredListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
+        mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
     }
 
     public void setCallback(Callback callback) {
@@ -287,6 +295,7 @@ public class MessageListFragment extends ListFragment
             return;
         }
 
+        mOpenRequested = true;
         mMailboxId = mailboxId;
 
         onDeselectAll();
@@ -758,8 +767,12 @@ public class MessageListFragment extends ListFragment
     }
 
     private void startLoading() {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageListFragment startLoading");
+        }
+        mOpenRequested = false;
+
         // Clear the list. (ListFragment will show the "Loading" animation)
-        setListAdapter(null);
         setListShown(false);
         hideSendPanel();
 
@@ -851,9 +864,9 @@ public class MessageListFragment extends ListFragment
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
             final Utility.ListStateSaver lss;
-            if (mRestoredListState != null) {
-                lss = mRestoredListState;
-                mRestoredListState = null;
+            if (mSavedListState != null) {
+                lss = mSavedListState;
+                mSavedListState = null;
             } else {
                 lss = new Utility.ListStateSaver(lv);
             }
@@ -994,5 +1007,52 @@ public class MessageListFragment extends ListFragment
         public void onRefreshStatusChanged(long accountId, long mailboxId) {
             updateListFooter();
         }
+    }
+
+    /**
+     * Object that holds the current state (right now it's only the ListView state) of the fragment.
+     *
+     * Used by {@link MessageListXLFragmentManager} to preserve scroll position through fragment
+     * transitions.
+     */
+    public static class State implements Parcelable {
+        private final ListStateSaver mListState;
+
+        private State(Parcel p) {
+            mListState = p.readParcelable(null);
+        }
+
+        private State(MessageListFragment messageListFragment) {
+            mListState = new Utility.ListStateSaver(messageListFragment.getListView());
+        }
+
+        public void restore(MessageListFragment messageListFragment) {
+            messageListFragment.mSavedListState = mListState;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeParcelable(mListState, flags);
+        }
+
+        public static final Parcelable.Creator<State> CREATOR
+                = new Parcelable.Creator<State>() {
+                    public State createFromParcel(Parcel in) {
+                        return new State(in);
+                    }
+
+                    public State[] newArray(int size) {
+                        return new State[size];
+                    }
+                };
+    }
+
+    public State getState() {
+        return new State(this);
     }
 }

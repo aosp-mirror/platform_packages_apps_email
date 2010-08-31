@@ -238,25 +238,18 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         }
         if (mFragmentManager.isMessageSelected()) {
             // Go back to the message list.
-            // TODO: This works for now, but it doesn't restore the list view state, e.g. scroll
-            // position.
-            // TODO: FragmentTransaction *does* support backstack, but the behavior isn't too clear
-            // at this point.
-            openMailbox();
+            // We currently don't use the built-in back mechanism.
+            // It'd be nice if we could make use of it, but the semantics of the built-in back is
+            // a bit different from how we do it in MessageListXLFragmentManager.
+            // Switching to the built-in back will probably require re-writing
+            // MessageListXLFragmentManager quite a bit.
+            mFragmentManager.goBackToMailbox();
         } else {
             // Perform the default behavior == close the activity.
             super.onBackPressed();
         }
     }
 
-    /**
-     * (Re-)open the current mailbox.  Used to go back to MessageList from MessageView.
-     */
-    private void openMailbox() {
-        if (mFragmentManager.isMailboxSelected()) {
-            mFragmentManager.selectMailbox(mFragmentManager.getMailboxId(), false);
-        }
-    }
 
     @Override
     public void onClick(View view) {
@@ -299,7 +292,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private void onSetMessageUnread() {
         MessageViewFragment f = mFragmentManager.getMessageViewFragment();
         f.onMarkMessageAsRead(false);
-        openMailbox();
+        mFragmentManager.goBackToMailbox();
     }
 
     /**
@@ -328,7 +321,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         @Override
         public void onMessageNotFound() {
             // Current message gone.
-            openMailbox();
+            mFragmentManager.goBackToMailbox();
         }
     }
 
@@ -413,12 +406,12 @@ public class MessageListXL extends Activity implements View.OnClickListener,
 
         @Override
         public void onMessageSetUnread() {
-            openMailbox();
+            mFragmentManager.goBackToMailbox();
         }
 
         @Override
         public void onMessageNotExists() {
-            openMailbox();
+            mFragmentManager.goBackToMailbox();
         }
 
         @Override
@@ -442,7 +435,8 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         @Override
         public void onRespondedToInvite(int response) {
             if (!moveToOlder()) {
-                openMailbox(); // if this is the last message, move up to message-list.
+                // if this is the last message, move up to message-list.
+                mFragmentManager.goBackToMailbox();
             }
         }
 
