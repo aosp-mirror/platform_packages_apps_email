@@ -2004,6 +2004,18 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(b2i.mId, Account.getInboxId(c, a2.mId));
     }
 
+    public void testGetMailboxType() {
+        final Context c = mMockContext;
+
+        Account a = ProviderTestUtils.setupAccount("acct1", true, c);
+        Mailbox bi = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_INBOX);
+        Mailbox bm = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_MAIL);
+
+        assertEquals(Mailbox.TYPE_INBOX, Mailbox.getMailboxType(c, bi.mId));
+        assertEquals(Mailbox.TYPE_MAIL, Mailbox.getMailboxType(c, bm.mId));
+        assertEquals(-1, Mailbox.getMailboxType(c, 999999)); // mailbox not found
+    }
+
     public void testMailboxIsRefreshable() {
         final Context c = mMockContext;
 
@@ -2019,7 +2031,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertFalse(Mailbox.isRefreshable(c, bo.mId));
 
         // No such mailbox
-        assertFalse(Mailbox.isRefreshable(c, -1));
+        assertFalse(Mailbox.isRefreshable(c, 9999999));
 
         // Magic mailboxes can't be refreshed.
         assertFalse(Mailbox.isRefreshable(c, Mailbox.QUERY_ALL_DRAFTS));

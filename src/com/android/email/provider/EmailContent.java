@@ -2290,17 +2290,23 @@ public abstract class EmailContent {
         }
 
         /**
+         * @return mailbox type, or -1 if mailbox not found.
+         */
+        public static int getMailboxType(Context context, long mailboxId) {
+            Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
+            return Utility.getFirstRowInt(context, url, MAILBOX_TYPE_PROJECTION,
+                    null, null, null, MAILBOX_TYPE_TYPE_COLUMN, -1);
+        }
+
+        /**
          * @return true if a mailbox is refreshable.
          */
         public static boolean isRefreshable(Context context, long mailboxId) {
             if (mailboxId < 0) {
                 return false; // magic mailboxes
             }
-            Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
-            int type = Utility.getFirstRowInt(context, url, MAILBOX_TYPE_PROJECTION,
-                    null, null, null, MAILBOX_TYPE_TYPE_COLUMN);
-            Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
-            switch (mailbox.mType) {
+            switch (getMailboxType(context, mailboxId)) {
+                case -1: // not found
                 case TYPE_DRAFTS:
                 case TYPE_OUTBOX:
                     return false;
