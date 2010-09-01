@@ -97,9 +97,6 @@ public class EasAuthenticatorService extends Service {
                 ContentResolver.setIsSyncable(account, EmailContent.AUTHORITY, 1);
                 ContentResolver.setSyncAutomatically(account, EmailContent.AUTHORITY, syncEmail);
 
-                // Register our GAL provider
-                ContactsContract.Directory.notifyDirectoryChange(getContentResolver());
-
                 Bundle b = new Bundle();
                 b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));
                 b.putString(AccountManager.KEY_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
