@@ -668,9 +668,9 @@ public class MessageListFragment extends ListFragment
      */
     private void autoRefreshStaleMailbox() {
         if (!mDoAutoRefresh // Not explicitly open
-                || mIsRefreshable // Not refreshable (special box such as drafts, or magic boxes)
-                || (mAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) // Not push
-        ) {
+                || !mIsRefreshable // Not refreshable (special box such as drafts, or magic boxes)
+                || (mAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) // Push account
+                ) {
             return;
         }
         mDoAutoRefresh = false;
