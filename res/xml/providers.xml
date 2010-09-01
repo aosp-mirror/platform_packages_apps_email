@@ -275,4 +275,18 @@
         <outgoing uri="smtp+ssl://poczta.o2.pl" username="$user" />
     </provider>
 
+    <!-- Korea -->
+    <provider id="daum" label="Daum Hanmail" domain="hanmail.net">
+        <incoming uri="imap+ssl+://imap.hanmail.net" username="$user" />
+        <outgoing uri="smtp+ssl+://smtp.hanmail.net" username="$user" />
+    </provider>
+    <provider id="naver" label="NAVER" domain="naver.com">
+        <incoming uri="imap+ssl+://imap.naver.com" username="$user" />
+        <outgoing uri="smtp+tls+://smtp.naver.com" username="$user" />
+    </provider>
+    <provider id="paran" label="Paran" domain="paran.com">
+        <incoming uri="imap+ssl+://imap.paran.com" username="$email" />
+        <outgoing uri="smtp+ssl+://smtp.paran.com" username="$email" />
+    </provider>
+
 </providers>
