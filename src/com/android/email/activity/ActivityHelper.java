@@ -101,7 +101,7 @@ public final class ActivityHelper {
 
     public static void moveMessages(Activity activity, long newMailboxId, long[] messageIds) {
         // TODO Support moving multiple messages
-        Controller.getInstance(activity).moveMessage(messageIds[0], newMailboxId);
+        Controller.getInstance(activity).moveMessage(messageIds, newMailboxId);
         String message = activity.getResources().getQuantityString(R.plurals.message_moved_toast,
                 messageIds.length, messageIds.length , "a mailbox"); // STOPSHIP get mailbox name
         Utility.showToast(activity, message);
