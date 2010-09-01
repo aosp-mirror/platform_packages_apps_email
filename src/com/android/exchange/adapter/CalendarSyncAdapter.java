@@ -1655,6 +1655,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             // TODO Add reminders to exceptions (allow them to be specified!)
             Long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
             if (originalTime != null) {
+                if (allDay) {
+                    // For all day events, we need our local all-day time
+                    originalTime =
+                        CalendarUtilities.getLocalAllDayCalendarTime(originalTime, mLocalTimeZone);
+                }
                 s.data(Tags.CALENDAR_EXCEPTION_START_TIME,
                         CalendarUtilities.millisToEasDateTime(originalTime));
             } else {
