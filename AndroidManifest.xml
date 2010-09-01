@@ -412,8 +412,6 @@
             />
 
         <!--EXCHANGE-REMOVE-SECTION-START-->
-        <!-- In this release, GAL information is used locally only, so we used the same
-             strict permissions. -->
         <provider
             android:name="com.android.exchange.provider.ExchangeDirectoryProvider"
             android:authorities="com.android.exchange.directory.provider"

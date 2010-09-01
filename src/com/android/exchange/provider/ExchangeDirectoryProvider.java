@@ -32,14 +32,15 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Binder;
+import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
+import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.Directory;
+import android.provider.ContactsContract.RawContacts;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
-import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Contacts.Data;
-import android.provider.ContactsContract.Directory;
-import android.provider.ContactsContract.RawContacts;
 import android.text.TextUtils;
 
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public class ExchangeDirectoryProvider extends ContentProvider {
     public static final String EXCHANGE_GAL_AUTHORITY = "com.android.exchange.directory.provider";
 
     private static final int DEFAULT_CONTACT_ID = 1;
+    private static final int DEFAULT_LOOKUP_LIMIT = 20;
 
     private static final int GAL_BASE = 0;
     private static final int GAL_DIRECTORIES = GAL_BASE;
@@ -226,6 +228,20 @@ public class ExchangeDirectoryProvider extends ContentProvider {
                     return null;
                 }
 
+                // Enforce a limit on the number of lookup responses
+                String limitString = uri.getQueryParameter(ContactsContract.LIMIT_PARAM_KEY);
+                int limit = DEFAULT_LOOKUP_LIMIT;
+                if (limitString != null) {
+                    try {
+                        limit = Integer.parseInt(limitString);
+                    } catch (NumberFormatException e) {
+                        limit = 0;
+                    }
+                    if (limit <= 0) {
+                        throw new IllegalArgumentException("Limit not valid: " + limitString);
+                    }
+                }
+
                 Account account = ExchangeService.getAccountByName(accountName);
                 if (account == null) {
                     return null;
@@ -235,7 +251,7 @@ public class ExchangeDirectoryProvider extends ContentProvider {
                 try {
                     // Get results from the Exchange account
                     GalResult galResult = EasSyncService.searchGal(getContext(), account.mId,
-                            filter);
+                            filter, limit);
                     if (galResult != null) {
                         return buildGalResultCursor(projection, galResult);
                     }
