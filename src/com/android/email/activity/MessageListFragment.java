@@ -98,6 +98,7 @@ public class MessageListFragment extends ListFragment
     private Account mAccount;
     private Mailbox mMailbox;
     private boolean mIsEasAccount;
+    private boolean mIsRefreshable;
 
     // Controller access
     private Controller mController;
@@ -306,7 +307,7 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
-     * @return the mailbox id, which is the value set to {@link #openMailbox(long, long)}.
+     * @return the mailbox id, which is the value set to {@link #openMailbox}.
      * (Meaning it will never return -1, but may return special values,
      * eg {@link Mailbox#QUERY_ALL_INBOXES}).
      */
@@ -414,8 +415,13 @@ public class MessageListFragment extends ListFragment
 
     /**
      * Refresh the list.  NOOP for special mailboxes (e.g. combined inbox).
+     *
+     * Note: Manual refresh is enabled even for push accounts.
      */
     public void onRefresh() {
+        if (!mIsRefreshable) {
+            return;
+        }
         long accountId = getAccountId();
         if (accountId != -1) {
             mRefreshManager.refreshMessageList(accountId, mMailboxId);
@@ -646,13 +652,14 @@ public class MessageListFragment extends ListFragment
     /**
      * Implements a timed refresh of "stale" mailboxes.  This should only happen when
      * multiple conditions are true, including:
+     *   Only refreshable mailboxes.
      *   Only when the user explicitly opens the mailbox (not onResume, for example)
-     *   Only for real, non-push mailboxes
+     *   Only for real, non-push mailboxes (c.f. manual refresh is still enabled for push accounts)
      *   Only when the mailbox is "stale" (currently set to 5 minutes since last refresh)
      */
     private void autoRefreshStaleMailbox() {
         if (!mDoAutoRefresh // Not explicitly open
-                || (mMailbox == null) // Magic inbox
+                || mIsRefreshable // Not refreshable (special box such as drafts, or magic boxes)
                 || (mAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) // Not push
         ) {
             return;
@@ -788,7 +795,7 @@ public class MessageListFragment extends ListFragment
                 Log.d(Email.LOG_TAG, "MessageListFragment onLoadFinished(mailbox) mailboxId="
                         + mMailboxId);
             }
-            if (!isMagicMailbox() && !result.isFound()) {
+            if (!result.mIsFound) {
                 mCallback.onMailboxNotFound();
                 return;
             }
@@ -797,6 +804,7 @@ public class MessageListFragment extends ListFragment
             mAccount = result.mAccount;
             mMailbox = result.mMailbox;
             mIsEasAccount = result.mIsEasAccount;
+            mIsRefreshable = result.mIsRefreshable;
             getLoaderManager().initLoader(LOADER_ID_MESSAGES_LOADER, null,
                     new MessagesLoaderCallback());
         }

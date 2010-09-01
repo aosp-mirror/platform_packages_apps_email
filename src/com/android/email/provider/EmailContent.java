@@ -943,6 +943,9 @@ public abstract class EmailContent {
         public static final String SECURITY_NONZERO_SELECTION =
             Account.SECURITY_FLAGS + " IS NOT NULL AND " + Account.SECURITY_FLAGS + "!=0";
 
+        private static final String FIND_INBOX_SELECTION =
+                MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX +
+                " AND " + MailboxColumns.ACCOUNT_KEY + " =?";
 
         /**
          * This projection is for searching for the default account
@@ -1432,6 +1435,15 @@ public abstract class EmailContent {
                     ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
                     ACCOUNT_FLAGS_PROJECTION, null, null, null, ACCOUNT_FLAGS_COLUMN_FLAGS);
             return (flags != null) && ((flags & Account.FLAGS_SECURITY_HOLD) != 0);
+        }
+
+        /**
+         * @return id of the "inbox" mailbox, or -1 if not found.
+         */
+        public static long getInboxId(Context context, long accountId) {
+            return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI, ID_PROJECTION,
+                    FIND_INBOX_SELECTION, new String[] {Long.toString(accountId)}, null,
+                    ID_PROJECTION_COLUMN);
         }
 
         /**
@@ -2079,6 +2091,11 @@ public abstract class EmailContent {
                 };
         private static final int MESSAGE_COUNT_COUNT_COLUMN = 0;
 
+        private static final String[] MAILBOX_TYPE_PROJECTION = new String [] {
+                MailboxColumns.TYPE
+                };
+        private static final int MAILBOX_TYPE_TYPE_COLUMN = 0;
+
         public static final long NO_MAILBOX = -1;
 
         // Sentinel values for the mSyncInterval field of both Mailbox records
@@ -2266,6 +2283,25 @@ public abstract class EmailContent {
                 return Mailbox.restoreMailboxWithId(context, mailboxId);
             }
             return null;
+        }
+
+        /**
+         * @return true if a mailbox is refreshable.
+         */
+        public static boolean isRefreshable(Context context, long mailboxId) {
+            if (mailboxId < 0) {
+                return false; // magic mailboxes
+            }
+            Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
+            int type = Utility.getFirstRowInt(context, url, MAILBOX_TYPE_PROJECTION,
+                    null, null, null, MAILBOX_TYPE_TYPE_COLUMN);
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
+            switch (mailbox.mType) {
+                case TYPE_DRAFTS:
+                case TYPE_OUTBOX:
+                    return false;
+            }
+            return true;
         }
     }
 
