@@ -1990,4 +1990,39 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         ProviderTestUtils.assertMailboxEqual("x", b1, Mailbox.getMailboxForMessageId(c, m1.mId));
         ProviderTestUtils.assertMailboxEqual("x", b2, Mailbox.getMailboxForMessageId(c, m2.mId));
     }
+
+    public void testGetAccountGetInboxIdTest() {
+        final Context c = mMockContext;
+
+        // Prepare some data with red-herrings.
+        Account a1 = ProviderTestUtils.setupAccount("acct1", true, c);
+        Account a2 = ProviderTestUtils.setupAccount("acct2", true, c);
+        Mailbox b1i = ProviderTestUtils.setupMailbox("b1i", a1.mId, true, c, Mailbox.TYPE_INBOX);
+        Mailbox b2a = ProviderTestUtils.setupMailbox("b2a", a2.mId, true, c, Mailbox.TYPE_MAIL);
+        Mailbox b2i = ProviderTestUtils.setupMailbox("b2b", a2.mId, true, c, Mailbox.TYPE_INBOX);
+
+        assertEquals(b2i.mId, Account.getInboxId(c, a2.mId));
+    }
+
+    public void testMailboxIsRefreshable() {
+        final Context c = mMockContext;
+
+        Account a = ProviderTestUtils.setupAccount("acct1", true, c);
+        Mailbox bi = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_INBOX);
+        Mailbox bm = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_MAIL);
+        Mailbox bd = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_DRAFTS);
+        Mailbox bo = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_OUTBOX);
+
+        assertTrue(Mailbox.isRefreshable(c, bi.mId));
+        assertTrue(Mailbox.isRefreshable(c, bm.mId));
+        assertFalse(Mailbox.isRefreshable(c, bd.mId));
+        assertFalse(Mailbox.isRefreshable(c, bo.mId));
+
+        // No such mailbox
+        assertFalse(Mailbox.isRefreshable(c, -1));
+
+        // Magic mailboxes can't be refreshed.
+        assertFalse(Mailbox.isRefreshable(c, Mailbox.QUERY_ALL_DRAFTS));
+        assertFalse(Mailbox.isRefreshable(c, Mailbox.QUERY_ALL_INBOXES));
+    }
 }

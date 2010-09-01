@@ -22,18 +22,27 @@ import com.android.email.provider.EmailContent.Mailbox;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 
+import java.security.InvalidParameterException;
+
 
 /**
  * Loader to load {@link Mailbox} and {@link Account}.
  */
 public class MailboxAccountLoader extends AsyncTaskLoader<MailboxAccountLoader.Result> {
     public static class Result {
-        public Account mAccount;
-        public Mailbox mMailbox;
-        public boolean mIsEasAccount;
+        public final boolean mIsFound;
+        public final Account mAccount;
+        public final Mailbox mMailbox;
+        public final boolean mIsEasAccount;
+        public final boolean mIsRefreshable;
 
-        public boolean isFound() {
-            return (mAccount != null) && (mMailbox != null);
+        private Result(boolean found, Account account, Mailbox mailbox, boolean isEasAccount,
+                boolean isRefreshable) {
+            mIsFound = found;
+            mAccount = account;
+            mMailbox = mailbox;
+            mIsEasAccount = isEasAccount;
+            mIsRefreshable = isRefreshable;
         }
     }
 
@@ -42,28 +51,38 @@ public class MailboxAccountLoader extends AsyncTaskLoader<MailboxAccountLoader.R
 
     public MailboxAccountLoader(Context context, long mailboxId) {
         super(context);
+        if (mailboxId == -1) {
+            throw new InvalidParameterException();
+        }
         mContext = context;
         mMailboxId = mailboxId;
     }
 
     @Override
     public Result loadInBackground() {
-        Result result = new Result();
+        boolean found = false;
+        Account account = null;
+        Mailbox mailbox = null;
+        boolean isEasAccount = false;
+        boolean isRefreshable = false;
+
         if (mMailboxId < 0) {
             // Magic mailbox.
+            found = true;
         } else {
-            result.mMailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
-            if (result.mMailbox != null) {
-                result.mAccount = Account.restoreAccountWithId(mContext,
-                        result.mMailbox.mAccountKey);
-                if (result.mAccount != null) {
-                    result.mIsEasAccount = result.mAccount.isEasAccount(mContext) ;
+            mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
+            if (mailbox != null) {
+                account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
+                if (account != null) {
+                    found = true;
+                    isEasAccount = account.isEasAccount(mContext) ;
+                    isRefreshable = Mailbox.isRefreshable(mContext, mMailboxId);
+                } else { // Account removed?
+                    mailbox = null;
                 }
             }
-            if (result.mAccount == null) { // account removed??
-                result.mMailbox = null;
-            }
         }
+        Result result = new Result(found, account, mailbox, isEasAccount, isRefreshable);
         return result;
     }
 

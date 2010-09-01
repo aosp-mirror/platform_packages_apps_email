@@ -46,14 +46,6 @@ import android.widget.Toast;
 
 public class AccountFolderList extends Activity implements AccountFolderListFragment.Callback {
     private static final int DIALOG_REMOVE_ACCOUNT = 1;
-    /**
-     * Key codes used to open a debug settings screen.
-     */
-    private static final int[] SECRET_KEY_CODES = {
-            KeyEvent.KEYCODE_D, KeyEvent.KEYCODE_E, KeyEvent.KEYCODE_B, KeyEvent.KEYCODE_U,
-            KeyEvent.KEYCODE_G
-    };
-    private int mSecretKeyCodeIndex = 0;
 
     private static final String ICICLE_SELECTED_ACCOUNT = "com.android.email.selectedAccount";
     private EmailContent.Account mSelectedContextAccount;
@@ -285,20 +277,6 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.account_folder_list_option, menu);
         return true;
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.getKeyCode() == SECRET_KEY_CODES[mSecretKeyCodeIndex]) {
-            mSecretKeyCodeIndex++;
-            if (mSecretKeyCodeIndex == SECRET_KEY_CODES.length) {
-                mSecretKeyCodeIndex = 0;
-                Debug.actionShow(this);
-            }
-        } else {
-            mSecretKeyCodeIndex = 0;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
     private void showProgressIcon(boolean show) {

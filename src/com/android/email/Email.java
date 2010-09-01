@@ -17,11 +17,11 @@
 package com.android.email;
 
 import com.android.email.activity.AccountShortcutPicker;
-import com.android.email.activity.Debug;
 import com.android.email.activity.MessageCompose;
 import com.android.email.provider.EmailContent;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.MailService;
+import com.android.exchange.Eas;
 
 import android.app.Application;
 import android.content.ComponentName;
@@ -290,7 +290,21 @@ public class Email extends Application {
         Controller.getInstance(this).resetVisibleLimits();
 
         // Enable logging in the EAS service, so it starts up as early as possible.
-        Debug.updateLoggingFlags(this);
+        updateLoggingFlags(this);
+    }
+
+    /**
+     * Load enabled debug flags from the preferences and update the EAS debug flag.
+     */
+    public static void updateLoggingFlags(Context context) {
+        //EXCHANGE-REMOVE-SECTION-START
+        Preferences prefs = Preferences.getPreferences(context);
+        int debugLogging = prefs.getEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
+        int exchangeLogging = prefs.getEnableExchangeLogging() ? Eas.DEBUG_EXCHANGE_BIT : 0;
+        int fileLogging = prefs.getEnableExchangeFileLogging() ? Eas.DEBUG_FILE_BIT : 0;
+        int debugBits = debugLogging | exchangeLogging | fileLogging;
+        Controller.getInstance(context).serviceLogging(debugBits);
+        //EXCHANGE-REMOVE-SECTION-END
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package com.android.email.activity;
+package com.android.email.activity.setup;
 
-import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.exchange.Eas;
 import com.android.exchange.utility.FileLogger;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
-public class Debug extends Activity implements OnCheckedChangeListener {
+public class DebugFragment extends Fragment implements OnCheckedChangeListener {
     private TextView mVersionView;
     private CheckBox mEnableDebugLoggingView;
     private CheckBox mEnableExchangeLoggingView;
@@ -42,38 +42,35 @@ public class Debug extends Activity implements OnCheckedChangeListener {
 
     private Preferences mPreferences;
 
-    public static void actionShow(Context context) {
-        Intent i = new Intent(context, Debug.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(i);
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "AccountSetupBasicsFragment onCreateView");
+        }
+        View view = inflater.inflate(R.layout.debug, container, false);
 
-        setContentView(R.layout.debug);
+        Context context = getActivity();
+        mPreferences = Preferences.getPreferences(context);
 
-        mPreferences = Preferences.getPreferences(this);
+        mVersionView = (TextView) view.findViewById(R.id.version);
+        mVersionView.setText(String.format(context.getString(R.string.debug_version_fmt).toString(),
+                context.getString(R.string.build_number)));
 
-        mVersionView = (TextView)findViewById(R.id.version);
-        mEnableDebugLoggingView = (CheckBox)findViewById(R.id.debug_logging);
-
+        mEnableDebugLoggingView = (CheckBox) view.findViewById(R.id.debug_logging);
         mEnableDebugLoggingView.setOnCheckedChangeListener(this);
-
-        mVersionView.setText(String.format(getString(R.string.debug_version_fmt).toString(),
-                getString(R.string.build_number)));
-
         mEnableDebugLoggingView.setChecked(Email.DEBUG);
 
         //EXCHANGE-REMOVE-SECTION-START
-        mEnableExchangeLoggingView = (CheckBox)findViewById(R.id.exchange_logging);
-        mEnableExchangeFileLoggingView = (CheckBox)findViewById(R.id.exchange_file_logging);
+        mEnableExchangeLoggingView = (CheckBox) view.findViewById(R.id.exchange_logging);
+        mEnableExchangeFileLoggingView = (CheckBox) view.findViewById(R.id.exchange_file_logging);
         mEnableExchangeLoggingView.setOnCheckedChangeListener(this);
         mEnableExchangeFileLoggingView.setOnCheckedChangeListener(this);
         mEnableExchangeLoggingView.setChecked(Eas.USER_LOG);
         mEnableExchangeFileLoggingView.setChecked(Eas.FILE_LOG);
         //EXCHANGE-REMOVE-SECTION-END
+
+        return view;
     }
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -95,37 +92,6 @@ public class Debug extends Activity implements OnCheckedChangeListener {
             //EXCHANGE-REMOVE-SECTION-END
         }
 
-        updateLoggingFlags(this);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.dump_settings) {
-            Preferences.getPreferences(this).dump();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.debug_option, menu);
-        return true;
-    }
-
-    /**
-     * Load enabled debug flags from the preferences and upadte the EAS debug flag.
-     */
-    public static void updateLoggingFlags(Context context) {
-        //EXCHANGE-REMOVE-SECTION-START
-        Preferences prefs = Preferences.getPreferences(context);
-        int debugLogging = prefs.getEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
-        int exchangeLogging = prefs.getEnableExchangeLogging() ? Eas.DEBUG_EXCHANGE_BIT : 0;
-        int fileLogging = prefs.getEnableExchangeFileLogging() ? Eas.DEBUG_FILE_BIT : 0;
-        int debugBits = debugLogging | exchangeLogging | fileLogging;
-        Controller.getInstance(context).serviceLogging(debugBits);
-        //EXCHANGE-REMOVE-SECTION-END
+        Email.updateLoggingFlags(getActivity());
     }
 }
