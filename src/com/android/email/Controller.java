@@ -53,6 +53,7 @@ import android.util.Log;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidParameterException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -722,25 +723,35 @@ public class Controller {
     }
 
     /**
-     * Moving a message to another folder
+     * Moving messages to another folder
      *
      * This function has no callback, no result reporting, because the desired outcome
      * is reflected entirely by changes to one or more cursors.
      *
-     * @param messageId The id of the message to move
-     * @param mailboxId The id of the folder we're supposed to move the folder to
+     * Note this method assumes all the messages, and the destination mailbox belong to the same
+     * account.
+     *
+     * @param messageIds The IDs of the messages to move
+     * @param newMailboxId The id of the folder we're supposed to move the folder to
      * @return the AsyncTask that will execute the move
      */
-    public AsyncTask<Void, Void, Void> moveMessage(final long messageId, final long mailboxId) {
+    public AsyncTask<Void, Void, Void> moveMessage(final long[] messageIds,
+            final long newMailboxId) {
+        if (messageIds == null || messageIds.length == 0) {
+            throw new InvalidParameterException();
+        }
         return Utility.runAsync(new Runnable() {
             public void run() {
-                Account account = Account.getAccountForMessageId(mProviderContext, messageId);
+                Account account = Account.getAccountForMessageId(mProviderContext, messageIds[0]);
                 if (account != null) {
-                    Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI,
-                            messageId);
                     ContentValues cv = new ContentValues();
-                    cv.put(EmailContent.MessageColumns.MAILBOX_KEY, mailboxId);
-                    mProviderContext.getContentResolver().update(uri, cv, null, null);
+                    cv.put(EmailContent.MessageColumns.MAILBOX_KEY, newMailboxId);
+                    ContentResolver resolver = mProviderContext.getContentResolver();
+                    for (long messageId : messageIds) {
+                        Uri uri = ContentUris.withAppendedId(
+                                EmailContent.Message.SYNCED_CONTENT_URI, messageId);
+                        resolver.update(uri, cv, null, null);
+                    }
                     if (isMessagingController(account)) {
                         mLegacyController.processPendingActions(account.mId);
                     }

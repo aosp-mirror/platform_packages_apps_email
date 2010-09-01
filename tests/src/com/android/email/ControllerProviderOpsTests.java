@@ -158,6 +158,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
 
     /**
      * Test the "move message" function.
+     *
      * @throws ExecutionException
      * @throws InterruptedException
      */
@@ -168,18 +169,24 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         long box1Id = box1.mId;
         Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, true, mProviderContext);
         long box2Id = box2.mId;
+        Mailbox boxDest = ProviderTestUtils.setupMailbox("d", account1Id, true, mProviderContext);
+        long boxDestId = boxDest.mId;
 
         Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
                 true, mProviderContext);
+        Message message2 = ProviderTestUtils.setupMessage("message2", account1Id, box2Id, false,
+                true, mProviderContext);
         long message1Id = message1.mId;
+        long message2Id = message2.mId;
 
         // Because moveMessage runs asynchronously, call get() to force it to complete
-        mTestController.moveMessage(message1Id, box2Id).get();
+        mTestController.moveMessage(new long[] {message1Id, message2Id}, boxDestId).get();
 
         // now read back a fresh copy and confirm it's in the trash
-        Message message1get = EmailContent.Message.restoreMessageWithId(mProviderContext,
-                message1Id);
-        assertEquals(box2Id, message1get.mMailboxKey);
+        assertEquals(boxDestId, EmailContent.Message.restoreMessageWithId(mProviderContext,
+                message1Id).mMailboxKey);
+        assertEquals(boxDestId, EmailContent.Message.restoreMessageWithId(mProviderContext,
+                message2Id).mMailboxKey);
     }
 
     /**
