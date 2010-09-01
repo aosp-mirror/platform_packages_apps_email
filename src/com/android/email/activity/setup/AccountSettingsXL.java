@@ -37,8 +37,9 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 import java.util.List;
 
@@ -49,14 +50,13 @@ import java.util.List;
  * TODO: Incorporate entry point & other stuff to support launch from AccountManager
  * TODO: In Account settings in Phone UI, change title
  * TODO: Rework all remaining calls to DB from UI thread
- * TODO: (When available in PreferenceActivity) use a dedicated "add account" button
  * TODO: Delete account - on single-pane view (phone UX) the account list doesn't update properly
  * TODO: Handle dynamic changes to the account list (exit if necessary).  It probably makes
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
 public class AccountSettingsXL extends PreferenceActivity
-        implements AccountSettingsFragment.OnAttachListener {
+        implements AccountSettingsFragment.OnAttachListener, OnClickListener {
 
     private static final String EXTRA_ACCOUNT_ID = "AccountSettingsXL.account_id";
     private static final String EXTRA_ENABLE_DEBUG = "AccountSettingsXL.enable_debug";
@@ -80,6 +80,7 @@ public class AccountSettingsXL extends PreferenceActivity
     private Fragment mCurrentFragment;
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
+    private Button mAddAccountButton;
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
@@ -114,6 +115,17 @@ public class AccountSettingsXL extends PreferenceActivity
         Intent i = getIntent();
         mRequestedAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
+
+        // Add Account as header list footer
+        // TODO: This probably should be some sort of themed layout with a button in it
+        if (hasHeaders()) {
+            mAddAccountButton = new Button(this);
+            mAddAccountButton.setText(R.string.add_account_action);
+            mAddAccountButton.setOnClickListener(this);
+            mAddAccountButton.setEnabled(false);
+            setListFooter(mAddAccountButton);
+        }
+
     }
 
     @Override
@@ -127,33 +139,6 @@ public class AccountSettingsXL extends PreferenceActivity
         super.onDestroy();
         Utility.cancelTaskInterrupt(mLoadAccountListTask);
         mLoadAccountListTask = null;
-    }
-
-    /**
-     * Only show "add account" when header showing and not in a sub-fragment (like incoming)
-     *
-     * TODO: it might make more sense to do this by having fragments add the items, except for
-     * this problem:  How do we add items that are shown in single pane headers-only mode?
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        if (shouldShowNewAccount()) {
-            getMenuInflater().inflate(R.menu.account_settings_option, menu);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.add_new_account:
-                onAddNewAccount();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return true;
     }
 
     /**
@@ -171,6 +156,13 @@ public class AccountSettingsXL extends PreferenceActivity
             mSecretKeyCodeIndex = 0;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == mAddAccountButton) {
+            onAddNewAccount();
+        }
     }
 
     private void enableDebugMenu() {
@@ -375,8 +367,8 @@ public class AccountSettingsXL extends PreferenceActivity
         } else if (f instanceof AccountSetupExchangeFragment) {
             // TODO
         }
-        // Since we're changing fragments, reset the options menu (not all choices are shown)
-        invalidateOptionsMenu();
+        // Since we're changing fragments, enable/disable the add account button
+        mAddAccountButton.setEnabled(shouldShowNewAccount());
     }
 
     /**
