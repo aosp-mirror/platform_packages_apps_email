@@ -770,7 +770,4 @@
     <string name="title_fix_all_bugs_preference" translatable="false">Fix All Bugs</string>
     <!-- STOPSHIP remove this fake preference -->
     <string name="summary_fix_all_bugs_preference" translatable="false">Cheaper than beer</string>
-
-    <!-- Do Not Translate.  STOPSHIP: Dev version only.  Remove this. -->
-    <string name="menu_change_orientation" translatable="false">Change orientation</string>
 </resources>

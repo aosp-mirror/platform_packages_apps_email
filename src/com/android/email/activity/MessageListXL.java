@@ -591,11 +591,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
                 return true;
             case R.id.account_settings:
                 return onAccountSettings();
-            case R.id.change_orientation: // STOPSHIP remove this
-                Utility.changeOrientation(this);
-                return true;
-            case R.id.add_new_account: // STOPSHIP remove this
-                return onAddNewAccount();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -727,19 +722,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             }
             return true;
         }
-    }
-
-    /**
-     * STOPSHIP: Remove this.
-     * Rotate screen when the R key is pressed.  Workaround for auto-orientation not working.
-     */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_R) {
-            Utility.changeOrientation(this);
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
     // TODO It's a temporary implementation.  See {@link MoveMessagetoDialog}
