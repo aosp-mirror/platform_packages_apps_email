@@ -243,7 +243,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "MailboxListFragment onCreateLoader");
             }
-            return MailboxesAdapter.createLoader(getActivity(), mAccountId);
+            return MailboxesAdapter.createLoader(getActivity(), mAccountId,
+                    MailboxesAdapter.MODE_NORMAL);
         }
 
         @Override

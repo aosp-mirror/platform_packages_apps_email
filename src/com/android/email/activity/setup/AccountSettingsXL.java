@@ -24,6 +24,7 @@ import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.service.MailService;
 
 import android.app.Activity;
@@ -37,29 +38,35 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 import java.util.List;
 
 /**
  * Handles account preferences using multi-pane arrangement when possible.
  *
- * TODO: Go directly to specific account when requested - post runnable after onBuildHeaders
- * TODO: Incorporate entry point & other stuff to support launch from AccountManager
  * TODO: In Account settings in Phone UI, change title
  * TODO: Rework all remaining calls to DB from UI thread
- * TODO: (When available in PreferenceActivity) use a dedicated "add account" button
  * TODO: Delete account - on single-pane view (phone UX) the account list doesn't update properly
  * TODO: Handle dynamic changes to the account list (exit if necessary).  It probably makes
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
 public class AccountSettingsXL extends PreferenceActivity
-        implements AccountSettingsFragment.OnAttachListener {
+        implements AccountSettingsFragment.OnAttachListener, OnClickListener {
 
-    private static final String EXTRA_ACCOUNT_ID = "AccountSettingsXL.account_id";
+    // Intent extras for our internal activity launch
+    /* package */ static final String EXTRA_ACCOUNT_ID = "AccountSettingsXL.account_id";
     private static final String EXTRA_ENABLE_DEBUG = "AccountSettingsXL.enable_debug";
+
+    // Intent extras for launch directly from system account manager
+    // NOTE: This string must match the one in res/xml/account_preferences.xml
+    private static final String ACTION_ACCOUNT_MANAGER_ENTRY =
+        "com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY";
+    // NOTE: This constant should eventually be defined in android.accounts.Constants
+    private static final String EXTRA_ACCOUNT_MANAGER_ACCOUNT = "account";
 
     // Key codes used to open a debug settings fragment.
     private static final int[] SECRET_KEY_CODES = {
@@ -68,21 +75,26 @@ public class AccountSettingsXL extends PreferenceActivity
             };
     private int mSecretKeyCodeIndex = 0;
 
-    /**
-     * When the user taps "Email Preferences" 10 times in a row, we'll enable the debug settings.
-     */
+    // Support for account-by-name lookup
+    private static final String SELECTION_ACCOUNT_EMAIL_ADDRESS =
+        AccountColumns.EMAIL_ADDRESS + "=?";
+
+    // When the user taps "Email Preferences" 10 times in a row, we'll enable the debug settings.
     private int mNumGeneralHeaderClicked = 0;
 
     private long mRequestedAccountId;
+    private Header mRequestedAccountHeader;
     private ExtendedHeader[] mAccountListHeaders;
     private Header mAppPreferencesHeader;
     private int mCurrentHeaderPosition;
-    private Fragment mCurrentFragment;
+    /* package */ Fragment mCurrentFragment;
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
+    private Button mAddAccountButton;
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
+    private GetAccountIdFromAccountTask mGetAccountIdFromAccountTask;
 
     // Specific callbacks used by settings fragments
     private AccountSettingsFragmentCallback mAccountSettingsFragmentCallback
@@ -112,8 +124,26 @@ public class AccountSettingsXL extends PreferenceActivity
         super.onCreate(savedInstanceState);
 
         Intent i = getIntent();
-        mRequestedAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        if (ACTION_ACCOUNT_MANAGER_ENTRY.equals(i.getAction())) {
+            // This case occurs if we're changing account settings from Settings -> Accounts
+            mGetAccountIdFromAccountTask =
+                (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask().execute(i);
+        } else {
+            // Otherwise, we're called from within the Email app and look for our extra
+            mRequestedAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
+
+        // Add Account as header list footer
+        // TODO: This probably should be some sort of themed layout with a button in it
+        if (hasHeaders()) {
+            mAddAccountButton = new Button(this);
+            mAddAccountButton.setText(R.string.add_account_action);
+            mAddAccountButton.setOnClickListener(this);
+            mAddAccountButton.setEnabled(false);
+            setListFooter(mAddAccountButton);
+        }
+
     }
 
     @Override
@@ -127,33 +157,8 @@ public class AccountSettingsXL extends PreferenceActivity
         super.onDestroy();
         Utility.cancelTaskInterrupt(mLoadAccountListTask);
         mLoadAccountListTask = null;
-    }
-
-    /**
-     * Only show "add account" when header showing and not in a sub-fragment (like incoming)
-     *
-     * TODO: it might make more sense to do this by having fragments add the items, except for
-     * this problem:  How do we add items that are shown in single pane headers-only mode?
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        if (shouldShowNewAccount()) {
-            getMenuInflater().inflate(R.menu.account_settings_option, menu);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.add_new_account:
-                onAddNewAccount();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-        return true;
+        Utility.cancelTaskInterrupt(mGetAccountIdFromAccountTask);
+        mGetAccountIdFromAccountTask = null;
     }
 
     /**
@@ -171,6 +176,24 @@ public class AccountSettingsXL extends PreferenceActivity
             mSecretKeyCodeIndex = 0;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == mAddAccountButton) {
+            onAddNewAccount();
+        }
+    }
+
+    /**
+     * If the caller requested a specific account to be edited, switch to it.  This is a one-shot,
+     * so the user is free to edit another account as well.
+     */
+    @Override
+    public Header onGetNewHeader() {
+        Header result = mRequestedAccountHeader;
+        mRequestedAccountHeader = null;
+        return result;
     }
 
     private void enableDebugMenu() {
@@ -214,22 +237,32 @@ public class AccountSettingsXL extends PreferenceActivity
     /**
      * Write the current header (accounts) array into the one provided by the PreferenceActivity.
      * Skip any headers that match mDeletingAccountId (this is a quick-hide algorithm while a
-     * background thread works on deleting the account).
+     * background thread works on deleting the account).  Also sets mRequestedAccountHeader if
+     * we find the requested account (by id).
      */
     @Override
     public void onBuildHeaders(List<Header> target) {
+        // Assume the account is unspecified
+        mRequestedAccountHeader = null;
+
         // Always add app preferences as first header
         target.clear();
         target.add(getAppPreferencesHeader());
+
         // Then add zero or more account headers as necessary
         if (mAccountListHeaders != null) {
             int headerCount = mAccountListHeaders.length;
             for (int index = 0; index < headerCount; index++) {
-                if (mAccountListHeaders[index].accountId != mDeletingAccountId) {
-                    target.add(mAccountListHeaders[index]);
+                ExtendedHeader header = mAccountListHeaders[index];
+                if (header.accountId != mDeletingAccountId) {
+                    target.add(header);
+                    if (header.accountId == mRequestedAccountId) {
+                        mRequestedAccountHeader = header;
+                    }
                 }
             }
         }
+
         // finally, if debug header is enabled, show it
         if (mShowDebugMenu) {
             // setup lightweight header for debugging
@@ -267,7 +300,7 @@ public class AccountSettingsXL extends PreferenceActivity
      * for quick scans, etc.
      */
     private class ExtendedHeader extends Header {
-        public long accountId;
+        public final long accountId;
 
         public ExtendedHeader(long _accountId, String _title, String _summary) {
             title = _title;
@@ -375,8 +408,8 @@ public class AccountSettingsXL extends PreferenceActivity
         } else if (f instanceof AccountSetupExchangeFragment) {
             // TODO
         }
-        // Since we're changing fragments, reset the options menu (not all choices are shown)
-        invalidateOptionsMenu();
+        // Since we're changing fragments, enable/disable the add account button
+        mAddAccountButton.setEnabled(shouldShowNewAccount());
     }
 
     /**
@@ -458,6 +491,32 @@ public class AccountSettingsXL extends PreferenceActivity
             // We should only be calling this while showing AccountSettingsFragment,
             // so a finish() should bring us back to headers.  No point hiding the deleted account.
             finish();
+        }
+    }
+
+    /**
+     * This AsyncTask looks up an account based on its email address (which is what we get from
+     * the Account Manager).  When the account id is determined, we refresh the header list,
+     * which will select the preferences for that account.
+     */
+    private class GetAccountIdFromAccountTask extends AsyncTask<Intent, Void, Long> {
+
+        @Override
+        protected Long doInBackground(Intent... params) {
+            Intent intent = params[0];
+            android.accounts.Account acct =
+                (android.accounts.Account) intent.getParcelableExtra(EXTRA_ACCOUNT_MANAGER_ACCOUNT);
+            return Utility.getFirstRowLong(AccountSettingsXL.this, Account.CONTENT_URI,
+                    Account.ID_PROJECTION, SELECTION_ACCOUNT_EMAIL_ADDRESS, new String[] {acct.name},
+                    null, Account.ID_PROJECTION_COLUMN, -1L);
+        }
+
+        @Override
+        protected void onPostExecute(Long accountId) {
+            if (accountId != -1 && !isCancelled()) {
+                mRequestedAccountId = accountId;
+                AccountSettingsXL.this.invalidateHeaders();
+            }
         }
     }
 

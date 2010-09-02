@@ -55,9 +55,11 @@ import java.security.InvalidParameterException;
  *
  * TODO Refresh account list when adding/removing/changing(e.g. display name) accounts.
  *      -> Need the MessageList.onResume logic.  Figure out a clean way to do that.
+ *
+ * TODO Refine "move to".  It also shouldn't work for special messages, like drafts.
  */
 public class MessageListXL extends Activity implements View.OnClickListener,
-        MessageListXLFragmentManager.TargetActivity {
+        MessageListXLFragmentManager.TargetActivity, MoveMessageToDialog.Callback {
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     private static final int LOADER_ID_ACCOUNT_LIST = 0;
@@ -144,6 +146,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         findViewById(R.id.reply).setOnClickListener(this);
         findViewById(R.id.reply_all).setOnClickListener(this);
         findViewById(R.id.forward).setOnClickListener(this);
+        findViewById(R.id.move).setOnClickListener(this);
 
         mAccountsSelectorAdapter = new AccountSelectorAdapter(mContext, null);
 
@@ -275,6 +278,9 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             case R.id.forward:
                 MessageCompose.actionForward(this, mFragmentManager.getMessageId());
                 break;
+            case R.id.move:
+                onMoveMessage();
+                break;
         }
     }
 
@@ -293,6 +299,14 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         MessageViewFragment f = mFragmentManager.getMessageViewFragment();
         f.onMarkMessageAsRead(false);
         mFragmentManager.goBackToMailbox();
+    }
+
+    private void onMoveMessage() {
+        long accountId = mFragmentManager.getAccountId();
+        long messageId = mFragmentManager.getMessageId();
+        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(this, accountId,
+                new long[] {messageId});
+        dialog.show(getFragmentManager(), "dialog");
     }
 
     /**
@@ -577,11 +591,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
                 return true;
             case R.id.account_settings:
                 return onAccountSettings();
-            case R.id.change_orientation: // STOPSHIP remove this
-                Utility.changeOrientation(this);
-                return true;
-            case R.id.add_new_account: // STOPSHIP remove this
-                return onAddNewAccount();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -715,16 +724,13 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         }
     }
 
-    /**
-     * STOPSHIP: Remove this.
-     * Rotate screen when the R key is pressed.  Workaround for auto-orientation not working.
-     */
+    // TODO It's a temporary implementation.  See {@link MoveMessagetoDialog}
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_R) {
-            Utility.changeOrientation(this);
-            return true;
+    public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
+        ActivityHelper.moveMessages(this, newMailboxId, messageIds);
+        if (!moveToOlder()) {
+            // if this is the last message, move up to message-list.
+            mFragmentManager.goBackToMailbox();
         }
-        return super.onKeyDown(keyCode, event);
     }
 }

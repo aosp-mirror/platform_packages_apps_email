@@ -50,6 +50,9 @@ import android.widget.TextView;
  * TODO Unit test, when UI is settled.
  */
 /* package */ class MailboxesAdapter extends CursorAdapter {
+    public static final int MODE_NORMAL = 0;
+    public static final int MODE_MOVE_TO_TARGET = 1;
+
     private static final int AUTO_REQUERY_TIMEOUT = 3 * 1000; // in ms
 
     private static final String[] PROJECTION = new String[] { MailboxColumns.ID,
@@ -64,6 +67,9 @@ import android.widget.TextView;
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
             " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
+
+    private static final String MAILBOX_SELECTION_MOVE_TO_FOLDER =
+            MAILBOX_SELECTION + " AND " + Mailbox.MOVE_TO_TARGET_MAILBOX_SELECTION;
 
     private static final String MAILBOX_ORDER_BY = "CASE " + MailboxColumns.TYPE +
             " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0" +
@@ -142,11 +148,12 @@ import android.widget.TextView;
     /**
      * @return mailboxes Loader for an account.
      */
-    public static Loader<Cursor> createLoader(Context context, long accountId) {
+    public static Loader<Cursor> createLoader(Context context, long accountId,
+            int mode) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MailboxesAdapter createLoader accountId=" + accountId);
         }
-        return new MailboxesLoader(context, accountId);
+        return new MailboxesLoader(context, accountId, mode);
     }
 
     /**
@@ -155,21 +162,32 @@ import android.widget.TextView;
      */
     private static class MailboxesLoader extends ThrottlingCursorLoader {
         private final Context mContext;
+        private final int mMode;
 
-        public MailboxesLoader(Context context, long accountId) {
+        private static String getSelection(int mode) {
+            if (mode == MODE_MOVE_TO_TARGET) {
+                return MAILBOX_SELECTION_MOVE_TO_FOLDER;
+            } else {
+                return MAILBOX_SELECTION;
+            }
+        }
+
+        public MailboxesLoader(Context context, long accountId, int mode) {
             super(context, EmailContent.Mailbox.CONTENT_URI,
-                    MailboxesAdapter.PROJECTION,
-                    MAILBOX_SELECTION,
+                    MailboxesAdapter.PROJECTION, getSelection(mode),
                     new String[] { String.valueOf(accountId) },
                     MAILBOX_ORDER_BY, AUTO_REQUERY_TIMEOUT);
             mContext = context;
+            mMode = mode;
         }
 
         @Override
         public Cursor loadInBackground() {
             final Cursor mailboxes = super.loadInBackground();
+            if (mMode == MODE_MOVE_TO_TARGET) {
+                return mailboxes;
+            }
             final int numAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
-
             return new MergeCursor(
                     new Cursor[] {getSpecialMailboxesCursor(mContext, numAccounts > 1), mailboxes});
         }

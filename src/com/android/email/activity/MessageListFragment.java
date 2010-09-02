@@ -34,6 +34,7 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -121,6 +122,8 @@ public class MessageListFragment extends ListFragment
     private ActionMode mSelectionMode;
 
     private Utility.ListStateSaver mSavedListState;
+
+    private MessageOpenTask mMessageOpenTask;
 
     /**
      * Callback interface that owning activities must implement
@@ -254,6 +257,8 @@ public class MessageListFragment extends ListFragment
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessageListFragment onDestroy");
         }
+        Utility.cancelTaskInterrupt(mMessageOpenTask);
+        mMessageOpenTask = null;
         mRefreshManager.unregisterListener(mRefreshListener);
         super.onDestroy();
     }
@@ -386,28 +391,54 @@ public class MessageListFragment extends ListFragment
         mListAdapter.toggleSelected(itemView);
     }
 
-    private void onMessageOpen(final long mailboxId, final long messageId) {
-        final int type;
-        if (mMailbox == null) { // Magic mailbox
-            if (mMailboxId == Mailbox.QUERY_ALL_DRAFTS) {
-                type = Callback.TYPE_DRAFT;
-            } else {
-                type = Callback.TYPE_REGULAR;
-            }
-        } else {
-            switch (mMailbox.mType) {
+    /**
+     * Called when a message on the list is selected
+     *
+     * @param messageMailboxId the actual mailbox ID of the message.  Note it's different from
+     * {@link #mMailboxId} in combined mailboxes.  ({@link #mMailboxId} can take values such as
+     * {@link Mailbox#QUERY_ALL_INBOXES})
+     * @param messageId ID of the msesage to open.
+     */
+    private void onMessageOpen(final long messageMailboxId, final long messageId) {
+        Utility.cancelTaskInterrupt(mMessageOpenTask);
+        mMessageOpenTask = new MessageOpenTask(messageMailboxId, messageId);
+        mMessageOpenTask.execute();
+    }
+
+    /**
+     * Task to look up the mailbox type for a message, and kicks the callback.
+     */
+    private class MessageOpenTask extends AsyncTask<Void, Void, Integer> {
+        private final long mMessageMailboxId;
+        private final long mMessageId;
+
+        public MessageOpenTask(long messageMailboxId, long messageId) {
+            mMessageMailboxId = messageMailboxId;
+            mMessageId = messageId;
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            // Restore the mailbox type.  Note we can't use mMailbox.mType here, because
+            // we don't have mMailbox for combined mailbox.
+            // ("All Starred" can contain any kind of messages.)
+            switch (Mailbox.getMailboxType(mActivity, mMessageMailboxId)) {
                 case EmailContent.Mailbox.TYPE_DRAFTS:
-                    type = Callback.TYPE_DRAFT;
-                    break;
+                    return Callback.TYPE_DRAFT;
                 case EmailContent.Mailbox.TYPE_TRASH:
-                    type = Callback.TYPE_TRASH;
-                    break;
+                    return Callback.TYPE_TRASH;
                 default:
-                    type = Callback.TYPE_REGULAR;
-                    break;
+                    return Callback.TYPE_REGULAR;
             }
         }
-        mCallback.onMessageOpen(messageId, mailboxId, getMailboxId(), type);
+
+        @Override
+        protected void onPostExecute(Integer type) {
+            if (isCancelled() || type == null) {
+                return;
+            }
+            mCallback.onMessageOpen(mMessageId, mMessageMailboxId, getMailboxId(), type);
+        }
     }
 
     public void onMultiToggleRead() {
@@ -668,9 +699,9 @@ public class MessageListFragment extends ListFragment
      */
     private void autoRefreshStaleMailbox() {
         if (!mDoAutoRefresh // Not explicitly open
-                || mIsRefreshable // Not refreshable (special box such as drafts, or magic boxes)
-                || (mAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) // Not push
-        ) {
+                || !mIsRefreshable // Not refreshable (special box such as drafts, or magic boxes)
+                || (mAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) // Push account
+                ) {
             return;
         }
         mDoAutoRefresh = false;
