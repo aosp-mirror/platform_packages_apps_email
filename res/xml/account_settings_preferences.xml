@@ -119,7 +119,6 @@
             android:summary="@string/account_settings_sync_calendar_summary" />
     </PreferenceCategory>
 
-    <!-- TODO This is a temporary home for delete account -->
     <PreferenceCategory
         android:title="@string/account_settings_category_delete_account">
 

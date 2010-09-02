@@ -24,29 +24,30 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.preference.ListPreference;
+import android.preference.PreferenceFragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 
 /**
- * Tests of basic UI logic in the AccountSettings screen.
+ * Tests of basic UI logic in the Account Settings fragment.
+ *
+ * TODO: This should use a local provider for the test "accounts", and not touch user data
+ *
+ * To execute:  runtest -c com.android.email.activity.setup.AccountSettingsXLTests email
  */
 @MediumTest
-public class AccountSettingsTests extends ActivityInstrumentationTestCase2<AccountSettings> {
-
-    // Borrowed from AccountSettings
-    private static final String EXTRA_ACCOUNT_ID = "account_id";
+public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<AccountSettingsXL> {
 
     private long mAccountId;
     private Account mAccount;
 
     private Context mContext;
-    private AccountSettings mActivity;
     private ListPreference mCheckFrequency;
 
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
 
-    public AccountSettingsTests() {
-        super(AccountSettings.class);
+    public AccountSettingsXLTests() {
+        super(AccountSettingsXL.class);
     }
 
     /**
@@ -76,7 +77,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     /**
      * Test that POP accounts aren't displayed with a push option
      */
-    public void testPushOptionPOP() {
+    public void testPushOptionPOP() throws Throwable {
         Intent i = getTestIntent("Name", "pop3://user:password@server.com",
                 "smtp://user:password@server.com");
         this.setActivityIntent(i);
@@ -90,7 +91,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     /**
      * Test that IMAP accounts aren't displayed with a push option
      */
-    public void testPushOptionIMAP() {
+    public void testPushOptionIMAP() throws Throwable {
         Intent i = getTestIntent("Name", "imap://user:password@server.com",
                 "smtp://user:password@server.com");
         this.setActivityIntent(i);
@@ -104,7 +105,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     /**
      * Test that EAS accounts are displayed with a push option
      */
-    public void testPushOptionEAS() {
+    public void testPushOptionEAS() throws Throwable {
         // This test should only be run if EAS is supported
         if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext())
                 == null) {
@@ -124,9 +125,16 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
     /**
      * Get the activity (which causes it to be started, using our intent) and get the UI fields
      */
-    private void getActivityAndFields() {
-        mActivity = getActivity();
-        mCheckFrequency = (ListPreference) mActivity.mFragment.findPreference(PREFERENCE_FREQUENCY);
+    private void getActivityAndFields() throws Throwable {
+        final AccountSettingsXL theActivity = getActivity();
+        
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                PreferenceFragment f = (PreferenceFragment) theActivity.mCurrentFragment;
+                AccountSettingsXLTests.this.mCheckFrequency =
+                    (ListPreference) f.findPreference(PREFERENCE_FREQUENCY);
+            }
+        });
     }
 
     /**
@@ -156,7 +164,7 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         mAccountId = mAccount.mId;
 
         Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra(EXTRA_ACCOUNT_ID, mAccountId);
+        i.putExtra(AccountSettingsXL.EXTRA_ACCOUNT_ID, mAccountId);
         return i;
     }
 
