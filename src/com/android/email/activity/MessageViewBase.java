@@ -97,6 +97,14 @@ public abstract class MessageViewBase extends Activity implements MessageViewFra
     protected abstract long getAccountId();
 
     @Override
+    public void onMessageViewShown(int mailboxType) {
+    }
+
+    @Override
+    public void onMessageViewGone() {
+    }
+
+    @Override
     public boolean onUrlInMessageClicked(String url) {
         // If it's showing an EML file, we pass -1 as the account id, and MessageCompose
         // uses the default account.  If there's no accounts set up, MessageCompose will close

@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.provider.EmailContent.Mailbox;
 
 import android.content.Context;
 import android.content.Intent;
@@ -40,8 +41,6 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
         MessageOrderManager.Callback, MessageViewFragment.Callback {
     private static final String EXTRA_MESSAGE_ID = "com.android.email.MessageView_message_id";
     private static final String EXTRA_MAILBOX_ID = "com.android.email.MessageView_mailbox_id";
-    private static final String EXTRA_DISABLE_REPLY =
-        "com.android.email.MessageView_disable_reply";
 
     // for saveInstanceState()
     private static final String STATE_MESSAGE_ID = "messageId";
@@ -56,30 +55,22 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     private View mMoveToNewer;
     private View mMoveToOlder;
 
-    // this is true when reply & forward are disabled, such as messages in the trash
-    private boolean mDisableReplyAndForward;
+    // False when a message can't be forwarded/replied, such as trashed messages
+    private boolean mReplyAndForwardEnabled;
 
     /**
      * View a specific message found in the Email provider.
      * @param messageId the message to view.
      * @param mailboxId identifies the sequence of messages used for newer/older navigation.
-     * @param disableReplyAndForward set if reply/forward do not make sense for this message
-     *        (e.g. messages in Trash).
      */
-    public static void actionView(Context context, long messageId, long mailboxId,
-            boolean disableReplyAndForward) {
+    public static void actionView(Context context, long messageId, long mailboxId) {
         if (messageId < 0) {
             throw new IllegalArgumentException("MessageView invalid messageId " + messageId);
         }
         Intent i = new Intent(context, MessageView.class);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
-        i.putExtra(EXTRA_DISABLE_REPLY, disableReplyAndForward);
         context.startActivity(i);
-    }
-
-    public static void actionView(Context context, long messageId, long mailboxId) {
-        actionView(context, messageId, mailboxId, false);
     }
 
     @Override
@@ -119,11 +110,7 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
             return;
         }
 
-        mDisableReplyAndForward = intent.getBooleanExtra(EXTRA_DISABLE_REPLY, false);
-        if (mDisableReplyAndForward) {
-            findViewById(R.id.reply).setEnabled(false);
-            findViewById(R.id.reply_all).setEnabled(false);
-        }
+        enableForwardReply(false);
     }
 
     @Override
@@ -166,6 +153,12 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     @Override
     protected long getAccountId() {
         return getFragment().getAccountId();
+    }
+
+    @Override
+    public void onMessageViewShown(int mailboxType) {
+        super.onMessageViewShown(mailboxType);
+        enableForwardReply(mailboxType != Mailbox.TYPE_TRASH);
     }
 
     private void onReply() {
@@ -279,16 +272,25 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
         finish();
     }
 
+    private void enableForwardReply(boolean enabled) {
+        mReplyAndForwardEnabled = enabled;
+        findViewById(R.id.reply).setEnabled(enabled);
+        findViewById(R.id.reply_all).setEnabled(enabled);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_view_option, menu);
-        if (mDisableReplyAndForward) {
-            menu.findItem(R.id.forward).setEnabled(false);
-            menu.findItem(R.id.reply).setEnabled(false);
-            menu.findItem(R.id.reply_all).setEnabled(false);
-        }
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.forward).setEnabled(mReplyAndForwardEnabled);
+        menu.findItem(R.id.reply).setEnabled(mReplyAndForwardEnabled);
+        menu.findItem(R.id.reply_all).setEnabled(mReplyAndForwardEnabled);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     /**
