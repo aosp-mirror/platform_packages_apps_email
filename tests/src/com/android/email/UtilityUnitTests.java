@@ -39,6 +39,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -477,6 +479,27 @@ public class UtilityUnitTests extends AndroidTestCase {
             lss2.restore(lv2);
             assertEquals(1, lv2.mCustomData);
         }
+    }
+
+    public void testToPrimitiveLongArray() {
+        assertEquals(0, Utility.toPrimitiveLongArray(createLongCollection()).length);
+
+        final long[] one = Utility.toPrimitiveLongArray(createLongCollection(1));
+        assertEquals(1, one.length);
+        assertEquals(1, one[0]);
+
+        final long[] two = Utility.toPrimitiveLongArray(createLongCollection(3, 4));
+        assertEquals(2, two.length);
+        assertEquals(3, two[0]);
+        assertEquals(4, two[1]);
+    }
+
+    private static Collection<Long> createLongCollection(long... values) {
+        ArrayList<Long> ret = new ArrayList<Long>();
+        for (long value : values) {
+            ret.add(value);
+        }
+        return ret;
     }
 
     /**

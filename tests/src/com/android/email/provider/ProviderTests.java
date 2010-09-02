@@ -2037,4 +2037,19 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertFalse(Mailbox.isRefreshable(c, Mailbox.QUERY_ALL_DRAFTS));
         assertFalse(Mailbox.isRefreshable(c, Mailbox.QUERY_ALL_INBOXES));
     }
+
+    public void testMailboxCanMoveFrom() {
+        final Context c = mMockContext;
+
+        Account a = ProviderTestUtils.setupAccount("acct1", true, c);
+        Mailbox bi = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_INBOX);
+        Mailbox bm = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_MAIL);
+        Mailbox bd = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_DRAFTS);
+        Mailbox bo = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_OUTBOX);
+
+        assertTrue(Mailbox.canMoveFrom(c, bi.mId));
+        assertTrue(Mailbox.canMoveFrom(c, bm.mId));
+        assertFalse(Mailbox.canMoveFrom(c, bd.mId));
+        assertFalse(Mailbox.canMoveFrom(c, bo.mId));
+    }
 }

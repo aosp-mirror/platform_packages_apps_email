@@ -71,11 +71,13 @@ import java.util.Set;
  * We run them sequentially.  i.e. First starts {@link MailboxAccountLoader}, and when it finishes
  * starts the other.
  *
- * TODO Add "send all messages" button to outboxes
+ * TODO Finalize batch move UI.  Probably the "move" button should be disabled or hidden when
+ * the selection contains non-movable messages.  But then how does the user know why they can't be
+ * moved?
  */
 public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
-        OnClickListener {
+        OnClickListener, MoveMessageToDialog.Callback {
     private static final String BUNDLE_LIST_STATE = "MessageListFragment.state.listState";
 
     private static final int LOADER_ID_MAILBOX_LOADER = 1;
@@ -451,6 +453,21 @@ public class MessageListFragment extends ListFragment
 
     public void onMultiDelete() {
         onMultiDelete(mListAdapter.getSelectedSet());
+    }
+
+    public void onMultiMove() {
+        long[] messageIds = Utility.toPrimitiveLongArray(mListAdapter.getSelectedSet());
+        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(getActivity(), messageIds,
+                this);
+        dialog.show(getFragmentManager(), "dialog");
+    }
+
+    @Override
+    public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
+        ActivityHelper.moveMessages(getActivity(), newMailboxId, messageIds);
+
+        // Move is async, so we can't refresh now.  Instead, just clear the selection.
+        onDeselectAll();
     }
 
     /**
@@ -1017,6 +1034,9 @@ public class MessageListFragment extends ListFragment
                     break;
                 case R.id.delete:
                     onMultiDelete();
+                    break;
+                case R.id.move:
+                    onMultiMove();
                     break;
             }
             return true;

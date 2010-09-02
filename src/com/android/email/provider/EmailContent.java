@@ -35,6 +35,7 @@ import android.os.RemoteException;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -1287,6 +1288,14 @@ public abstract class EmailContent {
         }
 
         /**
+         * @return true if the account supports "move messages".
+         */
+        public static boolean supportsMoveMessages(Context context, long accountId) {
+            String protocol = getProtocol(context, accountId);
+            return "eas".equals(protocol) || "imap".equals(protocol);
+        }
+
+        /**
          * Set the account to be the default account.  If this is set to "true", when the account
          * is saved, all other accounts will have the same value set to "false".
          * @param newDefaultState the new default state - if true, others will be cleared.
@@ -2299,6 +2308,8 @@ public abstract class EmailContent {
         }
 
         /**
+         * @param mailboxId ID of a mailbox.  This method accepts magic mailbox IDs, such as
+         * {@link #QUERY_ALL_INBOXES}. (They're all non-refreshable.)
          * @return true if a mailbox is refreshable.
          */
         public static boolean isRefreshable(Context context, long mailboxId) {
@@ -2313,6 +2324,33 @@ public abstract class EmailContent {
             }
             return true;
         }
+
+        /**
+         * @param mailboxId ID of a mailbox.  This method DOES NOT accept magic mailbox IDs, such as
+         * {@link #QUERY_ALL_INBOXES} (because only the actual mailbox ID matters here. e.g.
+         * {@link #QUERY_ALL_FAVORITES} can contain ANY kind of messages), so don't pass a negative
+         * value.
+         * @return true if messages in a mailbox can be moved to another mailbox.
+         * This method only checks the mailbox information. It doesn't check its account/protocol,
+         * so it may return true even for POP3 mailbox.
+         */
+        public static boolean canMoveFrom(Context context, long mailboxId) {
+            if (mailboxId < 0) {
+                throw new InvalidParameterException();
+            }
+            Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
+            int type = Utility.getFirstRowInt(context, url, MAILBOX_TYPE_PROJECTION,
+                    null, null, null, MAILBOX_TYPE_TYPE_COLUMN);
+            switch (type) {
+                case TYPE_INBOX:
+                case TYPE_MAIL:
+                case TYPE_TRASH:
+                case TYPE_JUNK:
+                    return true;
+            }
+            return false; // TYPE_DRAFTS, TYPE_OUTBOX, TYPE_SENT, etc
+        }
+
     }
 
     public interface HostAuthColumns {

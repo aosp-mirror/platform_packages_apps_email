@@ -775,4 +775,21 @@
     <string name="title_fix_all_bugs_preference" translatable="false">Fix All Bugs</string>
     <!-- STOPSHIP remove this fake preference -->
     <string name="summary_fix_all_bugs_preference" translatable="false">Cheaper than beer</string>
+
+    <!--
+        Strings for temporary UI
+        STOPSHIP Remove them or move them up and make translatable
+    -->
+    <!-- Toast shown when a message(s) can't be moved because it's not supported
+         on the POP3 protocol. [CHAR LIMIT=none]-->
+    <string name="cannot_move_protocol_not_supported_toast" translatable="false">
+        Move is not supported on POP3 accounts.</string>
+    <!-- Toast shown when messages can't be moved because the selection contains
+         multiple accounts' messages. [CHAR LIMIT=none]-->
+    <string name="cannot_move_multiple_accounts_toast" translatable="false">
+        Cannot move.  Selection contains multiple accounts.</string>
+    <!-- Toast shown when messages can't be moved because they're in a special
+         mailbox.  Do not translate "Drafts", "Outbox" and "Sent". [CHAR LIMIT=none]-->
+    <string name="cannot_move_special_messages" translatable="false">
+        Messages in Drafts, Outbox and Sent cannot be moved.</string>
 </resources>

@@ -17,16 +17,25 @@
 package com.android.email.activity;
 
 import com.android.email.R;
+import com.android.email.Utility;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.AsyncTaskLoader;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+
+import java.security.InvalidParameterException;
 
 /**
  * "Move (messages) to" dialog.
@@ -34,24 +43,49 @@ import android.os.Bundle;
  * TODO Make callback mechanism better  (don't use getActivity--use setTargetFragment instead.)
  * TODO Fix the text color in mailbox_list_item.xml.
  * TODO Don't show unread counts.
+ * TODO The check logic in MessageCheckerCallback is not efficient.  It shouldn't restore full
+ * Message objects.  But we don't bother at this point as the UI is still temporary.
  */
 public class MoveMessageToDialog extends DialogFragment implements DialogInterface.OnClickListener {
-    private static final String BUNDLE_ACCOUNT_ID = "account_id";
     private static final String BUNDLE_MESSAGE_IDS = "message_ids";
-    private long mAccountId;
+
+    /** Message IDs passed to {@link #newInstance} */
+    private long[] mMessageIds;
     private MailboxesAdapter mAdapter;
 
+    /** Account ID is restored by {@link MailboxesLoaderCallbacks} */
+    private long mAccountId;
+
+    private boolean mDestroyed;
+
+    /**
+     * Callback that target fragments, or the owner activity should implement.
+     */
     public interface Callback {
         public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds);
     }
 
-    public static MoveMessageToDialog newInstance(Activity parent, long accountId,
-            long[] messageIds) {
+    /**
+     * Create and return a new instance.
+     *
+     * @param parent owner activity.
+     * @param messageIds IDs of the messages to be moved.
+     * @param callbackFragment Fragment that gets a callback.  The fragment must implement
+     * {@link Callback}.  If null is passed, then the owner activity is used instead, in which case
+     * it must implement {@link Callback} instead.
+     */
+    public static MoveMessageToDialog newInstance(Activity parent,
+            long[] messageIds, Fragment callbackFragment) {
+        if (messageIds.length == 0) {
+            throw new InvalidParameterException();
+        }
         MoveMessageToDialog dialog = new MoveMessageToDialog();
         Bundle args = new Bundle();
-        args.putLong(BUNDLE_ACCOUNT_ID, accountId);
         args.putLongArray(BUNDLE_MESSAGE_IDS, messageIds);
         dialog.setArguments(args);
+        if (callbackFragment != null) {
+            dialog.setTargetFragment(callbackFragment, 0);
+        }
         return dialog;
     }
 
@@ -59,8 +93,17 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAdapter = new MailboxesAdapter(getActivity().getApplicationContext());
-        mAccountId = getArguments().getLong(BUNDLE_ACCOUNT_ID);
+        mMessageIds = getArguments().getLongArray(BUNDLE_MESSAGE_IDS);
         setStyle(STYLE_NORMAL, android.R.style.Theme_Light_Holo);
+    }
+
+    @Override
+    public void onDestroy() {
+        LoaderManager lm = getActivity().getLoaderManager();
+        lm.stopLoader(ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER);
+        lm.stopLoader(ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER);
+        mDestroyed = true;
+        super.onDestroy();
     }
 
     @Override
@@ -68,8 +111,9 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
         final Activity a = getActivity();
         final String title = a.getResources().getString(R.string.move_to_folder_dialog_title);
 
-        a.getLoaderManager().initLoader(ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_LOADER,
-                getArguments(), new MyLoaderCallbacks());
+        a.getLoaderManager().initLoader(
+                ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER,
+                null, new MessageCheckerCallback());
 
         return new AlertDialog.Builder(a)
                 .setTitle(title)
@@ -80,14 +124,51 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     @Override
     public void onClick(DialogInterface dialog, int position) {
         final long mailboxId = mAdapter.getItemId(position);
-        final long[] massageIds = getArguments().getLongArray(BUNDLE_MESSAGE_IDS);
 
-        // TODO Fix it. It's not flexible
-        ((Callback) getActivity()).onMoveToMailboxSelected(mailboxId, massageIds);
+        getCallback().onMoveToMailboxSelected(mailboxId, mMessageIds);
         dismiss();
     }
 
-    private class MyLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
+    private Callback getCallback() {
+        Fragment targetFragment = getTargetFragment();
+        if (targetFragment != null) {
+            // If a target is set, it MUST implement Callback.
+            return (Callback) targetFragment;
+        }
+        // If not the parent activity MUST implement Callback.
+        return (Callback) getActivity();
+    }
+
+    /**
+     * Loader callback for {@link MessageChecker}
+     */
+    private class MessageCheckerCallback implements LoaderManager.LoaderCallbacks<Long> {
+        @Override
+        public Loader<Long> onCreateLoader(int id, Bundle args) {
+            return new MessageChecker(getActivity(), mMessageIds);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Long> loader, Long accountId) {
+            if (mDestroyed) {
+                return;
+            }
+            // accountId shouldn't be null, but I'm paranoia.
+            if ((accountId == null) || (accountId == -1)) {
+                dismiss(); // Some of the messages can't be moved.
+                return;
+            }
+            mAccountId = accountId;
+            getActivity().getLoaderManager().initLoader(
+                    ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER,
+                    null, new MailboxesLoaderCallbacks());
+        }
+    }
+
+    /**
+     * Loader callback for destination mailbox list.
+     */
+    private class MailboxesLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             return MailboxesAdapter.createLoader(getActivity().getApplicationContext(), mAccountId,
@@ -96,7 +177,82 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            if (mDestroyed) {
+                return;
+            }
             mAdapter.changeCursor(data);
+        }
+    }
+
+    /**
+     * A loader that checks if the messages can be moved, and return the Id of the account that owns
+     * the messages.  (If any of the messages can't be moved, return -1.)
+     */
+    private static class MessageChecker extends AsyncTaskLoader<Long> {
+        private final Activity mActivity;
+        private final long[] mMessageIds;
+
+        public MessageChecker(Activity activity, long[] messageIds) {
+            super(activity);
+            mActivity = activity;
+            mMessageIds = messageIds;
+        }
+
+        @Override
+        public Long loadInBackground() {
+            final Context c = getContext();
+
+            long accountId = -1; // -1 == account not found yet.
+
+            for (long messageId : mMessageIds) {
+                // TODO This shouln't restore a full Message object.
+                final Message message = Message.restoreMessageWithId(c, messageId);
+                if (message == null) {
+                    continue; // Skip removed messages.
+                }
+
+                // First, check account.
+                if (accountId == -1) {
+                    // First message -- see if the account supports move.
+                    accountId = message.mAccountKey;
+                    if (!Account.supportsMoveMessages(c, accountId)) {
+                        Utility.showToast(
+                                mActivity, R.string.cannot_move_protocol_not_supported_toast);
+                        return -1L;
+                    }
+                } else {
+                    // Following messages -- have to belong to the same account
+                    if (message.mAccountKey != accountId) {
+                        Utility.showToast(mActivity, R.string.cannot_move_multiple_accounts_toast);
+                        return -1L;
+                    }
+                }
+                // Second, check mailbox.
+                if (!Mailbox.canMoveFrom(c, message.mMailboxKey)) {
+                    Utility.showToast(mActivity, R.string.cannot_move_special_messages);
+                    return -1L;
+                }
+            }
+
+            // If all messages have been removed, accountId remains -1, which is what we should
+            // return here.
+            return accountId;
+        }
+
+        @Override
+        public void startLoading() {
+            cancelLoad();
+            forceLoad();
+        }
+
+        @Override
+        public void stopLoading() {
+            cancelLoad();
+        }
+
+        @Override
+        public void destroy() {
+            stopLoading();
         }
     }
 }

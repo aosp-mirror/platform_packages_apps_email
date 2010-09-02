@@ -38,7 +38,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -313,11 +312,19 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     }
 
     private void onMoveMessage() {
-        long accountId = mFragmentManager.getAccountId();
         long messageId = mFragmentManager.getMessageId();
-        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(this, accountId,
-                new long[] {messageId});
+        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(this, new long[] {messageId},
+                null);
         dialog.show(getFragmentManager(), "dialog");
+    }
+
+    @Override
+    public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
+        ActivityHelper.moveMessages(this, newMailboxId, messageIds);
+        if (!moveToOlder()) {
+            // if this is the last message, move up to message-list.
+            mFragmentManager.goBackToMailbox();
+        }
     }
 
     /**
@@ -737,16 +744,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
                 return false;
             }
             return true;
-        }
-    }
-
-    // TODO It's a temporary implementation.  See {@link MoveMessagetoDialog}
-    @Override
-    public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
-        ActivityHelper.moveMessages(this, newMailboxId, messageIds);
-        if (!moveToOlder()) {
-            // if this is the last message, move up to message-list.
-            mFragmentManager.goBackToMailbox();
         }
     }
 }
