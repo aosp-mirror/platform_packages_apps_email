@@ -77,6 +77,10 @@ import java.util.regex.Pattern;
  * Base class for {@link MessageViewFragment} and {@link MessageFileViewFragment}.
  *
  * See {@link MessageViewBase} for the class relation diagram.
+ *
+ * NOTE "Move to mailbox" and "delete message" are asynchronous operations, which means message'
+ * mailbox can change any time.  Don't use {@link Message#mMailboxKey} of {@link #mMessage}
+ * directly.  If you need, always load the latest value.
  */
 public abstract class MessageViewFragmentBase extends Fragment implements View.OnClickListener {
     private Context mContext;
@@ -473,8 +477,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         ProgressBar bar = attachment.progressView;
         bar.setVisibility(View.VISIBLE);
         bar.setIndeterminate(true);
-        mController.loadAttachment(attachment.attachmentId, mMessageId, mMessage.mMailboxKey,
-                mAccountId);
+        mController.loadAttachment(attachment.attachmentId, mMessageId, mAccountId);
     }
 
     private void onCancelAttachment(AttachmentInfo attachment) {
