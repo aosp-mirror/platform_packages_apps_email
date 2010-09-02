@@ -16,6 +16,7 @@
 
 package com.android.email.provider;
 
+import com.android.email.Snippet;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
@@ -516,6 +517,34 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         for (int i = 0; i < size; ++i) {
             ProviderTestUtils.assertAttachmentEqual("save-message4", atts.get(i), attachments[i]);
         }
+    }
+
+    /**
+     * Test that saving a message creates the proper snippet for that message
+     */
+    public void testMessageSaveAddsSnippet() {
+        Account account = ProviderTestUtils.setupAccount("message-snippet", true, mMockContext);
+        Mailbox box = ProviderTestUtils.setupMailbox("box1", account.mId, true, mMockContext);
+
+        // Create a message without a body, unsaved
+        Message message = ProviderTestUtils.setupMessage("message", account.mId, box.mId, false,
+                false, mMockContext);
+        message.mText = "This is some text";
+        message.mHtml = "<html>This is some text</html>";
+        message.save(mMockContext);
+        Message restoredMessage = Message.restoreMessageWithId(mMockContext, message.mId);
+        // We should have the plain text as the snippet
+        assertEquals(restoredMessage.mSnippet, Snippet.fromPlainText(message.mText));
+
+        // Start again
+        message = ProviderTestUtils.setupMessage("message", account.mId, box.mId, false,
+                false, mMockContext);
+        message.mText = null;
+        message.mHtml = "<html>This is some text</html>";
+        message.save(mMockContext);
+        restoredMessage = Message.restoreMessageWithId(mMockContext, message.mId);
+        // We should have the plain text as the snippet
+        assertEquals(restoredMessage.mSnippet, Snippet.fromHtmlText(message.mHtml));
     }
 
     /**

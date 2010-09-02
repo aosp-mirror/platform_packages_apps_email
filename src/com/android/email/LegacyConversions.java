@@ -45,6 +45,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -217,11 +218,18 @@ public class LegacyConversions {
         }
 
         // write the combined data to the body part
-        if (sbText != null && sbText.length() != 0) {
-            body.mTextContent = sbText.toString();
+        if (!TextUtils.isEmpty(sbText)) {
+            String text = sbText.toString();
+            body.mTextContent = text;
+            localMessage.mSnippet = Snippet.fromPlainText(text);
         }
-        if (sbHtml != null && sbHtml.length() != 0) {
+        if (!TextUtils.isEmpty(sbHtml)) {
+            String text = sbHtml.toString();
+            body.mHtmlContent = text;
             body.mHtmlContent = sbHtml.toString();
+            if (localMessage.mSnippet == null) {
+                localMessage.mSnippet = Snippet.fromHtmlText(text);
+            }
         }
         if (sbHtmlReply != null && sbHtmlReply.length() != 0) {
             body.mHtmlReply = sbHtmlReply.toString();

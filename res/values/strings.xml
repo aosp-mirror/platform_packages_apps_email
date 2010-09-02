@@ -349,6 +349,10 @@
     <!-- Do Not Translate.  The label of the previous button on the message view screen. -->
     <string name="message_view_move_to_older" translatable="false">&gt;</string>
 
+    <!-- The message snippet, of the form subject + separator + start of text  -->
+    <string name="message_list_snippet"><xliff:g id="subject" example="Re: Foo">
+        %1$s</xliff:g> - <xliff:g id="text" example="Hi, John. Blah...">%2$s</xliff:g></string>
+
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
     <!-- Title of the screen when adding exchange account -->
