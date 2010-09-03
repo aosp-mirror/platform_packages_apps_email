@@ -16,26 +16,20 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.activity.AccountFolderList;
-import com.android.email.activity.setup.AccountSetupBasicsFragment.NoteDialogFragment;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
-import com.android.email.service.MailService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
-import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -134,13 +128,6 @@ public class AccountSettingsFragment extends PreferenceFragment {
     }
 
     /**
-     * Callback interface that owning activities must implement
-     */
-    public interface OnAttachListener {
-        public void onAttach(Fragment f);
-    }
-
-    /**
      * If launching with an arguments bundle, use this method to build the arguments.
      * @param accountId The account being modified
      */
@@ -159,9 +146,10 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
         mContext = activity;
 
-        // Notify the activity that we're here.  Single-pane preference activities ignore this;
-        // multi-pane settings uses this as a trigger to attach the account info
-        ((OnAttachListener)activity).onAttach(this);
+        // Notify the activity that we're here.
+        if (activity instanceof AccountSettingsXL) {
+            ((AccountSettingsXL)activity).onAttach(this);
+        }
     }
 
     /**

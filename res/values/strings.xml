@@ -587,6 +587,11 @@
 
     <!-- "Setup could not finish" dialog action button -->
     <string name="account_setup_failed_dlg_edit_details_action">Edit details</string>
+
+    <!-- On AccountSettingsXL, dialog text if you try to exit in/out/eas fragment (server settings)
+         without checking/saving [CHAR LIMIT=none]-->
+    <string name="account_settings_exit_server_settings">Discard unsaved changes?</string>
+
     <!-- On Settings screen, section heading -->
     <string name="account_settings_title_fmt">General settings</string>
     <!-- On Settings screen, setting option name -->

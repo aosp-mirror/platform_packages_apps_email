@@ -24,7 +24,6 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
@@ -43,7 +42,7 @@ import android.widget.TextView;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class AccountSetupIncomingFragment extends Fragment {
+public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
     private final static String STATE_KEY_CREDENTIAL =
             "AccountSetupIncomingFragment.loginCredential";
@@ -75,25 +74,9 @@ public class AccountSetupIncomingFragment extends Fragment {
     private EditText mImapPathPrefixView;
 
     // Support for lifecycle
-    private Context mContext;
-    private Callback mCallback = EmptyCallback.INSTANCE;
     private boolean mStarted;
     private boolean mLoaded;
     private String mCacheLoginCredential;
-
-    /**
-     * Callback interface that owning activities must implement
-     */
-    public interface Callback {
-        public void onEnableProceedButtons(boolean enable);
-        public void onProceedNext();
-    }
-
-    private static class EmptyCallback implements Callback {
-        public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onProceedNext() { }
-        @Override public void onEnableProceedButtons(boolean enable) { }
-    }
 
     /**
      * Called to do initial creation of a fragment.  This is called after
@@ -274,9 +257,9 @@ public class AccountSetupIncomingFragment extends Fragment {
     /**
      * Activity provides callbacks here.  This also triggers loading and setting up the UX
      */
+    @Override
     public void setCallback(Callback callback) {
-        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
-        mContext = getActivity();
+        super.setCallback(callback);
         if (mStarted && !mLoaded) {
             loadSettings();
         }
@@ -370,7 +353,7 @@ public class AccountSetupIncomingFragment extends Fragment {
                 enabled = false;
             }
         }
-        mCallback.onEnableProceedButtons(enabled);
+        enableNextButton(enabled);
     }
 
     private void updatePortFromSecurityType() {
@@ -381,6 +364,7 @@ public class AccountSetupIncomingFragment extends Fragment {
     /**
      * Entry point from Activity after editing settings and verifying them.  Must be FLOW_MODE_EDIT.
      */
+    @Override
     public void saveSettingsAfterEdit() {
         EmailContent.Account account = SetupData.getAccount();
         if (account.isSaved()) {
@@ -446,6 +430,7 @@ public class AccountSetupIncomingFragment extends Fragment {
     /**
      * Entry point from Activity, when "next" button is clicked
      */
+    @Override
     public void onNext() {
         EmailContent.Account setupAccount = SetupData.getAccount();
         try {
@@ -473,6 +458,6 @@ public class AccountSetupIncomingFragment extends Fragment {
         setupAccount.setDeletePolicy(
                 (Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value);
 
-        mCallback.onProceedNext();
+        mCallback.onProceedNext(SetupData.CHECK_INCOMING);
     }
 }

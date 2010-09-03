@@ -217,14 +217,14 @@ public class AccountSetupExchange extends AccountSetupActivity
     }
 
     /**
-     * Implements AccountSetupIncomingFragment.Listener
+     * Implements AccountServerBaseFragment.Callback
      */
-    public void onProceedNext() {
-        AccountSetupCheckSettings.actionCheckSettings(this, SetupData.CHECK_INCOMING);
+    public void onProceedNext(int checkMode) {
+        AccountSetupCheckSettings.actionCheckSettings(this, checkMode);
     }
 
     /**
-     * Implements AccountSetupIncomingFragment.Listener
+     * Implements AccountServerBaseFragment.Callback
      */
     public void onEnableProceedButtons(boolean enabled) {
         mNextButton.setEnabled(enabled);
