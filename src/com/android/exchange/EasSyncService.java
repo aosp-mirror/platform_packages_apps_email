@@ -130,6 +130,13 @@ public class EasSyncService extends AbstractSyncService {
     // The extra time allowed beyond the COMMAND_TIMEOUT before which our watchdog alarm triggers
     static private final int WATCHDOG_TIMEOUT_ALLOWANCE = 30*SECONDS;
 
+    // The amount of time the account mailbox will sleep if there are no pingable mailboxes
+    // This could happen if the sync time is set to "never"; we always want to check in from time
+    // to time, however, for folder list/policy changes
+    static private final int ACCOUNT_MAILBOX_SLEEP_TIME = 20*MINUTES;
+    static private final String ACCOUNT_MAILBOX_SLEEP_TEXT =
+        "Account mailbox sleeping for " + (ACCOUNT_MAILBOX_SLEEP_TIME / MINUTES) + "m";
+
     static private final String AUTO_DISCOVER_SCHEMA_PREFIX =
         "http://schemas.microsoft.com/exchange/autodiscover/mobilesync/";
     static private final String AUTO_DISCOVER_PAGE = "/autodiscover/autodiscover.xml";
@@ -1860,10 +1867,11 @@ public class EasSyncService extends AbstractSyncService {
                 userLog("pingLoop waiting for initial sync of ", uninitCount, " box(es)");
                 sleep(10*SECONDS, true);
             } else {
-                // We've got nothing to do, so we'll check again in 30 minutes at which time
-                // we'll update the folder list.  Let the device sleep in the meantime...
-                userLog("pingLoop sleeping for 30m");
-                sleep(30*MINUTES, true);
+                // We've got nothing to do, so we'll check again in 20 minutes at which time
+                // we'll update the folder list, check for policy changes and/or remote wipe, etc.
+                // Let the device sleep in the meantime...
+                userLog(ACCOUNT_MAILBOX_SLEEP_TEXT);
+                sleep(ACCOUNT_MAILBOX_SLEEP_TIME, true);
             }
         }
 
