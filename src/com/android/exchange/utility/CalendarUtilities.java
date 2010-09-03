@@ -1016,13 +1016,38 @@ public class CalendarUtilities {
     }
 
     /**
-     * Convenience method to add "until" to an EAS calendar stream
+     * Convenience method to add "count", "interval", and "until" to an EAS calendar stream
+     * According to EAS docs, OCCURRENCES must always come before INTERVAL
      */
-    static void addUntil(String rrule, Serializer s) throws IOException {
+    static private void addCountIntervalAndUntil(String rrule, Serializer s) throws IOException {
+        String count = tokenFromRrule(rrule, "COUNT=");
+        if (count != null) {
+            s.data(Tags.CALENDAR_RECURRENCE_OCCURRENCES, count);
+        }
+        String interval = tokenFromRrule(rrule, "INTERVAL=");
+        if (interval != null) {
+            s.data(Tags.CALENDAR_RECURRENCE_INTERVAL, interval);
+        }
         String until = tokenFromRrule(rrule, "UNTIL=");
         if (until != null) {
             s.data(Tags.CALENDAR_RECURRENCE_UNTIL, recurrenceUntilToEasUntil(until));
         }
+    }
+
+    static private void addByDay(String byDay, Serializer s) throws IOException {
+        // This can be 1WE (1st Wednesday) or -1FR (last Friday)
+        int weekOfMonth = byDay.charAt(0);
+        String bareByDay;
+        if (weekOfMonth == '-') {
+            // -1 is the only legal case (last week) Use "5" for EAS
+            weekOfMonth = 5;
+            bareByDay = byDay.substring(2);
+        } else {
+            weekOfMonth = weekOfMonth - '0';
+            bareByDay = byDay.substring(1);
+        }
+        s.data(Tags.CALENDAR_RECURRENCE_WEEKOFMONTH, Integer.toString(weekOfMonth));
+        s.data(Tags.CALENDAR_RECURRENCE_DAYOFWEEK, generateEasDayOfWeek(bareByDay));
     }
 
     /**
@@ -1048,19 +1073,17 @@ public class CalendarUtilities {
             if (freq.equals("DAILY")) {
                 s.start(Tags.CALENDAR_RECURRENCE);
                 s.data(Tags.CALENDAR_RECURRENCE_TYPE, "0");
-                s.data(Tags.CALENDAR_RECURRENCE_INTERVAL, "1");
-                addUntil(rrule, s);
+                addCountIntervalAndUntil(rrule, s);
                 s.end();
             } else if (freq.equals("WEEKLY")) {
                 s.start(Tags.CALENDAR_RECURRENCE);
                 s.data(Tags.CALENDAR_RECURRENCE_TYPE, "1");
-                s.data(Tags.CALENDAR_RECURRENCE_INTERVAL, "1");
                 // Requires a day of week (whereas RRULE does not)
+                addCountIntervalAndUntil(rrule, s);
                 String byDay = tokenFromRrule(rrule, "BYDAY=");
                 if (byDay != null) {
                     s.data(Tags.CALENDAR_RECURRENCE_DAYOFWEEK, generateEasDayOfWeek(byDay));
                 }
-                addUntil(rrule, s);
                 s.end();
             } else if (freq.equals("MONTHLY")) {
                 String byMonthDay = tokenFromRrule(rrule, "BYMONTHDAY=");
@@ -1068,35 +1091,24 @@ public class CalendarUtilities {
                     // The nth day of the month
                     s.start(Tags.CALENDAR_RECURRENCE);
                     s.data(Tags.CALENDAR_RECURRENCE_TYPE, "2");
+                    addCountIntervalAndUntil(rrule, s);
                     s.data(Tags.CALENDAR_RECURRENCE_DAYOFMONTH, byMonthDay);
-                    addUntil(rrule, s);
                     s.end();
                 } else {
                     String byDay = tokenFromRrule(rrule, "BYDAY=");
-                    String bareByDay;
                     if (byDay != null) {
-                        // This can be 1WE (1st Wednesday) or -1FR (last Friday)
-                        int wom = byDay.charAt(0);
-                        if (wom == '-') {
-                            // -1 is the only legal case (last week) Use "5" for EAS
-                            wom = 5;
-                            bareByDay = byDay.substring(2);
-                        } else {
-                            wom = wom - '0';
-                            bareByDay = byDay.substring(1);
-                        }
                         s.start(Tags.CALENDAR_RECURRENCE);
                         s.data(Tags.CALENDAR_RECURRENCE_TYPE, "3");
-                        s.data(Tags.CALENDAR_RECURRENCE_WEEKOFMONTH, Integer.toString(wom));
-                        s.data(Tags.CALENDAR_RECURRENCE_DAYOFWEEK, generateEasDayOfWeek(bareByDay));
-                        addUntil(rrule, s);
+                        addCountIntervalAndUntil(rrule, s);
+                        addByDay(byDay, s);
                         s.end();
                     }
                 }
             } else if (freq.equals("YEARLY")) {
                 String byMonth = tokenFromRrule(rrule, "BYMONTH=");
                 String byMonthDay = tokenFromRrule(rrule, "BYMONTHDAY=");
-                if (byMonth == null || byMonthDay == null) {
+                String byDay = tokenFromRrule(rrule, "BYDAY=");
+                if (byMonth == null && byMonthDay == null) {
                     // Calculate the month and day from the startDate
                     GregorianCalendar cal = new GregorianCalendar();
                     cal.setTimeInMillis(startTime);
@@ -1104,12 +1116,19 @@ public class CalendarUtilities {
                     byMonth = Integer.toString(cal.get(Calendar.MONTH) + 1);
                     byMonthDay = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
                 }
-                s.start(Tags.CALENDAR_RECURRENCE);
-                s.data(Tags.CALENDAR_RECURRENCE_TYPE, "5");
-                s.data(Tags.CALENDAR_RECURRENCE_DAYOFMONTH, byMonthDay);
-                s.data(Tags.CALENDAR_RECURRENCE_MONTHOFYEAR, byMonth);
-                addUntil(rrule, s);
-                s.end();
+                if (byMonth != null && (byMonthDay != null || byDay != null)) {
+                    s.start(Tags.CALENDAR_RECURRENCE);
+                    s.data(Tags.CALENDAR_RECURRENCE_TYPE, byDay == null ? "5" : "6");
+                    addCountIntervalAndUntil(rrule, s);
+                    s.data(Tags.CALENDAR_RECURRENCE_MONTHOFYEAR, byMonth);
+                    // Note that both byMonthDay and byDay can't be true in a valid RRULE
+                    if (byMonthDay != null) {
+                        s.data(Tags.CALENDAR_RECURRENCE_DAYOFMONTH, byMonthDay);
+                    } else {
+                        addByDay(byDay, s);
+                    }
+                    s.end();
+                }
             }
         }
     }
@@ -1131,11 +1150,11 @@ public class CalendarUtilities {
         StringBuilder rrule = new StringBuilder("FREQ=" + sTypeToFreq[type]);
 
         // INTERVAL and COUNT
-        if (interval > 0) {
-            rrule.append(";INTERVAL=" + interval);
-        }
         if (occurrences > 0) {
             rrule.append(";COUNT=" + occurrences);
+        }
+        if (interval > 0) {
+            rrule.append(";INTERVAL=" + interval);
         }
 
         // Days, weeks, months, etc.

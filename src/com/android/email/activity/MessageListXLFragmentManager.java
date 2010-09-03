@@ -98,16 +98,6 @@ class MessageListXLFragmentManager {
      */
     public interface TargetActivity {
         public FragmentManager getFragmentManager();
-        /**
-         * Called when MessageViewFragment is being shown.
-         * {@link MessageListXL} uses it to show the navigation buttons.
-         */
-        public void onMessageViewFragmentShown(long accountId, long mailboxId, long messageId);
-        /**
-         * Called when MessageViewFragment is being hidden.
-         * {@link MessageListXL} uses it to hide the navigation buttons.
-         */
-        public void onMessageViewFragmentHidden();
 
         /**
          * Called when the selected account is on security-hold.
@@ -318,7 +308,6 @@ class MessageListXLFragmentManager {
         if (mMessageViewFragment != null) {
             ft.remove(mMessageViewFragment);
             mMessageViewFragment = null;
-            mTargetActivity.onMessageViewFragmentHidden(); // Don't forget to tell the activity.
         }
         ft.commit();
 
@@ -396,7 +385,6 @@ class MessageListXLFragmentManager {
             if (mMessageViewFragment != null) {
                 // Message view will disappear.
                 mMessageViewFragment = null;
-                mTargetActivity.onMessageViewFragmentHidden(); // Don't forget to tell the activity.
             }
         } else {
             if (byExplicitUserAction) {
@@ -471,7 +459,6 @@ class MessageListXLFragmentManager {
         mMessageViewFragment = fragment;
         fragment.setCallback(mMessageViewFragmentCallback);
         fragment.openMessage(mMessageId);
-        mTargetActivity.onMessageViewFragmentShown(getAccountId(), getMailboxId(), getMessageId());
     }
 
     private void startInboxLookup() {

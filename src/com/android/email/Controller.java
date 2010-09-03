@@ -853,10 +853,9 @@ public class Controller {
      *
      * @param attachmentId the attachment to load
      * @param messageId the owner message
-     * @param mailboxId the owner mailbox
      * @param accountId the owner account
      */
-    public void loadAttachment(final long attachmentId, final long messageId, final long mailboxId,
+    public void loadAttachment(final long attachmentId, final long messageId,
             final long accountId) {
 
         Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);

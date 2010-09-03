@@ -277,12 +277,11 @@ public class MessageList extends Activity implements OnClickListener,
         if (type == MessageListFragment.Callback.TYPE_DRAFT) {
             MessageCompose.actionEditDraft(this, messageId);
         } else {
-            final boolean disableReply = (type == MessageListFragment.Callback.TYPE_TRASH);
             // WARNING: here we pass "listMailboxId", which can be the negative id of
             // a compound mailbox, instead of the mailboxId of the particular message that
             // is opened.  This is to support the next/prev buttons on the message view
             // properly even for combined mailboxes.
-            MessageView.actionView(this, messageId, listMailboxId, disableReply);
+            MessageView.actionView(this, messageId, listMailboxId);
         }
     }
 

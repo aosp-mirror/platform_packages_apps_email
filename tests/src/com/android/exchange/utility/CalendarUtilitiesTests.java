@@ -22,16 +22,22 @@ import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
+import com.android.exchange.adapter.CalendarSyncAdapter;
+import com.android.exchange.adapter.Parser;
+import com.android.exchange.adapter.Serializer;
+import com.android.exchange.adapter.SyncAdapterTestCase;
+import com.android.exchange.adapter.Tags;
+import com.android.exchange.adapter.CalendarSyncAdapter.EasCalendarSyncParser;
 
 import android.content.ContentValues;
 import android.content.Entity;
 import android.content.res.Resources;
 import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Events;
-import android.test.AndroidTestCase;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.DateFormat;
@@ -51,7 +57,7 @@ import java.util.TimeZone;
  * http://www.ietf.org/rfc/rfc2445.txt
  */
 
-public class CalendarUtilitiesTests extends AndroidTestCase {
+public class CalendarUtilitiesTests extends SyncAdapterTestCase<CalendarSyncAdapter> {
 
     // Some prebuilt time zones, Base64 encoded (as they arrive from EAS)
     // More time zones to be added over time
@@ -612,7 +618,7 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         // Every Monday for 2 weeks
         String rrule = CalendarUtilities.rruleFromRecurrence(
                 1 /*Weekly*/, 2 /*Occurrences*/, 1 /*Interval*/, 2 /*Monday*/, 0, 0, 0, null);
-        assertEquals("FREQ=WEEKLY;INTERVAL=1;COUNT=2;BYDAY=MO", rrule);
+        assertEquals("FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=MO", rrule);
         // Every Tuesday and Friday
         rrule = CalendarUtilities.rruleFromRecurrence(
                 1 /*Weekly*/, 0 /*Occurrences*/, 0 /*Interval*/, 36 /*Tue&Fri*/, 0, 0, 0, null);
@@ -637,6 +643,41 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         rrule = CalendarUtilities.rruleFromRecurrence(
                 6 /*Yearly/Month/DayOfWeek*/, 0, 0, 4 /*Tue*/, 0, 1 /*1st*/, 6 /*June*/, null);
         assertEquals("FREQ=YEARLY;BYDAY=1TU;BYMONTH=6", rrule);
+    }
+
+    /**
+     * Given a CalendarSyncAdapter and an RRULE, serialize the RRULE via recurrentFromRrule and
+     * then parse the result.  Assert that the resulting RRULE is the same as the original.
+     * @param adapter a CalendarSyncAdapter
+     * @param rrule an RRULE string that will be tested
+     * @throws IOException
+     */
+    private void testSingleRecurrenceFromRrule(CalendarSyncAdapter adapter, String rrule)
+            throws IOException {
+        Serializer s = new Serializer();
+        CalendarUtilities.recurrenceFromRrule(rrule, 0, s);
+        s.done();
+        EasCalendarSyncParser parser = adapter.new EasCalendarSyncParser(
+                new ByteArrayInputStream(s.toByteArray()), adapter);
+        // The first element should be the outer CALENDAR_RECURRENCE tag
+        assertEquals(Tags.CALENDAR_RECURRENCE, parser.nextTag(Parser.START_DOCUMENT));
+        assertEquals(rrule, parser.recurrenceParser());
+    }
+
+    /**
+     * Round-trip test of RRULE handling; we serialize an RRULE and then parse the result; the
+     * result should be identical to the original RRULE
+     */
+    public void testRecurrenceFromRrule() throws IOException {
+        // A test sync adapter we can use throughout the test
+        CalendarSyncAdapter adapter = getTestSyncAdapter(CalendarSyncAdapter.class);
+
+        testSingleRecurrenceFromRrule(adapter, "FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=MO");
+        testSingleRecurrenceFromRrule(adapter, "FREQ=WEEKLY;BYDAY=TU,FR");
+        testSingleRecurrenceFromRrule(adapter, "FREQ=MONTHLY;BYDAY=-1SA");
+        testSingleRecurrenceFromRrule(adapter, "FREQ=MONTHLY;BYDAY=3WE,3TH");
+        testSingleRecurrenceFromRrule(adapter, "FREQ=YEARLY;BYMONTHDAY=31;BYMONTH=10");
+        testSingleRecurrenceFromRrule(adapter, "FREQ=YEARLY;BYDAY=1TU;BYMONTH=6");
     }
 
     /**

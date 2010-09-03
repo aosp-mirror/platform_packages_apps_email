@@ -264,11 +264,16 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 lss = new Utility.ListStateSaver(lv);
             }
 
-            // Set the adapter.
-            mListAdapter.changeCursor(cursor);
-            setListAdapter(mListAdapter);
-            setListShown(true);
-            highlightSelectedMailbox();
+            if (cursor.getCount() == 0) {
+                mListAdapter.changeCursor(null);
+                setListShown(false);
+            } else {
+                // Set the adapter.
+                mListAdapter.changeCursor(cursor);
+                setListAdapter(mListAdapter);
+                setListShown(true);
+                highlightSelectedMailbox();
+            }
 
             // Restore the state
             lss.restore(lv);

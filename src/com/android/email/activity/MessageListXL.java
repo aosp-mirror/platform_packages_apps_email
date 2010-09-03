@@ -56,6 +56,10 @@ import java.security.InvalidParameterException;
  * TODO Refresh account list when adding/removing/changing(e.g. display name) accounts.
  *      -> Need the MessageList.onResume logic.  Figure out a clean way to do that.
  *
+ * TODO Extract the message view buttons (move, reply, etc) into a custom view.
+ * That way it'll be easier to change the button layout on orientation changes.
+ * (We'll probably combine some buttons on portrait.)
+ *
  * TODO Refine "move to".  It also shouldn't work for special messages, like drafts.
  */
 public class MessageListXL extends Activity implements View.OnClickListener,
@@ -74,6 +78,9 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private View mMessageViewButtonPanel;
     private View mMoveToNewerButton;
     private View mMoveToOlderButton;
+    private View mForwardButton;
+    private View mReplyButton;
+    private View mReplyAllButton;
 
     private AccountSelectorAdapter mAccountsSelectorAdapter;
     private final ActionBarNavigationCallback mActionBarNavigationCallback
@@ -139,13 +146,18 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         mMessageViewButtonPanel = findViewById(R.id.message_view_buttons);
         mMoveToNewerButton = findViewById(R.id.moveToNewer);
         mMoveToOlderButton = findViewById(R.id.moveToOlder);
+        mForwardButton = findViewById(R.id.forward);
+        mReplyButton = findViewById(R.id.reply);
+        mReplyAllButton = findViewById(R.id.reply_all);
+
         mMoveToNewerButton.setOnClickListener(this);
         mMoveToOlderButton.setOnClickListener(this);
+        mForwardButton.setOnClickListener(this);
+        mReplyButton.setOnClickListener(this);
+        mReplyAllButton.setOnClickListener(this);
+
         findViewById(R.id.delete).setOnClickListener(this);
         findViewById(R.id.unread).setOnClickListener(this);
-        findViewById(R.id.reply).setOnClickListener(this);
-        findViewById(R.id.reply_all).setOnClickListener(this);
-        findViewById(R.id.forward).setOnClickListener(this);
         findViewById(R.id.move).setOnClickListener(this);
 
         mAccountsSelectorAdapter = new AccountSelectorAdapter(mContext, null);
@@ -252,7 +264,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             super.onBackPressed();
         }
     }
-
 
     @Override
     public void onClick(View view) {
@@ -413,6 +424,20 @@ public class MessageListXL extends Activity implements View.OnClickListener,
 
     private class MessageViewFragmentCallback implements MessageViewFragment.Callback {
         @Override
+        public void onMessageViewShown(int mailboxType) {
+            mMessageViewButtonPanel.setVisibility(View.VISIBLE);
+            updateMessageOrderManager();
+            updateNavigationArrows();
+            enableReplyForwardButtons(mailboxType != Mailbox.TYPE_TRASH);
+        }
+
+        @Override
+        public void onMessageViewGone() {
+            mMessageViewButtonPanel.setVisibility(View.GONE);
+            stopMessageOrderManager();
+        }
+
+        @Override
         public boolean onUrlInMessageClicked(String url) {
             return ActivityHelper.openUrlInMessage(MessageListXL.this, url,
                     mFragmentManager.getAccountId());
@@ -460,19 +485,10 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         }
     }
 
-    @Override
-    public void onMessageViewFragmentShown(long accountId, long mailboxId, long messageId) {
-        mMessageViewButtonPanel.setVisibility(View.VISIBLE);
-
-        updateMessageOrderManager();
-        updateNavigationArrows();
-    }
-
-    @Override
-    public void onMessageViewFragmentHidden() {
-        mMessageViewButtonPanel.setVisibility(View.GONE);
-
-        stopMessageOrderManager();
+    private void enableReplyForwardButtons(boolean enabled) {
+        mForwardButton.setEnabled(enabled);
+        mReplyButton.setEnabled(enabled);
+        mReplyAllButton.setEnabled(enabled);
     }
 
     @Override

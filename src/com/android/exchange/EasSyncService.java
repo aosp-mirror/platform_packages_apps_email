@@ -803,7 +803,7 @@ public class EasSyncService extends AbstractSyncService {
      * TODO: make watchdog actually work (it doesn't understand our service w/Mailbox == 0)
      * TODO: figure out why sendHttpClientPost() hangs - possibly pool exhaustion
      */
-    static public GalResult searchGal(Context context, long accountId, String filter) {
+    static public GalResult searchGal(Context context, long accountId, String filter, int limit) {
         Account acct = ExchangeService.getAccountById(accountId);
         if (acct != null) {
             HostAuth ha = HostAuth.restoreHostAuthWithId(context, acct.mHostAuthKeyRecv);
@@ -830,7 +830,7 @@ public class EasSyncService extends AbstractSyncService {
                 s.start(Tags.SEARCH_SEARCH).start(Tags.SEARCH_STORE);
                 s.data(Tags.SEARCH_NAME, "GAL").data(Tags.SEARCH_QUERY, filter);
                 s.start(Tags.SEARCH_OPTIONS);
-                s.data(Tags.SEARCH_RANGE, "0-19");  // Return 0..20 results
+                s.data(Tags.SEARCH_RANGE, "0-" + Integer.toString(limit - 1));
                 s.end().end().end().done();
                 if (DEBUG_GAL_SERVICE) svc.userLog("GAL lookup starting for " + ha.mAddress);
                 HttpResponse resp = svc.sendHttpClientPost("Search", s.toByteArray());

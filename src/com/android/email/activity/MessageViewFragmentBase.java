@@ -28,6 +28,7 @@ import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
+import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.AttachmentDownloadService;
 
@@ -77,6 +78,10 @@ import java.util.regex.Pattern;
  * Base class for {@link MessageViewFragment} and {@link MessageFileViewFragment}.
  *
  * See {@link MessageViewBase} for the class relation diagram.
+ *
+ * NOTE "Move to mailbox" and "delete message" are asynchronous operations, which means message'
+ * mailbox can change any time.  Don't use {@link Message#mMailboxKey} of {@link #mMessage}
+ * directly.  If you need, always load the latest value.
  */
 public abstract class MessageViewFragmentBase extends Fragment implements View.OnClickListener {
     private Context mContext;
@@ -146,6 +151,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     public interface Callback {
+        /** Called when the fragment is about to show up, or show a different message. */
+        public void onMessageViewShown(int mailboxType);
+
+        /** Called when the fragment is about to be destroyed. */
+        public void onMessageViewGone();
+
         /**
          * Called when a link in a message is clicked.
          *
@@ -169,23 +180,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     public static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-
-        @Override
-        public void onLoadMessageError() {
-        }
-
-        @Override
-        public void onLoadMessageFinished() {
-        }
-
-        @Override
-        public void onLoadMessageStarted() {
-        }
-
-        @Override
-        public void onMessageNotExists() {
-        }
-
+        @Override public void onMessageViewShown(int mailboxType) {}
+        @Override public void onMessageViewGone() {}
+        @Override public void onLoadMessageError() {}
+        @Override public void onLoadMessageFinished() {}
+        @Override public void onLoadMessageStarted() {}
+        @Override public void onMessageNotExists() {}
         @Override
         public boolean onUrlInMessageClicked(String url) {
             return false;
@@ -297,6 +297,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessageViewFragment onDestroy");
         }
+        mCallback.onMessageViewGone();
         mController.removeResultCallback(mControllerCallback);
         cancelAllTasks();
         mMessageContentView.destroy();
@@ -473,8 +474,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         ProgressBar bar = attachment.progressView;
         bar.setVisibility(View.VISIBLE);
         bar.setIndeterminate(true);
-        mController.loadAttachment(attachment.attachmentId, mMessageId, mMessage.mMailboxKey,
-                mAccountId);
+        mController.loadAttachment(attachment.attachmentId, mMessageId, mAccountId);
     }
 
     private void onCancelAttachment(AttachmentInfo attachment) {
@@ -582,6 +582,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private class LoadMessageTask extends AsyncTask<Void, Void, Message> {
 
         private final boolean mOkToFetch;
+        private int mMailboxType;
 
         /**
          * Special constructor to cache some local info
@@ -592,7 +593,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected Message doInBackground(Void... params) {
-            return openMessageSync();
+            Message message = openMessageSync();
+            if (message != null) {
+                mMailboxType = Mailbox.getMailboxType(mContext, message.mMailboxKey);
+                if (mMailboxType == -1) {
+                    message = null; // mailbox removed??
+                }
+            }
+            return message;
         }
 
         @Override
@@ -618,6 +626,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
             reloadUiFromMessage(message, mOkToFetch);
             startPresenceCheck();
+            mCallback.onMessageViewShown(mMailboxType);
         }
     }
 
