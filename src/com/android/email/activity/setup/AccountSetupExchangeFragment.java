@@ -26,7 +26,6 @@ import com.android.email.provider.EmailContent.HostAuth;
 import com.android.exchange.ExchangeService;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -38,9 +37,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import java.io.IOException;
 import java.net.URI;
@@ -54,7 +53,8 @@ import java.net.URISyntaxException;
  * Do not attempt to define orientation-specific resources, they won't be loaded.
  * What we really need here is a more "sticky" way to prevent that problem.
  */
-public class AccountSetupExchangeFragment extends Fragment implements OnCheckedChangeListener {
+public class AccountSetupExchangeFragment extends AccountServerBaseFragment
+        implements OnCheckedChangeListener {
 
     private final static String STATE_KEY_CREDENTIAL =
         "AccountSetupExchangeFragment.loginCredential";
@@ -66,25 +66,9 @@ public class AccountSetupExchangeFragment extends Fragment implements OnCheckedC
     private CheckBox mTrustCertificatesView;
 
     // Support for lifecycle
-    private Context mContext;
-    private Callback mCallback = EmptyCallback.INSTANCE;
     private boolean mStarted;
     private boolean mLoaded;
     private String mCacheLoginCredential;
-
-    /**
-     * Callback interface that owning activities must implement
-     */
-    public interface Callback {
-        public void onEnableProceedButtons(boolean enable);
-        public void onProceedNext();
-    }
-
-    private static class EmptyCallback implements Callback {
-        public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onProceedNext() { }
-        @Override public void onEnableProceedButtons(boolean enable) { }
-    }
 
     /**
      * Called to do initial creation of a fragment.  This is called after
@@ -224,9 +208,9 @@ public class AccountSetupExchangeFragment extends Fragment implements OnCheckedC
     /**
      * Activity provides callbacks here.  This also triggers loading and setting up the UX
      */
+    @Override
     public void setCallback(Callback callback) {
-        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
-        mContext = getActivity();
+        super.setCallback(callback);
         if (mStarted && !mLoaded) {
             loadSettings(SetupData.getAccount());
         }
@@ -292,7 +276,7 @@ public class AccountSetupExchangeFragment extends Fragment implements OnCheckedC
                 enabled = false;
             }
         }
-        mCallback.onEnableProceedButtons(enabled);
+        enableNextButton(enabled);
         return enabled;
     }
 
@@ -306,6 +290,7 @@ public class AccountSetupExchangeFragment extends Fragment implements OnCheckedC
      *
      * TODO: Was the !isSaved() logic ever actually used?
      */
+    @Override
     public void saveSettingsAfterEdit() {
         Account account = SetupData.getAccount();
         if (account.isSaved()) {
@@ -376,6 +361,7 @@ public class AccountSetupExchangeFragment extends Fragment implements OnCheckedC
     /**
      * Entry point from Activity, when "next" button is clicked
      */
+    @Override
     public void onNext() {
         try {
             URI uri = getUri();
@@ -401,6 +387,6 @@ public class AccountSetupExchangeFragment extends Fragment implements OnCheckedC
             throw new Error(use);
         }
 
-        mCallback.onProceedNext();
+        mCallback.onProceedNext(SetupData.CHECK_INCOMING);
     }
 }

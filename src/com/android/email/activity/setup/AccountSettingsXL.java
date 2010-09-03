@@ -28,8 +28,12 @@ import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.service.MailService;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -54,8 +58,7 @@ import java.util.List;
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
-public class AccountSettingsXL extends PreferenceActivity
-        implements AccountSettingsFragment.OnAttachListener, OnClickListener {
+public class AccountSettingsXL extends PreferenceActivity implements OnClickListener {
 
     // Intent extras for our internal activity launch
     /* package */ static final String EXTRA_ACCOUNT_ID = "AccountSettingsXL.account_id";
@@ -91,14 +94,17 @@ public class AccountSettingsXL extends PreferenceActivity
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
     private Button mAddAccountButton;
+    private List<Header> mGeneratedHeaders;
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
     private GetAccountIdFromAccountTask mGetAccountIdFromAccountTask;
 
     // Specific callbacks used by settings fragments
-    private AccountSettingsFragmentCallback mAccountSettingsFragmentCallback
+    private final AccountSettingsFragmentCallback mAccountSettingsFragmentCallback
             = new AccountSettingsFragmentCallback();
+    private final AccountServerSettingsFragmentCallback mAccountServerSettingsFragmentCallback
+            = new AccountServerSettingsFragmentCallback();
 
     /**
      * Display (and edit) settings for a specific account, or -1 for any/all accounts
@@ -150,6 +156,11 @@ public class AccountSettingsXL extends PreferenceActivity
     public void onResume() {
         super.onResume();
         updateAccounts();
+
+        // When we're resuming, enable/disable the add account button
+        if (mAddAccountButton != null && hasHeaders()) {
+            mAddAccountButton.setEnabled(shouldShowNewAccount());
+        }
     }
 
     @Override
@@ -194,6 +205,23 @@ public class AccountSettingsXL extends PreferenceActivity
         Header result = mRequestedAccountHeader;
         mRequestedAccountHeader = null;
         return result;
+    }
+
+    /**
+     * After verifying a new server configuration, we return here and continue.  If editing
+     * succeeded, we do "back" to exit the settings screen.
+     *
+     * TODO: This goes away when we move checksettings into a fragment as well
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (mCurrentFragment instanceof AccountServerBaseFragment) {
+                AccountServerBaseFragment f = (AccountServerBaseFragment) mCurrentFragment;
+                f.saveSettingsAfterEdit();
+            }
+            onBackPressed();
+        }
     }
 
     private void enableDebugMenu() {
@@ -258,6 +286,7 @@ public class AccountSettingsXL extends PreferenceActivity
                     target.add(header);
                     if (header.accountId == mRequestedAccountId) {
                         mRequestedAccountHeader = header;
+                        mRequestedAccountId = -1;
                     }
                 }
             }
@@ -275,6 +304,9 @@ public class AccountSettingsXL extends PreferenceActivity
             debugHeader.fragmentArguments = null;
             target.add(debugHeader);
         }
+
+        // Save for later use (see forceSwitch)
+        mGeneratedHeaders = target;
     }
 
     /**
@@ -377,6 +409,17 @@ public class AccountSettingsXL extends PreferenceActivity
      */
     @Override
     public void onHeaderClick(Header header, int position) {
+        // special case when exiting the server settings fragments
+        if (mCurrentFragment instanceof AccountServerBaseFragment) {
+            if (position != mCurrentHeaderPosition) {
+                UnsavedChangesDialogFragment dialogFragment =
+                    UnsavedChangesDialogFragment.newInstance(position);
+                dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
+            }
+            return;
+        }
+
+        // Secret keys:  Click 10x to enable debug settings
         if (position == 0) {
             mNumGeneralHeaderClicked++;
             if (mNumGeneralHeaderClicked == 10) {
@@ -385,31 +428,41 @@ public class AccountSettingsXL extends PreferenceActivity
         } else {
             mNumGeneralHeaderClicked = 0;
         }
-        if (position != mCurrentHeaderPosition) {
-            // if showing a sub-panel (e.g. server settings) we need to trap & post a dialog
-        }
+
+        // Process header click normally
+        mCurrentHeaderPosition = position;
         super.onHeaderClick(header, position);
     }
 
     /**
-     * Implements AccountSettingsFragment.OnAttachListener
+     * Switch to a specific header without checking for server settings fragments as done
+     * in {@link #onHeaderClick(Header, int)}.  Called after we interrupted a header switch
+     * with a dialog, and the user OK'd it.
      */
-    @Override
+    private void forceSwitchHeader(int newPosition) {
+        mCurrentHeaderPosition = newPosition;
+        Header header = mGeneratedHeaders.get(newPosition);
+        switchToHeader(header.fragment, header.fragmentArguments);
+    }
+
+    /**
+     * Called by fragments at onAttach time
+     */
     public void onAttach(Fragment f) {
         mCurrentFragment = f;
         // dispatch per-fragment setup
         if (f instanceof AccountSettingsFragment) {
             AccountSettingsFragment asf = (AccountSettingsFragment) f;
             asf.setCallback(mAccountSettingsFragmentCallback);
-        } else if (f instanceof AccountSetupIncomingFragment) {
-            // TODO
-        } else if (f instanceof AccountSetupOutgoingFragment) {
-            // TODO
-        } else if (f instanceof AccountSetupExchangeFragment) {
-            // TODO
+        } else if (mCurrentFragment instanceof AccountServerBaseFragment) {
+            AccountServerBaseFragment asbf = (AccountServerBaseFragment) mCurrentFragment;
+            asbf.setCallback(mAccountServerSettingsFragmentCallback);
         }
-        // Since we're changing fragments, enable/disable the add account button
-        mAddAccountButton.setEnabled(shouldShowNewAccount());
+
+        // When we're changing fragments, enable/disable the add account button
+        if (mAddAccountButton != null && hasHeaders()) {
+            mAddAccountButton.setEnabled(shouldShowNewAccount());
+        }
     }
 
     /**
@@ -431,7 +484,26 @@ public class AccountSettingsXL extends PreferenceActivity
     }
 
     /**
-     * STOPSHIP: non-fragmented dispatch to edit incoming settings.  Replace with fragment flip.
+     * Callbacks for AccountServerSettingsFragmentCallback
+     */
+    private class AccountServerSettingsFragmentCallback
+            implements AccountServerBaseFragment.Callback {
+        @Override
+        public void onEnableProceedButtons(boolean enable) {
+            // This is not used - it's a callback for the legacy activities
+        }
+        @Override
+        public void onProceedNext(int setupMode) {
+            // TODO - this will be a fragment launch, with a fragment target result
+            AccountSetupCheckSettings.actionCheckSettings(AccountSettingsXL.this, setupMode);
+        }
+    }
+
+    /**
+     * Dispatch to edit incoming settings.
+     *
+     * TODO: Cache the store lookup earlier, in an AsyncTask, to avoid this DB access
+     * TODO: Make things less hardwired
      */
     public void onIncomingSettings(Account account) {
         try {
@@ -439,9 +511,17 @@ public class AccountSettingsXL extends PreferenceActivity
             if (store != null) {
                 Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
                 if (setting != null) {
-                    java.lang.reflect.Method m = setting.getMethod("actionEditIncomingSettings",
-                            Activity.class, int.class, Account.class);
-                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, account);
+//                    java.lang.reflect.Method m = setting.getMethod("actionEditIncomingSettings",
+//                            Activity.class, int.class, Account.class);
+//                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, account);
+                    SetupData.init(SetupData.FLOW_MODE_EDIT, account);
+                    Fragment f = null;
+                    if (setting.equals(AccountSetupIncoming.class)) {
+                        f = new AccountSetupIncomingFragment();
+                    } else if (setting.equals(AccountSetupExchange.class)) {
+                        f = new AccountSetupExchangeFragment();
+                    }
+                    startPreferenceFragment(f, true);
                 }
             }
         } catch (Exception e) {
@@ -450,7 +530,10 @@ public class AccountSettingsXL extends PreferenceActivity
     }
 
     /**
-     * STOPSHIP: non-fragmented dispatch to edit outgoing settings.  Replace with fragment flip.
+     * Dispatch to edit outgoing settings.
+     *
+     * TODO: Cache the store lookup earlier, in an AsyncTask, to avoid this DB access
+     * TODO: Make things less hardwired
      */
     public void onOutgoingSettings(Account account) {
         try {
@@ -458,9 +541,15 @@ public class AccountSettingsXL extends PreferenceActivity
             if (sender != null) {
                 Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
                 if (setting != null) {
-                    java.lang.reflect.Method m = setting.getMethod("actionEditOutgoingSettings",
-                            Activity.class, int.class, Account.class);
-                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, account);
+//                    java.lang.reflect.Method m = setting.getMethod("actionEditOutgoingSettings",
+//                            Activity.class, int.class, Account.class);
+//                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, account);
+                    SetupData.init(SetupData.FLOW_MODE_EDIT, account);
+                    Fragment f = null;
+                    if (setting.equals(AccountSetupOutgoing.class)) {
+                        f = new AccountSetupOutgoingFragment();
+                    }
+                    startPreferenceFragment(f, true);
                 }
             }
         } catch (Exception e) {
@@ -539,4 +628,49 @@ public class AccountSettingsXL extends PreferenceActivity
             addPreferencesFromResource(R.xml.general_preferences);
         }
     }
+
+    /**
+     * Dialog fragment to show "exit with unsaved changes?" dialog
+     */
+    public static class UnsavedChangesDialogFragment extends DialogFragment {
+        private final static String TAG = "UnsavedChangesDialogFragment";
+
+        // Argument bundle keys
+        private final static String BUNDLE_KEY_NEW_HEADER = "UnsavedChangesDialogFragment.Header";
+
+        /**
+         * Create the dialog with parameters
+         */
+        public static UnsavedChangesDialogFragment newInstance(int newPosition) {
+            UnsavedChangesDialogFragment f = new UnsavedChangesDialogFragment();
+            Bundle b = new Bundle();
+            b.putInt(BUNDLE_KEY_NEW_HEADER, newPosition);
+            f.setArguments(b);
+            return f;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final AccountSettingsXL activity = (AccountSettingsXL) getActivity();
+            final int newPosition = getArguments().getInt(BUNDLE_KEY_NEW_HEADER);
+
+            return new AlertDialog.Builder(activity)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle(android.R.string.dialog_alert_title)
+                .setMessage(R.string.account_settings_exit_server_settings)
+                .setPositiveButton(
+                        R.string.okay_action,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                activity.forceSwitchHeader(newPosition);
+                                dismiss();
+                            }
+                        })
+                .setNegativeButton(
+                        activity.getString(R.string.cancel_action),
+                        null)
+                .create();
+        }
+    }
+
 }
