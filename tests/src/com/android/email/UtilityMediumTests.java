@@ -16,12 +16,13 @@
 
 package com.android.email;
 
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
 import android.test.ProviderTestCase2;
@@ -117,5 +118,71 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
         attachment.mContentUri = "file://" + file.getAbsolutePath();
         // Now, this should return true
         assertTrue(Utility.attachmentExists(mMockContext, attachment));
+    }
+
+    public void testGetFirstRowLong() {
+        Account account1 = ProviderTestUtils.setupAccount("1", true, mMockContext);
+        Account account2 = ProviderTestUtils.setupAccount("X1", true, mMockContext);
+        Account account3 = ProviderTestUtils.setupAccount("X2", true, mMockContext);
+
+        // case 1. Account found
+        assertEquals((Long) account2.mId, Utility.getFirstRowLong(
+                mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                Account.DISPLAY_NAME,
+                EmailContent.ID_PROJECTION_COLUMN));
+        // different sort order
+        assertEquals((Long) account3.mId, Utility.getFirstRowLong(
+                mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                Account.DISPLAY_NAME + " desc",
+                EmailContent.ID_PROJECTION_COLUMN));
+
+        // case 2. no row found
+        assertEquals(null, Utility.getFirstRowLong(
+                mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                null,
+                EmailContent.ID_PROJECTION_COLUMN));
+
+        // case 3. no row found with default value
+        assertEquals((Long) (-1L), Utility.getFirstRowLong(
+                mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                null,
+                EmailContent.ID_PROJECTION_COLUMN, -1L));
+    }
+
+    public void testGetFirstRowInt() {
+        Account account1 = ProviderTestUtils.setupAccount("1", true, mMockContext);
+        Account account2 = ProviderTestUtils.setupAccount("X1", true, mMockContext);
+        Account account3 = ProviderTestUtils.setupAccount("X2", true, mMockContext);
+
+        // case 1. Account found
+        assertEquals((Integer)(int) account2.mId, Utility.getFirstRowInt(
+                mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                Account.DISPLAY_NAME,
+                EmailContent.ID_PROJECTION_COLUMN));
+        // different sort order
+        assertEquals((Integer)(int) account3.mId, Utility.getFirstRowInt(
+                mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                Account.DISPLAY_NAME + " desc",
+                EmailContent.ID_PROJECTION_COLUMN));
+
+        // case 2. no row found
+        assertEquals(null, Utility.getFirstRowInt(
+                mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                null,
+                EmailContent.ID_PROJECTION_COLUMN));
+
+        // case 3. no row found with default value
+        assertEquals((Integer) (-1), Utility.getFirstRowInt(
+                mMockContext, Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                null,
+                EmailContent.ID_PROJECTION_COLUMN, -1));
     }
 }
