@@ -236,6 +236,9 @@ public class AccountSetupCheckSettings extends AccountSetupActivity implements O
                         case MessagingException.SECURITY_POLICIES_UNSUPPORTED:
                             id = R.string.account_setup_failed_security_policies_unsupported;
                             break;
+                        case MessagingException.PROTOCOL_VERSION_UNSUPPORTED:
+                            id = R.string.account_setup_failed_protocol_unsupported;
+                            break;
                         case MessagingException.GENERAL_SECURITY:
                             id = R.string.account_setup_failed_security;
                             break;

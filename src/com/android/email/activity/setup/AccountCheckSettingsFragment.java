@@ -18,8 +18,8 @@ package com.android.email.activity.setup;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.Utility;
+import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
@@ -452,6 +452,9 @@ public class AccountCheckSettingsFragment extends Fragment {
                         break;
                     case MessagingException.SECURITY_POLICIES_UNSUPPORTED:
                         id = R.string.account_setup_failed_security_policies_unsupported;
+                        break;
+                    case MessagingException.PROTOCOL_VERSION_UNSUPPORTED:
+                        id = R.string.account_setup_failed_protocol_unsupported;
                         break;
                     case MessagingException.GENERAL_SECURITY:
                         id = R.string.account_setup_failed_security;

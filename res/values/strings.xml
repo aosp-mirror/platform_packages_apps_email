@@ -561,6 +561,11 @@
     <string name="account_setup_failed_security">Unable to open connection to server due to security error.</string>
     <!-- Additional diagnostic text when server connection failed due to io error (connection) -->
     <string name="account_setup_failed_ioerror">Unable to open connection to server.</string>
+    <!-- Additional diagnostic text when server connection failed due to our inability to support a
+         required EAS protocol version -->
+    <string name="account_setup_failed_protocol_unsupported">
+         You entered an incorrect server address or the server requires a protocol version that
+         Email does not support.</string>
 
     <!-- Dialog title when validation requires security provisioning (e.g. support
          for device lock PIN, or remote wipe.) and we ask the user permission before continuing -->
