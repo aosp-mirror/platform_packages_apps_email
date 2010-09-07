@@ -20,6 +20,7 @@ import com.android.email.Utility;
 import com.android.email.mail.transport.Rfc822Output;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
@@ -188,6 +189,31 @@ public class ProviderTestUtils extends Assert {
             message.save(context);
         }
         return message;
+    }
+
+    /**
+     * Create a test body
+     *
+     * @param messageId the message this body belongs to
+     * @param textContent the plain text for the body
+     * @param htmlContent the html text for the body
+     * @param saveIt if true, write the new attachment directly to the DB
+     * @param context use this context
+     */
+    public static Body setupBody(long messageId, String textContent, String htmlContent,
+            boolean saveIt, Context context) {
+        Body body = new Body();
+        body.mMessageKey = messageId;
+        body.mTextContent = textContent;
+        body.mHtmlContent = htmlContent;
+        body.mTextReply = "text reply " + messageId;
+        body.mHtmlReply = "html reply " + messageId;
+        body.mSourceKey = messageId + 0x1000;
+        body.mIntroText = "intro text " + messageId;
+        if (saveIt) {
+            body.save(context);
+        }
+        return body;
     }
 
     /**
@@ -363,6 +389,8 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mReplyTo", expect.mReplyTo, actual.mReplyTo);
 
         assertEquals(caller + " mMeetingInfo", expect.mMeetingInfo, actual.mMeetingInfo);
+
+        assertEquals(caller + " mSnippet", expect.mSnippet, actual.mSnippet);
 
         assertEquals(caller + " mText", expect.mText, actual.mText);
         assertEquals(caller + " mHtml", expect.mHtml, actual.mHtml);

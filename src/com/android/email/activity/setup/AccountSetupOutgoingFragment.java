@@ -23,7 +23,6 @@ import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
@@ -44,7 +43,8 @@ import android.widget.Spinner;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class AccountSetupOutgoingFragment extends Fragment implements OnCheckedChangeListener {
+public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
+        implements OnCheckedChangeListener {
     private static final int SMTP_PORTS[] = {
             587, 465, 465, 587, 587
     };
@@ -62,24 +62,8 @@ public class AccountSetupOutgoingFragment extends Fragment implements OnCheckedC
     private Spinner mSecurityTypeView;
 
     // Support for lifecycle
-    private Context mContext;
-    private Callback mCallback = EmptyCallback.INSTANCE;
     private boolean mStarted;
     private boolean mLoaded;
-
-    /**
-     * Callback interface that owning activities must implement
-     */
-    public interface Callback {
-        public void onEnableProceedButtons(boolean enable);
-        public void onProceedNext();
-    }
-
-    private static class EmptyCallback implements Callback {
-        public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onProceedNext() { }
-        @Override public void onEnableProceedButtons(boolean enable) { }
-    }
 
     /**
      * Called to do initial creation of a fragment.  This is called after
@@ -239,9 +223,9 @@ public class AccountSetupOutgoingFragment extends Fragment implements OnCheckedC
     /**
      * Activity provides callbacks here.  This also triggers loading and setting up the UX
      */
+    @Override
     public void setCallback(Callback callback) {
-        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
-        mContext = getActivity();
+        super.setCallback(callback);
         if (mStarted && !mLoaded) {
             loadSettings();
         }
@@ -317,7 +301,7 @@ public class AccountSetupOutgoingFragment extends Fragment implements OnCheckedC
                 enabled = false;
             }
         }
-        mCallback.onEnableProceedButtons(enabled);
+        enableNextButton(enabled);
    }
 
     /**
@@ -337,6 +321,7 @@ public class AccountSetupOutgoingFragment extends Fragment implements OnCheckedC
     /**
      * Entry point from Activity after editing settings and verifying them.  Must be FLOW_MODE_EDIT.
      */
+    @Override
     public void saveSettingsAfterEdit() {
         EmailContent.Account account = SetupData.getAccount();
         if (account.isSaved()) {
@@ -373,6 +358,7 @@ public class AccountSetupOutgoingFragment extends Fragment implements OnCheckedC
     /**
      * Entry point from Activity, when "next" button is clicked
      */
+    @Override
     public void onNext() {
         EmailContent.Account account = SetupData.getAccount();
         try {
@@ -386,6 +372,6 @@ public class AccountSetupOutgoingFragment extends Fragment implements OnCheckedC
              */
             throw new Error(use);
         }
-        mCallback.onProceedNext();
+        mCallback.onProceedNext(SetupData.CHECK_OUTGOING);
     }
 }

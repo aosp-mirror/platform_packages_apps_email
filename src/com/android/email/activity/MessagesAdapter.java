@@ -28,13 +28,13 @@ import android.content.Context;
 import android.content.Loader;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
+import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,7 +59,7 @@ import java.util.Set;
         EmailContent.RECORD_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
         MessageColumns.DISPLAY_NAME, MessageColumns.SUBJECT, MessageColumns.TIMESTAMP,
         MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_ATTACHMENT,
-        MessageColumns.FLAGS,
+        MessageColumns.FLAGS, MessageColumns.SNIPPET
     };
 
     public static final int COLUMN_ID = 0;
@@ -72,6 +72,7 @@ import java.util.Set;
     public static final int COLUMN_FAVORITE = 7;
     public static final int COLUMN_ATTACHMENTS = 8;
     public static final int COLUMN_FLAGS = 9;
+    public static final int COLUMN_SNIPPET = 10;
 
     private static final int ITEM_BACKGROUND_SELECTED = 0xFFB0FFB0; // TODO color not finalized
 
@@ -184,6 +185,15 @@ import java.util.Set;
 
         TextView subjectView = (TextView) view.findViewById(R.id.subject);
         text = cursor.getString(COLUMN_SUBJECT);
+        // Add in the snippet if we have one
+        // TODO Should this be spanned text?
+        // The mocks show, for new messages, only the real subject in bold...
+        // Would it be easier to simply use a 2nd TextView? This would also allow ellipsizing an
+        // overly-long subject, to let the beautiful snippet shine through.
+        String snippet = cursor.getString(COLUMN_SNIPPET);
+        if (!TextUtils.isEmpty(snippet)) {
+            text = context.getString(R.string.message_list_snippet, text, snippet);
+        }
         subjectView.setText(text);
 
         boolean hasInvitation =

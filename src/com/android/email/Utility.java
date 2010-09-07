@@ -64,6 +64,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -1041,5 +1042,16 @@ public class Utility {
          */
         protected void onFinished() {
         }
+    }
+
+    public static long[] toPrimitiveLongArray(Collection<Long> collection) {
+        final int size = collection.size();
+        final long[] ret = new long[size];
+        // Collection doesn't have get(i).  (Iterable doesn't have size())
+        int i = 0;
+        for (Long value : collection) {
+            ret[i++] = value;
+        }
+        return ret;
     }
 }

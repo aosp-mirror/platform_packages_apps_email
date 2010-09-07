@@ -349,6 +349,10 @@
     <!-- Do Not Translate.  The label of the previous button on the message view screen. -->
     <string name="message_view_move_to_older" translatable="false">&gt;</string>
 
+    <!-- The message snippet, of the form subject + separator + start of text  -->
+    <string name="message_list_snippet"><xliff:g id="subject" example="Re: Foo">
+        %1$s</xliff:g> - <xliff:g id="text" example="Hi, John. Blah...">%2$s</xliff:g></string>
+
     <!-- Title of screen when setting up new email account -->
     <string name="account_setup_basics_title">Set up email</string>
     <!-- Title of the screen when adding exchange account -->
@@ -587,6 +591,11 @@
 
     <!-- "Setup could not finish" dialog action button -->
     <string name="account_setup_failed_dlg_edit_details_action">Edit details</string>
+
+    <!-- On AccountSettingsXL, dialog text if you try to exit in/out/eas fragment (server settings)
+         without checking/saving [CHAR LIMIT=none]-->
+    <string name="account_settings_exit_server_settings">Discard unsaved changes?</string>
+
     <!-- On Settings screen, section heading -->
     <string name="account_settings_title_fmt">General settings</string>
     <!-- On Settings screen, setting option name -->
@@ -770,4 +779,21 @@
     <string name="title_fix_all_bugs_preference" translatable="false">Fix All Bugs</string>
     <!-- STOPSHIP remove this fake preference -->
     <string name="summary_fix_all_bugs_preference" translatable="false">Cheaper than beer</string>
+
+    <!--
+        Strings for temporary UI
+        STOPSHIP Remove them or move them up and make translatable
+    -->
+    <!-- Toast shown when a message(s) can't be moved because it's not supported
+         on the POP3 protocol. [CHAR LIMIT=none]-->
+    <string name="cannot_move_protocol_not_supported_toast" translatable="false">
+        Move is not supported on POP3 accounts.</string>
+    <!-- Toast shown when messages can't be moved because the selection contains
+         multiple accounts' messages. [CHAR LIMIT=none]-->
+    <string name="cannot_move_multiple_accounts_toast" translatable="false">
+        Cannot move.  Selection contains multiple accounts.</string>
+    <!-- Toast shown when messages can't be moved because they're in a special
+         mailbox.  Do not translate "Drafts", "Outbox" and "Sent". [CHAR LIMIT=none]-->
+    <string name="cannot_move_special_messages" translatable="false">
+        Messages in Drafts, Outbox and Sent cannot be moved.</string>
 </resources>

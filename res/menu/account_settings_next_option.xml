@@ -14,17 +14,10 @@
      limitations under the License.
 -->
 
+<!-- A single "Next" button for the incoming, outgoing, and exchange fragments -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/move" android:title="@string/move_action"
-        android:showAsAction="always" />
-    <item android:id="@+id/mark_read" android:title="@string/read_action"
-        android:showAsAction="always" />
-    <item android:id="@+id/mark_unread" android:title="@string/unread_action"
-        android:showAsAction="always" />
-    <item android:id="@+id/add_star" android:title="@string/set_star_action"
-        android:showAsAction="always" />
-    <item android:id="@+id/remove_star" android:title="@string/remove_star_action"
-        android:showAsAction="always" />
-    <item android:id="@+id/delete" android:title="@string/delete_action"
-        android:showAsAction="always" />
+    <item android:id="@+id/next"
+        android:title="@string/next_action"
+        android:showAsAction="always"
+    />
 </menu>

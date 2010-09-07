@@ -90,7 +90,8 @@ public class EmailProvider extends ContentProvider {
     // Version 11: Add content and flags to attachment table
     // Version 12: Add content_bytes to attachment table. content is deprecated.
     // Version 13: Add messageCount to Mailbox table.
-    public static final int DATABASE_VERSION = 13;
+    // Version 14: Add snippet to Message table
+    public static final int DATABASE_VERSION = 14;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -314,7 +315,8 @@ public class EmailProvider extends ContentProvider {
             + MessageColumns.CC_LIST + " text, "
             + MessageColumns.BCC_LIST + " text, "
             + MessageColumns.REPLY_TO_LIST + " text, "
-            + MessageColumns.MEETING_INFO + " text"
+            + MessageColumns.MEETING_INFO + " text, "
+            + MessageColumns.SNIPPET + " text"
             + ");";
 
         // This String and the following String MUST have the same columns, except for the type
@@ -848,6 +850,17 @@ public class EmailProvider extends ContentProvider {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 12 to 13 " + e);
                 }
                 oldVersion = 13;
+            }
+            if (oldVersion == 13) {
+                try {
+                    db.execSQL("alter table " + Message.TABLE_NAME
+                            + " add column " + Message.SNIPPET
+                                    +" text" + ";");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 13 to 14 " + e);
+                }
+                oldVersion = 14;
             }
         }
 

@@ -36,10 +36,11 @@ import android.provider.Browser;
  */
 public final class ActivityHelper {
     /**
-     * Loader IDs have to be unique in a fragment.  We reserve ID(s) here for loaders created
+     * Loader IDs have to be unique in a fragment.  We reserve IDs here for loaders created
      * outside of fragments.
      */
-    public static final int GLOBAL_LOADER_ID_MOVE_TO_DIALOG_LOADER = 1000;
+    public static final int GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER = 1000;
+    public static final int GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER = 1001;
 
     private ActivityHelper() {
     }

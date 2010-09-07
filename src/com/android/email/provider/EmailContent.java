@@ -16,6 +16,7 @@
 
 package com.android.email.provider;
 
+import com.android.email.Snippet;
 import com.android.email.Utility;
 
 import android.content.ContentProviderOperation;
@@ -35,6 +36,7 @@ import android.os.RemoteException;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -425,9 +427,10 @@ public abstract class EmailContent {
         public static final String CC_LIST = "ccList";
         public static final String BCC_LIST = "bccList";
         public static final String REPLY_TO_LIST = "replyToList";
-
         // Meeting invitation related information (for now, start time in ms)
         public static final String MEETING_INFO = "meetingInfo";
+        // A text "snippet" derived from the body of the message
+        public static final String SNIPPET = "snippet";
     }
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
@@ -467,6 +470,7 @@ public abstract class EmailContent {
         public static final int CONTENT_REPLY_TO_COLUMN = 18;
         public static final int CONTENT_SERVER_TIMESTAMP_COLUMN = 19;
         public static final int CONTENT_MEETING_INFO_COLUMN = 20;
+        public static final int CONTENT_SNIPPET_COLUMN = 21;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID,
@@ -479,7 +483,8 @@ public abstract class EmailContent {
             MessageColumns.ACCOUNT_KEY, MessageColumns.FROM_LIST,
             MessageColumns.TO_LIST, MessageColumns.CC_LIST,
             MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
-            SyncColumns.SERVER_TIMESTAMP, MessageColumns.MEETING_INFO
+            SyncColumns.SERVER_TIMESTAMP, MessageColumns.MEETING_INFO,
+            MessageColumns.SNIPPET
         };
 
         public static final int LIST_ID_COLUMN = 0;
@@ -494,6 +499,7 @@ public abstract class EmailContent {
         public static final int LIST_MAILBOX_KEY_COLUMN = 9;
         public static final int LIST_ACCOUNT_KEY_COLUMN = 10;
         public static final int LIST_SERVER_ID_COLUMN = 11;
+        public static final int LIST_SNIPPET_COLUMN = 12;
 
         // Public projection for common list columns
         public static final String[] LIST_PROJECTION = new String[] {
@@ -503,7 +509,7 @@ public abstract class EmailContent {
             MessageColumns.FLAG_LOADED, MessageColumns.FLAG_FAVORITE,
             MessageColumns.FLAG_ATTACHMENT, MessageColumns.FLAGS,
             MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
-            SyncColumns.SERVER_ID
+            SyncColumns.SERVER_ID, MessageColumns.SNIPPET
         };
 
         public static final int ID_COLUMNS_ID_COLUMN = 0;
@@ -549,6 +555,8 @@ public abstract class EmailContent {
 
         // For now, just the start time of a meeting invite, in ms
         public String mMeetingInfo;
+
+        public String mSnippet;
 
         // The following transient members may be used while building and manipulating messages,
         // but they are NOT persisted directly by EmailProvider
@@ -631,6 +639,8 @@ public abstract class EmailContent {
 
             values.put(MessageColumns.MEETING_INFO, mMeetingInfo);
 
+            values.put(MessageColumns.SNIPPET, mSnippet);
+
             return values;
         }
 
@@ -675,6 +685,7 @@ public abstract class EmailContent {
             mBcc = c.getString(CONTENT_BCC_LIST_COLUMN);
             mReplyTo = c.getString(CONTENT_REPLY_TO_COLUMN);
             mMeetingInfo = c.getString(CONTENT_MEETING_INFO_COLUMN);
+            mSnippet = c.getString(CONTENT_SNIPPET_COLUMN);
             return this;
         }
 
@@ -745,6 +756,12 @@ public abstract class EmailContent {
         public void addSaveOps(ArrayList<ContentProviderOperation> ops) {
             // First, save the message
             ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(mBaseUri);
+            // Generate the snippet here, before we create the CPO for Message
+            if (mText != null) {
+                mSnippet = Snippet.fromPlainText(mText);
+            } else if (mHtml != null) {
+                mSnippet = Snippet.fromHtmlText(mHtml);
+            }
             ops.add(b.withValues(toContentValues()).build());
 
             // Create and save the body
@@ -1284,6 +1301,14 @@ public abstract class EmailContent {
          */
         public boolean isEasAccount(Context context) {
             return "eas".equals(getProtocol(context));
+        }
+
+        /**
+         * @return true if the account supports "move messages".
+         */
+        public static boolean supportsMoveMessages(Context context, long accountId) {
+            String protocol = getProtocol(context, accountId);
+            return "eas".equals(protocol) || "imap".equals(protocol);
         }
 
         /**
@@ -2299,6 +2324,8 @@ public abstract class EmailContent {
         }
 
         /**
+         * @param mailboxId ID of a mailbox.  This method accepts magic mailbox IDs, such as
+         * {@link #QUERY_ALL_INBOXES}. (They're all non-refreshable.)
          * @return true if a mailbox is refreshable.
          */
         public static boolean isRefreshable(Context context, long mailboxId) {
@@ -2313,6 +2340,33 @@ public abstract class EmailContent {
             }
             return true;
         }
+
+        /**
+         * @param mailboxId ID of a mailbox.  This method DOES NOT accept magic mailbox IDs, such as
+         * {@link #QUERY_ALL_INBOXES} (because only the actual mailbox ID matters here. e.g.
+         * {@link #QUERY_ALL_FAVORITES} can contain ANY kind of messages), so don't pass a negative
+         * value.
+         * @return true if messages in a mailbox can be moved to another mailbox.
+         * This method only checks the mailbox information. It doesn't check its account/protocol,
+         * so it may return true even for POP3 mailbox.
+         */
+        public static boolean canMoveFrom(Context context, long mailboxId) {
+            if (mailboxId < 0) {
+                throw new InvalidParameterException();
+            }
+            Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
+            int type = Utility.getFirstRowInt(context, url, MAILBOX_TYPE_PROJECTION,
+                    null, null, null, MAILBOX_TYPE_TYPE_COLUMN);
+            switch (type) {
+                case TYPE_INBOX:
+                case TYPE_MAIL:
+                case TYPE_TRASH:
+                case TYPE_JUNK:
+                    return true;
+            }
+            return false; // TYPE_DRAFTS, TYPE_OUTBOX, TYPE_SENT, etc
+        }
+
     }
 
     public interface HostAuthColumns {
