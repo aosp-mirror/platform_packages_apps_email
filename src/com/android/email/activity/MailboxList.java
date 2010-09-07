@@ -90,7 +90,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
         mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
         mListFragment = (MailboxListFragment) findFragmentById(R.id.mailbox_list_fragment);
 
-        mActionBar.setStandardNavigationMode(this.getText(R.string.mailbox_list_title));
+        mActionBar.setTitle(R.string.mailbox_list_title);
         mListFragment.setCallback(this);
         mListFragment.openMailboxes(mAccountId);
 
@@ -123,9 +123,8 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
                     // something is wrong with this account
                     finish();
                 }
-                mActionBar.setStandardNavigationMode(
-                        MailboxList.this.getText(R.string.mailbox_list_title),
-                        accountName);
+                mActionBar.setTitle(R.string.mailbox_list_title);
+                mActionBar.setSubtitle(accountName);
             }
 
         }.execute();
