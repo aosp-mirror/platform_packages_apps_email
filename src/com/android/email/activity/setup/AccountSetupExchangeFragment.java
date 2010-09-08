@@ -29,6 +29,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.preference.PreferenceActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -387,6 +388,15 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             throw new Error(use);
         }
 
-        mCallback.onProceedNext(SetupData.CHECK_INCOMING);
+        // STOPSHIP - use new checker fragment only during account settings (TODO: account setup)
+        Activity activity = getActivity();
+        if (activity instanceof PreferenceActivity) {
+            AccountCheckSettingsFragment checkerFragment =
+                AccountCheckSettingsFragment.newInstance(SetupData.CHECK_INCOMING, this);
+            ((PreferenceActivity)activity).startPreferenceFragment(checkerFragment, true);
+        } else {
+            // STOPSHIP remove this old code
+            mCallback.onProceedNext(SetupData.CHECK_INCOMING);
+        }
     }
 }
