@@ -175,6 +175,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
                 startLoadingAccount(accountId);
             }
         }
+
+        mAccountDirty = false;
     }
 
     @Override
@@ -183,8 +185,6 @@ public class AccountSettingsFragment extends PreferenceFragment {
             Log.d(Email.LOG_TAG, "MailboxListFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
-
-        mAccountDirty = false;
     }
 
     /**

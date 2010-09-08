@@ -144,6 +144,14 @@ public abstract class AccountServerBaseFragment extends Fragment {
     }
 
     /**
+     * Handle OK result from check settings.  Save settings, and exit to previous fragment.
+     */
+    public void onCheckSettingsOk() {
+        saveSettingsAfterEdit();
+        getActivity().onBackPressed();
+    }
+
+    /**
      * Save settings after "OK" result from checker.  Concrete classes must implement.
      */
     public abstract void saveSettingsAfterEdit();
