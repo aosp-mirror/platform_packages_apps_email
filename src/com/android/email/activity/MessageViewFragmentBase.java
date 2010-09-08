@@ -858,8 +858,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * @param message A copy of the message loaded from the database
      * @param okToFetch If true, and message is not fully loaded, it's OK to fetch from
      * the network.  Use false to prevent looping here.
-     *
-     * TODO: trigger presence check
      */
     protected void reloadUiFromMessage(Message message, boolean okToFetch) {
         mMessage = message;

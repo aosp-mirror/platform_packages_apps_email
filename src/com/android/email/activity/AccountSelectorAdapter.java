@@ -35,8 +35,6 @@ import android.widget.TextView;
  * TODO Use layout?  Or use the standard resources that ActionBarDemo uses?
  * TODO Revisit the sort order when we get more detailed UI spec.  (current sort order makes things
  * simpler for now.)  Maybe we can just use SimpleCursorAdapter.
- *
- * TODO We actually don't need the auto-requery.  Just refresh it when we modify accounts.
  */
 public class AccountSelectorAdapter extends CursorAdapter {
     private static final String[] PROJECTION = new String[] {

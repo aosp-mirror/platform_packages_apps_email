@@ -195,9 +195,6 @@ import android.widget.TextView;
 
     /* package */ static Cursor getSpecialMailboxesCursor(Context context, boolean mShowCombined) {
         MatrixCursor cursor = new MatrixCursor(PROJECTION);
-
-        // TODO show combined boxes only if # accounts > 1 (wait for UI) but we always need starred.
-
         if (mShowCombined) {
             // Combined inbox -- show unread count
             addSummaryMailboxRow(context, cursor,
