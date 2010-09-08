@@ -210,7 +210,10 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         super.onResume();
 
         MailService.cancelNewMessageNotification(this);
-        // TODO Add stuff that's done in MessageList.onResume().
+
+        // On MessageList.onResume, we go back to Welcome if an account has been added/removed.
+        // We don't need to do that here, because when the activity resumes, the account list loader
+        // will load the latest list.
     }
 
     @Override
@@ -417,8 +420,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
             if (type == MessageListFragment.Callback.TYPE_DRAFT) {
                 MessageCompose.actionEditDraft(MessageListXL.this, messageId);
             } else {
-                // TODO Disable reply/forward for messages in trash.
-                // First, need to figure out what to do with these buttons for MessageViewFragment.
                 mFragmentManager.selectMessage(messageId);
             }
         }

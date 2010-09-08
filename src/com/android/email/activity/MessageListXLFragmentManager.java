@@ -45,9 +45,6 @@ D Email   : com.android.email.activity.MailboxListFragment onResume
  *
  * TODO: Test it.  It's testable if we implement MockFragmentTransaction, which may be too early
  * to do so at this point.  (API may not be stable enough yet.)
- *
- * TODO: See if the "restored fragments" hack can be removed if the fragments restore their
- * state by themselves.  (That'll require phone activity changes as well.)
  */
 class MessageListXLFragmentManager {
     private static final String BUNDLE_KEY_ACCOUNT_ID = "MessageListXl.state.account_id";
@@ -272,7 +269,6 @@ class MessageListXLFragmentManager {
      *     in which case we perform "auto-refresh".
      */
     public void selectAccount(long accountId, long mailboxId, boolean byExplicitUserAction) {
-        // TODO Handle "combined mailboxes".
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "selectAccount mAccountId=" + accountId);
         }
