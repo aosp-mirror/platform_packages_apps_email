@@ -105,28 +105,30 @@ import android.widget.TextView;
         }
 
         // Set count
-        final int count = cursor.getInt((type == Mailbox.TYPE_DRAFTS || type == Mailbox.TYPE_TRASH)
-                ? COLUMN_MESSAGE_COUNT : COLUMN_UNREAD_COUNT);
+        boolean useTotalCount = false;
+        switch (type) {
+            case Mailbox.TYPE_DRAFTS:
+            case Mailbox.TYPE_OUTBOX:
+            case Mailbox.TYPE_SENT:
+            case Mailbox.TYPE_TRASH:
+                useTotalCount = true;
+                break;
+        }
+        final int count = cursor.getInt(useTotalCount ? COLUMN_MESSAGE_COUNT : COLUMN_UNREAD_COUNT);
         final TextView unreadCountView = (TextView) view.findViewById(R.id.new_message_count);
         final TextView allCountView = (TextView) view.findViewById(R.id.all_message_count);
 
         // If the unread count is zero, not to show countView.
         if (count > 0) {
             nameView.setTypeface(Typeface.DEFAULT_BOLD);
-            switch (type) {
-                case Mailbox.TYPE_DRAFTS:
-                case Mailbox.TYPE_OUTBOX:
-                case Mailbox.TYPE_SENT:
-                case Mailbox.TYPE_TRASH:
-                    unreadCountView.setVisibility(View.GONE);
-                    allCountView.setVisibility(View.VISIBLE);
-                    allCountView.setText(Integer.toString(count));
-                    break;
-                default:
-                    allCountView.setVisibility(View.GONE);
-                    unreadCountView.setVisibility(View.VISIBLE);
-                    unreadCountView.setText(Integer.toString(count));
-                    break;
+            if (useTotalCount) {
+                unreadCountView.setVisibility(View.GONE);
+                allCountView.setVisibility(View.VISIBLE);
+                allCountView.setText(Integer.toString(count));
+            } else {
+                allCountView.setVisibility(View.GONE);
+                unreadCountView.setVisibility(View.VISIBLE);
+                unreadCountView.setText(Integer.toString(count));
             }
         } else {
             nameView.setTypeface(Typeface.DEFAULT);
