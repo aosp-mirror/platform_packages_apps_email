@@ -93,7 +93,7 @@ public abstract class AccountServerBaseFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.account_settings_next_option, menu);
+        inflater.inflate(R.menu.account_setup_next_option, menu);
     }
 
     /**

@@ -36,6 +36,17 @@ import java.security.InvalidParameterException;
  */
 public class MessageFileViewFragment extends MessageViewFragmentBase {
     private Uri mFileEmailUri;
+    /**
+     * # of instances of this class.  When it gets 0, and the last one is not destroying for
+     * a config change, we delete all the EML files.
+     */
+    private static int sFragmentCount;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        sFragmentCount++;
+    }
 
     /**
      * Loads the layout.
@@ -55,10 +66,11 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
     public void onDestroy() {
         super.onDestroy();
 
-        // If we're leaving a non-attachment message, delete any/all attachment messages
-
-        // TODO We shouldn't remove ALL attachement messages here.  Remove only the current one.
-        getController().deleteAttachmentMessages();
+        // If this is the last fragment of its kind, delete any/all attachment messages
+        sFragmentCount--;
+        if ((sFragmentCount == 0) && !getActivity().isChangingConfigurations()) {
+            getController().deleteAttachmentMessages();
+        }
     }
 
     /** Called by activities with a URI to an EML file. */
