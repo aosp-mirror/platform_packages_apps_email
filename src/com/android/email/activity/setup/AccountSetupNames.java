@@ -152,7 +152,7 @@ public class AccountSetupNames extends AccountSetupActivity {
      * TODO: Validator should also trim the name string before checking it.
      */
     private void validateFields() {
-        boolean newEnabled = !mEasAccount || Utility.isTextViewNotEmpty(mName);
+        boolean newEnabled = mEasAccount || Utility.isTextViewNotEmpty(mName);
         if (newEnabled != mNextButtonEnabled) {
             mNextButtonEnabled = newEnabled;
             invalidateOptionsMenu();
