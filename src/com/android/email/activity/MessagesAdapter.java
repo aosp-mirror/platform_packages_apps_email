@@ -33,6 +33,7 @@ import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -301,11 +302,30 @@ import java.util.Set;
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessagesAdapter createLoader mailboxId=" + mailboxId);
         }
-        String selection =
-                Utility.buildMailboxIdSelection(context.getContentResolver(), mailboxId);
-        return new ThrottlingCursorLoader(context, EmailContent.Message.CONTENT_URI,
-                MESSAGE_PROJECTION, selection, null,
-                EmailContent.MessageColumns.TIMESTAMP + " DESC", REFRESH_INTERVAL_MS);
+        return new MessagesCursor(context, mailboxId);
 
+    }
+
+    private static class MessagesCursor extends ThrottlingCursorLoader {
+        private final Context mContext;
+        private final long mMailboxId;
+
+        public MessagesCursor(Context context, long mailboxId) {
+            // Initialize with no where clause.  We'll set it later.
+            super(context, EmailContent.Message.CONTENT_URI,
+                    MESSAGE_PROJECTION, null, null,
+                    EmailContent.MessageColumns.TIMESTAMP + " DESC", REFRESH_INTERVAL_MS);
+            mContext = context;
+            mMailboxId = mailboxId;
+        }
+
+        @Override
+        public Cursor loadInBackground() {
+            // Determine the where clause.  (Can't do this on the UI thread.)
+            setSelection(Utility.buildMailboxIdSelection(mContext, mMailboxId));
+
+            // Then do a query.
+            return super.loadInBackground();
+        }
     }
 }
