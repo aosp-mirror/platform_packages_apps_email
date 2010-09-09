@@ -80,26 +80,22 @@
         <activity
             android:name=".activity.setup.AccountSetupBasics"
             android:label="@string/account_setup_basics_title"
-            android:theme="@android:style/Theme"
             android:exported="true"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupAccountType"
             android:label="@string/account_setup_account_type_title"
-            android:theme="@android:style/Theme"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupIncoming"
             android:label="@string/account_setup_incoming_title"
-            android:theme="@android:style/Theme"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupOutgoing"
             android:label="@string/account_setup_outgoing_title"
-            android:theme="@android:style/Theme"
             >
         </activity>
         <!--EXCHANGE-REMOVE-SECTION-START-->
@@ -108,7 +104,6 @@
         <activity
             android:name=".activity.setup.AccountSetupExchange"
             android:label="@string/account_setup_exchange_title"
-            android:theme="@android:style/Theme"
             android:configChanges="keyboardHidden|orientation"
             >
         </activity>
@@ -116,13 +111,11 @@
         <activity
             android:name=".activity.setup.AccountSetupOptions"
             android:label="@string/account_setup_options_title"
-            android:theme="@android:style/Theme"
             >
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupNames"
             android:label="@string/account_setup_names_title"
-            android:theme="@android:style/Theme"
             >
         </activity>
         <!-- XXX Note: this activity is hacked to ignore config changes,
@@ -130,7 +123,6 @@
         <activity
             android:name=".activity.setup.AccountSetupCheckSettings"
             android:label="@string/account_setup_check_settings_title"
-            android:theme="@android:style/Theme"
             android:configChanges="keyboardHidden|orientation"
             >
         </activity>

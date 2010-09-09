@@ -20,32 +20,11 @@
     android:layout_height="match_parent"
     android:fillViewport="true" >
 
-    <LinearLayout
+    <fragment
+        android:id="@+id/setup_fragment"
+        class="com.android.email.activity.setup.AccountSetupIncomingFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <fragment
-            android:id="@+id/setup_incoming_fragment"
-            class="com.android.email.activity.setup.AccountSetupIncomingFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-        />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="54dip"
-            android:background="@android:drawable/bottom_bar">
-            <Button
-                android:id="@+id/next"
-                android:text="@string/next_action"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:minWidth="@dimen/button_minWidth"
-                android:drawableRight="@drawable/button_indicator_next"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true" />
-        </RelativeLayout>
-    </LinearLayout>
+        android:layout_weight="1"
+    />
 </ScrollView>

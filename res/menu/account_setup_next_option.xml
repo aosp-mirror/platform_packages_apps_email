@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2008 The Android Open Source Project
+<!-- Copyright (C) 2010 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,17 +14,10 @@
      limitations under the License.
 -->
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true" >
-
-    <fragment
-        android:id="@+id/setup_fragment"
-        class="com.android.email.activity.setup.AccountSetupOutgoingFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+<!-- A menu for for any fragments/screens with a single "Next" button -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/next"
+        android:title="@string/next_action"
+        android:showAsAction="always"
     />
-</ScrollView>
+</menu>
