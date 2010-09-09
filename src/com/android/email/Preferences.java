@@ -36,6 +36,13 @@ public class Preferences {
     private static final String ENABLE_EXCHANGE_FILE_LOGGING = "enableExchangeFileLogging";
     private static final String DEVICE_UID = "deviceUID";
     private static final String ONE_TIME_INITIALIZATION_PROGRESS = "oneTimeInitializationProgress";
+    private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
+
+    public static final int AUTO_ADVANCE_NEWER = 0;
+    public static final int AUTO_ADVANCE_OLDER = 1;
+    public static final int AUTO_ADVANCE_MESSAGE_LIST = 2;
+    // "move to older" was the behavior on older versions.
+    public static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
 
     private static Preferences sPreferences;
 
@@ -176,6 +183,14 @@ public class Preferences {
 
     public void setOneTimeInitializationProgress(int progress) {
         mSharedPreferences.edit().putInt(ONE_TIME_INITIALIZATION_PROGRESS, progress).commit();
+    }
+
+    public int getAutoAdvanceDirection() {
+        return mSharedPreferences.getInt(AUTO_ADVANCE_DIRECTION, AUTO_ADVANCE_DEFAULT);
+    }
+
+    public void setAutoAdvanceDirection(int direction) {
+        mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).commit();
     }
 
     public void save() {

@@ -775,10 +775,32 @@
     <string name="header_label_general_preferences">Email Preferences</string>
     <!-- First category in general preferences -->
     <string name="category_general_preferences">Application Preferences</string>
-    <!-- STOPSHIP remove this fake preference -->
-    <string name="title_fix_all_bugs_preference" translatable="false">Fix All Bugs</string>
-    <!-- STOPSHIP remove this fake preference -->
-    <string name="summary_fix_all_bugs_preference" translatable="false">Cheaper than beer</string>
+
+    <!-- General preference: Label of the setting for the direction to move to
+         when deleting the current message.
+         Options contain "newer message","older message", etc. [CHAR LIMIT=32] -->
+    <string name="general_preference_auto_advance_label">Auto-advance</string>
+    <!-- General preference: Description of the setting for the direction to move to
+         when deleting the current message.
+         Options contain "newer message","older message", etc. [CHAR LIMIT=64] -->
+    <string name="general_preference_auto_advance_summary">
+         Select which screen to show after you delete a message</string>
+    <!-- General preference: Title of the dialog box containing options for setting for
+         the direction to move to when deleting the current message.
+         Options contain "newer message","older message", etc. [CHAR LIMIT=32] -->
+    <string name="general_preference_auto_advance_dialog_title">Advance to</string>
+    <!-- General preference: Option for the setting for
+         the direction to move to when deleting the current message.
+         This option is for "move to the newer message" [CHAR LIMIT=32] -->
+    <string name="general_preference_auto_advance_newer">Newer message</string>
+    <!-- General preference: Option for the setting for
+         the direction to move to when deleting the current message.
+         This option is for "move to the older message" [CHAR LIMIT=32] -->
+    <string name="general_preference_auto_advance_older">Older message</string>
+    <!-- General preference: Option for the setting for
+         the direction to move to when deleting the current message.
+         This option is for "move back to the message list" [CHAR LIMIT=32] -->
+    <string name="general_preference_auto_advance_message_list">Message list</string>
 
     <!--
         Strings for temporary UI

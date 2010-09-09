@@ -302,7 +302,8 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         // the delete triggers mCursorObserver in MessageOrderManager.
         // first move to older/newer before the actual delete
         long messageIdToDelete = mFragmentManager.getMessageId();
-        if (!moveToOlder()) moveToNewer();
+
+        if (!moveToOlder()) moveToNewer(); // TODO use "auto-advance" preference
         ActivityHelper.deleteMessage(this, messageIdToDelete);
         // If this was the last message, moveToOlder/Newer didn't move the current position.
         // MessageOrderManager detects the current message is gone, and we go back to the message

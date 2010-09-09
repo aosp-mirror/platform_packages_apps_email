@@ -180,7 +180,7 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
         // the delete triggers mCursorObserver in MessageOrderManager.
         // first move to older/newer before the actual delete
         long messageIdToDelete = mMessageId;
-        boolean moved = moveToOlder() || moveToNewer();
+        boolean moved = moveToOlder() || moveToNewer(); // TODO use "auto-advance" preference
         ActivityHelper.deleteMessage(this, messageIdToDelete);
         if (!moved) {
             // this generates a benign warning "Duplicate finish request" because

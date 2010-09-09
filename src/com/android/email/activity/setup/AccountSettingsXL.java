@@ -320,7 +320,7 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
             mAppPreferencesHeader.summary = null;
             mAppPreferencesHeader.iconRes = 0;
             mAppPreferencesHeader.icon = null;
-            mAppPreferencesHeader.fragment = GeneralPreferences.getCanonicalName();
+            mAppPreferencesHeader.fragment = GeneralPreferences.class.getCanonicalName();
             mAppPreferencesHeader.fragmentArguments = null;
         }
         return mAppPreferencesHeader;
@@ -606,26 +606,6 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
                 mRequestedAccountId = accountId;
                 AccountSettingsXL.this.invalidateHeaders();
             }
-        }
-    }
-
-    /**
-     * Placeholder for app-wide preferences
-     * STOPSHIP - make this real
-     */
-    public static class GeneralPreferences extends PreferenceFragment {
-
-        /** STOPSHIP - this is hardcoded for now because getCanonicalName() doesn't return $ */
-        public static String getCanonicalName() {
-            return "com.android.email.activity.setup.AccountSettingsXL$GeneralPreferences";
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            // Load the preferences from an XML resource
-            addPreferencesFromResource(R.xml.general_preferences);
         }
     }
 
