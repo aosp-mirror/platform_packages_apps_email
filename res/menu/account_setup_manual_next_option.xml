@@ -14,8 +14,12 @@
      limitations under the License.
 -->
 
-<!-- A single "Next" button for the incoming, outgoing, and exchange fragments -->
+<!-- Two items for setup:  "manual" and "next" -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/manual_setup"
+        android:title="@string/account_setup_basics_manual_setup_action"
+        android:showAsAction="always"
+    />
     <item android:id="@+id/next"
         android:title="@string/next_action"
         android:showAsAction="always"

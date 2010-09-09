@@ -19,7 +19,6 @@ package com.android.email.activity.setup;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
-import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.EmailContent.Account;
 
@@ -27,9 +26,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /**
  * Prompts the user for the email address and password. Also prompts for
@@ -40,11 +38,11 @@ import android.widget.Button;
  * AccountSetupAccountType activity.
  */
 public class AccountSetupBasics extends AccountSetupActivity
-        implements OnClickListener, AccountSetupBasicsFragment.Callback {
+        implements AccountSetupBasicsFragment.Callback {
 
     private AccountSetupBasicsFragment mFragment;
-    private Button mNextButton;
-    private Button mManualSetupButton;
+    private boolean mManualButtonDisplayed;
+    private boolean mNextButtonEnabled;
 
     public static void actionNewAccount(Activity fromActivity) {
         SetupData.init(SetupData.FLOW_MODE_NORMAL);
@@ -119,17 +117,14 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         setContentView(R.layout.account_setup_basics);
 
-        mFragment = (AccountSetupBasicsFragment) findFragmentById(R.id.setup_basics_fragment);
-        mNextButton = (Button) findViewById(R.id.next);
-        mManualSetupButton = (Button) findViewById(R.id.manual_setup);
-
-        mNextButton.setOnClickListener(this);
-        mManualSetupButton.setOnClickListener(this);
-
+        mFragment = (AccountSetupBasicsFragment)
+                getFragmentManager().findFragmentById(R.id.setup_basics_fragment);
+       
+        mManualButtonDisplayed = true;
         boolean alternateStrings = false;
         if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
             // No need for manual button -> next is appropriate
-            mManualSetupButton.setVisibility(View.GONE);
+            mManualButtonDisplayed = false;
             // Swap welcome text for EAS-specific text
             alternateStrings = VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings();
             setTitle(alternateStrings
@@ -141,7 +136,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         mFragment.setCallback(this, alternateStrings);
     }
 
-    /**
+     /**
      * This is used in automatic setup mode to jump directly down to the names screen.
      *
      * NOTE:  With this organization, it is *not* possible to auto-create an exchange account,
@@ -156,28 +151,58 @@ public class AccountSetupBasics extends AccountSetupActivity
         }
     }
 
-    public void onClick(View v) {
-        switch (v.getId()) {
+    /**
+     * Add "Next" & "Manual" buttons when this activity is displayed
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        int menuId = mManualButtonDisplayed
+        ? R.menu.account_setup_manual_next_option
+                : R.menu.account_setup_next_option;
+        getMenuInflater().inflate(menuId, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Enable/disable "Next" & "Manual" buttons
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.next).setEnabled(mNextButtonEnabled);
+        if (mManualButtonDisplayed) {
+            menu.findItem(R.id.manual_setup).setEnabled(mNextButtonEnabled);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    /**
+     * Respond to clicks in the "Next" button
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.next:
                 mFragment.onNext();
-                break;
+                return true;
             case R.id.manual_setup:
                 // no AutoDiscover - user clicked "manual"
                 mFragment.onManualSetup(false);
-                break;
+                return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
      * Implements AccountSetupBasicsFragment.Callback
      */
     @Override
-    public void onEnableProceedButtons(boolean enable) {
-        mNextButton.setEnabled(enable);
-        mManualSetupButton.setEnabled(enable);
-        // Dim the next button's icon to 50% if the button is disabled.
-        // TODO this can probably be done with a stateful drawable. (check android:state_enabled
-        Utility.setCompoundDrawablesAlpha(mNextButton, mNextButton.isEnabled() ? 255 : 128);
+    public void onEnableProceedButtons(boolean enabled) {
+        boolean wasEnabled = mNextButtonEnabled;
+        mNextButtonEnabled = enabled;
+
+        if (enabled != wasEnabled) {
+            invalidateOptionsMenu();
+        }
     }
 
     /**

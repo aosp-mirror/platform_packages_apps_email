@@ -18,7 +18,6 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy.PolicySet;
-import com.android.email.Utility;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.service.EmailServiceProxy;
@@ -27,9 +26,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
 /**
  * Provides generic setup for Exchange accounts.  The following fields are supported:
@@ -71,10 +67,10 @@ import android.widget.Button;
  * What we really need here is a more "sticky" way to prevent that problem.
  */
 public class AccountSetupExchange extends AccountSetupActivity
-        implements OnClickListener, AccountSetupExchangeFragment.Callback {
+        implements AccountSetupExchangeFragment.Callback {
 
     /* package */ AccountSetupExchangeFragment mFragment;
-    private Button mNextButton;
+    private boolean mNextButtonEnabled;
 
     public static void actionIncomingSettings(Activity fromActivity, int mode, Account acct) {
         SetupData.init(mode, acct);
@@ -98,10 +94,8 @@ public class AccountSetupExchange extends AccountSetupActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_setup_exchange);
 
-        mFragment = (AccountSetupExchangeFragment) findFragmentById(R.id.setup_exchange_fragment);
-        mNextButton = (Button)findViewById(R.id.next);
-        mNextButton.setOnClickListener(this);
-
+        mFragment = (AccountSetupExchangeFragment)
+                getFragmentManager().findFragmentById(R.id.setup_fragment);
         mFragment.setCallback(this);
 
         startAutoDiscover();
@@ -126,7 +120,6 @@ public class AccountSetupExchange extends AccountSetupActivity
         // If we've got a username and password and we're NOT editing, try autodiscover
         String username = account.mHostAuthRecv.mLogin;
         String password = account.mHostAuthRecv.mPassword;
-        Intent intent = getIntent();
         if (username != null && password != null) {
             AccountSetupCheckSettings.actionAutoDiscover(this, account.mEmailAddress, password);
         }
@@ -208,11 +201,15 @@ public class AccountSetupExchange extends AccountSetupActivity
         // Otherwise, proceed into this activity for manual setup
     }
 
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.next:
-                mFragment.onNext();
-                break;
+    /**
+     * Implements AccountServerBaseFragment.Callback
+     */
+    public void onEnableProceedButtons(boolean enabled) {
+        boolean wasEnabled = mNextButtonEnabled;
+        mNextButtonEnabled = enabled;
+
+        if (enabled != wasEnabled) {
+            invalidateOptionsMenu();
         }
     }
 
@@ -221,15 +218,5 @@ public class AccountSetupExchange extends AccountSetupActivity
      */
     public void onProceedNext(int checkMode) {
         AccountSetupCheckSettings.actionCheckSettings(this, checkMode);
-    }
-
-    /**
-     * Implements AccountServerBaseFragment.Callback
-     */
-    public void onEnableProceedButtons(boolean enabled) {
-        mNextButton.setEnabled(enabled);
-        // Dim the next button's icon to 50% if the button is disabled.
-        // TODO this can probably be done with a stateful drawable. (check android:state_enabled)
-        Utility.setCompoundDrawablesAlpha(mNextButton, enabled ? 255 : 128);
     }
 }

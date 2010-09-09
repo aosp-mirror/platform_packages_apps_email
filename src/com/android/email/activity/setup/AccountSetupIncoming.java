@@ -17,21 +17,17 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
 public class AccountSetupIncoming extends AccountSetupActivity
-        implements OnClickListener, AccountSetupIncomingFragment.Callback {
+        implements AccountSetupIncomingFragment.Callback {
 
     private AccountSetupIncomingFragment mFragment;
-    private Button mNextButton;
+    private boolean mNextButtonEnabled;
 
     public static void actionIncomingSettings(Activity fromActivity, int mode,
             EmailContent.Account account) {
@@ -49,9 +45,8 @@ public class AccountSetupIncoming extends AccountSetupActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_setup_incoming);
 
-        mFragment = (AccountSetupIncomingFragment) findFragmentById(R.id.setup_incoming_fragment);
-        mNextButton = (Button)findViewById(R.id.next);
-        mNextButton.setOnClickListener(this);
+        mFragment = (AccountSetupIncomingFragment)
+                getFragmentManager().findFragmentById(R.id.setup_fragment);
 
         // Configure fragment
         mFragment.setCallback(this);
@@ -76,14 +71,14 @@ public class AccountSetupIncoming extends AccountSetupActivity
     }
 
     /**
-     * When the user clicks "next", notify the fragment that it's time to prepare the new
-     * settings to be tested.  This will call back via onProceedNext() to actually launch the test.
+     * Implements AccountServerBaseFragment.Callback
      */
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.next:
-                mFragment.onNext();
-                break;
+    public void onEnableProceedButtons(boolean enabled) {
+        boolean wasEnabled = mNextButtonEnabled;
+        mNextButtonEnabled = enabled;
+
+        if (enabled != wasEnabled) {
+            invalidateOptionsMenu();
         }
     }
 
@@ -92,15 +87,5 @@ public class AccountSetupIncoming extends AccountSetupActivity
      */
     public void onProceedNext(int checkMode) {
         AccountSetupCheckSettings.actionCheckSettings(this, checkMode);
-    }
-
-    /**
-     * Implements AccountServerBaseFragment.Callback
-     */
-    public void onEnableProceedButtons(boolean enabled) {
-        mNextButton.setEnabled(enabled);
-        // Dim the next button's icon to 50% if the button is disabled.
-        // TODO this can probably be done with a stateful drawable. (check android:state_enabled)
-        Utility.setCompoundDrawablesAlpha(mNextButton, enabled ? 255 : 128);
     }
 }

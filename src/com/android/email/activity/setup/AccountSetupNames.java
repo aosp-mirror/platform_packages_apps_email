@@ -25,28 +25,26 @@ import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.TextKeyListener;
 import android.text.method.TextKeyListener.Capitalize;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 
-public class AccountSetupNames extends AccountSetupActivity implements OnClickListener {
+public class AccountSetupNames extends AccountSetupActivity {
     private static final int REQUEST_SECURITY = 0;
 
     private EditText mDescription;
     private EditText mName;
-    private Button mDoneButton;
     private boolean mEasAccount = false;
+    private boolean mNextButtonEnabled;
 
     private CheckAccountStateTask mCheckAccountStateTask;
 
@@ -60,8 +58,6 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         setContentView(R.layout.account_setup_names);
         mDescription = (EditText)findViewById(R.id.account_description);
         mName = (EditText)findViewById(R.id.account_name);
-        mDoneButton = (Button)findViewById(R.id.done);
-        mDoneButton.setOnClickListener(this);
 
         TextWatcher validationTextWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
@@ -122,13 +118,45 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     }
 
     /**
+     * Add "Next" button when this activity is displayed
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.account_setup_next_option, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Enable/disable "Next" button
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.next).setEnabled(mNextButtonEnabled);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    /**
+     * Respond to clicks in the "Next" button
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.next:
+                onNext();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
      * TODO: Validator should also trim the name string before checking it.
      */
     private void validateFields() {
-        if (!mEasAccount) {
-            mDoneButton.setEnabled(Utility.isTextViewNotEmpty(mName));
+        boolean newEnabled = !mEasAccount || Utility.isTextViewNotEmpty(mName);
+        if (newEnabled != mNextButtonEnabled) {
+            mNextButtonEnabled = newEnabled;
+            invalidateOptionsMenu();
         }
-        Utility.setCompoundDrawablesAlpha(mDoneButton, mDoneButton.isEnabled() ? 255 : 128);
     }
 
     @Override
@@ -173,14 +201,6 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         // and if there's a problem, bring up the UI to update the security level.
         mCheckAccountStateTask = new CheckAccountStateTask(account.mId);
         mCheckAccountStateTask.execute();
-    }
-
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.done:
-                onNext();
-                break;
-        }
     }
 
     /**
