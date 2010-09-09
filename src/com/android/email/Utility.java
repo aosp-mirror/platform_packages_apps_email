@@ -43,7 +43,6 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.security.MessageDigest;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -62,6 +61,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -631,13 +631,17 @@ public class Utility {
             Log.d(Email.LOG_TAG, "Error in TelephonyManager.getDeviceId(): " + e.getMessage());
             return null;
         }
+        return getSmallHash(deviceId);
+    }
+
+    /* package */ static String getSmallHash(final String value) {
         final MessageDigest sha;
         try {
             sha = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException impossible) {
             return null;
         }
-        sha.update(Utility.toUtf8(deviceId));
+        sha.update(Utility.toUtf8(value));
         final int hash = getSmallHashFromSha1(sha.digest());
         return Integer.toString(hash);
     }
