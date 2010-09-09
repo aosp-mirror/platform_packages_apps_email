@@ -21,6 +21,7 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.Utility;
+import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent.Account;
@@ -500,8 +501,8 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     }
 
     @Override
-    public void onAccountSecurityHold() {
-        // TODO: implement this
+    public void onAccountSecurityHold(long accountId) {
+        startActivity(AccountSecurity.actionUpdateSecurityIntent(this, accountId));
     }
 
     private void loadAccounts() {
