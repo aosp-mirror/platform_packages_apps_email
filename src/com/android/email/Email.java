@@ -70,6 +70,11 @@ public class Email extends Application {
     public static final boolean LOGD = false;
 
     /**
+     * If true, enable the UI thread check when accessing the filesystem.
+     */
+    public static final boolean DEBUG_THREAD_CHECK = false; // DON'T SUBMIT WITH TRUE
+
+    /**
      * The MIME type(s) of attachments we're willing to send via attachments.
      *
      * Any attachments may be added via Intents with Intent.ACTION_SEND or ACTION_SEND_MULTIPLE.
@@ -179,6 +184,8 @@ public class Email extends Application {
 
     private static File sTempDirectory;
 
+    private static Thread sUiThread;
+
     /* package for testing */ static int getColorIndexFromAccountId(long accountId) {
         // Account id is 1-based, so - 1.
         // Use abs so that it won't possibly return negative.
@@ -280,6 +287,7 @@ public class Email extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        sUiThread = Thread.currentThread();
         Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.getEnableDebugLogging();
         setTempDirectory(this);
@@ -330,5 +338,11 @@ public class Email extends Application {
      */
     public static synchronized boolean getNotifyUiAccountsChanged() {
         return sAccountsChangedNotification;
+    }
+
+    public static void warnIfUiThread() {
+        if (Thread.currentThread().equals(sUiThread)) {
+            Log.w(Email.LOG_TAG, "Method called on the UI thread", new Exception("STACK TRACE"));
+        }
     }
 }

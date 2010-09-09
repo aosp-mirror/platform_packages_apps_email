@@ -884,6 +884,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
+        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         final int match = sURIMatcher.match(uri);
         Context context = getContext();
         // Pick the correct database for this operation
@@ -1029,6 +1030,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
+        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         int match = sURIMatcher.match(uri);
         Context context = getContext();
         // See the comment at delete(), above
@@ -1142,6 +1144,7 @@ public class EmailProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
+        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         Cursor c = null;
         Uri notificationUri = EmailContent.CONTENT_URI;
         int match = sURIMatcher.match(uri);
@@ -1237,6 +1240,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         int match = sURIMatcher.match(uri);
         Context context = getContext();
         // See the comment at delete(), above
