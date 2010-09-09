@@ -28,7 +28,7 @@ public class AccountSetupOutgoing extends Activity
         implements AccountSetupOutgoingFragment.Callback {
 
     private AccountSetupOutgoingFragment mFragment;
-    private boolean mNextButtonEnabled;
+    /* package */ boolean mNextButtonEnabled;
 
     public static void actionOutgoingSettings(Activity fromActivity, int mode, Account acct) {
         SetupData.init(mode, acct);

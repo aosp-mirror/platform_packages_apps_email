@@ -70,7 +70,7 @@ public class AccountSetupExchange extends AccountSetupActivity
         implements AccountSetupExchangeFragment.Callback {
 
     /* package */ AccountSetupExchangeFragment mFragment;
-    private boolean mNextButtonEnabled;
+    /* package */ boolean mNextButtonEnabled;
 
     public static void actionIncomingSettings(Activity fromActivity, int mode, Account acct) {
         SetupData.init(mode, acct);

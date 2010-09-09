@@ -27,7 +27,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
         implements AccountSetupIncomingFragment.Callback {
 
     private AccountSetupIncomingFragment mFragment;
-    private boolean mNextButtonEnabled;
+    /* package */ boolean mNextButtonEnabled;
 
     public static void actionIncomingSettings(Activity fromActivity, int mode,
             EmailContent.Account account) {
