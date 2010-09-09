@@ -35,10 +35,12 @@ import com.android.email.service.AttachmentDownloadService;
 import org.apache.commons.io.IOUtils;
 
 import android.app.Fragment;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -61,6 +63,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.QuickContactBadge;
 import android.widget.TextView;
 
 import java.io.File;
@@ -84,6 +87,7 @@ import java.util.regex.Pattern;
  * directly.  If you need, always load the latest value.
  */
 public abstract class MessageViewFragmentBase extends Fragment implements View.OnClickListener {
+    private static final int PHOTO_LOADER_ID = 1;
     private Context mContext;
 
     // Regex that matches start of img tag. '<(?i)img\s+'.
@@ -105,6 +109,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private LinearLayout mAttachments;
     private ImageView mAttachmentIcon;
     private View mShowPicturesSection;
+    private QuickContactBadge mFromBadge;
     private ImageView mSenderPresenceView;
     private View mScrollView;
 
@@ -115,7 +120,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private LoadMessageTask mLoadMessageTask;
     private LoadBodyTask mLoadBodyTask;
     private LoadAttachmentsTask mLoadAttachmentsTask;
-    private PresenceUpdater mPresenceUpdater;
 
     private java.text.DateFormat mDateFormat;
     private java.text.DateFormat mTimeFormat;
@@ -133,6 +137,13 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private boolean mStarted;
 
     private boolean mIsMessageLoadedForTest;
+
+    private static final int CONTACT_STATUS_STATE_UNLOADED = 0;
+    private static final int CONTACT_STATUS_STATE_UNLOADED_TRIGGERED = 1;
+    private static final int CONTACT_STATUS_STATE_LOADED = 2;
+
+    private int mContactStatusState;
+    private Uri mQuickContactLookupUri;
 
     /**
      * Encapsulates known information about a single attachment.
@@ -206,7 +217,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
                 new Handler(), new ControllerResults());
 
-        mPresenceUpdater = new PresenceUpdater(mContext);
         mDateFormat = android.text.format.DateFormat.getDateFormat(mContext); // short format
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(mContext); // 12/24 date format
 
@@ -232,10 +242,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mAttachments = (LinearLayout) view.findViewById(R.id.attachments);
         mAttachmentIcon = (ImageView) view.findViewById(R.id.attachment);
         mShowPicturesSection = view.findViewById(R.id.show_pictures_section);
+        mFromBadge = (QuickContactBadge) view.findViewById(R.id.badge);
         mSenderPresenceView = (ImageView) view.findViewById(R.id.presence);
         mScrollView = view.findViewById(R.id.scrollview);
 
         mFromView.setOnClickListener(this);
+        mFromBadge.setOnClickListener(this);
         mSenderPresenceView.setOnClickListener(this);
         view.findViewById(R.id.show_pictures).setOnClickListener(this);
 
@@ -324,9 +336,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mLoadBodyTask = null;
         Utility.cancelTaskInterrupt(mLoadAttachmentsTask);
         mLoadAttachmentsTask = null;
-        if (mPresenceUpdater != null) {
-            mPresenceUpdater.cancelAll();
-        }
     }
 
     /**
@@ -358,11 +367,15 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         return mAccountId;
     }
 
-    protected void openMessageIfStarted() {
+    protected final void openMessageIfStarted() {
         if (!mStarted) {
             return;
         }
         cancelAllTasks();
+        resetView();
+    }
+
+    protected void resetView() {
         if (mMessageContentView != null) {
             mMessageContentView.getSettings().setBlockNetworkLoads(true);
             mMessageContentView.scrollTo(0, 0);
@@ -374,32 +387,40 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mAttachmentIcon.setVisibility(View.GONE);
         mLoadMessageTask = new LoadMessageTask(true);
         mLoadMessageTask.execute();
+        initContactStatusViews();
+    }
+
+    private void initContactStatusViews() {
+        mContactStatusState = CONTACT_STATUS_STATE_UNLOADED;
+        mQuickContactLookupUri = null;
+        mSenderPresenceView.setImageResource(ContactStatusLoader.PRESENCE_UNKNOWN_RESOURCE_ID);
+        mFromBadge.setImageToDefault();
+        mFromBadge.assignContactFromEmail("", false);
     }
 
     /**
      * Handle clicks on sender, which shows {@link QuickContact} or prompts to add
      * the sender as a contact.
-     *
-     * TODO Move DB lookup to a worker thread.
      */
     private void onClickSender() {
         final Address senderEmail = Address.unpackFirst(mMessage.mFrom);
         if (senderEmail == null) return;
 
-        // First perform lookup query to find existing contact
-        final ContentResolver resolver = mContext.getContentResolver();
-        final String address = senderEmail.getAddress();
-        final Uri dataUri = Uri.withAppendedPath(CommonDataKinds.Email.CONTENT_FILTER_URI,
-                Uri.encode(address));
-        final Uri lookupUri = ContactsContract.Data.getContactLookupUri(resolver, dataUri);
+        if (mContactStatusState == CONTACT_STATUS_STATE_UNLOADED) {
+            // Status not loaded yet.
+            mContactStatusState = CONTACT_STATUS_STATE_UNLOADED_TRIGGERED;
+            return;
+        }
+        if (mContactStatusState == CONTACT_STATUS_STATE_UNLOADED_TRIGGERED) {
+            return; // Already clicked, and waiting for the data.
+        }
 
-        if (lookupUri != null) {
-            // Found matching contact, trigger QuickContact
-            QuickContact.showQuickContact(mContext, mSenderPresenceView, lookupUri,
-                    QuickContact.MODE_LARGE, null);
+        if (mQuickContactLookupUri != null) {
+            QuickContact.showQuickContact(mContext, mFromBadge, mQuickContactLookupUri,
+                        QuickContact.MODE_LARGE, null);
         } else {
             // No matching contact, ask user to create one
-            final Uri mailUri = Uri.fromParts("mailto", address, null);
+            final Uri mailUri = Uri.fromParts("mailto", senderEmail.getAddress(), null);
             final Intent intent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT,
                     mailUri);
 
@@ -415,6 +436,44 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 
             startActivity(intent);
+        }
+    }
+
+    private static class ContactStatusLoaderCallbacks
+            implements LoaderCallbacks<ContactStatusLoader.Result> {
+        private static final String BUNDLE_EMAIL_ADDRESS = "email";
+        private final MessageViewFragmentBase mFragment;
+
+        public ContactStatusLoaderCallbacks(MessageViewFragmentBase fragment) {
+            mFragment = fragment;
+        }
+
+        public static Bundle createArguments(String emailAddress) {
+            Bundle b = new Bundle();
+            b.putString(BUNDLE_EMAIL_ADDRESS, emailAddress);
+            return b;
+        }
+
+        @Override
+        public Loader<ContactStatusLoader.Result> onCreateLoader(int id, Bundle args) {
+            return new ContactStatusLoader(mFragment.mContext,
+                    args.getString(BUNDLE_EMAIL_ADDRESS));
+        }
+
+        @Override
+        public void onLoadFinished(Loader<ContactStatusLoader.Result> loader,
+                ContactStatusLoader.Result result) {
+            boolean triggered =
+                    (mFragment.mContactStatusState == CONTACT_STATUS_STATE_UNLOADED_TRIGGERED);
+            mFragment.mContactStatusState = CONTACT_STATUS_STATE_LOADED;
+            mFragment.mQuickContactLookupUri = result.mLookupUri;
+            mFragment.mSenderPresenceView.setImageResource(result.mPresenceResId);
+            if (result.mPhoto != null) { // photo will be null if unknown.
+                mFragment.mFromBadge.setImageBitmap(result.mPhoto);
+            }
+            if (triggered) {
+                mFragment.onClickSender();
+            }
         }
     }
 
@@ -520,6 +579,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         switch (view.getId()) {
             case R.id.from:
+            case R.id.badge:
             case R.id.presence:
                 onClickSender();
                 break;
@@ -542,29 +602,21 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     /**
-     * Start checking presence of the sender of the message.
-     *
-     * Note:  This is just a polling operation.  A more advanced solution would be to keep the
-     * cursor open and respond to presence status updates (in the form of content change
-     * notifications).  However, because presence changes fairly slowly compared to the duration
-     * of viewing a single message, a simple poll at message load (and onResume) should be
-     * sufficient.
+     * Start loading contact photo and presence.
      */
-    private void startPresenceCheck() {
-        // Set "unknown" presence icon.
-        mSenderPresenceView.setImageResource(PresenceUpdater.getPresenceIconResourceId(null));
+    private void queryContactStatus() {
+        initContactStatusViews(); // Initialize the state, just in case.
+
+        // Find the sender email address, and start presence check.
         if (mMessage != null) {
             Address sender = Address.unpackFirst(mMessage.mFrom);
             if (sender != null) {
                 String email = sender.getAddress();
                 if (email != null) {
-                    mPresenceUpdater.checkPresence(email, new PresenceUpdater.Callback() {
-                        @Override
-                        public void onPresenceResult(String emailAddress, Integer presenceStatus) {
-                            mSenderPresenceView.setImageResource(
-                                    PresenceUpdater.getPresenceIconResourceId(presenceStatus));
-                        }
-                    });
+                    mFromBadge.assignContactFromEmail(email, false);
+                    getLoaderManager().restartLoader(PHOTO_LOADER_ID,
+                            ContactStatusLoaderCallbacks.createArguments(email),
+                            new ContactStatusLoaderCallbacks(this));
                 }
             }
         }
@@ -625,7 +677,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mMessageId = message.mId;
 
             reloadUiFromMessage(message, mOkToFetch);
-            startPresenceCheck();
+            queryContactStatus();
             mCallback.onMessageViewShown(mMailboxType);
         }
     }

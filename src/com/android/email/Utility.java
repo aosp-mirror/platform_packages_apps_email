@@ -803,12 +803,14 @@ public class Utility {
             Long defaultValue) {
         Cursor c = context.getContentResolver().query(uri, projection, selection, selectionArgs,
                 sortOrder);
-        try {
-            if (c.moveToFirst()) {
-                return c.getLong(column);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    return c.getLong(column);
+                }
+            } finally {
+                c.close();
             }
-        } finally {
-            c.close();
         }
         return defaultValue;
     }
@@ -842,6 +844,23 @@ public class Utility {
             String selection, String[] selectionArgs, String sortOrder, int column) {
         return getFirstRowInt(context, uri, projection, selection, selectionArgs,
                 sortOrder, column, null);
+    }
+
+    public static byte[] getFirstRowBlob(Context context, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder, int column,
+            byte[] defaultValue) {
+        Cursor c = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                sortOrder);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    return c.getBlob(column);
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return defaultValue;
     }
 
     /**
