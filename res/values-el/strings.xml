@@ -60,6 +60,8 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"Προσθήκη επισύναψης"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Ρυθμίσεις αρχείου ένδειξης σφαλμάτων"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Επιλογή επισύναψης"</string>
+    <!-- no translation found for move_to_folder_dialog_title (2614318192482193898) -->
+    <skip />
     <!-- no translation found for status_loading_messages (6552307237621292344) -->
     <skip />
     <string name="status_network_error" msgid="6045933332005067021">"Σφάλμα σύνδεσης"</string>
@@ -92,8 +94,10 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Πατήστε παρατεταμένα έναν λογαριασμό για να τον ανανεώσετε"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Θυρίδες αλληλογραφίας"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Φόρτωση περισσότερων μηνυμάτων"</string>
-    <!-- no translation found for message_view_selected_message_count:one (5064657358375178519) -->
-    <!-- no translation found for message_view_selected_message_count:other (7901361399231876038) -->
+  <plurals name="message_view_selected_message_count">
+    <item quantity="one" msgid="5064657358375178519">"Επιλέχθηκαν <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
+    <item quantity="other" msgid="7901361399231876038">"Επιλέχθηκαν <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
+  </plurals>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Προς"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Κοιν."</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Κρυφή κοιν."</string>
@@ -108,18 +112,13 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> και <xliff:g id="NUMBER">%2$d</xliff:g> ακόμα"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Προς:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Κοιν.: "</string>
-    <!-- no translation found for message_view_attachment_view_action (4408093860407096078) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_load_action (8645178445048233745) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_save_action (4704436274670997903) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
-    <skip />
+    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Προβολή"</string>
+    <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Φόρτωση"</string>
+    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Αποθήκευση"</string>
+    <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Διακοπή"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Η επισύναψη αποθηκεύτηκε στην κάρτα SD ως <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Δεν ήταν δυνατή η αποθήκευση της επισύναψης στην κάρτα SD."</string>
-    <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
-    <skip />
+    <string name="message_view_attachment_background_load" msgid="756797444835526487">"Σημείωση: Μία ή περισσότερες επισυνάψεις στο προωθημένο μήνυμά σας θα ληφθούν πριν την αποστολή."</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Επιλέξτε \"Εμφάνιση εικόνων\" για την προβολή των ενσωματωμένων εικόνων."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Εμφάνιση εικόνων"</string>
     <!-- no translation found for message_view_invite_view (5521032519960111675) -->
@@ -139,12 +138,12 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"Το μήνυμα απορρίφθηκε."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Το μήνυμα αποθηκεύτηκε ως πρόχειρο."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Δεν είναι δυνατή η προβολή αυτής της επισύναψης."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (342798484092215350) -->
-    <skip />
+    <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"Δεν ήταν δυνατή η φόρτωση της επισύναψης \" <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
     <skip />
-    <!-- no translation found for forward_download_failed_ticker (6654377128589312623) -->
-    <skip />
+    <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
+    <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
+    <string name="forward_download_failed_ticker" msgid="6654377128589312623">"Δεν ήταν δυνατή η προώθηση μιας επισύναψης"</string>
     <!-- no translation found for forward_download_failed_notification (3239753701377399676) -->
     <skip />
     <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
@@ -155,6 +154,8 @@
     <!-- no translation found for message_view_attachment_megabytes:other (4365876866570165282) -->
     <!-- no translation found for message_view_attachment_gigabytes:one (6261986598249539093) -->
     <!-- no translation found for message_view_attachment_gigabytes:other (1041353825053598633) -->
+    <!-- no translation found for message_list_snippet (6077583739966798162) -->
+    <skip />
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Ρύθμιση ηλεκτρονικού ταχυδρομείου"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Προσθήκη λογαριασμού Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Προσθήκη λογαριασμού Exchange ActiveSync"</string>
@@ -241,6 +242,8 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Οι μέθοδοι ελέγχου ταυτότητας δεν υποστηρίζονται από τον διακομιστή."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Δεν ήταν δυνατή η σύνδεση με τον διακομιστή επειδή προέκυψε σφάλμα ασφάλειας."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Δεν ήταν δυνατό το άνοιγμα σύνδεσης με τον διακομιστή."</string>
+    <!-- no translation found for account_setup_failed_protocol_unsupported (5476633232659376833) -->
+    <skip />
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Απομακρυσμένη διαχείριση ασφαλείας"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Από το διακομιστή <xliff:g id="SERVER">%s</xliff:g> απαιτείται να του επιτρέπεται ο απομακρυσμένος έλεγχος ορισμένων λειτουργιών ασφαλείας του τηλεφώνου σας. Θέλετε να ολοκληρωθεί η ρύθμιση αυτού του λογαριασμού;"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Για αυτόν τον διακομιστή απαιτούνται λειτουργίες ασφαλείας που δεν υποστηρίζονται από το τηλέφωνό σας."</string>
@@ -249,6 +252,8 @@
     <string name="account_security_title" msgid="4441470647344315196">"Ασφάλεια συσκευής"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Από το διακομιστή <xliff:g id="SERVER">%s</xliff:g> απαιτείται να του επιτρέπεται ο απομακρυσμένος έλεγχος ορισμένων λειτουργιών ασφαλείας του τηλεφώνου σας."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Επεξεργασία λεπτομερειών"</string>
+    <!-- no translation found for account_settings_exit_server_settings (8006323251094711431) -->
+    <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Γενικές ρυθμίσεις"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Προεπιλεγμένος λογαριασμός"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Αποστολή μηνυμάτων ηλεκτρονικού ταχυδρομείου από αυτόν τον λογαριασμό από προεπιλογή"</string>
@@ -286,10 +291,8 @@
     <string name="account_settings_servers" msgid="4925493817981624242">"Ρυθμίσεις διακομιστή"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Κατάργηση λογαριασμού"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Ο λογαριασμός \"<xliff:g id="ACCOUNT">%s</xliff:g>\" θα καταργηθεί από το ηλεκτρονικό ταχυδρομείο."</string>
-    <!-- no translation found for account_settings_category_delete_account (5128545184407925226) -->
-    <skip />
-    <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
-    <skip />
+    <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Κατάργηση λογαριασμού"</string>
+    <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Κατάργηση λογαριασμού"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Αναβάθμιση λογαριασμών"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Δεν είναι δυνατή η αναβάθμιση του λογαριασμού"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"Η πρόσβαση στο γραμματοκιβώτιο δεν υποστηρίζεται από ορισμένους τύπους λογαριασμών ηλεκτρονικού ταχυδρομείου Yahoo. Εάν αντιμετωπίζετε προβλήματα σύνδεσης, επισκεφθείτε τη διεύθυνση yahoo.com για περισσότερες πληροφορίες."</string>
@@ -321,5 +324,17 @@
     <!-- no translation found for header_label_general_preferences (7548527595339881066) -->
     <skip />
     <!-- no translation found for category_general_preferences (6810399722493971651) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_summary (4540091103768602710) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_dialog_title (5405052109452503909) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_newer (1336720027570509885) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_older (8273143493185128646) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_message_list (7834069275897767359) -->
     <skip />
 </resources>
