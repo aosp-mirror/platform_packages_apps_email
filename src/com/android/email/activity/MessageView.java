@@ -330,6 +330,7 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
 
     @Override
     public void onRespondedToInvite(int response) {
+        // TODO use "auto-advance" preference
         if (!moveToOlder()) {
             finish(); // if this is the last message, move up to message-list.
         }
