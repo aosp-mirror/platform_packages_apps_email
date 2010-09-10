@@ -20,9 +20,16 @@ import com.android.email.R;
 import com.android.email.provider.EmailContent;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 
+/**
+ * Provides setup flow for IMAP/POP accounts.
+ *
+ * Uses AccountSetupIncomingFragment for primary UI.  Uses AccountCheckSettingsFragment to validate
+ * the settings as entered.  If the account is OK, proceeds to AccountSetupOutgoing.
+ */
 public class AccountSetupIncoming extends AccountSetupActivity
         implements AccountSetupIncomingFragment.Callback {
 
@@ -53,39 +60,41 @@ public class AccountSetupIncoming extends AccountSetupActivity
    }
 
     /**
-     * After verifying a new server configuration, we return here and continue.  If editing an
-     * existing account, we simply finish().  If creating a new account, we move to the next phase.
+     * Implements AccountServerBaseFragment.Callback
+     *
+     * Launches the account checker.  Positive results are reported to onCheckSettingsOk().
      */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
-                mFragment.saveSettingsAfterEdit();
-            } else {
-                mFragment.saveSettingsAfterSetup();
-                AccountSetupOutgoing.actionOutgoingSettings(this, SetupData.getFlowMode(),
-                        SetupData.getAccount());
-            }
-            finish();
-        }
+    public void onProceedNext(int checkMode, AccountServerBaseFragment target) {
+        AccountCheckSettingsFragment checkerFragment =
+            AccountCheckSettingsFragment.newInstance(checkMode, target);
+        FragmentTransaction transaction = getFragmentManager().openTransaction();
+        transaction.replace(R.id.setup_fragment, checkerFragment);
+        transaction.addToBackStack("back");
+        transaction.commit();
     }
 
     /**
      * Implements AccountServerBaseFragment.Callback
      */
-    public void onEnableProceedButtons(boolean enabled) {
+    public void onEnableProceedButtons(boolean enable) {
         boolean wasEnabled = mNextButtonEnabled;
-        mNextButtonEnabled = enabled;
+        mNextButtonEnabled = enable;
 
-        if (enabled != wasEnabled) {
+        if (enable != wasEnabled) {
             invalidateOptionsMenu();
         }
     }
 
     /**
      * Implements AccountServerBaseFragment.Callback
+     *
+     * If the checked settings are OK, proceed to outgoing settings screen
      */
-    public void onProceedNext(int checkMode) {
-        AccountSetupCheckSettings.actionCheckSettings(this, checkMode);
+    public void onCheckSettingsOk(int setupMode) {
+        if (SetupData.getFlowMode() != SetupData.FLOW_MODE_EDIT) {
+            AccountSetupOutgoing.actionOutgoingSettings(this, SetupData.getFlowMode(),
+                    SetupData.getAccount());
+            finish();
+        }
     }
 }

@@ -23,6 +23,7 @@ import com.android.email.activity.Welcome;
 import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,15 +31,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 /**
- * Prompts the user for the email address and password. Also prompts for
- * "Use this account as default" if this is the 2nd+ account being set up.
- * Attempts to lookup default settings for the domain the user specified. If the
- * domain is known the settings are handed off to the AccountSetupCheckSettings
- * activity. If no settings are found the settings are handed off to the
- * AccountSetupAccountType activity.
+ * Prompts the user for the email address and password. Also prompts for "Use this account as
+ * default" if this is the 2nd+ account being set up.
+ *
+ * If the domain is well-known, the account is configured fully and checked immediately
+ * using AccountCheckSettingsFragment.  If this succeeds we proceed directly to AccountSetupOptions.
+ *
+ * If the domain is not known, or the user selects Manual setup, we invoke the
+ * AccountSetupAccountType activity where the user can begin to manually configure the account.
  */
 public class AccountSetupBasics extends AccountSetupActivity
-        implements AccountSetupBasicsFragment.Callback {
+        implements AccountSetupBasicsFragment.Callback, AccountCheckSettingsFragment.Callbacks {
 
     private AccountSetupBasicsFragment mFragment;
     private boolean mManualButtonDisplayed;
@@ -119,7 +122,7 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         mFragment = (AccountSetupBasicsFragment)
                 getFragmentManager().findFragmentById(R.id.setup_basics_fragment);
-       
+
         mManualButtonDisplayed = true;
         boolean alternateStrings = false;
         if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
@@ -136,7 +139,9 @@ public class AccountSetupBasics extends AccountSetupActivity
         mFragment.setCallback(this, alternateStrings);
     }
 
-     /**
+    /**
+     * Implements AccountCheckSettingsFragment.Callbacks
+     *
      * This is used in automatic setup mode to jump directly down to the names screen.
      *
      * NOTE:  With this organization, it is *not* possible to auto-create an exchange account,
@@ -144,11 +149,9 @@ public class AccountSetupBasics extends AccountSetupActivity
      * skipping here).
      */
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            AccountSetupOptions.actionOptions(this);
-            finish();
-        }
+    public void onCheckSettingsOk() {
+        AccountSetupOptions.actionOptions(this);
+        finish();
     }
 
     /**
@@ -157,7 +160,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         int menuId = mManualButtonDisplayed
-        ? R.menu.account_setup_manual_next_option
+                ? R.menu.account_setup_manual_next_option
                 : R.menu.account_setup_next_option;
         getMenuInflater().inflate(menuId, menu);
         return super.onCreateOptionsMenu(menu);
@@ -207,11 +210,20 @@ public class AccountSetupBasics extends AccountSetupActivity
 
     /**
      * Implements AccountSetupBasicsFragment.Callback
+     *
+     * This is called when auto-setup (from hardcoded server info) is attempted.
+     * Replace the name/password fragment with the account checker, which will begin to
+     * check incoming/outgoing.
      */
     @Override
     public void onProceedAutomatic() {
-        AccountSetupCheckSettings.actionCheckSettings(this,
-                SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING);
+        AccountCheckSettingsFragment checkerFragment =
+            AccountCheckSettingsFragment.newInstance(
+                    SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING, null);
+        FragmentTransaction transaction = getFragmentManager().openTransaction();
+        transaction.replace(R.id.setup_basics_fragment, checkerFragment);
+        transaction.addToBackStack("back");
+        transaction.commit();
     }
 
     /**

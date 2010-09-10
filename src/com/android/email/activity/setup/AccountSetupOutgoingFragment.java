@@ -44,6 +44,12 @@ import android.widget.Spinner;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * Provides UI for SMTP account settings (for IMAP/POP accounts).
+ *
+ * This fragment is used by AccountSetupOutgoing (for creating accounts) and by AccountSettingsXL
+ * (for editing existing accounts).
+ */
 public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         implements OnCheckedChangeListener {
     private static final int SMTP_PORTS[] = {
@@ -336,6 +342,13 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     }
 
     /**
+     * Entry point from Activity after entering new settings and verifying them.  For setup mode.
+     */
+    @Override
+    public void saveSettingsAfterSetup() {
+    }
+
+    /**
      * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's
      * a problem with the user input.
      * @return a URI built from the account setup fields
@@ -382,7 +395,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             ((PreferenceActivity)activity).startPreferenceFragment(checkerFragment, true);
         } else {
             // STOPSHIP remove this old code
-            mCallback.onProceedNext(SetupData.CHECK_OUTGOING);
+            mCallback.onProceedNext(SetupData.CHECK_OUTGOING, this);
         }
     }
 }

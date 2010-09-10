@@ -39,7 +39,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceFragment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -49,7 +48,14 @@ import android.widget.Button;
 import java.util.List;
 
 /**
- * Handles account preferences using multi-pane arrangement when possible.
+ * Handles account preferences, using multi-pane arrangement when possible.
+ *
+ * This activity uses the following fragments:
+ *   AccountSettingsFragment
+ *   Account{Incoming/Outgoing/Exchange}Fragment
+ *   AccountCheckSettingsFragment
+ *   GeneralPreferences
+ *   DebugFragment
  *
  * TODO: In Account settings in Phone UI, change title
  * TODO: Rework all remaining calls to DB from UI thread
@@ -205,23 +211,6 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
         Header result = mRequestedAccountHeader;
         mRequestedAccountHeader = null;
         return result;
-    }
-
-    /**
-     * After verifying a new server configuration, we return here and continue.  If editing
-     * succeeded, we do "back" to exit the settings screen.
-     *
-     * TODO: This goes away when we move checksettings into a fragment as well
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            if (mCurrentFragment instanceof AccountServerBaseFragment) {
-                AccountServerBaseFragment f = (AccountServerBaseFragment) mCurrentFragment;
-                f.saveSettingsAfterEdit();
-            }
-            onBackPressed();
-        }
     }
 
     private void enableDebugMenu() {
@@ -492,10 +481,20 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
         public void onEnableProceedButtons(boolean enable) {
             // This is not used - it's a callback for the legacy activities
         }
+
         @Override
-        public void onProceedNext(int setupMode) {
-            // TODO - this will be a fragment launch, with a fragment target result
-            AccountSetupCheckSettings.actionCheckSettings(AccountSettingsXL.this, setupMode);
+        public void onProceedNext(int checkMode, AccountServerBaseFragment target) {
+            AccountCheckSettingsFragment checkerFragment =
+                AccountCheckSettingsFragment.newInstance(checkMode, target);
+            startPreferenceFragment(checkerFragment, true);
+        }
+
+        /**
+         * After verifying a new server configuration as OK, we return here and continue.  This
+         * simply does a "back" to exit the settings screen.
+         */
+        public void onCheckSettingsOk(int setupMode) {
+            onBackPressed();
         }
     }
 
