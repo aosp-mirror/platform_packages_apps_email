@@ -33,7 +33,6 @@ import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -193,7 +192,11 @@ import java.util.Set;
         // overly-long subject, to let the beautiful snippet shine through.
         String snippet = cursor.getString(COLUMN_SNIPPET);
         if (!TextUtils.isEmpty(snippet)) {
-            text = context.getString(R.string.message_list_snippet, text, snippet);
+            if (TextUtils.isEmpty(text)) {
+                text = snippet;
+            } else {
+                text = context.getString(R.string.message_list_snippet, text, snippet);
+            }
         }
         subjectView.setText(text);
 
