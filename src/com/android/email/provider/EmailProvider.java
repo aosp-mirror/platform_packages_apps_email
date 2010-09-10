@@ -1042,7 +1042,12 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.insert: uri=" + uri + ", match is " + match);
         }
 
-        removeAutoColumnsFromContentValues(match, values);
+        // We do NOT allow setting of unreadCount/messageCount via the provider
+        // These columns are maintained via triggers
+        if (match == MAILBOX_ID || match == MAILBOX) {
+            values.put(MailboxColumns.UNREAD_COUNT, 0);
+            values.put(MailboxColumns.MESSAGE_COUNT, 0);
+        }
 
         Uri resultUri = null;
 
@@ -1261,7 +1266,12 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
         }
 
-        removeAutoColumnsFromContentValues(match, values);
+        // We do NOT allow setting of unreadCount/messageCount via the provider
+        // These columns are maintained via triggers
+        if (match == MAILBOX_ID || match == MAILBOX) {
+            values.remove(MailboxColumns.UNREAD_COUNT);
+            values.remove(MailboxColumns.MESSAGE_COUNT);
+        }
 
         String id;
         try {
@@ -1342,15 +1352,6 @@ public class EmailProvider extends ContentProvider {
 
         context.getContentResolver().notifyChange(uri, null);
         return result;
-    }
-
-    private static void removeAutoColumnsFromContentValues(int match, ContentValues values) {
-        // We do NOT allow setting of unreadCount/messageCount via the provider
-        // These columns are maintained via triggers
-        if (match == MAILBOX_ID || match == MAILBOX) {
-            values.remove(MailboxColumns.UNREAD_COUNT);
-            values.remove(MailboxColumns.MESSAGE_COUNT);
-        }
     }
 
     /* (non-Javadoc)
