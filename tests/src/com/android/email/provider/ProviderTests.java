@@ -1849,7 +1849,9 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         ContentValues values = new ContentValues();
         values.put(MailboxColumns.MESSAGE_COUNT, -1);
 
-        getProvider().update(Mailbox.CONTENT_URI, values, null, null);
+        // EmailProvider.update() doesn't allow updating messageCount, so directly use the DB.
+        SQLiteDatabase db = getProvider().getDatabase(mMockContext);
+        db.update(Mailbox.TABLE_NAME, values, null, null);
     }
 
     /**
