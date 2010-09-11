@@ -37,7 +37,6 @@ import org.apache.commons.io.IOUtils;
 import android.app.Fragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
@@ -49,7 +48,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.QuickContact;
 import android.text.TextUtils;
 import android.util.Log;
@@ -556,7 +554,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (info != null) {
             info.loadButton.setVisibility(View.INVISIBLE);
             info.loadButton.setVisibility(View.GONE);
-            info.saveButton.setVisibility(View.VISIBLE);
+            if (!TextUtils.isEmpty(info.name)) {
+                info.saveButton.setVisibility(View.VISIBLE);
+            }
             info.viewButton.setVisibility(View.VISIBLE);
         }
     }
