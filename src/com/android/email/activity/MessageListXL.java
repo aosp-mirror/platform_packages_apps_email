@@ -516,6 +516,11 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         startActivity(AccountSecurity.actionUpdateSecurityIntent(this, accountId));
     }
 
+    @Override
+    public void onMailboxChanged(long accountId, long newMailboxId) {
+        updateProgressIcon();
+    }
+
     private void loadAccounts() {
         getLoaderManager().initLoader(LOADER_ID_ACCOUNT_LIST, null, new LoaderCallbacks<Cursor>() {
             @Override
@@ -583,13 +588,22 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         @Override
         public void onMessagingError(long accountId, long mailboxId, String message) {
             Utility.showToast(MessageListXL.this, message); // STOPSHIP temporary UI
-            invalidateOptionsMenu();
+            updateProgressIcon();
         }
 
         @Override
         public void onRefreshStatusChanged(long accountId, long mailboxId) {
-            invalidateOptionsMenu();
+            updateProgressIcon();
         }
+    }
+
+    /**
+     * If we're refreshing the current mailbox, animate the "mailbox refreshing" progress icon.
+     */
+    private void updateProgressIcon() {
+        // TODO See the comment on onPrepareOptionsMenu -- change this when we get a better progress
+        // bar support.
+        invalidateOptionsMenu();
     }
 
     private boolean isProgressActive() {
