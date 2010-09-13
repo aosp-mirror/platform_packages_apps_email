@@ -88,10 +88,12 @@ public class AccountSetupOutgoing extends Activity
      *
      * If the checked settings are OK, proceed to options screen
      */
-    public void onCheckSettingsOk(int setupMode) {
-        if (SetupData.getFlowMode() != SetupData.FLOW_MODE_EDIT) {
-            AccountSetupOptions.actionOptions(this);
+    public void onCheckSettingsComplete(int result, int setupMode) {
+        if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
+            if (SetupData.getFlowMode() != SetupData.FLOW_MODE_EDIT) {
+                AccountSetupOptions.actionOptions(this);
+            }
+            finish();
         }
-        finish();
     }
 }

@@ -156,15 +156,6 @@ public class SetupData implements Parcelable {
         data.mFlowMode = flowMode;
     }
 
-    public static void init(int flowMode, String username, String password) {
-        SetupData data = getInstance();
-        data.commonInit();
-        data.mFlowMode = flowMode;
-        data.mUsername = username;
-        data.mPassword = password;
-        data.commonInit();
-    }
-
     public static void init(int flowMode, Account account) {
         SetupData data = getInstance();
         data.commonInit();

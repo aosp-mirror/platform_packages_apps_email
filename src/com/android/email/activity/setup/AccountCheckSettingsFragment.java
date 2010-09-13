@@ -24,6 +24,7 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.service.EmailServiceProxy;
 
 import android.app.Activity;
@@ -49,31 +50,29 @@ import android.util.Log;
  *
  * There are also two lightweight error dialogs which are used for notification of terminal
  * conditions.
- *
- * TODO support for account setup, including
- *  - autodiscover
- *  - forwarding account security info
  */
 public class AccountCheckSettingsFragment extends Fragment {
     
     public final static String TAG = "AccountCheckSettingsFragment";
 
     // Debugging flags - for debugging the UI
-    // If true, walks through a "fake" account check cycle
-    private static final boolean DEBUG_FAKE_CHECK_CYCLE = false;   // DO NOT CHECK IN WHILE TRUE
-    // If true, fake check cycle runs but returns failure
-    private static final boolean DEBUG_FAKE_CHECK_ERR = false;    // DO NOT CHECK IN WHILE TRUE
-    // If true, performs real check(s), but always returns fixed OK result
-    private static final boolean DEBUG_FORCE_RESULT_OK = false;   // DO NOT CHECK IN WHILE TRUE
+    // If true, use a "fake" account check cycle
+    private static final boolean DEBUG_FAKE_CHECK_CYCLE = false;            // DO NOT CHECK IN TRUE
+    // If true, use fake check cycle, return failure
+    private static final boolean DEBUG_FAKE_CHECK_ERR = false;              // DO NOT CHECK IN TRUE
+    // If true, use fake check cycle, return "security required"
+    private static final boolean DEBUG_FORCE_SECURITY_REQUIRED = false;     // DO NOT CHECK IN TRUE
 
     // State
     private final static int STATE_START = 0;
     private final static int STATE_CHECK_AUTODISCOVER = 1;
     private final static int STATE_CHECK_INCOMING = 2;
     private final static int STATE_CHECK_OUTGOING = 3;
-    private final static int STATE_CHECK_OK = 4;            // terminal
-    private final static int STATE_CHECK_SHOW_SECURITY = 5; // terminal
-    private final static int STATE_CHECK_ERROR = 6;         // terminal
+    private final static int STATE_CHECK_OK = 4;                    // terminal
+    private final static int STATE_CHECK_SHOW_SECURITY = 5;         // terminal
+    private final static int STATE_CHECK_ERROR = 6;                 // terminal
+    private final static int STATE_AUTODISCOVER_AUTH_DIALOG = 7;    // terminal
+    private final static int STATE_AUTODISCOVER_RESULT = 8;         // terminal
     private int mState = STATE_START;
 
     // Support for UI
@@ -81,22 +80,45 @@ public class AccountCheckSettingsFragment extends Fragment {
     private CheckingDialog mCheckingDialog;
     private int mErrorStringId;
     private String mErrorMessage;
-    private ErrorDialog mErrorDialog;
-    private SecurityRequiredDialog mSecurityRequiredDialog;
+    private HostAuth mAutoDiscoverResult;
 
     // Support for AsyncTask and account checking
     AccountCheckTask mAccountCheckTask;
-    
+
+    // Result codes returned by onCheckSettingsComplete.
+    /** Check settings returned successfully */
+    public final static int CHECK_SETTINGS_OK = 0;
+    /** Check settings failed due to connection, authentication, or other server error */
+    public final static int CHECK_SETTINGS_SERVER_ERROR = 1;
+    /** Check settings failed due to user refusing to accept security requirements */
+    public final static int CHECK_SETTINGS_SECURITY_USER_DENY = 2;
+
+    // Result codes returned by onAutoDiscoverComplete.
+    /** AutoDiscover completed successfully with server setup data */
+    public final static int AUTODISCOVER_OK = 0;
+    /** AutoDiscover completed with no data (no server or AD not supported) */
+    public final static int AUTODISCOVER_NO_DATA = 1;
+    /** AutoDiscover reported authentication error */
+    public final static int AUTODISCOVER_AUTHENTICATION = 2;
+
     /**
      * Callback interface for any target or activity doing account check settings
      */
     public interface Callbacks {
         /**
-         * CheckSettings completed with no errors
+         * Called when CheckSettings completed
+         * @param result check settings result code - success is CHECK_SETTINGS_OK
          */
-        public void onCheckSettingsOk();  
+        public void onCheckSettingsComplete(int result);
+
+        /**
+         * Called when autodiscovery completes.
+         * @param result autodiscovery result code - success is AUTODISCOVER_OK
+         * @param hostAuth configuration data returned by AD server, or null if no data available
+         */
+        public void onAutoDiscoverComplete(int result, HostAuth hostAuth);
     }
-             
+
     /**
      * Create a retained, invisible fragment that checks accounts
      *
@@ -133,17 +155,14 @@ public class AccountCheckSettingsFragment extends Fragment {
         if (mAccountCheckTask == null) {
             int checkMode = getTargetRequestCode();
             Account checkAccount = SetupData.getAccount();
-            String storeUri = checkAccount.getStoreUri(getActivity());
-            String storeHostname = checkAccount.mHostAuthRecv.mAddress;
-            String senderUri = checkAccount.getSenderUri(getActivity());
             mAccountCheckTask = (AccountCheckTask)
-                    new AccountCheckTask(checkMode, storeUri, storeHostname, senderUri)
+                    new AccountCheckTask(checkMode, checkAccount)
                     .execute();
         }
 
         // if reattaching, update progress/error UI by re-reporting the previous values
         if (mState != STATE_START) {
-            reportProgress(mState, mErrorStringId, mErrorMessage);
+            reportProgress(mState, mErrorStringId, mErrorMessage, mAutoDiscoverResult);
         }
     }
 
@@ -175,48 +194,73 @@ public class AccountCheckSettingsFragment extends Fragment {
      * @param newState The new progress state being reported
      * @param errorStringId Resource Id of an error string to display
      * @param errorMessage Additional string to insert if the resource string takes a parameter.
+     * @param autoDiscoverResult If doing autodiscovery, the setup info returned from AD server
      */
-    public void reportProgress(int newState, int errorStringId, String errorMessage) {
+    public void reportProgress(int newState, int errorStringId, String errorMessage,
+            HostAuth autoDiscoverResult) {
         mState = newState;
         mErrorStringId = errorStringId;
         mErrorMessage = errorMessage;
+        mAutoDiscoverResult = autoDiscoverResult;
 
         // If we are attached, create, recover, and/or update the dialog
         if (mAttached) {
             FragmentManager fm = getFragmentManager();
 
-            if (newState == STATE_CHECK_OK) {
-                // immediately terminate, clean up, and report back
-                // 1. get rid of progress dialog (if any)
-                recoverAndDismissCheckingDialog();
-                // 2. exit self
-                fm.popBackStack();
-                // 3. report OK back to target fragment
-                Callbacks callbackTarget = getCallbackTarget();
-                callbackTarget.onCheckSettingsOk();
-            } else if (newState == STATE_CHECK_SHOW_SECURITY) {
-                // 1. get rid of progress dialog (if any)
-                recoverAndDismissCheckingDialog();
-                // 2. launch the error dialog
-                mSecurityRequiredDialog = SecurityRequiredDialog.newInstance(this, mErrorMessage);
-                fm.openTransaction().add(mSecurityRequiredDialog, SecurityRequiredDialog.TAG)
-                        .commit();
-            } else if (newState == STATE_CHECK_ERROR) {
-                // 1. get rid of progress dialog (if any)
-                recoverAndDismissCheckingDialog();
-                // 2. launch the error dialog
-                mErrorDialog = ErrorDialog.newInstance(this, mErrorStringId, mErrorMessage);
-                fm.openTransaction().add(mErrorDialog, ErrorDialog.TAG).commit();
-            } else {
-                // Display a normal progress message
-                mCheckingDialog = (CheckingDialog) fm.findFragmentByTag(CheckingDialog.TAG);
+            switch (newState) {
+                case STATE_CHECK_OK:
+                    // immediately terminate, clean up, and report back
+                    // 1. get rid of progress dialog (if any)
+                    recoverAndDismissCheckingDialog();
+                    // 2. exit self
+                    fm.popBackStack();
+                    // 3. report OK back to target fragment or activity
+                    getCallbackTarget().onCheckSettingsComplete(CHECK_SETTINGS_OK);
+                    break;
+                case STATE_CHECK_SHOW_SECURITY:
+                    // 1. get rid of progress dialog (if any)
+                    recoverAndDismissCheckingDialog();
+                    // 2. launch the error dialog
+                    SecurityRequiredDialog securityRequiredDialog =
+                            SecurityRequiredDialog.newInstance(this, mErrorMessage);
+                    fm.openTransaction()
+                            .add(securityRequiredDialog, SecurityRequiredDialog.TAG)
+                            .commit();
+                    break;
+                case STATE_CHECK_ERROR:
+                case STATE_AUTODISCOVER_AUTH_DIALOG:
+                    // 1. get rid of progress dialog (if any)
+                    recoverAndDismissCheckingDialog();
+                    // 2. launch the error dialog
+                    ErrorDialog errorDialog =
+                            ErrorDialog.newInstance(this, mErrorStringId, mErrorMessage);
+                    fm.openTransaction()
+                            .add(errorDialog, ErrorDialog.TAG)
+                            .commit();
+                    break;
+                case STATE_AUTODISCOVER_RESULT:
+                    // 1. get rid of progress dialog (if any)
+                    recoverAndDismissCheckingDialog();
+                    // 2. exit self
+                    fm.popBackStack();
+                    // 3. report back to target fragment or activity
+                    getCallbackTarget().onAutoDiscoverComplete(
+                            (mAutoDiscoverResult != null) ? AUTODISCOVER_OK : AUTODISCOVER_NO_DATA,
+                                    mAutoDiscoverResult);
+                    break;
+                default:
+                    // Display a normal progress message
+                    mCheckingDialog = (CheckingDialog) fm.findFragmentByTag(CheckingDialog.TAG);
 
-                if (mCheckingDialog == null) {
-                    mCheckingDialog = CheckingDialog.newInstance(this, mState);
-                    fm.openTransaction().add(mCheckingDialog, CheckingDialog.TAG).commit();
-                } else {
-                    mCheckingDialog.updateProgress(mState);
-                }
+                    if (mCheckingDialog == null) {
+                        mCheckingDialog = CheckingDialog.newInstance(this, mState);
+                        fm.openTransaction()
+                                .add(mCheckingDialog, CheckingDialog.TAG)
+                                .commit();
+                    } else {
+                        mCheckingDialog.updateProgress(mState);
+                    }
+                    break;
             }
         }
     }
@@ -234,7 +278,7 @@ public class AccountCheckSettingsFragment extends Fragment {
             return (Callbacks) activity;
         }
         throw new IllegalStateException();
-    }    
+    }
 
     /**
      * Recover and dismiss the progress dialog fragment
@@ -266,10 +310,18 @@ public class AccountCheckSettingsFragment extends Fragment {
     /**
      * This is called when the user clicks "edit" from the error dialog.  The error dialog
      * should have already dismissed itself.
-     * This should cause us to remain in the current screen (not accepting the settings)
+     * Depending on the context, the target will remain in the current activity (e.g. editing
+     * settings) or return to its own parent (e.g. enter new credentials).
      */
     private void onErrorDialogEditButton() {
-        // Exit self with no report - this is "cancel"
+        Callbacks callbackTarget = getCallbackTarget();
+        if (mState == STATE_AUTODISCOVER_AUTH_DIALOG) {
+            // report auth error to target fragment or activity
+            callbackTarget.onAutoDiscoverComplete(AUTODISCOVER_AUTHENTICATION, null);
+        } else {
+            // report check settings failure to target fragment or activity
+            callbackTarget.onCheckSettingsComplete(CHECK_SETTINGS_SERVER_ERROR);
+        }
         getFragmentManager().popBackStack();
     }
 
@@ -277,14 +329,35 @@ public class AccountCheckSettingsFragment extends Fragment {
      * This is called when the user clicks "ok" or "cancel" on the "security required" dialog.
      * Shuts everything down and dismisses everything, and reports the result appropriately.
      */
-    private void onSecurityRequiredDialogButtonOk(boolean okPressed) {
-        // 1. handle OK - notify that security is OK and we can proceed
-        if (okPressed) {
-            Callbacks callbackTarget = getCallbackTarget();
-            callbackTarget.onCheckSettingsOk();
-        }
+    private void onSecurityRequiredDialogResultOk(boolean okPressed) {
+        // 1. handle OK/cancel - notify that security is OK and we can proceed
+        Callbacks callbackTarget = getCallbackTarget();
+        callbackTarget.onCheckSettingsComplete(
+                okPressed ? CHECK_SETTINGS_OK : CHECK_SETTINGS_SECURITY_USER_DENY);
+
         // 2. kill self
         getFragmentManager().popBackStack();
+    }
+
+    /**
+     * This exception class is used to report autodiscover results via the reporting mechanism.
+     */
+    public static class AutoDiscoverResults extends MessagingException {
+        public final HostAuth mHostAuth;
+
+        /**
+         * @param authenticationError true if auth failure, false for result (or no response)
+         * @param hostAuth null for "no autodiscover", non-null for server info to return
+         */
+        public AutoDiscoverResults(boolean authenticationError, HostAuth hostAuth) {
+            super(null);
+            if (authenticationError) {
+                mExceptionType = AUTODISCOVER_AUTHENTICATION_FAILED;
+            } else {
+                mExceptionType = AUTODISCOVER_AUTHENTICATION_RESULT;
+            }
+            mHostAuth = hostAuth;
+        }
     }
 
     /**
@@ -300,17 +373,22 @@ public class AccountCheckSettingsFragment extends Fragment {
         final String mStoreUri;
         final String mStoreHost;
         final String mSenderUri;
+        final String mCheckEmail;
+        final String mCheckPassword;
 
         /**
          * Create task and parameterize it
          * @param mode bits request operations
+         * @param checkAccount account holding values to be checked
          */
-        public AccountCheckTask(int mode, String storeUri, String storeHost, String senderUri) {
+        public AccountCheckTask(int mode, Account checkAccount) {
             mContext = getActivity().getApplicationContext();
             mMode = mode;
-            mStoreUri = storeUri;
-            mStoreHost = storeHost;
-            mSenderUri = senderUri;
+            mStoreUri = checkAccount.getStoreUri(mContext);
+            mStoreHost = checkAccount.mHostAuthRecv.mAddress;
+            mSenderUri = checkAccount.getSenderUri(mContext);
+            mCheckEmail = checkAccount.mEmailAddress;
+            mCheckPassword = checkAccount.mHostAuthRecv.mPassword;
         }
 
         @Override
@@ -320,11 +398,31 @@ public class AccountCheckSettingsFragment extends Fragment {
             }
 
             try {
-                // TODO: AutoDiscover
                 if ((mMode & SetupData.CHECK_AUTODISCOVER) != 0) {
                     if (isCancelled()) return null;
                     publishProgress(STATE_CHECK_AUTODISCOVER);
-                    return new MessagingException(-1, "Autodiscover unimplemented");
+                    Log.d(Email.LOG_TAG, "Begin auto-discover for " + mCheckEmail);
+                    Store store = Store.getInstance(mStoreUri, mContext, null);
+                    Bundle result = store.autoDiscover(mContext, mCheckEmail, mCheckPassword);
+                    // Result will be one of:
+                    //  null: remote exception - proceed to manual setup
+                    //  MessagingException.AUTHENTICATION_FAILED: username/password rejected
+                    //  Other error: proceed to manual setup
+                    //  No error: return autodiscover results
+                    if (result == null) {
+                        return new AutoDiscoverResults(false, null);
+                    }
+                    int errorCode =
+                            result.getInt(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_ERROR_CODE);
+                    if (errorCode == MessagingException.AUTHENTICATION_FAILED) {
+                        return new AutoDiscoverResults(true, null);
+                    } else if (errorCode != MessagingException.NO_ERROR) {
+                        return new AutoDiscoverResults(false, null);
+                    } else {
+                        HostAuth serverInfo = (HostAuth)
+                            result.getParcelable(EmailServiceProxy.AUTO_DISCOVER_BUNDLE_HOST_AUTH);
+                        return new AutoDiscoverResults(false, serverInfo);
+                    }
                 }
 
                 // Check Incoming Settings
@@ -373,7 +471,7 @@ public class AccountCheckSettingsFragment extends Fragment {
         }
 
         /**
-         * Dummy background worker, for testing UI only.  STOPSHIP remove this
+         * Dummy background worker, for testing UI only.
          */
         private MessagingException fakeChecker() {
             // Dummy:  Publish a series of progress setups, 2 sec delays between them;
@@ -382,32 +480,39 @@ public class AccountCheckSettingsFragment extends Fragment {
             if (isCancelled()) return null;
             if ((mMode & SetupData.CHECK_AUTODISCOVER) != 0) {
                 publishProgress(STATE_CHECK_AUTODISCOVER);
-                if (DEBUG_FAKE_CHECK_ERR) {
-                    return new MessagingException(MessagingException.AUTHENTICATION_FAILED);
-                }
                 try {
                     Thread.sleep(DELAY);
                 } catch (InterruptedException e) { }
+                if (DEBUG_FAKE_CHECK_ERR) {
+                    return new MessagingException(MessagingException.AUTHENTICATION_FAILED);
+                }
+                // Return "real" AD results
+                HostAuth serverInfo = new HostAuth();
+                serverInfo.setStoreUri("eas://user:password@testserver.com");
+                return new AutoDiscoverResults(false, serverInfo);
             }
             if (isCancelled()) return null;
             if ((mMode & SetupData.CHECK_INCOMING) != 0) {
                 publishProgress(STATE_CHECK_INCOMING);
-                if (DEBUG_FAKE_CHECK_ERR) {
-                    return new MessagingException(MessagingException.IOERROR);
-                }
                 try {
                     Thread.sleep(DELAY);
                 } catch (InterruptedException e) { }
+                if (DEBUG_FAKE_CHECK_ERR) {
+                    return new MessagingException(MessagingException.IOERROR);
+                } else if (DEBUG_FORCE_SECURITY_REQUIRED) {
+                    return new MessagingException(
+                            MessagingException.SECURITY_POLICIES_REQUIRED);
+                }
             }
             if (isCancelled()) return null;
             if ((mMode & SetupData.CHECK_OUTGOING) != 0) {
                 publishProgress(STATE_CHECK_OUTGOING);
-                if (DEBUG_FAKE_CHECK_ERR) {
-                    return new MessagingException(MessagingException.TLS_REQUIRED);
-                }
                 try {
                     Thread.sleep(DELAY);
                 } catch (InterruptedException e) { }
+                if (DEBUG_FAKE_CHECK_ERR) {
+                    return new MessagingException(MessagingException.TLS_REQUIRED);
+                }
             }
             return null;
         }
@@ -419,36 +524,58 @@ public class AccountCheckSettingsFragment extends Fragment {
         @Override
         protected void onProgressUpdate(Integer... progress) {
             if (isCancelled()) return;
-            reportProgress(progress[0], 0, null);
+            reportProgress(progress[0], 0, null, null);
         }
 
         /**
-         * Result handler (runs in UI thread)
+         * Result handler (runs in UI thread).
+         *
+         * AutoDiscover authentication errors are handled a bit differently than the
+         * other errors;  If encountered, we display the error dialog, but we return with
+         * a different callback used only for AutoDiscover.
+         *
          * @param result null for a successful check;  exception for various errors
          */
         @Override
         protected void onPostExecute(MessagingException result) {
             if (isCancelled()) return;
             if (result == null) {
-                reportProgress(STATE_CHECK_OK, 0, null);
+                reportProgress(STATE_CHECK_OK, 0, null, null);
             } else {
+                int progressState = STATE_CHECK_ERROR;
                 int exceptionType = result.getExceptionType();
                 String message = result.getMessage();
-                int id;
+                HostAuth hostAuth = null;
+                int id = 0;
+
                 switch (exceptionType) {
+                    // NOTE: AutoDiscover reports have their own reporting state, handle differently
+                    // from the other exception types
+                    case MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED:
+                        id = (message == null)
+                            ? R.string.account_setup_failed_dlg_auth_message
+                            : R.string.account_setup_failed_dlg_auth_message_fmt;
+                        progressState = STATE_AUTODISCOVER_AUTH_DIALOG;
+                        break;
+                    case MessagingException.AUTODISCOVER_AUTHENTICATION_RESULT:
+                        hostAuth = ((AutoDiscoverResults)result).mHostAuth;
+                        progressState = STATE_AUTODISCOVER_RESULT;
+                        break;
+
                     // NOTE: Security policies required has its own report state, handle it a bit
                     // differently from the other exception types.
                     case MessagingException.SECURITY_POLICIES_REQUIRED:
-                        reportProgress(STATE_CHECK_SHOW_SECURITY, 0, message);
-                        return;
-                    // Remaining exception types are handled together, move us to STATE_CHECK_ERROR
+                        progressState = STATE_CHECK_SHOW_SECURITY;
+                        break;
+
+                    // The remaining exception types are handled by setting the state to
+                    // STATE_CHECK_ERROR (above, default) and conversion to specific error strings.
                     case MessagingException.CERTIFICATE_VALIDATION_ERROR:
                         id = (message == null)
                             ? R.string.account_setup_failed_dlg_certificate_message
                             : R.string.account_setup_failed_dlg_certificate_message_fmt;
                         break;
                     case MessagingException.AUTHENTICATION_FAILED:
-                    case MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED:
                         id = (message == null)
                             ? R.string.account_setup_failed_dlg_auth_message
                             : R.string.account_setup_failed_dlg_auth_message_fmt;
@@ -477,7 +604,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                                 : R.string.account_setup_failed_dlg_server_message_fmt;
                         break;
                 }
-                reportProgress(STATE_CHECK_ERROR, id, message);
+                reportProgress(progressState, id, message, hostAuth);
             }
         }
     }
@@ -486,8 +613,6 @@ public class AccountCheckSettingsFragment extends Fragment {
      * Simple dialog that shows progress as we work through the settings checks.
      * This is stateless except for its UI (e.g. current strings) and can be torn down or
      * recreated at any time without affecting the account checking progress.
-     *
-     * TODO: Indeterminate progress or other icon
      */
     public static class CheckingDialog extends DialogFragment {
         public final static String TAG = "CheckProgressDialog";
@@ -620,7 +745,14 @@ public class AccountCheckSettingsFragment extends Fragment {
     }
 
     /**
-     * The "security required" error dialog.  Calls back to onSecurityRequiredDialogButtonOk().
+     * The "security required" error dialog.  This is presented whenever an exchange account
+     * reports that it will require security policy control, and provide the user with the
+     * opportunity to accept or deny this.
+     *
+     * If the user clicks OK, calls onSecurityRequiredDialogResultOk(true) which reports back
+     * to the target as if the settings check was "ok".  If the user clicks "cancel", calls
+     * onSecurityRequiredDialogResultOk(false) which simply closes the checker (this is the
+     * same as any other failed check.)
      */
     public static class SecurityRequiredDialog extends DialogFragment {
         public final static String TAG = "SecurityRequiredDialog";
@@ -657,7 +789,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dismiss();
-                                target.onSecurityRequiredDialogButtonOk(true);
+                                target.onSecurityRequiredDialogResultOk(true);
                             }
                         })
                 .setNegativeButton(
@@ -665,7 +797,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dismiss();
-                                target.onSecurityRequiredDialogButtonOk(false);
+                                target.onSecurityRequiredDialogResultOk(false);
                             }
                         })
                  .create();

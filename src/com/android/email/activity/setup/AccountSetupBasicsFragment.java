@@ -86,7 +86,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
     public interface Callback {
         public void onEnableProceedButtons(boolean enable);
         public void onProceedAutomatic();
-        public void onProceedManual();
+        public void onProceedManual(boolean allowAutoDiscover);
         public void onProceedDebugSettings();
     }
 
@@ -94,7 +94,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
         public static final Callback INSTANCE = new EmptyCallback();
         @Override public void onEnableProceedButtons(boolean enable) { }
         @Override public void onProceedAutomatic() { }
-        @Override public void onProceedManual() { }
+        @Override public void onProceedManual(boolean allowAutoDiscover) { }
         @Override public void onProceedDebugSettings() { }
     }
 
@@ -441,7 +441,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
         }
         account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
 
-        mCallback.onProceedManual();
+        mCallback.onProceedManual(allowAutoDiscover);
     }
 
     /**

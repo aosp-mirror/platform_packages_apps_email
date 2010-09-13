@@ -493,8 +493,10 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
          * After verifying a new server configuration as OK, we return here and continue.  This
          * simply does a "back" to exit the settings screen.
          */
-        public void onCheckSettingsOk(int setupMode) {
-            onBackPressed();
+        public void onCheckSettingsComplete(int result, int setupMode) {
+            if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
+                onBackPressed();
+            }
         }
     }
 

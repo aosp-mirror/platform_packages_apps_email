@@ -90,11 +90,13 @@ public class AccountSetupIncoming extends AccountSetupActivity
      *
      * If the checked settings are OK, proceed to outgoing settings screen
      */
-    public void onCheckSettingsOk(int setupMode) {
-        if (SetupData.getFlowMode() != SetupData.FLOW_MODE_EDIT) {
-            AccountSetupOutgoing.actionOutgoingSettings(this, SetupData.getFlowMode(),
-                    SetupData.getAccount());
-            finish();
+    public void onCheckSettingsComplete(int result, int setupMode) {
+        if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
+            if (SetupData.getFlowMode() != SetupData.FLOW_MODE_EDIT) {
+                AccountSetupOutgoing.actionOutgoingSettings(this, SetupData.getFlowMode(),
+                        SetupData.getAccount());
+                finish();
+            }
         }
     }
 }
