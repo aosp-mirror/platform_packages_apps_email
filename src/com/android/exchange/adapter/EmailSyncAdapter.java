@@ -20,7 +20,14 @@ package com.android.exchange.adapter;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MeetingInfo;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Multipart;
 import com.android.email.mail.PackedString;
+import com.android.email.mail.Part;
+import com.android.email.mail.internet.BinaryTempFileBody;
+import com.android.email.mail.internet.MimeBodyPart;
+import com.android.email.mail.internet.MimeMessage;
+import com.android.email.mail.internet.TextBody;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
@@ -38,6 +45,8 @@ import com.android.exchange.EasSyncService;
 import com.android.exchange.MessageMoveRequest;
 import com.android.exchange.utility.CalendarUtilities;
 
+import org.apache.commons.io.IOUtils;
+
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -48,8 +57,10 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.webkit.MimeTypeMap;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -75,12 +86,20 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         new String[] { Message.RECORD_ID, MessageColumns.SUBJECT };
 
     private static final String WHERE_BODY_SOURCE_MESSAGE_KEY = Body.SOURCE_MESSAGE_KEY + "=?";
+    private static final String[] FETCH_REQUEST_PROJECTION =
+        new String[] {EmailContent.RECORD_ID, SyncColumns.SERVER_ID};
+    private static final int FETCH_REQUEST_RECORD_ID = 0;
+    private static final int FETCH_REQUEST_SERVER_ID = 1;
+
+    private static final String EMAIL_WINDOW_SIZE = "5";
 
     String[] mBindArguments = new String[2];
     String[] mBindArgument = new String[1];
 
-    ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
-    ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
+    /*package*/ ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
+    /*package*/ ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
+    /*package*/ ArrayList<FetchRequest> mFetchRequestList = new ArrayList<FetchRequest>();
+    private boolean mFetchNeeded = false;
 
     // Holds the parser's value for isLooping()
     boolean mIsLooping = false;
@@ -89,12 +108,105 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         super(mailbox, service);
     }
 
+    private String getEmailFilter() {
+        switch (mAccount.mSyncLookback) {
+            case com.android.email.Account.SYNC_WINDOW_1_DAY:
+                return Eas.FILTER_1_DAY;
+            case com.android.email.Account.SYNC_WINDOW_3_DAYS:
+                return Eas.FILTER_3_DAYS;
+            case com.android.email.Account.SYNC_WINDOW_1_WEEK:
+                return Eas.FILTER_1_WEEK;
+            case com.android.email.Account.SYNC_WINDOW_2_WEEKS:
+                return Eas.FILTER_2_WEEKS;
+            case com.android.email.Account.SYNC_WINDOW_1_MONTH:
+                return Eas.FILTER_1_MONTH;
+            case com.android.email.Account.SYNC_WINDOW_ALL:
+                return Eas.FILTER_ALL;
+            default:
+                return Eas.FILTER_1_WEEK;
+        }
+    }
+
+    /**
+     * Holder for fetch request information (record id and server id)
+     */
+    static class FetchRequest {
+        final long messageId;
+        final String serverId;
+
+        FetchRequest(long _messageId, String _serverId) {
+            messageId = _messageId;
+            serverId = _serverId;
+        }
+    }
+
+    @Override
+    public void sendSyncOptions(Double protocolVersion, Serializer s)
+            throws IOException  {
+        mFetchRequestList.clear();
+        // Find partially loaded messages; this should typically be a rare occurrence
+        Cursor c = mContext.getContentResolver().query(Message.CONTENT_URI,
+                FETCH_REQUEST_PROJECTION,
+                MessageColumns.FLAG_LOADED + "=" + Message.FLAG_LOADED_PARTIAL + " AND " +
+                MessageColumns.MAILBOX_KEY + "=?",
+                new String[] {Long.toString(mMailbox.mId)}, null);
+        try {
+            // Put all of these messages into a list; we'll need both id and server id
+            while (c.moveToNext()) {
+                mFetchRequestList.add(new FetchRequest(c.getLong(FETCH_REQUEST_RECORD_ID),
+                        c.getString(FETCH_REQUEST_SERVER_ID)));
+            }
+        } finally {
+            c.close();
+        }
+
+        // The "empty" case is typical; we send a request for changes, and also specify a sync
+        // window, body preference type (HTML for EAS 12.0 and later; MIME for EAS 2.5), and
+        // truncation
+        // If there are fetch requests, we only want the fetches (i.e. no changes from the server)
+        // so we turn MIME support off.  Note that we are always using EAS 2.5 if there are fetch
+        // requests
+        if (mFetchRequestList.isEmpty()) {
+            s.tag(Tags.SYNC_DELETES_AS_MOVES);
+            s.tag(Tags.SYNC_GET_CHANGES);
+            s.data(Tags.SYNC_WINDOW_SIZE, EMAIL_WINDOW_SIZE);
+            s.start(Tags.SYNC_OPTIONS);
+            // Set the lookback appropriately (EAS calls this a "filter")
+            s.data(Tags.SYNC_FILTER_TYPE, getEmailFilter());
+            // Set the truncation amount for all classes
+            if (protocolVersion >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
+                s.start(Tags.BASE_BODY_PREFERENCE);
+                // HTML for email
+                s.data(Tags.BASE_TYPE, Eas.BODY_PREFERENCE_HTML);
+                s.data(Tags.BASE_TRUNCATION_SIZE, Eas.EAS12_TRUNCATION_SIZE);
+                s.end();
+            } else {
+                // Use MIME data for EAS 2.5
+                s.data(Tags.SYNC_MIME_SUPPORT, Eas.MIME_BODY_PREFERENCE_MIME);
+                s.data(Tags.SYNC_MIME_TRUNCATION, Eas.EAS2_5_TRUNCATION_SIZE);
+            }
+            s.end();
+        } else {
+            s.start(Tags.SYNC_OPTIONS);
+            // Ask for plain text, rather than MIME data.  This guarantees that we'll get a usable
+            // text body
+            s.data(Tags.SYNC_MIME_SUPPORT, Eas.MIME_BODY_PREFERENCE_TEXT);
+            s.data(Tags.SYNC_TRUNCATION, Eas.EAS2_5_TRUNCATION_SIZE);
+            s.end();
+        }
+    }
+
     @Override
     public boolean parse(InputStream is) throws IOException {
         EasEmailSyncParser p = new EasEmailSyncParser(is, this);
+        mFetchNeeded = false;
         boolean res = p.parse();
         // Hold on to the parser's value for isLooping() to pass back to the service
         mIsLooping = p.isLooping();
+        // If we've need a body fetch, or we've just finished one, return true in order to continue
+        if (mFetchNeeded || !mFetchRequestList.isEmpty()) {
+            return true;
+        }
         return res;
     }
 
@@ -119,6 +231,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         private String mMailboxIdAsString;
 
         ArrayList<Message> newEmails = new ArrayList<Message>();
+        ArrayList<Message> fetchedEmails = new ArrayList<Message>();
         ArrayList<Long> deletedEmails = new ArrayList<Long>();
         ArrayList<ServerChange> changedEmails = new ArrayList<ServerChange>();
 
@@ -139,6 +252,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
 
         public void addData (Message msg) throws IOException {
             ArrayList<Attachment> atts = new ArrayList<Attachment>();
+            boolean truncated = false;
 
             while (nextTag(Tags.SYNC_APPLICATION_DATA) != END) {
                 switch (tag) {
@@ -152,7 +266,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     case Tags.EMAIL_FROM:
                         Address[] froms = Address.parse(getValue());
                         if (froms != null && froms.length > 0) {
-                          msg.mDisplayName = froms[0].toFriendly();
+                            msg.mDisplayName = froms[0].toFriendly();
                         }
                         msg.mFrom = Address.pack(froms);
                         break;
@@ -176,6 +290,24 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         break;
                     case Tags.EMAIL_FLAG:
                         msg.mFlagFavorite = flagParser();
+                        break;
+                    case Tags.EMAIL_MIME_TRUNCATED:
+                        truncated = getValueInt() == 1;
+                        break;
+                    case Tags.EMAIL_MIME_DATA:
+                        // We get MIME data for EAS 2.5.  First we parse it, then we take the
+                        // html and/or plain text data and store it in the message
+                        if (!mimeBodyParser(msg, getValue()) && truncated) {
+                            // This means that we've parsed a truncated MIME message but came
+                            // up empty-handed in terms of finding the text (because we only loaded
+                            // the first 100k of the message).  In this case, we'll request the
+                            // body separately by tagging the message "partially loaded".
+                            // Note that if we're NOT truncated and there's no text, it simply means
+                            // that there was no body text in the message (which is ok)
+                            userLog("Partially loaded: ", msg.mServerId);
+                            msg.mFlagLoaded = Message.FLAG_LOADED_PARTIAL;
+                            mFetchNeeded = true;
+                        }
                         break;
                     case Tags.EMAIL_BODY:
                         String text = getValue();
@@ -322,6 +454,102 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 msg.mHtml = body;
             } else {
                 msg.mText = body;
+            }
+        }
+
+        /**
+         * Tries to find a message body from parsed MIME data, which may have been truncated
+         * @param msg the message we're building
+         * @param mimeData the MIME data we've received from the server
+         * @return whether or not we found message text (html or plain text)
+         */
+        private boolean mimeBodyParser(Message msg, String mimeData) {
+            try {
+                ByteArrayInputStream in = new ByteArrayInputStream(mimeData.getBytes());
+                // The constructor parses the message
+                return setTextFromPart(msg, new MimeMessage(in));
+            } catch (IOException e) {
+                // If we have a parsing failure, this is no different from failing to find the body
+            } catch (MessagingException e) {
+                // If we have a parsing failure, this is no different from failing to find the body
+            }
+            return false;
+        }
+
+        /**
+         * Set the message's mText and/or mHtml from a given part (which can be a multipart)
+         * @param msg the message we're building
+         * @param part the part we're examining
+         * @return whether or not we found message text (html or plain text)
+         * @throws MessagingException
+         * @throws IOException
+         */
+        private boolean setTextFromPart(Message msg, Part part) throws MessagingException,
+                IOException {
+            com.android.email.mail.Body body = part.getBody();
+            if (body instanceof Multipart) {
+                return setTextFromMultipart(msg, (Multipart) body);
+            }
+            return setTextFromSinglePart(msg, part);
+
+        }
+
+        private boolean setTextFromSinglePart(Message msg, Part part) throws MessagingException,
+                IOException {
+            String text = getBodyContent(part.getBody());
+            // Only set the html or text if we don't already have it
+            String contentType = part.getContentType();
+            if (contentType != null && contentType.contains("text/html")) {
+                if (msg.mHtml == null) {
+                    msg.mHtml = text;
+                }
+            } else if (msg.mText == null) {
+                msg.mText = text;
+            }
+            return true;
+        }
+
+        /**
+         * Look for (and set) the text elements from a Multipart
+         * @param msg the message we're building
+         * @param multipart a Multipart from a parsed MIME message
+         * @return whether or not we found message text (html or plain text)
+         * @throws IOException
+         * @throws MessagingException
+         */
+        private boolean setTextFromMultipart(Message msg, Multipart multipart)
+                throws IOException, MessagingException {
+            // Walk through the parts until we've at least found an HTML part
+            for (int i = 0, j = multipart.getCount(); i < j && msg.mHtml == null; i++) {
+                MimeBodyPart part = (MimeBodyPart) multipart.getBodyPart(i);
+                // Ignore the result here and keep looping, hoping to find HTML
+                setTextFromPart(msg, part);
+            }
+            // We return true if we've found either an HTML or a plain text part
+            return (msg.mHtml != null || msg.mText != null);
+        }
+
+        /**
+         * Return the (text) content of a message Body
+         * @param body the message Body
+         * @return the text we've found (or null if there is none)
+         * @throws IOException
+         * @throws MessagingException
+         */
+        private String getBodyContent(com.android.email.mail.Body body)
+                throws IOException, MessagingException {
+            if (body instanceof TextBody) {
+                // This is the simple case; just get the text
+                return ((TextBody) body).getText();
+            } else if (body instanceof BinaryTempFileBody) {
+                // In this case, we need to write the temporary file content to a String
+                InputStream inputStream = ((BinaryTempFileBody)body).getInputStream();
+                StringWriter writer = new StringWriter();
+                IOUtils.copy(inputStream, writer);
+                inputStream.close();
+                return writer.toString();
+            } else {
+                return null;
             }
         }
 
@@ -520,7 +748,14 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         }
 
         @Override
-        public void responsesParser() {
+        public void responsesParser() throws IOException {
+            while (nextTag(Tags.SYNC_RESPONSES) != END) {
+                if (tag == Tags.SYNC_ADD || tag == Tags.SYNC_CHANGE || tag == Tags.SYNC_DELETE) {
+                    // We can ignore all of these
+                } else if (tag == Tags.SYNC_FETCH) {
+                    addParser(fetchedEmails);
+                }
+            }
         }
 
         @Override
@@ -530,17 +765,50 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             // Use a batch operation to handle the changes
             // TODO New mail notifications?  Who looks for these?
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+
+            for (Message msg: fetchedEmails) {
+                // If there's really no text, we're done here
+                if (msg.mText == null) continue;
+                // Find the original message's id (by serverId and mailbox)
+                Cursor c = getServerIdCursor(msg.mServerId, EmailContent.ID_PROJECTION);
+                String id = null;
+                try {
+                    if (c.moveToFirst()) {
+                        id = c.getString(EmailContent.ID_PROJECTION_COLUMN);
+                    }
+                } finally {
+                    c.close();
+                }
+
+                // If we find one, we do two things atomically: 1) set the body text for the
+                // message, and 2) mark the message loaded (i.e. completely loaded)
+                if (id != null) {
+                    userLog("Fetched body successfully for ", id);
+                    mBindArgument[0] = id;
+                    ops.add(ContentProviderOperation.newUpdate(Body.CONTENT_URI)
+                            .withSelection(Body.MESSAGE_KEY + "=?", mBindArgument)
+                            .withValue(Body.TEXT_CONTENT, msg.mText)
+                            .build());
+                    ops.add(ContentProviderOperation.newUpdate(Message.CONTENT_URI)
+                            .withSelection(EmailContent.RECORD_ID + "=?", mBindArgument)
+                            .withValue(Message.FLAG_LOADED, Message.FLAG_LOADED)
+                            .build());
+                }
+            }
+
             for (Message msg: newEmails) {
                 if (!msg.mFlagRead) {
                     notifyCount++;
                 }
                 msg.addSaveOps(ops);
             }
+
             for (Long id : deletedEmails) {
                 ops.add(ContentProviderOperation.newDelete(
                         ContentUris.withAppendedId(Message.CONTENT_URI, id)).build());
                 AttachmentProvider.deleteAllAttachmentFiles(mContext, mAccount.mId, id);
             }
+
             if (!changedEmails.isEmpty()) {
                 // Server wins in a conflict...
                 for (ServerChange change : changedEmails) {
@@ -732,6 +1000,19 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
 
         // This code is split out for unit testing purposes
         boolean firstCommand = sendDeletedItems(s, mDeletedIdList, true);
+
+        if (!mFetchRequestList.isEmpty()) {
+            // Add FETCH commands for messages that need a body (i.e. we didn't find it during
+            // our earlier sync; this happens only in EAS 2.5 where the body couldn't be found
+            // after parsing the message's MIME data)
+            if (firstCommand) {
+                s.start(Tags.SYNC_COMMANDS);
+                firstCommand = false;
+            }
+            for (FetchRequest req: mFetchRequestList) {
+                s.start(Tags.SYNC_FETCH).data(Tags.SYNC_SERVER_ID, req.serverId).end();
+            }
+        }
 
         // Find our trash mailbox, since deletions will have been moved there...
         long trashMailboxId =

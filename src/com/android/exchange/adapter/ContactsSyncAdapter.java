@@ -136,6 +136,11 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
+    public void sendSyncOptions(Double protocolVersion, Serializer s) throws IOException  {
+        setPimSyncOptions(protocolVersion, null, s);
+    }
+
+    @Override
     public boolean isSyncable() {
         return ContentResolver.getSyncAutomatically(
                 mAccountManagerAccount, ContactsContract.AUTHORITY);
@@ -943,7 +948,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         private int mContactBackValue = mCount;
         // Make an array big enough for the PIM window (max items we can get)
         private int[] mContactIndexArray =
-            new int[Integer.parseInt(EasSyncService.PIM_WINDOW_SIZE)];
+            new int[Integer.parseInt(AbstractSyncAdapter.PIM_WINDOW_SIZE)];
         private int mContactIndexCount = 0;
         private ContentProviderResult[] mResults = null;
 

@@ -106,8 +106,6 @@ public class EasSyncService extends AbstractSyncService {
     // DO NOT CHECK IN SET TO TRUE
     public static final boolean DEBUG_GAL_SERVICE = false;
 
-    private static final String EMAIL_WINDOW_SIZE = "5";
-    public static final String PIM_WINDOW_SIZE = "4";
     private static final String WHERE_ACCOUNT_KEY_AND_SERVER_ID =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.SERVER_ID + "=?";
     private static final String WHERE_ACCOUNT_AND_SYNC_INTERVAL_PING =
@@ -2075,37 +2073,6 @@ public class EasSyncService extends AbstractSyncService {
         return pp.getSyncStatus();
     }
 
-    private String getEmailFilter() {
-        String filter = Eas.FILTER_1_WEEK;
-        switch (mAccount.mSyncLookback) {
-            case com.android.email.Account.SYNC_WINDOW_1_DAY: {
-                filter = Eas.FILTER_1_DAY;
-                break;
-            }
-            case com.android.email.Account.SYNC_WINDOW_3_DAYS: {
-                filter = Eas.FILTER_3_DAYS;
-                break;
-            }
-            case com.android.email.Account.SYNC_WINDOW_1_WEEK: {
-                filter = Eas.FILTER_1_WEEK;
-                break;
-            }
-            case com.android.email.Account.SYNC_WINDOW_2_WEEKS: {
-                filter = Eas.FILTER_2_WEEKS;
-                break;
-            }
-            case com.android.email.Account.SYNC_WINDOW_1_MONTH: {
-                filter = Eas.FILTER_1_MONTH;
-                break;
-            }
-            case com.android.email.Account.SYNC_WINDOW_ALL: {
-                filter = Eas.FILTER_ALL;
-                break;
-            }
-        }
-        return filter;
-    }
-
     /**
      * Common code to sync E+PIM data
      *
@@ -2183,31 +2150,8 @@ public class EasSyncService extends AbstractSyncService {
                 // appears to cause the server to delay its response in some cases, and this delay
                 // can be long enough to result in an IOException and total failure to sync.
                 // Therefore, we don't send any options with the initial sync.
-                s.tag(Tags.SYNC_DELETES_AS_MOVES);
-                s.tag(Tags.SYNC_GET_CHANGES);
-                s.data(Tags.SYNC_WINDOW_SIZE,
-                        className.equals("Email") ? EMAIL_WINDOW_SIZE : PIM_WINDOW_SIZE);
-                // Handle options
-                s.start(Tags.SYNC_OPTIONS);
-                // Set the lookback appropriately (EAS calls this a "filter") for all but Contacts
-                if (className.equals("Email")) {
-                    s.data(Tags.SYNC_FILTER_TYPE, getEmailFilter());
-                } else if (className.equals("Calendar")) {
-                    // TODO Force two weeks for calendar until we can set this!
-                    s.data(Tags.SYNC_FILTER_TYPE, Eas.FILTER_2_WEEKS);
-                }
-                // Set the truncation amount for all classes
-                if (mProtocolVersionDouble >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
-                    s.start(Tags.BASE_BODY_PREFERENCE)
-                    // HTML for email; plain text for everything else
-                    .data(Tags.BASE_TYPE, (className.equals("Email") ? Eas.BODY_PREFERENCE_HTML
-                            : Eas.BODY_PREFERENCE_TEXT))
-                            .data(Tags.BASE_TRUNCATION_SIZE, Eas.EAS12_TRUNCATION_SIZE)
-                            .end();
-                } else {
-                    s.data(Tags.SYNC_TRUNCATION, Eas.EAS2_5_TRUNCATION_SIZE);
-                }
-                s.end();
+                // Set the truncation amount, body preference, lookback, etc.
+                target.sendSyncOptions(mProtocolVersionDouble, s);
             } else {
                 // Use enormous timeout for initial sync, which empirically can take a while longer
                 timeout = 120*SECONDS;

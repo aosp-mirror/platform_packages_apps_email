@@ -35,4 +35,8 @@ public class AccountSyncAdapter extends AbstractSyncAdapter {
     public boolean isSyncable() {
         return true;
     }
+
+    @Override
+    public void sendSyncOptions(Double protocolVersion, Serializer s) throws IOException {
+    }
 }
