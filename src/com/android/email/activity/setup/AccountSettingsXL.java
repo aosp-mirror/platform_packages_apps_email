@@ -93,7 +93,7 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
 
     private long mRequestedAccountId;
     private Header mRequestedAccountHeader;
-    private ExtendedHeader[] mAccountListHeaders;
+    private Header[] mAccountListHeaders;
     private Header mAppPreferencesHeader;
     private int mCurrentHeaderPosition;
     /* package */ Fragment mCurrentFragment;
@@ -136,13 +136,18 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
         super.onCreate(savedInstanceState);
 
         Intent i = getIntent();
-        if (ACTION_ACCOUNT_MANAGER_ENTRY.equals(i.getAction())) {
-            // This case occurs if we're changing account settings from Settings -> Accounts
-            mGetAccountIdFromAccountTask =
-                (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask().execute(i);
-        } else {
-            // Otherwise, we're called from within the Email app and look for our extra
-            mRequestedAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+        if (savedInstanceState == null) {
+            // If we are not restarting from a previous instance, we need to
+            // figure out the initial prefs to show.  (Otherwise, we want to
+            // continue showing whatever the user last selected.)
+            if (ACTION_ACCOUNT_MANAGER_ENTRY.equals(i.getAction())) {
+                // This case occurs if we're changing account settings from Settings -> Accounts
+                mGetAccountIdFromAccountTask =
+                    (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask().execute(i);
+            } else {
+                // Otherwise, we're called from within the Email app and look for our extra
+                mRequestedAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+            }
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
 
@@ -270,12 +275,14 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
         if (mAccountListHeaders != null) {
             int headerCount = mAccountListHeaders.length;
             for (int index = 0; index < headerCount; index++) {
-                ExtendedHeader header = mAccountListHeaders[index];
-                if (header.accountId != mDeletingAccountId) {
-                    target.add(header);
-                    if (header.accountId == mRequestedAccountId) {
-                        mRequestedAccountHeader = header;
-                        mRequestedAccountId = -1;
+                Header header = mAccountListHeaders[index];
+                if (header.id != HEADER_ID_UNDEFINED) {
+                    if (header.id != mDeletingAccountId) {
+                        target.add(header);
+                        if (header.id == mRequestedAccountId) {
+                            mRequestedAccountHeader = header;
+                            mRequestedAccountId = -1;
+                        }
                     }
                 }
             }
@@ -288,7 +295,6 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
             debugHeader.title = getText(R.string.debug_title);
             debugHeader.summary = null;
             debugHeader.iconRes = 0;
-            debugHeader.icon = null;
             debugHeader.fragment = DebugFragment.class.getCanonicalName();
             debugHeader.fragmentArguments = null;
             target.add(debugHeader);
@@ -308,28 +314,10 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
             mAppPreferencesHeader.title = getText(R.string.header_label_general_preferences);
             mAppPreferencesHeader.summary = null;
             mAppPreferencesHeader.iconRes = 0;
-            mAppPreferencesHeader.icon = null;
             mAppPreferencesHeader.fragment = GeneralPreferences.class.getCanonicalName();
             mAppPreferencesHeader.fragmentArguments = null;
         }
         return mAppPreferencesHeader;
-    }
-
-    /**
-     * Overloaded version of Header adds AccountId to make it easier to keep track
-     * Note, this is also stored inside the argument bundle, but this is more efficient
-     * for quick scans, etc.
-     */
-    private class ExtendedHeader extends Header {
-        public final long accountId;
-
-        public ExtendedHeader(long _accountId, String _title, String _summary) {
-            title = _title;
-            summary = _summary;
-            fragment = AccountSettingsFragment.class.getCanonicalName();
-            fragmentArguments = AccountSettingsFragment.buildArguments(_accountId);
-            accountId = _accountId;
-        }
     }
 
     /**
@@ -344,7 +332,7 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
 
         @Override
         protected Object[] doInBackground(Long... params) {
-            ExtendedHeader[] result = null;
+            Header[] result = null;
             Boolean deletingAccountFound = false;
             long deletingAccountId = params[0];
 
@@ -354,7 +342,7 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
             try {
                 int index = 0;
                 int headerCount = c.getCount();
-                result = new ExtendedHeader[headerCount];
+                result = new Header[headerCount];
 
                 while (c.moveToNext()) {
                     long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
@@ -364,7 +352,13 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
                     }
                     String title = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
                     String summary = c.getString(Account.CONTENT_EMAIL_ADDRESS_COLUMN);
-                    ExtendedHeader newHeader = new ExtendedHeader(accountId, title, summary);
+                    Header newHeader = new Header();
+                    newHeader.id = accountId;
+                    newHeader.title = title;
+                    newHeader.summary = summary;
+                    newHeader.fragment = AccountSettingsFragment.class.getCanonicalName();
+                    newHeader.fragmentArguments = AccountSettingsFragment.buildArguments(accountId);
+
                     result[index++] = newHeader;
                 }
             } finally {
@@ -379,7 +373,7 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
         protected void onPostExecute(Object[] result) {
             if (this.isCancelled() || result == null) return;
             // Extract the results
-            ExtendedHeader[] headers = (ExtendedHeader[]) result[0];
+            Header[] headers = (Header[]) result[0];
             boolean deletingAccountFound = (Boolean) result[1];
             // report the settings
             mAccountListHeaders = headers;
