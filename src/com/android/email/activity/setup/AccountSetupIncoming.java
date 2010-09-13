@@ -17,7 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
-import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
@@ -36,15 +36,10 @@ public class AccountSetupIncoming extends AccountSetupActivity
     private AccountSetupIncomingFragment mFragment;
     /* package */ boolean mNextButtonEnabled;
 
-    public static void actionIncomingSettings(Activity fromActivity, int mode,
-            EmailContent.Account account) {
-        SetupData.init(mode, account);
+    public static void actionIncomingSettings(Activity fromActivity, int mode, Account account) {
+        SetupData.setFlowMode(mode);
+        SetupData.setAccount(account);
         fromActivity.startActivity(new Intent(fromActivity, AccountSetupIncoming.class));
-    }
-
-    public static void actionEditIncomingSettings(Activity fromActivity, int mode,
-            EmailContent.Account account) {
-        actionIncomingSettings(fromActivity, mode, account);
     }
 
     @Override
@@ -92,11 +87,9 @@ public class AccountSetupIncoming extends AccountSetupActivity
      */
     public void onCheckSettingsComplete(int result, int setupMode) {
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-            if (SetupData.getFlowMode() != SetupData.FLOW_MODE_EDIT) {
-                AccountSetupOutgoing.actionOutgoingSettings(this, SetupData.getFlowMode(),
-                        SetupData.getAccount());
-                finish();
-            }
+            AccountSetupOutgoing.actionOutgoingSettings(this, SetupData.getFlowMode(),
+                    SetupData.getAccount());
+            finish();
         }
     }
 }

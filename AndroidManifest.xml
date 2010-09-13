@@ -115,14 +115,6 @@
             android:label="@string/account_setup_names_title"
             >
         </activity>
-        <!-- XXX Note: this activity is hacked to ignore config changes,
-             since it doesn't currently handle them correctly in code. -->
-        <activity
-            android:name=".activity.setup.AccountSetupCheckSettings"
-            android:label="@string/account_setup_check_settings_title"
-            android:configChanges="keyboardHidden|orientation"
-            >
-        </activity>
         <activity
             android:name=".activity.setup.AccountSettingsXL"
             android:label="@string/account_settings_action"

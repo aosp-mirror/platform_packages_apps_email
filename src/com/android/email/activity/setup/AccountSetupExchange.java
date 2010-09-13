@@ -76,16 +76,6 @@ public class AccountSetupExchange extends AccountSetupActivity
         fromActivity.startActivity(new Intent(fromActivity, AccountSetupExchange.class));
     }
 
-    // TODO this is vestigial, remove it
-    public static void actionEditIncomingSettings(Activity fromActivity, int mode, Account acct) {
-        actionIncomingSettings(fromActivity, mode, acct);
-    }
-
-    // TODO this is vestigial, remove it
-    public static void actionEditOutgoingSettings(Activity fromActivity, int mode, Account acct) {
-        actionIncomingSettings(fromActivity, mode, acct);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,8 +115,7 @@ public class AccountSetupExchange extends AccountSetupActivity
         // this prevents repeating.
         mStartedAutoDiscovery = true;
 
-        if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT
-                || !SetupData.isAllowAutodiscover()) {
+        if (!SetupData.isAllowAutodiscover()) {
             return;
         }
 
@@ -195,9 +184,7 @@ public class AccountSetupExchange extends AccountSetupActivity
     public void onCheckSettingsComplete(int result, int setupMode) {
         switch (result) {
             case AccountCheckSettingsFragment.CHECK_SETTINGS_OK:
-                if (SetupData.getFlowMode() != SetupData.FLOW_MODE_EDIT) {
-                    AccountSetupOptions.actionOptions(this);
-                }
+                AccountSetupOptions.actionOptions(this);
                 finish();
                 break;
             case AccountCheckSettingsFragment.CHECK_SETTINGS_SECURITY_USER_DENY:
