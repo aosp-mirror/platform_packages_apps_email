@@ -711,13 +711,12 @@ public class MessageListFragment extends ListFragment
      * multiple conditions are true, including:
      *   Only refreshable mailboxes.
      *   Only when the user explicitly opens the mailbox (not onResume, for example)
-     *   Only for real, non-push mailboxes (c.f. manual refresh is still enabled for push accounts)
      *   Only when the mailbox is "stale" (currently set to 5 minutes since last refresh)
+     * Note we do this even if it's a push account; even on Exchange only inbox can be pushed.
      */
     private void autoRefreshStaleMailbox() {
         if (!mDoAutoRefresh // Not explicitly open
                 || !mIsRefreshable // Not refreshable (special box such as drafts, or magic boxes)
-                || (mAccount.mSyncInterval == Account.CHECK_INTERVAL_PUSH) // Push account
                 ) {
             return;
         }
