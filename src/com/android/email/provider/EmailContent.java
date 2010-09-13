@@ -207,6 +207,8 @@ public abstract class EmailContent {
 
     public static final class Body extends EmailContent implements BodyColumns {
         public static final String TABLE_NAME = "Body";
+
+        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/body");
 
         public static final int CONTENT_ID_COLUMN = 0;
@@ -439,6 +441,7 @@ public abstract class EmailContent {
         public static final String DELETED_TABLE_NAME = "Message_Deletes";
 
         // To refer to a specific message, use ContentUris.withAppendedId(CONTENT_URI, id)
+        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
         public static final Uri SYNCED_CONTENT_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
@@ -862,6 +865,7 @@ public abstract class EmailContent {
 
     public static final class Account extends EmailContent implements AccountColumns, Parcelable {
         public static final String TABLE_NAME = "Account";
+        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
         public static final Uri ADD_TO_FIELD_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
@@ -1767,6 +1771,7 @@ public abstract class EmailContent {
         // The (internal) contentId of the attachment (inline attachments will have these)
         public static final String CONTENT_ID = "contentId";
         // The location of the loaded attachment (probably a file)
+        @SuppressWarnings("hiding")
         public static final String CONTENT_URI = "contentUri";
         // A foreign key into the Message table (the message owning this attachment)
         public static final String MESSAGE_KEY = "messageKey";
@@ -1785,6 +1790,7 @@ public abstract class EmailContent {
 
     public static final class Attachment extends EmailContent implements AttachmentColumns {
         public static final String TABLE_NAME = "Attachment";
+        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
         // This must be used with an appended id: ContentUris.withAppendedId(MESSAGE_ID_URI, id)
         public static final Uri MESSAGE_ID_URI = Uri.parse(
@@ -2058,6 +2064,7 @@ public abstract class EmailContent {
 
     public static final class Mailbox extends EmailContent implements SyncColumns, MailboxColumns {
         public static final String TABLE_NAME = "Mailbox";
+        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
         public static final Uri ADD_TO_FIELD_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/mailboxIdAddToField");
@@ -2391,6 +2398,7 @@ public abstract class EmailContent {
 
     public static final class HostAuth extends EmailContent implements HostAuthColumns, Parcelable {
         public static final String TABLE_NAME = "HostAuth";
+        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/hostauth");
 
         public static final int FLAG_SSL = 1;

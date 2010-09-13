@@ -106,15 +106,13 @@ public class EmailProvider extends ContentProvider {
 
     private static final int ACCOUNT_BASE = 0;
     private static final int ACCOUNT = ACCOUNT_BASE;
-    private static final int ACCOUNT_MAILBOXES = ACCOUNT_BASE + 1;
-    private static final int ACCOUNT_ID = ACCOUNT_BASE + 2;
-    private static final int ACCOUNT_ID_ADD_TO_FIELD = ACCOUNT_BASE + 3;
+    private static final int ACCOUNT_ID = ACCOUNT_BASE + 1;
+    private static final int ACCOUNT_ID_ADD_TO_FIELD = ACCOUNT_BASE + 2;
 
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
-    private static final int MAILBOX_MESSAGES = MAILBOX_BASE + 1;
-    private static final int MAILBOX_ID = MAILBOX_BASE + 2;
-    private static final int MAILBOX_ID_ADD_TO_FIELD = MAILBOX_BASE + 3;
+    private static final int MAILBOX_ID = MAILBOX_BASE + 1;
+    private static final int MAILBOX_ID_ADD_TO_FIELD = MAILBOX_BASE + 2;
 
     private static final int MESSAGE_BASE = 0x2000;
     private static final int MESSAGE = MESSAGE_BASE;
@@ -123,9 +121,8 @@ public class EmailProvider extends ContentProvider {
 
     private static final int ATTACHMENT_BASE = 0x3000;
     private static final int ATTACHMENT = ATTACHMENT_BASE;
-    private static final int ATTACHMENT_CONTENT = ATTACHMENT_BASE + 1;
-    private static final int ATTACHMENT_ID = ATTACHMENT_BASE + 2;
-    private static final int ATTACHMENTS_MESSAGE_ID = ATTACHMENT_BASE + 3;
+    private static final int ATTACHMENT_ID = ATTACHMENT_BASE + 1;
+    private static final int ATTACHMENTS_MESSAGE_ID = ATTACHMENT_BASE + 2;
 
     private static final int HOSTAUTH_BASE = 0x4000;
     private static final int HOSTAUTH = HOSTAUTH_BASE;
@@ -138,7 +135,6 @@ public class EmailProvider extends ContentProvider {
     private static final int DELETED_MESSAGE_BASE = 0x6000;
     private static final int DELETED_MESSAGE = DELETED_MESSAGE_BASE;
     private static final int DELETED_MESSAGE_ID = DELETED_MESSAGE_BASE + 1;
-    private static final int DELETED_MESSAGE_MAILBOX = DELETED_MESSAGE_BASE + 2;
 
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
     private static final int LAST_EMAIL_PROVIDER_DB_BASE = DELETED_MESSAGE_BASE;
@@ -147,9 +143,6 @@ public class EmailProvider extends ContentProvider {
     private static final int BODY_BASE = LAST_EMAIL_PROVIDER_DB_BASE + 0x1000;
     private static final int BODY = BODY_BASE;
     private static final int BODY_ID = BODY_BASE + 1;
-    private static final int BODY_MESSAGE_ID = BODY_BASE + 2;
-    private static final int BODY_HTML = BODY_BASE + 3;
-    private static final int BODY_TEXT = BODY_BASE + 4;
 
 
     private static final int BASE_SHIFT = 12;  // 12 bits to the base type: 0, 0x1000, 0x2000, etc.
@@ -212,8 +205,6 @@ public class EmailProvider extends ContentProvider {
         // A specific account
         // insert into this URI causes a mailbox to be added to the account
         matcher.addURI(EMAIL_AUTHORITY, "account/#", ACCOUNT_ID);
-        // The mailboxes in a specific account
-        matcher.addURI(EMAIL_AUTHORITY, "account/#/mailbox", ACCOUNT_MAILBOXES);
 
         // All mailboxes
         matcher.addURI(EMAIL_AUTHORITY, "mailbox", MAILBOX);
@@ -221,8 +212,6 @@ public class EmailProvider extends ContentProvider {
         // insert into this URI causes a message to be added to the mailbox
         // ** NOTE For now, the accountKey must be set manually in the values!
         matcher.addURI(EMAIL_AUTHORITY, "mailbox/#", MAILBOX_ID);
-        // The messages in a specific mailbox
-        matcher.addURI(EMAIL_AUTHORITY, "mailbox/#/message", MAILBOX_MESSAGES);
 
         // All messages
         matcher.addURI(EMAIL_AUTHORITY, "message", MESSAGE);
@@ -234,9 +223,6 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EMAIL_AUTHORITY, "attachment", ATTACHMENT);
         // A specific attachment (the header information)
         matcher.addURI(EMAIL_AUTHORITY, "attachment/#", ATTACHMENT_ID);
-        // The content for a specific attachment
-        // NOT IMPLEMENTED
-        matcher.addURI(EMAIL_AUTHORITY, "attachment/content/*", ATTACHMENT_CONTENT);
         // The attachments of a specific message (query only) (insert & delete TBD)
         matcher.addURI(EMAIL_AUTHORITY, "attachment/message/#", ATTACHMENTS_MESSAGE_ID);
 
@@ -244,12 +230,6 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EMAIL_AUTHORITY, "body", BODY);
         // A specific mail body
         matcher.addURI(EMAIL_AUTHORITY, "body/#", BODY_ID);
-        // The body for a specific message
-        matcher.addURI(EMAIL_AUTHORITY, "body/message/#", BODY_MESSAGE_ID);
-        // The HTML part of a specific mail body
-        matcher.addURI(EMAIL_AUTHORITY, "body/#/html", BODY_HTML);
-        // The plain text part of a specific mail body
-        matcher.addURI(EMAIL_AUTHORITY, "body/#/text", BODY_TEXT);
 
         // All hostauth records
         matcher.addURI(EMAIL_AUTHORITY, "hostauth", HOSTAUTH);
@@ -276,9 +256,6 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EMAIL_AUTHORITY, "deletedMessage", DELETED_MESSAGE);
         // A specific deleted message
         matcher.addURI(EMAIL_AUTHORITY, "deletedMessage/#", DELETED_MESSAGE_ID);
-        // All deleted messages from a specific mailbox
-        // NOT IMPLEMENTED; do we need this as a convenience?
-        matcher.addURI(EMAIL_AUTHORITY, "deletedMessage/mailbox/#", DELETED_MESSAGE_MAILBOX);
 
         // All updated messages
         matcher.addURI(EMAIL_AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
@@ -1001,11 +978,9 @@ public class EmailProvider extends ContentProvider {
             case UPDATED_MESSAGE_ID:
             case MESSAGE_ID:
                 return "vnd.android.cursor.item/email-message";
-            case MAILBOX_MESSAGES:
             case UPDATED_MESSAGE:
             case MESSAGE:
                 return "vnd.android.cursor.dir/email-message";
-            case ACCOUNT_MAILBOXES:
             case MAILBOX:
                 return "vnd.android.cursor.dir/email-mailbox";
             case MAILBOX_ID:
