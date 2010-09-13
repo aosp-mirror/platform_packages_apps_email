@@ -342,10 +342,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     @Override
     public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
         ActivityHelper.moveMessages(this, newMailboxId, messageIds);
-        if (!moveToOlder()) {
-            // if this is the last message, move up to message-list.
-            mFragmentManager.goBackToMailbox();
-        }
+        onCurrentMessageGone();
     }
 
     /**
