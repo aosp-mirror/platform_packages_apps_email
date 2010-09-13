@@ -34,7 +34,8 @@ import android.view.MenuItem;
  * Activity callback during onAttach
  * Present "Next" button and respond to its clicks
  */
-public abstract class AccountServerBaseFragment extends Fragment {
+public abstract class AccountServerBaseFragment extends Fragment
+        implements AccountCheckSettingsFragment.Callbacks {
 
     protected Context mContext;
     protected Callback mCallback = EmptyCallback.INSTANCE;
@@ -49,17 +50,27 @@ public abstract class AccountServerBaseFragment extends Fragment {
          * @param enable true to enable proceed/next button, false to disable
          */
         public void onEnableProceedButtons(boolean enable);
+
         /**
-         * Called when user clicks "next"
+         * Called when user clicks "next".  Starts account checker.
          * @param checkMode values from {@link SetupData}
+         * @param target the fragment that requested the check
          */
-        public void onProceedNext(int checkMode);
+        public void onProceedNext(int checkMode, AccountServerBaseFragment target);
+
+        /**
+         * Called when account checker returns "ok".  Fragments are responsible for saving
+         * own edited data;  This is primarily for the activity to do post-check navigation.
+         * @param setupMode signals if we were editing or creating
+         */
+        public void onCheckSettingsOk(int setupMode);
     }
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
         @Override public void onEnableProceedButtons(boolean enable) { }
-        @Override public void onProceedNext(int checkMode) { }
+        @Override public void onProceedNext(int checkMode, AccountServerBaseFragment target) { }
+        @Override public void onCheckSettingsOk(int setupMode) { }
     }
 
     /**
@@ -144,17 +155,30 @@ public abstract class AccountServerBaseFragment extends Fragment {
     }
 
     /**
+     * Implements AccountCheckSettingsFragment.Callbacks
+     *
      * Handle OK result from check settings.  Save settings, and exit to previous fragment.
      */
+    @Override
     public void onCheckSettingsOk() {
-        saveSettingsAfterEdit();
-        getActivity().onBackPressed();
+        if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
+            saveSettingsAfterEdit();
+        } else {
+            saveSettingsAfterSetup();
+        }
+        // Signal to owning activity that a settings check was OK
+        mCallback.onCheckSettingsOk(SetupData.getFlowMode());
     }
 
     /**
      * Save settings after "OK" result from checker.  Concrete classes must implement.
      */
     public abstract void saveSettingsAfterEdit();
+
+    /**
+     * Save settings after "OK" result from checker.  Concrete classes must implement.
+     */
+    public abstract void saveSettingsAfterSetup();
 
     /**
      * Respond to a click of the "Next" button.  Concrete classes must implement.

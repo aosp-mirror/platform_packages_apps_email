@@ -25,6 +25,8 @@ LOCAL_SRC_FILES += \
 # EXCHANGE-REMOVE-SECTION-END
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-common
+# Revive this when the app is unbundled.
+# LOCAL_SDK_VERSION := current
 
 LOCAL_PACKAGE_NAME := Email
 

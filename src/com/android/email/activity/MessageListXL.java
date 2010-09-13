@@ -18,11 +18,12 @@ package com.android.email.activity;
 
 import com.android.email.Clock;
 import com.android.email.Email;
+import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.Utility;
+import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
-import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.service.MailService;
@@ -297,15 +298,32 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         }
     }
 
+    /**
+     * Called when the "delete" button on message view is pressed.
+     */
     private void onDeleteMessage() {
         // the delete triggers mCursorObserver in MessageOrderManager.
         // first move to older/newer before the actual delete
         long messageIdToDelete = mFragmentManager.getMessageId();
-        if (!moveToOlder()) moveToNewer();
+
+        onCurrentMessageGone();
+
         ActivityHelper.deleteMessage(this, messageIdToDelete);
-        // If this was the last message, moveToOlder/Newer didn't move the current position.
-        // MessageOrderManager detects the current message is gone, and we go back to the message
-        // list in onMessageNotFound().
+    }
+
+    private void onCurrentMessageGone() {
+        switch (Preferences.getPreferences(this).getAutoAdvanceDirection()) {
+            case Preferences.AUTO_ADVANCE_NEWER:
+                if (moveToNewer()) return;
+                if (moveToOlder()) return;
+                break;
+            case Preferences.AUTO_ADVANCE_OLDER:
+                if (moveToOlder()) return;
+                if (moveToNewer()) return;
+                break;
+        }
+        // Last message in the box or AUTO_ADVANCE_MESSAGE_LIST.  Go back to message list.
+        mFragmentManager.goBackToMailbox();
     }
 
     private void onSetMessageUnread() {
@@ -481,10 +499,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
 
         @Override
         public void onRespondedToInvite(int response) {
-            if (!moveToOlder()) {
-                // if this is the last message, move up to message-list.
-                mFragmentManager.goBackToMailbox();
-            }
+            onCurrentMessageGone();
         }
 
         @Override
@@ -500,8 +515,8 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     }
 
     @Override
-    public void onAccountSecurityHold() {
-        // TODO: implement this
+    public void onAccountSecurityHold(long accountId) {
+        startActivity(AccountSecurity.actionUpdateSecurityIntent(this, accountId));
     }
 
     private void loadAccounts() {
@@ -629,11 +644,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
 
     private boolean onAccountSettings() {
         AccountSettingsXL.actionSettings(this, mFragmentManager.getAccountId());
-        return true;
-    }
-
-    private boolean onAddNewAccount() {
-        AccountSetupBasics.actionNewAccount(this);
         return true;
     }
 

@@ -18,14 +18,15 @@ package com.android.email.activity.setup;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.Utility;
+import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.service.EmailServiceProxy;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -50,10 +51,8 @@ import android.util.Log;
  * conditions.
  *
  * TODO support for account setup, including
- *  - general workflow
  *  - autodiscover
  *  - forwarding account security info
- * TODO Change progress dialog from AlertDialog to ProgressDialog (can't use builder)
  */
 public class AccountCheckSettingsFragment extends Fragment {
     
@@ -84,10 +83,20 @@ public class AccountCheckSettingsFragment extends Fragment {
     private String mErrorMessage;
     private ErrorDialog mErrorDialog;
     private SecurityRequiredDialog mSecurityRequiredDialog;
-    
+
     // Support for AsyncTask and account checking
     AccountCheckTask mAccountCheckTask;
     
+    /**
+     * Callback interface for any target or activity doing account check settings
+     */
+    public interface Callbacks {
+        /**
+         * CheckSettings completed with no errors
+         */
+        public void onCheckSettingsOk();  
+    }
+             
     /**
      * Create a retained, invisible fragment that checks accounts
      *
@@ -183,14 +192,8 @@ public class AccountCheckSettingsFragment extends Fragment {
                 // 2. exit self
                 fm.popBackStack();
                 // 3. report OK back to target fragment
-                Fragment target = getTargetFragment();
-                if (target instanceof AccountServerBaseFragment) {
-                    AccountServerBaseFragment f = (AccountServerBaseFragment) target;
-                    f.onCheckSettingsOk();
-                 } else {
-                     // STOPSHIP: Remove if not needed. May need to handle Account setup here
-                     throw new IllegalStateException();
-                 }
+                Callbacks callbackTarget = getCallbackTarget();
+                callbackTarget.onCheckSettingsOk();
             } else if (newState == STATE_CHECK_SHOW_SECURITY) {
                 // 1. get rid of progress dialog (if any)
                 recoverAndDismissCheckingDialog();
@@ -217,6 +220,21 @@ public class AccountCheckSettingsFragment extends Fragment {
             }
         }
     }
+
+    /**
+     * Find the callback target, either a target fragment or the activity
+     */
+    private Callbacks getCallbackTarget() {
+        Fragment target = getTargetFragment();
+        if (target instanceof Callbacks) {
+            return (Callbacks) target;
+        }
+        Activity activity = getActivity();
+        if (activity instanceof Callbacks) {
+            return (Callbacks) activity;
+        }
+        throw new IllegalStateException();
+    }    
 
     /**
      * Recover and dismiss the progress dialog fragment
@@ -262,14 +280,8 @@ public class AccountCheckSettingsFragment extends Fragment {
     private void onSecurityRequiredDialogButtonOk(boolean okPressed) {
         // 1. handle OK - notify that security is OK and we can proceed
         if (okPressed) {
-            Fragment target = getTargetFragment();
-            if (target instanceof AccountServerBaseFragment) {
-                AccountServerBaseFragment f = (AccountServerBaseFragment) target;
-                f.onCheckSettingsOk();
-            } else {
-                // STOPSHIP: Remove if not needed. May need to handle Account setup here
-                throw new IllegalStateException();
-            }
+            Callbacks callbackTarget = getCallbackTarget();
+            callbackTarget.onCheckSettingsOk();
         }
         // 2. kill self
         getFragmentManager().popBackStack();
@@ -452,6 +464,9 @@ public class AccountCheckSettingsFragment extends Fragment {
                         break;
                     case MessagingException.SECURITY_POLICIES_UNSUPPORTED:
                         id = R.string.account_setup_failed_security_policies_unsupported;
+                        break;
+                    case MessagingException.PROTOCOL_VERSION_UNSUPPORTED:
+                        id = R.string.account_setup_failed_protocol_unsupported;
                         break;
                     case MessagingException.GENERAL_SECURITY:
                         id = R.string.account_setup_failed_security;

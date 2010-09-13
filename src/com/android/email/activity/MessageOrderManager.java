@@ -265,7 +265,7 @@ public class MessageOrderManager {
     }
 
     /* package */ String getQuerySelection() { // Extracted for testing
-        return Utility.buildMailboxIdSelection(mContentResolver, mMailboxId);
+        return Utility.buildMailboxIdSelection(mContext, mMailboxId);
     }
 
     /**

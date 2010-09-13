@@ -884,6 +884,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
+        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         final int match = sURIMatcher.match(uri);
         Context context = getContext();
         // Pick the correct database for this operation
@@ -1029,6 +1030,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
+        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         int match = sURIMatcher.match(uri);
         Context context = getContext();
         // See the comment at delete(), above
@@ -1038,6 +1040,13 @@ public class EmailProvider extends ContentProvider {
 
         if (Email.LOGD) {
             Log.v(TAG, "EmailProvider.insert: uri=" + uri + ", match is " + match);
+        }
+
+        // We do NOT allow setting of unreadCount/messageCount via the provider
+        // These columns are maintained via triggers
+        if (match == MAILBOX_ID || match == MAILBOX) {
+            values.put(MailboxColumns.UNREAD_COUNT, 0);
+            values.put(MailboxColumns.MESSAGE_COUNT, 0);
         }
 
         Uri resultUri = null;
@@ -1142,6 +1151,7 @@ public class EmailProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
+        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         Cursor c = null;
         Uri notificationUri = EmailContent.CONTENT_URI;
         int match = sURIMatcher.match(uri);
@@ -1237,6 +1247,14 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
+
+        // Handle this special case the fastest possible way
+        if (uri == INTEGRITY_CHECK_URI) {
+            checkDatabases();
+            return 0;
+        }
+
         int match = sURIMatcher.match(uri);
         Context context = getContext();
         // See the comment at delete(), above
@@ -1248,16 +1266,11 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
         }
 
-        // We do NOT allow setting of unreadCount via the provider
-        // This column is maintained via triggers
+        // We do NOT allow setting of unreadCount/messageCount via the provider
+        // These columns are maintained via triggers
         if (match == MAILBOX_ID || match == MAILBOX) {
             values.remove(MailboxColumns.UNREAD_COUNT);
-        }
-
-        // Handle this special case the fastest possible way
-        if (uri == INTEGRITY_CHECK_URI) {
-            checkDatabases();
-            return 0;
+            values.remove(MailboxColumns.MESSAGE_COUNT);
         }
 
         String id;

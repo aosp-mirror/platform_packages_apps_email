@@ -26,7 +26,6 @@ import com.android.email.provider.EmailContent.Account;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
@@ -43,6 +42,12 @@ import android.widget.TextView;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * Provides UI for IMAP/POP account settings.
+ *
+ * This fragment is used by AccountSetupIncoming (for creating accounts) and by AccountSettingsXL
+ * (for editing existing accounts).
+ */
 public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
     private final static String STATE_KEY_CREDENTIAL =
@@ -381,6 +386,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     /**
      * Entry point from Activity after entering new settings and verifying them.  For setup mode.
      */
+    @Override
     public void saveSettingsAfterSetup() {
         EmailContent.Account account = SetupData.getAccount();
 
@@ -459,15 +465,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         setupAccount.setDeletePolicy(
                 (Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value);
 
-        // STOPSHIP - use new checker fragment only during account settings (TODO: account setup)
-        Activity activity = getActivity();
-        if (activity instanceof PreferenceActivity) {
-            AccountCheckSettingsFragment checkerFragment =
-                AccountCheckSettingsFragment.newInstance(SetupData.CHECK_INCOMING, this);
-            ((PreferenceActivity)activity).startPreferenceFragment(checkerFragment, true);
-        } else {
-            // STOPSHIP remove this old code
-            mCallback.onProceedNext(SetupData.CHECK_INCOMING);
-        }
+        mCallback.onProceedNext(SetupData.CHECK_INCOMING, this);
     }
 }

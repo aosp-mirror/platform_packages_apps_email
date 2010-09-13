@@ -99,7 +99,7 @@ class MessageListXLFragmentManager {
         /**
          * Called when the selected account is on security-hold.
          */
-        public void onAccountSecurityHold();
+        public void onAccountSecurityHold(long accountId);
     }
 
     private final TargetActivity mTargetActivity;
@@ -488,7 +488,7 @@ class MessageListXLFragmentManager {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "MailboxFinderCallback.onAccountSecurityHold");
             }
-            mTargetActivity.onAccountSecurityHold();
+            mTargetActivity.onAccountSecurityHold(accountId);
         }
 
         @Override

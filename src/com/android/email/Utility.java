@@ -43,7 +43,6 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.security.MessageDigest;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -62,6 +61,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,6 +80,12 @@ public class Utility {
     // "GMT" + "+" or "-" + 4 digits
     private static final Pattern DATE_CLEANUP_PATTERN_WRONG_TIMEZONE =
             Pattern.compile("GMT([-+]\\d{4})$");
+
+    private static final String SELECTION_FLAG_LOADED_FOR_VISIBLE_MESSAGE =
+            " AND ("
+            + MessageColumns.FLAG_LOADED + " IN ("
+            + Message.FLAG_LOADED_PARTIAL + "," + Message.FLAG_LOADED_COMPLETE
+            + "))";
 
     public final static String readInputStream(InputStream in, String encoding) throws IOException {
         InputStreamReader reader = new InputStreamReader(in, encoding);
@@ -284,13 +290,18 @@ public class Utility {
 //        }
     }
 
-    // TODO: unit test this
-    public static String buildMailboxIdSelection(ContentResolver resolver, long mailboxId) {
-        // Setup default selection & args, then add to it as necessary
-        StringBuilder selection = new StringBuilder(
-                MessageColumns.FLAG_LOADED + " IN ("
-                + Message.FLAG_LOADED_PARTIAL + "," + Message.FLAG_LOADED_COMPLETE
-                + ") AND ");
+    /**
+     * Returns the where clause for a message list selection.
+     *
+     * MUST NOT be called on the UI thread.
+     */
+    public static String buildMailboxIdSelection(Context context, long mailboxId) {
+        final ContentResolver resolver = context.getContentResolver();
+        final StringBuilder selection = new StringBuilder();
+
+        // We don't check "flagLoaded" for messages in Outbox.
+        boolean testFlagLoaded = true;
+
         if (mailboxId == Mailbox.QUERY_ALL_INBOXES
             || mailboxId == Mailbox.QUERY_ALL_DRAFTS
             || mailboxId == Mailbox.QUERY_ALL_OUTBOX) {
@@ -302,6 +313,7 @@ public class Utility {
                 type = Mailbox.TYPE_DRAFTS;
             } else {
                 type = Mailbox.TYPE_OUTBOX;
+                testFlagLoaded = false;
             }
             StringBuilder inboxes = new StringBuilder();
             Cursor c = resolver.query(Mailbox.CONTENT_URI,
@@ -309,7 +321,6 @@ public class Utility {
                         MailboxColumns.TYPE + "=? AND " + MailboxColumns.FLAG_VISIBLE + "=1",
                         new String[] { Integer.toString(type) }, null);
             // build an IN (mailboxId, ...) list
-            // TODO do this directly in the provider
             while (c.moveToNext()) {
                 if (inboxes.length() != 0) {
                     inboxes.append(",");
@@ -325,7 +336,19 @@ public class Utility {
             selection.append(Message.FLAG_FAVORITE + "=1");
         } else {
             selection.append(MessageColumns.MAILBOX_KEY + "=" + mailboxId);
+            if (Mailbox.getMailboxType(context, mailboxId) == Mailbox.TYPE_OUTBOX) {
+                testFlagLoaded = false;
+            }
         }
+
+        if (testFlagLoaded) {
+            // POP messages at the initial stage have very little information. (Server UID only)
+            // This makes sure they're not visible in the message list.
+            // This means unread counts on the mailbox list can be different from the
+            // number of messages in the message list, but it should be transient...
+            selection.append(SELECTION_FLAG_LOADED_FOR_VISIBLE_MESSAGE);
+        }
+
         return selection.toString();
     }
 
@@ -631,13 +654,17 @@ public class Utility {
             Log.d(Email.LOG_TAG, "Error in TelephonyManager.getDeviceId(): " + e.getMessage());
             return null;
         }
+        return getSmallHash(deviceId);
+    }
+
+    /* package */ static String getSmallHash(final String value) {
         final MessageDigest sha;
         try {
             sha = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException impossible) {
             return null;
         }
-        sha.update(Utility.toUtf8(deviceId));
+        sha.update(Utility.toUtf8(value));
         final int hash = getSmallHashFromSha1(sha.digest());
         return Integer.toString(hash);
     }
@@ -799,12 +826,14 @@ public class Utility {
             Long defaultValue) {
         Cursor c = context.getContentResolver().query(uri, projection, selection, selectionArgs,
                 sortOrder);
-        try {
-            if (c.moveToFirst()) {
-                return c.getLong(column);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    return c.getLong(column);
+                }
+            } finally {
+                c.close();
             }
-        } finally {
-            c.close();
         }
         return defaultValue;
     }
@@ -838,6 +867,23 @@ public class Utility {
             String selection, String[] selectionArgs, String sortOrder, int column) {
         return getFirstRowInt(context, uri, projection, selection, selectionArgs,
                 sortOrder, column, null);
+    }
+
+    public static byte[] getFirstRowBlob(Context context, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder, int column,
+            byte[] defaultValue) {
+        Cursor c = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                sortOrder);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    return c.getBlob(column);
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return defaultValue;
     }
 
     /**

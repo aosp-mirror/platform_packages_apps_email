@@ -22,11 +22,13 @@
     <PreferenceCategory
             android:title="@string/category_general_preferences">
 
-        <!-- STOPSHIP remove this fake preference -->
-        <CheckBoxPreference
-                android:key="fix_all_bugs_preference"
-                android:title="@string/title_fix_all_bugs_preference"
-                android:summary="@string/summary_fix_all_bugs_preference" />
+        <ListPreference
+            android:key="auto_advance"
+            android:title="@string/general_preference_auto_advance_label"
+            android:summary="@string/general_preference_auto_advance_summary"
+            android:entries="@array/general_preference_auto_advance_entries"
+            android:entryValues="@array/general_preference_auto_advance_values"
+            android:dialogTitle="@string/general_preference_auto_advance_dialog_title" />
 
     </PreferenceCategory>
 </PreferenceScreen>

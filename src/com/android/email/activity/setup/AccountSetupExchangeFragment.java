@@ -49,10 +49,8 @@ import java.net.URISyntaxException;
 /**
  * Provides generic setup for Exchange accounts.
  *
- * TODO: The manifest for this activity has it ignore config changes, because
- * we don't want to restart on every orientation - this would launch autodiscover again.
- * Do not attempt to define orientation-specific resources, they won't be loaded.
- * What we really need here is a more "sticky" way to prevent that problem.
+ * This fragment is used by AccountSetupExchange (for creating accounts) and by AccountSettingsXL
+ * (for editing existing accounts).
  */
 public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         implements OnCheckedChangeListener {
@@ -316,6 +314,14 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     }
 
     /**
+     * TODO reconcile this generic entry point with setHostAuthFromAutodiscover
+     */
+    @Override
+    public void saveSettingsAfterSetup() {
+        // TODO implement
+    }
+
+    /**
      * Entry point from Activity after entering new settings and verifying them.  For setup mode.
      */
     public boolean setHostAuthFromAutodiscover(HostAuth newHostAuth) {
@@ -396,7 +402,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             ((PreferenceActivity)activity).startPreferenceFragment(checkerFragment, true);
         } else {
             // STOPSHIP remove this old code
-            mCallback.onProceedNext(SetupData.CHECK_INCOMING);
+            mCallback.onProceedNext(SetupData.CHECK_INCOMING, this);
         }
     }
 }

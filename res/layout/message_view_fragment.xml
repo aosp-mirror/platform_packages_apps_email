@@ -43,6 +43,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:baselineAligned="true" >
+                <android.widget.QuickContactBadge
+                    android:id="@+id/badge"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="8dip"
+                    android:layout_marginLeft="2dip"
+                    style="@*android:style/Widget.QuickContactBadge.WindowSmall" />
+                    />
                 <ImageView
                     android:id="@+id/presence"
                     android:src="@drawable/presence_inactive"
@@ -55,7 +62,7 @@
                     android:id="@+id/from"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimaryInverse"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:layout_width="0dip"
                     android:layout_weight="1.0"
                     android:layout_height="wrap_content"
@@ -72,7 +79,7 @@
                 <TextView
                     android:id="@+id/date"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorPrimaryInverse"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dip"
@@ -84,7 +91,7 @@
                 android:layout_height="wrap_content" >
                 <TextView
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondaryInverse"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -92,7 +99,7 @@
                 <TextView
                     android:id="@+id/to"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondaryInverse"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:layout_width="0dip"
                     android:layout_weight="1.0"
                     android:layout_height="wrap_content"
@@ -102,7 +109,7 @@
                 <TextView
                     android:id="@+id/time"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorPrimaryInverse"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="4dip"
@@ -114,7 +121,7 @@
                 android:layout_height="wrap_content" >
                 <TextView
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondaryInverse"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -122,7 +129,7 @@
                 <TextView
                     android:id="@+id/cc"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondaryInverse"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:layout_width="0dip"
                     android:layout_weight="1.0"
                     android:layout_height="wrap_content"
@@ -136,7 +143,7 @@
                 <TextView
                     android:id="@+id/subject"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondaryInverse"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textStyle="bold"
                     android:layout_width="0dip"
                     android:layout_weight="1.0"
@@ -166,7 +173,7 @@
             android:visibility="gone">
             <TextView
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondaryInverse"
+                android:textColor="?android:attr/textColorSecondary"
                 android:text="@string/message_view_show_pictures_instructions"
                 android:layout_gravity="center"
                 android:layout_width="0dip"

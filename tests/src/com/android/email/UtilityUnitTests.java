@@ -17,7 +17,6 @@
 package com.android.email;
 
 import com.android.email.Utility.NewFileCreator;
-import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.content.Context;
@@ -205,6 +204,11 @@ public class UtilityUnitTests extends AndroidTestCase {
         final String deviceId2 = Utility.getConsistentDeviceId(getContext());
         // Should be consistent.
         assertEquals(deviceId, deviceId2);
+    }
+
+    public void testGetSmallHash() {
+        assertEquals("1438642069", Utility.getSmallHash(""));
+        assertEquals("1354919068", Utility.getSmallHash("abc"));
     }
 
     public void testGetSmallSha1() {

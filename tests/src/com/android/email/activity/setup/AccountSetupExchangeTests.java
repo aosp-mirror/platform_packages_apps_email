@@ -27,7 +27,6 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
@@ -42,7 +41,6 @@ public class AccountSetupExchangeTests extends
     //EXCHANGE-REMOVE-SECTION-START
     private AccountSetupExchange mActivity;
     private EditText mServerView;
-    private Button mNextButton;
     private CheckBox mSslRequiredCheckbox;
     private CheckBox mTrustAllCertificatesCheckbox;
     //EXCHANGE-REMOVE-SECTION-END
@@ -74,7 +72,7 @@ public class AccountSetupExchangeTests extends
         Intent i = getTestIntent("eas://user:password@server.com");
         setActivityIntent(i);
         getActivityAndFields();
-        assertTrue(mNextButton.isEnabled());
+        assertTrue(mActivity.mNextButtonEnabled);
     }
 
     // TODO Add tests for valid usernames in eas
@@ -87,7 +85,7 @@ public class AccountSetupExchangeTests extends
         Intent i = getTestIntent("eas://:password@server.com");
         setActivityIntent(i);
         getActivityAndFields();
-        assertFalse(mNextButton.isEnabled());
+        assertFalse(mActivity.mNextButtonEnabled);
     }
 
     /**
@@ -97,7 +95,7 @@ public class AccountSetupExchangeTests extends
         Intent i = getTestIntent("eas://user@server.com");
         setActivityIntent(i);
         getActivityAndFields();
-        assertFalse(mNextButton.isEnabled());
+        assertFalse(mActivity.mNextButtonEnabled);
     }
 
     /**
@@ -106,10 +104,10 @@ public class AccountSetupExchangeTests extends
     @UiThreadTest
     public void testGoodServerVariants() {
         getActivityAndFields();
-        assertTrue(mNextButton.isEnabled());
+        assertTrue(mActivity.mNextButtonEnabled);
 
         mServerView.setText("  server.com  ");
-        assertTrue(mNextButton.isEnabled());
+        assertTrue(mActivity.mNextButtonEnabled);
     }
 
     /**
@@ -118,13 +116,13 @@ public class AccountSetupExchangeTests extends
     @UiThreadTest
     public void testBadServerVariants() {
         getActivityAndFields();
-        assertTrue(mNextButton.isEnabled());
+        assertTrue(mActivity.mNextButtonEnabled);
 
         mServerView.setText("  ");
-        assertFalse(mNextButton.isEnabled());
+        assertFalse(mActivity.mNextButtonEnabled);
 
         mServerView.setText("serv$er.com");
-        assertFalse(mNextButton.isEnabled());
+        assertFalse(mActivity.mNextButtonEnabled);
     }
 
     /**
@@ -179,7 +177,6 @@ public class AccountSetupExchangeTests extends
     private void getActivityAndFields() {
         mActivity = getActivity();
         mServerView = (EditText) mActivity.findViewById(R.id.account_server);
-        mNextButton = (Button) mActivity.findViewById(R.id.next);
         mSslRequiredCheckbox = (CheckBox) mActivity.findViewById(R.id.account_ssl);
         mTrustAllCertificatesCheckbox =
             (CheckBox) mActivity.findViewById(R.id.account_trust_certificates);

@@ -21,6 +21,7 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
@@ -184,5 +185,59 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
                 Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
                 null,
                 EmailContent.ID_PROJECTION_COLUMN, -1));
+    }
+
+    public void testBuildMailboxIdSelection() {
+        // Create dummy data...
+        Context c = mMockContext;
+        Account account1 = ProviderTestUtils.setupAccount("1", true, mMockContext);
+        Account account2 = ProviderTestUtils.setupAccount("X1", true, mMockContext);
+
+        Mailbox box1in = ProviderTestUtils.setupMailbox("m", account1.mId, true, c,
+                Mailbox.TYPE_INBOX);
+        Mailbox box1out = ProviderTestUtils.setupMailbox("m", account1.mId, true, c,
+                Mailbox.TYPE_OUTBOX);
+        Mailbox box1d = ProviderTestUtils.setupMailbox("m", account1.mId, true, c,
+                Mailbox.TYPE_DRAFTS);
+
+        Mailbox box2in = ProviderTestUtils.setupMailbox("m", account2.mId, true, c,
+                Mailbox.TYPE_INBOX);
+        Mailbox box2out = ProviderTestUtils.setupMailbox("m", account2.mId, true, c,
+                Mailbox.TYPE_OUTBOX);
+        Mailbox box2d = ProviderTestUtils.setupMailbox("m", account2.mId, true, c,
+                Mailbox.TYPE_DRAFTS);
+
+        final String FLAG_LOADED_TEST =
+                " AND ("
+                + MessageColumns.FLAG_LOADED + " IN ("
+                + Message.FLAG_LOADED_PARTIAL + "," + Message.FLAG_LOADED_COMPLETE
+                + "))";
+
+        // Test!
+
+        // Normal mailbox
+        assertEquals(MessageColumns.MAILBOX_KEY + "=" + box1in.mId + FLAG_LOADED_TEST,
+                Utility.buildMailboxIdSelection(mMockContext, box1in.mId));
+
+        // Outbox query doesn't have FLAG_LOADED_TEST
+        assertEquals(MessageColumns.MAILBOX_KEY + "=" + box1out.mId,
+                Utility.buildMailboxIdSelection(mMockContext, box1out.mId));
+
+        // Combined mailboxes
+        assertEquals(Message.FLAG_READ + "=0" + FLAG_LOADED_TEST,
+                Utility.buildMailboxIdSelection(mMockContext, Mailbox.QUERY_ALL_UNREAD));
+        assertEquals(Message.FLAG_FAVORITE + "=1" + FLAG_LOADED_TEST,
+                Utility.buildMailboxIdSelection(mMockContext, Mailbox.QUERY_ALL_FAVORITES));
+
+        assertEquals(MessageColumns.MAILBOX_KEY + " IN (" + box1in.mId + "," + box2in.mId + ")"
+                + FLAG_LOADED_TEST,
+                Utility.buildMailboxIdSelection(mMockContext, Mailbox.QUERY_ALL_INBOXES));
+
+        assertEquals(MessageColumns.MAILBOX_KEY + " IN (" + box1d.mId + "," + box2d.mId + ")"
+                + FLAG_LOADED_TEST,
+                Utility.buildMailboxIdSelection(mMockContext, Mailbox.QUERY_ALL_DRAFTS));
+
+        assertEquals(MessageColumns.MAILBOX_KEY + " IN (" + box1out.mId + "," + box2out.mId + ")",
+                Utility.buildMailboxIdSelection(mMockContext, Mailbox.QUERY_ALL_OUTBOX));
     }
 }

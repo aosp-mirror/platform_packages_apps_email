@@ -70,7 +70,7 @@ public class AccountSetupExchange extends AccountSetupActivity
         implements AccountSetupExchangeFragment.Callback {
 
     /* package */ AccountSetupExchangeFragment mFragment;
-    private boolean mNextButtonEnabled;
+    /* package */ boolean mNextButtonEnabled;
 
     public static void actionIncomingSettings(Activity fromActivity, int mode, Account acct) {
         SetupData.init(mode, acct);
@@ -204,6 +204,13 @@ public class AccountSetupExchange extends AccountSetupActivity
     /**
      * Implements AccountServerBaseFragment.Callback
      */
+    public void onProceedNext(int checkMode, AccountServerBaseFragment target) {
+        AccountSetupCheckSettings.actionCheckSettings(this, checkMode);
+    }
+
+    /**
+     * Implements AccountServerBaseFragment.Callback
+     */
     public void onEnableProceedButtons(boolean enabled) {
         boolean wasEnabled = mNextButtonEnabled;
         mNextButtonEnabled = enabled;
@@ -215,8 +222,10 @@ public class AccountSetupExchange extends AccountSetupActivity
 
     /**
      * Implements AccountServerBaseFragment.Callback
+     * TODO - should never happen, we don't use checksettings fragment (yet) for account setup
      */
-    public void onProceedNext(int checkMode) {
-        AccountSetupCheckSettings.actionCheckSettings(this, checkMode);
+    public void onCheckSettingsOk(int setupMode) {
+        throw new IllegalStateException();
     }
+    
 }
