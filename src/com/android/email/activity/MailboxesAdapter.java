@@ -201,32 +201,32 @@ import android.widget.TextView;
             // Combined inbox -- show unread count
             addSummaryMailboxRow(context, cursor,
                     Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
-                    Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX));
+                    Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX), true);
         }
 
         // Favorite (starred) -- show # of favorites
         addSummaryMailboxRow(context, cursor,
                 Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
-                Message.getFavoriteMessageCount(context));
+                Message.getFavoriteMessageCount(context), false);
 
         if (mShowCombined) {
             // Drafts -- show # of drafts
             addSummaryMailboxRow(context, cursor,
                     Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS,
-                    Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS));
+                    Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS), false);
 
             // Outbox -- # of sent messages
             addSummaryMailboxRow(context, cursor,
                     Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX,
-                    Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX));
+                    Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX), false);
         }
 
         return cursor;
     }
 
     private static void addSummaryMailboxRow(Context context, MatrixCursor cursor,
-            long id, int type, int count) {
-        if (count > 0) {
+            long id, int type, int count, boolean showAlways) {
+        if (showAlways || (count > 0)) {
             RowBuilder row = cursor.newRow();
             row.add(id);
             row.add(""); // Display name.  We get it from FolderProperties.
