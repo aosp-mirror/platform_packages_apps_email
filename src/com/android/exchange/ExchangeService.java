@@ -349,6 +349,12 @@ public class ExchangeService extends Service implements Runnable {
                 return;
             } else if (m.mType == Mailbox.TYPE_DRAFTS || m.mType == Mailbox.TYPE_TRASH) {
                 // Drafts & Trash can't be synced in EAS
+                try {
+                    // UI is expecting the callbacks....
+                    sCallbackProxy.syncMailboxStatus(mailboxId, EmailServiceStatus.IN_PROGRESS, 0);
+                    sCallbackProxy.syncMailboxStatus(mailboxId, EmailServiceStatus.SUCCESS, 0);
+                } catch (RemoteException ignore) {
+                }
                 return;
             }
             startManualSync(mailboxId, ExchangeService.SYNC_SERVICE_START_SYNC, null);
