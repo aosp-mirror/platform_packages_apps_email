@@ -30,6 +30,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -515,7 +516,9 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     public boolean onPreferenceClick(Preference preference) {
                         DeleteAccountFragment dialogFragment = DeleteAccountFragment.newInstance(
                                 mAccount, AccountSettingsFragment.this);
-                        dialogFragment.show(getActivity(), DeleteAccountFragment.TAG);
+                        FragmentTransaction ft = getFragmentManager().openTransaction();
+                        ft.addToBackStack(null);
+                        dialogFragment.show(ft, DeleteAccountFragment.TAG);
                         return true;
                     }
                 });

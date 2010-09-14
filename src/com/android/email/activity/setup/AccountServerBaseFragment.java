@@ -17,6 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
+import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -59,18 +60,19 @@ public abstract class AccountServerBaseFragment extends Fragment
         public void onProceedNext(int checkMode, AccountServerBaseFragment target);
 
         /**
-         * Called when account checker returns "ok".  Fragments are responsible for saving
+         * Called when account checker completes.  Fragments are responsible for saving
          * own edited data;  This is primarily for the activity to do post-check navigation.
+         * @param result check settings result code - success is CHECK_SETTINGS_OK
          * @param setupMode signals if we were editing or creating
          */
-        public void onCheckSettingsOk(int setupMode);
+        public void onCheckSettingsComplete(int result, int setupMode);
     }
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
         @Override public void onEnableProceedButtons(boolean enable) { }
         @Override public void onProceedNext(int checkMode, AccountServerBaseFragment target) { }
-        @Override public void onCheckSettingsOk(int setupMode) { }
+        @Override public void onCheckSettingsComplete(int result, int setupMode) { }
     }
 
     /**
@@ -157,17 +159,28 @@ public abstract class AccountServerBaseFragment extends Fragment
     /**
      * Implements AccountCheckSettingsFragment.Callbacks
      *
-     * Handle OK result from check settings.  Save settings, and exit to previous fragment.
+     * Handle OK or error result from check settings.  Save settings, and exit to previous fragment.
      */
     @Override
-    public void onCheckSettingsOk() {
-        if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
-            saveSettingsAfterEdit();
-        } else {
-            saveSettingsAfterSetup();
+    public void onCheckSettingsComplete(int result) {
+        if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
+            if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
+                saveSettingsAfterEdit();
+            } else {
+                saveSettingsAfterSetup();
+            }
         }
-        // Signal to owning activity that a settings check was OK
-        mCallback.onCheckSettingsOk(SetupData.getFlowMode());
+        // Signal to owning activity that a settings check completed
+        mCallback.onCheckSettingsComplete(result, SetupData.getFlowMode());
+    }
+
+    /**
+     * Implements AccountCheckSettingsFragment.Callbacks
+     * This is overridden only by AccountSetupExchange
+     */
+    @Override
+    public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
+        throw new IllegalStateException();
     }
 
     /**

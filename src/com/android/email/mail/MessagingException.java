@@ -57,6 +57,8 @@ public class MessagingException extends Exception {
     public static final int CERTIFICATE_VALIDATION_ERROR = 10;
     /** Authentication failed during autodiscover */
     public static final int AUTODISCOVER_AUTHENTICATION_FAILED = 11;
+    /** Autodiscover completed with a result (non-error) */
+    public static final int AUTODISCOVER_AUTHENTICATION_RESULT = 12;
 
     protected int mExceptionType;
 

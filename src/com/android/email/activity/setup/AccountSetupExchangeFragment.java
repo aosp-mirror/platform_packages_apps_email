@@ -29,7 +29,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.preference.PreferenceActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -314,11 +313,12 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     }
 
     /**
-     * TODO reconcile this generic entry point with setHostAuthFromAutodiscover
+     * This entry point is not used (unlike in AccountSetupIncomingFragment) because the data
+     * is already saved by onNext().
+     * TODO: Reconcile this, to make them more consistent.
      */
     @Override
     public void saveSettingsAfterSetup() {
-        // TODO implement
     }
 
     /**
@@ -366,6 +366,15 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     }
 
     /**
+     * Implements AccountCheckSettingsFragment.Callbacks
+     */
+    @Override
+    public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
+        AccountSetupExchange activity = (AccountSetupExchange) getActivity();
+        activity.onAutoDiscoverComplete(result, hostAuth);
+    }
+
+    /**
      * Entry point from Activity, when "next" button is clicked
      */
     @Override
@@ -394,15 +403,6 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             throw new Error(use);
         }
 
-        // STOPSHIP - use new checker fragment only during account settings (TODO: account setup)
-        Activity activity = getActivity();
-        if (activity instanceof PreferenceActivity) {
-            AccountCheckSettingsFragment checkerFragment =
-                AccountCheckSettingsFragment.newInstance(SetupData.CHECK_INCOMING, this);
-            ((PreferenceActivity)activity).startPreferenceFragment(checkerFragment, true);
-        } else {
-            // STOPSHIP remove this old code
-            mCallback.onProceedNext(SetupData.CHECK_INCOMING, this);
-        }
+        mCallback.onProceedNext(SetupData.CHECK_INCOMING, this);
     }
 }

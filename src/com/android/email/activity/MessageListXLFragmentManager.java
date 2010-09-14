@@ -100,6 +100,11 @@ class MessageListXLFragmentManager {
          * Called when the selected account is on security-hold.
          */
         public void onAccountSecurityHold(long accountId);
+
+        /**
+         * Called when the current mailbox has changed.
+         */
+        public void onMailboxChanged(long accountId, long newMailboxId);
     }
 
     private final TargetActivity mTargetActivity;
@@ -405,6 +410,7 @@ class MessageListXLFragmentManager {
         mMessageListFragment.setCallback(mMessageListFragmentCallback);
         mMessageListFragment.openMailbox(mMailboxId);
         restoreMesasgeListState();
+        mTargetActivity.onMailboxChanged(mAccountId, mMailboxId);
     }
 
     /**

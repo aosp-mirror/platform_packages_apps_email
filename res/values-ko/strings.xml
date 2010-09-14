@@ -60,6 +60,8 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"첨부파일 추가"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"덤프 설정"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"첨부파일 선택"</string>
+    <!-- no translation found for move_to_folder_dialog_title (2614318192482193898) -->
+    <skip />
     <!-- no translation found for status_loading_messages (6552307237621292344) -->
     <skip />
     <string name="status_network_error" msgid="6045933332005067021">"연결 오류"</string>
@@ -92,8 +94,10 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"새로고침하려면 계정을 길게 누르세요."</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"편지함"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"더 많은 메시지 로드"</string>
-    <!-- no translation found for message_view_selected_message_count:one (5064657358375178519) -->
-    <!-- no translation found for message_view_selected_message_count:other (7901361399231876038) -->
+  <plurals name="message_view_selected_message_count">
+    <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g>개 선택됨"</item>
+    <item quantity="other" msgid="7901361399231876038">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g>개 선택됨"</item>
+  </plurals>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"받는사람"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"참조"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"숨은 참조"</string>
@@ -108,18 +112,13 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> 외 <xliff:g id="NUMBER">%2$d</xliff:g>명"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"받는사람:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"참조: "</string>
-    <!-- no translation found for message_view_attachment_view_action (4408093860407096078) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_load_action (8645178445048233745) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_save_action (4704436274670997903) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
-    <skip />
+    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"보기"</string>
+    <string name="message_view_attachment_load_action" msgid="8645178445048233745">"로드"</string>
+    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"저장"</string>
+    <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"중지"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)이 SD 카드에 저장되었습니다."</string>
     <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"SD 카드에 첨부파일을 저장할 수 없습니다."</string>
-    <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
-    <skip />
+    <string name="message_view_attachment_background_load" msgid="756797444835526487">"참고: 전달된 메시지에서 하나 이상의 첨부파일을 보내기 전에 다운로드합니다."</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"\'사진 표시\'를 선택하여 삽입된 사진을 표시합니다."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"사진 표시"</string>
     <!-- no translation found for message_view_invite_view (5521032519960111675) -->
@@ -139,12 +138,12 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"메시지를 삭제했습니다."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"메일이 임시보관함에 저장되었습니다."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"첨부파일을 표시할 수 없습니다."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (342798484092215350) -->
-    <skip />
+    <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)을 로드할 수 없습니다."</string>
     <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
     <skip />
-    <!-- no translation found for forward_download_failed_ticker (6654377128589312623) -->
-    <skip />
+    <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
+    <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
+    <string name="forward_download_failed_ticker" msgid="6654377128589312623">"첨부파일을 전달할 수 없음"</string>
     <!-- no translation found for forward_download_failed_notification (3239753701377399676) -->
     <skip />
     <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
@@ -155,6 +154,8 @@
     <!-- no translation found for message_view_attachment_megabytes:other (4365876866570165282) -->
     <!-- no translation found for message_view_attachment_gigabytes:one (6261986598249539093) -->
     <!-- no translation found for message_view_attachment_gigabytes:other (1041353825053598633) -->
+    <!-- no translation found for message_list_snippet (6077583739966798162) -->
+    <skip />
     <string name="account_setup_basics_title" msgid="3969856368228940980">"이메일 설정"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Exchange 계정 추가"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Exchange ActiveSync 계정 추가"</string>
@@ -241,6 +242,8 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"인증 방법이 서버에서 지원되지 않습니다."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"보안 오류 때문에 서버에 연결할 수 없습니다."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"서버에 연결할 수 없습니다."</string>
+    <!-- no translation found for account_setup_failed_protocol_unsupported (5476633232659376833) -->
+    <skip />
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"원격 보안 관리"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"<xliff:g id="SERVER">%s</xliff:g> 서버가 휴대전화의 몇 가지 보안 기능을 원격으로 제어할 수 있도록 해야 합니다. 이 계정 설정을 완료하시겠습니까?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"서버에 필요한 보안 기능 중, 휴대전화에서 지원하지 않는 것이 있습니다."</string>
@@ -249,6 +252,8 @@
     <string name="account_security_title" msgid="4441470647344315196">"기기 보안"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"<xliff:g id="SERVER">%s</xliff:g> 서버는 휴대전화의 몇 가지 보안 기능을 원격으로 제어할 수 있어야 합니다."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"세부정보 수정"</string>
+    <!-- no translation found for account_settings_exit_server_settings (8006323251094711431) -->
+    <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"일반 설정"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"기본 계정"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"이 계정에서 이메일 보냄(기본값)"</string>
@@ -286,10 +291,8 @@
     <string name="account_settings_servers" msgid="4925493817981624242">"서버 설정"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"계정 삭제"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"<xliff:g id="ACCOUNT">%s</xliff:g> 계정이 이메일에서 삭제됩니다."</string>
-    <!-- no translation found for account_settings_category_delete_account (5128545184407925226) -->
-    <skip />
-    <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
-    <skip />
+    <string name="account_settings_category_delete_account" msgid="5128545184407925226">"계정 삭제"</string>
+    <string name="account_settings_delete_account_label" msgid="4889158717472601718">"계정 삭제"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"계정 업그레이드"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"계정을 업그레이드할 수 없음"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"일부 Yahoo! 메일 계정의 경우 편지함에 액세스할 수 없습니다. 접속에 문제가 있을 경우 자세한 정보는 yahoo.com을 참조하세요."</string>
@@ -321,5 +324,17 @@
     <!-- no translation found for header_label_general_preferences (7548527595339881066) -->
     <skip />
     <!-- no translation found for category_general_preferences (6810399722493971651) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_summary (4540091103768602710) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_dialog_title (5405052109452503909) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_newer (1336720027570509885) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_older (8273143493185128646) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_message_list (7834069275897767359) -->
     <skip />
 </resources>

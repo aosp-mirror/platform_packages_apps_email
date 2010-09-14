@@ -60,6 +60,8 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"Adicionar anexo"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Definições de imagem de erro"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Seleccionar anexo"</string>
+    <!-- no translation found for move_to_folder_dialog_title (2614318192482193898) -->
+    <skip />
     <!-- no translation found for status_loading_messages (6552307237621292344) -->
     <skip />
     <string name="status_network_error" msgid="6045933332005067021">"Erro de ligação"</string>
@@ -92,8 +94,10 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Prima prolongadamente uma conta para a actualizar"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Caixa de correio"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Carregar mais mensagens"</string>
-    <!-- no translation found for message_view_selected_message_count:one (5064657358375178519) -->
-    <!-- no translation found for message_view_selected_message_count:other (7901361399231876038) -->
+  <plurals name="message_view_selected_message_count">
+    <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> seleccionada(s)"</item>
+    <item quantity="other" msgid="7901361399231876038">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> seleccionada(s)"</item>
+  </plurals>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Para"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
@@ -108,18 +112,13 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> e outros <xliff:g id="NUMBER">%2$d</xliff:g>"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Para:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
-    <!-- no translation found for message_view_attachment_view_action (4408093860407096078) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_load_action (8645178445048233745) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_save_action (4704436274670997903) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
-    <skip />
+    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Ver"</string>
+    <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Carregar"</string>
+    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Guardar"</string>
+    <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Parar"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Anexo guardado no cartão SD como <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Não foi possível guardar o anexo no cartão SD."</string>
-    <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
-    <skip />
+    <string name="message_view_attachment_background_load" msgid="756797444835526487">"Nota: um ou mais anexos da mensagem que encaminhou serão transferidos antes do envio."</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Seleccione \"Mostrar imagens\" para apresentar as imagens incorporadas."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Mostrar imagens"</string>
     <!-- no translation found for message_view_invite_view (5521032519960111675) -->
@@ -139,12 +138,12 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"Mensagem rejeitada."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Mensagem guardada como rascunho."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Este anexo não pode ser apresentado."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (342798484092215350) -->
-    <skip />
+    <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"Não foi possível carregar o anexo \" <xliff:g id="FILENAME">%s</xliff:g>\"."</string>
     <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
     <skip />
-    <!-- no translation found for forward_download_failed_ticker (6654377128589312623) -->
-    <skip />
+    <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
+    <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
+    <string name="forward_download_failed_ticker" msgid="6654377128589312623">"Não foi possível encaminhar um anexo"</string>
     <!-- no translation found for forward_download_failed_notification (3239753701377399676) -->
     <skip />
     <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
@@ -155,6 +154,8 @@
     <!-- no translation found for message_view_attachment_megabytes:other (4365876866570165282) -->
     <!-- no translation found for message_view_attachment_gigabytes:one (6261986598249539093) -->
     <!-- no translation found for message_view_attachment_gigabytes:other (1041353825053598633) -->
+    <!-- no translation found for message_list_snippet (6077583739966798162) -->
+    <skip />
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Configurar e-mail"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Adicionar uma conta do Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Adicionar uma conta do Exchange ActiveSync"</string>
@@ -241,6 +242,8 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Os métodos de autenticação não são suportados pelo servidor."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Não foi possível abrir a ligação ao servidor devido a um erro de segurança."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Não foi possível abrir a ligação ao servidor."</string>
+    <!-- no translation found for account_setup_failed_protocol_unsupported (5476633232659376833) -->
+    <skip />
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administração de segurança remota"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"O servidor <xliff:g id="SERVER">%s</xliff:g> requer permissão para controlar remotamente algumas das funcionalidades de segurança do telefone. Pretende concluir a configuração desta conta?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Este servidor do requer funcionalidades de segurança que não são suportadas pelo telefone."</string>
@@ -249,6 +252,8 @@
     <string name="account_security_title" msgid="4441470647344315196">"Segurança do dispositivo"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"O servidor <xliff:g id="SERVER">%s</xliff:g> requer permissão para controlar remotamente algumas das funcionalidades de segurança do telefone."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalhes"</string>
+    <!-- no translation found for account_settings_exit_server_settings (8006323251094711431) -->
+    <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Definições gerais"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Conta predefinida"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Enviar e-mail a partir desta conta por predefinição"</string>
@@ -286,10 +291,8 @@
     <string name="account_settings_servers" msgid="4925493817981624242">"Definições do servidor"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Remover conta"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"A conta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" será removida do E-mail."</string>
-    <!-- no translation found for account_settings_category_delete_account (5128545184407925226) -->
-    <skip />
-    <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
-    <skip />
+    <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Remover conta"</string>
+    <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Remover conta"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Actualizar contas"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Não é possível actualizar a conta"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"O acesso à caixa de correio não é suportado para alguns tipos de contas de correio do Yahoo!. Se estiver com dificuldades em efectuar a ligação, visite yahoo.com para obter mais informações."</string>
@@ -321,5 +324,17 @@
     <!-- no translation found for header_label_general_preferences (7548527595339881066) -->
     <skip />
     <!-- no translation found for category_general_preferences (6810399722493971651) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_summary (4540091103768602710) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_dialog_title (5405052109452503909) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_newer (1336720027570509885) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_older (8273143493185128646) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_message_list (7834069275897767359) -->
     <skip />
 </resources>

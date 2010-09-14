@@ -24,6 +24,8 @@
     <string name="message_compose_attachments_skipped_toast" translatable="false"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="status_loading_more" translatable="false"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_check_settings_canceling_msg"></string>
 
     <!-- Messages that are not currently used, but will probably reused in the near future -->
     <!-- STOPSHIP Remove them if they're not used after all -->
@@ -389,16 +391,16 @@
         This login is already in use for the account \"<xliff:g id="duplicate">%s</xliff:g>\".
     </string>
 
-    <!-- Do Not Translate.  Activity Title for check-settings screen -->
-    <string name="account_setup_check_settings_title" translatable="false"></string>
     <!-- On check-settings screen, this is the initially-displayed message. -->
-    <string name="account_setup_check_settings_retr_info_msg">Retrieving account information\u2026</string>
+    <string name="account_setup_check_settings_retr_info_msg">
+    Retrieving account information\u2026</string>
     <!-- Appears on screen while system is checking incoming server settings -->
-    <string name="account_setup_check_settings_check_incoming_msg">Checking incoming server settings\u2026</string>
+    <string name="account_setup_check_settings_check_incoming_msg">
+    Checking incoming server settings\u2026</string>
     <!-- Appears on screen while system is checking outgoing server settings -->
-    <string name="account_setup_check_settings_check_outgoing_msg">Checking outgoing server settings\u2026</string>
-    <!-- On check-settings screen, displayed briefly when user cancels the operation. -->
-    <string name="account_setup_check_settings_canceling_msg">Canceling\u2026</string>
+    <string name="account_setup_check_settings_check_outgoing_msg">
+    Checking outgoing server settings\u2026</string>
+
     <!-- Title of "Set up email" screen after success -->
     <string name="account_setup_names_title">Set up email</string>
     <!-- Text that appears on top of "Set up email" screen after successfully setting up an account -->

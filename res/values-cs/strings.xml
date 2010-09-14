@@ -60,6 +60,8 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"Přidat přílohu"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Nastavení výpisu"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Výběr přílohy"</string>
+    <!-- no translation found for move_to_folder_dialog_title (2614318192482193898) -->
+    <skip />
     <!-- no translation found for status_loading_messages (6552307237621292344) -->
     <skip />
     <string name="status_network_error" msgid="6045933332005067021">"Chyba připojení"</string>
@@ -92,8 +94,10 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Účet aktualizujete stisknutím a podržením"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"E-mailová schránka"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Načíst další zprávy"</string>
-    <!-- no translation found for message_view_selected_message_count:one (5064657358375178519) -->
-    <!-- no translation found for message_view_selected_message_count:other (7901361399231876038) -->
+  <plurals name="message_view_selected_message_count">
+    <item quantity="one" msgid="5064657358375178519">"Počet vybraných položek: <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
+    <item quantity="other" msgid="7901361399231876038">"Počet vybraných položek: <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
+  </plurals>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Do"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Kopie"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Skrytá kopie"</string>
@@ -108,18 +112,13 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"Uživatel <xliff:g id="NAME">%1$s</xliff:g> a další uživatelé (<xliff:g id="NUMBER">%2$d</xliff:g>)"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Komu:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kopie:"</string>
-    <!-- no translation found for message_view_attachment_view_action (4408093860407096078) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_load_action (8645178445048233745) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_save_action (4704436274670997903) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
-    <skip />
+    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Zobrazit"</string>
+    <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Načíst"</string>
+    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Uložit"</string>
+    <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Zastavit"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Příloha byla uložena na SD kartu jako <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Nelze uložit přílohu na SD kartu."</string>
-    <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
-    <skip />
+    <string name="message_view_attachment_background_load" msgid="756797444835526487">"Poznámka: Jedna či více příloh v přeposílané zprávě bude před odesláním stažena."</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Výběrem možnosti Zobrazit obrázky zobrazíte vnořené obrázky."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Zobrazit obrázky"</string>
     <!-- no translation found for message_view_invite_view (5521032519960111675) -->
@@ -139,12 +138,12 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"Zpráva byla zrušena."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Zpráva byla uložena jako koncept."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Tuto přílohu nelze zobrazit."</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (342798484092215350) -->
-    <skip />
+    <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"Přílohu „ <xliff:g id="FILENAME">%s</xliff:g>“ se nepodařilo načíst."</string>
     <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
     <skip />
-    <!-- no translation found for forward_download_failed_ticker (6654377128589312623) -->
-    <skip />
+    <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
+    <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
+    <string name="forward_download_failed_ticker" msgid="6654377128589312623">"Přílohu se nepodařilo přeposlat"</string>
     <!-- no translation found for forward_download_failed_notification (3239753701377399676) -->
     <skip />
     <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
@@ -155,6 +154,8 @@
     <!-- no translation found for message_view_attachment_megabytes:other (4365876866570165282) -->
     <!-- no translation found for message_view_attachment_gigabytes:one (6261986598249539093) -->
     <!-- no translation found for message_view_attachment_gigabytes:other (1041353825053598633) -->
+    <!-- no translation found for message_list_snippet (6077583739966798162) -->
+    <skip />
     <string name="account_setup_basics_title" msgid="3969856368228940980">"Nastavit e-mail"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Přidat účet Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Přidat účet Exchange ActiveSync"</string>
@@ -241,6 +242,8 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Metody ověřování nejsou na serveru podporovány."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Nelze navázat připojení k serveru z důvodu chyby zabezpečení."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Nelze otevřít připojení k serveru."</string>
+    <!-- no translation found for account_setup_failed_protocol_unsupported (5476633232659376833) -->
+    <skip />
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Vzdálená správa zabezpečení"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Server <xliff:g id="SERVER">%s</xliff:g> žádá o povolení, aby mohl vzdáleně ovládat některé funkce zabezpečení vašeho telefonu. Chcete dokončit nastavení tohoto účtu?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Tento server vyžaduje funkce zabezpečení, které váš telefon nepodporuje."</string>
@@ -249,6 +252,8 @@
     <string name="account_security_title" msgid="4441470647344315196">"Zabezpečení zařízení"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Server <xliff:g id="SERVER">%s</xliff:g> žádá o povolení, aby mohl vzdáleně ovládat některé funkce zabezpečení vašeho telefonu."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Upravit podrobnosti"</string>
+    <!-- no translation found for account_settings_exit_server_settings (8006323251094711431) -->
+    <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Obecná nastavení"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Výchozí účet"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Ve výchozím nastavení odesílat e-maily z tohoto účtu"</string>
@@ -286,10 +291,8 @@
     <string name="account_settings_servers" msgid="4925493817981624242">"Nastavení serveru"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Odebrat účet"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> bude z aplikace Email odebrán."</string>
-    <!-- no translation found for account_settings_category_delete_account (5128545184407925226) -->
-    <skip />
-    <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
-    <skip />
+    <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Odebrat účet"</string>
+    <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Odebrat účet"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Upgradovat účty"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Účet nelze upgradovat"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"Přístup do schránky není u některých poštovních účtů Yahoo! podporován. Pokud máte problémy s připojením, získáte další informace na webové stránce yahoo.com."</string>
@@ -321,5 +324,17 @@
     <!-- no translation found for header_label_general_preferences (7548527595339881066) -->
     <skip />
     <!-- no translation found for category_general_preferences (6810399722493971651) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_summary (4540091103768602710) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_dialog_title (5405052109452503909) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_newer (1336720027570509885) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_older (8273143493185128646) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_message_list (7834069275897767359) -->
     <skip />
 </resources>

@@ -60,6 +60,8 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"新增附件"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"傾印設定"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"選擇附件"</string>
+    <!-- no translation found for move_to_folder_dialog_title (2614318192482193898) -->
+    <skip />
     <!-- no translation found for status_loading_messages (6552307237621292344) -->
     <skip />
     <string name="status_network_error" msgid="6045933332005067021">"連線錯誤"</string>
@@ -92,8 +94,10 @@
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"請按住您要重新整理的帳戶"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"信箱"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"載入更多郵件"</string>
-    <!-- no translation found for message_view_selected_message_count:one (5064657358375178519) -->
-    <!-- no translation found for message_view_selected_message_count:other (7901361399231876038) -->
+  <plurals name="message_view_selected_message_count">
+    <item quantity="one" msgid="5064657358375178519">"已選取 <xliff:g id="MESSAGE_COUNT">%d</xliff:g> 封郵件"</item>
+    <item quantity="other" msgid="7901361399231876038">"已選取 <xliff:g id="MESSAGE_COUNT">%d</xliff:g> 封郵件"</item>
+  </plurals>
     <string name="message_compose_to_hint" msgid="2891895306418177013">"收件者"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"副本"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"密件副本"</string>
@@ -108,18 +112,13 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g>以及其他 <xliff:g id="NUMBER">%2$d</xliff:g> 位"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"收件者："</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"副本："</string>
-    <!-- no translation found for message_view_attachment_view_action (4408093860407096078) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_load_action (8645178445048233745) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_save_action (4704436274670997903) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
-    <skip />
+    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"檢視"</string>
+    <string name="message_view_attachment_load_action" msgid="8645178445048233745">"載入"</string>
+    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"儲存"</string>
+    <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"停止"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"已將附件儲存至 SD 記憶卡，檔名為 <xliff:g id="FILENAME">%s</xliff:g>。"</string>
     <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"無法將附件儲存至 SD 記憶卡。"</string>
-    <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
-    <skip />
+    <string name="message_view_attachment_background_load" msgid="756797444835526487">"請注意：在傳送轉寄的郵件之前，系統會先下載郵件中一或多個附件。"</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"選取 [顯示圖片] 即可顯示內嵌的圖片。"</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"顯示圖片"</string>
     <!-- no translation found for message_view_invite_view (5521032519960111675) -->
@@ -139,12 +138,12 @@
     <string name="message_discarded_toast" msgid="3891461729325584026">"已捨棄郵件。"</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"已儲存郵件草稿。"</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"無法顯示此附件。"</string>
-    <!-- no translation found for message_view_load_attachment_failed_toast (342798484092215350) -->
-    <skip />
+    <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"無法載入附件「<xliff:g id="FILENAME">%s</xliff:g>」。"</string>
     <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
     <skip />
-    <!-- no translation found for forward_download_failed_ticker (6654377128589312623) -->
-    <skip />
+    <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
+    <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
+    <string name="forward_download_failed_ticker" msgid="6654377128589312623">"有一個附件無法轉寄"</string>
     <!-- no translation found for forward_download_failed_notification (3239753701377399676) -->
     <skip />
     <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
@@ -155,6 +154,8 @@
     <!-- no translation found for message_view_attachment_megabytes:other (4365876866570165282) -->
     <!-- no translation found for message_view_attachment_gigabytes:one (6261986598249539093) -->
     <!-- no translation found for message_view_attachment_gigabytes:other (1041353825053598633) -->
+    <!-- no translation found for message_list_snippet (6077583739966798162) -->
+    <skip />
     <string name="account_setup_basics_title" msgid="3969856368228940980">"設定電子郵件"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"新增 Exchange 帳戶"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"新增 Exchange ActiveSync 帳戶"</string>
@@ -241,6 +242,8 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"伺服器不支援這些驗證方法。"</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"發生安全性錯誤，無法連線至伺服器。"</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"無法連線至伺服器。"</string>
+    <!-- no translation found for account_setup_failed_protocol_unsupported (5476633232659376833) -->
+    <skip />
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"遠端安全性管理"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"此伺服器 <xliff:g id="SERVER">%s</xliff:g> 要求您同意以遠端控制您手機的某些安全性功能，您是否要結束設定這個帳戶？"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"您的手機不支援這個伺服器所需的安全性功能。"</string>
@@ -249,6 +252,8 @@
     <string name="account_security_title" msgid="4441470647344315196">"裝置安全性"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"此伺服器 <xliff:g id="SERVER">%s</xliff:g> 要求您同意以遠端控制您手機的某些安全性功能。"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"請編輯資料"</string>
+    <!-- no translation found for account_settings_exit_server_settings (8006323251094711431) -->
+    <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"一般設定"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"預設帳戶"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"預設使用這個帳戶傳送電子郵件"</string>
@@ -286,10 +291,8 @@
     <string name="account_settings_servers" msgid="4925493817981624242">"伺服器設定"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"移除帳戶"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"系統將從 [電子郵件] 中移除帳戶「<xliff:g id="ACCOUNT">%s</xliff:g>」。"</string>
-    <!-- no translation found for account_settings_category_delete_account (5128545184407925226) -->
-    <skip />
-    <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
-    <skip />
+    <string name="account_settings_category_delete_account" msgid="5128545184407925226">"移除帳戶"</string>
+    <string name="account_settings_delete_account_label" msgid="4889158717472601718">"移除帳戶"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"升級帳戶"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"無法升級帳戶"</string>
     <string name="provider_note_yahoo" msgid="8762024183024261236">"系統不支援某些類型的 Yahoo! 郵件帳戶信箱。如果您無法順利連線，請前往 yahoo.com 以瞭解詳情。"</string>
@@ -321,5 +324,17 @@
     <!-- no translation found for header_label_general_preferences (7548527595339881066) -->
     <skip />
     <!-- no translation found for category_general_preferences (6810399722493971651) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_summary (4540091103768602710) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_dialog_title (5405052109452503909) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_newer (1336720027570509885) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_older (8273143493185128646) -->
+    <skip />
+    <!-- no translation found for general_preference_auto_advance_message_list (7834069275897767359) -->
     <skip />
 </resources>

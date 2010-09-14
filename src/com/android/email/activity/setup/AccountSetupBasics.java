@@ -21,6 +21,7 @@ import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
@@ -49,12 +50,6 @@ public class AccountSetupBasics extends AccountSetupActivity
 
     public static void actionNewAccount(Activity fromActivity) {
         SetupData.init(SetupData.FLOW_MODE_NORMAL);
-        fromActivity.startActivity(new Intent(fromActivity, AccountSetupBasics.class));
-    }
-
-    public static void actionNewAccountWithCredentials(Activity fromActivity,
-            String username, String password, int accountFlowMode) {
-        SetupData.init(accountFlowMode, username, password);
         fromActivity.startActivity(new Intent(fromActivity, AccountSetupBasics.class));
     }
 
@@ -149,9 +144,20 @@ public class AccountSetupBasics extends AccountSetupActivity
      * skipping here).
      */
     @Override
-    public void onCheckSettingsOk() {
-        AccountSetupOptions.actionOptions(this);
-        finish();
+    public void onCheckSettingsComplete(int result) {
+        if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
+            AccountSetupOptions.actionOptions(this);
+            finish();
+        }
+    }
+
+    /**
+     * Implements AccountCheckSettingsFragment.Callbacks
+     * This is overridden only by AccountSetupExchange
+     */
+    @Override
+    public void onAutoDiscoverComplete(int result, HostAuth hostAuth) {
+        throw new IllegalStateException();
     }
 
     /**
@@ -238,7 +244,8 @@ public class AccountSetupBasics extends AccountSetupActivity
      * Implements AccountSetupBasicsFragment.Callback
      */
     @Override
-    public void onProceedManual() {
+    public void onProceedManual(boolean allowAutoDiscover) {
+        SetupData.setAllowAutodiscover(allowAutoDiscover);
         AccountSetupAccountType.actionSelectAccountType(this);
     }
 }

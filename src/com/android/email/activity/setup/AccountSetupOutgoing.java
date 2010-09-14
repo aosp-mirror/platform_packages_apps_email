@@ -36,13 +36,10 @@ public class AccountSetupOutgoing extends Activity
     private AccountSetupOutgoingFragment mFragment;
     /* package */ boolean mNextButtonEnabled;
 
-    public static void actionOutgoingSettings(Activity fromActivity, int mode, Account acct) {
-        SetupData.init(mode, acct);
+    public static void actionOutgoingSettings(Activity fromActivity, int mode, Account account) {
+        SetupData.setFlowMode(mode);
+        SetupData.setAccount(account);
         fromActivity.startActivity(new Intent(fromActivity, AccountSetupOutgoing.class));
-    }
-
-    public static void actionEditOutgoingSettings(Activity fromActivity, int mode, Account acct) {
-        actionOutgoingSettings(fromActivity, mode, acct);
     }
 
     @Override
@@ -88,10 +85,10 @@ public class AccountSetupOutgoing extends Activity
      *
      * If the checked settings are OK, proceed to options screen
      */
-    public void onCheckSettingsOk(int setupMode) {
-        if (SetupData.getFlowMode() != SetupData.FLOW_MODE_EDIT) {
+    public void onCheckSettingsComplete(int result, int setupMode) {
+        if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
             AccountSetupOptions.actionOptions(this);
+            finish();
         }
-        finish();
     }
 }

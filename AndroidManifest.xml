@@ -99,12 +99,9 @@
             >
         </activity>
         <!--EXCHANGE-REMOVE-SECTION-START-->
-        <!-- This activity ignores configuration changes (e.g. rotation) so that it will
-             not make multiple calls to AccountSetupCheckSettings. -->
         <activity
             android:name=".activity.setup.AccountSetupExchange"
             android:label="@string/account_setup_exchange_title"
-            android:configChanges="keyboardHidden|orientation"
             >
         </activity>
         <!--EXCHANGE-REMOVE-SECTION-END-->
@@ -116,14 +113,6 @@
         <activity
             android:name=".activity.setup.AccountSetupNames"
             android:label="@string/account_setup_names_title"
-            >
-        </activity>
-        <!-- XXX Note: this activity is hacked to ignore config changes,
-             since it doesn't currently handle them correctly in code. -->
-        <activity
-            android:name=".activity.setup.AccountSetupCheckSettings"
-            android:label="@string/account_setup_check_settings_title"
-            android:configChanges="keyboardHidden|orientation"
             >
         </activity>
         <activity
