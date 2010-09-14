@@ -889,15 +889,6 @@ public class MessageListFragment extends ListFragment
                         "MessageListFragment onCreateLoader(messages) mailboxId=" + mMailboxId);
             }
 
-            // Reset new message count.
-            // TODO Do it in onLoadFinished(). Unfortunately
-            // resetNewMessageCount() ends up a
-            // db operation, which causes a onContentChanged notification, which
-            // makes cursor
-            // loaders to requery. Until we fix ContentProvider (don't notify
-            // unrelated cursors)
-            // we need to do it here.
-            resetNewMessageCount(mActivity, mMailboxId, getAccountId());
             return MessagesAdapter.createLoader(getActivity(), mMailboxId);
         }
 
@@ -933,6 +924,8 @@ public class MessageListFragment extends ListFragment
             // Restore the state -- it has to be the last.
             // (Some of the "post processing" resets the state.)
             lss.restore(lv);
+
+            resetNewMessageCount(mActivity, mMailboxId, getAccountId());
         }
     }
 

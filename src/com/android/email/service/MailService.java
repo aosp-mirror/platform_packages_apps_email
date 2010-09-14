@@ -112,15 +112,6 @@ public class MailService extends Service {
     /*package*/ static HashMap<Long,AccountSyncReport> mSyncReports =
         new HashMap<Long,AccountSyncReport>();
 
-    /**
-     * Simple template used for clearing new message count in accounts
-     */
-    private static final ContentValues CLEAR_NEW_MESSAGES;
-    static {
-        CLEAR_NEW_MESSAGES = new ContentValues();
-        CLEAR_NEW_MESSAGES.put(Account.NEW_MESSAGE_COUNT, 0);
-    }
-
     public static void actionReschedule(Context context) {
         Intent i = new Intent();
         i.setClass(context, MailService.class);
@@ -154,7 +145,7 @@ public class MailService extends Service {
      *
      * @param accountId account to clear, or -1 for all accounts
      */
-    public static void resetNewMessageCount(Context context, long accountId) {
+    public static void resetNewMessageCount(final Context context, final long accountId) {
         synchronized (mSyncReports) {
             for (AccountSyncReport report : mSyncReports.values()) {
                 if (accountId == -1 || accountId == report.accountId) {
@@ -163,13 +154,16 @@ public class MailService extends Service {
             }
         }
         // now do the database - all accounts, or just one of them
-        Uri uri;
-        if (accountId == -1) {
-            uri = Account.CONTENT_URI;
-        } else {
-            uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
-        }
-        context.getContentResolver().update(uri, CLEAR_NEW_MESSAGES, null, null);
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                Uri uri = Account.RESET_NEW_MESSAGE_COUNT_URI;
+                if (accountId != -1) {
+                    uri = ContentUris.withAppendedId(uri, accountId);
+                }
+                context.getContentResolver().update(uri, null, null, null);
+            }
+        });
     }
 
     /**

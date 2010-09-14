@@ -869,6 +869,8 @@ public abstract class EmailContent {
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
         public static final Uri ADD_TO_FIELD_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
+        public static final Uri RESET_NEW_MESSAGE_COUNT_URI =
+            Uri.parse(EmailContent.CONTENT_URI + "/resetNewMessageCount");
 
         public final static int FLAGS_NOTIFY_NEW_MAIL = 1;
         public final static int FLAGS_VIBRATE_ALWAYS = 2;

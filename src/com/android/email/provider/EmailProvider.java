@@ -108,6 +108,8 @@ public class EmailProvider extends ContentProvider {
     private static final int ACCOUNT = ACCOUNT_BASE;
     private static final int ACCOUNT_ID = ACCOUNT_BASE + 1;
     private static final int ACCOUNT_ID_ADD_TO_FIELD = ACCOUNT_BASE + 2;
+    private static final int ACCOUNT_RESET_NEW_COUNT = ACCOUNT_BASE + 3;
+    private static final int ACCOUNT_RESET_NEW_COUNT_ID = ACCOUNT_BASE + 4;
 
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
@@ -143,7 +145,6 @@ public class EmailProvider extends ContentProvider {
     private static final int BODY_BASE = LAST_EMAIL_PROVIDER_DB_BASE + 0x1000;
     private static final int BODY = BODY_BASE;
     private static final int BODY_ID = BODY_BASE + 1;
-
 
     private static final int BASE_SHIFT = 12;  // 12 bits to the base type: 0, 0x1000, 0x2000, etc.
 
@@ -196,6 +197,8 @@ public class EmailProvider extends ContentProvider {
         "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
         "; end";
 
+    private static final ContentValues CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
+
     static {
         // Email URI matching table
         UriMatcher matcher = sURIMatcher;
@@ -205,6 +208,11 @@ public class EmailProvider extends ContentProvider {
         // A specific account
         // insert into this URI causes a mailbox to be added to the account
         matcher.addURI(EMAIL_AUTHORITY, "account/#", ACCOUNT_ID);
+
+        // Special URI to reset the new message count.  Only update works, and content values
+        // will be ignored.
+        matcher.addURI(EMAIL_AUTHORITY, "resetNewMessageCount", ACCOUNT_RESET_NEW_COUNT);
+        matcher.addURI(EMAIL_AUTHORITY, "resetNewMessageCount/#", ACCOUNT_RESET_NEW_COUNT_ID);
 
         // All mailboxes
         matcher.addURI(EMAIL_AUTHORITY, "mailbox", MAILBOX);
@@ -261,6 +269,9 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EMAIL_AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
         // A specific updated message
         matcher.addURI(EMAIL_AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
+
+        CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT = new ContentValues();
+        CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT.put(Account.NEW_MESSAGE_COUNT, 0);
     }
 
     /*
@@ -962,7 +973,9 @@ public class EmailProvider extends ContentProvider {
                 db.endTransaction();
             }
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+
+        // Notify all existing cursors.
+        getContext().getContentResolver().notifyChange(EmailContent.CONTENT_URI, null);
         return result;
     }
 
@@ -1058,20 +1071,17 @@ public class EmailProvider extends ContentProvider {
                     // already in the values...
                     id = Long.parseLong(uri.getPathSegments().get(1));
                     values.put(MessageColumns.MAILBOX_KEY, id);
-                    resultUri = insert(Message.CONTENT_URI, values);
-                    break;
+                    return insert(Message.CONTENT_URI, values); // Recurse
                 case MESSAGE_ID:
                     // This implies adding an attachment to a message.
                     id = Long.parseLong(uri.getPathSegments().get(1));
                     values.put(AttachmentColumns.MESSAGE_KEY, id);
-                    resultUri = insert(Attachment.CONTENT_URI, values);
-                    break;
+                    return insert(Attachment.CONTENT_URI, values); // Recurse
                 case ACCOUNT_ID:
                     // This implies adding a mailbox to an account.
                     id = Long.parseLong(uri.getPathSegments().get(1));
                     values.put(MailboxColumns.ACCOUNT_KEY, id);
-                    resultUri = insert(Mailbox.CONTENT_URI, values);
-                    break;
+                    return insert(Mailbox.CONTENT_URI, values); // Recurse
                 case ATTACHMENTS_MESSAGE_ID:
                     id = db.insert(TABLE_NAMES[table], "foo", values);
                     resultUri = ContentUris.withAppendedId(Attachment.CONTENT_URI, id);
@@ -1084,8 +1094,8 @@ public class EmailProvider extends ContentProvider {
             throw e;
         }
 
-        // Notify with the base uri, not the new uri (nobody is watching a new record)
-        getContext().getContentResolver().notifyChange(uri, null);
+        // Notify all existing cursors.
+        getContext().getContentResolver().notifyChange(EmailContent.CONTENT_URI, null);
         return resultUri;
     }
 
@@ -1128,7 +1138,6 @@ public class EmailProvider extends ContentProvider {
             String sortOrder) {
         if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         Cursor c = null;
-        Uri notificationUri = EmailContent.CONTENT_URI;
         int match = sURIMatcher.match(uri);
         Context context = getContext();
         // See the comment at delete(), above
@@ -1181,7 +1190,7 @@ public class EmailProvider extends ContentProvider {
         }
 
         if ((c != null) && !isTemporary()) {
-            c.setNotificationUri(getContext().getContentResolver(), notificationUri);
+            c.setNotificationUri(getContext().getContentResolver(), uri);
         }
         return c;
     }
@@ -1229,6 +1238,9 @@ public class EmailProvider extends ContentProvider {
             checkDatabases();
             return 0;
         }
+
+        // Notify all existing cursors, except for ACCOUNT_RESET_NEW_COUNT(_ID)
+        Uri notificationUri = EmailContent.CONTENT_URI;
 
         int match = sURIMatcher.match(uri);
         Context context = getContext();
@@ -1317,6 +1329,17 @@ public class EmailProvider extends ContentProvider {
                 case HOSTAUTH:
                     result = db.update(TABLE_NAMES[table], values, selection, selectionArgs);
                     break;
+                case ACCOUNT_RESET_NEW_COUNT_ID:
+                    id = uri.getPathSegments().get(1);
+                    result = db.update(TABLE_NAMES[table], CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
+                            whereWithId(id, selection), selectionArgs);
+                    notificationUri = Account.CONTENT_URI; // Only notify account cursors.
+                    break;
+                case ACCOUNT_RESET_NEW_COUNT:
+                    result = db.update(TABLE_NAMES[table], CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
+                            selection, selectionArgs);
+                    notificationUri = Account.CONTENT_URI; // Only notify account cursors.
+                    break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
@@ -1325,7 +1348,7 @@ public class EmailProvider extends ContentProvider {
             throw e;
         }
 
-        context.getContentResolver().notifyChange(uri, null);
+        context.getContentResolver().notifyChange(notificationUri, null);
         return result;
     }
 
