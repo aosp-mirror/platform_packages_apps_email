@@ -519,7 +519,7 @@ public class MessageListFragment extends ListFragment
         if (getMailboxId() == Mailbox.QUERY_ALL_OUTBOX) {
             rm.sendPendingMessagesForAllAccounts();
         } else if (mMailbox != null) { // Magic boxes don't have a specific account id.
-            rm.sendPendingMessages(mMailbox.mId);
+            rm.sendPendingMessages(mMailbox.mAccountKey);
         }
     }
 
