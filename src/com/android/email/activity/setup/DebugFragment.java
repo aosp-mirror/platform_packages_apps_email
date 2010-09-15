@@ -58,16 +58,20 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener {
                 context.getString(R.string.build_number)));
 
         mEnableDebugLoggingView = (CheckBox) view.findViewById(R.id.debug_logging);
-        mEnableDebugLoggingView.setOnCheckedChangeListener(this);
         mEnableDebugLoggingView.setChecked(Email.DEBUG);
 
         //EXCHANGE-REMOVE-SECTION-START
         mEnableExchangeLoggingView = (CheckBox) view.findViewById(R.id.exchange_logging);
         mEnableExchangeFileLoggingView = (CheckBox) view.findViewById(R.id.exchange_file_logging);
+        mEnableExchangeLoggingView.setChecked(Eas.PARSER_LOG);
+        mEnableExchangeFileLoggingView.setChecked(Eas.FILE_LOG);
+        //EXCHANGE-REMOVE-SECTION-END
+
+        // Note:  To prevent recursion while presetting checkboxes, assign all listeners last
+        mEnableDebugLoggingView.setOnCheckedChangeListener(this);
+        //EXCHANGE-REMOVE-SECTION-START
         mEnableExchangeLoggingView.setOnCheckedChangeListener(this);
         mEnableExchangeFileLoggingView.setOnCheckedChangeListener(this);
-        mEnableExchangeLoggingView.setChecked(Eas.USER_LOG);
-        mEnableExchangeFileLoggingView.setChecked(Eas.FILE_LOG);
         //EXCHANGE-REMOVE-SECTION-END
 
         return view;
