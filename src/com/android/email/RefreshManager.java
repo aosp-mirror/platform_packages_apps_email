@@ -230,7 +230,11 @@ public class RefreshManager {
                 + loadMoreMessages);
         status.onRefreshRequested();
         notifyRefreshStatusChanged(accountId, mailboxId);
-        mController.updateMailbox(accountId, mailboxId);
+        if (loadMoreMessages) {
+            mController.loadMoreMessages(mailboxId);
+        } else {
+            mController.updateMailbox(accountId, mailboxId);
+        }
         return true;
     }
 
