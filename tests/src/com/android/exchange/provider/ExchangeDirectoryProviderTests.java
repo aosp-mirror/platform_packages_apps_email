@@ -17,20 +17,28 @@
 package com.android.exchange.provider;
 
 import com.android.email.mail.PackedString;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
+import com.android.email.provider.EmailContent.Account;
 import com.android.exchange.provider.GalResult.GalData;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.provider.ContactsContract.CommonDataKinds;
 import android.provider.ContactsContract.Contacts;
-import android.test.AndroidTestCase;
+import android.test.ProviderTestCase2;
 
 /**
  * You can run this entire test case with:
  *   runtest -c com.android.exchange.provider.ExchangeDirectoryProviderTests email
  */
-public class ExchangeDirectoryProviderTests extends AndroidTestCase {
+public class ExchangeDirectoryProviderTests extends ProviderTestCase2<EmailProvider> {
+
+    public ExchangeDirectoryProviderTests() {
+        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+    }
 
     // Create a test projection; we should only get back values for display name and email address
     private static final String[] GAL_RESULT_PROJECTION =
@@ -119,5 +127,21 @@ public class ExchangeDirectoryProviderTests extends AndroidTestCase {
             assertEquals(testFields[TEST_FIELD_LAST_NAME], ps.get(GalData.LAST_NAME));
             assertEquals(EXPECTED_DISPLAY_NAMES[i], ps.get(GalData.DISPLAY_NAME));
         }
+    }
+
+    public void testGetAccountIdByName() {
+        Context context = getMockContext();
+        ExchangeDirectoryProvider provider = new ExchangeDirectoryProvider();
+        // Nothing up my sleeve
+        assertNull(provider.mAccountIdMap.get("foo@android.com"));
+        assertNull(provider.mAccountIdMap.get("bar@android.com"));
+        // Create accounts; the email addresses will be the first argument + "@android.com"
+        Account acctFoo = ProviderTestUtils.setupAccount("foo", true, context);
+        Account acctBar = ProviderTestUtils.setupAccount("bar", true, context);
+        // Make sure we can retrieve them, and that the map is populated
+        assertEquals(acctFoo.mId, provider.getAccountIdByName(context, "foo@android.com"));
+        assertEquals(acctBar.mId, provider.getAccountIdByName(context, "bar@android.com"));
+        assertEquals((Long)acctFoo.mId, provider.mAccountIdMap.get("foo@android.com"));
+        assertEquals((Long)acctBar.mId, provider.mAccountIdMap.get("bar@android.com"));
     }
 }
