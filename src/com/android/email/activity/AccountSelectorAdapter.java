@@ -16,12 +16,13 @@
 
 package com.android.email.activity;
 
-import com.android.email.data.NoAutoRequeryCursorLoader;
+import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
 
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,8 @@ import android.widget.TextView;
  * simpler for now.)  Maybe we can just use SimpleCursorAdapter.
  */
 public class AccountSelectorAdapter extends CursorAdapter {
+    private static final int REFRESH_INTERVAL = 3000; // in ms
+
     private static final String[] PROJECTION = new String[] {
         EmailContent.RECORD_ID,
         EmailContent.Account.DISPLAY_NAME,
@@ -54,8 +57,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
     private final LayoutInflater mInflater;
 
     public static Loader<Cursor> createLoader(Context context) {
-        return new NoAutoRequeryCursorLoader(context, EmailContent.Account.CONTENT_URI, PROJECTION,
-                null, null, ORDER_BY);
+        return new ThrottlingCursorLoader(context, EmailContent.Account.CONTENT_URI, PROJECTION,
+                null, null, ORDER_BY, REFRESH_INTERVAL);
     }
 
     public AccountSelectorAdapter(Context context, Cursor c) {
@@ -67,14 +70,14 @@ public class AccountSelectorAdapter extends CursorAdapter {
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
         View view = mInflater.inflate(android.R.layout.simple_spinner_dropdown_item, null);
         TextView textView = (TextView) view.findViewById(android.R.id.text1);
-        textView.setText(getAccountName(position));
+        textView.setText(getAccountDisplayName(position));
         return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         TextView textView = (TextView) view.findViewById(android.R.id.text1);
-        textView.setText(getAccountName(cursor));
+        textView.setText(getAccountDisplayName(cursor));
     }
 
     @Override
@@ -87,13 +90,17 @@ public class AccountSelectorAdapter extends CursorAdapter {
         return c.getLong(ID_COLUMN);
     }
 
-    private String getAccountName(int position) {
+    private String getAccountDisplayName(int position) {
         final Cursor c = getCursor();
-        return c.moveToPosition(position) ? getAccountName(c) : null;
+        return c.moveToPosition(position) ? getAccountDisplayName(c) : null;
     }
 
     /** @return Account name extracted from a Cursor. */
-    public static String getAccountName(Cursor cursor) {
+    public static String getAccountDisplayName(Cursor cursor) {
+        final String displayName = cursor.getString(DISPLAY_NAME_COLUMN);
+        if (!TextUtils.isEmpty(displayName)) {
+            return displayName;
+        }
         return cursor.getString(EMAIL_ADDRESS_COLUMN);
     }
 }
