@@ -18,12 +18,10 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -85,6 +83,8 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
         mFragment = (MessageViewFragment) findFragmentById(R.id.message_view_fragment);
         mFragment.setCallback(this);
 
+        // TODO Remove these bottom buttons, and make use of the ones in MessageViewFragments.
+
         mMoveToNewer = findViewById(R.id.moveToNewer);
         mMoveToOlder = findViewById(R.id.moveToOlder);
         mMoveToNewer.setOnClickListener(this);
@@ -93,6 +93,9 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
         findViewById(R.id.reply).setOnClickListener(this);
         findViewById(R.id.reply_all).setOnClickListener(this);
         findViewById(R.id.delete).setOnClickListener(this);
+
+        // For now, we don't use the buttons in the fragment, so let's hide them manually...
+        mFragment.hideCommandButtons();
 
         initFromIntent();
         if (icicle != null) {
@@ -159,21 +162,6 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     public void onMessageViewShown(int mailboxType) {
         super.onMessageViewShown(mailboxType);
         enableForwardReply(mailboxType != Mailbox.TYPE_TRASH);
-    }
-
-    private void onReply() {
-        MessageCompose.actionReply(this, mMessageId, false);
-        finish();
-    }
-
-    private void onReplyAll() {
-        MessageCompose.actionReply(this, mMessageId, true);
-        finish();
-    }
-
-    private void onForward() {
-        MessageCompose.actionForward(this, mMessageId);
-        finish();
     }
 
     private void onDeleteMessage() {
@@ -339,5 +327,43 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     @Override
     public void onCalendarLinkClicked(long epochEventStartTime) {
         ActivityHelper.openCalendar(this, epochEventStartTime);
+    }
+
+    @Override
+    public void onReply() {
+        MessageCompose.actionReply(this, mMessageId, false);
+        finish();
+    }
+
+    @Override
+    public void onReplyAll() {
+        MessageCompose.actionReply(this, mMessageId, true);
+        finish();
+    }
+
+    @Override
+    public void onForward() {
+        MessageCompose.actionForward(this, mMessageId);
+        finish();
+    }
+
+    @Override
+    public void onMoveToNewer() {
+        // TODO Implement this
+    }
+
+    @Override
+    public void onMoveToOlder() {
+        // TODO Implement this
+    }
+
+    @Override
+    public void onBeforeMessageDelete() {
+        // TODO Implement this
+    }
+
+    @Override
+    public void onMoveMessage() {
+        // TODO Implement this
     }
 }

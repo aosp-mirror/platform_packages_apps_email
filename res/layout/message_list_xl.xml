@@ -21,105 +21,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- We put MailboxListFragment here at runtime. -->
     <FrameLayout
         android:id="@+id/left_pane"
         android:layout_width="360dip"
         android:layout_height="match_parent"
         />
-
-    <!--
-        Right pane.
-        Because we need to show buttons for MessageView by ourselves, we need a linear layout here.
-        See also the comment below.
-    -->
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
+    <FrameLayout
+        android:id="@+id/right_pane"
         android:layout_width="0dip"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        >
-        <!-- We put MessageList/MessageViewFragment here at runtime. -->
-        <FrameLayout
-            android:id="@+id/right_pane"
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1" />
-        <!--
-            Bottom buttons
-            These buttons can't be in MessageViewFragment, because the button
-            layout changes on the phone layout.
-            (We can (probably) create a separate layout for XL devices, but not sure if that'd be
-            a good idea, at this point.)
-
-            However, putting these buttons means we have to show/hide them
-            according to the screen state, which means we can't just use the
-            fragment transaction to replace fragments.
-
-            Maybe we should create another fragment, MessageViewWithCommandsFragment,
-            on top of MessageViewFragment.
-         -->
-        <LinearLayout
-            android:id="@+id/message_view_buttons"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dip"
-            android:paddingLeft="4dip"
-            android:paddingRight="4dip"
-            android:paddingBottom="1dip"
-            android:background="@android:drawable/bottom_bar"
-            android:visibility="gone"
-            >
-            <Button
-                android:id="@+id/move"
-                android:text="@string/move_action"
-                android:layout_height="match_parent"
-                android:layout_width="0dip"
-                android:layout_weight="1" />
-            <Button
-                android:id="@+id/delete"
-                android:text="@string/delete_action"
-                android:layout_height="match_parent"
-                android:layout_width="0dip"
-                android:layout_weight="1" />
-            <Button
-                android:id="@+id/unread"
-                android:text="@string/unread_action"
-                android:layout_height="match_parent"
-                android:layout_width="0dip"
-                android:layout_weight="1" />
-            <Button
-                android:id="@+id/reply"
-                android:text="@string/reply_action"
-                android:layout_height="match_parent"
-                android:layout_width="0dip"
-                android:layout_weight="1" />
-            <Button
-                android:id="@+id/reply_all"
-                android:text="@string/reply_all_action"
-                android:layout_height="match_parent"
-                android:layout_width="0dip"
-                android:layout_weight="1" />
-            <Button
-                android:id="@+id/forward"
-                android:text="@string/forward_action"
-                android:layout_height="match_parent"
-                android:layout_width="0dip"
-                android:layout_weight="1" />
-            <Button
-                android:id="@+id/moveToNewer"
-                android:text="@string/message_view_move_to_newer"
-                android:layout_height="match_parent"
-                android:layout_width="0dip"
-                android:layout_weight="1" />
-            <Button
-                android:id="@+id/moveToOlder"
-                android:text="@string/message_view_move_to_older"
-                android:layout_height="match_parent"
-                android:layout_width="0dip"
-                android:layout_weight="1" />
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_weight="1" />
 </LinearLayout>
