@@ -17,6 +17,7 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.Utility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -51,7 +53,7 @@ public class FolderSyncParser extends AbstractSyncParser {
     public static final String TAG = "FolderSyncParser";
 
     // These are defined by the EAS protocol
-    public static final int USER_FOLDER_TYPE = 1;
+    public static final int USER_GENERIC_TYPE = 1;
     public static final int INBOX_TYPE = 2;
     public static final int DRAFTS_TYPE = 3;
     public static final int DELETED_TYPE = 4;
@@ -64,13 +66,15 @@ public class FolderSyncParser extends AbstractSyncParser {
     public static final int JOURNAL_TYPE = 11;
     public static final int USER_MAILBOX_TYPE = 12;
 
-    public static final List<Integer> mValidFolderTypes = Arrays.asList(INBOX_TYPE, DRAFTS_TYPE,
-            DELETED_TYPE, SENT_TYPE, OUTBOX_TYPE, USER_MAILBOX_TYPE, CALENDAR_TYPE, CONTACTS_TYPE);
+    // EAS types that we are willing to consider valid folders for EAS sync
+    public static final List<Integer> VALID_EAS_FOLDER_TYPES = Arrays.asList(INBOX_TYPE,
+            DRAFTS_TYPE, DELETED_TYPE, SENT_TYPE, OUTBOX_TYPE, USER_MAILBOX_TYPE, CALENDAR_TYPE,
+            CONTACTS_TYPE, USER_GENERIC_TYPE);
 
     public static final String ALL_BUT_ACCOUNT_MAILBOX = MailboxColumns.ACCOUNT_KEY + "=? and " +
         MailboxColumns.TYPE + "!=" + Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
 
-   private static final String WHERE_SERVER_ID_AND_ACCOUNT = MailboxColumns.SERVER_ID + "=? and " +
+    private static final String WHERE_SERVER_ID_AND_ACCOUNT = MailboxColumns.SERVER_ID + "=? and " +
         MailboxColumns.ACCOUNT_KEY + "=?";
 
     private static final String WHERE_DISPLAY_NAME_AND_ACCOUNT = MailboxColumns.DISPLAY_NAME +
@@ -176,7 +180,7 @@ public class FolderSyncParser extends AbstractSyncParser {
         }
     }
 
-    public void addParser(ArrayList<ContentProviderOperation> ops) throws IOException {
+    public Mailbox addParser() throws IOException {
         String name = null;
         String serverId = null;
         String parentId = null;
@@ -204,58 +208,100 @@ public class FolderSyncParser extends AbstractSyncParser {
                     skipTag();
             }
         }
-        if (mValidFolderTypes.contains(type)) {
-            Mailbox m = new Mailbox();
-            m.mDisplayName = name;
-            m.mServerId = serverId;
-            m.mAccountKey = mAccountId;
-            m.mType = Mailbox.TYPE_MAIL;
+
+        if (VALID_EAS_FOLDER_TYPES.contains(type)) {
+            Mailbox mailbox = new Mailbox();
+            mailbox.mDisplayName = name;
+            mailbox.mServerId = serverId;
+            mailbox.mAccountKey = mAccountId;
+            mailbox.mType = Mailbox.TYPE_MAIL;
             // Note that all mailboxes default to checking "never" (i.e. manual sync only)
             // We set specific intervals for inbox, contacts, and (eventually) calendar
-            m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
+            mailbox.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
             switch (type) {
                 case INBOX_TYPE:
-                    m.mType = Mailbox.TYPE_INBOX;
-                    m.mSyncInterval = mAccount.mSyncInterval;
+                    mailbox.mType = Mailbox.TYPE_INBOX;
+                    mailbox.mSyncInterval = mAccount.mSyncInterval;
                     break;
                 case CONTACTS_TYPE:
-                    m.mType = Mailbox.TYPE_CONTACTS;
-                    m.mSyncInterval = mAccount.mSyncInterval;
+                    mailbox.mType = Mailbox.TYPE_CONTACTS;
+                    mailbox.mSyncInterval = mAccount.mSyncInterval;
                     break;
                 case OUTBOX_TYPE:
                     // TYPE_OUTBOX mailboxes are known by ExchangeService to sync whenever they
                     // aren't empty.  The value of mSyncFrequency is ignored for this kind of
                     // mailbox.
-                    m.mType = Mailbox.TYPE_OUTBOX;
+                    mailbox.mType = Mailbox.TYPE_OUTBOX;
                     break;
                 case SENT_TYPE:
-                    m.mType = Mailbox.TYPE_SENT;
+                    mailbox.mType = Mailbox.TYPE_SENT;
                     break;
                 case DRAFTS_TYPE:
-                    m.mType = Mailbox.TYPE_DRAFTS;
+                    mailbox.mType = Mailbox.TYPE_DRAFTS;
                     break;
                 case DELETED_TYPE:
-                    m.mType = Mailbox.TYPE_TRASH;
+                    mailbox.mType = Mailbox.TYPE_TRASH;
                     break;
                 case CALENDAR_TYPE:
-                    m.mType = Mailbox.TYPE_CALENDAR;
-                    m.mSyncInterval = mAccount.mSyncInterval;
+                    mailbox.mType = Mailbox.TYPE_CALENDAR;
+                    mailbox.mSyncInterval = mAccount.mSyncInterval;
+                    break;
+                case USER_GENERIC_TYPE:
+                    mailbox.mType = Mailbox.TYPE_UNKNOWN;
                     break;
             }
 
             // Make boxes like Contacts and Calendar invisible in the folder list
-            m.mFlagVisible = (m.mType < Mailbox.TYPE_NOT_EMAIL);
+            mailbox.mFlagVisible = (mailbox.mType < Mailbox.TYPE_NOT_EMAIL);
 
             if (!parentId.equals("0")) {
-                m.mParentServerId = parentId;
+                mailbox.mParentServerId = parentId;
             }
 
-            userLog("Adding mailbox: ", m.mDisplayName);
-            ops.add(ContentProviderOperation
-                    .newInsert(Mailbox.CONTENT_URI).withValues(m.toContentValues()).build());
+            return mailbox;
         }
+        return null;
+    }
 
-        return;
+    /**
+     * Determine whether a given mailbox holds mail, rather than other data.  We do this by first
+     * checking the type of the mailbox (if it's a known good type, great; if it's a known bad
+     * type, return false).  If it's unknown, we check the parent, first by trying to find it in
+     * the current set of newly synced items, and then by looking it up in EmailProvider.  If
+     * we can find the parent, we use the same rules to determine if it holds mail; if it does,
+     * then its children do as well, so that's a go.
+     *
+     * @param mailbox the mailbox we're checking
+     * @param mailboxMap a HashMap relating server id's of mailboxes in the current sync set to
+     * the corresponding mailbox structures
+     * @return whether or not the mailbox contains email (rather than PIM or unknown data)
+     */
+    /*package*/ boolean isValidMailFolder(Mailbox mailbox, HashMap<String, Mailbox> mailboxMap) {
+        int folderType = mailbox.mType;
+        // Automatically accept our email types
+        if (folderType < Mailbox.TYPE_NOT_EMAIL) return true;
+        // Automatically reject everything else but "unknown"
+        if (folderType != Mailbox.TYPE_UNKNOWN) return false;
+        // If this is TYPE_UNKNOWN, check the parent
+        Mailbox parent = mailboxMap.get(mailbox.mParentServerId);
+        // If the parent is in the map, then check it out; if not, it could be an existing saved
+        // Mailbox, so we'll have to query the database
+        if (parent == null) {
+            mBindArguments[0] = Long.toString(mAccount.mId);
+            mBindArguments[1] = mailbox.mParentServerId;
+            long parentId = Utility.getFirstRowInt(mContext, Mailbox.CONTENT_URI,
+                    EmailContent.ID_PROJECTION,
+                    MailboxColumns.ACCOUNT_KEY + "=? AND " + MailboxColumns.SERVER_ID + "=?",
+                    mBindArguments, null, EmailContent.ID_PROJECTION_COLUMN, -1);
+            if (parentId != -1) {
+                // Get the parent from the database
+                parent = Mailbox.restoreMailboxWithId(mContext, parentId);
+                if (parent == null) return false;
+            } else {
+                return false;
+            }
+        }
+        return isValidMailFolder(parent, mailboxMap);
     }
 
     public void updateParser(ArrayList<ContentProviderOperation> ops) throws IOException {
@@ -304,12 +350,27 @@ public class FolderSyncParser extends AbstractSyncParser {
     }
 
     public void changesParser() throws IOException {
-        // Keep track of new boxes, deleted boxes, updated boxes
         ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+        // Mailboxes that we known contain email
+        ArrayList<Mailbox> validMailboxes = new ArrayList<Mailbox>();
+        // Mailboxes that we're unsure about
+        ArrayList<Mailbox> userMailboxes = new ArrayList<Mailbox>();
+        // Maps folder serverId to mailbox type
+        HashMap<String, Mailbox> mailboxMap = new HashMap<String, Mailbox>();
 
         while (nextTag(Tags.FOLDER_CHANGES) != END) {
             if (tag == Tags.FOLDER_ADD) {
-                addParser(ops);
+                Mailbox mailbox = addParser();
+                if (mailbox != null) {
+                    // Save away the type of this folder
+                    mailboxMap.put(mailbox.mServerId, mailbox);
+                    // And add the mailbox to the proper list
+                    if (type == USER_MAILBOX_TYPE) {
+                        userMailboxes.add(mailbox);
+                    } else {
+                        validMailboxes.add(mailbox);
+                    }
+                }
             } else if (tag == Tags.FOLDER_DELETE) {
                 deleteParser(ops);
             } else if (tag == Tags.FOLDER_UPDATE) {
@@ -326,6 +387,22 @@ public class FolderSyncParser extends AbstractSyncParser {
         if (mMock != null) {
             mMock.setResult(null);
             return;
+        }
+
+        // Go through the generic user mailboxes; we'll call them valid if any parent is valid
+        for (Mailbox m: userMailboxes) {
+            if (isValidMailFolder(m, mailboxMap)) {
+                m.mType = Mailbox.TYPE_MAIL;
+                validMailboxes.add(m);
+            } else {
+                userLog("Rejecting unknown type mailbox: " + m.mDisplayName);
+            }
+        }
+
+        for (Mailbox m: validMailboxes) {
+            userLog("Adding mailbox: ", m.mDisplayName);
+            ops.add(ContentProviderOperation
+                    .newInsert(Mailbox.CONTENT_URI).withValues(m.toContentValues()).build());
         }
 
         // Create the new mailboxes in a single batch operation
