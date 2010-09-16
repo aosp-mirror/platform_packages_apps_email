@@ -51,6 +51,13 @@ import java.util.ArrayList;
  *
  * You can run this entire test case with:
  *   runtest -c com.android.email.provider.ProviderTests email
+ *
+ * TODO: Add tests for cursor notification mechanism.  (setNotificationUri and notifyChange)
+ * We can't test the entire notification mechanism with a mock content resolver, because which URI
+ * to notify when notifyChange() is called is in the actual content resolver.
+ * Implementing the same mechanism in a mock one is pointless.  Instead what we could do is check
+ * what notification URI each cursor has, and with which URI is notified when
+ * inserting/updating/deleting.  (The former require a new method from AbstractCursor)
  */
 public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
@@ -2082,5 +2089,65 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertTrue(Mailbox.canMoveFrom(c, bm.mId));
         assertFalse(Mailbox.canMoveFrom(c, bd.mId));
         assertFalse(Mailbox.canMoveFrom(c, bo.mId));
+    }
+
+    /**
+     * Check if update to {@link Account#RESET_NEW_MESSAGE_COUNT_URI} resets the new message count.
+     */
+    public void testResetNewMessageCount() {
+        final Context c = mMockContext;
+        final ContentResolver cr = c.getContentResolver();
+
+        // Prepare test data
+        Account a1 = ProviderTestUtils.setupAccount("acct1", false, c);
+        a1.mNewMessageCount = 1;
+        a1.save(c);
+        Account a2 = ProviderTestUtils.setupAccount("acct2", false, c);
+        a2.mNewMessageCount = 2;
+        a2.save(c);
+        Account a3 = ProviderTestUtils.setupAccount("acct3", false, c);
+        a3.mNewMessageCount = 3;
+        a3.save(c);
+        Account a4 = ProviderTestUtils.setupAccount("acct4", false, c);
+        a4.mNewMessageCount = 4;
+        a4.save(c);
+        Account a5 = ProviderTestUtils.setupAccount("acct5", false, c);
+        a5.mNewMessageCount = 5;
+        a5.save(c);
+
+        // With ID in URI, no selection
+        cr.update(ContentUris.withAppendedId(Account.RESET_NEW_MESSAGE_COUNT_URI, a1.mId),
+                null, null, null);
+        assertEquals(0, Account.restoreAccountWithId(c, a1.mId).mNewMessageCount);
+        assertEquals(2, Account.restoreAccountWithId(c, a2.mId).mNewMessageCount);
+        assertEquals(3, Account.restoreAccountWithId(c, a3.mId).mNewMessageCount);
+        assertEquals(4, Account.restoreAccountWithId(c, a4.mId).mNewMessageCount);
+        assertEquals(5, Account.restoreAccountWithId(c, a5.mId).mNewMessageCount);
+
+        // No ID in URI, with selection
+        cr.update(Account.RESET_NEW_MESSAGE_COUNT_URI, null,
+                EmailContent.ID_SELECTION, new String[] {Long.toString(a2.mId)});
+        assertEquals(0, Account.restoreAccountWithId(c, a1.mId).mNewMessageCount);
+        assertEquals(0, Account.restoreAccountWithId(c, a2.mId).mNewMessageCount);
+        assertEquals(3, Account.restoreAccountWithId(c, a3.mId).mNewMessageCount);
+        assertEquals(4, Account.restoreAccountWithId(c, a4.mId).mNewMessageCount);
+        assertEquals(5, Account.restoreAccountWithId(c, a5.mId).mNewMessageCount);
+
+        // With ID, with selection
+        cr.update(ContentUris.withAppendedId(Account.RESET_NEW_MESSAGE_COUNT_URI, a3.mId), null,
+                EmailContent.ID_SELECTION, new String[] {Long.toString(a3.mId)});
+        assertEquals(0, Account.restoreAccountWithId(c, a1.mId).mNewMessageCount);
+        assertEquals(0, Account.restoreAccountWithId(c, a2.mId).mNewMessageCount);
+        assertEquals(0, Account.restoreAccountWithId(c, a3.mId).mNewMessageCount);
+        assertEquals(4, Account.restoreAccountWithId(c, a4.mId).mNewMessageCount);
+        assertEquals(5, Account.restoreAccountWithId(c, a5.mId).mNewMessageCount);
+
+        // No ID in URI, no selection
+        cr.update(Account.RESET_NEW_MESSAGE_COUNT_URI, null, null, null);
+        assertEquals(0, Account.restoreAccountWithId(c, a1.mId).mNewMessageCount);
+        assertEquals(0, Account.restoreAccountWithId(c, a2.mId).mNewMessageCount);
+        assertEquals(0, Account.restoreAccountWithId(c, a3.mId).mNewMessageCount);
+        assertEquals(0, Account.restoreAccountWithId(c, a4.mId).mNewMessageCount);
+        assertEquals(0, Account.restoreAccountWithId(c, a5.mId).mNewMessageCount);
     }
 }

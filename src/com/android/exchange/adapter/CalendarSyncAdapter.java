@@ -191,6 +191,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     }
 
     @Override
+    public void sendSyncOptions(Double protocolVersion, Serializer s) throws IOException  {
+        setPimSyncOptions(protocolVersion, Eas.FILTER_2_WEEKS, s);
+    }
+
+    @Override
     public boolean isSyncable() {
         return ContentResolver.getSyncAutomatically(mAccountManagerAccount, Calendar.AUTHORITY);
     }

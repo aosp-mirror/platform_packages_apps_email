@@ -1419,6 +1419,10 @@ public class MessagingController implements Runnable {
             mailbox = Mailbox.restoreMailboxWithId(mContext, oldMessage.mMailboxKey);
         }
 
+        if (mailbox == null) {
+            return;
+        }
+
         // 1. No remote update for DRAFTS or OUTBOX
         if (mailbox.mType == Mailbox.TYPE_DRAFTS || mailbox.mType == Mailbox.TYPE_OUTBOX) {
             return;

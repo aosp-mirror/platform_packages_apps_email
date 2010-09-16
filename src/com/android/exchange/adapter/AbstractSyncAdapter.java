@@ -20,6 +20,7 @@ package com.android.exchange.adapter;
 import com.android.email.Email;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 
 import android.content.Context;
@@ -39,6 +40,8 @@ public abstract class AbstractSyncAdapter {
     public static final int DAYS = HOURS*24;
     public static final int WEEKS = DAYS*7;
 
+    protected static final String PIM_WINDOW_SIZE = "4";
+
     public Mailbox mMailbox;
     public EasSyncService mService;
     public Context mContext;
@@ -56,6 +59,9 @@ public abstract class AbstractSyncAdapter {
     public abstract String getCollectionName();
     public abstract void cleanup();
     public abstract boolean isSyncable();
+    // Add sync options (filter, body type - html vs plain, and truncation)
+    public abstract void sendSyncOptions(Double protocolVersion, Serializer s)
+        throws IOException;
 
     public boolean isLooping() {
         return false;
@@ -76,6 +82,35 @@ public abstract class AbstractSyncAdapter {
 
     public void incrementChangeCount() {
         mService.mChangeCount++;
+    }
+
+    /**
+     * Set sync options common to PIM's (contacts and calendar)
+     * @param protocolVersion the protocol version under which we're syncing
+     * @param the filter to use (or null)
+     * @param s the Serializer
+     * @throws IOException
+     */
+    protected void setPimSyncOptions(Double protocolVersion, String filter, Serializer s)
+            throws IOException {
+        s.tag(Tags.SYNC_DELETES_AS_MOVES);
+        s.tag(Tags.SYNC_GET_CHANGES);
+        s.start(Tags.SYNC_OPTIONS);
+        // Set the filter (lookback), if provided
+        if (filter != null) {
+            s.data(Tags.SYNC_FILTER_TYPE, filter);
+        }
+        // Set the truncation amount and body type
+        if (protocolVersion >= Eas.SUPPORTED_PROTOCOL_EX2007_DOUBLE) {
+            s.start(Tags.BASE_BODY_PREFERENCE);
+            // Plain text
+            s.data(Tags.BASE_TYPE, Eas.BODY_PREFERENCE_TEXT);
+            s.data(Tags.BASE_TRUNCATION_SIZE, Eas.EAS12_TRUNCATION_SIZE);
+            s.end();
+        } else {
+            s.data(Tags.SYNC_TRUNCATION, Eas.EAS2_5_TRUNCATION_SIZE);
+        }
+        s.end();
     }
 
     /**
