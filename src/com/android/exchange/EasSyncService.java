@@ -811,7 +811,12 @@ public class EasSyncService extends AbstractSyncService {
      * TODO: figure out why sendHttpClientPost() hangs - possibly pool exhaustion
      */
     static public GalResult searchGal(Context context, long accountId, String filter, int limit) {
+        // Try to get the cached account from ExchangeService (saves a database access)
         Account acct = ExchangeService.getAccountById(accountId);
+        if (acct == null) {
+            // ExchangeService isn't running; get the account directly from EmailProvider
+            acct = Account.restoreAccountWithId(context, accountId);
+        }
         if (acct != null) {
             HostAuth ha = HostAuth.restoreHostAuthWithId(context, acct.mHostAuthKeyRecv);
             EasSyncService svc = new EasSyncService("%GalLookupk%");

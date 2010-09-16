@@ -17,16 +17,19 @@
 package com.android.exchange.provider;
 
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.PackedString;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.exchange.EasSyncService;
-import com.android.exchange.ExchangeService;
 import com.android.exchange.provider.GalResult.GalData;
 
 import android.accounts.AccountManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -64,6 +67,7 @@ public class ExchangeDirectoryProvider extends ContentProvider {
     private static final int GAL_EMAIL_FILTER = GAL_BASE + 4;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    /*package*/ final HashMap<String, Long> mAccountIdMap = new HashMap<String, Long>();
 
     static {
         sURIMatcher.addURI(EXCHANGE_GAL_AUTHORITY, "directories", GAL_DIRECTORIES);
@@ -169,6 +173,24 @@ public class ExchangeDirectoryProvider extends ContentProvider {
         }
     }
 
+    /**
+     * Find the record id of an Account, given its name (email address)
+     * @param accountName the name of the account
+     * @return the record id of the Account, or -1 if not found
+     */
+    /*package*/ long getAccountIdByName(Context context, String accountName) {
+        Long accountId = mAccountIdMap.get(accountName);
+        if (accountId == null) {
+            accountId = Utility.getFirstRowLong(context, Account.CONTENT_URI,
+                    EmailContent.ID_PROJECTION, AccountColumns.EMAIL_ADDRESS + "=?",
+                    new String[] {accountName}, null, EmailContent.ID_PROJECTION_COLUMN , -1L);
+            if (accountId != -1) {
+                mAccountIdMap.put(accountName, accountId);
+            }
+        }
+        return accountId;
+    }
+
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
@@ -242,15 +264,17 @@ public class ExchangeDirectoryProvider extends ContentProvider {
                     }
                 }
 
-                Account account = ExchangeService.getAccountByName(accountName);
-                if (account == null) {
-                    return null;
-                }
-
                 long callingId = Binder.clearCallingIdentity();
                 try {
+                    // Find the account id to pass along to EasSyncService
+                    long accountId = getAccountIdByName(getContext(), accountName);
+                    if (accountId == -1) {
+                        // The account was deleted?
+                        return null;
+                    }
+
                     // Get results from the Exchange account
-                    GalResult galResult = EasSyncService.searchGal(getContext(), account.mId,
+                    GalResult galResult = EasSyncService.searchGal(getContext(), accountId,
                             filter, limit);
                     if (galResult != null) {
                         return buildGalResultCursor(projection, galResult);
