@@ -74,6 +74,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // TODO Restore "Show pictures" state and scroll position on rotation.
+// TODO New UI allows MessageListFragment to toggle star while MessageViewFragment is shown, which
+//      means this fragment needs to observe DB changes and refresh the UI.
+//      (But what about "mark as unread"?)
 
 /**
  * Base class for {@link MessageViewFragment} and {@link MessageFileViewFragment}.
@@ -371,6 +374,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         cancelAllTasks();
         resetView();
+        mLoadMessageTask = new LoadMessageTask(true);
+        mLoadMessageTask.execute();
     }
 
     protected void resetView() {
@@ -383,8 +388,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mAttachments.removeAllViews();
         mAttachments.setVisibility(View.GONE);
         mAttachmentIcon.setVisibility(View.GONE);
-        mLoadMessageTask = new LoadMessageTask(true);
-        mLoadMessageTask.execute();
         initContactStatusViews();
     }
 
