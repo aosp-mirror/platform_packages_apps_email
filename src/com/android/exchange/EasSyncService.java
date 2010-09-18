@@ -410,7 +410,7 @@ public class EasSyncService extends AbstractSyncService {
 
                 // Run second test here for provisioning failures...
                 Serializer s = new Serializer();
-                userLog("Try folder sync");
+                userLog("Validate: try folder sync");
                 s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY).text("0")
                     .end().end().done();
                 resp = svc.sendHttpClientPost("FolderSync", s.toByteArray());
@@ -418,14 +418,18 @@ public class EasSyncService extends AbstractSyncService {
                 // We'll get one of the following responses if policies are required by the server
                 if (code == HttpStatus.SC_FORBIDDEN || code == HTTP_NEED_PROVISIONING) {
                     // Get the policies and see if we are able to support them
+                    userLog("Validate: provisioning required");
                     if (svc.canProvision() != null) {
                         // If so, send the advisory Exception (the account may be created later)
+                        userLog("Validate: provisioning is possible");
                         throw new MessagingException(MessagingException.SECURITY_POLICIES_REQUIRED);
                     } else
+                        userLog("Validate: provisioning not possible");
                         // If not, send the unsupported Exception (the account won't be created)
                         throw new MessagingException(
                                 MessagingException.SECURITY_POLICIES_UNSUPPORTED);
                 } else if (code == HttpStatus.SC_NOT_FOUND) {
+                    userLog("Wrong address or bad protocol version");
                     // We get a 404 from OWA addresses (which are NOT EAS addresses)
                     throw new MessagingException(MessagingException.PROTOCOL_VERSION_UNSUPPORTED);
                 } else if (code != HttpStatus.SC_OK) {
