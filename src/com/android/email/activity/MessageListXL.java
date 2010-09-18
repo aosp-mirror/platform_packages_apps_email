@@ -547,7 +547,7 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         if (count == 1) {
             accountsCursor.moveToFirst();
             ab.setStandardNavigationMode();
-            ab.setTitle(AccountSelectorAdapter.getAccountName(accountsCursor));
+            ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(accountsCursor));
             return;
         }
 
