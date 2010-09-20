@@ -48,11 +48,11 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
 
     private static final String EXTRA_MAKE_DEFAULT = "makeDefault";
 
-    private static final int smtpPorts[] = {
+    private static final int SMTP_PORTS[] = {
             587, 465, 465, 587, 587
     };
 
-    private static final String smtpSchemes[] = {
+    private static final String SMTP_SCHEMES[] = {
             "smtp", "smtp+ssl+", "smtp+ssl+trustallcerts", "smtp+tls+", "smtp+tls+trustallcerts"
     };
 
@@ -186,8 +186,8 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
                 mPasswordView.setText(password);
             }
 
-            for (int i = 0; i < smtpSchemes.length; i++) {
-                if (smtpSchemes[i].equals(uri.getScheme())) {
+            for (int i = 0; i < SMTP_SCHEMES.length; i++) {
+                if (SMTP_SCHEMES[i].equals(uri.getScheme())) {
                     SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, i);
                 }
             }
@@ -243,7 +243,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
 
     private void updatePortFromSecurityType() {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
-        mPortView.setText(Integer.toString(smtpPorts[securityType]));
+        mPortView.setText(Integer.toString(SMTP_PORTS[securityType]));
     }
 
     @Override
@@ -279,7 +279,7 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
                     + mPasswordView.getText().toString().trim();
         }
         URI uri = new URI(
-                smtpSchemes[securityType],
+                SMTP_SCHEMES[securityType],
                 userInfo,
                 mServerView.getText().toString().trim(),
                 Integer.parseInt(mPortView.getText().toString().trim()),

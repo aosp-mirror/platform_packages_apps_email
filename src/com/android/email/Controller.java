@@ -50,13 +50,13 @@ import java.util.HashSet;
  */
 public class Controller {
 
-    static Controller sInstance;
-    private Context mContext;
+    private static Controller sInstance;
+    private final Context mContext;
     private Context mProviderContext;
-    private MessagingController mLegacyController;
-    private LegacyListener mLegacyListener = new LegacyListener();
-    private ServiceCallback mServiceCallback = new ServiceCallback();
-    private HashSet<Result> mListeners = new HashSet<Result>();
+    private final MessagingController mLegacyController;
+    private final LegacyListener mLegacyListener = new LegacyListener();
+    private final ServiceCallback mServiceCallback = new ServiceCallback();
+    private final HashSet<Result> mListeners = new HashSet<Result>();
 
     private static String[] MESSAGEID_TO_ACCOUNTID_PROJECTION = new String[] {
         EmailContent.RECORD_ID,

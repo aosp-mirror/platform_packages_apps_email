@@ -31,7 +31,7 @@ import java.util.HashMap;
 public abstract class Sender {
     protected static final int SOCKET_CONNECT_TIMEOUT = 10000;
 
-    private static HashMap<String, Sender> mSenders = new HashMap<String, Sender>();
+    private static final HashMap<String, Sender> sSenders = new HashMap<String, Sender>();
 
     /**
      * Static named constructor.  It should be overrode by extending class.
@@ -96,7 +96,7 @@ public abstract class Sender {
 
     public synchronized static Sender getInstance(Context context, String uri)
             throws MessagingException {
-       Sender sender = mSenders.get(uri);
+       Sender sender = sSenders.get(uri);
        if (sender == null) {
            sender = findSender(context, R.xml.senders_product, uri);
            if (sender == null) {
@@ -104,7 +104,7 @@ public abstract class Sender {
            }
 
            if (sender != null) {
-               mSenders.put(uri, sender);
+               sSenders.put(uri, sender);
            }
        }
 

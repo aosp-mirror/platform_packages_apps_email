@@ -38,7 +38,7 @@ public class EmailAddressAdapter extends ResourceCursorAdapter {
     protected static final String SORT_ORDER =
             Contacts.TIMES_CONTACTED + " DESC, " + Contacts.DISPLAY_NAME;
 
-    protected ContentResolver mContentResolver;
+    protected final ContentResolver mContentResolver;
 
     protected static final String[] PROJECTION = {
         Data._ID,               // 0

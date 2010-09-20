@@ -25,8 +25,8 @@ import java.io.InputStream;
  * past where the protocol handler intended the client to read. 
  */
 public class FixedLengthInputStream extends InputStream {
-    private InputStream mIn;
-    private int mLength;
+    private final InputStream mIn;
+    private final int mLength;
     private int mCount;
 
     public FixedLengthInputStream(InputStream in, int length) {

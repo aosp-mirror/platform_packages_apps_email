@@ -48,7 +48,7 @@ class AddressTextView extends MultiAutoCompleteTextView {
     }
 
     private boolean mIsValid = true;
-    private ForwardValidator mInternalValidator = new ForwardValidator();
+    private final ForwardValidator mInternalValidator = new ForwardValidator();
 
     public AddressTextView(Context context, AttributeSet attrs) {
         super(context, attrs);

@@ -76,7 +76,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
     /**
      * Key codes used to open a debug settings screen.
      */
-    private static int[] secretKeyCodes = {
+    private static final int[] SECRET_KEY_CODES = {
             KeyEvent.KEYCODE_D, KeyEvent.KEYCODE_E, KeyEvent.KEYCODE_B, KeyEvent.KEYCODE_U,
             KeyEvent.KEYCODE_G
     };
@@ -600,9 +600,9 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.getKeyCode() == secretKeyCodes[mSecretKeyCodeIndex]) {
+        if (event.getKeyCode() == SECRET_KEY_CODES[mSecretKeyCodeIndex]) {
             mSecretKeyCodeIndex++;
-            if (mSecretKeyCodeIndex == secretKeyCodes.length) {
+            if (mSecretKeyCodeIndex == SECRET_KEY_CODES.length) {
                 mSecretKeyCodeIndex = 0;
                 startActivity(new Intent(this, Debug.class));
             }

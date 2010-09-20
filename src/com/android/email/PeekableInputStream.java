@@ -25,7 +25,7 @@ import java.io.InputStream;
  * and a subsequent read will still return the peeked byte. 
  */
 public class PeekableInputStream extends InputStream {
-    private InputStream mIn;
+    private final InputStream mIn;
     private boolean mPeeked;
     private int mPeekedByte;
 

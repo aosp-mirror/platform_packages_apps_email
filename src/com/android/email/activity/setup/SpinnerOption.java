@@ -19,9 +19,9 @@ package com.android.email.activity.setup;
 import android.widget.Spinner;
 
 public class SpinnerOption {
-    public Object value;
+    public final Object value;
 
-    public String label;
+    public final String label;
 
     public static void setSpinnerOptionValue(Spinner spinner, Object value) {
         for (int i = 0, count = spinner.getCount(); i < count; i++) {

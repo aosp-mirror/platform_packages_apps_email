@@ -45,13 +45,13 @@ public class Address {
     /**
      *  Address part, in the form local_part@domain_part. No surrounding angle brackets.
      */
-    String mAddress;
+    private String mAddress;
 
     /**
      * Name part. No surrounding double quote, and no MIME/base64 encoding.
      * This must be null if Address has no name part.
      */
-    String mPersonal;
+    private String mPersonal;
 
     // Regex that matches address surrounded by '<>' optionally. '^<?([^>]+)>?$'
     private static final Pattern REMOVE_OPTIONAL_BRACKET = Pattern.compile("^<?([^>]+)>?$");

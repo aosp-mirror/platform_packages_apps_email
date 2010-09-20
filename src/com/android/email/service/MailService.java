@@ -54,9 +54,9 @@ public class MailService extends Service {
 
     private static final String LOG_TAG = "Email-MailService";
 
-    public static int NOTIFICATION_ID_NEW_MESSAGES = 1;
-    public static int NOTIFICATION_ID_SECURITY_NEEDED = 2;
-    public static int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 3;
+    public static final int NOTIFICATION_ID_NEW_MESSAGES = 1;
+    public static final int NOTIFICATION_ID_SECURITY_NEEDED = 2;
+    public static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 3;
 
     private static final String ACTION_CHECK_MAIL =
         "com.android.email.intent.action.MAIL_SERVICE_WAKEUP";
@@ -76,7 +76,7 @@ public class MailService extends Service {
     private static final String[] NEW_MESSAGE_COUNT_PROJECTION =
         new String[] {AccountColumns.NEW_MESSAGE_COUNT};
 
-    private Controller.Result mControllerCallback = new ControllerResults();
+    private final Controller.Result mControllerCallback = new ControllerResults();
 
     private int mStartId;
 
@@ -89,10 +89,10 @@ public class MailService extends Service {
     /**
      * Simple template used for clearing new message count in accounts
      */
-    static ContentValues mClearNewMessages;
+    private static final ContentValues CLEAR_NEW_MESSAGES;
     static {
-        mClearNewMessages = new ContentValues();
-        mClearNewMessages.put(Account.NEW_MESSAGE_COUNT, 0);
+        CLEAR_NEW_MESSAGES = new ContentValues();
+        CLEAR_NEW_MESSAGES.put(Account.NEW_MESSAGE_COUNT, 0);
     }
 
     public static void actionReschedule(Context context) {
@@ -130,7 +130,7 @@ public class MailService extends Service {
         } else {
             uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
         }
-        context.getContentResolver().update(uri, mClearNewMessages, null, null);
+        context.getContentResolver().update(uri, CLEAR_NEW_MESSAGES, null, null);
     }
 
     /**

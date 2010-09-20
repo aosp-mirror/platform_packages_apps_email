@@ -55,7 +55,7 @@ public class Pop3Store extends Store {
     private Transport mTransport;
     private String mUsername;
     private String mPassword;
-    private HashMap<String, Folder> mFolders = new HashMap<String, Folder>();
+    private final HashMap<String, Folder> mFolders = new HashMap<String, Folder>();
 
 //    /**
 //     * Detected latency, used for usage scaling.
@@ -181,17 +181,20 @@ public class Pop3Store extends Store {
     }
 
     class Pop3Folder extends Folder {
-        private HashMap<String, Pop3Message> mUidToMsgMap = new HashMap<String, Pop3Message>();
-        private HashMap<Integer, Pop3Message> mMsgNumToMsgMap = new HashMap<Integer, Pop3Message>();
-        private HashMap<String, Integer> mUidToMsgNumMap = new HashMap<String, Integer>();
-        private String mName;
+        private final HashMap<String, Pop3Message> mUidToMsgMap
+                = new HashMap<String, Pop3Message>();
+        private final HashMap<Integer, Pop3Message> mMsgNumToMsgMap
+                = new HashMap<Integer, Pop3Message>();
+        private final HashMap<String, Integer> mUidToMsgNumMap = new HashMap<String, Integer>();
+        private final String mName;
         private int mMessageCount;
         private Pop3Capabilities mCapabilities;
 
         public Pop3Folder(String name) {
-            this.mName = name;
-            if (mName.equalsIgnoreCase("INBOX")) {
+            if (name.equalsIgnoreCase("INBOX")) {
                 mName = "INBOX";
+            } else {
+                mName = name;
             }
         }
         
@@ -1000,9 +1003,9 @@ public class Pop3Store extends Store {
 
     // TODO figure out what is special about this and merge it into MailTransport
     class Pop3ResponseInputStream extends InputStream {
-        InputStream mIn;
-        boolean mStartOfLine = true;
-        boolean mFinished;
+        private final InputStream mIn;
+        private boolean mStartOfLine = true;
+        private boolean mFinished;
 
         public Pop3ResponseInputStream(InputStream in) {
             mIn = in;
