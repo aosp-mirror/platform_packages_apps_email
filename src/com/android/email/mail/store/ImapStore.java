@@ -107,7 +107,8 @@ public class ImapStore extends Store {
     /**
      * Charset used for converting folder names to and from UTF-7 as defined by RFC 3501.
      */
-    private Charset mModifiedUtf7Charset;
+    private static final Charset MODIFIED_UTF_7_CHARSET =
+            new CharsetProvider().charsetForName("X-RFC-3501");
 
     /**
      * Cache of ImapFolder objects. ImapFolders are attached to a given folder on the server
@@ -179,8 +180,6 @@ public class ImapStore extends Store {
         if ((uri.getPath() != null) && (uri.getPath().length() > 0)) {
             mPathPrefix = uri.getPath().substring(1);
         }
-
-        mModifiedUtf7Charset = new CharsetProvider().charsetForName("X-RFC-3501");
     }
 
     /**
@@ -433,9 +432,9 @@ public class ImapStore extends Store {
         mConnections.offer(connection);
     }
 
-    private String encodeFolderName(String name) {
+    /* package */ static String encodeFolderName(String name) {
         try {
-            ByteBuffer bb = mModifiedUtf7Charset.encode(name);
+            ByteBuffer bb = MODIFIED_UTF_7_CHARSET.encode(name);
             byte[] b = new byte[bb.limit()];
             bb.get(b);
             return new String(b, "US-ASCII");
@@ -449,14 +448,14 @@ public class ImapStore extends Store {
         }
     }
 
-    private String decodeFolderName(String name) {
+    /* package */ static String decodeFolderName(String name) {
         /*
          * Convert the encoded name to US-ASCII, then pass it through the modified UTF-7
          * decoder and return the Unicode String.
          */
         try {
             byte[] encoded = name.getBytes("US-ASCII");
-            CharBuffer cb = mModifiedUtf7Charset.decode(ByteBuffer.wrap(encoded));
+            CharBuffer cb = MODIFIED_UTF_7_CHARSET.decode(ByteBuffer.wrap(encoded));
             return cb.toString();
         }
         catch (UnsupportedEncodingException uee) {
@@ -753,6 +752,8 @@ public class ImapStore extends Store {
                         listener.messageRetrieved(message);
                     }
                 }
+            } catch (ImapException e) {
+                return new Message[0]; // No messages found.
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             }
