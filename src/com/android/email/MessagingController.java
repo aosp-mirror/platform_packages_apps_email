@@ -572,9 +572,14 @@ public class MessagingController implements Runnable {
                 if (localMessage == null) {
                     newMessageCount++;
                 }
-                if (localMessage == null
-                        || (localMessage.mFlagLoaded == EmailContent.Message.FLAG_LOADED_UNLOADED)
-                        || (localMessage.mFlagLoaded == EmailContent.Message.FLAG_LOADED_PARTIAL)) {
+                // localMessage == null -> message has never been created (not even headers)
+                // mFlagLoaded = UNLOADED -> message created, but none of body loaded
+                // mFlagLoaded = PARTIAL -> message created, a "sane" amt of body has been loaded
+                // mFlagLoaded = COMPLETE -> message body has been completely loaded
+                // mFlagLoaded = DELETED -> message has been deleted
+                // Only the first two of these are "unsynced", so let's retrieve them
+                if (localMessage == null ||
+                        (localMessage.mFlagLoaded == EmailContent.Message.FLAG_LOADED_UNLOADED)) {
                     unsyncedMessages.add(message);
                 }
             }
