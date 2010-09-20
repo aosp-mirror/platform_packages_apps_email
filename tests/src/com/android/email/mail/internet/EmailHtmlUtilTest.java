@@ -66,9 +66,6 @@ public class EmailHtmlUtilTest extends AndroidTestCase {
             mCreatedAccountId = accountId;
         }
         Account.restoreAccountWithId(context, accountId);
-
-        // This is needed for mime image bodypart.
-        BinaryTempFileBody.setTempDirectory(getContext().getCacheDir());
     }
 
     @Override
