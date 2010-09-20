@@ -49,9 +49,12 @@ public class DateTimeField extends Field {
     public static class Parser implements FieldParser {
         private static Log log = LogFactory.getLog(Parser.class);
 
-        public Field parse(final String name, final String body, final String raw) {
+        public Field parse(final String name, String body, final String raw) {
             Date date = null;
             ParseException parseException = null;
+            //BEGIN android-changed
+            body = com.android.email.Utility.cleanUpMimeDate(body);
+            //END android-changed
             try {
                 date = DateTime.parse(body).getDate();
             }
