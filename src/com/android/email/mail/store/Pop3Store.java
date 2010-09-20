@@ -23,7 +23,6 @@ import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
 import com.android.email.mail.Message;
-import com.android.email.mail.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
@@ -49,7 +48,7 @@ public class Pop3Store extends Store {
     // when code is checked in or released.
     private static boolean DEBUG_FORCE_SINGLE_LINE_UIDL = false;
     private static boolean DEBUG_LOG_RAW_STREAM = false;
-    
+
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED };
 
     private Transport mTransport;
@@ -135,7 +134,7 @@ public class Pop3Store extends Store {
             }
         }
     }
-    
+
     /**
      * For testing only.  Injects a different transport.  The transport should already be set
      * up and ready to use.  Do not use for real code.
@@ -166,7 +165,7 @@ public class Pop3Store extends Store {
      * Used by account setup to test if an account's settings are appropriate.  The definition
      * of "checked" here is simply, can you log into the account and does it meet some minimum set
      * of feature requirements?
-     * 
+     *
      * @throws MessagingException if there was some problem with the account
      */
     @Override
@@ -197,12 +196,12 @@ public class Pop3Store extends Store {
                 mName = name;
             }
         }
-        
+
         /**
          * Used by account setup to test if an account's settings are appropriate.  Here, we run
          * an additional test to see if UIDL is supported on the server. If it's not we
          * can't service this account.
-         * 
+         *
          * @throws MessagingException if the account is not going to be useable
          */
         public void checkSettings() throws MessagingException {
@@ -305,10 +304,10 @@ public class Pop3Store extends Store {
         }
 
         /**
-         * Close the folder (and the transport below it).  
-         * 
+         * Close the folder (and the transport below it).
+         *
          * MUST NOT return any exceptions.
-         * 
+         *
          * @param expunge If true all deleted messages will be expunged (TODO - not implemented)
          */
         @Override
@@ -387,15 +386,11 @@ public class Pop3Store extends Store {
                 throw new MessagingException("getMessages", ioe);
             }
             ArrayList<Message> messages = new ArrayList<Message>();
-            int i = 0;
             for (int msgNum = start; msgNum <= end; msgNum++) {
                 Pop3Message message = mMsgNumToMsgMap.get(msgNum);
-                if (listener != null) {
-                    listener.messageStarted(message.getUid(), i++, (end - start) + 1);
-                }
                 messages.add(message);
                 if (listener != null) {
-                    listener.messageFinished(message, i++, (end - start) + 1);
+                    listener.messageRetrieved(message);
                 }
             }
             return messages.toArray(new Message[messages.size()]);
@@ -494,13 +489,13 @@ public class Pop3Store extends Store {
 
         /**
          * Simple parser class for UIDL messages.
-         * 
-         * <p>NOTE:  In variance with RFC 1939, we allow multiple whitespace between the 
-         * message-number and unique-id fields.  This provides greater compatibility with some 
+         *
+         * <p>NOTE:  In variance with RFC 1939, we allow multiple whitespace between the
+         * message-number and unique-id fields.  This provides greater compatibility with some
          * non-compliant POP3 servers, e.g. mail.comcast.net.
          */
         /* package */ class UidlParser {
-            
+
             /**
              * Caller can read back message-number from this field
              */
@@ -517,19 +512,19 @@ public class Pop3Store extends Store {
              * True if an error was reported
              */
             public boolean mErr;
-            
+
             /**
              * Construct & Initialize
              */
             public UidlParser() {
                 mErr = true;
             }
-            
+
             /**
              * Parse a single-line response.  This is returned from a command of the form
-             * "UIDL msg-num" and will be formatted as: "+OK msg-num unique-id" or 
+             * "UIDL msg-num" and will be formatted as: "+OK msg-num unique-id" or
              * "-ERR diagnostic text"
-             * 
+             *
              * @param response The string returned from the server
              * @return true if the string parsed as expected (e.g. no syntax problems)
              */
@@ -557,11 +552,11 @@ public class Pop3Store extends Store {
                 }
                 return false;
             }
-            
+
             /**
              * Parse a multi-line response.  This is returned from a command of the form
              * "UIDL" and will be formatted as: "." or "msg-num unique-id".
-             * 
+             *
              * @param response The string returned from the server
              * @return true if the string parsed as expected (e.g. no syntax problems)
              */
@@ -646,9 +641,6 @@ public class Pop3Store extends Store {
                 }
                 Pop3Message pop3Message = (Pop3Message)message;
                 try {
-                    if (listener != null) {
-                        listener.messageStarted(pop3Message.getUid(), i, count);
-                    }
                     if (fp.contains(FetchProfile.Item.BODY)) {
                         fetchBody(pop3Message, -1);
                     }
@@ -668,7 +660,7 @@ public class Pop3Store extends Store {
                         pop3Message.setBody(null);
                     }
                     if (listener != null) {
-                        listener.messageFinished(message, i, count);
+                        listener.messageRetrieved(message);
                     }
                 } catch (IOException ioe) {
                     mTransport.close();
@@ -702,9 +694,6 @@ public class Pop3Store extends Store {
                         throw new MessagingException("Pop3Store.fetch called with non-Pop3 Message");
                     }
                     Pop3Message pop3Message = (Pop3Message)message;
-                    if (listener != null) {
-                        listener.messageStarted(pop3Message.getUid(), i, count);
-                    }
                     String response = executeSimpleCommand(String.format("LIST %d",
                             mUidToMsgNumMap.get(pop3Message.getUid())));
                     try {
@@ -716,7 +705,7 @@ public class Pop3Store extends Store {
                         throw new IOException();
                     }
                     if (listener != null) {
-                        listener.messageFinished(pop3Message, i, count);
+                        listener.messageRetrieved(pop3Message);
                     }
                 }
             } else {
@@ -724,7 +713,6 @@ public class Pop3Store extends Store {
                 for (Message message : messages) {
                     msgUidIndex.add(message.getUid());
                 }
-                int i = 0, count = messages.length;
                 String response = executeSimpleCommand("LIST");
                 while ((response = mTransport.readLine()) != null) {
                     if (response.equals(".")) {
@@ -741,14 +729,10 @@ public class Pop3Store extends Store {
                         throw new IOException();
                     }
                     if (pop3Message != null && msgUidIndex.contains(pop3Message.getUid())) {
-                        if (listener != null) {
-                            listener.messageStarted(pop3Message.getUid(), i, count);
-                        }
                         pop3Message.setSize(msgSize);
                         if (listener != null) {
-                            listener.messageFinished(pop3Message, i, count);
+                            listener.messageRetrieved(pop3Message);
                         }
-                        i++;
                     }
                 }
             }
@@ -897,18 +881,18 @@ public class Pop3Store extends Store {
         /**
          * Send a single command and wait for a single line response.  Reopens the connection,
          * if it is closed.  Leaves the connection open.
-         * 
+         *
          * @param command The command string to send to the server.
          * @return Returns the response string from the server.
          */
         private String executeSimpleCommand(String command) throws IOException, MessagingException {
             return executeSensitiveCommand(command, null);
         }
-        
+
         /**
          * Send a single command and wait for a single line response.  Reopens the connection,
          * if it is closed.  Leaves the connection open.
-         * 
+         *
          * @param command The command string to send to the server.
          * @param sensitiveReplacement If the command includes sensitive data (e.g. authentication)
          * please pass a replacement string here (for logging).
@@ -974,9 +958,9 @@ public class Pop3Store extends Store {
         }
     }
 
-    /** 
+    /**
      * POP3 Capabilities as defined in RFC 2449.  This is not a complete list of CAPA
-     * responses - just those that we use in this client. 
+     * responses - just those that we use in this client.
      */
     class Pop3Capabilities {
         /** The STLS (start TLS) command is supported */
