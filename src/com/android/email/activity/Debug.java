@@ -54,9 +54,6 @@ public class Debug extends Activity implements OnCheckedChangeListener {
         mEnableDebugLoggingView = (CheckBox)findViewById(R.id.debug_logging);
         mEnableSensitiveLoggingView = (CheckBox)findViewById(R.id.sensitive_logging);
 
-        mEnableDebugLoggingView.setOnCheckedChangeListener(this);
-        mEnableSensitiveLoggingView.setOnCheckedChangeListener(this);
-
         mVersionView.setText(String.format(getString(R.string.debug_version_fmt).toString(),
                 getString(R.string.build_number)));
 
@@ -66,10 +63,16 @@ public class Debug extends Activity implements OnCheckedChangeListener {
         //EXCHANGE-REMOVE-SECTION-START
         mEnableExchangeLoggingView = (CheckBox)findViewById(R.id.exchange_logging);
         mEnableExchangeFileLoggingView = (CheckBox)findViewById(R.id.exchange_file_logging);
+        mEnableExchangeLoggingView.setChecked(Eas.PARSER_LOG);
+        mEnableExchangeFileLoggingView.setChecked(Eas.FILE_LOG);
+        //EXCHANGE-REMOVE-SECTION-END
+
+        // Note:  To prevent recursion while presetting checkboxes, assign all listeners last
+        mEnableDebugLoggingView.setOnCheckedChangeListener(this);
+        mEnableSensitiveLoggingView.setOnCheckedChangeListener(this);
+        //EXCHANGE-REMOVE-SECTION-START
         mEnableExchangeLoggingView.setOnCheckedChangeListener(this);
         mEnableExchangeFileLoggingView.setOnCheckedChangeListener(this);
-        mEnableExchangeLoggingView.setChecked(Eas.USER_LOG);
-        mEnableExchangeFileLoggingView.setChecked(Eas.FILE_LOG);
         //EXCHANGE-REMOVE-SECTION-END
     }
 
