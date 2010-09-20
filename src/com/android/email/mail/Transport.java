@@ -19,6 +19,7 @@ package com.android.email.mail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.URI;
 
@@ -159,4 +160,9 @@ public interface Transport {
      */
     String readLine() throws IOException;
 
+    /**
+     * @return The local address.  If we have an open socket, get the local address from this.
+     *     Otherwise simply use {@link InetAddress#getLocalHost}.
+     */
+    InetAddress getLocalAddress() throws IOException;
 }
