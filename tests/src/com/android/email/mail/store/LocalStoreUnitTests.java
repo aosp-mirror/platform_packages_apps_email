@@ -81,6 +81,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        Email.setTempDirectory(getContext());
         
         // These are needed so we can get at the inner classes
         // Create a dummy database (be sure to delete it in tearDown())

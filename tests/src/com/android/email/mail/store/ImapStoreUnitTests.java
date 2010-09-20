@@ -16,6 +16,7 @@
 
 package com.android.email.mail.store;
 
+import com.android.email.Email;
 import com.android.email.mail.Address;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
@@ -30,7 +31,6 @@ import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.mail.store.ImapStore.ImapMessage;
-import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.MockTransport;
 
 import android.test.AndroidTestCase;
@@ -38,9 +38,7 @@ import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 
 /**
  * This is a series of unit tests for the ImapStore class.  These tests must be locally
@@ -52,20 +50,21 @@ import java.util.Locale;
 @SmallTest
 public class ImapStoreUnitTests extends AndroidTestCase {
     private final static String[] NO_REPLY = new String[0];
-    
+
     /* These values are provided by setUp() */
     private ImapStore mStore = null;
     private ImapStore.ImapFolder mFolder = null;
 
     private int mNextTag;
-    
+
     /**
      * Setup code.  We generate a lightweight ImapStore and ImapStore.ImapFolder.
      */
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+        Email.setTempDirectory(getContext());
+
         // These are needed so we can get at the inner classes
         mStore = (ImapStore) ImapStore.newInstance("imap://user:password@server:999",
                 getContext(), null);
@@ -76,16 +75,16 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      * Confirms simple non-SSL non-TLS login
      */
     public void testSimpleLogin() throws MessagingException {
-        
+
         MockTransport mockTransport = openAndInjectMockTransport();
-        
+
         // try to open it
         setupOpenFolder(mockTransport);
         mFolder.open(OpenMode.READ_WRITE, null);
-        
+
         // TODO: inject specific facts in the initial folder SELECT and check them here
     }
-    
+
     /**
      * TODO: Test with SSL negotiation (faked)
      * TODO: Test with SSL required but not supported
@@ -198,7 +197,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      */
     private HashMap<String, String> tokenizeImapId(String id) {
         // Instead of a true tokenizer, we'll use double-quote as the split.
-        // We can's use " " because there may be spaces inside the values. 
+        // We can's use " " because there may be spaces inside the values.
         String[] elements = id.split("\"");
         HashMap<String, String> map = new HashMap<String, String>();
         for (int i = 0; i < elements.length; ) {
@@ -218,7 +217,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      */
     public void testServerId() throws MessagingException {
         MockTransport mockTransport = openAndInjectMockTransport();
-        
+
         // try to open it
         setupOpenFolder(mockTransport, new String[] {
                 "* ID (\"name\" \"Cyrus\" \"version\" \"1.5\"" +
@@ -233,62 +232,30 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      */
     public void testImapIdOkParsing() throws MessagingException {
         MockTransport mockTransport = openAndInjectMockTransport();
-        
+
         // try to open it
         setupOpenFolder(mockTransport, new String[] {
                 "* ID NIL",
                 "OK [ID] bad-char-%"}, "READ-WRITE");
         mFolder.open(OpenMode.READ_WRITE, null);
     }
-    
+
     /**
      * Test BAD response to IMAP ID - also with bad parser chars
      */
     public void testImapIdBad() throws MessagingException {
         MockTransport mockTransport = openAndInjectMockTransport();
-        
+
         // try to open it
         setupOpenFolder(mockTransport, new String[] {
                 "BAD unknown command bad-char-%"}, "READ-WRITE");
         mFolder.open(OpenMode.READ_WRITE, null);
     }
-    
-    /** 
-     * Confirms that ImapList object correctly returns an appropriate Date object
-     * without throwning MessagingException when getKeyedDate() is called.
-     *
-     * Here, we try a same test twice using two locales, Locale.US and the other.
-     * ImapList uses Locale class internally, and as a result, there's a
-     * possibility in which it may throw a MessageException when Locale is
-     * not Locale.US. Locale.JAPAN is a typical locale which emits different
-     * date formats, which had caused a bug before.
-     * @throws MessagingException
-     */
-    public void testImapListWithUsLocale() throws MessagingException {
-        Locale savedLocale = Locale.getDefault();
-        Locale.setDefault(Locale.US);
-        doTestImapList();
-        Locale.setDefault(Locale.JAPAN);
-        doTestImapList();
-        Locale.setDefault(savedLocale);
-    }
-    
-    private void doTestImapList() throws MessagingException {
-        ImapResponseParser parser = new ImapResponseParser(null, new DiscourseLogger(4));
-        ImapResponseParser.ImapList list = parser.new ImapList();
-        String key = "key";
-        String date = "01-Jan-2009 01:00:00 -0800";
-        list.add(key);
-        list.add(date);
-        Date result = list.getKeyedDate(key);
-        // "01-Jan-2009 09:00:00 +0000" => 1230800400000L 
-        assertEquals(1230800400000L, result.getTime());
-    }
-    
+
     /**
      * TODO: Test the operation of checkSettings()
      * TODO: Test small Store & Folder functions that manage folders & namespace
-     */   
+     */
 
     /**
      * Test small Folder functions that don't really do anything in Imap
@@ -310,27 +277,27 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
     /**
      * Lightweight test to confirm that IMAP hasn't implemented any folder roles yet.
-     * 
+     *
      * TODO: Test this with multiple folders provided by mock server
      * TODO: Implement XLIST and then support this
      */
     public void testNoFolderRolesYet() {
-        assertEquals(Folder.FolderRole.UNKNOWN, mFolder.getRole()); 
+        assertEquals(Folder.FolderRole.UNKNOWN, mFolder.getRole());
     }
-    
+
     /**
      * Lightweight test to confirm that IMAP isn't requesting structure prefetch.
      */
     public void testNoStructurePrefetch() {
-        assertFalse(mStore.requireStructurePrefetch()); 
+        assertFalse(mStore.requireStructurePrefetch());
     }
-    
+
     /**
      * Lightweight test to confirm that IMAP is requesting sent-message-upload.
      * TODO: Implement Gmail-specific cases and handle this server-side
      */
     public void testSentUploadRequested() {
-        assertTrue(mStore.requireCopyMessageToSentFolder()); 
+        assertTrue(mStore.requireCopyMessageToSentFolder());
     }
 
     /**
@@ -338,7 +305,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      */
 
     /**
-     * TODO: Test the scenario where the transport is "open" but not really (e.g. server closed).     
+     * TODO: Test the scenario where the transport is "open" but not really (e.g. server closed).
     /**
      * Set up a basic MockTransport. open it, and inject it into mStore
      */
@@ -395,7 +362,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                 "* CAPABILITY IMAP4rev1 STARTTLS AUTH=GSSAPI LOGINDISABLED",
                 "1 OK CAPABILITY completed"});
         mockTransport.expect("2 ID \\(.*\\)", imapIdResponse);
-        mockTransport.expect("3 LOGIN user \"password\"", 
+        mockTransport.expect("3 LOGIN user \"password\"",
                 "3 OK user authenticated (Success)");
         mockTransport.expect("4 SELECT \"INBOX\"", new String[] {
                 "* FLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)",

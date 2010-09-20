@@ -19,7 +19,6 @@ package com.android.email;
 import com.android.email.activity.AccountShortcutPicker;
 import com.android.email.activity.Debug;
 import com.android.email.activity.MessageCompose;
-import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.provider.EmailContent;
 import com.android.email.service.BootReceiver;
 import com.android.email.service.MailService;
@@ -185,14 +184,20 @@ public class Email extends Application {
     public static int getAccountColorResourceId(long accountId) {
         return ACCOUNT_COLOR_CHIP_RES_IDS[getColorIndexFromAccountId(accountId)];
     }
-    
+
     public static int getAccountColor(long accountId) {
         return ACCOUNT_COLOR_CHIP_RGBS[getColorIndexFromAccountId(accountId)];
     }
 
+    public static void setTempDirectory(Context context) {
+        sTempDirectory = context.getCacheDir();
+    }
+
     public static File getTempDirectory() {
         if (sTempDirectory == null) {
-            throw new RuntimeException("TempDirectory not set.  Application hasn't started??");
+            throw new RuntimeException(
+                    "TempDirectory not set.  " +
+                    "If in a unit test, call Email.setTempDirectory(context) in setUp().");
         }
         return sTempDirectory;
     }
@@ -265,7 +270,7 @@ public class Email extends Application {
         Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.getEnableDebugLogging();
         DEBUG_SENSITIVE = prefs.getEnableSensitiveLogging();
-        sTempDirectory = getCacheDir();
+        setTempDirectory(this);
 
         // Reset all accounts to default visible window
         Controller.getInstance(this).resetVisibleLimits();
