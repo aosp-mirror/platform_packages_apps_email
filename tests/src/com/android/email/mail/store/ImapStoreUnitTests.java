@@ -17,7 +17,9 @@
 package com.android.email.mail.store;
 
 import com.android.email.Email;
+import com.android.email.Utility;
 import com.android.email.mail.Address;
+import com.android.email.mail.Body;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -28,10 +30,14 @@ import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.internet.MimeBodyPart;
+import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.mail.store.ImapStore.ImapMessage;
 import com.android.email.mail.transport.MockTransport;
+
+import org.apache.commons.io.IOUtils;
 
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
@@ -436,6 +442,224 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         mFolder.open(OpenMode.READ_WRITE, null);
         int unreadCount = mFolder.getUnreadMessageCount();
         assertEquals("getUnreadMessageCount with literal string", 10, unreadCount);
+    }
+
+    public void testFetchFlagEnvelope() throws MessagingException {
+        final MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        final Message message = mFolder.createMessage("1");
+
+        final FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.FLAGS);
+        fp.add(FetchProfile.Item.ENVELOPE);
+        mock.expect(getNextTag(false) +
+                " UID FETCH 1 \\(UID FLAGS INTERNALDATE RFC822\\.SIZE BODY\\.PEEK\\[HEADER.FIELDS" +
+                        " \\(date subject from content-type to cc message-id\\)\\]\\)",
+                new String[] {
+                "* 9 FETCH (UID 1 RFC822.SIZE 120626 INTERNALDATE \"17-May-2010 22:00:15 +0000\"" +
+                        "FLAGS (\\Seen) BODY[HEADER.FIELDS (date subject from content-type to cc" +
+                        " message-id)]" +
+                        " {279}",
+                "From: Xxxxxx Yyyyy <userxx@android.com>",
+                "Date: Mon, 17 May 2010 14:59:52 -0700",
+                "Message-ID: <x0000000000000000000000000000000000000000000000y@android.com>",
+                "Subject: ssubject",
+                "To: android.test01@android.com",
+                "Content-Type: multipart/mixed; boundary=a00000000000000000000000000b",
+                "",
+                ")",
+                getNextTag(true) + " OK SUCCESS"
+        });
+        mFolder.fetch(new Message[] { message }, fp, null);
+
+        assertEquals("android.test01@android.com", message.getHeader("to")[0]);
+        assertEquals("Xxxxxx Yyyyy <userxx@android.com>", message.getHeader("from")[0]);
+        assertEquals("multipart/mixed; boundary=a00000000000000000000000000b",
+                message.getHeader("Content-Type")[0]);
+        assertTrue(message.isSet(Flag.SEEN));
+    }
+
+    public void testFetchBodyStructure() throws MessagingException {
+        final MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        final Message message = mFolder.createMessage("1");
+
+        final FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.STRUCTURE);
+        mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID BODYSTRUCTURE\\)",
+                new String[] {
+                "* 9 FETCH (UID 1 BODYSTRUCTURE ((\"TEXT\" \"PLAIN\" (\"CHARSET\" \"ISO-8859-1\")" +
+                        " CID NIL \"7BIT\" 18 3 NIL NIL NIL)" +
+                        "(\"IMAGE\" \"PNG\"" +
+                        " (\"NAME\" \"device.png\") NIL NIL \"BASE64\" 117840 NIL (\"ATTACHMENT\"" +
+                        "(\"FILENAME\" \"device.png\")) NIL)" +
+                        "(\"TEXT\" \"HTML\"" +
+                        " () NIL NIL \"7BIT\" 100 NIL NIL (\"ATTACHMENT\"" +
+                        "(\"FILENAME\" \"attachment.html\" \"SIZE\" 555)) NIL)" +
+                        "\"MIXED\" (\"BOUNDARY\" \"00032556278a7005e40486d159ca\") NIL NIL))",
+                getNextTag(true) + " OK SUCCESS"
+        });
+        mFolder.fetch(new Message[] { message }, fp, null);
+
+        // Check mime structure...
+        Body body = message.getBody();
+        assertTrue(body instanceof MimeMultipart);
+        MimeMultipart mimeMultipart = (MimeMultipart) body;
+        assertEquals(3, mimeMultipart.getCount());
+        assertEquals("mixed", mimeMultipart.getSubTypeForTest());
+
+        Part part0 = mimeMultipart.getBodyPart(0);
+        Part part1 = mimeMultipart.getBodyPart(1);
+        Part part2 = mimeMultipart.getBodyPart(2);
+        assertTrue(part0 instanceof MimeBodyPart);
+        assertTrue(part1 instanceof MimeBodyPart);
+        assertTrue(part2 instanceof MimeBodyPart);
+
+        MimeBodyPart mimePart0 = (MimeBodyPart) part0; // text/plain
+        MimeBodyPart mimePart1 = (MimeBodyPart) part1; // image/png
+        MimeBodyPart mimePart2 = (MimeBodyPart) part2; // text/html
+
+        MoreAsserts.assertEquals(
+                new String[] {"text/plain;\n CHARSET=\"ISO-8859-1\""},
+                part0.getHeader("Content-Type")
+                );
+        MoreAsserts.assertEquals(
+                new String[] {"image/png;\n NAME=\"device.png\""},
+                part1.getHeader("Content-Type")
+                );
+        MoreAsserts.assertEquals(
+                new String[] {"text/html"},
+                part2.getHeader("Content-Type")
+                );
+
+        MoreAsserts.assertEquals(
+                new String[] {"CID"},
+                part0.getHeader("Content-ID")
+                );
+        assertNull(
+                part1.getHeader("Content-ID")
+                );
+        assertNull(
+                part2.getHeader("Content-ID")
+                );
+
+        MoreAsserts.assertEquals(
+                new String[] {"7BIT"},
+                part0.getHeader("Content-Transfer-Encoding")
+                );
+        MoreAsserts.assertEquals(
+                new String[] {"BASE64"},
+                part1.getHeader("Content-Transfer-Encoding")
+                );
+        MoreAsserts.assertEquals(
+                new String[] {"7BIT"},
+                part2.getHeader("Content-Transfer-Encoding")
+                );
+
+        MoreAsserts.assertEquals(
+                new String[] {";\n size=18"}, // TODO Is that right?
+                part0.getHeader("Content-Disposition")
+                );
+        MoreAsserts.assertEquals(
+                new String[] {"attachment;\n filename=\"device.png\";\n size=117840"},
+                part1.getHeader("Content-Disposition")
+                );
+        MoreAsserts.assertEquals(
+                new String[] {"attachment;\n filename=\"attachment.html\";\n size=\"555\""},
+                part2.getHeader("Content-Disposition")
+                );
+
+        // TODO Test for quote:  If a filename contains ", it should become %22,
+        // which isn't implemented.
+    }
+
+    public void testFetchBodySane() throws MessagingException {
+        final MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        final Message message = mFolder.createMessage("1");
+
+        final FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.BODY_SANE);
+        mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID BODY.PEEK\\[\\]<0.51200>\\)",
+                new String[] {
+                "* 9 FETCH (UID 1 BODY[] {23}",
+                "from: a@b.com", // 15 bytes
+                "", // 2
+                "test", // 6
+                ")",
+                getNextTag(true) + " OK SUCCESS"
+        });
+        mFolder.fetch(new Message[] { message }, fp, null);
+        assertEquals("a@b.com", message.getHeader("from")[0]);
+    }
+
+    public void testFetchBody() throws MessagingException {
+        final MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        final Message message = mFolder.createMessage("1");
+
+        final FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.BODY);
+        mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID BODY.PEEK\\[\\]\\)",
+                new String[] {
+                "* 9 FETCH (UID 1 BODY[] {23}",
+                "from: a@b.com", // 15 bytes
+                "", // 2
+                "test", // 6
+                ")",
+                getNextTag(true) + " OK SUCCESS"
+        });
+        mFolder.fetch(new Message[] { message }, fp, null);
+        assertEquals("a@b.com", message.getHeader("from")[0]);
+    }
+
+    public void testFetchAttachment() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+        final Message message = mFolder.createMessage("1");
+
+        final FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.STRUCTURE);
+        mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID BODYSTRUCTURE\\)",
+                new String[] {
+                "* 9 FETCH (UID 1 BODYSTRUCTURE ((\"TEXT\" \"PLAIN\" (\"CHARSET\" \"ISO-8859-1\")" +
+                        " CID NIL \"7BIT\" 18 3 NIL NIL NIL)" +
+                        "(\"IMAGE\" \"PNG\"" +
+                        " (\"NAME\" \"device.png\") NIL NIL \"BASE64\" 117840 NIL (\"ATTACHMENT\"" +
+                        "(\"FILENAME\" \"device.png\")) NIL)" +
+                        "\"MIXED\"))",
+                getNextTag(true) + " OK SUCCESS"
+        });
+        mFolder.fetch(new Message[] { message }, fp, null);
+
+        // Check mime structure, and get the second part.
+        Body body = message.getBody();
+        assertTrue(body instanceof MimeMultipart);
+        MimeMultipart mimeMultipart = (MimeMultipart) body;
+        assertEquals(2, mimeMultipart.getCount());
+
+        Part part1 = mimeMultipart.getBodyPart(1);
+        assertTrue(part1 instanceof MimeBodyPart);
+        MimeBodyPart mimePart1 = (MimeBodyPart) part1;
+
+        // Fetch the second part
+        fp.clear();
+        fp.add(mimePart1);
+        mock.expect(getNextTag(false) + " UID FETCH 1 \\(UID BODY.PEEK\\[2\\]\\)",
+                new String[] {
+                "* 9 FETCH (UID 1 BODY[2] {4}",
+                "YWJj)", // abc in base64
+                getNextTag(true) + " OK SUCCESS"
+        });
+        mFolder.fetch(new Message[] { message }, fp, null);
+
+        assertEquals("abc",
+                Utility.fromUtf8(IOUtils.toByteArray(mimePart1.getBody().getInputStream())));
     }
 
     /**
