@@ -205,4 +205,22 @@ public class UtilityUnitTests extends AndroidTestCase {
             Utility.getSmallHashFromSha1(sha1);
         }
     }
+
+    public void testCleanUpMimeDate() {
+        assertNull(Utility.cleanUpMimeDate(null));
+        assertEquals("", Utility.cleanUpMimeDate(""));
+        assertEquals("abc", Utility.cleanUpMimeDate("abc"));
+        assertEquals("GMT", Utility.cleanUpMimeDate("GMT"));
+        assertEquals("0000", Utility.cleanUpMimeDate("0000"));
+        assertEquals("-0000", Utility.cleanUpMimeDate("-0000"));
+        assertEquals("+1234", Utility.cleanUpMimeDate("GMT+1234"));
+        assertEquals("-1234", Utility.cleanUpMimeDate("GMT-1234"));
+        assertEquals("gmt-1234", Utility.cleanUpMimeDate("gmt-1234"));
+        assertEquals("GMT-123", Utility.cleanUpMimeDate("GMT-123"));
+
+        assertEquals("Thu, 10 Dec 09 15:08:08 -0700",
+                Utility.cleanUpMimeDate("Thu, 10 Dec 09 15:08:08 GMT-0700"));
+        assertEquals("Thu, 10 Dec 09 15:08:08 -0700",
+                Utility.cleanUpMimeDate("Thu, 10 Dec 09 15:08:08 -0700"));
+    }
 }
