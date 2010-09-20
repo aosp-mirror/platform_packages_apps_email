@@ -1640,7 +1640,7 @@ public class MessagingController implements Runnable {
             remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
             Date localDate = new Date(message.mServerTimeStamp);
             Date remoteDate = remoteMessage.getInternalDate();
-            if (remoteDate.compareTo(localDate) > 0) {
+            if (remoteDate != null && remoteDate.compareTo(localDate) > 0) {
                 // 4a. If the remote message is newer than ours we'll just
                 // delete ours and move on. A sync will get the server message
                 // if we need to be able to see it.
