@@ -806,12 +806,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         assertTrue(message1.isSet(Flag.SEEN));
     }
 
-    public void testAppendMessages() throws Exception {
-        MockTransport mock = openAndInjectMockTransport();
-        setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
 
-        ImapMessage message = (ImapMessage) mFolder.createMessage("1");
+    private ImapMessage prepareForAppendTest(MockTransport mock, String response) throws Exception {
+        ImapMessage message = (ImapMessage) mFolder.createMessage("initial uid");
         message.setFrom(new Address("me@test.com"));
         message.setRecipient(RecipientType.TO, new Address("you@test.com"));
         message.setMessageId("<message.id@test.com>");
@@ -836,17 +833,75 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         mock.expectLiterally("VGVzdCBCb2R5", NO_REPLY);
         mock.expectLiterally("", new String[] {
                 "* 7 EXISTS",
-                getNextTag(true) + " OK [APPENDUID 1234567 13] (Success)"
+                getNextTag(true) + " " + response
                 });
+        return message;
+    }
+
+    /**
+     * Test for APPEND when the response has APPENDUID.
+     */
+    public void testAppendMessages() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        ImapMessage message = prepareForAppendTest(mock, "OK [APPENDUID 1234567 13] (Success)");
 
         mFolder.appendMessages(new Message[] {message});
-        mock.close();
 
         assertEquals("13", message.getUid());
         assertEquals(7, mFolder.getMessageCount());
+    }
 
-        // TODO: Test append failure
-        // TODO: Test OK without APPENDUID
+    /**
+     * Test for APPEND when the response doesn't have APPENDUID.
+     */
+    public void testAppendMessagesNoAppendUid() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        ImapMessage message = prepareForAppendTest(mock, "OK Success");
+
+        mock.expectLiterally(
+                getNextTag(false) + " UID SEARCH (HEADER MESSAGE-ID <message.id@test.com>)",
+                new String[] {
+                "* SEARCH 321",
+                getNextTag(true) + " OK success"
+                });
+
+        mFolder.appendMessages(new Message[] {message});
+
+        assertEquals("321", message.getUid());
+    }
+
+    /**
+     * Test for append failure.
+     *
+     * We don't check the response for APPEND.  We just SEARCH for the message-id to get the UID.
+     * If append has failed, the SEARCH command returns no UID, and the UID of the message is left
+     * unset.
+     */
+    public void testAppendFailure() throws Exception {
+        MockTransport mock = openAndInjectMockTransport();
+        setupOpenFolder(mock);
+        mFolder.open(OpenMode.READ_WRITE, null);
+
+        ImapMessage message = prepareForAppendTest(mock, "NO No space left on the server.");
+        assertEquals("initial uid", message.getUid());
+
+        mock.expectLiterally(
+                getNextTag(false) + " UID SEARCH (HEADER MESSAGE-ID <message.id@test.com>)",
+                new String[] {
+                "* SEARCH", // not found
+                getNextTag(true) + " OK Search completed."
+                });
+
+        mFolder.appendMessages(new Message[] {message});
+
+        // Shouldn't have changed
+        assertEquals("initial uid", message.getUid());
     }
 
     public void testGetPersonalNamespaces() throws Exception {
