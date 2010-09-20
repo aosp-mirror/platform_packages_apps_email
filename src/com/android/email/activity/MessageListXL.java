@@ -41,28 +41,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import java.security.InvalidParameterException;
-
-// TODO Where/when/how do we close loaders??  Do we have to?  Getting this error:
-// Finalizing a Cursor that has not been deactivated or closed.
-// database = /data/data/com.google.android.email/databases/EmailProvider.db,
-// table = Account, query = SELECT _id, displayName, emailAddress FROM Account
 
 /**
  * The main (two-pane) activity for XL devices.
  *
- * TODO Refresh account list when adding/removing/changing(e.g. display name) accounts.
- *      -> Need the MessageList.onResume logic.  Figure out a clean way to do that.
- *
- * TODO Extract the message view buttons (move, reply, etc) into a custom view.
- * That way it'll be easier to change the button layout on orientation changes.
- * (We'll probably combine some buttons on portrait.)
- *
- * TODO Refine "move to".  It also shouldn't work for special messages, like drafts.
+ * TODO Refine "move to".
  */
-public class MessageListXL extends Activity implements View.OnClickListener,
+public class MessageListXL extends Activity implements
         MessageListXLFragmentManager.TargetActivity, MoveMessageToDialog.Callback {
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
@@ -74,13 +61,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private RefreshManager mRefreshManager;
     private final RefreshListener mMailRefreshManagerListener
             = new RefreshListener();
-
-    private View mMessageViewButtonPanel;
-    private View mMoveToNewerButton;
-    private View mMoveToOlderButton;
-    private View mForwardButton;
-    private View mReplyButton;
-    private View mReplyAllButton;
 
     private AccountSelectorAdapter mAccountsSelectorAdapter;
     private final ActionBarNavigationCallback mActionBarNavigationCallback
@@ -142,23 +122,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         mFragmentManager.setMailboxListFragmentCallback(new MailboxListFragmentCallback());
         mFragmentManager.setMessageListFragmentCallback(new MessageListFragmentCallback());
         mFragmentManager.setMessageViewFragmentCallback(new MessageViewFragmentCallback());
-
-        mMessageViewButtonPanel = findViewById(R.id.message_view_buttons);
-        mMoveToNewerButton = findViewById(R.id.moveToNewer);
-        mMoveToOlderButton = findViewById(R.id.moveToOlder);
-        mForwardButton = findViewById(R.id.forward);
-        mReplyButton = findViewById(R.id.reply);
-        mReplyAllButton = findViewById(R.id.reply_all);
-
-        mMoveToNewerButton.setOnClickListener(this);
-        mMoveToOlderButton.setOnClickListener(this);
-        mForwardButton.setOnClickListener(this);
-        mReplyButton.setOnClickListener(this);
-        mReplyAllButton.setOnClickListener(this);
-
-        findViewById(R.id.delete).setOnClickListener(this);
-        findViewById(R.id.unread).setOnClickListener(this);
-        findViewById(R.id.move).setOnClickListener(this);
 
         mAccountsSelectorAdapter = new AccountSelectorAdapter(mContext, null);
 
@@ -268,49 +231,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         }
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.moveToOlder:
-                moveToOlder();
-                break;
-            case R.id.moveToNewer:
-                moveToNewer();
-                break;
-            case R.id.delete:
-                onDeleteMessage();
-                break;
-            case R.id.unread:
-                onSetMessageUnread();
-                break;
-            case R.id.reply:
-                MessageCompose.actionReply(this, mFragmentManager.getMessageId(), false);
-                break;
-            case R.id.reply_all:
-                MessageCompose.actionReply(this, mFragmentManager.getMessageId(), true);
-                break;
-            case R.id.forward:
-                MessageCompose.actionForward(this, mFragmentManager.getMessageId());
-                break;
-            case R.id.move:
-                onMoveMessage();
-                break;
-        }
-    }
-
-    /**
-     * Called when the "delete" button on message view is pressed.
-     */
-    private void onDeleteMessage() {
-        // the delete triggers mCursorObserver in MessageOrderManager.
-        // first move to older/newer before the actual delete
-        long messageIdToDelete = mFragmentManager.getMessageId();
-
-        onCurrentMessageGone();
-
-        ActivityHelper.deleteMessage(this, messageIdToDelete);
-    }
-
     private void onCurrentMessageGone() {
         switch (Preferences.getPreferences(this).getAutoAdvanceDirection()) {
             case Preferences.AUTO_ADVANCE_NEWER:
@@ -323,12 +243,6 @@ public class MessageListXL extends Activity implements View.OnClickListener,
                 break;
         }
         // Last message in the box or AUTO_ADVANCE_MESSAGE_LIST.  Go back to message list.
-        mFragmentManager.goBackToMailbox();
-    }
-
-    private void onSetMessageUnread() {
-        MessageViewFragment f = mFragmentManager.getMessageViewFragment();
-        f.onMarkMessageAsRead(false);
         mFragmentManager.goBackToMailbox();
     }
 
@@ -396,11 +310,19 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     }
 
     /**
-     * Disable/enable the previous/next buttons for the message view.
+     * Disable/enable the move-to-newer/older buttons.
      */
     private void updateNavigationArrows() {
-        mMoveToNewerButton.setEnabled((mOrderManager != null) && mOrderManager.canMoveToNewer());
-        mMoveToOlderButton.setEnabled((mOrderManager != null) && mOrderManager.canMoveToOlder());
+        MessageViewFragment f = mFragmentManager.getMessageViewFragment();
+        if (f == null) {
+            return;
+        }
+        if (mOrderManager == null) {
+            f.enableNavigationButons(false, false); // shouldn't happen, but just in case
+        } else {
+            f.enableNavigationButons(mOrderManager.canMoveToNewer(),
+                    mOrderManager.canMoveToOlder());
+        }
     }
 
     private boolean moveToOlder() {
@@ -448,15 +370,12 @@ public class MessageListXL extends Activity implements View.OnClickListener,
     private class MessageViewFragmentCallback implements MessageViewFragment.Callback {
         @Override
         public void onMessageViewShown(int mailboxType) {
-            mMessageViewButtonPanel.setVisibility(View.VISIBLE);
             updateMessageOrderManager();
             updateNavigationArrows();
-            enableReplyForwardButtons(mailboxType != Mailbox.TYPE_TRASH);
         }
 
         @Override
         public void onMessageViewGone() {
-            mMessageViewButtonPanel.setVisibility(View.GONE);
             stopMessageOrderManager();
         }
 
@@ -503,12 +422,41 @@ public class MessageListXL extends Activity implements View.OnClickListener,
         public void onCalendarLinkClicked(long epochEventStartTime) {
             ActivityHelper.openCalendar(MessageListXL.this, epochEventStartTime);
         }
-    }
 
-    private void enableReplyForwardButtons(boolean enabled) {
-        mForwardButton.setEnabled(enabled);
-        mReplyButton.setEnabled(enabled);
-        mReplyAllButton.setEnabled(enabled);
+        @Override
+        public void onMoveToNewer() {
+            moveToNewer();
+        }
+
+        @Override
+        public void onMoveToOlder() {
+            moveToOlder();
+        }
+
+        @Override
+        public void onBeforeMessageDelete() {
+            onCurrentMessageGone();
+        }
+
+        @Override
+        public void onMoveMessage() {
+            MessageListXL.this.onMoveMessage();
+        }
+
+        @Override
+        public void onForward() {
+            MessageCompose.actionForward(MessageListXL.this, mFragmentManager.getMessageId());
+        }
+
+        @Override
+        public void onReply() {
+            MessageCompose.actionReply(MessageListXL.this, mFragmentManager.getMessageId(), false);
+        }
+
+        @Override
+        public void onReplyAll() {
+            MessageCompose.actionReply(MessageListXL.this, mFragmentManager.getMessageId(), true);
+        }
     }
 
     @Override

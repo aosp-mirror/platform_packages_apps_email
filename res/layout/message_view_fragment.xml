@@ -14,193 +14,222 @@
      limitations under the License.
 -->
 
-<ScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scrollview"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbarStyle="outsideOverlay"
-    android:fadingEdge="none"
-    android:fillViewport="true"
     >
-    <LinearLayout
-        android:orientation="vertical"
+    <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/scrollview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:scrollbarStyle="outsideOverlay"
+        android:fadingEdge="none"
+        android:fillViewport="true"
         >
-        <!-- header area -->
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/header_card"
-            android:paddingTop="3dip"
-            android:paddingBottom="3dip"
-            android:paddingLeft="3dip"
-            android:paddingRight="6dip">
-            <LinearLayout
-                android:id="@+id/from_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:baselineAligned="true" >
-                <android.widget.QuickContactBadge
-                    android:id="@+id/badge"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="8dip"
-                    android:layout_marginLeft="2dip"
-                    style="@*android:style/Widget.QuickContactBadge.WindowSmall" />
-                    />
-                <ImageView
-                    android:id="@+id/presence"
-                    android:src="@drawable/presence_inactive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="5dip"
-                    android:layout_gravity="center_vertical"
-                    android:background="@drawable/quickcontact_presence_bg" />
-                <TextView
-                    android:id="@+id/from"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_width="0dip"
-                    android:layout_weight="1.0"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:paddingRight="6dip" />
-                <ImageView
-                    android:id="@+id/attachment"
-                    android:src="@drawable/ic_email_attachment_small"
-                    android:layout_width="22dip"
-                    android:layout_height="22dip"
-                    android:baselineAlignBottom="true" />
-                <TextView
-                    android:id="@+id/date"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dip"
-                    android:singleLine="true" />
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/to_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-                <TextView
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/message_view_to_label" />
-                <TextView
-                    android:id="@+id/to"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:layout_width="0dip"
-                    android:layout_weight="1.0"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dip"
-                    android:singleLine="false"
-                    android:ellipsize="none" />
-                <TextView
-                    android:id="@+id/time"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dip"
-                    android:singleLine="true" />
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/cc_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-                <TextView
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/message_view_cc_label" />
-                <TextView
-                    android:id="@+id/cc"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:layout_width="0dip"
-                    android:layout_weight="1.0"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dip"
-                    android:singleLine="false"
-                    android:ellipsize="none" />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-                <TextView
-                    android:id="@+id/subject"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textStyle="bold"
-                    android:layout_width="0dip"
-                    android:layout_weight="1.0"
-                    android:layout_height="wrap_content"
-                    android:singleLine="false"
-                    android:ellipsize="none" />
-                <!-- TODO: Move this to wherever it really belongs -->
-                <ImageView
-                    android:id="@+id/favorite"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:src="@drawable/btn_star_big_buttonless_off" />
-                    </LinearLayout>
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/show_pictures_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#ffefefef"
-            android:layout_marginTop="6dip"
-            android:paddingLeft="6dip"
-            android:paddingRight="3dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
-            android:baselineAligned="false"
-            android:visibility="gone">
-            <TextView
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
-                android:text="@string/message_view_show_pictures_instructions"
-                android:layout_gravity="center"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.0" />
-            <Button
-                android:id="@+id/show_pictures"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/message_view_show_pictures_action" />
-        </LinearLayout>
-        <!-- content area -->
-        <include layout="@layout/message_view_invitation" />
-        <WebView
-            android:id="@+id/message_content"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:background="#ffffff" />
-        <!-- attachments area -->
-        <LinearLayout
-            android:id="@+id/attachments"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="4dip"
-            android:background="#ffffff">
+            android:layout_height="match_parent"
+            >
+            <!-- header area -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/header_card"
+                android:paddingTop="3dip"
+                android:paddingBottom="3dip"
+                android:paddingLeft="3dip"
+                android:paddingRight="6dip">
+                <LinearLayout
+                    android:id="@+id/from_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="true" >
+                    <android.widget.QuickContactBadge
+                        android:id="@+id/badge"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="8dip"
+                        android:layout_marginLeft="2dip"
+                        style="@*android:style/Widget.QuickContactBadge.WindowSmall" />
+                        />
+                    <ImageView
+                        android:id="@+id/presence"
+                        android:src="@drawable/presence_inactive"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dip"
+                        android:layout_gravity="center_vertical"
+                        android:background="@drawable/quickcontact_presence_bg" />
+                    <TextView
+                        android:id="@+id/from"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:layout_width="0dip"
+                        android:layout_weight="1.0"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:paddingRight="6dip" />
+                    <ImageView
+                        android:id="@+id/attachment"
+                        android:src="@drawable/ic_email_attachment_small"
+                        android:layout_width="22dip"
+                        android:layout_height="22dip"
+                        android:baselineAlignBottom="true" />
+                    <TextView
+                        android:id="@+id/date"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="4dip"
+                        android:singleLine="true" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/to_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+                    <TextView
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/message_view_to_label" />
+                    <TextView
+                        android:id="@+id/to"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:layout_width="0dip"
+                        android:layout_weight="1.0"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="4dip"
+                        android:singleLine="false"
+                        android:ellipsize="none" />
+                    <TextView
+                        android:id="@+id/time"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="4dip"
+                        android:singleLine="true" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/cc_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+                    <TextView
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/message_view_cc_label" />
+                    <TextView
+                        android:id="@+id/cc"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:layout_width="0dip"
+                        android:layout_weight="1.0"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="4dip"
+                        android:singleLine="false"
+                        android:ellipsize="none" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+                    <TextView
+                        android:id="@+id/subject"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textStyle="bold"
+                        android:layout_width="0dip"
+                        android:layout_weight="1.0"
+                        android:layout_height="wrap_content"
+                        android:singleLine="false"
+                        android:ellipsize="none" />
+                    <!-- TODO: Move this to wherever it really belongs -->
+                    <ImageView
+                        android:id="@+id/favorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:src="@drawable/btn_star_big_buttonless_off" />
+                        </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/show_pictures_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ffefefef"
+                android:layout_marginTop="6dip"
+                android:paddingLeft="6dip"
+                android:paddingRight="3dip"
+                android:paddingTop="4dip"
+                android:paddingBottom="4dip"
+                android:baselineAligned="false"
+                android:visibility="gone">
+                <TextView
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:text="@string/message_view_show_pictures_instructions"
+                    android:layout_gravity="center"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.0" />
+                <Button
+                    android:id="@+id/show_pictures"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/message_view_show_pictures_action" />
+            </LinearLayout>
+            <!-- content area -->
+            <include layout="@layout/message_view_invitation" />
+            <WebView
+                android:id="@+id/message_content"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:background="#ffffff" />
+            <!-- attachments area -->
+            <LinearLayout
+                android:id="@+id/attachments"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4dip"
+                android:background="#ffffff">
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</ScrollView>
-
+    </ScrollView>
+    <!--
+        Buttons such as delete, mark unread.  Only MessageViewFragment uses these.
+        MessageFileViewFragment doesn't.
+    -->
+    <include
+        layout="@layout/message_command_button_view"
+        android:id="@+id/message_command_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:visibility="gone"
+        />
+<!--
+    <com.android.email.activity.MessageCommandButtonView
+        android:id="@+id/message_command_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        />
+-->
+</LinearLayout>

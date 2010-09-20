@@ -21,6 +21,7 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.MeetingInfo;
 import com.android.email.mail.PackedString;
+import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.EmailServiceConstants;
 
@@ -51,12 +52,19 @@ public class MessageViewFragment extends MessageViewFragmentBase {
     private TextView mMeetingYes;
     private TextView mMeetingMaybe;
     private TextView mMeetingNo;
+    private MessageCommandButtonView mCommandButtons;
     private int mPreviousMeetingResponse = -1;
 
     private Drawable mFavoriteIconOn;
     private Drawable mFavoriteIconOff;
 
+    /** ID of the message that will be loaded */
     private long mMessageIdToOpen = -1;
+
+    /** ID of the currently shown message */
+    private long mCurrentMessageId = -1;
+
+    private final CommandButtonCallback mCommandButtonCallback = new CommandButtonCallback();
 
     /**
      * This class has more call backs than {@link MessageViewFragmentBase}.
@@ -83,23 +91,43 @@ public class MessageViewFragment extends MessageViewFragmentBase {
 
         /** Called when the current message is set unread. */
         public void onMessageSetUnread();
+
+        /** Called when "move to newer" button is pressed. */
+        public void onMoveToNewer();
+
+        /** Called when "move to older" button is pressed. */
+        public void onMoveToOlder();
+
+        /**
+         * Called right before the current message will be deleted.
+         * Callees don't have to delete messages.  The fragment does.
+         */
+        public void onBeforeMessageDelete();
+
+        /** Called when the move button is pressed. */
+        public void onMoveMessage();
+        /** Called when the forward button is pressed. */
+        public void onForward();
+        /** Called when the reply button is pressed. */
+        public void onReply();
+        /** Called when the reply-all button is pressed. */
+        public void onReplyAll();
     }
 
     public static final class EmptyCallback extends MessageViewFragmentBase.EmptyCallback
             implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
 
-        @Override
-        public void onCalendarLinkClicked(long epochEventStartTime) {
-        }
-
-        @Override
-        public void onMessageSetUnread() {
-        }
-
-        @Override
-        public void onRespondedToInvite(int response) {
-        }
+        @Override public void onCalendarLinkClicked(long epochEventStartTime) { }
+        @Override public void onMessageSetUnread() { }
+        @Override public void onRespondedToInvite(int response) { }
+        @Override public void onMoveToNewer() { }
+        @Override public void onMoveToOlder() { }
+        @Override public void onBeforeMessageDelete() { }
+        @Override public void onMoveMessage() { }
+        @Override public void onForward() { }
+        @Override public void onReply() { }
+        @Override public void onReplyAll() { }
     }
 
     private Callback mCallback = EmptyCallback.INSTANCE;
@@ -130,12 +158,25 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         mMeetingNo.setOnClickListener(this);
         view.findViewById(R.id.invite_link).setOnClickListener(this);
 
+        // Show the command buttons at the bottom.
+        mCommandButtons =
+                (MessageCommandButtonView) view.findViewById(R.id.message_command_buttons);
+        mCommandButtons.setVisibility(View.VISIBLE);
+        mCommandButtons.setCallback(mCommandButtonCallback);
+
         return view;
     }
 
     public void setCallback(Callback callback) {
         mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
         super.setCallback(mCallback);
+    }
+
+    /**
+     * @deprecated TODO Remove this call from MessageView
+     */
+    public void hideCommandButtons() {
+        mCommandButtons.setVisibility(View.GONE);
     }
 
     /** Called by activities to set an id of a message to open. */
@@ -158,6 +199,24 @@ public class MessageViewFragment extends MessageViewFragmentBase {
     @Override
     protected Message openMessageSync() {
         return Message.restoreMessageWithId(getActivity(), mMessageIdToOpen);
+    }
+
+    @Override
+    protected void onMessageShown(long messageId, int mailboxType) {
+        super.onMessageShown(messageId, mailboxType);
+
+        // Remember the currently shown message ID.
+        mCurrentMessageId = messageId;
+
+        // Disable forward/reply buttons as necessary.
+        // (Draft messages shouldn't be opened with this fragment in the first place, but currently
+        // it's possible due to a problem with "All Starred".)
+        mCommandButtons.enableReplyForwardButtons((mailboxType != Mailbox.TYPE_TRASH)
+                && (mailboxType != Mailbox.TYPE_TRASH));
+    }
+
+    public void enableNavigationButons(boolean enableMoveToNewer, boolean enableMoveToOlder) {
+        mCommandButtons.enableNavigationButons(enableMoveToNewer, enableMoveToOlder);
     }
 
     /**
@@ -266,5 +325,49 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         // Show the message invite section if we're an incoming meeting invitation only
         mInviteSection.setVisibility((message.mFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0 ?
                 View.VISIBLE : View.GONE);
+    }
+
+    private class CommandButtonCallback implements MessageCommandButtonView.Callback {
+        @Override
+        public void onMoveToNewer() {
+            mCallback.onMoveToNewer();
+        }
+
+        @Override
+        public void onMoveToOlder() {
+            mCallback.onMoveToOlder();
+        }
+
+        @Override
+        public void onDelete() {
+            mCallback.onBeforeMessageDelete();
+            ActivityHelper.deleteMessage(getActivity(), mCurrentMessageId);
+        }
+
+        @Override
+        public void onMove() {
+            mCallback.onMoveMessage();
+        }
+
+        @Override
+        public void onForward() {
+            mCallback.onForward();
+        }
+
+        @Override
+        public void onReply() {
+            mCallback.onReply();
+        }
+
+        @Override
+        public void onReplyAll() {
+            mCallback.onReplyAll();
+        }
+
+        @Override
+        public void onMarkUnread() {
+            onMarkMessageAsRead(false);
+            mCallback.onMessageSetUnread();
+        }
     }
 }

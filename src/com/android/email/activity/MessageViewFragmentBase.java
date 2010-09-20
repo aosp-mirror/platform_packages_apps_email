@@ -678,8 +678,15 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
             reloadUiFromMessage(message, mOkToFetch);
             queryContactStatus();
-            mCallback.onMessageViewShown(mMailboxType);
+            onMessageShown(mMessageId, mMailboxType);
         }
+    }
+
+    /**
+     * Called when a message is shown to the user.
+     */
+    protected void onMessageShown(long messageId, int mailboxType) {
+        mCallback.onMessageViewShown(mailboxType);
     }
 
     /**
