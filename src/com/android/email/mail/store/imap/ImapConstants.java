@@ -28,11 +28,6 @@ public final class ImapConstants {
     public static final String FETCH_FIELD_HEADERS =
             "BODY.PEEK[HEADER.FIELDS (date subject from content-type to cc message-id)]";
 
-    public static final String FLAG_ANSWERED = "\\ANSWERED";
-    public static final String FLAG_DELETED = "\\DELETED";
-    public static final String FLAG_FLAGGED = "\\FLAGGED";
-    public static final String FLAG_NO_SELECT = "\\NOSELECT";
-    public static final String FLAG_SEEN = "\\SEEN";
     public static final String ALERT = "ALERT";
     public static final String APPEND = "APPEND";
     public static final String BAD = "BAD";
@@ -51,7 +46,14 @@ public final class ImapConstants {
     public static final String EXISTS = "EXISTS";
     public static final String EXPUNGE = "EXPUNGE";
     public static final String FETCH = "FETCH";
+    public static final String FLAG_ANSWERED = "\\ANSWERED";
+    public static final String FLAG_DELETED = "\\DELETED";
+    public static final String FLAG_FLAGGED = "\\FLAGGED";
+    public static final String FLAG_NO_SELECT = "\\NOSELECT";
+    public static final String FLAG_SEEN = "\\SEEN";
     public static final String FLAGS = "FLAGS";
+    public static final String FLAGS_SILENT = "FLAGS.SILENT";
+    public static final String ID = "ID";
     public static final String INBOX = "INBOX";
     public static final String INTERNALDATE = "INTERNALDATE";
     public static final String LIST = "LIST";
@@ -74,8 +76,13 @@ public final class ImapConstants {
     public static final String STATUS = "STATUS";
     public static final String STORE = "STORE";
     public static final String SUBSCRIBE = "SUBSCRIBE";
+    public static final String TEXT = "TEXT";
     public static final String TRYCREATE = "TRYCREATE";
     public static final String UID = "UID";
+    public static final String UID_COPY = "UID COPY";
+    public static final String UID_FETCH = "UID FETCH";
+    public static final String UID_SEARCH = "UID SEARCH";
+    public static final String UID_STORE = "UID STORE";
     public static final String UIDNEXT = "UIDNEXT";
     public static final String UIDVALIDITY = "UIDVALIDITY";
     public static final String UNSEEN = "UNSEEN";
