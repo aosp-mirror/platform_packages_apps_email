@@ -1094,6 +1094,9 @@ public class MessagingController implements Runnable {
                 if (oldMessage != null) {
                     if (mailbox == null || mailbox.mId != oldMessage.mMailboxKey) {
                         mailbox = Mailbox.restoreMailboxWithId(mContext, oldMessage.mMailboxKey);
+                        if (mailbox == null) {
+                            continue; // Mailbox removed. Move to the next message.
+                        }
                     }
                     deleteFromTrash = mailbox.mType == Mailbox.TYPE_TRASH;
                 }
@@ -1177,6 +1180,9 @@ public class MessagingController implements Runnable {
                         // Load the mailbox if it will be needed
                         if (mailbox == null) {
                             mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+                            if (mailbox == null) {
+                                continue; // Mailbox removed. Move to the next message.
+                            }
                         }
                         // upsync the message
                         long id = upsyncs1.getLong(EmailContent.Message.ID_PROJECTION_COLUMN);
@@ -1204,6 +1210,9 @@ public class MessagingController implements Runnable {
                         // Load the mailbox if it will be needed
                         if (mailbox == null) {
                             mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+                            if (mailbox == null) {
+                                continue; // Mailbox removed. Move to the next message.
+                            }
                         }
                         // upsync the message
                         long id = upsyncs2.getLong(EmailContent.Message.ID_PROJECTION_COLUMN);
@@ -1264,6 +1273,9 @@ public class MessagingController implements Runnable {
                 if (newMessage != null) {
                     if (mailbox == null || mailbox.mId != newMessage.mMailboxKey) {
                         mailbox = Mailbox.restoreMailboxWithId(mContext, newMessage.mMailboxKey);
+                        if (mailbox == null) {
+                            continue; // Mailbox removed. Move to the next message.
+                        }
                     }
                     changeMoveToTrash = (oldMessage.mMailboxKey != newMessage.mMailboxKey)
                             && (mailbox.mType == Mailbox.TYPE_TRASH);
