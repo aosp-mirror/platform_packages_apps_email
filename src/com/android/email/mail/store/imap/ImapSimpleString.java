@@ -25,10 +25,16 @@ import java.io.InputStream;
  * Subclass of {@link ImapString} used for non literals.
  */
 public class ImapSimpleString extends ImapString {
-    private final String mString;
+    private String mString;
 
     /* package */  ImapSimpleString(String string) {
         mString = (string != null) ? string : "";
+    }
+
+    @Override
+    public void destroy() {
+        mString = null;
+        super.destroy();
     }
 
     @Override

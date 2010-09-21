@@ -26,12 +26,17 @@ public class ImapList extends ImapElement {
      * {@link ImapList} representing an empty list.
      */
     public static final ImapList EMPTY = new ImapList() {
+        @Override public void destroy() {
+            // Don't call super.destroy().
+            // It's a shared object.  We don't want the mDestroyed to be set on this.
+        }
+
         @Override void add(ImapElement e) {
             throw new RuntimeException();
         }
     };
 
-    private final ArrayList<ImapElement> mList = new ArrayList<ImapElement>();
+    private ArrayList<ImapElement> mList = new ArrayList<ImapElement>();
 
     /* package */ void add(ImapElement e) {
         if (e == null) {
@@ -164,9 +169,13 @@ public class ImapList extends ImapElement {
 
     @Override
     public void destroy() {
-        for (ImapElement e : mList) {
-            e.destroy();
+        if (mList != null) {
+            for (ImapElement e : mList) {
+                e.destroy();
+            }
+            mList = null;
         }
+        super.destroy();
     }
 
     @Override

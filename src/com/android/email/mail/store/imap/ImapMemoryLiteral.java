@@ -30,7 +30,7 @@ import java.io.InputStream;
  * Subclass of {@link ImapString} used for literals backed by an in-memory byte array.
  */
 public class ImapMemoryLiteral extends ImapString {
-    private final byte[] mData;
+    private byte[] mData;
 
     /* package */ ImapMemoryLiteral(FixedLengthInputStream in) throws IOException {
         // We could use ByteArrayOutputStream and IOUtils.copy, but it'd perform an unnecessary
@@ -47,6 +47,12 @@ public class ImapMemoryLiteral extends ImapString {
         if (pos != mData.length) {
             Log.w(Email.LOG_TAG, "");
         }
+    }
+
+    @Override
+    public void destroy() {
+        mData = null;
+        super.destroy();
     }
 
     @Override
