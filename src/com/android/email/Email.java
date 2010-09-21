@@ -20,7 +20,6 @@ import com.android.email.activity.AccountShortcutPicker;
 import com.android.email.activity.Debug;
 import com.android.email.activity.MessageCompose;
 import com.android.email.provider.EmailContent;
-import com.android.email.service.BootReceiver;
 import com.android.email.service.MailService;
 
 import android.app.Application;
@@ -241,11 +240,6 @@ public class Email extends Application {
                 PackageManager.DONT_KILL_APP);
         pm.setComponentEnabledSetting(
                 new ComponentName(context, AccountShortcutPicker.class),
-                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP);
-        pm.setComponentEnabledSetting(
-                new ComponentName(context, BootReceiver.class),
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);

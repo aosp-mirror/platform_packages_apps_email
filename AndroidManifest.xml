@@ -216,26 +216,18 @@
             </intent-filter>
         </activity>
         <!--EXCHANGE-REMOVE-SECTION-START-->
-       <receiver android:name="com.android.exchange.EmailSyncAlarmReceiver"/>
-       <receiver android:name="com.android.exchange.MailboxAlarmReceiver"/>
-       <receiver android:name="com.android.exchange.BootReceiver" android:enabled="true">
-             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-       </receiver>
+        <receiver android:name="com.android.exchange.EmailSyncAlarmReceiver"/>
+        <receiver android:name="com.android.exchange.MailboxAlarmReceiver"/>
         <!--EXCHANGE-REMOVE-SECTION-END-->
 
-       <receiver android:name=".service.BootReceiver" android:enabled="true">
+        <receiver android:name=".service.EmailBroadcastReceiver" android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-            <intent-filter>
                 <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
-            </intent-filter>
-            <intent-filter>
                 <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
             </intent-filter>
         </receiver>
+        <service android:name=".service.EmailBroadcastProcessorService" />
 
         <!-- Support for DeviceAdmin / DevicePolicyManager.  See SecurityPolicy class for impl. -->
         <receiver
@@ -248,15 +240,6 @@
                 android:resource="@xml/device_admin" />
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
-            </intent-filter>
-        </receiver>
-        
-        <receiver
-            android:name=".OneTimeInitializer"
-            android:enabled="true"
-            >
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
