@@ -112,6 +112,7 @@ public class MessageListXL extends Activity implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.message_list_xl);
+        mFragmentManager.onActivityViewReady();
 
         final boolean isRestoring = (savedInstanceState != null);
 
