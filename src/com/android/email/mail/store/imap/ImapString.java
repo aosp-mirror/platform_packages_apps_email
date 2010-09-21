@@ -38,6 +38,11 @@ public abstract class ImapString extends ImapElement {
     private static final byte[] EMPTY_BYTES = new byte[0];
 
     public static final ImapString EMPTY = new ImapString() {
+        @Override public void destroy() {
+            // Don't call super.destroy().
+            // It's a shared object.  We don't want the mDestroyed to be set on this.
+        }
+
         @Override public String getString() {
             return "";
         }

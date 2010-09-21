@@ -37,8 +37,6 @@ import java.io.OutputStream;
  * Subclass of {@link ImapString} used for literals backed by a temp file.
  */
 public class ImapTempFileLiteral extends ImapString {
-    private boolean mDestroyed = false;
-
     /* package for test */ final File mFile;
 
     /** Size is purely for toString() */
@@ -71,12 +69,6 @@ public class ImapTempFileLiteral extends ImapString {
         }
     }
 
-    private void checkNotDestroyed() {
-        if (mDestroyed) {
-            throw new RuntimeException("Already destroyed");
-        }
-    }
-
     @Override
     public InputStream getAsStream() {
         checkNotDestroyed();
@@ -105,12 +97,14 @@ public class ImapTempFileLiteral extends ImapString {
     @Override
     public void destroy() {
         try {
-            if (!mDestroyed && mFile.exists()) {
+            if (!isDestroyed() && mFile.exists()) {
                 mFile.delete();
             }
-        } finally {
-            mDestroyed = true;
+        } catch (RuntimeException re) {
+            // Just log and ignore.
+            Log.w(Email.LOG_TAG, "Failed to remove temp file: " + re.getMessage());
         }
+        super.destroy();
     }
 
     @Override
