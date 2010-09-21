@@ -29,6 +29,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 /**
  * IMAP response parser.
@@ -58,6 +59,12 @@ public class ImapResponseParser {
 
     /** StringBuilder used by parseBareString() */
     private final StringBuilder mParseBareString = new StringBuilder();
+
+    /**
+     * We store all {@link ImapResponse} in it.  {@link #destroyResponses()} must be called from
+     * time to time to destroy them and clear it.
+     */
+    private final ArrayList<ImapResponse> mResponsesToDestroy = new ArrayList<ImapResponse>();
 
     /**
      * Exception thrown when we receive BYE.  It derives from IOException, so it'll be treated
@@ -128,14 +135,30 @@ public class ImapResponseParser {
     }
 
     /**
+     * Destroy all the {@link ImapResponse}s stored in the internal storage and clear it.
+     *
+     * @see #readResponse()
+     */
+    public void destroyResponses() {
+        for (ImapResponse r : mResponsesToDestroy) {
+            r.destroy();
+        }
+        mResponsesToDestroy.clear();
+    }
+
+    /**
      * Reads the next response available on the stream and returns an
      * {@link ImapResponse} object that represents it.
+     *
+     * <p>When this method successfully returns an {@link ImapResponse}, the {@link ImapResponse}
+     * is stored in the internal storage.  When the {@link ImapResponse} is no longer used
+     * {@link #destroyResponses} should be called to destroy all the responses in the array.
      *
      * @return the parsed {@link ImapResponse} object.
      * @exception ByeException when detects BYE.
      */
     public ImapResponse readResponse() throws IOException, MessagingException {
-        final ImapResponse response;
+        ImapResponse response = null;
         try {
             response = parseResponse();
             if (Config.LOGD && Email.DEBUG) {
@@ -155,8 +178,10 @@ public class ImapResponseParser {
         // Handle this outside of try-catch.  We don't have to dump protocol log when getting BYE.
         if (response.is(0, ImapConstants.BYE)) {
             Log.w(Email.LOG_TAG, ByeException.MESSAGE);
+            response.destroy();
             throw new ByeException();
         }
+        mResponsesToDestroy.add(response);
         return response;
     }
 
@@ -221,61 +246,85 @@ public class ImapResponseParser {
      * Parse and return the response line.
      */
     private ImapResponse parseResponse() throws IOException, MessagingException {
-        final int ch = peek();
-        if (ch == '+') { // Continuation request
-            readByte(); // skip +
-            expect(' ');
-            ImapResponse response = new ImapResponse(null, true);
+        // We need to destroy the response if we get an exception.
+        // So, we first store the response that's being built in responseToDestroy, until it's
+        // completely built, at which point we copy it into responseToReturn and null out
+        // responseToDestroyt.
+        // If responseToDestroy is not null in finally, we destroy it because that means
+        // we got an exception somewhere.
+        ImapResponse responseToDestroy = null;
+        final ImapResponse responseToReturn;
 
-            // If it's continuation request, we don't really care what's in it.
-            response.add(new ImapSimpleString(readUntilEol()));
-            return response;
-        }
+        try {
+            final int ch = peek();
+            if (ch == '+') { // Continuation request
+                readByte(); // skip +
+                expect(' ');
+                responseToDestroy = new ImapResponse(null, true);
 
-        // Status response or response data
-        final String tag;
-        if (ch == '*') {
-            tag = null;
-            readByte(); // skip *
-            expect(' ');
-        } else {
-            tag = readUntil(' ');
-        }
-        final ImapResponse response = new ImapResponse(tag, false);
+                // If it's continuation request, we don't really care what's in it.
+                responseToDestroy.add(new ImapSimpleString(readUntilEol()));
 
-        final ImapString firstString = parseBareString();
-        response.add(firstString);
+                // Response has successfully been built.  Let's return it.
+                responseToReturn = responseToDestroy;
+                responseToDestroy = null;
+            } else {
+                // Status response or response data
+                final String tag;
+                if (ch == '*') {
+                    tag = null;
+                    readByte(); // skip *
+                    expect(' ');
+                } else {
+                    tag = readUntil(' ');
+                }
+                responseToDestroy = new ImapResponse(tag, false);
 
-        // parseBareString won't eat a space after the string, so we need to skip it, if exists.
-        // If the next char is not ' ', it should be EOL.
-        if (peek() == ' ') {
-            readByte(); // skip ' '
+                final ImapString firstString = parseBareString();
+                responseToDestroy.add(firstString);
 
-            if (response.isStatusResponse()) { // It's a status response
+                // parseBareString won't eat a space after the string, so we need to skip it,
+                // if exists.
+                // If the next char is not ' ', it should be EOL.
+                if (peek() == ' ') {
+                    readByte(); // skip ' '
 
-                // Is there a response code?
-                final int next = peek();
-                if (next == '[') {
-                    response.add(parseList('[', ']'));
-                    if (peek() == ' ') { // Skip following space
-                        readByte();
+                    if (responseToDestroy.isStatusResponse()) { // It's a status response
+
+                        // Is there a response code?
+                        final int next = peek();
+                        if (next == '[') {
+                            responseToDestroy.add(parseList('[', ']'));
+                            if (peek() == ' ') { // Skip following space
+                                readByte();
+                            }
+                        }
+
+                        String rest = readUntilEol();
+                        if (!TextUtils.isEmpty(rest)) {
+                            // The rest is free-form text.
+                            responseToDestroy.add(new ImapSimpleString(rest));
+                        }
+                    } else { // It's a response data.
+                        parseElements(responseToDestroy, '\0');
                     }
+                } else {
+                    expect('\r');
+                    expect('\n');
                 }
 
-                String rest = readUntilEol();
-                if (!TextUtils.isEmpty(rest)) {
-                    // The rest is free-form text.
-                    response.add(new ImapSimpleString(rest));
-                }
-            } else { // It's a response data.
-                parseElements(response, '\0');
+                // Response has successfully been built.  Let's return it.
+                responseToReturn = responseToDestroy;
+                responseToDestroy = null;
             }
-        } else {
-            expect('\r');
-            expect('\n');
+        } finally {
+            if (responseToDestroy != null) {
+                // We get an exception.
+                responseToDestroy.destroy();
+            }
         }
 
-        return response;
+        return responseToReturn;
     }
 
     private ImapElement parseElement() throws IOException, MessagingException {
