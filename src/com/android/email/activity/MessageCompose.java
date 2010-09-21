@@ -1507,10 +1507,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mSubjectView.setText(subject);
             }
             displayQuotedText(message.mText, message.mHtml);
+            setInitialComposeText(null, (account != null) ? account.mSignature : null);
         } else if (ACTION_FORWARD.equals(mAction)) {
             mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
                     "Fwd: " + subject : subject);
             displayQuotedText(message.mText, message.mHtml);
+            setInitialComposeText(null, (account != null) ? account.mSignature : null);
                 // TODO: re-enable loadAttachments below
 //                 if (!loadAttachments(message, 0)) {
 //                     mHandler.sendEmptyMessage(MSG_SKIPPED_ATTACHMENTS);
