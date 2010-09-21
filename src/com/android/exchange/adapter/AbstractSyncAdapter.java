@@ -95,6 +95,7 @@ public abstract class AbstractSyncAdapter {
             throws IOException {
         s.tag(Tags.SYNC_DELETES_AS_MOVES);
         s.tag(Tags.SYNC_GET_CHANGES);
+        s.data(Tags.SYNC_WINDOW_SIZE, PIM_WINDOW_SIZE);
         s.start(Tags.SYNC_OPTIONS);
         // Set the filter (lookback), if provided
         if (filter != null) {
