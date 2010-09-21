@@ -23,6 +23,7 @@ import com.android.email.mail.store.imap.ImapList;
 import com.android.email.mail.store.imap.ImapResponse;
 import com.android.email.mail.store.imap.ImapSimpleString;
 import com.android.email.mail.store.imap.ImapString;
+import com.android.email.mail.transport.DiscourseLogger;
 
 import java.io.ByteArrayInputStream;
 
@@ -78,6 +79,19 @@ public final class ImapTestUtils {
             res.add(e);
         }
         return res;
+    }
+
+    /**
+     * Convenience method to build an {@link ImapResponse} from a single response.
+     */
+    public static final ImapResponse parseResponse(String line) {
+        ImapResponseParser p = new ImapResponseParser(
+                new ByteArrayInputStream(Utility.toAscii(line + "\r\n")), new DiscourseLogger(4));
+        try {
+            return p.readResponse();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

@@ -57,11 +57,9 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -237,8 +235,8 @@ public class ImapStore extends Store {
      * @param capability the capabilities string from the server
      * @return a String for use in an IMAP ID message.
      */
-    public static String getImapId(Context context, String userName, String host,
-            String capability) {
+    /* package */ static String getImapId(Context context, String userName, String host,
+            ImapResponse capabilityResponse) {
         // The first section is global to all IMAP connections, and generates the fixed
         // values in any IMAP ID message
         synchronized (ImapStore.class) {
@@ -259,8 +257,8 @@ public class ImapStore extends Store {
         StringBuilder id = new StringBuilder(sImapId);
 
         // Optionally add any vendor-supplied id keys
-        String vendorId =
-            VendorPolicyLoader.getInstance(context).getImapIdValues(userName, host, capability);
+        String vendorId = VendorPolicyLoader.getInstance(context).getImapIdValues(userName, host,
+                capabilityResponse.flatten());
         if (vendorId != null) {
             id.append(' ');
             id.append(vendorId);
@@ -1431,7 +1429,7 @@ public class ImapStore extends Store {
 
                 // Assign user-agent string (for RFC2971 ID command)
                 String mUserAgent = getImapId(mContext, mUsername, mRootTransport.getHost(),
-                        capabilityResponse.flatten());
+                        capabilityResponse);
                 if (mUserAgent != null) {
                     mIdPhrase = ImapConstants.ID + " (" + mUserAgent + ")";
                 } else if (DEBUG_FORCE_SEND_ID) {
