@@ -796,7 +796,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                                     PREVIEW_ICON_WIDTH,
                                     PREVIEW_ICON_HEIGHT)));
         } catch (Exception e) {
-            // We don't care what happened, we just return null for the preview icon.
+            Log.d(Email.LOG_TAG, "Attachment preview failed with exception " + e.getMessage());
             return null;
         }
     }
