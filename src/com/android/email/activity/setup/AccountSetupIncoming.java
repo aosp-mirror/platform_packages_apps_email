@@ -308,7 +308,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
         boolean enabled = Utility.requiredFieldValid(mUsernameView)
                 && Utility.requiredFieldValid(mPasswordView)
                 && Utility.requiredFieldValid(mServerView)
-                && Utility.requiredFieldValid(mPortView);
+                && Utility.isPortFieldValid(mPortView);
         if (enabled) {
             try {
                 URI uri = getUri();

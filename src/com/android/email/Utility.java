@@ -129,6 +129,20 @@ public class Utility {
         return s != null && s.length() > 0;
     }
 
+    public static boolean isPortFieldValid(TextView view) {
+        CharSequence chars = view.getText();
+        if (TextUtils.isEmpty(chars)) return false;
+        Integer port;
+        // In theory, we can't get an illegal value here, since the field is monitored for valid
+        // numeric input. But this might be used elsewhere without such a check.
+        try {
+            port = Integer.parseInt(chars.toString());
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return port > 0 && port < 65536;
+    }
+
     /**
      * Ensures that the given string starts and ends with the double quote character. The string is not modified in any way except to add the
      * double quote character to start and end if it's not already there.
