@@ -71,6 +71,28 @@ public class VendorPolicyLoader {
         return sInstance;
     }
 
+    /**
+     * For testing only.
+     *
+     * Replaces the instance with a new instance that loads a specified class.
+     */
+    public static void injectPolicyForTest(Context context, String apkPackageName, Class<?> clazz) {
+        String name = clazz.getName();
+        Log.d(Email.LOG_TAG, String.format("Using policy: package=%s name=%s",
+                apkPackageName, name));
+        sInstance = new VendorPolicyLoader(context, apkPackageName, name, true);
+    }
+
+    /**
+     * For testing only.
+     *
+     * Clear the instance so that the next {@link #getInstance} call will return a regular,
+     * non-injected instance.
+     */
+    public static void clearInstanceForTest() {
+        sInstance = null;
+    }
+
     private VendorPolicyLoader(Context context) {
         this(context, POLICY_PACKAGE, POLICY_CLASS, false);
     }
@@ -79,9 +101,9 @@ public class VendorPolicyLoader {
      * Constructor for testing, where we need to use an alternate package/class name, and skip
      * the system apk check.
      */
-    /* package */ VendorPolicyLoader(Context context, String packageName, String className,
+    /* package */ VendorPolicyLoader(Context context, String apkPackageName, String className,
             boolean allowNonSystemApk) {
-        if (!allowNonSystemApk && !isSystemPackage(context, packageName)) {
+        if (!allowNonSystemApk && !isSystemPackage(context, apkPackageName)) {
             mPolicyMethod = null;
             return;
         }
@@ -89,7 +111,7 @@ public class VendorPolicyLoader {
         Class<?> clazz = null;
         Method method = null;
         try {
-            final Context policyContext = context.createPackageContext(packageName,
+            final Context policyContext = context.createPackageContext(apkPackageName,
                     Context.CONTEXT_IGNORE_SECURITY | Context.CONTEXT_INCLUDE_CODE);
             final ClassLoader classLoader = policyContext.getClassLoader();
             clazz = classLoader.loadClass(className);
