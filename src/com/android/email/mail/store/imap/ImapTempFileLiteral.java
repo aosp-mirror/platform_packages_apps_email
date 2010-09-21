@@ -58,9 +58,9 @@ public class ImapTempFileLiteral extends ImapString {
     }
 
     /**
-     * Because we can't use File.deleteOnExit(), let finalizer clean up the temp files....
+     * Make sure we delete the temp file.
      *
-     * TODO: Don't rely on this.  Always explicitly call destroy().
+     * We should always be calling {@link ImapResponse#destroy()}, but it's here as a last resort.
      */
     @Override
     protected void finalize() throws Throwable {
