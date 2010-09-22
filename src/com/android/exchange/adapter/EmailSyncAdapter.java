@@ -17,17 +17,15 @@
 
 package com.android.exchange.adapter;
 
+import com.android.email.LegacyConversions;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MeetingInfo;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.Multipart;
 import com.android.email.mail.PackedString;
 import com.android.email.mail.Part;
-import com.android.email.mail.internet.BinaryTempFileBody;
-import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeMessage;
-import com.android.email.mail.internet.TextBody;
+import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
@@ -45,8 +43,6 @@ import com.android.exchange.EasSyncService;
 import com.android.exchange.MessageMoveRequest;
 import com.android.exchange.utility.CalendarUtilities;
 
-import org.apache.commons.io.IOUtils;
-
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -60,7 +56,6 @@ import android.webkit.MimeTypeMap;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -297,16 +292,16 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     case Tags.EMAIL_MIME_DATA:
                         // We get MIME data for EAS 2.5.  First we parse it, then we take the
                         // html and/or plain text data and store it in the message
-                        if (!mimeBodyParser(msg, getValue()) && truncated) {
-                            // This means that we've parsed a truncated MIME message but came
-                            // up empty-handed in terms of finding the text (because we only loaded
-                            // the first 100k of the message).  In this case, we'll request the
-                            // body separately by tagging the message "partially loaded".
-                            // Note that if we're NOT truncated and there's no text, it simply means
-                            // that there was no body text in the message (which is ok)
+                        if (truncated) {
+                            // If the MIME data is truncated, don't bother parsing it, because
+                            // it will take time and throw an exception anyway when EOF is reached
+                            // In this case, we will load the body separately by tagging the message
+                            // "partially loaded".
                             userLog("Partially loaded: ", msg.mServerId);
                             msg.mFlagLoaded = Message.FLAG_LOADED_PARTIAL;
                             mFetchNeeded = true;
+                        } else {
+                            mimeBodyParser(msg, getValue());
                         }
                         break;
                     case Tags.EMAIL_BODY:
@@ -458,98 +453,30 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         }
 
         /**
-         * Tries to find a message body from parsed MIME data, which may have been truncated
+         * Parses untruncated MIME data, saving away the text parts
          * @param msg the message we're building
          * @param mimeData the MIME data we've received from the server
-         * @return whether or not we found message text (html or plain text)
+         * @throws IOException
          */
-        private boolean mimeBodyParser(Message msg, String mimeData) {
+        private void mimeBodyParser(Message msg, String mimeData) throws IOException {
             try {
                 ByteArrayInputStream in = new ByteArrayInputStream(mimeData.getBytes());
                 // The constructor parses the message
-                return setTextFromPart(msg, new MimeMessage(in));
-            } catch (IOException e) {
-                // If we have a parsing failure, this is no different from failing to find the body
+                MimeMessage mimeMessage = new MimeMessage(in);
+                // Now process body parts & attachments
+                ArrayList<Part> viewables = new ArrayList<Part>();
+                // We'll ignore the attachments, as we'll get them directly from EAS
+                ArrayList<Part> attachments = new ArrayList<Part>();
+                MimeUtility.collectParts(mimeMessage, viewables, attachments);
+                Body tempBody = new Body();
+                // updateBodyFields fills in the content fields of the Body
+                LegacyConversions.updateBodyFields(tempBody, msg, viewables);
+                // But we need them in the message itself for handling during commit()
+                msg.mHtml = tempBody.mHtmlContent;
+                msg.mText = tempBody.mTextContent;
             } catch (MessagingException e) {
-                // If we have a parsing failure, this is no different from failing to find the body
-            }
-            return false;
-        }
-
-        /**
-         * Set the message's mText and/or mHtml from a given part (which can be a multipart)
-         * @param msg the message we're building
-         * @param part the part we're examining
-         * @return whether or not we found message text (html or plain text)
-         * @throws MessagingException
-         * @throws IOException
-         */
-        private boolean setTextFromPart(Message msg, Part part) throws MessagingException,
-                IOException {
-            com.android.email.mail.Body body = part.getBody();
-            if (body instanceof Multipart) {
-                return setTextFromMultipart(msg, (Multipart) body);
-            }
-            return setTextFromSinglePart(msg, part);
-
-        }
-
-        private boolean setTextFromSinglePart(Message msg, Part part) throws MessagingException,
-                IOException {
-            String text = getBodyContent(part.getBody());
-            // Only set the html or text if we don't already have it
-            String contentType = part.getContentType();
-            if (contentType != null && contentType.contains("text/html")) {
-                if (msg.mHtml == null) {
-                    msg.mHtml = text;
-                }
-            } else if (msg.mText == null) {
-                msg.mText = text;
-            }
-            return true;
-        }
-
-        /**
-         * Look for (and set) the text elements from a Multipart
-         * @param msg the message we're building
-         * @param multipart a Multipart from a parsed MIME message
-         * @return whether or not we found message text (html or plain text)
-         * @throws IOException
-         * @throws MessagingException
-         */
-        private boolean setTextFromMultipart(Message msg, Multipart multipart)
-                throws IOException, MessagingException {
-            // Walk through the parts until we've at least found an HTML part
-            for (int i = 0, j = multipart.getCount(); i < j && msg.mHtml == null; i++) {
-                MimeBodyPart part = (MimeBodyPart) multipart.getBodyPart(i);
-                // Ignore the result here and keep looping, hoping to find HTML
-                setTextFromPart(msg, part);
-            }
-            // We return true if we've found either an HTML or a plain text part
-            return (msg.mHtml != null || msg.mText != null);
-        }
-
-        /**
-         * Return the (text) content of a message Body
-         * @param body the message Body
-         * @return the text we've found (or null if there is none)
-         * @throws IOException
-         * @throws MessagingException
-         */
-        private String getBodyContent(com.android.email.mail.Body body)
-                throws IOException, MessagingException {
-            if (body instanceof TextBody) {
-                // This is the simple case; just get the text
-                return ((TextBody) body).getText();
-            } else if (body instanceof BinaryTempFileBody) {
-                // In this case, we need to write the temporary file content to a String
-                InputStream inputStream = ((BinaryTempFileBody)body).getInputStream();
-                StringWriter writer = new StringWriter();
-                IOUtils.copy(inputStream, writer);
-                inputStream.close();
-                return writer.toString();
-            } else {
-                return null;
+                // This would most likely indicate a broken stream
+                throw new IOException(e);
             }
         }
 
@@ -791,7 +718,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                             .build());
                     ops.add(ContentProviderOperation.newUpdate(Message.CONTENT_URI)
                             .withSelection(EmailContent.RECORD_ID + "=?", mBindArgument)
-                            .withValue(Message.FLAG_LOADED, Message.FLAG_LOADED)
+                            .withValue(Message.FLAG_LOADED, Message.FLAG_LOADED_COMPLETE)
                             .build());
                 }
             }

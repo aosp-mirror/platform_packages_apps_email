@@ -226,7 +226,6 @@ public class LegacyConversions {
         if (!TextUtils.isEmpty(sbHtml)) {
             String text = sbHtml.toString();
             body.mHtmlContent = text;
-            body.mHtmlContent = sbHtml.toString();
             if (localMessage.mSnippet == null) {
                 localMessage.mSnippet = Snippet.fromHtmlText(text);
             }
