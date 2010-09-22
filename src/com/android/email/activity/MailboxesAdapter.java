@@ -53,8 +53,6 @@ import android.widget.TextView;
     public static final int MODE_NORMAL = 0;
     public static final int MODE_MOVE_TO_TARGET = 1;
 
-    private static final int AUTO_REQUERY_TIMEOUT = 3 * 1000; // in ms
-
     private static final String[] PROJECTION = new String[] { MailboxColumns.ID,
             MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
             MailboxColumns.MESSAGE_COUNT};
@@ -177,8 +175,7 @@ import android.widget.TextView;
         public MailboxesLoader(Context context, long accountId, int mode) {
             super(context, EmailContent.Mailbox.CONTENT_URI,
                     MailboxesAdapter.PROJECTION, getSelection(mode),
-                    new String[] { String.valueOf(accountId) },
-                    MAILBOX_ORDER_BY, AUTO_REQUERY_TIMEOUT);
+                    new String[] { String.valueOf(accountId) }, MAILBOX_ORDER_BY);
             mContext = context;
             mMode = mode;
         }

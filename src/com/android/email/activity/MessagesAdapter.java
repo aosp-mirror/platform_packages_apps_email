@@ -87,10 +87,6 @@ import java.util.Set;
     private final ColorStateList mTextColorPrimary;
     private final ColorStateList mTextColorSecondary;
 
-    // How long we want to wait for refreshes (a good starting guess)
-    // I suspect this could be lowered down to even 1000 or so, but this seems ok for now
-    private static final int REFRESH_INTERVAL_MS = 2500;
-
     private final java.text.DateFormat mDateFormat;
     private final java.text.DateFormat mTimeFormat;
 
@@ -309,7 +305,7 @@ import java.util.Set;
             // Initialize with no where clause.  We'll set it later.
             super(context, EmailContent.Message.CONTENT_URI,
                     MESSAGE_PROJECTION, null, null,
-                    EmailContent.MessageColumns.TIMESTAMP + " DESC", REFRESH_INTERVAL_MS);
+                    EmailContent.MessageColumns.TIMESTAMP + " DESC");
             mContext = context;
             mMailboxId = mailboxId;
         }

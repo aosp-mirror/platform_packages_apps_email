@@ -29,4 +29,8 @@ public class MockClock extends Clock {
     public void advance() {
         mTime++;
     }
+
+    public void advance(long milliseconds) {
+        mTime += milliseconds;
+    }
 }
