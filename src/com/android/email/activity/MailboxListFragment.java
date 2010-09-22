@@ -45,7 +45,7 @@ import java.security.InvalidParameterException;
  * TODO Restoring ListView state -- don't do this when changing accounts
  */
 public class MailboxListFragment extends ListFragment implements OnItemClickListener {
-    private static final String BUNDLE_KEY_ACCOUNT_ID
+    private static final String BUNDLE_KEY_SELECTED_MAILBOX_ID
             = "MailboxListFragment.state.selected_mailbox_id";
     private static final String BUNDLE_LIST_STATE = "MailboxListFragment.state.listState";
     private static final int LOADER_ID_MAILBOX_LIST = 1;
@@ -210,12 +210,12 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Email.LOG_TAG, "MailboxListFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
-        outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mSelectedMailboxId);
+        outState.putLong(BUNDLE_KEY_SELECTED_MAILBOX_ID, mSelectedMailboxId);
         outState.putParcelable(BUNDLE_LIST_STATE, new Utility.ListStateSaver(getListView()));
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
-        mSelectedMailboxId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID);
+        mSelectedMailboxId = savedInstanceState.getLong(BUNDLE_KEY_SELECTED_MAILBOX_ID);
         mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
     }
 
