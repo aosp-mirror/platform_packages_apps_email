@@ -305,6 +305,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         for (int i = 0; i < count; i++) {
             if (mListView.getItemIdAtPosition(i) == mSelectedMailboxId) {
                 mListView.setItemChecked(i, true);
+                mListView.smoothScrollToPosition(i);
                 break;
             }
         }

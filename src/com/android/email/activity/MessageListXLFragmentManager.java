@@ -417,6 +417,7 @@ class MessageListXLFragmentManager {
         if (mMailboxListFragment != null) {
             mMailboxListFragment.setSelectedMailbox(mMailboxId);
         }
+        hideMessageView();
     }
 
     private void updateMessageListFragment(MessageListFragment fragment) {
@@ -481,6 +482,7 @@ class MessageListXLFragmentManager {
         if (mAccountId == -1 || mMailboxId == -1 || mMessageId == -1) { // Shouldn't happen
             throw new RuntimeException();
         }
+        mMessageListFragment.setSelectedMessage(mMessageId);
         mMessageViewFragment = fragment;
         fragment.setCallback(mMessageViewFragmentCallback);
         fragment.openMessage(mMessageId);
@@ -499,6 +501,9 @@ class MessageListXLFragmentManager {
         if (mMessageViewFragment != null) {
             mFragmentManager.openTransaction().remove(mMessageViewFragment).commit();
             mMessageViewFragment = null;
+        }
+        if (mMessageListFragment != null) {
+            mMessageListFragment.setSelectedMessage(-1);
         }
     }
 

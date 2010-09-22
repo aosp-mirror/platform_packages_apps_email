@@ -79,6 +79,8 @@ public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
         OnClickListener, MoveMessageToDialog.Callback {
     private static final String BUNDLE_LIST_STATE = "MessageListFragment.state.listState";
+    private static final String BUNDLE_KEY_SELECTED_MESSAGE_ID
+            = "messageListFragment.state.listState.selected_message_id";
 
     private static final int LOADER_ID_MAILBOX_LOADER = 1;
     private static final int LOADER_ID_MESSAGES_LOADER = 2;
@@ -87,6 +89,7 @@ public class MessageListFragment extends ListFragment
     private Activity mActivity;
     private Callback mCallback = EmptyCallback.INSTANCE;
 
+    private ListView mListView;
     private View mListFooterView;
     private TextView mListFooterText;
     private View mListFooterProgress;
@@ -100,6 +103,8 @@ public class MessageListFragment extends ListFragment
 
     private long mMailboxId = -1;
     private long mLastLoadedMailboxId = -1;
+    private long mSelectedMessageId = -1;
+
     private Account mAccount;
     private Mailbox mMailbox;
     private boolean mIsEasAccount;
@@ -197,15 +202,16 @@ public class MessageListFragment extends ListFragment
         }
         super.onActivityCreated(savedInstanceState);
 
-        ListView listView = getListView();
-        listView.setOnItemClickListener(this);
-        listView.setOnItemLongClickListener(this);
-        listView.setItemsCanFocus(false);
+        mListView = getListView();
+        mListView.setOnItemClickListener(this);
+        mListView.setOnItemLongClickListener(this);
+        mListView.setItemsCanFocus(false);
+        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         mListAdapter = new MessagesAdapter(mActivity, this);
 
         mListFooterView = getActivity().getLayoutInflater().inflate(
-                R.layout.message_list_item_footer, listView, false);
+                R.layout.message_list_item_footer, mListView, false);
 
         if (savedInstanceState != null) {
             // Fragment doesn't have this method.  Call it manually.
@@ -273,12 +279,14 @@ public class MessageListFragment extends ListFragment
         super.onSaveInstanceState(outState);
         mListAdapter.onSaveInstanceState(outState);
         outState.putParcelable(BUNDLE_LIST_STATE, new Utility.ListStateSaver(getListView()));
+        outState.putLong(BUNDLE_KEY_SELECTED_MESSAGE_ID, mSelectedMessageId);
     }
 
     // Unit tests use it
     /* package */void loadState(Bundle savedInstanceState) {
         mListAdapter.loadState(savedInstanceState);
         mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
+        mSelectedMessageId = savedInstanceState.getLong(BUNDLE_KEY_SELECTED_MESSAGE_ID);
     }
 
     public void setCallback(Callback callback) {
@@ -308,6 +316,13 @@ public class MessageListFragment extends ListFragment
         onDeselectAll();
         if (mResumed) {
             startLoading();
+        }
+    }
+
+    public void setSelectedMessage(long messageId) {
+        mSelectedMessageId = messageId;
+        if (mResumed) {
+            highlightSelectedMessage();
         }
     }
 
@@ -920,6 +935,7 @@ public class MessageListFragment extends ListFragment
             addFooterView();
             updateSelectionMode();
             showSendPanelIfNecessary();
+            highlightSelectedMessage();
 
             // Restore the state -- it has to be the last.
             // (Some of the "post processing" resets the state.)
@@ -1097,5 +1113,25 @@ public class MessageListFragment extends ListFragment
 
     public State getState() {
         return new State(this);
+    }
+
+    /**
+     * Highlight the selected message.
+     */
+    private void highlightSelectedMessage() {
+        if (mSelectedMessageId == -1) {
+            // No mailbox selected
+            mListView.clearChoices();
+            return;
+        }
+
+        final int count = mListView.getCount();
+        for (int i = 0; i < count; i++) {
+            if (mListView.getItemIdAtPosition(i) == mSelectedMessageId) {
+                mListView.setItemChecked(i, true);
+                mListView.smoothScrollToPosition(i);
+                break;
+            }
+        }
     }
 }

@@ -223,14 +223,10 @@ import java.util.Set;
             subjectView.setTypeface(Typeface.DEFAULT);
             fromView.setTypeface(Typeface.DEFAULT);
             fromView.setTextColor(mTextColorSecondary);
-            view.setBackgroundDrawable(context.getResources().getDrawable(
-                    R.drawable.message_list_item_background_read));
         } else {
             subjectView.setTypeface(Typeface.DEFAULT_BOLD);
             fromView.setTypeface(Typeface.DEFAULT_BOLD);
             fromView.setTextColor(mTextColorPrimary);
-            view.setBackgroundDrawable(context.getResources().getDrawable(
-                    R.drawable.message_list_item_background_unread));
         }
 
         updateCheckBox(itemView);
@@ -294,11 +290,7 @@ import java.util.Set;
      * Update the background color according to the selection state.
      */
     public void updateBackgroundColor(MessageListItem itemView) {
-        if (isSelected(itemView)) {
-            itemView.setBackgroundColor(ITEM_BACKGROUND_SELECTED);
-        } else {
-            itemView.setBackgroundDrawable(null); // Change back to default.
-        }
+        // TODO Visual for selected items is not decided.
     }
 
     public static Loader<Cursor> createLoader(Context context, long mailboxId) {
