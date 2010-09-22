@@ -366,6 +366,14 @@ public class MessageListXL extends Activity implements
         public void onMailboxNotFound() {
             // TODO: What to do??
         }
+
+        @Override
+        public void onEnterSelectionMode(boolean enter) {
+            MessageViewFragment f = mFragmentManager.getMessageViewFragment();
+            if (f != null) {
+                f.showCommandbuttons(!enter);
+            }
+        }
     }
 
     private class MessageViewFragmentCallback implements MessageViewFragment.Callback {
@@ -457,6 +465,15 @@ public class MessageListXL extends Activity implements
         @Override
         public void onReplyAll() {
             MessageCompose.actionReply(MessageListXL.this, mFragmentManager.getMessageId(), true);
+        }
+
+        @Override
+        public boolean shouldShowCommandButtons() {
+            MessageListFragment f = mFragmentManager.getMessageListFragment();
+            if (f == null) {
+                return true;
+            }
+            return !f.isInSelectionMode();
         }
     }
 

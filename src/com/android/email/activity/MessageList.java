@@ -285,6 +285,10 @@ public class MessageList extends Activity implements OnClickListener,
         }
     }
 
+    @Override
+    public void onEnterSelectionMode(boolean enter) {
+    }
+
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_read_unread:

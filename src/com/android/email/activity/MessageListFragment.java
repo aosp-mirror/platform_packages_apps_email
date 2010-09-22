@@ -159,6 +159,12 @@ public class MessageListFragment extends ListFragment
          */
         public void onMessageOpen(long messageId, long messageMailboxId, long listMailboxId,
                 int type);
+
+        /**
+         * Called when entering/leaving selection mode.
+         * @param enter true if entering, false if leaving
+         */
+        public void onEnterSelectionMode(boolean enter);
     }
 
     private static final class EmptyCallback implements Callback {
@@ -170,6 +176,9 @@ public class MessageListFragment extends ListFragment
         @Override
         public void onMessageOpen(
                 long messageId, long messageMailboxId, long listMailboxId, int type) {
+        }
+        @Override
+        public void onEnterSelectionMode(boolean enter) {
         }
     }
 
@@ -363,7 +372,7 @@ public class MessageListFragment extends ListFragment
     /**
      * @return true if the list is in the "selection" mode.
      */
-    private boolean isInSelectionMode() {
+    public boolean isInSelectionMode() {
         return mSelectionMode != null;
     }
 
@@ -1001,6 +1010,8 @@ public class MessageListFragment extends ListFragment
             mMarkUnread = menu.findItem(R.id.mark_unread);
             mAddStar = menu.findItem(R.id.add_star);
             mRemoveStar = menu.findItem(R.id.remove_star);
+
+            mCallback.onEnterSelectionMode(true);
             return true;
         }
 
@@ -1044,6 +1055,7 @@ public class MessageListFragment extends ListFragment
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
+            mCallback.onEnterSelectionMode(false);
             onDeselectAll();
             mSelectionMode = null;
         }

@@ -94,9 +94,6 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
         findViewById(R.id.reply_all).setOnClickListener(this);
         findViewById(R.id.delete).setOnClickListener(this);
 
-        // For now, we don't use the buttons in the fragment, so let's hide them manually...
-        mFragment.hideCommandButtons();
-
         initFromIntent();
         if (icicle != null) {
             mMessageId = icicle.getLong(STATE_MESSAGE_ID, mMessageId);
@@ -365,5 +362,10 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     @Override
     public void onMoveMessage() {
         // TODO Implement this
+    }
+
+    @Override
+    public boolean shouldShowCommandButtons() {
+        return false;
     }
 }
