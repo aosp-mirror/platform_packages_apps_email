@@ -386,6 +386,7 @@ public class MessageView extends Activity implements OnClickListener {
         mMeetingNo.setOnClickListener(this);
         findViewById(R.id.invite_link).setOnClickListener(this);
 
+        mMessageContentView.setLongClickable(false);    // Conflicts with ScrollView, unfortunately
         mMessageContentView.setVerticalScrollBarEnabled(false);
         mMessageContentView.getSettings().setBlockNetworkLoads(true);
         mMessageContentView.getSettings().setSupportZoom(false);
