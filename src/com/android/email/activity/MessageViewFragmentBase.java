@@ -760,7 +760,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected void onPostExecute(Attachment[] attachments) {
-            if (attachments == null) {
+            if (isCancelled() || attachments == null) {
                 return;
             }
             boolean htmlChanged = false;
