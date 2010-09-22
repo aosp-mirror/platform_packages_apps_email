@@ -189,6 +189,16 @@ import android.widget.TextView;
             if (mMode == MODE_MOVE_TO_TARGET) {
                 return mailboxes;
             }
+            if (mailboxes.getCount() == 0) {
+                // If there's no mailboxes, don't merge special mailboxes.  Just return 0 row
+                // cursor.
+                // If there's no row, this means the account has just been set up or recovered and
+                // we're fetching mailboxes.  In this case, the mailbox list shouldn't just show
+                // special mailboxes.  It should show something to indicate it's still loading the
+                // list, which MailboxListFragment will do if it returns an empty cursor.
+                return mailboxes;
+            }
+
             final int numAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
             return new MergeCursor(
                     new Cursor[] {getSpecialMailboxesCursor(mContext, numAccounts > 1), mailboxes});
