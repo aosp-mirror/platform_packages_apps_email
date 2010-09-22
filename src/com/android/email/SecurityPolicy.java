@@ -422,23 +422,23 @@ public class SecurityPolicy {
         /*package*/ final int mMaxScreenLockTime;
         /*package*/ final boolean mRequireRemoteWipe;
 
-        public int getMinPasswordLength() {
+        public int getMinPasswordLengthForTest() {
             return mMinPasswordLength;
         }
 
-        public int getPasswordMode() {
+        public int getPasswordModeForTest() {
             return mPasswordMode;
         }
 
-        public int getMaxPasswordFails() {
+        public int getMaxPasswordFailsForTest() {
             return mMaxPasswordFails;
         }
 
-        public int getMaxScreenLockTime() {
+        public int getMaxScreenLockTimeForTest() {
             return mMaxScreenLockTime;
         }
 
-        public boolean isRequireRemoteWipe() {
+        public boolean isRequireRemoteWipeForTest() {
             return mRequireRemoteWipe;
         }
 
