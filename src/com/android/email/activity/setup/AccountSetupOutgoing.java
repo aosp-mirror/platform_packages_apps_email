@@ -223,7 +223,8 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
      */
     private void validateFields() {
         boolean enabled = 
-            Utility.requiredFieldValid(mServerView) && Utility.requiredFieldValid(mPortView);
+            Utility.requiredFieldValid(mServerView) 
+                && Utility.isPortFieldValid(mPortView);
 
         if (enabled && mRequireLoginView.isChecked()) {
             enabled = (Utility.requiredFieldValid(mUsernameView)
