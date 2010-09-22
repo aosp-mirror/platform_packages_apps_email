@@ -106,10 +106,10 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         }
         PolicySet ps = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE, 0,
                 PolicySet.SCREEN_LOCK_TIME_MAX + 1, false);
-        assertEquals(PolicySet.SCREEN_LOCK_TIME_MAX, ps.getMaxScreenLockTime());
+        assertEquals(PolicySet.SCREEN_LOCK_TIME_MAX, ps.getMaxScreenLockTimeForTest());
         ps = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE,
                 PolicySet.PASSWORD_MAX_FAILS_MAX + 1, 0, false);
-        assertEquals(PolicySet.PASSWORD_MAX_FAILS_MAX, ps.getMaxPasswordFails());
+        assertEquals(PolicySet.PASSWORD_MAX_FAILS_MAX, ps.getMaxPasswordFailsForTest());
         // All password related fields should be zero when password mode is NONE
         // Illegal values for these fields should be ignored
         ps = new PolicySet(999/*length*/, PolicySet.PASSWORD_MODE_NONE,
