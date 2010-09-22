@@ -113,11 +113,11 @@ public class ProvisionParserTests extends SyncAdapterTestCase {
         PolicySet ps = parser.getPolicySet();
         assertNotNull(ps);
         // Check the settings to make sure they were parsed correctly
-        assertEquals(5*60, ps.getMaxScreenLockTime());  // Screen lock time is in seconds
-        assertEquals(8, ps.getMinPasswordLength());
-        assertEquals(PolicySet.PASSWORD_MODE_STRONG, ps.getPasswordMode());
-        assertEquals(20, ps.getMaxPasswordFails());
-        assertTrue(ps.isRequireRemoteWipe());
+        assertEquals(5*60, ps.getMaxScreenLockTimeForTest());  // Screen lock time is in seconds
+        assertEquals(8, ps.getMinPasswordLengthForTest());
+        assertEquals(PolicySet.PASSWORD_MODE_STRONG, ps.getPasswordModeForTest());
+        assertEquals(20, ps.getMaxPasswordFailsForTest());
+        assertTrue(ps.isRequireRemoteWipeForTest());
     }
 
     public void testWapProvisionParser2() throws IOException {
@@ -126,7 +126,7 @@ public class ProvisionParserTests extends SyncAdapterTestCase {
         PolicySet ps = parser.getPolicySet();
         assertNotNull(ps);
         // Password should be set to none; others are ignored in this case.
-        assertEquals(PolicySet.PASSWORD_MODE_NONE, ps.getPasswordMode());
+        assertEquals(PolicySet.PASSWORD_MODE_NONE, ps.getPasswordModeForTest());
     }
 
     public void testWapProvisionParser3() throws IOException {
@@ -135,10 +135,10 @@ public class ProvisionParserTests extends SyncAdapterTestCase {
         PolicySet ps = parser.getPolicySet();
         assertNotNull(ps);
         // Password should be set to simple
-        assertEquals(2*60, ps.getMaxScreenLockTime());  // Screen lock time is in seconds
-        assertEquals(4, ps.getMinPasswordLength());
-        assertEquals(PolicySet.PASSWORD_MODE_SIMPLE, ps.getPasswordMode());
-        assertEquals(5, ps.getMaxPasswordFails());
-        assertTrue(ps.isRequireRemoteWipe());
+        assertEquals(2*60, ps.getMaxScreenLockTimeForTest());  // Screen lock time is in seconds
+        assertEquals(4, ps.getMinPasswordLengthForTest());
+        assertEquals(PolicySet.PASSWORD_MODE_SIMPLE, ps.getPasswordModeForTest());
+        assertEquals(5, ps.getMaxPasswordFailsForTest());
+        assertTrue(ps.isRequireRemoteWipeForTest());
     }
 }
