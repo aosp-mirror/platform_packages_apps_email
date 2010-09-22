@@ -557,6 +557,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mQuotedTextBar.setVisibility(View.GONE);
         mQuotedText.setVisibility(View.GONE);
 
+        mQuotedText.setLongClickable(false);    // Conflicts with ScrollView, unfortunately
         mQuotedTextDelete.setOnClickListener(this);
 
         EmailAddressValidator addressValidator = new EmailAddressValidator();
