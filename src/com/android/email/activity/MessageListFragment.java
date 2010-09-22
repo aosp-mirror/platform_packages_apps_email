@@ -382,11 +382,7 @@ public class MessageListFragment extends ListFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
             MessageListItem itemView = (MessageListItem) view;
-            if (isInSelectionMode()) {
-                toggleSelection(itemView);
-            } else {
-                onMessageOpen(itemView.mMailboxId, id);
-            }
+            onMessageOpen(itemView.mMailboxId, id);
         } else {
             doFooterClick();
         }
@@ -394,12 +390,8 @@ public class MessageListFragment extends ListFragment
 
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
-            if (isInSelectionMode()) {
-                // Already in selection mode.  Ignore.
-            } else {
-                toggleSelection((MessageListItem) view);
-                return true;
-            }
+            toggleSelection((MessageListItem) view);
+            return true;
         }
         return false;
     }
