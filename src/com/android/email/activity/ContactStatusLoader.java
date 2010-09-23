@@ -31,6 +31,7 @@ import android.provider.ContactsContract.CommonDataKinds.Photo;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.StatusUpdates;
+import android.util.Log;
 
 /**
  * Loader to load presence statuses and the contact photoes.
@@ -115,7 +116,12 @@ public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Res
                     ContentUris.withAppendedId(Data.CONTENT_URI, photoId), PHOTO_PROJECTION,
                     null, null, null, PHOTO_COLUMN, null);
             if (photoData != null) {
-                photo = BitmapFactory.decodeByteArray(photoData, 0, photoData.length, null);
+                try {
+                    photo = BitmapFactory.decodeByteArray(photoData, 0, photoData.length, null);
+                } catch (OutOfMemoryError e) {
+                    Log.d(com.android.email.Email.LOG_TAG,
+                            "Decoding bitmap failed with " + e.getMessage());
+                }
             }
         }
 

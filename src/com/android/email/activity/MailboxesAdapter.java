@@ -53,8 +53,6 @@ import android.widget.TextView;
     public static final int MODE_NORMAL = 0;
     public static final int MODE_MOVE_TO_TARGET = 1;
 
-    private static final int AUTO_REQUERY_TIMEOUT = 3 * 1000; // in ms
-
     private static final String[] PROJECTION = new String[] { MailboxColumns.ID,
             MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
             MailboxColumns.MESSAGE_COUNT};
@@ -177,8 +175,7 @@ import android.widget.TextView;
         public MailboxesLoader(Context context, long accountId, int mode) {
             super(context, EmailContent.Mailbox.CONTENT_URI,
                     MailboxesAdapter.PROJECTION, getSelection(mode),
-                    new String[] { String.valueOf(accountId) },
-                    MAILBOX_ORDER_BY, AUTO_REQUERY_TIMEOUT);
+                    new String[] { String.valueOf(accountId) }, MAILBOX_ORDER_BY);
             mContext = context;
             mMode = mode;
         }
@@ -189,6 +186,16 @@ import android.widget.TextView;
             if (mMode == MODE_MOVE_TO_TARGET) {
                 return mailboxes;
             }
+            if (mailboxes.getCount() == 0) {
+                // If there's no mailboxes, don't merge special mailboxes.  Just return 0 row
+                // cursor.
+                // If there's no row, this means the account has just been set up or recovered and
+                // we're fetching mailboxes.  In this case, the mailbox list shouldn't just show
+                // special mailboxes.  It should show something to indicate it's still loading the
+                // list, which MailboxListFragment will do if it returns an empty cursor.
+                return mailboxes;
+            }
+
             final int numAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
             return new MergeCursor(
                     new Cursor[] {getSpecialMailboxesCursor(mContext, numAccounts > 1), mailboxes});

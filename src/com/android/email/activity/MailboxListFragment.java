@@ -265,6 +265,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             }
 
             if (cursor.getCount() == 0) {
+                // If there's no row, don't set it to the ListView.
+                // Instead use setListShown(false) to make ListFragment show progress icon.
                 mListAdapter.changeCursor(null);
                 setListShown(false);
             } else {
@@ -303,6 +305,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         for (int i = 0; i < count; i++) {
             if (mListView.getItemIdAtPosition(i) == mSelectedMailboxId) {
                 mListView.setItemChecked(i, true);
+                mListView.smoothScrollToPosition(i);
                 break;
             }
         }

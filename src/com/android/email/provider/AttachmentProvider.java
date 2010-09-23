@@ -36,6 +36,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
@@ -272,13 +273,19 @@ public class AttachmentProvider extends ContentProvider {
                         InputStream in =
                             getContext().getContentResolver().openInputStream(attachmentUri);
                         Bitmap thumbnail = createThumbnail(type, in);
+                        if (thumbnail == null) {
+                            return null;
+                        }
                         thumbnail = Bitmap.createScaledBitmap(thumbnail, width, height, true);
                         FileOutputStream out = new FileOutputStream(file);
                         thumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
                         out.close();
                         in.close();
-                    }
-                    catch (IOException ioe) {
+                    } catch (IOException ioe) {
+                        Log.d(Email.LOG_TAG, "openFile/thumbnail failed with " + ioe.getMessage());
+                        return null;
+                    } catch (OutOfMemoryError oome) {
+                        Log.d(Email.LOG_TAG, "openFile/thumbnail failed with " + oome.getMessage());
                         return null;
                     }
                 }
@@ -387,20 +394,15 @@ public class AttachmentProvider extends ContentProvider {
         try {
             Bitmap bitmap = BitmapFactory.decodeStream(data);
             return bitmap;
-        }
-        catch (OutOfMemoryError oome) {
-            /*
-             * Improperly downloaded images, corrupt bitmaps and the like can commonly
-             * cause OOME due to invalid allocation sizes. We're happy with a null bitmap in
-             * that case. If the system is really out of memory we'll know about it soon
-             * enough.
-             */
+        } catch (OutOfMemoryError oome) {
+            Log.d(Email.LOG_TAG, "createImageThumbnail failed with " + oome.getMessage());
             return null;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
+            Log.d(Email.LOG_TAG, "createImageThumbnail failed with " + e.getMessage());
             return null;
         }
     }
+
     /**
      * Resolve attachment id to content URI.  Returns the resolved content URI (from the attachment
      * DB) or, if not found, simply returns the incoming value.

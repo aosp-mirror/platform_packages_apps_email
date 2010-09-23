@@ -16,12 +16,15 @@
 
 package com.android.email.data;
 
+import com.android.email.Clock;
+
 import android.content.Context;
 import android.content.CursorLoader;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 
+import java.security.InvalidParameterException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -30,29 +33,66 @@ import java.util.TimerTask;
  *
  * This class overrides {@link android.content.Loader#onContentChanged}, and instead of immediately
  * requerying, it waits until the specified timeout before doing so.
+ *
+ * There are two timeout settings: {@link #mMinTimeout} and {@link #mMaxTimeout}.
+ * We normally use {@link #mMinTimeout}, but if we detect more than one change in
+ * the {@link #TIMEOUT_EXTEND_INTERVAL} period, we double it, until it reaches {@link #mMaxTimeout}.
  */
 public class ThrottlingCursorLoader extends CursorLoader {
     private static final boolean DEBUG = false; // Don't submit with true
 
+    /* package */ static final int TIMEOUT_EXTEND_INTERVAL = 500;
+
+    private static final int DEFAULT_MIN_TIMEOUT = 150;
+    private static final int DEFAULT_MAX_TIMEOUT = 2500;
+
     private static Timer sTimer = new Timer();
+
+    private final Clock mClock;
 
     /** Handler for the UI thread. */
     private final Handler mHandler = new Handler();
 
+    /** Minimum (default) timeout */
+    private final int mMinTimeout;
+
+    /** Max timeout */
+    private final int mMaxTimeout;
+
     /** Content change auto-requery timeout, in milliseconds. */
-    private final int mTimeout;
+    private int mTimeout;
+
+    /** When onChanged() was last called. */
+    private long mLastOnChangedTime;
 
     private ForceLoadTimerTask mRunningForceLoadTimerTask;
 
-    /**
-     * Constructor.  Same as the one of {@link CursorLoader}, but takes {@code timeoutSecond}.
-     *
-     * @param timeout Content change auto-requery timeout in milliseconds.
-     */
+    /** Constructor with default timeout */
     public ThrottlingCursorLoader(Context context, Uri uri, String[] projection, String selection,
-            String[] selectionArgs, String sortOrder, int timeout) {
+            String[] selectionArgs, String sortOrder) {
+        this(context, uri, projection, selection, selectionArgs, sortOrder, DEFAULT_MIN_TIMEOUT,
+                DEFAULT_MAX_TIMEOUT);
+    }
+
+    /** Constructor that takes custom timeout */
+    public ThrottlingCursorLoader(Context context, Uri uri, String[] projection, String selection,
+            String[] selectionArgs, String sortOrder, int minTimeout, int maxTimeout) {
+        this(context, uri, projection, selection, selectionArgs, sortOrder, minTimeout, maxTimeout,
+                Clock.INSTANCE);
+    }
+
+    /** Constructor for tests.  Clock is injectable. */
+    /* package */ ThrottlingCursorLoader(Context context, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder,
+            int minTimeout, int maxTimeout, Clock clock) {
         super(context, uri, projection, selection, selectionArgs, sortOrder);
-        mTimeout = timeout;
+        mClock = clock;
+        if (maxTimeout < minTimeout) {
+            throw new InvalidParameterException();
+        }
+        mMinTimeout = minTimeout;
+        mMaxTimeout = maxTimeout;
+        mTimeout = mMinTimeout;
     }
 
     private void debugLog(String message) {
@@ -98,19 +138,34 @@ public class ThrottlingCursorLoader extends CursorLoader {
         super.stopLoading();
     }
 
+    /* package */ void updateTimeout() {
+        final long now = mClock.getTime();
+        if ((now - mLastOnChangedTime) <= TIMEOUT_EXTEND_INTERVAL) {
+            if (DEBUG) debugLog("Extending timeout: " + mTimeout);
+            mTimeout *= 2;
+            if (mTimeout >= mMaxTimeout) {
+                mTimeout = mMaxTimeout;
+            }
+        } else {
+            if (DEBUG) debugLog("Resetting timeout.");
+            mTimeout = mMinTimeout;
+        }
+
+        mLastOnChangedTime = now;
+    }
+
     @Override
     public void onContentChanged() {
         if (DEBUG) debugLog("onContentChanged");
-        if (mTimeout <= 0) {
-            forceLoad();
+
+        updateTimeout();
+
+        if (isForceLoadScheduled()) {
+            if (DEBUG) debugLog("    forceLoad already scheduled.");
         } else {
-            if (isForceLoadScheduled()) {
-                if (DEBUG) debugLog("    forceLoad already scheduled.");
-            } else {
-                if (DEBUG) debugLog("    scheduling forceLoad.");
-                mRunningForceLoadTimerTask = new ForceLoadTimerTask();
-                sTimer.schedule(mRunningForceLoadTimerTask, mTimeout);
-            }
+            if (DEBUG) debugLog("    scheduling forceLoad.");
+            mRunningForceLoadTimerTask = new ForceLoadTimerTask();
+            sTimer.schedule(mRunningForceLoadTimerTask, mTimeout);
         }
     }
 
@@ -139,5 +194,13 @@ public class ThrottlingCursorLoader extends CursorLoader {
                 }
             }
         }
+    }
+
+    /* package */ int getTimeoutForTest() {
+        return mTimeout;
+    }
+
+    /* package */ long getLastOnChangedTimeForTest() {
+        return mLastOnChangedTime;
     }
 }

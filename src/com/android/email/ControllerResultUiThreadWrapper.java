@@ -54,6 +54,11 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
             final long attachmentId, final int progress) {
         run(new Runnable() {
             public void run() {
+                /* It's possible this callback is unregistered after this Runnable was posted and
+                 * sitting in the handler queue, so we always need to check if it's still registered
+                 * on the UI thread.
+                 */
+                if (!isRegistered()) return;
                 mWrappee.loadAttachmentCallback(result, messageId, attachmentId, progress);
             }
         });
@@ -64,6 +69,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
             final long messageId, final int progress) {
         run(new Runnable() {
             public void run() {
+                if (!isRegistered()) return;
                 mWrappee.loadMessageForViewCallback(result, messageId, progress);
             }
         });
@@ -74,6 +80,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
             final long messageId, final int progress) {
         run(new Runnable() {
             public void run() {
+                if (!isRegistered()) return;
                 mWrappee.sendMailCallback(result, accountId, messageId, progress);
             }
         });
@@ -84,6 +91,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
             final long mailboxId, final int progress, final long tag) {
         run(new Runnable() {
             public void run() {
+                if (!isRegistered()) return;
                 mWrappee.serviceCheckMailCallback(result, accountId, mailboxId, progress, tag);
             }
         });
@@ -94,6 +102,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
             final long mailboxId, final int progress, final int numNewMessages) {
         run(new Runnable() {
             public void run() {
+                if (!isRegistered()) return;
                 mWrappee.updateMailboxCallback(result, accountId, mailboxId, progress,
                         numNewMessages);
             }
@@ -105,6 +114,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
             final int progress) {
         run(new Runnable() {
             public void run() {
+                if (!isRegistered()) return;
                 mWrappee.updateMailboxListCallback(result, accountId, progress);
             }
         });
@@ -114,6 +124,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
     public void deleteAccountCallback(final long accountId) {
         run(new Runnable() {
             public void run() {
+                if (!isRegistered()) return;
                 mWrappee.deleteAccountCallback(accountId);
             }
         });

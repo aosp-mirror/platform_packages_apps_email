@@ -74,9 +74,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // TODO Restore "Show pictures" state and scroll position on rotation.
-// TODO New UI allows MessageListFragment to toggle star while MessageViewFragment is shown, which
-//      means this fragment needs to observe DB changes and refresh the UI.
-//      (But what about "mark as unread"?)
+// TODO Interaction with MessageListFragment
+//    Messages can now be moved, deleted, starred, and makred as unread at anytime, without this
+//    fragment knowing it. Update (or close or whatever) the fragment as necessary.
 
 /**
  * Base class for {@link MessageViewFragment} and {@link MessageFileViewFragment}.
@@ -760,7 +760,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected void onPostExecute(Attachment[] attachments) {
-            if (attachments == null) {
+            if (isCancelled() || attachments == null) {
                 return;
             }
             boolean htmlChanged = false;
@@ -796,7 +796,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                                     PREVIEW_ICON_WIDTH,
                                     PREVIEW_ICON_HEIGHT)));
         } catch (Exception e) {
-            // We don't care what happened, we just return null for the preview icon.
+            Log.d(Email.LOG_TAG, "Attachment preview failed with exception " + e.getMessage());
             return null;
         }
     }

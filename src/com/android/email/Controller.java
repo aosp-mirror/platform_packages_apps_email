@@ -161,6 +161,7 @@ public class Controller {
      */
     public void addResultCallback(Result listener) {
         synchronized (mListeners) {
+            listener.setRegistered(true);
             mListeners.add(listener);
         }
     }
@@ -174,6 +175,7 @@ public class Controller {
      */
     public void removeResultCallback(Result listener) {
         synchronized (mListeners) {
+            listener.setRegistered(false);
             mListeners.remove(listener);
         }
     }
@@ -986,6 +988,16 @@ public class Controller {
      * made from the UI thread, so you may need further handlers to safely make UI updates.
      */
     public static abstract class Result {
+        private volatile boolean mRegistered;
+
+        private void setRegistered(boolean registered) {
+            mRegistered = registered;
+        }
+
+        protected final boolean isRegistered() {
+            return mRegistered;
+        }
+
         /**
          * Callback for updateMailboxList
          *

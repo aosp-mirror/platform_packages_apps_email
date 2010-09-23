@@ -26,22 +26,16 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
-/*
-  TODO: When opening a mailbox I see this:
-D Email   : com.android.email.activity.MailboxListFragment openMailboxes
-D Email   : com.android.email.activity.MailboxListFragment onCreate *1 <- Why second instance???
-D Email   : com.android.email.activity.MailboxListFragment onActivityCreated
-D Email   : com.android.email.activity.MailboxListFragment onStart
-D Email   : com.android.email.activity.MailboxListFragment onResume
- */
-
 /**
  * A class manages what are showing on {@link MessageListXL} (i.e. account id, mailbox id, and
  * message id), and show/hide fragments accordingly.
+ *
+ * TODO Highlight selected message on message list
  *
  * TODO: Test it.  It's testable if we implement MockFragmentTransaction, which may be too early
  * to do so at this point.  (API may not be stable enough yet.)
@@ -71,6 +65,10 @@ class MessageListXLFragmentManager {
 
     /** Current message id. (-1 = not selected) */
     private long mMessageId = -1;
+
+    private View mLeftPane;
+    private View mMiddlePane;
+    private View mRightPane;
 
     private MailboxListFragment mMailboxListFragment;
     private MessageListFragment mMessageListFragment;
@@ -105,6 +103,8 @@ class MessageListXLFragmentManager {
          * Called when the current mailbox has changed.
          */
         public void onMailboxChanged(long accountId, long newMailboxId);
+
+        public View findViewById(int id);
     }
 
     private final TargetActivity mTargetActivity;
@@ -114,6 +114,18 @@ class MessageListXLFragmentManager {
         mContext = activity;
         mTargetActivity = activity;
         mFragmentManager = mTargetActivity.getFragmentManager();
+    }
+
+    /**
+     * Must be called just after the activity sets up the content view.
+     *
+     * (Due to the complexity regarding class/activity initialization order, we can't do this in
+     * the constructor.)
+     */
+    public void onActivityViewReady() {
+        mLeftPane = mTargetActivity.findViewById(R.id.left_pane);
+        mMiddlePane = mTargetActivity.findViewById(R.id.middle_pane);
+        mRightPane = mTargetActivity.findViewById(R.id.right_pane);
     }
 
     /** Set callback for fragment. */
@@ -324,6 +336,7 @@ class MessageListXLFragmentManager {
         } else {
             selectMailbox(mailboxId, byExplicitUserAction);
         }
+        hideMessageView();
     }
 
     private void updateMailboxListFragment(MailboxListFragment fragment) {
@@ -339,6 +352,9 @@ class MessageListXLFragmentManager {
         if (mMailboxId != -1) {
             mMailboxListFragment.setSelectedMailbox(mMailboxId);
         }
+        if (!isMessageSelected()) {
+            hideMessageView();
+        }
     }
 
     /**
@@ -346,6 +362,7 @@ class MessageListXLFragmentManager {
      */
     public void goBackToMailbox() {
         if (isMessageSelected()) {
+            hideMessageView();
             selectMailbox(getMailboxId(), false);
         }
     }
@@ -367,7 +384,8 @@ class MessageListXLFragmentManager {
         if (mailboxId == -1) {
             throw new InvalidParameterException();
         }
-        if ((mMailboxId == mailboxId) && !isMessageSelected()) {
+
+        if (mMailboxId == mailboxId) {
             return;
         }
 
@@ -381,12 +399,15 @@ class MessageListXLFragmentManager {
             if (byExplicitUserAction) {
                 f.doAutoRefresh();
             }
-            mFragmentManager.openTransaction().replace(R.id.right_pane, f).commit();
-
+            FragmentTransaction ft = mFragmentManager.openTransaction()
+                    .replace(R.id.middle_pane, f);
             if (mMessageViewFragment != null) {
                 // Message view will disappear.
+                ft.remove(mMessageViewFragment);
                 mMessageViewFragment = null;
             }
+            ft.commit();
+
         } else {
             if (byExplicitUserAction) {
                 mMessageListFragment.doAutoRefresh();
@@ -396,6 +417,7 @@ class MessageListXLFragmentManager {
         if (mMailboxListFragment != null) {
             mMailboxListFragment.setSelectedMailbox(mMailboxId);
         }
+        hideMessageView();
     }
 
     private void updateMessageListFragment(MessageListFragment fragment) {
@@ -411,6 +433,9 @@ class MessageListXLFragmentManager {
         mMessageListFragment.openMailbox(mMailboxId);
         restoreMesasgeListState();
         mTargetActivity.onMailboxChanged(mAccountId, mMailboxId);
+        if (!isMessageSelected()) {
+            hideMessageView();
+        }
     }
 
     /**
@@ -445,7 +470,6 @@ class MessageListXLFragmentManager {
             mFragmentManager.openTransaction().replace(R.id.right_pane, f)
 //                    .addToBackStack(null)
                     .commit();
-            mMessageListFragment = null;
         } else {
             updateMessageViewFragment(mMessageViewFragment);
         }
@@ -458,9 +482,29 @@ class MessageListXLFragmentManager {
         if (mAccountId == -1 || mMailboxId == -1 || mMessageId == -1) { // Shouldn't happen
             throw new RuntimeException();
         }
+        mMessageListFragment.setSelectedMessage(mMessageId);
         mMessageViewFragment = fragment;
         fragment.setCallback(mMessageViewFragmentCallback);
         fragment.openMessage(mMessageId);
+        hideMessageBoxList();
+    }
+
+    private void hideMessageBoxList() {
+        mLeftPane.setVisibility(View.GONE);
+        mRightPane.setVisibility(View.VISIBLE);
+    }
+
+    private void hideMessageView() {
+        mMessageId = -1;
+        mRightPane.setVisibility(View.GONE);
+        mLeftPane.setVisibility(View.VISIBLE);
+        if (mMessageViewFragment != null) {
+            mFragmentManager.openTransaction().remove(mMessageViewFragment).commit();
+            mMessageViewFragment = null;
+        }
+        if (mMessageListFragment != null) {
+            mMessageListFragment.setSelectedMessage(-1);
+        }
     }
 
     private void startInboxLookup() {

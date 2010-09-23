@@ -38,8 +38,6 @@ import android.widget.TextView;
  * simpler for now.)  Maybe we can just use SimpleCursorAdapter.
  */
 public class AccountSelectorAdapter extends CursorAdapter {
-    private static final int REFRESH_INTERVAL = 3000; // in ms
-
     private static final String[] PROJECTION = new String[] {
         EmailContent.RECORD_ID,
         EmailContent.Account.DISPLAY_NAME,
@@ -58,7 +56,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
     public static Loader<Cursor> createLoader(Context context) {
         return new ThrottlingCursorLoader(context, EmailContent.Account.CONTENT_URI, PROJECTION,
-                null, null, ORDER_BY, REFRESH_INTERVAL);
+                null, null, ORDER_BY);
     }
 
     public AccountSelectorAdapter(Context context, Cursor c) {

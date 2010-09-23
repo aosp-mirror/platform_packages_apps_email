@@ -112,6 +112,12 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         public void onReply();
         /** Called when the reply-all button is pressed. */
         public void onReplyAll();
+
+        /**
+         * The fragment call it to see if the command buttons should be shown.
+         * (We want to hide them if the message list is in the selection mode.)
+         */
+        public boolean shouldShowCommandButtons();
     }
 
     public static final class EmptyCallback extends MessageViewFragmentBase.EmptyCallback
@@ -128,6 +134,7 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         @Override public void onForward() { }
         @Override public void onReply() { }
         @Override public void onReplyAll() { }
+        @Override public boolean shouldShowCommandButtons() { return true; }
     }
 
     private Callback mCallback = EmptyCallback.INSTANCE;
@@ -167,16 +174,26 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         return view;
     }
 
-    public void setCallback(Callback callback) {
-        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
-        super.setCallback(mCallback);
+    @Override
+    public void onResume() {
+        super.onResume();
+        initCommandButtons();
     }
 
     /**
-     * @deprecated TODO Remove this call from MessageView
+     * Initialize command buttons
+     * - Hide the panel if not necessary
+     * - Disable the buttons that can be disabled (to avoid flicker)
      */
-    public void hideCommandButtons() {
-        mCommandButtons.setVisibility(View.GONE);
+    private void initCommandButtons() {
+        showCommandbuttons(mCallback.shouldShowCommandButtons());
+        mCommandButtons.enableNavigationButons(false, false);
+        mCommandButtons.enableReplyForwardButtons(false);
+    }
+
+    public void setCallback(Callback callback) {
+        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
+        super.setCallback(mCallback);
     }
 
     /** Called by activities to set an id of a message to open. */
@@ -213,6 +230,10 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         // it's possible due to a problem with "All Starred".)
         mCommandButtons.enableReplyForwardButtons((mailboxType != Mailbox.TYPE_TRASH)
                 && (mailboxType != Mailbox.TYPE_TRASH));
+    }
+
+    public void showCommandbuttons(boolean show) {
+        mCommandButtons.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     public void enableNavigationButons(boolean enableMoveToNewer, boolean enableMoveToOlder) {
