@@ -37,6 +37,7 @@ import android.accounts.AccountManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -116,6 +117,10 @@ public class EmailProvider extends ContentProvider {
     public static final int BODY_DATABASE_VERSION = 6;
 
     public static final String EMAIL_AUTHORITY = "com.android.email.provider";
+    // The notifier authority is used to send notifications regarding changes to messages (insert,
+    // delete, or update) and is intended as an optimization for use by clients of message list
+    // cursors (initially, the email AppWidget).
+    public static final String EMAIL_NOTIFIER_AUTHORITY = "com.android.email.notifier";
 
     private static final int ACCOUNT_BASE = 0;
     private static final int ACCOUNT = ACCOUNT_BASE;
@@ -911,6 +916,7 @@ public class EmailProvider extends ContentProvider {
         int table = match >> BASE_SHIFT;
         String id = "0";
         boolean messageDeletion = false;
+        ContentResolver resolver = context.getContentResolver();
 
         if (Email.LOGD) {
             Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
@@ -940,6 +946,7 @@ public class EmailProvider extends ContentProvider {
                     // Bodies are auto-deleted here;  Attachments are auto-deleted via trigger
                     messageDeletion = true;
                     db.beginTransaction();
+                    resolver.notifyChange(Message.NOTIFIER_URI, null);
                     break;
             }
             switch (match) {
@@ -1045,7 +1052,7 @@ public class EmailProvider extends ContentProvider {
         }
 
         // Notify all existing cursors.
-        getContext().getContentResolver().notifyChange(EmailContent.CONTENT_URI, null);
+        resolver.notifyChange(EmailContent.CONTENT_URI, null);
         return result;
     }
 
@@ -1101,6 +1108,8 @@ public class EmailProvider extends ContentProvider {
         if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         int match = sURIMatcher.match(uri);
         Context context = getContext();
+        ContentResolver resolver = context.getContentResolver();
+
         // See the comment at delete(), above
         SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
@@ -1121,10 +1130,12 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
+                case MESSAGE:
+                    resolver.notifyChange(Message.NOTIFIER_URI, null);
+                    //$FALL-THROUGH$
                 case UPDATED_MESSAGE:
                 case DELETED_MESSAGE:
                 case BODY:
-                case MESSAGE:
                 case ATTACHMENT:
                 case MAILBOX:
                 case ACCOUNT:
@@ -1175,7 +1186,7 @@ public class EmailProvider extends ContentProvider {
         }
 
         // Notify all existing cursors.
-        getContext().getContentResolver().notifyChange(EmailContent.CONTENT_URI, null);
+        resolver.notifyChange(EmailContent.CONTENT_URI, null);
         return resultUri;
     }
 
@@ -1360,6 +1371,7 @@ public class EmailProvider extends ContentProvider {
 
         int match = sURIMatcher.match(uri);
         Context context = getContext();
+        ContentResolver resolver = context.getContentResolver();
         // See the comment at delete(), above
         SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
@@ -1411,10 +1423,12 @@ public class EmailProvider extends ContentProvider {
                     db.setTransactionSuccessful();
                     db.endTransaction();
                     break;
-                case BODY_ID:
-                case MESSAGE_ID:
                 case SYNCED_MESSAGE_ID:
+                    resolver.notifyChange(Message.NOTIFIER_URI, null);
+                  //$FALL-THROUGH$
                 case UPDATED_MESSAGE_ID:
+                case MESSAGE_ID:
+                case BODY_ID:
                 case ATTACHMENT_ID:
                 case MAILBOX_ID:
                 case ACCOUNT_ID:
@@ -1490,7 +1504,7 @@ public class EmailProvider extends ContentProvider {
             throw e;
         }
 
-        context.getContentResolver().notifyChange(notificationUri, null);
+        resolver.notifyChange(notificationUri, null);
         return result;
     }
 

@@ -1012,6 +1012,19 @@ save attachment.</string>
     <!-- Generic string for "current position" / "total number" [CHAR LIMIT=12] -->
     <string name="position_of_count"><xliff:g example="1">%1$d</xliff:g> of <xliff:g
             example="12">%2$s</xliff:g></string>
+
+    <!-- Widget -->
+    <!-- Instruction for how to move to different widget views [CHAR LIMIT=50] -->
+    <string name="widget_other_views">Tap email icon for other views</string>
+    <!-- Header for the "All Mail" widget view (showing all of the user's mail) [CHAR LIMIT=20] -->
+    <string name="widget_all_mail">All Mail</string>
+    <!-- Header for the "Unread" widget view (showing all unread mail) [CHAR LIMIT=20] -->
+    <string name="widget_unread">All Unread</string>
+    <!-- Header for the "Starred" widget view (showing all starred mail) [CHAR LIMIT=20] -->
+    <string name="widget_starred">All Starred</string>
+    <!-- Shown when waiting for mail data to be loaded into the widget list view [CHAR LIMIT=20] -->
+    <string name="widget_loading">Loading\u2026</string>
+
     <!--
         Strings for temporary UI
         STOPSHIP Remove them or move them up and make translatable
