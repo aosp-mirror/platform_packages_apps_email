@@ -21,7 +21,7 @@
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Accéder aux données du client de messagerie"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"Autorise l\'application à accéder à la base de données de votre messagerie électronique, y compris aux messages reçus et envoyés, aux noms d\'utilisateur et aux mots de passe."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
-    <string name="compose_title" msgid="427986915662706899">"Composer"</string>
+    <string name="compose_title" msgid="427986915662706899">"Nouveau message"</string>
     <string name="debug_title" msgid="5175710493691536719">"Débogage"</string>
     <string name="next_action" msgid="3931301986364184415">"Suivant"</string>
     <string name="okay_action" msgid="8365197396795675617">"OK"</string>
