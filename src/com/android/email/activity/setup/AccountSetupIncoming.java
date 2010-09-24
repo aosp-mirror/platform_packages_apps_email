@@ -33,7 +33,7 @@ import android.os.Bundle;
 public class AccountSetupIncoming extends AccountSetupActivity
         implements AccountSetupIncomingFragment.Callback {
 
-    private AccountSetupIncomingFragment mFragment;
+    /* package */ AccountSetupIncomingFragment mFragment;
     /* package */ boolean mNextButtonEnabled;
 
     public static void actionIncomingSettings(Activity fromActivity, int mode, Account account) {
