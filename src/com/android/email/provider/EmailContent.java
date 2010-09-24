@@ -1455,17 +1455,18 @@ public abstract class EmailContent {
          */
         public static boolean isValidId(Context context, long accountId) {
             return null != Utility.getFirstRowLong(context, CONTENT_URI, ID_PROJECTION,
-                    ID_SELECTION, new String[] {Long.toString(accountId)}, null, 0);
+                    ID_SELECTION, new String[] {Long.toString(accountId)}, null,
+                    ID_PROJECTION_COLUMN);
         }
 
         /**
          * Check a single account for security hold status.
          */
         public static boolean isSecurityHold(Context context, long accountId) {
-            Long flags = Utility.getFirstRowLong(context,
+            return (Utility.getFirstRowLong(context,
                     ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
-                    ACCOUNT_FLAGS_PROJECTION, null, null, null, ACCOUNT_FLAGS_COLUMN_FLAGS);
-            return (flags != null) && ((flags & Account.FLAGS_SECURITY_HOLD) != 0);
+                    ACCOUNT_FLAGS_PROJECTION, null, null, null, ACCOUNT_FLAGS_COLUMN_FLAGS, 0L)
+                    & Account.FLAGS_SECURITY_HOLD) != 0;
         }
 
         /**
@@ -1474,7 +1475,7 @@ public abstract class EmailContent {
         public static long getInboxId(Context context, long accountId) {
             return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI, ID_PROJECTION,
                     FIND_INBOX_SELECTION, new String[] {Long.toString(accountId)}, null,
-                    ID_PROJECTION_COLUMN);
+                    ID_PROJECTION_COLUMN, -1L);
         }
 
         /**
@@ -2294,19 +2295,17 @@ public abstract class EmailContent {
         }
 
         public static int getUnreadCountByMailboxType(Context context, int type) {
-            return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI,
+            return Utility.getFirstRowInt(context, Mailbox.CONTENT_URI,
                     MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION,
                     MAILBOX_TYPE_SELECTION,
-                    new String[] { String.valueOf(type) }, null, UNREAD_COUNT_COUNT_COLUMN)
-                            .intValue();
+                    new String[] { String.valueOf(type) }, null, UNREAD_COUNT_COUNT_COLUMN, 0);
         }
 
         public static int getMessageCountByMailboxType(Context context, int type) {
-            return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI,
+            return Utility.getFirstRowInt(context, Mailbox.CONTENT_URI,
                     MAILBOX_SUM_OF_MESSAGE_COUNT_PROJECTION,
                     MAILBOX_TYPE_SELECTION,
-                    new String[] { String.valueOf(type) }, null, MESSAGE_COUNT_COUNT_COLUMN)
-                            .intValue();
+                    new String[] { String.valueOf(type) }, null, MESSAGE_COUNT_COUNT_COLUMN, 0);
         }
 
         /**
