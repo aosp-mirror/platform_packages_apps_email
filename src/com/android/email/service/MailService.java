@@ -504,13 +504,13 @@ public class MailService extends Service {
         boolean vibrateWhenSilent;
         Uri ringtoneUri;
 
-        String displayName;     // temporary, for debug logging
+        String accountDisplayName;
         boolean syncEnabled;    // whether auto sync is enabled for this account
 
 
         @Override
         public String toString() {
-            return displayName + ": id=" + accountId + " prevSync=" + prevSyncTime
+            return accountDisplayName + ": id=" + accountId + " prevSync=" + prevSyncTime
                     + " nextSync=" + nextSyncTime + " numNew=" + numNewMessages;
         }
     }
@@ -581,7 +581,7 @@ public class MailService extends Service {
                 report.ringtoneUri = (ringtoneString == null) ? null
                         : Uri.parse(ringtoneString);
 
-                report.displayName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
+                report.accountDisplayName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
 
                 // See if the account is enabled for sync in AccountManager
                 Account providerAccount = Account.restoreAccountWithId(this, id);
@@ -734,7 +734,7 @@ public class MailService extends Service {
                     vibrate = report.vibrate;
                     vibrateWhenSilent = report.vibrateWhenSilent;
                     ringtone = report.ringtoneUri;
-                    reportName = report.displayName;
+                    reportName = report.accountDisplayName;
                 }
             }
         }
@@ -742,6 +742,32 @@ public class MailService extends Service {
             return;
         }
 
+        showNewMessageNotification(this, accountId, vibrate, vibrateWhenSilent, ringtone,
+                accountsWithNewMessages, numNewMessages, reportName);
+    }
+
+    /** Simply runs {@link #showNewMessageNotificationInternal} on a worker thread. */
+    private static void showNewMessageNotification(final Context context,
+            final long accountId, final boolean vibrate, final boolean vibrateWhenSilent,
+            final Uri ringtone, final int accountsWithNewMessages, final int numNewMessages,
+            final String reportName) {
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                showNewMessageNotificationInternal(context, accountId, vibrate, vibrateWhenSilent,
+                        ringtone, accountsWithNewMessages, numNewMessages, reportName);
+            }
+        });
+    }
+
+    /**
+     * Show (or update) a notification.
+     *
+     * TODO Implement new style notification.  (show sender photo, sender name, subject, ...)
+     */
+    private static void showNewMessageNotificationInternal(Context context, long accountId,
+            boolean vibrate, boolean vibrateWhenSilent, Uri ringtone, int accountsWithNewMessages,
+            int numNewMessages, String reportName) {
         // set up to post a notification
         Intent intent;
         String reportString;
@@ -749,34 +775,34 @@ public class MailService extends Service {
         if (accountsWithNewMessages == 1) {
             // Prepare a report for a single account
             // "12 unread (gmail)"
-            reportString = getResources().getQuantityString(
+            reportString = context.getResources().getQuantityString(
                     R.plurals.notification_new_one_account_fmt, numNewMessages,
                     numNewMessages, reportName);
-            intent = Welcome.createOpenAccountInboxIntent(this, accountId);
+            intent = Welcome.createOpenAccountInboxIntent(context, accountId);
         } else {
             // Prepare a report for multiple accounts
             // "4 accounts"
-            reportString = getResources().getQuantityString(
+            reportString = context.getResources().getQuantityString(
                     R.plurals.notification_new_multi_account_fmt, accountsWithNewMessages,
                     accountsWithNewMessages);
-            intent = Welcome.createOpenCombinedInboxIntent(this);
+            intent = Welcome.createOpenCombinedInboxIntent(context);
         }
 
         // prepare appropriate pending intent, set up notification, and send
         PendingIntent pending =
-            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new Notification(
                 R.drawable.stat_notify_email_generic,
-                getString(R.string.notification_new_title),
+                context.getString(R.string.notification_new_title),
                 System.currentTimeMillis());
-        notification.setLatestEventInfo(this,
-                getString(R.string.notification_new_title),
+        notification.setLatestEventInfo(context,
+                context.getString(R.string.notification_new_title),
                 reportString,
                 pending);
 
         notification.sound = ringtone;
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         boolean nowSilent = audioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL;
 
         // Use same code here as in Gmail and GTalk for vibration
@@ -789,7 +815,7 @@ public class MailService extends Service {
         notification.defaults |= Notification.DEFAULT_LIGHTS;
 
         NotificationManager notificationManager =
-            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID_NEW_MESSAGES, notification);
     }
 
