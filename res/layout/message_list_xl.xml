@@ -14,29 +14,13 @@
      limitations under the License.
 -->
 
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:splitMotionEvents="true"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <FrameLayout
-        android:id="@+id/left_pane"
-        android:layout_width="300dip"
-        android:layout_height="match_parent"
-        android:layout_weight="0"
+    android:layout_height="match_parent"
+    >
+    <include
+        android:id="@+id/three_pane"
+        layout="@layout/three_pane"
         />
-    <FrameLayout
-        android:id="@+id/middle_pane"
-        android:layout_width="0dip"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        />
-    <FrameLayout
-        android:id="@+id/right_pane"
-        android:layout_width="0dip"
-        android:layout_height="match_parent"
-        android:layout_weight="2"
-        />
-</LinearLayout>
+</FrameLayout>
