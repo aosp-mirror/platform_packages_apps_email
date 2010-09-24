@@ -2176,6 +2176,7 @@ public abstract class EmailContent {
         public static final int TYPE_CONTACTS = 0x42;
         public static final int TYPE_TASKS = 0x43;
         public static final int TYPE_EAS_ACCOUNT_MAILBOX = 0x44;
+        public static final int TYPE_UNKNOWN = 0x45;
 
         public static final int TYPE_NOT_SYNCABLE = 0x100;
         // A mailbox that holds Messages that are attachments
