@@ -41,6 +41,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.telephony.TelephonyManager;
@@ -48,6 +49,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.AbsListView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -1099,5 +1101,23 @@ public class Utility {
             ret[i++] = value;
         }
         return ret;
+    }
+
+    /**
+     * Workaround for the {@link ListView#smoothScrollToPosition} randomly scroll the view bug
+     * if it's called right after {@link ListView#setAdapter}.
+     */
+    public static void listViewSmoothScrollToPosition(final Activity activity,
+            final ListView listView, final int position) {
+        // Workarond: delay-call smoothScrollToPosition()
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (activity.isFinishing()) {
+                    return; // Activity being destroyed
+                }
+                listView.smoothScrollToPosition(position);
+            }
+        });
     }
 }

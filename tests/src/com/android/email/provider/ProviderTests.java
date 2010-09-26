@@ -1974,6 +1974,10 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(1, getMessageCount(b2.mId));
         assertEquals(2, getMessageCount(b3.mId));
         assertEquals(1, getMessageCount(b4.mId));
+
+        // No such mailbox type.
+        assertEquals(0, Mailbox.getMessageCountByMailboxType(c, 99999));
+        assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, 99999));
     }
 
     private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read) {
@@ -2040,6 +2044,9 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Mailbox b2i = ProviderTestUtils.setupMailbox("b2b", a2.mId, true, c, Mailbox.TYPE_INBOX);
 
         assertEquals(b2i.mId, Account.getInboxId(c, a2.mId));
+
+        // No account found.
+        assertEquals(-1, Account.getInboxId(c, 999999));
     }
 
     public void testGetMailboxType() {

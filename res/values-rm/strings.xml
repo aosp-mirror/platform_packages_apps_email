@@ -178,7 +178,6 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recuperar las infurmaziuns davart il conto…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Verificaziun dals parameters dal server d\'entrada…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Ils parameters dil server da sortida vegnan controllads…"</string>
-    <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"Annullaziun…"</string>
     <string name="account_setup_names_title" msgid="8875040521875381849">"Configuraziun da Voss e-mail"</string>
     <string name="account_setup_names_instructions" msgid="2880279273965835007">"Voss conto è ussa installà."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Dar in num al conto (facultativ)"</string>

@@ -60,10 +60,8 @@
     <string name="add_attachment_action" msgid="2696013743130573897">"Ek ekle"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Döküm ayarları"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Eki seç"</string>
-    <!-- no translation found for move_to_folder_dialog_title (2614318192482193898) -->
-    <skip />
-    <!-- no translation found for status_loading_messages (6552307237621292344) -->
-    <skip />
+    <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Şuraya taşı:"</string>
+    <string name="status_loading_messages" msgid="6552307237621292344">"İletiler yükleniyor..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Bağlantı hatası"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Yeni e-posta"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Kısa mesaj yüklenirken beklenmedik bir hata oluştu. Mesaj, görüntülenemeyecek kadar büyük olabilir."</string>
@@ -85,12 +83,9 @@
     <string name="debug_version_fmt" msgid="6160213145745376955">"Sürüm: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Hesaplar"</string>
     <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Birleştirilmiş Gelen Kutusu"</string>
-    <!-- no translation found for account_folder_list_summary_starred (2699605259405555890) -->
-    <skip />
-    <!-- no translation found for account_folder_list_summary_drafts (1582947228021407150) -->
-    <skip />
-    <!-- no translation found for account_folder_list_summary_outbox (1438676397481851177) -->
-    <skip />
+    <string name="account_folder_list_summary_starred" msgid="2699605259405555890">"Yıldız İşaretlilerin Tümü"</string>
+    <string name="account_folder_list_summary_drafts" msgid="1582947228021407150">"Tüm Taslaklar"</string>
+    <string name="account_folder_list_summary_outbox" msgid="1438676397481851177">"Birleşik Giden Kutusu"</string>
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Lütfen bir hesabı yenilemek için hesaba uzun basın"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Posta kutusu"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Daha fazla ileti yükle"</string>
@@ -121,8 +116,7 @@
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Not: Yönlendirilen iletinizdeki bir veya daha fazla ek, gönderme işleminden önce indirilecek."</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Katıştırılmış resimleri görüntülemek için \"Resimleri göster\"i seçin."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Resimleri göster"</string>
-    <!-- no translation found for message_view_invite_view (5521032519960111675) -->
-    <skip />
+    <string name="message_view_invite_view" msgid="5521032519960111675">"Takvim\'de Görüntüle"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Takvim Daveti"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Katılıyor musunuz?"</string>
     <string name="message_view_invite_accept" msgid="744546668021679819">" Evet"</string>
@@ -139,23 +133,30 @@
     <string name="message_saved_toast" msgid="8443125659172627665">"İleti taslak olarak kaydedildi."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Bu ek görüntülenemiyor."</string>
     <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"\"<xliff:g id="FILENAME">%s</xliff:g>\" eki yüklenemedi."</string>
-    <!-- no translation found for message_view_parse_message_toast (8830378966553031281) -->
-    <skip />
-    <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
-    <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
+    <string name="message_view_parse_message_toast" msgid="8830378966553031281">"İleti açılıyor..."</string>
+  <plurals name="message_moved_toast">
+    <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> ileti <xliff:g id="MAILBOX_NAME">%2$s</xliff:g> posta kutusuna taşındı"</item>
+    <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> ileti <xliff:g id="MAILBOX_NAME">%2$s</xliff:g> posta kutusuna taşındı"</item>
+  </plurals>
     <string name="forward_download_failed_ticker" msgid="6654377128589312623">"Bir ek yönlendirilemedi"</string>
-    <!-- no translation found for forward_download_failed_notification (3239753701377399676) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_bytes:one (8914124732074848509) -->
-    <!-- no translation found for message_view_attachment_bytes:other (4613385949384337840) -->
-    <!-- no translation found for message_view_attachment_kilobytes:one (869981846437074463) -->
-    <!-- no translation found for message_view_attachment_kilobytes:other (8869993299924901593) -->
-    <!-- no translation found for message_view_attachment_megabytes:one (7527095670565758434) -->
-    <!-- no translation found for message_view_attachment_megabytes:other (4365876866570165282) -->
-    <!-- no translation found for message_view_attachment_gigabytes:one (6261986598249539093) -->
-    <!-- no translation found for message_view_attachment_gigabytes:other (1041353825053598633) -->
-    <!-- no translation found for message_list_snippet (6077583739966798162) -->
-    <skip />
+    <string name="forward_download_failed_notification" msgid="3239753701377399676">"<xliff:g id="FILENAME">%s </xliff:g> eki, indirilemediği için giden postanızla gönderilemedi."</string>
+  <plurals name="message_view_attachment_bytes">
+    <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
+    <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
+  </plurals>
+  <plurals name="message_view_attachment_kilobytes">
+    <item quantity="one" msgid="869981846437074463">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g> KB"</item>
+    <item quantity="other" msgid="8869993299924901593">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g> KB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_megabytes">
+    <item quantity="one" msgid="7527095670565758434">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g> MB"</item>
+    <item quantity="other" msgid="4365876866570165282">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g> MB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_gigabytes">
+    <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
+    <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
+  </plurals>
+    <string name="message_list_snippet" msgid="6077583739966798162">"<xliff:g id="SUBJECT"> %1$s</xliff:g> - <xliff:g id="TEXT">%2$s</xliff:g>"</string>
     <string name="account_setup_basics_title" msgid="3969856368228940980">"E-posta ayarla"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Bir Exchange hesabı ekleyin"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Bir Exchange ActiveSync hesabı ekleyin"</string>
@@ -172,7 +173,6 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Hesap bilgileri alınıyor..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Gelen sunucu ayarları denetleniyor..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Giden sunucu ayarları denetleniyor..."</string>
-    <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"İptal ediliyor..."</string>
     <string name="account_setup_names_title" msgid="8875040521875381849">"E-posta ayarla"</string>
     <string name="account_setup_names_instructions" msgid="2880279273965835007">"Hesabınız ayarlandı ve e-posta yolda!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Bu hesaba bir ad ver (isteğe bağlı)"</string>
@@ -208,8 +208,7 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Alan adı/Kullanıcı adı"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Güvenli bağlantıyı kullan (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Tüm SSL sertifikalarını kabul et"</string>
-    <!-- no translation found for account_setup_exchange_device_id_label (1646827333223157658) -->
-    <skip />
+    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Mobil Cihaz Kimliği"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Hesap seçenekleri"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"E-posta kontrol etme sıklığı"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Hiçbir zaman"</string>
@@ -223,8 +222,7 @@
     <string name="account_setup_options_notify_label" msgid="1247525794828820038">"E-posta geldiğinde bana bildir."</string>
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Bu hesaptaki kişileri senkronize et."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Bu hesaptaki takvimi senkronize et"</string>
-    <!-- no translation found for account_setup_options_sync_email_label (3930927721878987383) -->
-    <skip />
+    <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"E-postayı bu hesaptan senkronize et."</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Kurulum tamamlanamadı"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Senkronize edilecek miktar"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Bir gün"</string>
@@ -252,14 +250,12 @@
     <string name="account_security_title" msgid="4441470647344315196">"Cihaz Güvenliği"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"<xliff:g id="SERVER">%s</xliff:g> sunucusu, telefonunuzdaki bazı güvenlik özelliklerini uzaktan denetlemesi için izin vermenizi gerektiriyor."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Ayrıntıları düzenle"</string>
-    <!-- no translation found for account_settings_exit_server_settings (8006323251094711431) -->
-    <skip />
+    <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Kaydedilmeyen değişiklikler silinsin mi?"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Genel ayarlar"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Varsayılan hesap"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"E-postaları varsayılan olarak bu hesaptan gönder"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-posta bildirimleri"</string>
-    <!-- no translation found for account_settings_summary (8403582255413830007) -->
-    <skip />
+    <string name="account_settings_summary" msgid="8403582255413830007">"Sıklığı, bildirimleri vs. senkronize et"</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"E-posta geldiğinde durum çubuğunda bildir"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"E-posta kontrol sıklığı"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Gelen ayarlar"</string>
@@ -269,18 +265,12 @@
     <string name="account_settings_signature_label" msgid="4091969938785803201">"İmza"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Gönderdiğiniz iletilere metin ekleyin"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Bildirim ayarları"</string>
-    <!-- no translation found for account_settings_sync_contacts_enable (7338813435392098842) -->
-    <skip />
-    <!-- no translation found for account_settings_sync_contacts_summary (816919452270997919) -->
-    <skip />
-    <!-- no translation found for account_settings_sync_calendar_enable (3039820725699412208) -->
-    <skip />
-    <!-- no translation found for account_settings_sync_calendar_summary (5241995538395965804) -->
-    <skip />
-    <!-- no translation found for account_settings_sync_email_enable (4305222662654506074) -->
-    <skip />
-    <!-- no translation found for account_settings_sync_email_summary (262964076412310990) -->
-    <skip />
+    <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Kişiler\'i Senkronize Et"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Bu hesaba ilişkin kişileri senkronize et"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Takvim\'i Senkronize Et"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Bu hesaba ilişkin takvimi senkronize et"</string>
+    <string name="account_settings_sync_email_enable" msgid="4305222662654506074">"E-postayı Senkronize Et"</string>
+    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Bu hesaba ilişkin e-postaları senkronize et"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Titreşim"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"E-posta geldiğinde aynı zamanda titret"</string>
     <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Her zaman"</string>
@@ -321,10 +311,8 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="DOMAIN">%2$s</xliff:g> alanından <xliff:g id="RESULTS">%1$d</xliff:g> sonuç"</item>
   </plurals>
     <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="DOMAIN">%2$s</xliff:g> alanından ilk <xliff:g id="RESULTS">%1$d</xliff:g> sonuç"</string>
-    <!-- no translation found for header_label_general_preferences (7548527595339881066) -->
-    <skip />
-    <!-- no translation found for category_general_preferences (6810399722493971651) -->
-    <skip />
+    <string name="header_label_general_preferences" msgid="7548527595339881066">"E-posta Tercihleri"</string>
+    <string name="category_general_preferences" msgid="6810399722493971651">"Uygulama Tercihleri"</string>
     <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
     <skip />
     <!-- no translation found for general_preference_auto_advance_summary (4540091103768602710) -->

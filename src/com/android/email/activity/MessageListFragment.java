@@ -1133,7 +1133,7 @@ public class MessageListFragment extends ListFragment
         for (int i = 0; i < count; i++) {
             if (mListView.getItemIdAtPosition(i) == mSelectedMessageId) {
                 mListView.setItemChecked(i, true);
-                mListView.smoothScrollToPosition(i);
+                Utility.listViewSmoothScrollToPosition(getActivity(), mListView, i);
                 break;
             }
         }

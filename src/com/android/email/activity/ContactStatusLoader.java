@@ -86,9 +86,19 @@ public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Res
 
     @Override
     public Result loadInBackground() {
+        return load(mContext, mEmailAddress);
+    }
+
+    /**
+     * Load synchronously.
+     *
+     * Used to fetch a photo for notification, in which calls the callsite is already on a worker
+     * thread.
+     */
+    public static Result load(Context context, String emailAddress) {
         // Load photo-id and presence status.
-        Uri uri = Uri.withAppendedPath(Email.CONTENT_LOOKUP_URI, Uri.encode(mEmailAddress));
-        Cursor c = mContext.getContentResolver().query(
+        Uri uri = Uri.withAppendedPath(Email.CONTENT_LOOKUP_URI, Uri.encode(emailAddress));
+        Cursor c = context.getContentResolver().query(
                 uri,
                 PROJECTION_PHOTO_ID_PRESENCE, null, null, null);
         if (c == null) {
@@ -112,7 +122,7 @@ public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Res
         // load photo from photo-id.
         Bitmap photo = null;
         if (photoId != -1) {
-            final byte[] photoData = Utility.getFirstRowBlob(mContext,
+            final byte[] photoData = Utility.getFirstRowBlob(context,
                     ContentUris.withAppendedId(Data.CONTENT_URI, photoId), PHOTO_PROJECTION,
                     null, null, null, PHOTO_COLUMN, null);
             if (photoData != null) {
@@ -126,7 +136,7 @@ public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Res
         }
 
         // Get lookup URI
-        final Uri lookupUri = Data.getContactLookupUri(mContext.getContentResolver(), uri);
+        final Uri lookupUri = Data.getContactLookupUri(context.getContentResolver(), uri);
         return new Result(photo, presenceStatusResId, lookupUri);
     }
 
