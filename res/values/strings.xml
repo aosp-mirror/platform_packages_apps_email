@@ -163,6 +163,41 @@
         <item quantity="other">in <xliff:g id="number_accounts" example="10">%d</xliff:g> accounts</item>
     </plurals>
 
+    <!-- "new message" notification message title.
+         "sender_name" will be replaced with the sender name of the latest email,
+         and "num_more_mails" will be replaced with the number of other messages that are received
+         together.
+         [CHAR LIMIT=none] -->
+    <plurals name="notification_sender_name_multi_messages">
+        <item quantity="one"><xliff:g id="sender_name">%1$s</xliff:g>
+            + <xliff:g id="num_more_mails">%2$d</xliff:g> more</item>
+        <item quantity="other"><xliff:g id="sender_name">%1$s</xliff:g>
+            + <xliff:g id="num_more_mails">%2$d</xliff:g> more</item>
+    </plurals>
+
+    <!-- "new message" notification body for the number of new messages,
+         used when only one account is set up.
+         "num_new_message" will be replaced with the number of new messages. [CHAR LIMIT=none] -->
+    <plurals name="notification_num_new_messages_single_account">
+        <item quantity="one"><xliff:g id="num_new_message">%1$d</xliff:g></item> new
+        <item quantity="other"><xliff:g id="num_new_message">%1$d</xliff:g></item> new
+    </plurals>
+
+    <!-- "new message" notification body for the number of new messages,
+         used when multiple accounts are set up.
+         "num_new_message" will be replaced with the number of new messages, and "account_name"
+         will be replaced with the receiving account name.
+         "separator" should be between these two elements.
+         [CHAR LIMIT=none] -->
+    <plurals name="notification_num_new_messages_multi_account">
+        <item quantity="one"><xliff:g id="num_new_message">%1$d</xliff:g
+            > new<xliff:g id="separator">&#8195;</xliff:g>
+            <xliff:g id="account_name">%2$s</xliff:g></item>
+        <item quantity="other"><xliff:g id="num_new_message">%1$d</xliff:g
+            > new<xliff:g id="separator">&#8195;</xliff:g>
+            <xliff:g id="account_name">%2$s</xliff:g></item>
+    </plurals>
+
     <!-- The next set of strings are used server-side and must not be localized. -->
     <!-- Do Not Translate.  This is the name of the "inbox" folder, on the server. -->
     <string name="mailbox_name_server_inbox" translatable="false">Inbox</string>

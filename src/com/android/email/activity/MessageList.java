@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
+import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSecurity;
@@ -29,10 +30,8 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
-import com.android.email.service.MailService;
 
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -237,7 +236,8 @@ public class MessageList extends Activity implements OnClickListener,
         mController.addResultCallback(mControllerCallback);
 
         // clear notifications here
-        MailService.cancelNewMessageNotification(this);
+        NotificationController.getInstance(this).cancelNewMessageNotification(
+                mListFragment.getAccountId());
 
         // Exit immediately if the accounts list has changed (e.g. externally deleted)
         if (Email.getNotifyUiAccountsChanged()) {

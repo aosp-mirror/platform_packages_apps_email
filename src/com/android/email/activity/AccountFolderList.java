@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
+import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.activity.setup.AccountSetupBasics;
@@ -26,7 +27,6 @@ import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.service.MailService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,7 +37,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -190,6 +189,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
     }
 
     private Dialog createRemoveAccountDialog() {
+        final Activity activity = this;
         return new AlertDialog.Builder(this)
             .setIcon(android.R.drawable.ic_dialog_alert)
             .setTitle(R.string.account_delete_dlg_title)
@@ -197,17 +197,18 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
                     mSelectedContextAccount.getDisplayName()))
             .setPositiveButton(R.string.okay_action, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
+                    final long accountId = mSelectedContextAccount.mId;
                     dismissDialog(DIALOG_REMOVE_ACCOUNT);
-                    // Clear notifications, which may become stale here
-                    MailService.cancelNewMessageNotification(AccountFolderList.this);
-                    int numAccounts = EmailContent.count(AccountFolderList.this,
+                    // Dismiss new message notification.
+                    NotificationController.getInstance(activity)
+                            .cancelNewMessageNotification(accountId);
+                    int numAccounts = EmailContent.count(activity,
                             Account.CONTENT_URI, null, null);
                     mListFragment.hideDeletingAccount(mSelectedContextAccount.mId);
 
-                    Controller.getInstance(AccountFolderList.this).deleteAccount(
-                            mSelectedContextAccount.mId);
+                    Controller.getInstance(activity).deleteAccount(accountId);
                     if (numAccounts == 1) {
-                        AccountSetupBasics.actionNewAccount(AccountFolderList.this);
+                        AccountSetupBasics.actionNewAccount(activity);
                         finish();
                     }
                 }

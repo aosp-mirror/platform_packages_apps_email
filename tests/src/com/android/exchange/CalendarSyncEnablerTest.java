@@ -18,7 +18,7 @@ package com.android.exchange;
 
 import com.android.email.AccountTestCase;
 import com.android.email.Email;
-import com.android.email.service.MailService;
+import com.android.email.NotificationController;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -193,7 +193,9 @@ public class CalendarSyncEnablerTest extends AccountTestCase {
         enabler.showNotification("a@b.com");
 
         // Remove the notification.  Comment it out when you want to know how it looks like.
+        // TODO If NotificationController supports this notification, we can just mock it out
+        // and remove this code.
         ((NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE))
-                .cancel(MailService.NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED);
+                .cancel(NotificationController.NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED);
     }
 }

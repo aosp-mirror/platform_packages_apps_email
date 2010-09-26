@@ -17,8 +17,8 @@
 package com.android.exchange;
 
 import com.android.email.Email;
+import com.android.email.NotificationController;
 import com.android.email.R;
-import com.android.email.service.MailService;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -30,7 +30,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Calendar;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 /**
@@ -106,7 +105,7 @@ public class CalendarSyncEnabler {
 
         NotificationManager nm =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.notify(MailService.NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED, n);
+        nm.notify(NotificationController.NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED, n);
     }
 
     /** @return {@link Intent} to launch the Calendar app. */

@@ -363,7 +363,8 @@ public class SecurityPolicy {
 
         NotificationManager notificationManager =
             (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(MailService.NOTIFICATION_ID_SECURITY_NEEDED, notification);
+        notificationManager.notify(NotificationController.NOTIFICATION_ID_SECURITY_NEEDED,
+                notification);
     }
 
     /**
@@ -373,7 +374,7 @@ public class SecurityPolicy {
     public void clearNotification(long accountId) {
         NotificationManager notificationManager =
             (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(MailService.NOTIFICATION_ID_SECURITY_NEEDED);
+        notificationManager.cancel(NotificationController.NOTIFICATION_ID_SECURITY_NEEDED);
     }
 
     /**

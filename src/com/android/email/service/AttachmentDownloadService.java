@@ -16,11 +16,12 @@
 
 package com.android.email.service;
 
+import com.android.email.Controller.ControllerService;
 import com.android.email.Email;
+import com.android.email.ExchangeUtils.NullEmailService;
+import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.Controller.ControllerService;
-import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
@@ -466,7 +467,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         n.flags = Notification.FLAG_AUTO_CANCEL;
         NotificationManager nm =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.notify(MailService.NOTIFICATION_ID_WARNING, n);
+        nm.notify(NotificationController.NOTIFICATION_ID_WARNING, n);
     }
 
     /**

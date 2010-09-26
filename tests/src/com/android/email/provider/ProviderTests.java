@@ -2210,4 +2210,39 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, Account.restoreAccountWithId(c, a4.mId).mNewMessageCount);
         assertEquals(0, Account.restoreAccountWithId(c, a5.mId).mNewMessageCount);
     }
+
+    private static Message createMessageWithTimestamp(Context c, Mailbox b, long timestamp) {
+        Message m = ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, false, c, false,
+                false);
+        m.mTimeStamp = timestamp;
+        m.save(c);
+        return m;
+    }
+
+    public void testMessageGetLatestMessage() {
+        final Context c = mMockContext;
+
+        // Create 2 accounts with a inbox.
+        Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
+        Account a2 = ProviderTestUtils.setupAccount("a2", true, c);
+
+        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a1.mId, true, c, Mailbox.TYPE_INBOX);
+        Mailbox b2 = ProviderTestUtils.setupMailbox("box3", a2.mId, true, c, Mailbox.TYPE_INBOX);
+
+        // Create some messages
+        Message m11 = createMessageWithTimestamp(c, b1, 33);
+        Message m12 = createMessageWithTimestamp(c, b1, 10);
+        Message m13 = createMessageWithTimestamp(c, b1, 1000);
+
+        Message m21 = createMessageWithTimestamp(c, b2, 99);
+        Message m22 = createMessageWithTimestamp(c, b2, 1);
+        Message m23 = createMessageWithTimestamp(c, b2, 2);
+
+        // Check!
+        assertEquals(m13.mId, Message.getLatestMessage(c, a1.mId).mId);
+        assertEquals(m21.mId, Message.getLatestMessage(c, a2.mId).mId);
+
+        // No such account
+        assertEquals(null, Message.getLatestMessage(c, 9999999L));
+    }
 }
