@@ -272,12 +272,11 @@ public class AccountSetupOutgoing extends Activity implements OnClickListener,
      * a problem with the user input.
      * @return a URI built from the account setup fields
      */
-    private URI getUri() throws URISyntaxException {
+    /* package */ URI getUri() throws URISyntaxException {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         String userInfo = null;
         if (mRequireLoginView.isChecked()) {
-            userInfo = mUsernameView.getText().toString().trim() + ":"
-                    + mPasswordView.getText().toString().trim();
+            userInfo = mUsernameView.getText().toString().trim() + ":" + mPasswordView.getText();
         }
         URI uri = new URI(
                 SMTP_SCHEMES[securityType],
