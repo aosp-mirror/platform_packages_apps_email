@@ -196,7 +196,9 @@ public abstract class AbstractSyncParser extends Parser {
         }
 
         // Let the caller know that there's more to do
-        userLog("Returning moreAvailable = " + moreAvailable);
+        if (moreAvailable) {
+            userLog("MoreAvailable");
+        }
         return moreAvailable;
     }
 
