@@ -130,7 +130,7 @@
     <string name="choose_attachment_dialog_title">Choose attachment</string>
     <!-- Dialog title to select a mailbox to which the user moves messages [CHAR LIMIT=20] -->
     <string name="move_to_folder_dialog_title">Move to</string>
-    <!-- Appears in message list view while messages are being loaded -->
+    <!-- Appears in message list view while messages are being loaded [CHAR LIMIT=260dip] -->
     <string name="status_loading_messages">Loading messages\u2026</string>
     <!-- Appears in message list view when there's a network error. -->
     <!-- Also appears in a toast, in the message viewer, when there's a network error. -->
@@ -206,11 +206,14 @@
     <string name="account_folder_list_separator_accounts">Accounts</string>
     <!-- The summary section entry in the AccountFolder list to display all inboxes -->
     <string name="account_folder_list_summary_inbox">Combined Inbox</string>
-    <!-- The summary section entry in the AccountFolder list to display all starred -->
+    <!-- The summary section entry in the AccountFolder list to display all starred
+        [CHAR LIMIT=200dip] -->
     <string name="account_folder_list_summary_starred">All Starred</string>
-    <!-- The summary section entry in the AccountFolder list to display all drafts -->
+    <!-- The summary section entry in the AccountFolder list to display all drafts
+        [CHAR LIMIT=200dip] -->
     <string name="account_folder_list_summary_drafts">All Drafts</string>
-    <!-- The summary section entry in the AccountFolder list to display all outboxes -->
+    <!-- The summary section entry in the AccountFolder list to display all outboxes
+        [CHAR LIMIT=200dip] -->
     <string name="account_folder_list_summary_outbox">Combined Outbox</string>
     <!-- Toast that appears when you select "Refresh" menu option -->
     <string name="account_folder_list_refresh_toast">Please longpress an account to refresh it</string>
@@ -275,7 +278,7 @@
     <string name="message_view_show_pictures_instructions">Select \"Show pictures\" to display embedded pictures.</string>
     <!-- Button on email opened for reading -->
     <string name="message_view_show_pictures_action">Show pictures</string>
-    <!-- Calendar invitation, label of the button to open in calendar -->
+    <!-- Calendar invitation, label of the button to open in calendar [CHAR LIMIT=24] -->
     <string name="message_view_invite_view">View in Calendar</string>
     <!-- String shown with a calendar invitation. -->
     <string name="message_view_invite_title">Calendar Invite</string>
@@ -325,22 +328,22 @@
         </xliff:g>" couldn't be sent with your outgoing mail because it couldn't be downloaded."
         </string>
 
-    <!-- Size unit for bytes for attachments-->
+    <!-- Size unit for bytes for attachments [CHAR LIMIT=10] -->
     <plurals name="message_view_attachment_bytes">
         <item quantity="one"  ><xliff:g id="size_in_bytes" example="1"  >%d</xliff:g>B</item>
         <item quantity="other"><xliff:g id="size_in_bytes" example="279">%d</xliff:g>B</item>
     </plurals>
-    <!-- Size unit for kilo bytes for attachments -->
+    <!-- Size unit for kilo bytes for attachments [CHAR LIMIT=10] -->
     <plurals name="message_view_attachment_kilobytes">
         <item quantity="one"  ><xliff:g id="size_in_kilobytes" example="1"  >%d</xliff:g>KB</item>
         <item quantity="other"><xliff:g id="size_in_kilobytes" example="279">%d</xliff:g>KB</item>
     </plurals>
-    <!-- Size unit for mega bytes for attachments -->
+    <!-- Size unit for mega bytes for attachments [CHAR LIMIT=10] -->
     <plurals name="message_view_attachment_megabytes">
         <item quantity="one"  ><xliff:g id="size_in_megabytes" example="1"  >%d</xliff:g>MB</item>
         <item quantity="other"><xliff:g id="size_in_megabytes" example="279">%d</xliff:g>MB</item>
     </plurals>
-    <!-- Size unit for giga bytes for attachments -->
+    <!-- Size unit for giga bytes for attachments [CHAR LIMIT=10] -->
     <plurals name="message_view_attachment_gigabytes">
         <item quantity="one"  ><xliff:g id="size_in_gigabytes" example="1"  >%d</xliff:g>GB</item>
         <item quantity="other"><xliff:g id="size_in_gigabytes" example="279">%d</xliff:g>GB</item>
@@ -490,7 +493,7 @@
     <string name="account_setup_exchange_ssl_label">Use secure connection (SSL)</string>
     <!-- On "Exchange" setup screen, the trust ssl certificates checkbox label -->
     <string name="account_setup_exchange_trust_certificates_label">Accept all SSL certificates</string>
-    <!-- On "Exchange" setup screen, the exchange device-id label -->
+    <!-- On "Exchange" setup screen, the exchange device-id label [CHAR LIMIT=30] -->
     <string name="account_setup_exchange_device_id_label">Mobile Device ID</string>
 
     <!-- In Account setup options screen, Activity title -->
