@@ -185,7 +185,7 @@ public class MimeUtility {
      *
      * @param header
      * @param name
-     * @return
+     * @return the entire header (if name=null), the found parameter, or null
      */
     public static String getHeaderParameter(String header, String name) {
         if (header == null) {
@@ -198,11 +198,14 @@ public class MimeUtility {
         String lowerCaseName = name.toLowerCase();
         for (String part : parts) {
             if (part.trim().toLowerCase().startsWith(lowerCaseName)) {
-                String parameter = part.split("=", 2)[1].trim();
+                String[] parameterParts = part.split("=", 2);
+                if (parameterParts.length < 2) {
+                    return null;
+                }
+                String parameter = parameterParts[1].trim();
                 if (parameter.startsWith("\"") && parameter.endsWith("\"")) {
                     return parameter.substring(1, parameter.length() - 1);
-                }
-                else {
+                } else {
                     return parameter;
                 }
             }
