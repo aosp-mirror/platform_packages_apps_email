@@ -55,7 +55,7 @@
     <string name="add_cc_bcc_action" msgid="5569074812077509737">"Añadir Cc/CCO"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Añadir adjunto"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Ajustes de volcado"</string>
-    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Elegir archivo adjunto\n"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Elegir archivo adjunto"</string>
     <string name="status_loading_more" msgid="1580386959044617884">"Cargando mensajes..."</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"Enviando mensajes..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Error de conexión"</string>
@@ -100,7 +100,7 @@
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"El archivo es demasiado grande para adjuntarlo."</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> y <xliff:g id="NUMBER">%2$d</xliff:g> más"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Para:"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc: "</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Abrir"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Guardar"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"El archivo adjunto se ha guardado en una tarjeta SD como <xliff:g id="FILENAME">%s</xliff:g>."</string>
