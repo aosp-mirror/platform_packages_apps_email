@@ -100,7 +100,7 @@
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"File troppo grande. Impossibile allegarlo."</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> e <xliff:g id="NUMBER">%2$d</xliff:g> altri"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"In:"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc: "</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Apri"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Salva"</string>
     <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Allegato salvato su scheda SD come <xliff:g id="FILENAME">%s</xliff:g>."</string>
