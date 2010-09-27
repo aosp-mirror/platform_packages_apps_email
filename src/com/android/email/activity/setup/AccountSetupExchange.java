@@ -423,7 +423,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
      * a problem with the user input.
      * @return a URI built from the account setup fields
      */
-    private URI getUri() throws URISyntaxException {
+    /* package */ URI getUri() throws URISyntaxException {
         boolean sslRequired = mSslSecurityView.isChecked();
         boolean trustCertificates = mTrustCertificatesView.isChecked();
         String scheme = (sslRequired)
@@ -436,7 +436,7 @@ public class AccountSetupExchange extends Activity implements OnClickListener,
             userName = userName.substring(1);
         }
         mCacheLoginCredential = userName;
-        String userInfo = userName + ":" + mPasswordView.getText().toString().trim();
+        String userInfo = userName + ":" + mPasswordView.getText();
         String host = mServerView.getText().toString().trim();
         String path = null;
 

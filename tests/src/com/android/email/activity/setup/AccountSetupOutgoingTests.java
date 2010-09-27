@@ -26,6 +26,9 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
  * Tests of the basic UI logic in the Account Setup Outgoing (SMTP) screen.
  */
@@ -35,6 +38,7 @@ public class AccountSetupOutgoingTests extends
 
     private AccountSetupOutgoing mActivity;
     private EditText mServerView;
+    private EditText mPasswordView;
     private Button mNextButton;
     
     public AccountSetupOutgoingTests() {
@@ -122,6 +126,43 @@ public class AccountSetupOutgoingTests extends
     }
         
     /**
+     * Test to confirm that passwords with leading or trailing spaces are accepted verbatim.
+     */
+    @UiThreadTest
+    public void testPasswordNoTrim() throws URISyntaxException {
+        getActivityAndFields();
+
+        // Clear the password - should disable
+        checkPassword(null, false);
+
+        // Various combinations of spaces should be OK
+        checkPassword(" leading", true);
+        checkPassword("trailing ", true);
+        checkPassword("em bedded", true);
+        checkPassword(" ", true);
+    }
+
+    /**
+     * Check password field for a given password.  Should be called in UI thread.  Confirms that
+     * the password has not been trimmed.
+     *
+     * @param password the password to test with
+     * @param expectNext true if expected that this password will enable the "next" button
+     */
+    private void checkPassword(String password, boolean expectNext) throws URISyntaxException {
+        mPasswordView.setText(password);
+        if (expectNext) {
+            assertTrue(mNextButton.isEnabled());
+            URI uri = mActivity.getUri();
+            String actualUserInfo = uri.getUserInfo();
+            String actualPassword = actualUserInfo.split(":", 2)[1];
+            assertEquals(password, actualPassword);
+        } else {
+            assertFalse(mNextButton.isEnabled());
+        }
+    }
+
+    /**
      * TODO:  A series of tests to explore the logic around security models & ports
      */
     
@@ -131,6 +172,7 @@ public class AccountSetupOutgoingTests extends
     private void getActivityAndFields() {
         mActivity = getActivity();
         mServerView = (EditText) mActivity.findViewById(R.id.account_server);
+        mPasswordView = (EditText) mActivity.findViewById(R.id.account_password);
         mNextButton = (Button) mActivity.findViewById(R.id.next);
     }
     
