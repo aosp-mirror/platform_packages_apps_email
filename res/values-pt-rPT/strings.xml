@@ -60,7 +60,7 @@
     <string name="status_sending_messages" msgid="3971880826111264523">"A enviar mensagens..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Erro de ligação"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Novo e-mail"</string>
-    <string name="error_loading_message_body" msgid="2265140604109272914">"Erro inesperado durante o carregamento do texto da mensagem. É possível que a mensagem seja demasiado extensa para visualização. "</string>
+    <string name="error_loading_message_body" msgid="2265140604109272914">"Erro inesperado durante o carregamento do texto da mensagem. É possível que a mensagem seja demasiado extensa para visualização."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> não lidas (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
