@@ -266,10 +266,12 @@
     <string name="message_view_attachment_view_action">Open</string>
     <!-- Button name -->
     <string name="message_view_attachment_download_action">Save</string>
-    <!-- Toast after saving attachment -->
-    <string name="message_view_status_attachment_saved">Attachment saved to SD card as <xliff:g id="filename">%s</xliff:g>.</string>
-    <!-- Toast after attachment could not be saved-->
-    <string name="message_view_status_attachment_not_saved">Unable to save attachment to SD card.</string>
+    <!-- Toast after saving attachment [CHAR LIMIT=30] -->
+    <string name="message_view_status_attachment_saved">Attachment saved
+as <xliff:g id="filename">%s</xliff:g>.</string>
+    <!-- Toast after attachment could not be saved [CHAR LIMIT=30] -->
+    <string name="message_view_status_attachment_not_saved">Unable to
+save attachment.</string>
     <!-- Displayed in message view -->
     <string name="message_view_show_pictures_instructions">Select \"Show pictures\" to display embedded pictures.</string>
     <!-- Button on email opened for reading -->
