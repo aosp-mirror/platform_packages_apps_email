@@ -40,13 +40,11 @@ import android.widget.TextView;
 public class AccountSelectorAdapter extends CursorAdapter {
     private static final String[] PROJECTION = new String[] {
         EmailContent.RECORD_ID,
-        EmailContent.Account.DISPLAY_NAME,
-        EmailContent.Account.EMAIL_ADDRESS
+        EmailContent.Account.DISPLAY_NAME
     };
 
     private static final int ID_COLUMN = 0;
     private static final int DISPLAY_NAME_COLUMN = 1;
-    private static final int EMAIL_ADDRESS_COLUMN = 2;
 
     /** Sort order.  Show the default account first. */
     private static final String ORDER_BY =
@@ -95,10 +93,6 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
     /** @return Account name extracted from a Cursor. */
     public static String getAccountDisplayName(Cursor cursor) {
-        final String displayName = cursor.getString(DISPLAY_NAME_COLUMN);
-        if (!TextUtils.isEmpty(displayName)) {
-            return displayName;
-        }
-        return cursor.getString(EMAIL_ADDRESS_COLUMN);
+        return cursor.getString(DISPLAY_NAME_COLUMN);
     }
 }
