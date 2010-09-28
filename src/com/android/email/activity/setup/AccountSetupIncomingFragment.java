@@ -414,7 +414,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
      * a problem with the user input.
      * @return a URI built from the account setup fields
      */
-    private URI getUri() throws URISyntaxException {
+    /* package */ URI getUri() throws URISyntaxException {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         String path = null;
         if (mAccountSchemes[securityType].startsWith("imap")) {
@@ -424,7 +424,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         mCacheLoginCredential = userName;
         URI uri = new URI(
                 mAccountSchemes[securityType],
-                userName + ":" + mPasswordView.getText().toString().trim(),
+                userName + ":" + mPasswordView.getText(),
                 mServerView.getText().toString().trim(),
                 Integer.parseInt(mPortView.getText().toString().trim()),
                 path, // path

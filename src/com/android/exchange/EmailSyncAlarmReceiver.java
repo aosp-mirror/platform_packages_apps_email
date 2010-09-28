@@ -25,7 +25,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -47,11 +46,9 @@ import java.util.ArrayList;
  */
 public class EmailSyncAlarmReceiver extends BroadcastReceiver {
     final String[] MAILBOX_DATA_PROJECTION = {MessageColumns.MAILBOX_KEY};
-    private static String TAG = "EmailSyncAlarm";
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-        Log.v(TAG, "onReceive");
         new Thread(new Runnable() {
             public void run() {
                 handleReceive(context);
@@ -103,7 +100,5 @@ public class EmailSyncAlarmReceiver extends BroadcastReceiver {
         for (Long mailboxId: mailboxesToNotify) {
             ExchangeService.serviceRequest(mailboxId, ExchangeService.SYNC_UPSYNC);
         }
-        Log.v(TAG, "Changed/Deleted messages: " + messageCount + ", mailboxes: " +
-                mailboxesToNotify.size());
     }
 }

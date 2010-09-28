@@ -33,7 +33,7 @@ import android.os.Bundle;
 public class AccountSetupOutgoing extends Activity
         implements AccountSetupOutgoingFragment.Callback {
 
-    private AccountSetupOutgoingFragment mFragment;
+    /* package */ AccountSetupOutgoingFragment mFragment;
     /* package */ boolean mNextButtonEnabled;
 
     public static void actionOutgoingSettings(Activity fromActivity, int mode, Account account) {

@@ -852,7 +852,6 @@ public class ExchangeService extends Service implements Runnable {
 
         @Override
         public void onChange(boolean selfChange) {
-            log("SyncedMessage changed: (re)setting alarm for 10s");
             alarmManager.set(AlarmManager.RTC_WAKEUP,
                     System.currentTimeMillis() + 10*SECONDS, syncAlarmPendingIntent);
         }

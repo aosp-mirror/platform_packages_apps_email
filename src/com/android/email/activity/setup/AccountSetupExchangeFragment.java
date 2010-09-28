@@ -336,7 +336,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      * a problem with the user input.
      * @return a URI built from the account setup fields
      */
-    private URI getUri() throws URISyntaxException {
+    /* package */ URI getUri() throws URISyntaxException {
         boolean sslRequired = mSslSecurityView.isChecked();
         boolean trustCertificates = mTrustCertificatesView.isChecked();
         String scheme = (sslRequired)
@@ -349,7 +349,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             userName = userName.substring(1);
         }
         mCacheLoginCredential = userName;
-        String userInfo = userName + ":" + mPasswordView.getText().toString().trim();
+        String userInfo = userName + ":" + mPasswordView.getText();
         String host = mServerView.getText().toString().trim();
         String path = null;
 
