@@ -843,11 +843,15 @@ public class MessageListFragment extends ListFragment
         final LoaderManager lm = getLoaderManager();
 
         // If we're loading a different mailbox, discard the previous result.
+        // It also causes not to preserve the list position.
+        boolean mailboxChanging = false;
         if ((mLastLoadedMailboxId != -1) && (mLastLoadedMailboxId != mMailboxId)) {
+            mailboxChanging = true;
             lm.stopLoader(LOADER_ID_MAILBOX_LOADER);
             lm.stopLoader(LOADER_ID_MESSAGES_LOADER);
         }
-        lm.initLoader(LOADER_ID_MAILBOX_LOADER, null, new MailboxAccountLoaderCallback());
+        lm.initLoader(LOADER_ID_MAILBOX_LOADER, null,
+                new MailboxAccountLoaderCallback(mailboxChanging));
     }
 
     /**
@@ -855,6 +859,12 @@ public class MessageListFragment extends ListFragment
      */
     private class MailboxAccountLoaderCallback implements LoaderManager.LoaderCallbacks<
             MailboxAccountLoader.Result> {
+        private final boolean mMailboxChanging;
+
+        public MailboxAccountLoaderCallback(boolean mailboxChanging) {
+            mMailboxChanging = mailboxChanging;
+        }
+
         @Override
         public Loader<MailboxAccountLoader.Result> onCreateLoader(int id, Bundle args) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -882,7 +892,7 @@ public class MessageListFragment extends ListFragment
             mIsEasAccount = result.mIsEasAccount;
             mIsRefreshable = result.mIsRefreshable;
             getLoaderManager().initLoader(LOADER_ID_MESSAGES_LOADER, null,
-                    new MessagesLoaderCallback());
+                    new MessagesLoaderCallback(mMailboxChanging));
         }
     }
 
@@ -891,13 +901,19 @@ public class MessageListFragment extends ListFragment
      */
     private void refreshList() {
         getLoaderManager().restartLoader(LOADER_ID_MESSAGES_LOADER, null,
-                new MessagesLoaderCallback());
+                new MessagesLoaderCallback(false));
     }
 
     /**
      * Loader callbacks for message list.
      */
     private class MessagesLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
+        private final boolean mMailboxChanging;
+
+        public MessagesLoaderCallback(boolean mailboxChanging) {
+            mMailboxChanging = mailboxChanging;
+        }
+
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -918,7 +934,9 @@ public class MessageListFragment extends ListFragment
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
             final Utility.ListStateSaver lss;
-            if (mSavedListState != null) {
+            if (mMailboxChanging) {
+                lss = null; // Don't preserve list state
+            } else if (mSavedListState != null) {
                 lss = mSavedListState;
                 mSavedListState = null;
             } else {
@@ -938,9 +956,11 @@ public class MessageListFragment extends ListFragment
             showSendPanelIfNecessary();
             highlightSelectedMessage();
 
-            // Restore the state -- it has to be the last.
-            // (Some of the "post processing" resets the state.)
-            lss.restore(lv);
+            // Restore the state -- this step has to be the last, because Some of the
+            // "post processing" seems to reset the scroll position.
+            if (lss != null) {
+                lss.restore(lv);
+            }
 
             resetNewMessageCount(mActivity, mMailboxId, getAccountId());
         }
