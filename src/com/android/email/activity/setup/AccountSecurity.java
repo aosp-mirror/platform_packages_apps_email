@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
@@ -71,16 +72,21 @@ public class AccountSecurity extends Activity {
                 if (account.mSecurityFlags != 0) {
                     // This account wants to control security
                     if (!security.isActiveAdmin()) {
-                        // try to become active - must happen here in this activity, to get result
-                        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-                        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN,
-                                security.getAdminComponent());
-                        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                            this.getString(R.string.account_security_policy_explanation_fmt,
-                                    account.getDisplayName()));
-                        startActivityForResult(intent, REQUEST_ENABLE);
-                        // keep this activity on stack to process result
-                        return;
+                        // retrieve name of server for the format string
+                        HostAuth hostAuth =
+                                HostAuth.restoreHostAuthWithId(this, account.mHostAuthKeyRecv);
+                        if (hostAuth != null) {
+                            // try to become active - must happen here in activity, to get result
+                            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN,
+                                    security.getAdminComponent());
+                            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                                this.getString(R.string.account_security_policy_explanation_fmt,
+                                        hostAuth.mAddress));
+                            startActivityForResult(intent, REQUEST_ENABLE);
+                            // keep this activity on stack to process result
+                            return;
+                        }
                     } else {
                         // already active - try to set actual policies, finish, and return
                         setActivePolicies();
