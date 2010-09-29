@@ -64,6 +64,8 @@ import java.util.UUID;
 public abstract class EmailContent {
     public static final String AUTHORITY = EmailProvider.EMAIL_AUTHORITY;
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
+    public static final String LIMIT_PARAMETER = "limit";
+
     // All classes share this
     public static final String RECORD_ID = "_id";
 
@@ -169,6 +171,11 @@ public abstract class EmailContent {
      */
     static public int count(Context context, Uri uri) {
         return count(context, uri, null, null);
+    }
+
+    static public Uri uriWithLimit(Uri uri, int limit) {
+        return uri.buildUpon().appendQueryParameter(EmailContent.LIMIT_PARAMETER,
+                Integer.toString(limit)).build();
     }
 
     /**
