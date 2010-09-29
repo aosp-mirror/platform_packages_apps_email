@@ -58,7 +58,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private Activity mActivity;
     private MailboxesAdapter mListAdapter;
     private Callback mCallback = EmptyCallback.INSTANCE;
-    private final MyLoaderCallbacks mMyLoaderCallbacks = new MyLoaderCallbacks();
 
     private ListView mListView;
 
@@ -139,7 +138,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     public void setSelectedMailbox(long mailboxId) {
         mSelectedMailboxId = mailboxId;
         if (mResumed) {
-            highlightSelectedMailbox();
+            highlightSelectedMailbox(true);
         }
     }
 
@@ -231,13 +230,23 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         // start loading again.
         // We don't want to use restartLoader(), because if the Loader is retained, we *do* want to
         // reuse the previous result.
+        // Also, when changing accounts, we don't preserve scroll position.
+        boolean accountChanging = false;
         if ((mLastLoadedAccountId != -1) && (mLastLoadedAccountId != mAccountId)) {
+            accountChanging = true;
             getLoaderManager().stopLoader(LOADER_ID_MAILBOX_LIST);
         }
-        getLoaderManager().initLoader(LOADER_ID_MAILBOX_LIST, null, mMyLoaderCallbacks);
+        getLoaderManager().initLoader(LOADER_ID_MAILBOX_LIST, null,
+                new MailboxListLoaderCallbacks(accountChanging));
     }
 
-    private class MyLoaderCallbacks implements LoaderCallbacks<Cursor> {
+    private class MailboxListLoaderCallbacks implements LoaderCallbacks<Cursor> {
+        private boolean mAccountChanging;
+
+        public MailboxListLoaderCallbacks(boolean accountChanging) {
+            mAccountChanging = accountChanging;
+        }
+
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -257,7 +266,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
             final Utility.ListStateSaver lss;
-            if (mSavedListState != null) {
+            if (mAccountChanging) {
+                lss = null; // Don't preserve list state
+            } else if (mSavedListState != null) {
                 lss = mSavedListState;
                 mSavedListState = null;
             } else {
@@ -274,11 +285,19 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 mListAdapter.changeCursor(cursor);
                 setListAdapter(mListAdapter);
                 setListShown(true);
-                highlightSelectedMailbox();
+
+                // We want to make selection visible only when account is changing..
+                // i.e. Refresh caused by content changed events shouldn't scroll the list.
+                highlightSelectedMailbox(mAccountChanging);
             }
 
             // Restore the state
-            lss.restore(lv);
+            if (lss != null) {
+                lss.restore(lv);
+            }
+
+            // Clear this for next reload triggered by content changed events.
+            mAccountChanging = false;
         }
     }
 
@@ -295,7 +314,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     /**
      * Highlight the selected mailbox.
      */
-    private void highlightSelectedMailbox() {
+    private void highlightSelectedMailbox(boolean ensureSelectionVisible) {
         if (mSelectedMailboxId == -1) {
             // No mailbox selected
             mListView.clearChoices();
@@ -303,11 +322,15 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         final int count = mListView.getCount();
         for (int i = 0; i < count; i++) {
-            if (mListView.getItemIdAtPosition(i) == mSelectedMailboxId) {
-                mListView.setItemChecked(i, true);
-                Utility.listViewSmoothScrollToPosition(getActivity(), mListView, i);
-                break;
+            if (mListView.getItemIdAtPosition(i) != mSelectedMailboxId) {
+                continue;
             }
+            mListView.setItemChecked(i, true);
+            if (ensureSelectionVisible) {
+                Log.w(Email.LOG_TAG, "MailboxListFragment -- ensure visible");
+                Utility.listViewSmoothScrollToPosition(getActivity(), mListView, i);
+            }
+            break;
         }
     }
 }
