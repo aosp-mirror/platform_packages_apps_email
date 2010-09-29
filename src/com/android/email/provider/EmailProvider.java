@@ -1143,6 +1143,7 @@ public class EmailProvider extends ContentProvider {
         // See the comment at delete(), above
         SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
+        String limit = uri.getQueryParameter(EmailContent.LIMIT_PARAMETER);
         String id;
 
         if (Email.LOGD) {
@@ -1160,7 +1161,7 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT:
                 case HOSTAUTH:
                     c = db.query(TABLE_NAMES[table], projection,
-                            selection, selectionArgs, null, null, sortOrder);
+                            selection, selectionArgs, null, null, sortOrder, limit);
                     break;
                 case BODY_ID:
                 case MESSAGE_ID:
@@ -1172,14 +1173,15 @@ public class EmailProvider extends ContentProvider {
                 case HOSTAUTH_ID:
                     id = uri.getPathSegments().get(1);
                     c = db.query(TABLE_NAMES[table], projection,
-                            whereWithId(id, selection), selectionArgs, null, null, sortOrder);
+                            whereWithId(id, selection), selectionArgs, null, null, sortOrder,
+                            limit);
                     break;
                 case ATTACHMENTS_MESSAGE_ID:
                     // All attachments for the given message
                     id = uri.getPathSegments().get(2);
                     c = db.query(Attachment.TABLE_NAME, projection,
                             whereWith(Attachment.MESSAGE_KEY + "=" + id, selection),
-                            selectionArgs, null, null, sortOrder);
+                            selectionArgs, null, null, sortOrder, limit);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);

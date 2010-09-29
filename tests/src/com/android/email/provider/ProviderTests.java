@@ -797,6 +797,59 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     }
 
     /**
+     * Note that we can't use EmailContent.count() here because it uses a projection including
+     * count(*), and count(*) is incompatible with a LIMIT (i.e. the limit would be applied to the
+     * single column returned with count(*), rather than to the query itself)
+     */
+    private int count(Context context, Uri uri, String selection, String[] selectionArgs) {
+        Cursor c = context.getContentResolver().query(uri, EmailContent.ID_PROJECTION, selection,
+                selectionArgs, null);
+        try {
+            return c.getCount();
+        } finally {
+            c.close();
+        }
+    }
+
+    public void testMessageQueryWithLimit() {
+        final Context context = mMockContext;
+
+        // Create account and two mailboxes
+        Account acct = ProviderTestUtils.setupAccount("orphaned body", true, context);
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", acct.mId, true, context);
+        Mailbox box2 = ProviderTestUtils.setupMailbox("box2", acct.mId, true, context);
+
+        // Create 4 messages in box1
+        ProviderTestUtils.setupMessage("message1", acct.mId, box1.mId, false, true, context);
+        ProviderTestUtils.setupMessage("message2", acct.mId, box1.mId, false, true, context);
+        ProviderTestUtils.setupMessage("message3", acct.mId, box1.mId, false, true, context);
+        ProviderTestUtils.setupMessage("message4", acct.mId, box1.mId, false, true, context);
+
+        // Create 4 messages in box2
+        ProviderTestUtils.setupMessage("message1", acct.mId, box2.mId, false, true, context);
+        ProviderTestUtils.setupMessage("message2", acct.mId, box2.mId, false, true, context);
+        ProviderTestUtils.setupMessage("message3", acct.mId, box2.mId, false, true, context);
+        ProviderTestUtils.setupMessage("message4", acct.mId, box2.mId, false, true, context);
+
+        // Check normal case, special case (limit 1), and arbitrary limits
+        assertEquals(8, count(mMockContext, Message.CONTENT_URI, null, null));
+        assertEquals(1, count(mMockContext, EmailContent.uriWithLimit(Message.CONTENT_URI, 1),
+                null, null));
+        assertEquals(3, count(mMockContext, EmailContent.uriWithLimit(Message.CONTENT_URI, 3),
+                null, null));
+        assertEquals(8, count(mMockContext, EmailContent.uriWithLimit(Message.CONTENT_URI, 100),
+                null, null));
+
+        // Check that it works with selection/selection args
+        String[] args = new String[] {Long.toString(box1.mId)};
+        assertEquals(4, count(mMockContext, Message.CONTENT_URI,
+                MessageColumns.MAILBOX_KEY + "=?", args));
+        assertEquals(1, count(mMockContext,
+                EmailContent.uriWithLimit(Message.CONTENT_URI, 1),
+                MessageColumns.MAILBOX_KEY + "=?", args));
+    }
+
+    /**
      * Test delete orphan messages
      * 1. create message without body (message id 1)
      * 2. create message with body (message id 2. Body has _id 1 and messageKey 2).
