@@ -396,7 +396,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mQuickContactLookupUri = null;
         mSenderPresenceView.setImageResource(ContactStatusLoader.PRESENCE_UNKNOWN_RESOURCE_ID);
         mFromBadge.setImageToDefault();
-        mFromBadge.assignContactFromEmail("", false);
     }
 
     /**
@@ -616,7 +615,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             if (sender != null) {
                 String email = sender.getAddress();
                 if (email != null) {
-                    mFromBadge.assignContactFromEmail(email, false);
                     getLoaderManager().restartLoader(PHOTO_LOADER_ID,
                             ContactStatusLoaderCallbacks.createArguments(email),
                             new ContactStatusLoaderCallbacks(this));

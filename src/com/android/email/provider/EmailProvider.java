@@ -1143,7 +1143,7 @@ public class EmailProvider extends ContentProvider {
         // See the comment at delete(), above
         SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
-        String limit = uri.getQueryParameter(EmailContent.LIMIT_PARAMETER);
+        String limit = uri.getQueryParameter(EmailContent.PARAMETER_LIMIT);
         String id;
 
         if (Email.LOGD) {

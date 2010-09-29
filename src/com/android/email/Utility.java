@@ -819,73 +819,97 @@ public class Utility {
         return null;
     }
 
+    public interface CursorGetter<T> {
+        T get(Cursor cursor, int column);
+    }
+
+    private static final CursorGetter<Long> LONG_GETTER = new CursorGetter<Long>() {
+        public Long get(Cursor cursor, int column) {
+            return cursor.getLong(column);
+        }
+    };
+
+    private static final CursorGetter<Integer> INT_GETTER = new CursorGetter<Integer>() {
+        public Integer get(Cursor cursor, int column) {
+            return cursor.getInt(column);
+        }
+    };
+
+    private static final CursorGetter<byte[]> BLOB_GETTER = new CursorGetter<byte[]>() {
+        public byte[] get(Cursor cursor, int column) {
+            return cursor.getBlob(column);
+        }
+    };
+
     /**
-     * @return a long in column {@code column} of the first result row, if the query returns at
+     * @return a generic in column {@code column} of the first result row, if the query returns at
      * least 1 row.  Otherwise returns {@code defaultValue}.
+     */
+    public static <T extends Object> T getFirstRowColumn(Context context, Uri uri,
+            String[] projection, String selection, String[] selectionArgs, String sortOrder,
+            int column, T defaultValue, CursorGetter<T> getter) {
+        // Use PARAMETER_LIMIT to restrict the query to the single row we need
+        uri = uri.buildUpon().appendQueryParameter(EmailContent.PARAMETER_LIMIT, "1").build();
+        Cursor c = context.getContentResolver().query(uri, projection, selection, selectionArgs,
+                sortOrder);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    return getter.get(c, column);
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return defaultValue;
+    }
+
+    /**
+     * {@link #getFirstRowColumn} for a Long with null as a default value.
+     */
+    public static Long getFirstRowLong(Context context, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder, int column) {
+        return getFirstRowColumn(context, uri, projection, selection, selectionArgs,
+                sortOrder, column, null, LONG_GETTER);
+    }
+
+    /**
+     * {@link #getFirstRowColumn} for a Long with a provided default value.
      */
     public static Long getFirstRowLong(Context context, Uri uri, String[] projection,
             String selection, String[] selectionArgs, String sortOrder, int column,
             Long defaultValue) {
-        Cursor c = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                sortOrder);
-        if (c != null) {
-            try {
-                if (c.moveToFirst()) {
-                    return c.getLong(column);
-                }
-            } finally {
-                c.close();
-            }
-        }
-        return defaultValue;
+        return getFirstRowColumn(context, uri, projection, selection, selectionArgs,
+                sortOrder, column, defaultValue, LONG_GETTER);
     }
 
     /**
-     * {@link #getFirstRowLong} with null as a default value.
+     * {@link #getFirstRowColumn} for an Integer with null as a default value.
      */
-    public static Long getFirstRowLong(Context context, Uri uri, String[] projection,
+    public static Integer getFirstRowInt(Context context, Uri uri, String[] projection,
             String selection, String[] selectionArgs, String sortOrder, int column) {
-        return getFirstRowLong(context, uri, projection, selection, selectionArgs,
-                sortOrder, column, null);
+        return getFirstRowColumn(context, uri, projection, selection, selectionArgs,
+                sortOrder, column, null, INT_GETTER);
     }
 
     /**
-     * @return an integer in column {@code column} of the first result row, if the query returns at
-     * least 1 row.  Otherwise returns {@code defaultValue}.
+     * {@link #getFirstRowColumn} for an Integer with a provided default value.
      */
     public static Integer getFirstRowInt(Context context, Uri uri, String[] projection,
             String selection, String[] selectionArgs, String sortOrder, int column,
             Integer defaultValue) {
-        Long longDefault = (defaultValue == null) ? null : defaultValue.longValue();
-        Long result = getFirstRowLong(context, uri, projection, selection, selectionArgs, sortOrder,
-                column, longDefault);
-        return (result == null) ? null : result.intValue();
+        return getFirstRowColumn(context, uri, projection, selection, selectionArgs,
+                sortOrder, column, defaultValue, INT_GETTER);
     }
 
     /**
-     * {@link #getFirstRowInt} with null as a default value.
+     * {@link #getFirstRowColumn} for a byte array with null as a default value.
      */
-    public static Integer getFirstRowInt(Context context, Uri uri, String[] projection,
-            String selection, String[] selectionArgs, String sortOrder, int column) {
-        return getFirstRowInt(context, uri, projection, selection, selectionArgs,
-                sortOrder, column, null);
-    }
-
     public static byte[] getFirstRowBlob(Context context, Uri uri, String[] projection,
             String selection, String[] selectionArgs, String sortOrder, int column,
             byte[] defaultValue) {
-        Cursor c = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                sortOrder);
-        if (c != null) {
-            try {
-                if (c.moveToFirst()) {
-                    return c.getBlob(column);
-                }
-            } finally {
-                c.close();
-            }
-        }
-        return defaultValue;
+        return getFirstRowColumn(context, uri, projection, selection, selectionArgs, sortOrder,
+                column, defaultValue, BLOB_GETTER);
     }
 
     /**
