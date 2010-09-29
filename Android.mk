@@ -28,7 +28,7 @@ LOCAL_JAVA_STATIC_LIBRARIES := android-common
 
 LOCAL_PACKAGE_NAME := Email
 
-LOCAL_PROGUARD_FLAGS := -include $(LOCAL_PATH)/proguard.flags
+LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 
 # The Emma tool analyzes code coverage when running unit tests on the
 # application. This configuration line selects which packages will be analyzed,
