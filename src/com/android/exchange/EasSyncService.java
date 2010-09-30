@@ -142,6 +142,8 @@ public class EasSyncService extends AbstractSyncService {
     static private final String AUTO_DISCOVER_PAGE = "/autodiscover/autodiscover.xml";
     static private final int AUTO_DISCOVER_REDIRECT_CODE = 451;
 
+    static private final int INTERNAL_SERVER_ERROR_CODE = 500;
+
     static public final String EAS_12_POLICY_TYPE = "MS-EAS-Provisioning-WBXML";
     static public final String EAS_2_POLICY_TYPE = "MS-WAP-Provisioning-XML";
 
@@ -466,6 +468,10 @@ public class EasSyncService extends AbstractSyncService {
             } else if (isAuthError(code)) {
                 userLog("Authentication failed");
                 resultCode = MessagingException.AUTHENTICATION_FAILED;
+            } else if (code == INTERNAL_SERVER_ERROR_CODE) {
+                // For Exchange 2003, this could mean an authenticiation failure OR a server error
+                userLog("Internal server error");
+                resultCode = MessagingException.AUTHENTICATION_FAILED_OR_SERVER_ERROR;
             } else {
                 // TODO Need to catch other kinds of errors (e.g. policy) For now, report the code.
                 userLog("Validation failed, reporting I/O error: ", code);

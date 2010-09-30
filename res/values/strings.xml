@@ -590,6 +590,11 @@ save attachment.</string>
     <!-- "Setup could not finish" dialog text; e.g., Cannot safely connect to server\n(TLS Not Supported) -->
     <string name="account_setup_failed_dlg_certificate_message_fmt">Cannot safely connect to server.\n(<xliff:g id="error">%s</xliff:g>)</string>
 
+    <!-- Dialog text for ambiguous setup failure; server error/bad credentials [CHAR LIMIT=none] -->
+    <string name="account_setup_failed_check_credentials_message">
+         The server responded with an error; please check your username and password
+         and try again.</string>
+
     <!-- "Setup could not finish" dialog text; e.g., Cannot connect to server -->
     <string name="account_setup_failed_dlg_server_message">Cannot connect to server.</string>
     <!-- "Setup could not finish" dialog text; e.g., Cannot connect to server\n(Connection timed out) -->
