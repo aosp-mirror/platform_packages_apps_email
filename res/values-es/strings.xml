@@ -27,7 +27,7 @@
     <string name="okay_action" msgid="8365197396795675617">"Aceptar"</string>
     <string name="cancel_action" msgid="6967435583794021865">"Cancelar"</string>
     <string name="send_action" msgid="1729766205562446418">"Enviar"</string>
-    <string name="reply_action" msgid="4262472229221507619">"Resp"</string>
+    <string name="reply_action" msgid="4262472229221507619">"Responder"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Responder a todos"</string>
     <string name="delete_action" msgid="8421026208288857155">"Eliminar"</string>
     <string name="forward_action" msgid="669174181042344116">"Reenviar"</string>
@@ -103,8 +103,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Abrir"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Guardar"</string>
-    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"El archivo adjunto se ha guardado en una tarjeta SD como <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"No es posible guardar el archivo adjunto en la tarjeta SD."</string>
+    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"El archivo adjunto se ha guardado en una tarjeta SD como <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"No es posible guardar el archivo adjunto en la tarjeta SD."</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Selecciona \"Mostrar imágenes\" para visualizar las imágenes insertadas."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Mostrar imágenes"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Descargando archivo adjunto"</string>

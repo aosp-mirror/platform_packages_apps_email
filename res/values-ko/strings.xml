@@ -103,8 +103,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"참조:"</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"열기"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"저장"</string>
-    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)이 SD 카드에 저장되었습니다."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"SD 카드에 첨부파일을 저장할 수 없습니다."</string>
+    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)이 SD 카드에 저장되었습니다."</string>
+    <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"SD 카드에 첨부파일을 저장할 수 없습니다."</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"\'사진 표시\'를 선택하여 삽입된 사진을 표시합니다."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"사진 표시"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"첨부파일을 가져오는 중입니다."</string>

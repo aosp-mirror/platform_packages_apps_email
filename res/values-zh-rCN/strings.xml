@@ -103,8 +103,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"抄送："</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"打开"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"保存"</string>
-    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"附件已保存到 SD 卡，名为<xliff:g id="FILENAME">%s</xliff:g>。"</string>
-    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"无法将附件保存到 SD 卡。"</string>
+    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"附件已保存到 SD 卡，名为<xliff:g id="FILENAME">%s</xliff:g>。"</string>
+    <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"无法将附件保存到 SD 卡。"</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"选择“显示图片”可以显示内嵌的图片。"</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"显示图片"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"正在提取附件。"</string>
