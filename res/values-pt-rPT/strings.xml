@@ -103,8 +103,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Abrir"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Guardar"</string>
-    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Anexo guardado no cartão SD como <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Não foi possível guardar o anexo no cartão SD."</string>
+    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Anexo guardado no cartão SD como <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Não foi possível guardar o anexo no cartão SD."</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Seleccione \"Mostrar imagens\" para apresentar as imagens incorporadas."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Mostrar imagens"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"A obter anexo."</string>

@@ -42,7 +42,7 @@
     <string name="remove_star_action" msgid="6689770999647007163">"Markierung entfernen"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Aktualisieren"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Konto hinzufügen"</string>
-    <string name="deselect_all_action" msgid="253663239459688238">"Auswahl für alle aufheben"</string>
+    <string name="deselect_all_action" msgid="253663239459688238">"Auswahl aufheben"</string>
     <string name="compose_action" msgid="4045702519637388045">"Schreiben"</string>
     <string name="search_action" msgid="6325101454876682308">"Suche"</string>
     <string name="open_action" msgid="936766723989190816">"Offen"</string>
@@ -103,8 +103,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Offen"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Speichern"</string>
-    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Anhang auf SD-Speicherkarte unter \"<xliff:g id="FILENAME">%s</xliff:g>\" abgespeichert"</string>
-    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Speichern des Anhangs auf SD-Karte nicht möglich"</string>
+    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Anhang auf SD-Speicherkarte unter \"<xliff:g id="FILENAME">%s</xliff:g>\" abgespeichert"</string>
+    <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Speichern des Anhangs auf SD-Karte nicht möglich"</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Wählen Sie \"Bilder anzeigen\" aus, um eingebettete Bilder anzuzeigen."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Bilder anzeigen"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Anhang wird abgerufen"</string>
@@ -248,7 +248,7 @@
     <string name="provider_note_yahoo" msgid="8762024183024261236">"Der Zugang zum Postfach bestimmter E-Mail-Konten von Yahoo! wird nicht unterstützt. Bei Verbindungsproblemen besuchen Sie die Website von Yahoo! für weitere Informationen."</string>
     <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Vor Eröffnung dieses E-Mail-Kontos bitte die Website von Yahoo! besuchen und E-Mail-Zugang über POP3 für dieses Konto aktivieren."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Nur einige \"Plus\"-Konten ermöglichen einen POP-Zugang und damit diesem Programm, eine Verbindung aufzubauen. Sollten Sie nicht dazu in der Lage sein, sich mit Ihrer korrekten E-Mail-Adresse und dem richtigen Password anzumelden, verfügen Sie möglicherweise nicht über ein kostenpflichtiges \"Plus\"-Konto. Starten Sie Ihren Webbrowser, um Zugriff auf diese Konten zu erlangen."</string>
-    <string name="provider_note_t_online" msgid="1973701903400232774">"Vor Erstellung des E-Mail Kontos bitte \\\"eMail-Passwort\\\" für den POP3-Zugang auf der T-Online Homepage einrichten."</string>
+    <string name="provider_note_t_online" msgid="1973701903400232774">"Vor Erstellung des E-Mail Kontos bitte \\\"eMail-Passwort\\\" für den POP3-Zugang auf der T-Online-Startseite einrichten."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Geschäftlich"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="meeting_accepted" msgid="8796609373330400268">"Akzeptiert: <xliff:g id="SUBJECT">%s</xliff:g>"</string>

@@ -103,8 +103,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kopi:"</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Åpne"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Lagre"</string>
-    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Vedlegget ble lagret til minnekortet som <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Kunne ikke lagre vedlegget til minnekort."</string>
+    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Vedlegget ble lagret til minnekortet som <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Kunne ikke lagre vedlegget til minnekort."</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Velg «Vis bilder» for å vise vedlagte bilder."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Vis bilder"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Henter vedlegg."</string>

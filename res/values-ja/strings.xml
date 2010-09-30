@@ -103,8 +103,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"開く"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"保存"</string>
-    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"「<xliff:g id="FILENAME">%s</xliff:g>」という名前で添付ファイルをSDカードに保存しました。"</string>
-    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"添付ファイルをSDカードに保存できません。"</string>
+    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"「<xliff:g id="FILENAME">%s</xliff:g>」という名前で添付ファイルをSDカードに保存しました。"</string>
+    <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"添付ファイルをSDカードに保存できません。"</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"埋め込み画像を見るには[画像を表示]を選択します。"</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"画像を表示"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"添付ファイルを取得中"</string>
