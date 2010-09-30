@@ -38,7 +38,7 @@ import java.util.Hashtable;
 public class Serializer {
 
     private static final String TAG = "Serializer";
-    private final boolean logging = Email.DEBUG && Log.isLoggable(TAG, Log.VERBOSE);
+    private boolean logging = Email.DEBUG && Log.isLoggable(TAG, Log.VERBOSE);
 
     private static final int NOT_PENDING = -1;
 
