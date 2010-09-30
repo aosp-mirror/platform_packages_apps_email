@@ -83,6 +83,36 @@
                         android:layout_width="22dip"
                         android:layout_height="22dip"
                         android:baselineAlignBottom="true" />
+
+                    <!-- Reply/Forward buttons are default gone for MessageFileView -->
+                    <ImageView
+                        android:id="@+id/reply"
+                        android:src="@drawable/reply"
+                        android:layout_width="32dip"
+                        android:layout_height="24dip"
+                        android:layout_margin="6dip"
+                        android:baselineAlignBottom="true"
+                        android:visibility="gone"
+                        />
+                    <ImageView
+                        android:id="@+id/reply_all"
+                        android:src="@drawable/reply_all"
+                        android:layout_width="32dip"
+                        android:layout_height="24dip"
+                        android:layout_margin="6dip"
+                        android:baselineAlignBottom="true"
+                        android:visibility="gone"
+                        />
+                    <ImageView
+                        android:id="@+id/forward"
+                        android:src="@drawable/forward"
+                        android:layout_width="32dip"
+                        android:layout_height="24dip"
+                        android:layout_margin="6dip"
+                        android:baselineAlignBottom="true"
+                        android:visibility="gone"
+                        />
+
                     <TextView
                         android:id="@+id/date"
                         android:textAppearance="?android:attr/textAppearanceSmall"

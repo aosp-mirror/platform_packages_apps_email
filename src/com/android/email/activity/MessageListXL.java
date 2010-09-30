@@ -363,10 +363,6 @@ public class MessageListXL extends Activity implements
 
         @Override
         public void onEnterSelectionMode(boolean enter) {
-            MessageViewFragment f = mFragmentManager.getMessageViewFragment();
-            if (f != null) {
-                f.showCommandbuttons(!enter);
-            }
         }
     }
 
@@ -459,15 +455,6 @@ public class MessageListXL extends Activity implements
         @Override
         public void onReplyAll() {
             MessageCompose.actionReply(MessageListXL.this, mFragmentManager.getMessageId(), true);
-        }
-
-        @Override
-        public boolean shouldShowCommandButtons() {
-            MessageListFragment f = mFragmentManager.getMessageListFragment();
-            if (f == null) {
-                return true;
-            }
-            return !f.isInSelectionMode();
         }
     }
 

@@ -48,6 +48,10 @@ public class MessageViewFragment extends MessageViewFragmentBase {
     private ImageView mFavoriteIcon;
     private View mInviteSection;
 
+    private View mReplyButton;
+    private View mReplyAllButton;
+    private View mForwardButton;
+
     // calendar meeting invite answers
     private TextView mMeetingYes;
     private TextView mMeetingMaybe;
@@ -112,12 +116,6 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         public void onReply();
         /** Called when the reply-all button is pressed. */
         public void onReplyAll();
-
-        /**
-         * The fragment call it to see if the command buttons should be shown.
-         * (We want to hide them if the message list is in the selection mode.)
-         */
-        public boolean shouldShowCommandButtons();
     }
 
     public static final class EmptyCallback extends MessageViewFragmentBase.EmptyCallback
@@ -134,7 +132,6 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         @Override public void onForward() { }
         @Override public void onReply() { }
         @Override public void onReplyAll() { }
-        @Override public boolean shouldShowCommandButtons() { return true; }
     }
 
     private Callback mCallback = EmptyCallback.INSTANCE;
@@ -155,11 +152,17 @@ public class MessageViewFragment extends MessageViewFragmentBase {
 
         mFavoriteIcon = (ImageView) view.findViewById(R.id.favorite);
         mInviteSection = view.findViewById(R.id.invite_section);
-        mFavoriteIcon.setOnClickListener(this);
+        mReplyButton = view.findViewById(R.id.reply);
+        mReplyAllButton = view.findViewById(R.id.reply_all);
+        mForwardButton = view.findViewById(R.id.forward);
         mMeetingYes = (TextView) view.findViewById(R.id.accept);
         mMeetingMaybe = (TextView) view.findViewById(R.id.maybe);
         mMeetingNo = (TextView) view.findViewById(R.id.decline);
 
+        mFavoriteIcon.setOnClickListener(this);
+        mReplyButton.setOnClickListener(this);
+        mReplyAllButton.setOnClickListener(this);
+        mForwardButton.setOnClickListener(this);
         mMeetingYes.setOnClickListener(this);
         mMeetingMaybe.setOnClickListener(this);
         mMeetingNo.setOnClickListener(this);
@@ -171,26 +174,22 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         mCommandButtons.setVisibility(View.VISIBLE);
         mCommandButtons.setCallback(mCommandButtonCallback);
 
+        enableReplyForwardButtons(false);
+
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // TODO Doing it here causes some of the buttons to be disabled when closing quick contact.
-        // Clean up the button related code.
-        initCommandButtons();
     }
 
-    /**
-     * Initialize command buttons
-     * - Hide the panel if not necessary
-     * - Disable the buttons that can be disabled (to avoid flicker)
-     */
-    private void initCommandButtons() {
-        showCommandbuttons(mCallback.shouldShowCommandButtons());
-        mCommandButtons.enableNavigationButons(false, false);
-        mCommandButtons.enableReplyForwardButtons(false);
+    private void enableReplyForwardButtons(boolean enabled) {
+        // We don't have disabled button assets, so let's hide them for now
+        final int visibility = enabled ? View.VISIBLE : View.GONE;
+        mReplyButton.setVisibility(visibility);
+        mReplyAllButton.setVisibility(visibility);
+        mForwardButton.setVisibility(visibility);
     }
 
     public void setCallback(Callback callback) {
@@ -240,14 +239,7 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         mCurrentMessageId = messageId;
 
         // Disable forward/reply buttons as necessary.
-        // (Draft messages shouldn't be opened with this fragment in the first place, but currently
-        // it's possible due to a problem with "All Starred".)
-        mCommandButtons.enableReplyForwardButtons((mailboxType != Mailbox.TYPE_TRASH)
-                && (mailboxType != Mailbox.TYPE_TRASH));
-    }
-
-    public void showCommandbuttons(boolean show) {
-        mCommandButtons.setVisibility(show ? View.VISIBLE : View.GONE);
+        enableReplyForwardButtons(Mailbox.isMailboxTypeReplyAndForwardable(mailboxType));
     }
 
     public void enableNavigationButons(boolean enableMoveToNewer, boolean enableMoveToOlder) {
@@ -314,9 +306,20 @@ public class MessageViewFragment extends MessageViewFragmentBase {
             return; // Ignore.
         }
         switch (view.getId()) {
+            case R.id.reply:
+                mCallback.onReply();
+                return;
+            case R.id.reply_all:
+                mCallback.onReplyAll();
+                return;
+            case R.id.forward:
+                mCallback.onForward();
+                return;
+
             case R.id.favorite:
                 onClickFavorite();
                 return;
+
             case R.id.accept:
                 onRespondToInvite(EmailServiceConstants.MEETING_REQUEST_ACCEPTED,
                          R.string.message_view_invite_toast_yes);
@@ -386,17 +389,14 @@ public class MessageViewFragment extends MessageViewFragmentBase {
 
         @Override
         public void onForward() {
-            mCallback.onForward();
         }
 
         @Override
         public void onReply() {
-            mCallback.onReply();
         }
 
         @Override
         public void onReplyAll() {
-            mCallback.onReplyAll();
         }
 
         @Override
