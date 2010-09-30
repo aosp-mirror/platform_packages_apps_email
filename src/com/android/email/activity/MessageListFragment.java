@@ -303,6 +303,19 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
+     * Clear all the content, stop the loaders, etc -- should be called when the fragment is hidden.
+     */
+    public void clearContent() {
+        mMailboxId = -1;
+        stopLoaders();
+        onDeselectAll();
+        if (mListAdapter != null) {
+            mListAdapter.changeCursor(null);
+        }
+        setListShownNoAnimation(false);
+    }
+
+    /**
      * Called by an Activity to open an mailbox.
      *
      * @param mailboxId the ID of a mailbox, or one of "special" mailbox IDs like
@@ -847,11 +860,16 @@ public class MessageListFragment extends ListFragment
         boolean mailboxChanging = false;
         if ((mLastLoadedMailboxId != -1) && (mLastLoadedMailboxId != mMailboxId)) {
             mailboxChanging = true;
-            lm.stopLoader(LOADER_ID_MAILBOX_LOADER);
-            lm.stopLoader(LOADER_ID_MESSAGES_LOADER);
+            stopLoaders();
         }
         lm.initLoader(LOADER_ID_MAILBOX_LOADER, null,
                 new MailboxAccountLoaderCallback(mailboxChanging));
+    }
+
+    private void stopLoaders() {
+        final LoaderManager lm = getLoaderManager();
+        lm.stopLoader(LOADER_ID_MAILBOX_LOADER);
+        lm.stopLoader(LOADER_ID_MESSAGES_LOADER);
     }
 
     /**

@@ -177,6 +177,8 @@ public class MessageViewFragment extends MessageViewFragmentBase {
     @Override
     public void onResume() {
         super.onResume();
+        // TODO Doing it here causes some of the buttons to be disabled when closing quick contact.
+        // Clean up the button related code.
         initCommandButtons();
     }
 
@@ -206,6 +208,18 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         }
         mMessageIdToOpen = messageId;
         openMessageIfStarted();
+    }
+
+    @Override
+    public void clearContent() {
+        super.clearContent();
+        mMessageIdToOpen = -1;
+    }
+
+    @Override
+    protected void resetView() {
+        super.resetView();
+        // TODO Hide command buttons.  (Careful when to re-show it)
     }
 
     @Override
