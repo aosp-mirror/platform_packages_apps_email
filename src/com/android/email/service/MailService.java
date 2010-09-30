@@ -19,16 +19,20 @@ package com.android.email.service;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Controller;
 import com.android.email.Email;
+import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.Utility;
+import com.android.email.activity.ContactStatusLoader;
 import com.android.email.activity.Welcome;
+import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailProvider;
 
 import android.accounts.AccountManager;
@@ -44,11 +48,12 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -56,6 +61,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Config;
 import android.util.Log;
 
@@ -72,11 +78,6 @@ public class MailService extends Service {
     private static final boolean DEBUG_FORCE_QUICK_REFRESH = false;     // force 1-minute refresh
 
     private static final String LOG_TAG = "Email-MailService";
-
-    private static final int NOTIFICATION_ID_NEW_MESSAGES = 1;
-    public static final int NOTIFICATION_ID_SECURITY_NEEDED = 2;
-    public static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 3;
-    public static final int NOTIFICATION_ID_WARNING = 4;
 
     private static final String ACTION_CHECK_MAIL =
         "com.android.email.intent.action.MAIL_SERVICE_WAKEUP";
@@ -149,7 +150,7 @@ public class MailService extends Service {
         synchronized (mSyncReports) {
             for (AccountSyncReport report : mSyncReports.values()) {
                 if (accountId == -1 || accountId == report.accountId) {
-                    report.numNewMessages = 0;
+                    report.unseenMessageCount = 0;
                 }
             }
         }
@@ -180,12 +181,6 @@ public class MailService extends Service {
         i.setClass(context, MailService.class);
         i.putExtra(EXTRA_ACCOUNT, accountId);
         context.startService(i);
-    }
-
-    public static void cancelNewMessageNotification(Context context) {
-        NotificationManager notificationManager = (NotificationManager)
-                context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(MailService.NOTIFICATION_ID_NEW_MESSAGES);
     }
 
     @Override
@@ -282,7 +277,7 @@ public class MailService extends Service {
             // As a precaution, clear any outstanding Email notifications
             // We could be smarter and only do this when the list of accounts changes,
             // but that's an edge condition and this is much safer.
-            cancelNewMessageNotification(this);
+            NotificationController.getInstance(this).cancelNewMessageNotification(-1);
 
             // When called externally, we refresh the sync reports table to pick up
             // any changes in the account list or account settings
@@ -496,22 +491,34 @@ public class MailService extends Service {
         long accountId;
         long prevSyncTime;      // 0 == unknown
         long nextSyncTime;      // 0 == ASAP  -1 == don't sync
-        int numNewMessages;
+
+        /** # of "unseen" messages to show in notification */
+        int unseenMessageCount;
+
+        /**
+         * # of unseen, the value shown on the last notification. Used to
+         * calculate "the number of messages that have just been fetched".
+         *
+         * TODO It's a sort of cheating.  Should we use the "real" number?  The only difference
+         * is the first notification after reboot / process restart.
+         */
+        int lastUnseenMessageCount;
 
         int syncInterval;
         boolean notify;
-        boolean vibrate;
-        boolean vibrateWhenSilent;
-        Uri ringtoneUri;
 
-        String accountDisplayName;
         boolean syncEnabled;    // whether auto sync is enabled for this account
 
+        /** # of messages that have just been fetched */
+        int getJustFetchedMessageCount() {
+            return unseenMessageCount - lastUnseenMessageCount;
+        }
 
         @Override
         public String toString() {
-            return accountDisplayName + ": id=" + accountId + " prevSync=" + prevSyncTime
-                    + " nextSync=" + nextSyncTime + " numNew=" + numNewMessages;
+            return "id=" + accountId
+                    + " prevSync=" + prevSyncTime + " nextSync=" + nextSyncTime + " numUnseen="
+                    + unseenMessageCount;
         }
     }
 
@@ -560,7 +567,6 @@ public class MailService extends Service {
                 int syncInterval = c.getInt(Account.CONTENT_SYNC_INTERVAL_COLUMN);
                 int flags = c.getInt(Account.CONTENT_FLAGS_COLUMN);
                 long id = c.getInt(Account.CONTENT_ID_COLUMN);
-                String ringtoneString = c.getString(Account.CONTENT_RINGTONE_URI_COLUMN);
 
                 // If we're not using MessagingController (EAS at this point), don't schedule syncs
                 if (!mController.isMessagingController(id)) {
@@ -572,16 +578,10 @@ public class MailService extends Service {
                 report.accountId = c.getLong(Account.CONTENT_ID_COLUMN);
                 report.prevSyncTime = 0;
                 report.nextSyncTime = (syncInterval > 0) ? 0 : -1;  // 0 == ASAP -1 == no sync
-                report.numNewMessages = 0;
+                report.unseenMessageCount = 0;
 
                 report.syncInterval = syncInterval;
                 report.notify = (flags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
-                report.vibrate = (flags & Account.FLAGS_VIBRATE_ALWAYS) != 0;
-                report.vibrateWhenSilent = (flags & Account.FLAGS_VIBRATE_WHEN_SILENT) != 0;
-                report.ringtoneUri = (ringtoneString == null) ? null
-                        : Uri.parse(ringtoneString);
-
-                report.accountDisplayName = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
 
                 // See if the account is enabled for sync in AccountManager
                 Account providerAccount = Account.restoreAccountWithId(this, id);
@@ -623,7 +623,7 @@ public class MailService extends Service {
                 report.nextSyncTime = report.prevSyncTime + (report.syncInterval * 1000 * 60);
             }
             if (newCount != -1) {
-                report.numNewMessages = newCount;
+                report.unseenMessageCount = newCount;
             }
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(LOG_TAG, "update account " + report.toString());
@@ -709,114 +709,23 @@ public class MailService extends Service {
     }
 
     /**
-     * Prepare notifications for a given new account having received mail
-     * The notification is organized around the account that has the new mail (e.g. selecting
-     * the alert preferences) but the notification will include a summary if other
-     * accounts also have new mail.
+     * Show "new message" notification for an account.  (Notification is shown per account.)
      */
-    private void notifyNewMessages(long accountId) {
-        boolean notify = false;
-        boolean vibrate = false;
-        boolean vibrateWhenSilent = false;
-        Uri ringtone = null;
-        int accountsWithNewMessages = 0;
-        int numNewMessages = 0;
-        String reportName = null;
+    private void notifyNewMessages(final long accountId) {
+        final int unseenMessageCount;
+        final int justFetchedCount;
         synchronized (mSyncReports) {
-            for (AccountSyncReport report : mSyncReports.values()) {
-                if (report.numNewMessages == 0) {
-                    continue;
-                }
-                numNewMessages += report.numNewMessages;
-                accountsWithNewMessages += 1;
-                if (report.accountId == accountId) {
-                    notify = report.notify;
-                    vibrate = report.vibrate;
-                    vibrateWhenSilent = report.vibrateWhenSilent;
-                    ringtone = report.ringtoneUri;
-                    reportName = report.accountDisplayName;
-                }
+            AccountSyncReport report = mSyncReports.get(accountId);
+            if (report == null || report.unseenMessageCount == 0 || !report.notify) {
+                return;
             }
-        }
-        if (!notify) {
-            return;
-        }
-
-        showNewMessageNotification(this, accountId, vibrate, vibrateWhenSilent, ringtone,
-                accountsWithNewMessages, numNewMessages, reportName);
-    }
-
-    /** Simply runs {@link #showNewMessageNotificationInternal} on a worker thread. */
-    private static void showNewMessageNotification(final Context context,
-            final long accountId, final boolean vibrate, final boolean vibrateWhenSilent,
-            final Uri ringtone, final int accountsWithNewMessages, final int numNewMessages,
-            final String reportName) {
-        Utility.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                showNewMessageNotificationInternal(context, accountId, vibrate, vibrateWhenSilent,
-                        ringtone, accountsWithNewMessages, numNewMessages, reportName);
-            }
-        });
-    }
-
-    /**
-     * Show (or update) a notification.
-     *
-     * TODO Implement new style notification.  (show sender photo, sender name, subject, ...)
-     */
-    private static void showNewMessageNotificationInternal(Context context, long accountId,
-            boolean vibrate, boolean vibrateWhenSilent, Uri ringtone, int accountsWithNewMessages,
-            int numNewMessages, String reportName) {
-        // set up to post a notification
-        Intent intent;
-        String reportString;
-
-        if (accountsWithNewMessages == 1) {
-            // Prepare a report for a single account
-            // "12 unread (gmail)"
-            reportString = context.getResources().getQuantityString(
-                    R.plurals.notification_new_one_account_fmt, numNewMessages,
-                    numNewMessages, reportName);
-            intent = Welcome.createOpenAccountInboxIntent(context, accountId);
-        } else {
-            // Prepare a report for multiple accounts
-            // "4 accounts"
-            reportString = context.getResources().getQuantityString(
-                    R.plurals.notification_new_multi_account_fmt, accountsWithNewMessages,
-                    accountsWithNewMessages);
-            intent = Welcome.createOpenCombinedInboxIntent(context);
+            unseenMessageCount = report.unseenMessageCount;
+            justFetchedCount = report.getJustFetchedMessageCount();
+            report.lastUnseenMessageCount = report.unseenMessageCount;
         }
 
-        // prepare appropriate pending intent, set up notification, and send
-        PendingIntent pending =
-            PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Notification notification = new Notification(
-                R.drawable.stat_notify_email_generic,
-                context.getString(R.string.notification_new_title),
-                System.currentTimeMillis());
-        notification.setLatestEventInfo(context,
-                context.getString(R.string.notification_new_title),
-                reportString,
-                pending);
-
-        notification.sound = ringtone;
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        boolean nowSilent = audioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL;
-
-        // Use same code here as in Gmail and GTalk for vibration
-        if (vibrate || (vibrateWhenSilent && nowSilent)) {
-            notification.defaults |= Notification.DEFAULT_VIBRATE;
-        }
-
-        // This code is identical to that used by Gmail and GTalk for notifications
-        notification.flags |= Notification.FLAG_SHOW_LIGHTS;
-        notification.defaults |= Notification.DEFAULT_LIGHTS;
-
-        NotificationManager notificationManager =
-            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_ID_NEW_MESSAGES, notification);
+        NotificationController.getInstance(this).showNewMessageNotification(accountId,
+                unseenMessageCount, justFetchedCount);
     }
 
     /**

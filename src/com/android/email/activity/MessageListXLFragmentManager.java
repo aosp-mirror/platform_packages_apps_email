@@ -66,9 +66,7 @@ class MessageListXLFragmentManager {
     /** Current message id. (-1 = not selected) */
     private long mMessageId = -1;
 
-    private View mLeftPane;
-    private View mMiddlePane;
-    private View mRightPane;
+    private ThreePaneLayout mThreePane;
 
     private MailboxListFragment mMailboxListFragment;
     private MessageListFragment mMessageListFragment;
@@ -123,9 +121,7 @@ class MessageListXLFragmentManager {
      * the constructor.)
      */
     public void onActivityViewReady() {
-        mLeftPane = mTargetActivity.findViewById(R.id.left_pane);
-        mMiddlePane = mTargetActivity.findViewById(R.id.middle_pane);
-        mRightPane = mTargetActivity.findViewById(R.id.right_pane);
+        mThreePane = (ThreePaneLayout) mTargetActivity.findViewById(R.id.three_pane);
     }
 
     /** Set callback for fragment. */
@@ -312,7 +308,7 @@ class MessageListXLFragmentManager {
             // We can put it directly in the layout file, but then it'll have slightly different
             // lifecycle as the other fragments.  Let's create it here this way for now.
             MailboxListFragment f = new MailboxListFragment();
-            ft.replace(R.id.left_pane, f);
+            ft.replace(mThreePane.getLeftPaneId(), f);
         }
         if (mMessageListFragment != null) {
             ft.remove(mMessageListFragment);
@@ -400,7 +396,7 @@ class MessageListXLFragmentManager {
                 f.doAutoRefresh();
             }
             FragmentTransaction ft = mFragmentManager.openTransaction()
-                    .replace(R.id.middle_pane, f);
+                    .replace(mThreePane.getMiddlePaneId(), f);
             if (mMessageViewFragment != null) {
                 // Message view will disappear.
                 ft.remove(mMessageViewFragment);
@@ -467,7 +463,7 @@ class MessageListXLFragmentManager {
 
             // We don't use the built-in back mechanism.
             // See MessageListXL.onBackPressed().
-            mFragmentManager.openTransaction().replace(R.id.right_pane, f)
+            mFragmentManager.openTransaction().replace(mThreePane.getRightPaneId(), f)
 //                    .addToBackStack(null)
                     .commit();
         } else {
@@ -490,14 +486,12 @@ class MessageListXLFragmentManager {
     }
 
     private void hideMessageBoxList() {
-        mLeftPane.setVisibility(View.GONE);
-        mRightPane.setVisibility(View.VISIBLE);
+        mThreePane.showRightPane(true);
     }
 
     private void hideMessageView() {
         mMessageId = -1;
-        mRightPane.setVisibility(View.GONE);
-        mLeftPane.setVisibility(View.VISIBLE);
+        mThreePane.showRightPane(false);
         if (mMessageViewFragment != null) {
             mFragmentManager.openTransaction().remove(mMessageViewFragment).commit();
             mMessageViewFragment = null;

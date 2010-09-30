@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.Controller;
 import com.android.email.Email;
+import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.mail.Sender;
@@ -25,7 +26,6 @@ import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
-import com.android.email.service.MailService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -558,8 +558,8 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
     public void deleteAccount(Account account) {
         // Kick off the work to actually delete the account
 
-        // Clear notifications, which may become stale here
-        MailService.cancelNewMessageNotification(this);
+        // Clear notifications for the account.
+        NotificationController.getInstance(this).cancelNewMessageNotification(account.mId);
 
         // Delete the account (note, this is async.  Would be nice to get a callback.
         Controller.getInstance(this).deleteAccount(account.mId);

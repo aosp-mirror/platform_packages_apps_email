@@ -331,7 +331,7 @@ public class MessageListFragment extends ListFragment
     public void setSelectedMessage(long messageId) {
         mSelectedMessageId = messageId;
         if (mResumed) {
-            highlightSelectedMessage();
+            highlightSelectedMessage(true);
         }
     }
 
@@ -859,7 +859,7 @@ public class MessageListFragment extends ListFragment
      */
     private class MailboxAccountLoaderCallback implements LoaderManager.LoaderCallbacks<
             MailboxAccountLoader.Result> {
-        private final boolean mMailboxChanging;
+        private boolean mMailboxChanging;
 
         public MailboxAccountLoaderCallback(boolean mailboxChanging) {
             mMailboxChanging = mailboxChanging;
@@ -893,6 +893,9 @@ public class MessageListFragment extends ListFragment
             mIsRefreshable = result.mIsRefreshable;
             getLoaderManager().initLoader(LOADER_ID_MESSAGES_LOADER, null,
                     new MessagesLoaderCallback(mMailboxChanging));
+
+            // Clear this for next reload triggered by content changed events.
+            mMailboxChanging = false;
         }
     }
 
@@ -908,7 +911,7 @@ public class MessageListFragment extends ListFragment
      * Loader callbacks for message list.
      */
     private class MessagesLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
-        private final boolean mMailboxChanging;
+        private boolean mMailboxChanging;
 
         public MessagesLoaderCallback(boolean mailboxChanging) {
             mMailboxChanging = mailboxChanging;
@@ -920,7 +923,6 @@ public class MessageListFragment extends ListFragment
                 Log.d(Email.LOG_TAG,
                         "MessageListFragment onCreateLoader(messages) mailboxId=" + mMailboxId);
             }
-
             return MessagesAdapter.createLoader(getActivity(), mMailboxId);
         }
 
@@ -954,7 +956,10 @@ public class MessageListFragment extends ListFragment
             addFooterView();
             updateSelectionMode();
             showSendPanelIfNecessary();
-            highlightSelectedMessage();
+
+            // We want to make selection visible only when the loader was explicitly started.
+            // i.e. Refresh caused by content changed events shouldn't scroll the list.
+            highlightSelectedMessage(mMailboxChanging);
 
             // Restore the state -- this step has to be the last, because Some of the
             // "post processing" seems to reset the scroll position.
@@ -963,6 +968,9 @@ public class MessageListFragment extends ListFragment
             }
 
             resetNewMessageCount(mActivity, mMailboxId, getAccountId());
+
+            // Clear this for next reload triggered by content changed events.
+            mMailboxChanging = false;
         }
     }
 
@@ -1142,7 +1150,7 @@ public class MessageListFragment extends ListFragment
     /**
      * Highlight the selected message.
      */
-    private void highlightSelectedMessage() {
+    private void highlightSelectedMessage(boolean ensureSelectionVisible) {
         if (mSelectedMessageId == -1) {
             // No mailbox selected
             mListView.clearChoices();
@@ -1151,11 +1159,14 @@ public class MessageListFragment extends ListFragment
 
         final int count = mListView.getCount();
         for (int i = 0; i < count; i++) {
-            if (mListView.getItemIdAtPosition(i) == mSelectedMessageId) {
-                mListView.setItemChecked(i, true);
-                Utility.listViewSmoothScrollToPosition(getActivity(), mListView, i);
-                break;
+            if (mListView.getItemIdAtPosition(i) != mSelectedMessageId) {
+                continue;
             }
+            mListView.setItemChecked(i, true);
+            if (ensureSelectionVisible) {
+                Utility.listViewSmoothScrollToPosition(getActivity(), mListView, i);
+            }
+            break;
         }
     }
 }

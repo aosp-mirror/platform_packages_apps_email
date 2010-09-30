@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Clock;
 import com.android.email.Email;
+import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
@@ -26,7 +27,6 @@ import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.service.MailService;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -174,7 +174,8 @@ public class MessageListXL extends Activity implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onResume");
         super.onResume();
 
-        MailService.cancelNewMessageNotification(this);
+        NotificationController.getInstance(this).cancelNewMessageNotification(
+                mFragmentManager.getAccountId());
 
         // On MessageList.onResume, we go back to Welcome if an account has been added/removed.
         // We don't need to do that here, because when the activity resumes, the account list loader
