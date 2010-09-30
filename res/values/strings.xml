@@ -301,10 +301,12 @@
     <string name="message_view_attachment_save_action">Save</string>
     <!-- Button name, to cancel a queued attachment download [CHAR LIMIT=10]-->
     <string name="message_view_attachment_cancel_action">Stop</string>
-    <!-- Toast after saving attachment -->
-    <string name="message_view_status_attachment_saved">Attachment saved to SD card as <xliff:g id="filename">%s</xliff:g>.</string>
-    <!-- Toast after attachment could not be saved-->
-    <string name="message_view_status_attachment_not_saved">Unable to save attachment to SD card.</string>
+    <!-- Toast after saving attachment [CHAR LIMIT=30] -->
+    <string name="message_view_status_attachment_saved">Attachment saved
+as <xliff:g id="filename">%s</xliff:g>.</string>
+    <!-- Toast after attachment could not be saved [CHAR LIMIT=30] -->
+    <string name="message_view_status_attachment_not_saved">Unable to
+save attachment.</string>
     <!-- Toast upon using "send" when one or more attachments will need to be background loaded
       [CHAR LIMIT=none]-->
     <string name="message_view_attachment_background_load">Note: One or more attachments in your
