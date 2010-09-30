@@ -32,6 +32,7 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.net.URI;
@@ -450,6 +451,7 @@ public abstract class EmailContent {
         // To refer to a specific message, use ContentUris.withAppendedId(CONTENT_URI, id)
         @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
+        public static final Uri CONTENT_URI_LIMIT_1 = uriWithLimit(CONTENT_URI, 1);
         public static final Uri SYNCED_CONTENT_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/syncedMessage");
         public static final Uri DELETED_CONTENT_URI =
@@ -538,6 +540,9 @@ public abstract class EmailContent {
 
         private static final String FAVORITE_COUNT_SELECTION =
             MessageColumns.FLAG_FAVORITE + "= 1";
+
+        private static final String ACCOUNT_KEY_SELECTION =
+            MessageColumns.ACCOUNT_KEY + "=?";
 
         // _id field is in AbstractContent
         public String mDisplayName;
@@ -828,6 +833,26 @@ public abstract class EmailContent {
                 return Long.parseLong(columns[0]);
             }
             return -1;
+        }
+
+        /**
+         * @return the latest messages on an account.
+         */
+        public static Message getLatestMessage(Context context, Long accountId) {
+            Cursor c = context.getContentResolver().query(Message.CONTENT_URI_LIMIT_1,
+                    Message.CONTENT_PROJECTION,
+                    ACCOUNT_KEY_SELECTION, new String[] {Long.toString(accountId)},
+                    EmailContent.MessageColumns.TIMESTAMP + " DESC");
+            try {
+                if (c.moveToFirst()) {
+                    Message m = new Message();
+                    m.restore(c);
+                    return m;
+                }
+            } finally {
+                c.close();
+            }
+            return null; // not found;
         }
     }
 
