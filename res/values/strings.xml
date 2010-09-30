@@ -236,6 +236,8 @@
     <string name="debug_enable_exchange_logging_label" translatable="false">Enable exchange parser logging? (Extremely verbose)</string>
     <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
     <string name="debug_enable_exchange_file_logging_label" translatable="false">Enable exchange sd card logging?</string>
+    <!-- Do Not Translate.  Button label, shown only on debug screen -->
+    <string name="debug_clear_webview_cache" translatable="false">Clear WebView cache</string>
 
     <!-- The text in the small separator between smart folders and the accounts -->
     <string name="account_folder_list_separator_accounts">Accounts</string>

@@ -29,12 +29,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
-public class DebugFragment extends Fragment implements OnCheckedChangeListener {
+public class DebugFragment extends Fragment implements OnCheckedChangeListener,
+        View.OnClickListener {
     private TextView mVersionView;
     private CheckBox mEnableDebugLoggingView;
     private CheckBox mEnableExchangeLoggingView;
@@ -74,9 +76,12 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener {
         mEnableExchangeFileLoggingView.setOnCheckedChangeListener(this);
         //EXCHANGE-REMOVE-SECTION-END
 
+        view.findViewById(R.id.clear_webview_cache).setOnClickListener(this);
+
         return view;
     }
 
+    @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
             case R.id.debug_logging:
@@ -97,5 +102,24 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener {
         }
 
         Email.updateLoggingFlags(getActivity());
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.clear_webview_cache:
+                clearWebViewCache();
+                break;
+        }
+    }
+
+    private void clearWebViewCache() {
+        WebView webview = new WebView(getActivity());
+        try {
+            webview.clearCache(true);
+            Log.w(Email.LOG_TAG, "Cleard WebView cache.");
+        } finally {
+            webview.destroy();
+        }
     }
 }
