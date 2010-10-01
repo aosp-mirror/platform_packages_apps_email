@@ -163,7 +163,6 @@ public class MessageListXL extends Activity implements
         super.onStart();
 
         mFragmentManager.onStart();
-
         if (mFragmentManager.isMessageSelected()) {
             updateMessageOrderManager();
         }
@@ -174,6 +173,7 @@ public class MessageListXL extends Activity implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onResume");
         super.onResume();
 
+        mFragmentManager.onResume();
         NotificationController.getInstance(this).cancelNewMessageNotification(
                 mFragmentManager.getAccountId());
 
@@ -186,6 +186,7 @@ public class MessageListXL extends Activity implements
     protected void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onPause");
         super.onPause();
+        mFragmentManager.onPause();
     }
 
     @Override
@@ -202,16 +203,8 @@ public class MessageListXL extends Activity implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onDestroy");
         Utility.cancelTaskInterrupt(mRefreshTask);
         mRefreshManager.unregisterListener(mMailRefreshManagerListener);
+        mFragmentManager.onDestroy();
         super.onDestroy();
-    }
-
-    @Override
-    public void onAttachFragment(Fragment fragment) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageListXL onAttachFragment " + fragment.getClass());
-        }
-        super.onAttachFragment(fragment);
-        mFragmentManager.onAttachFragment(fragment);
     }
 
     @Override

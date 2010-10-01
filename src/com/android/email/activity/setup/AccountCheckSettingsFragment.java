@@ -580,6 +580,9 @@ public class AccountCheckSettingsFragment extends Fragment {
                             ? R.string.account_setup_failed_dlg_auth_message
                             : R.string.account_setup_failed_dlg_auth_message_fmt;
                         break;
+                    case MessagingException.AUTHENTICATION_FAILED_OR_SERVER_ERROR:
+                        id = R.string.account_setup_failed_check_credentials_message;
+                        break;
                     case MessagingException.IOERROR:
                         id = R.string.account_setup_failed_ioerror;
                         break;

@@ -368,6 +368,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         return mAccountId;
     }
 
+    /**
+     * Clear all the content -- should be called when the fragment is hidden.
+     */
+    public void clearContent() {
+        cancelAllTasks();
+        resetView();
+    }
+
     protected final void openMessageIfStarted() {
         if (!mStarted) {
             return;

@@ -83,6 +83,12 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
     }
 
     @Override
+    public void clearContent() {
+        super.clearContent();
+        mFileEmailUri = null;
+    }
+
+    @Override
     protected boolean isMessageSpecified() {
         return mFileEmailUri != null;
     }

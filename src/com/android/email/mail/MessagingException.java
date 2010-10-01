@@ -59,6 +59,8 @@ public class MessagingException extends Exception {
     public static final int AUTODISCOVER_AUTHENTICATION_FAILED = 11;
     /** Autodiscover completed with a result (non-error) */
     public static final int AUTODISCOVER_AUTHENTICATION_RESULT = 12;
+    /** Ambiguous failure; server error or bad credentials */
+    public static final int AUTHENTICATION_FAILED_OR_SERVER_ERROR = 13;
 
     protected int mExceptionType;
 
