@@ -81,26 +81,56 @@ import android.widget.TextView;
 
     private final LayoutInflater mInflater;
 
-    public MailboxesAdapter(Context context) {
+    private final int mMode;
+
+    public MailboxesAdapter(Context context, int mode) {
         super(context, null, 0 /* no auto-requery */);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mMode = mode;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        switch (mMode) {
+            case MODE_NORMAL:
+                bindViewNormalMode(view, context, cursor);
+                return;
+            case MODE_MOVE_TO_TARGET:
+                bindViewMoveToTargetMode(view, context, cursor);
+                return;
+        }
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        switch (mMode) {
+            case MODE_NORMAL:
+                return newViewNormalMode(context, cursor, parent);
+            case MODE_MOVE_TO_TARGET:
+                return newViewMoveToTargetMode(context, cursor, parent);
+        }
+        throw new IllegalStateException();
+    }
+
+    private static String getMailboxName(Context context, Cursor cursor) {
         final int type = cursor.getInt(COLUMN_TYPE);
         final long mailboxId = cursor.getLong(COLUMN_ID);
-
-        // Set mailbox name
-        final TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);
         String mailboxName = Utility.FolderProperties.getInstance(context)
                 .getDisplayName(type, mailboxId);
         if (mailboxName == null) {
             mailboxName = cursor.getString(COLUMN_DISPLAY_NAME);
         }
-        if (mailboxName != null) {
-            nameView.setText(mailboxName);
-        }
+        return mailboxName;
+    }
+
+    private void bindViewNormalMode(View view, Context context, Cursor cursor) {
+        final int type = cursor.getInt(COLUMN_TYPE);
+        final long mailboxId = cursor.getLong(COLUMN_ID);
+
+        // Set mailbox name
+        final TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);
+        nameView.setText(getMailboxName(context, cursor));
 
         // Set count
         boolean useTotalCount = false;
@@ -140,9 +170,17 @@ import android.widget.TextView;
                 .getIcon(type, mailboxId));
     }
 
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+    private View newViewNormalMode(Context context, Cursor cursor, ViewGroup parent) {
         return mInflater.inflate(R.layout.mailbox_list_item, parent, false);
+    }
+
+    private void bindViewMoveToTargetMode(View view, Context context, Cursor cursor) {
+        TextView t = (TextView) view;
+        t.setText(getMailboxName(context, cursor));
+    }
+
+    private View newViewMoveToTargetMode(Context context, Cursor cursor, ViewGroup parent) {
+        return mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
     }
 
     /**
