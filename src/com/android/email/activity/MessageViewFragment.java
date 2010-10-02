@@ -349,17 +349,12 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         onMarkMessageAsRead(true);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * - Update the favorite star icon.
-     * - Show the invite section if necessary.
-     */
     @Override
-    protected void reloadUiFromMessage(Message message, boolean okToFetch) {
-        super.reloadUiFromMessage(message, okToFetch);
+    protected void updateHeaderView(Message message) {
+        super.updateHeaderView(message);
 
         mFavoriteIcon.setImageDrawable(message.mFlagFavorite ? mFavoriteIconOn : mFavoriteIconOff);
+
         // Show the message invite section if we're an incoming meeting invitation only
         mInviteSection.setVisibility((message.mFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0 ?
                 View.VISIBLE : View.GONE);
