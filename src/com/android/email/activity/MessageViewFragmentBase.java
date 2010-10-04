@@ -77,7 +77,9 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO Restore "Show pictures" state and scroll position on rotation.
+// TODO Better handling of config changes.
+// - Restore "Show pictures" state, scroll position and current tab
+// - Retain the content; don't kick 3 async tasks every time
 
 /**
  * Base class for {@link MessageViewFragment} and {@link MessageFileViewFragment}.
@@ -106,10 +108,18 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
     private ImageView mAttachmentIcon;
-    private View mShowPicturesSection;
+    private View mTabSection;
     private QuickContactBadge mFromBadge;
     private ImageView mSenderPresenceView;
-    private View mScrollView;
+
+    private TextView mMessageTab;
+    private TextView mAttachmentTab;
+    private TextView mInviteTab;
+    // It is not really a tab, but looks like one of them.
+    private TextView mShowPicturesTab;
+
+    private View mAttachmentsScroll;
+    private View mInviteScroll;
 
     private long mAccountId = -1;
     private long mMessageId = -1;
@@ -145,6 +155,46 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     private int mContactStatusState;
     private Uri mQuickContactLookupUri;
+
+    /** Flag for {@link #mTabFlags}: Message has attachment(s) */
+    protected static final int TAB_FLAGS_HAS_ATTACHMENT = 1;
+
+    /**
+     * Flag for {@link #mTabFlags}: Message contains invite.  This flag is only set by
+     * {@link MessageViewFragment}.
+     */
+    protected static final int TAB_FLAGS_HAS_INVITE = 2;
+
+    /** Flag for {@link #mTabFlags}: Message contains pictures */
+    protected static final int TAB_FLAGS_HAS_PICTURES = 4;
+
+    /** Flag for {@link #mTabFlags}: "Show pictures" has already been pressed */
+    protected static final int TAB_FLAGS_PICTURE_LOADED = 8;
+
+    /**
+     * Flags to control the tabs.
+     * @see #updateTabFlags(int)
+     */
+    private int mTabFlags;
+
+    /** # of attachments in the current message */
+    private int mAttachmentCount;
+
+    // Use (random) large values, to avoid confusion with TAB_FLAGS_*
+    protected static final int TAB_MESSAGE = 101;
+    protected static final int TAB_INVITE = 102;
+    protected static final int TAB_ATTACHMENT = 103;
+
+    /**
+     * Currently visible tab.  Any of {@link #TAB_MESSAGE}, {@link #TAB_INVITE} or
+     * {@link #TAB_ATTACHMENT}.
+     *
+     * Note we don't retain this value through configuration changes, as restoring the current tab
+     * would be clumsy with the current implementation where we load Message/Body/Attachments
+     * separately.  (e.g. # of attachments can't be obtained quickly enough to update the UI
+     * after screen rotation.)
+     */
+    private int mCurrentTab;
 
     /**
      * Encapsulates known information about a single attachment.
@@ -245,15 +295,27 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mMessageContentView = (WebView) view.findViewById(R.id.message_content);
         mAttachments = (LinearLayout) view.findViewById(R.id.attachments);
         mAttachmentIcon = (ImageView) view.findViewById(R.id.attachment);
-        mShowPicturesSection = view.findViewById(R.id.show_pictures_section);
+        mTabSection = view.findViewById(R.id.message_tabs_section);
         mFromBadge = (QuickContactBadge) view.findViewById(R.id.badge);
         mSenderPresenceView = (ImageView) view.findViewById(R.id.presence);
-        mScrollView = view.findViewById(R.id.scrollview);
 
         mFromView.setOnClickListener(this);
         mFromBadge.setOnClickListener(this);
         mSenderPresenceView.setOnClickListener(this);
-        view.findViewById(R.id.show_pictures).setOnClickListener(this);
+
+        mMessageTab = (TextView) view.findViewById(R.id.show_message);
+        mAttachmentTab = (TextView) view.findViewById(R.id.show_attachments);
+        mShowPicturesTab = (TextView) view.findViewById(R.id.show_pictures);
+        // Invite is only used in MessageViewFragment, but visibility is controlled here.
+        mInviteTab = (TextView) view.findViewById(R.id.show_invite);
+
+        mMessageTab.setOnClickListener(this);
+        mAttachmentTab.setOnClickListener(this);
+        mShowPicturesTab.setOnClickListener(this);
+        mInviteTab.setOnClickListener(this);
+
+        mAttachmentsScroll = view.findViewById(R.id.attachments_scroll);
+        mInviteScroll = view.findViewById(R.id.invite_scroll);
 
         mMessageContentView.setVerticalScrollBarEnabled(false);
         mMessageContentView.getSettings().setBlockNetworkLoads(true);
@@ -393,12 +455,15 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     protected void resetView() {
+        setCurrentTab(TAB_MESSAGE);
+        updateTabFlags(0);
         if (mMessageContentView != null) {
             mMessageContentView.getSettings().setBlockNetworkLoads(true);
             mMessageContentView.scrollTo(0, 0);
             mMessageContentView.loadUrl("file:///android_asset/empty.html");
         }
-        mScrollView.scrollTo(0, 0);
+        mAttachmentsScroll.scrollTo(0, 0);
+        mInviteScroll.scrollTo(0, 0);
         mAttachments.removeAllViews();
         mAttachments.setVisibility(View.GONE);
         mAttachmentIcon.setVisibility(View.GONE);
@@ -410,6 +475,63 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mQuickContactLookupUri = null;
         mSenderPresenceView.setImageResource(ContactStatusLoader.PRESENCE_UNKNOWN_RESOURCE_ID);
         mFromBadge.setImageToDefault();
+    }
+
+    protected final void addTabFlags(int tabFlags) {
+        updateTabFlags(mTabFlags | tabFlags);
+    }
+
+    private final void clearTabFlags(int tabFlags) {
+        updateTabFlags(mTabFlags & ~tabFlags);
+    }
+
+    private void setAttachmentCount(int count) {
+        mAttachmentCount = count;
+        if (mAttachmentCount > 0) {
+            addTabFlags(TAB_FLAGS_HAS_ATTACHMENT);
+        } else {
+            clearTabFlags(TAB_FLAGS_HAS_ATTACHMENT);
+        }
+    }
+
+    private static void makeVisible(View v, boolean visible) {
+        v.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * Update the visual of the tabs.  (visibility, text, etc)
+     */
+    private void updateTabFlags(int tabFlags) {
+        mTabFlags = tabFlags;
+        mTabSection.setVisibility(tabFlags == 0 ? View.GONE : View.VISIBLE);
+        if (tabFlags == 0) {
+            return;
+        }
+        boolean messageTabVisible = (tabFlags & (TAB_FLAGS_HAS_INVITE | TAB_FLAGS_HAS_ATTACHMENT))
+                != 0;
+        makeVisible(mMessageTab, messageTabVisible);
+        makeVisible(mInviteTab, (tabFlags & TAB_FLAGS_HAS_INVITE) != 0);
+        makeVisible(mAttachmentTab, (tabFlags & TAB_FLAGS_HAS_ATTACHMENT) != 0);
+        makeVisible(mShowPicturesTab, (tabFlags & TAB_FLAGS_HAS_PICTURES) != 0);
+        mShowPicturesTab.setEnabled((tabFlags & TAB_FLAGS_PICTURE_LOADED) == 0);
+
+        mAttachmentTab.setText(mContext.getResources().getQuantityString(
+                R.plurals.message_view_show_attachments_action,
+                mAttachmentCount, mAttachmentCount));
+    }
+
+    /**
+     * Set the current tab.
+     *
+     * @param tab any of {@link #TAB_MESSAGE}, {@link #TAB_ATTACHMENT} or {@link #TAB_INVITE}.
+     */
+    private void setCurrentTab(int tab) {
+        mCurrentTab = tab;
+        makeVisible(mMessageContentView, tab == TAB_MESSAGE);
+        makeVisible(mAttachmentsScroll, tab == TAB_ATTACHMENT);
+        makeVisible(mInviteScroll, tab == TAB_INVITE);
+
+        // TODO Make the current tab prominent
     }
 
     /**
@@ -584,8 +706,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 mMessageContentView.loadDataWithBaseURL("email://", mHtmlTextWebView,
                                                         "text/html", "utf-8", null);
             }
+            addTabFlags(TAB_FLAGS_PICTURE_LOADED);
         }
-        mShowPicturesSection.setVisibility(View.GONE);
     }
 
     @Override
@@ -610,6 +732,15 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 break;
             case R.id.cancel:
                 onCancelAttachment((AttachmentInfo) view.getTag());
+                break;
+            case R.id.show_message:
+                setCurrentTab(TAB_MESSAGE);
+                break;
+            case R.id.show_invite:
+                setCurrentTab(TAB_INVITE);
+                break;
+            case R.id.show_attachments:
+                setCurrentTab(TAB_ATTACHMENT);
                 break;
             case R.id.show_pictures:
                 onShowPicturesInHtml();
@@ -800,6 +931,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 return;
             }
             boolean htmlChanged = false;
+            setAttachmentCount(attachments.length);
             for (Attachment attachment : attachments) {
                 if (mHtmlTextRaw != null && attachment.mContentId != null
                         && attachment.mContentUri != null) {
@@ -1061,7 +1193,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         // - Images aren't the only network resources.  (e.g. CSS)
         // - If images are attached to the email and small enough, we download them at once,
         //   and won't need network access when they're shown.
-        mShowPicturesSection.setVisibility(hasImages ? View.VISIBLE : View.GONE);
+        if (hasImages) {
+            addTabFlags(TAB_FLAGS_HAS_PICTURES);
+        }
         if (mMessageContentView != null) {
             mMessageContentView.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
         }
