@@ -69,21 +69,21 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.NetworkInfo.State;
 import android.net.Uri;
+import android.net.NetworkInfo.State;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.PowerManager.WakeLock;
 import android.provider.Calendar;
+import android.provider.ContactsContract;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -1792,8 +1792,8 @@ public class SyncManager extends Service implements Runnable {
             alwaysLog("!!! EAS SyncManager, onDestroy");
             // Stop the sync manager thread and return
             synchronized (sSyncLock) {
-                sStop = true;
                 if (sServiceThread != null) {
+                    sStop = true;
                     sServiceThread.interrupt();
                 }
             }
