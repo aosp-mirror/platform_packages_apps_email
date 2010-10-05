@@ -47,29 +47,37 @@
         android:text="@string/reply_action"
         android:layout_height="match_parent"
         android:layout_width="0dip"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:visibility="gone"
+        />
     <Button
         android:id="@+id/reply_all_button"
         android:text="@string/reply_all_action"
         android:layout_height="match_parent"
         android:layout_width="0dip"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:visibility="gone"
+        />
     <Button
         android:id="@+id/forward_button"
         android:text="@string/forward_action"
         android:layout_height="match_parent"
         android:layout_width="0dip"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:visibility="gone"
+        />
     <Button
         android:id="@+id/move_to_newer_button"
         android:text="@string/message_view_move_to_newer"
         android:layout_height="match_parent"
         android:layout_width="0dip"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        />
     <Button
         android:id="@+id/move_to_older_button"
         android:text="@string/message_view_move_to_older"
         android:layout_height="match_parent"
         android:layout_width="0dip"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        />
 </com.android.email.activity.MessageCommandButtonView>

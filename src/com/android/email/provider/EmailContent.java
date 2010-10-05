@@ -2408,6 +2408,12 @@ public abstract class EmailContent {
             return false; // TYPE_DRAFTS, TYPE_OUTBOX, TYPE_SENT, etc
         }
 
+        /**
+         * @return true if messages in a mailbox of a type can be replied/forwarded.
+         */
+        public static boolean isMailboxTypeReplyAndForwardable(int type) {
+            return (type != TYPE_TRASH) && (type != TYPE_DRAFTS);
+        }
     }
 
     public interface HostAuthColumns {

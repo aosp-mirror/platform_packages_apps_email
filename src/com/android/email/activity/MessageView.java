@@ -363,9 +363,4 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     public void onMoveMessage() {
         // TODO Implement this
     }
-
-    @Override
-    public boolean shouldShowCommandButtons() {
-        return false;
-    }
 }
