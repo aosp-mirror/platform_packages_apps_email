@@ -406,10 +406,6 @@ public class Utility {
             return getIcon(-1, id);
         }
 
-        public Drawable getIconIds(int type) {
-            return getIcon(type, -1);
-        }
-
         /**
          * Lookup names of localized special mailboxes
          */
