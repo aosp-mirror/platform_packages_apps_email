@@ -92,7 +92,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         super.onCreate(savedInstanceState);
 
         mActivity = getActivity();
-        mListAdapter = new MailboxesAdapter(mActivity);
+        mListAdapter = new MailboxesAdapter(mActivity, MailboxesAdapter.MODE_NORMAL);
         if (savedInstanceState != null) {
             restoreInstanceState(savedInstanceState);
         }

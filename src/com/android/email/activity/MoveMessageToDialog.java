@@ -40,9 +40,6 @@ import java.security.InvalidParameterException;
 /**
  * "Move (messages) to" dialog.
  *
- * TODO Make callback mechanism better  (don't use getActivity--use setTargetFragment instead.)
- * TODO Fix the text color in mailbox_list_item.xml.
- * TODO Don't show unread counts.
  * TODO The check logic in MessageCheckerCallback is not efficient.  It shouldn't restore full
  * Message objects.  But we don't bother at this point as the UI is still temporary.
  */
@@ -92,7 +89,6 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAdapter = new MailboxesAdapter(getActivity().getApplicationContext());
         mMessageIds = getArguments().getLongArray(BUNDLE_MESSAGE_IDS);
         setStyle(STYLE_NORMAL, android.R.style.Theme_Light_Holo);
     }
@@ -108,17 +104,21 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Activity a = getActivity();
-        final String title = a.getResources().getString(R.string.move_to_folder_dialog_title);
+        final Activity activity = getActivity();
 
-        a.getLoaderManager().initLoader(
+        // Build adapter & dialog
+        // Make sure to pass Builder's context to the adapter, so that it'll get the correct theme.
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+                .setTitle(activity.getResources().getString(R.string.move_to_folder_dialog_title));
+
+        mAdapter = new MailboxesAdapter(builder.getContext(), MailboxesAdapter.MODE_MOVE_TO_TARGET);
+        builder.setSingleChoiceItems(mAdapter, -1, this);
+
+        activity.getLoaderManager().initLoader(
                 ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER,
                 null, new MessageCheckerCallback());
 
-        return new AlertDialog.Builder(a)
-                .setTitle(title)
-                .setSingleChoiceItems(mAdapter, -1, this)
-                .show();
+        return builder.show();
     }
 
     @Override
