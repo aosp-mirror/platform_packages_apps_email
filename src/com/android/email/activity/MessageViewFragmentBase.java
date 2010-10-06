@@ -20,6 +20,7 @@ import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.Throttle;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
@@ -37,9 +38,12 @@ import org.apache.commons.io.IOUtils;
 import android.app.Fragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -74,18 +78,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // TODO Restore "Show pictures" state and scroll position on rotation.
-// TODO Interaction with MessageListFragment
-//    Messages can now be moved, deleted, starred, and makred as unread at anytime, without this
-//    fragment knowing it. Update (or close or whatever) the fragment as necessary.
 
 /**
  * Base class for {@link MessageViewFragment} and {@link MessageFileViewFragment}.
  *
  * See {@link MessageViewBase} for the class relation diagram.
- *
- * NOTE "Move to mailbox" and "delete message" are asynchronous operations, which means message'
- * mailbox can change any time.  Don't use {@link Message#mMailboxKey} of {@link #mMessage}
- * directly.  If you need, always load the latest value.
  */
 public abstract class MessageViewFragmentBase extends Fragment implements View.OnClickListener {
     private static final int PHOTO_LOADER_ID = 1;
@@ -119,6 +116,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private Message mMessage;
 
     private LoadMessageTask mLoadMessageTask;
+    private ReloadMessageTask mReloadMessageTask;
     private LoadBodyTask mLoadBodyTask;
     private LoadAttachmentsTask mLoadAttachmentsTask;
 
@@ -138,6 +136,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private boolean mStarted;
 
     private boolean mIsMessageLoadedForTest;
+
+    private MessageObserver mMessageObserver;
 
     private static final int CONTACT_STATUS_STATE_UNLOADED = 0;
     private static final int CONTACT_STATUS_STATE_UNLOADED_TRIGGERED = 1;
@@ -177,7 +177,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
          */
         public boolean onUrlInMessageClicked(String url);
 
-        /** Called when the message specified doesn't exist. */
+        /**
+         * Called when the message specified doesn't exist, or is deleted/moved.
+         */
         public void onMessageNotExists();
 
         /** Called when it starts loading a message. */
@@ -222,6 +224,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mTimeFormat = android.text.format.DateFormat.getTimeFormat(mContext); // 12/24 date format
 
         mController = Controller.getInstance(mContext);
+        mMessageObserver = new MessageObserver(new Handler(), mContext);
     }
 
     @Override
@@ -331,8 +334,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     private void cancelAllTasks() {
+        mMessageObserver.unregister();
         Utility.cancelTaskInterrupt(mLoadMessageTask);
         mLoadMessageTask = null;
+        Utility.cancelTaskInterrupt(mReloadMessageTask);
+        mReloadMessageTask = null;
         Utility.cancelTaskInterrupt(mLoadBodyTask);
         mLoadBodyTask = null;
         Utility.cancelTaskInterrupt(mLoadAttachmentsTask);
@@ -692,6 +698,30 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     /**
+     * Kicked by {@link MessageObserver}.  Reload the message and update the views.
+     */
+    private class ReloadMessageTask extends AsyncTask<Void, Void, Message> {
+        @Override
+        protected Message doInBackground(Void... params) {
+            return openMessageSync();
+        }
+
+        @Override
+        protected void onPostExecute(Message message) {
+            if (isCancelled()) {
+                return;
+            }
+            if (message == null || message.mMailboxKey != mMessage.mMailboxKey) {
+                // Message deleted or moved.
+                mCallback.onMessageNotExists();
+                return;
+            }
+            mMessage = message;
+            updateHeaderView(mMessage);
+        }
+    }
+
+    /**
      * Called when a message is shown to the user.
      */
     protected void onMessageShown(long messageId, int mailboxType) {
@@ -921,7 +951,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     /**
-     * Reload the UI from a provider cursor.  This must only be called from the UI thread.
+     * Reload the UI from a provider cursor.  {@link LoadMessageTask#onPostExecute} calls it.
+     *
+     * Update the header views, and start loading the body.
      *
      * @param message A copy of the message loaded from the database
      * @param okToFetch If true, and message is not fully loaded, it's OK to fetch from
@@ -931,16 +963,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mMessage = message;
         mAccountId = message.mAccountKey;
 
-        mSubjectView.setText(message.mSubject);
-        mFromView.setText(Address.toFriendly(Address.unpack(message.mFrom)));
-        Date date = new Date(message.mTimeStamp);
-        mTimeView.setText(mTimeFormat.format(date));
-        mDateView.setText(Utility.isDateToday(date) ? null : mDateFormat.format(date));
-        mToView.setText(Address.toFriendly(Address.unpack(message.mTo)));
-        String friendlyCc = Address.toFriendly(Address.unpack(message.mCc));
-        mCcView.setText(friendlyCc);
-        mCcContainerView.setVisibility((friendlyCc != null) ? View.VISIBLE : View.GONE);
-        mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
+        mMessageObserver.register(ContentUris.withAppendedId(Message.CONTENT_URI, mMessage.mId));
+
+        updateHeaderView(mMessage);
 
         // Handle partially-loaded email, as follows:
         // 1. Check value of message.mFlagLoaded
@@ -956,6 +981,19 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mLoadBodyTask = new LoadBodyTask(message.mId);
             mLoadBodyTask.execute();
         }
+    }
+
+    protected void updateHeaderView(Message message) {
+        mSubjectView.setText(message.mSubject);
+        mFromView.setText(Address.toFriendly(Address.unpack(message.mFrom)));
+        Date date = new Date(message.mTimeStamp);
+        mTimeView.setText(mTimeFormat.format(date));
+        mDateView.setText(Utility.isDateToday(date) ? null : mDateFormat.format(date));
+        mToView.setText(Address.toFriendly(Address.unpack(message.mTo)));
+        String friendlyCc = Address.toFriendly(Address.unpack(message.mCc));
+        mCcView.setText(friendlyCc);
+        mCcContainerView.setVisibility((friendlyCc != null) ? View.VISIBLE : View.GONE);
+        mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -1160,6 +1198,57 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 }
                 bar.setProgress(progress);
             }
+        }
+    }
+
+    /**
+     * Class to detect update on the current message (e.g. toggle star).  When it gets content
+     * change notifications, it kicks {@link ReloadMessageTask}.
+     *
+     * TODO Use the new Throttle class.
+     */
+    private class MessageObserver extends ContentObserver implements Runnable {
+        private final Throttle mThrottle;
+        private final ContentResolver mContentResolver;
+
+        private boolean mRegistered;
+
+        public MessageObserver(Handler handler, Context context) {
+            super(handler);
+            mContentResolver = context.getContentResolver();
+            mThrottle = new Throttle("MessageObserver", this, handler);
+        }
+
+        public void unregister() {
+            if (!mRegistered) {
+                return;
+            }
+            mThrottle.cancelScheduledCallback();
+            mContentResolver.unregisterContentObserver(this);
+            mRegistered = false;
+        }
+
+        public void register(Uri notifyUri) {
+            unregister();
+            mContentResolver.registerContentObserver(notifyUri, true, this);
+            mRegistered = true;
+        }
+
+        @Override
+        public boolean deliverSelfNotifications() {
+            return true;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            mThrottle.onEvent();
+        }
+
+        @Override
+        public void run() {
+            Utility.cancelTaskInterrupt(mReloadMessageTask);
+            mReloadMessageTask = new ReloadMessageTask();
+            mReloadMessageTask.execute();
         }
     }
 
