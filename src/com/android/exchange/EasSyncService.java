@@ -33,6 +33,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.email.service.EmailServiceConstants;
 import com.android.email.service.EmailServiceProxy;
 import com.android.email.service.EmailServiceStatus;
@@ -146,6 +147,8 @@ public class EasSyncService extends AbstractSyncService {
 
     static public final String EAS_12_POLICY_TYPE = "MS-EAS-Provisioning-WBXML";
     static public final String EAS_2_POLICY_TYPE = "MS-WAP-Provisioning-XML";
+
+    static public final int MESSAGE_FLAG_MOVED_MESSAGE = 1 << Message.FLAG_SYNC_ADAPTER_SHIFT;
 
     /**
      * We start with an 8 minute timeout, and increase/decrease by 3 minutes at a time.  There's
@@ -1121,24 +1124,25 @@ public class EasSyncService extends AbstractSyncService {
                 MoveItemsParser p = new MoveItemsParser(is, this);
                 p.parse();
                 int statusCode = p.getStatusCode();
+                ContentValues cv = new ContentValues();
                 if (statusCode == MoveItemsParser.STATUS_CODE_REVERT) {
                     // Restore the old mailbox id
-                    ContentValues cv = new ContentValues();
                     cv.put(MessageColumns.MAILBOX_KEY, srcMailbox.mServerId);
+                    mContentResolver.update(ContentUris.withAppendedId(
+                            Message.CONTENT_URI, req.mMessageId), cv, null, null);
+                } else if (statusCode == MoveItemsParser.STATUS_CODE_SUCCESS) {
+                    // Update with the new server id
+                    cv.put(SyncColumns.SERVER_ID, p.getNewServerId());
+                    cv.put(Message.FLAGS, msg.mFlags | MESSAGE_FLAG_MOVED_MESSAGE);
                     mContentResolver.update(ContentUris.withAppendedId(
                             Message.CONTENT_URI, req.mMessageId), cv, null, null);
                 }
                 if (statusCode == MoveItemsParser.STATUS_CODE_SUCCESS ||
                         statusCode == MoveItemsParser.STATUS_CODE_REVERT) {
                     // If we revert or if we succeeded, we no longer need the update information
+                    // OR the now-duplicate email (the new copy will eventually be synced down)
                     mContentResolver.delete(ContentUris.withAppendedId(
                             Message.UPDATED_CONTENT_URI, req.mMessageId), null, null);
-                    // Set the serverId to 0, since we don't know what the new server id will be
-                    ContentValues cv = new ContentValues();
-                    cv.put(Message.SERVER_ID, "0");
-                    mContentResolver.update(ContentUris.withAppendedId(
-                            Message.CONTENT_URI, msg.mId), cv, null, null);
-
                 } else {
                     // In this case, we're retrying, so do nothing.  The request will be handled
                     // next sync

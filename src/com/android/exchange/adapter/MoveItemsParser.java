@@ -26,6 +26,7 @@ import java.io.InputStream;
 public class MoveItemsParser extends Parser {
     private final EasSyncService mService;
     private int mStatusCode = 0;
+    private String mNewServerId;
 
     // These are the EAS status codes for MoveItems
     private static final int STATUS_NO_SOURCE_FOLDER = 1;
@@ -48,6 +49,10 @@ public class MoveItemsParser extends Parser {
 
     public int getStatusCode() {
         return mStatusCode;
+    }
+
+    public String getNewServerId() {
+        return mNewServerId;
     }
 
     public void parseResponse() throws IOException {
@@ -80,8 +85,9 @@ public class MoveItemsParser extends Parser {
                     // There's not much to be done if this fails
                     mService.userLog("Error in MoveItems: " + status);
                 }
-            } else if (tag == Tags.MOVE_DSTMSGID || tag == Tags.MOVE_SRCMSGID) {
-                mService.userLog("Moved message id is now: " + getValue());
+            } else if (tag == Tags.MOVE_DSTMSGID) {
+                mNewServerId = getValue();
+                mService.userLog("Moved message id is now: " + mNewServerId);
             } else {
                 skipTag();
             }

@@ -81,6 +81,9 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         new String[] { Message.RECORD_ID, MessageColumns.SUBJECT };
 
     private static final String WHERE_BODY_SOURCE_MESSAGE_KEY = Body.SOURCE_MESSAGE_KEY + "=?";
+    private static final String WHERE_MAILBOX_KEY_AND_MOVED =
+        MessageColumns.MAILBOX_KEY + "=? AND (" + MessageColumns.FLAGS + "&" +
+        EasSyncService.MESSAGE_FLAG_MOVED_MESSAGE + ")!=0";
     private static final String[] FETCH_REQUEST_PROJECTION =
         new String[] {EmailContent.RECORD_ID, SyncColumns.SERVER_ID};
     private static final int FETCH_REQUEST_RECORD_ID = 0;
@@ -806,6 +809,11 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             ops.add(ContentProviderOperation.newDelete(
                     ContentUris.withAppendedId(Message.UPDATED_CONTENT_URI, id)).build());
         }
+        // Delete any moved messages (since we've just synced the mailbox, and no longer need the
+        // placeholder message); this prevents duplicates from appearing in the mailbox.
+        mBindArgument[0] = Long.toString(mMailbox.mId);
+        ops.add(ContentProviderOperation.newDelete(Message.CONTENT_URI)
+                .withSelection(WHERE_MAILBOX_KEY_AND_MOVED, mBindArgument).build());
     }
 
     @Override
