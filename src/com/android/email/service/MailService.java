@@ -146,6 +146,7 @@ public class MailService extends Service {
             for (AccountSyncReport report : mSyncReports.values()) {
                 if (accountId == -1 || accountId == report.accountId) {
                     report.unseenMessageCount = 0;
+                    report.lastUnseenMessageCount = 0;
                 }
             }
         }
@@ -579,6 +580,7 @@ public class MailService extends Service {
                 report.prevSyncTime = 0;
                 report.nextSyncTime = (syncInterval > 0) ? 0 : -1;  // 0 == ASAP -1 == no sync
                 report.unseenMessageCount = 0;
+                report.lastUnseenMessageCount = 0;
 
                 report.syncInterval = syncInterval;
                 report.notify = (flags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
