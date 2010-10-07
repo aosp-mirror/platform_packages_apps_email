@@ -834,6 +834,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private class ReloadMessageTask extends AsyncTask<Void, Void, Message> {
         @Override
         protected Message doInBackground(Void... params) {
+            if (!isMessageSpecified()) { // just in case
+                return null;
+            }
             return openMessageSync();
         }
 
@@ -1378,8 +1381,16 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mThrottle.onEvent();
         }
 
+        /**
+         * This method is delay-called by {@link Throttle} on the UI thread.  Need to make
+         * sure if the fragment is still valid.  (i.e. don't reload if clearContent() has been
+         * called.)
+         */
         @Override
         public void run() {
+            if (!isMessageSpecified()) {
+                return;
+            }
             Utility.cancelTaskInterrupt(mReloadMessageTask);
             mReloadMessageTask = new ReloadMessageTask();
             mReloadMessageTask.execute();
