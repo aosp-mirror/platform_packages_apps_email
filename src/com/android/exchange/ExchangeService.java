@@ -1770,8 +1770,8 @@ public class ExchangeService extends Service implements Runnable {
             alwaysLog("!!! EAS ExchangeService, onDestroy");
             // Stop the sync manager thread and return
             synchronized (sSyncLock) {
-                sStop = true;
                 if (sServiceThread != null) {
+                    sStop = true;
                     sServiceThread.interrupt();
                 }
             }
