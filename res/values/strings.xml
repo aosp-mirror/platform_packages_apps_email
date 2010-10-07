@@ -25,7 +25,9 @@
     <!-- Do Not Translate.  Unused string. -->
     <string name="status_loading_more" translatable="false"></string>
     <!-- Do Not Translate.  Unused string. -->
-    <string name="account_setup_check_settings_canceling_msg"></string>
+    <string name="account_setup_check_settings_canceling_msg" translatable="false"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="message_view_show_pictures_instructions" translatable="false"></string>
 
     <!-- Messages that are not currently used, but will probably reused in the near future -->
     <!-- STOPSHIP Remove them if they're not used after all -->
@@ -313,9 +315,18 @@ save attachment.</string>
       [CHAR LIMIT=none]-->
     <string name="message_view_attachment_background_load">Note: One or more attachments in your
         forwarded message will be downloaded prior to sending.</string>
-    <!-- Displayed in message view -->
-    <string name="message_view_show_pictures_instructions">Select \"Show pictures\" to display embedded pictures.</string>
-    <!-- Button on email opened for reading -->
+    <!--Button on the message view screen to show the message content [CHAR LIMIT=16] -->
+    <string name="message_view_show_message_action">Message</string>
+    <!--Button on the message view screen to show the calendar invite [CHAR LIMIT=16] -->
+    <string name="message_view_show_invite_action">Invite</string>
+    <!--Button on the message view screen to show the attachments [CHAR LIMIT=16] -->
+    <plurals name="message_view_show_attachments_action">
+        <item quantity="one">Attachment <xliff:g id="num_attachment" example="1" >%1$d</xliff:g>
+            </item>
+        <item quantity="other">Attachments <xliff:g id="num_attachment" example="3" >%1$d</xliff:g>
+            </item>
+    </plurals>
+    <!--Button on the message view screen to show the embedded pictures [CHAR LIMIT=16] -->
     <string name="message_view_show_pictures_action">Show pictures</string>
     <!-- Calendar invitation, label of the button to open in calendar [CHAR LIMIT=24] -->
     <string name="message_view_invite_view">View in Calendar</string>
