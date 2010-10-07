@@ -200,32 +200,33 @@ public class MailServiceTests extends AccountTestCase {
         MailService mailService = new MailService();
         mailService.mController = new TestController(mMockContext, getContext());
         try {
-            mailService.setupSyncReportsLocked(-1, mMockContext.getContentResolver());
+            mailService.setupSyncReportsLocked(MailService.SYNC_REPORTS_RESET, mMockContext);
 
             // Get back the map created by MailService
             HashMap<Long, AccountSyncReport> syncReportMap = MailService.mSyncReports;
-            // Check the SyncReport's for correctness of sync interval
-            AccountSyncReport syncReport = syncReportMap.get(easAccount.mId);
-            assertNotNull(syncReport);
-            // EAS sync interval should have been changed to "never"
-            assertEquals(Account.CHECK_INTERVAL_NEVER, syncReport.syncInterval);
-            syncReport = syncReportMap.get(imapAccount.mId);
-            assertNotNull(syncReport);
-            assertEquals(60, syncReport.syncInterval);
-            syncReport = syncReportMap.get(pop3Account.mId);
-            assertNotNull(syncReport);
-            assertEquals(90, syncReport.syncInterval);
-
-            // Change the EAS account to push
-            ContentValues cv = new ContentValues();
-            cv.put(Account.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
-            easAccount.update(mMockContext, cv);
-            syncReportMap.clear();
-            mailService.setupSyncReportsLocked(easAccount.mId, mMockContext.getContentResolver());
-            syncReport = syncReportMap.get(easAccount.mId);
-            assertNotNull(syncReport);
-            // EAS sync interval should be "never" in this case as well
-            assertEquals(Account.CHECK_INTERVAL_NEVER, syncReport.syncInterval);
+            synchronized (syncReportMap) {
+                // Check the SyncReport's for correctness of sync interval
+                AccountSyncReport syncReport = syncReportMap.get(easAccount.mId);
+                assertNotNull(syncReport);
+                // EAS sync interval should have been changed to "never"
+                assertEquals(Account.CHECK_INTERVAL_NEVER, syncReport.syncInterval);
+                syncReport = syncReportMap.get(imapAccount.mId);
+                assertNotNull(syncReport);
+                assertEquals(60, syncReport.syncInterval);
+                syncReport = syncReportMap.get(pop3Account.mId);
+                assertNotNull(syncReport);
+                assertEquals(90, syncReport.syncInterval);
+                // Change the EAS account to push
+                ContentValues cv = new ContentValues();
+                cv.put(Account.SYNC_INTERVAL, Account.CHECK_INTERVAL_PUSH);
+                easAccount.update(mMockContext, cv);
+                syncReportMap.clear();
+                mailService.setupSyncReportsLocked(easAccount.mId, mMockContext);
+                syncReport = syncReportMap.get(easAccount.mId);
+                assertNotNull(syncReport);
+                // EAS sync interval should be "never" in this case as well
+                assertEquals(Account.CHECK_INTERVAL_NEVER, syncReport.syncInterval);
+            }
         } finally {
             mailService.mController.cleanupForTest();
         }

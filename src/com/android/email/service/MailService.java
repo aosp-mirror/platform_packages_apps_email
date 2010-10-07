@@ -20,20 +20,15 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.NotificationController;
-import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.Utility;
-import com.android.email.activity.ContactStatusLoader;
-import com.android.email.activity.Welcome;
-import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailProvider;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -42,8 +37,6 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OnAccountsUpdateListener;
 import android.accounts.OperationCanceledException;
 import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentResolver;
@@ -52,16 +45,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncStatusObserver;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.util.Config;
 import android.util.Log;
 
@@ -96,12 +85,18 @@ public class MailService extends Service {
 
     private static final int WATCHDOG_DELAY = 10 * 60 * 1000;   // 10 minutes
 
+    // Sentinel value asking to update mSyncReports if it's currently empty
+    /*package*/ static final int SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY = -1;
+    // Sentinel value asking that mSyncReports be rebuilt
+    /*package*/ static final int SYNC_REPORTS_RESET = -2;
+
     private static final String[] NEW_MESSAGE_COUNT_PROJECTION =
         new String[] {AccountColumns.NEW_MESSAGE_COUNT};
 
     /*package*/ Controller mController;
     private final Controller.Result mControllerCallback = new ControllerResults();
     private ContentResolver mContentResolver;
+    private Context mContext;
     private AccountsUpdatedListener mAccountsUpdatedListener;
     private Handler mHandler = new Handler();
 
@@ -204,6 +199,7 @@ public class MailService extends Service {
         mController = Controller.getInstance(this);
         mController.addResultCallback(mControllerCallback);
         mContentResolver = getContentResolver();
+        mContext = this;
 
         if (ACTION_CHECK_MAIL.equals(action)) {
             // If we have the data, restore the last-sync-times for each account
@@ -345,15 +341,14 @@ public class MailService extends Service {
     /**
      * Refresh the sync reports, to pick up any changes in the account list or account settings.
      */
-    private void refreshSyncReports() {
+    /*package*/ void refreshSyncReports() {
         synchronized (mSyncReports) {
             // Make shallow copy of sync reports so we can recover the prev sync times
             HashMap<Long,AccountSyncReport> oldSyncReports =
                 new HashMap<Long,AccountSyncReport>(mSyncReports);
 
             // Delete the sync reports to force a refresh from live account db data
-            mSyncReports.clear();
-            setupSyncReportsLocked(-1, mContentResolver);
+            setupSyncReportsLocked(SYNC_REPORTS_RESET, this);
 
             // Restore prev-sync & next-sync times for any reports in the new list
             for (AccountSyncReport newReport : mSyncReports.values()) {
@@ -377,7 +372,7 @@ public class MailService extends Service {
      */
     /* package */ void reschedule(AlarmManager alarmMgr) {
         // restore the reports if lost
-        setupSyncReports(-1);
+        setupSyncReports(SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY);
         synchronized (mSyncReports) {
             int numAccounts = mSyncReports.size();
             long[] accountInfo = new long[numAccounts * 2];     // pairs of { accountId, lastSync }
@@ -531,15 +526,20 @@ public class MailService extends Service {
      */
     /* package */ void setupSyncReports(long accountId) {
         synchronized (mSyncReports) {
-            setupSyncReportsLocked(accountId, mContentResolver);
+            setupSyncReportsLocked(accountId, mContext);
         }
     }
 
     /**
      * Handle the work of setupSyncReports.  Must be synchronized on mSyncReports.
      */
-    /*package*/ void setupSyncReportsLocked(long accountId, ContentResolver resolver) {
-        if (accountId == -1) {
+    /*package*/ void setupSyncReportsLocked(long accountId, Context context) {
+        ContentResolver resolver = context.getContentResolver();
+        if (accountId == SYNC_REPORTS_RESET) {
+            // For test purposes, force refresh of mSyncReports
+            mSyncReports.clear();
+            accountId = SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY;
+        } else if (accountId == SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY) {
             // -1 == reload the list if empty, otherwise exit immediately
             if (mSyncReports.size() > 0) {
                 return;
@@ -553,7 +553,7 @@ public class MailService extends Service {
 
         // setup to add a single account or all accounts
         Uri uri;
-        if (accountId == -1) {
+        if (accountId == SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY) {
             uri = Account.CONTENT_URI;
         } else {
             uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
@@ -584,7 +584,7 @@ public class MailService extends Service {
                 report.notify = (flags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
 
                 // See if the account is enabled for sync in AccountManager
-                Account providerAccount = Account.restoreAccountWithId(this, id);
+                Account providerAccount = Account.restoreAccountWithId(context, id);
                 android.accounts.Account accountManagerAccount =
                     new android.accounts.Account(providerAccount.mEmailAddress,
                             Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
@@ -641,7 +641,7 @@ public class MailService extends Service {
      */
     /* package */ void restoreSyncReports(Intent restoreIntent) {
         // restore the reports if lost
-        setupSyncReports(-1);
+        setupSyncReports(SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY);
         synchronized (mSyncReports) {
             long[] accountInfo = restoreIntent.getLongArrayExtra(EXTRA_ACCOUNT_INFO);
             if (accountInfo == null) {
