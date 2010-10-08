@@ -150,6 +150,9 @@ public class MailService extends Service {
                 }
             }
         }
+        // Clear notification
+        NotificationController.getInstance(context).cancelNewMessageNotification(accountId);
+
         // now do the database - all accounts, or just one of them
         Utility.runAsync(new Runnable() {
             @Override
@@ -271,9 +274,10 @@ public class MailService extends Service {
             if (Config.LOGD && Email.DEBUG) {
                 Log.d(LOG_TAG, "action: reschedule");
             }
-            // As a precaution, clear any outstanding Email notifications
-            // We could be smarter and only do this when the list of accounts changes,
-            // but that's an edge condition and this is much safer.
+            // Clear all notifications, in case account list has changed.
+            //
+            // TODO Clear notifications for non-existing accounts.  Now that we have separate
+            // notification for each account, NotificationController should be able to do that.
             NotificationController.getInstance(this).cancelNewMessageNotification(-1);
 
             // When called externally, we refresh the sync reports table to pick up
