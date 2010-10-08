@@ -28,8 +28,8 @@ import android.content.Context;
 import android.content.Loader;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.content.res.Resources.Theme;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -74,11 +74,7 @@ import java.util.Set;
     public static final int COLUMN_FLAGS = 9;
     public static final int COLUMN_SNIPPET = 10;
 
-    private static final int ITEM_BACKGROUND_SELECTED = 0xFFB0FFB0; // TODO color not finalized
-
     private final LayoutInflater mInflater;
-    private final Drawable mAttachmentIcon;
-    private final Drawable mInvitationIcon;
     private final Drawable mFavoriteIconOn;
     private final Drawable mFavoriteIconOff;
     private final Drawable mSelectedIconOn;
@@ -91,7 +87,7 @@ import java.util.Set;
     private final java.text.DateFormat mTimeFormat;
 
     /**
-     * Set of seleced message IDs.  Note for performac{@link MessageListItem
+     * Set of seleced message IDs.
      */
     private final HashSet<Long> mSelectedSet = new HashSet<Long>();
 
@@ -114,8 +110,6 @@ import java.util.Set;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         Resources resources = context.getResources();
-        mAttachmentIcon = resources.getDrawable(R.drawable.ic_mms_attachment_small);
-        mInvitationIcon = resources.getDrawable(R.drawable.ic_calendar_event_small);
         mFavoriteIconOn = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_on);
         mFavoriteIconOff = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_off);
         mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_dark_on);
@@ -196,13 +190,11 @@ import java.util.Set;
         }
         subjectView.setText(text);
 
-        boolean hasInvitation =
+        final boolean hasInvitation =
                     (cursor.getInt(COLUMN_FLAGS) & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
-        boolean hasAttachments = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
-        Drawable icon =
-                hasInvitation ? mInvitationIcon
-                : hasAttachments ? mAttachmentIcon : null;
-        subjectView.setCompoundDrawablesWithIntrinsicBounds(null, null, icon, null);
+        makeVisible(view.findViewById(R.id.icon_invite), hasInvitation);
+        final boolean hasAttachments = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
+        makeVisible(view.findViewById(R.id.icon_attachment), hasAttachments);
 
         // TODO ui spec suggests "time", "day", "date" - implement "day"
         TextView dateView = (TextView) view.findViewById(R.id.date);
@@ -226,9 +218,12 @@ import java.util.Set;
         }
 
         updateCheckBox(itemView);
-        ImageView favoriteView = (ImageView) view.findViewById(R.id.favorite);
-        favoriteView.setImageDrawable(itemView.mFavorite ? mFavoriteIconOn : mFavoriteIconOff);
+        changeFavoriteIcon(itemView, itemView.mFavorite);
         updateBackgroundColor(itemView);
+    }
+
+    private static void makeVisible(View v, boolean visible) {
+        v.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -275,11 +270,15 @@ import java.util.Set;
      * @param newFavorite the new value of the favorite flag (star state)
      */
     public void updateFavorite(MessageListItem itemView, boolean newFavorite) {
-        ImageView favoriteView = (ImageView) itemView.findViewById(R.id.favorite);
-        favoriteView.setImageDrawable(newFavorite ? mFavoriteIconOn : mFavoriteIconOff);
+        changeFavoriteIcon(itemView, newFavorite);
         if (mCallback != null) {
             mCallback.onAdapterFavoriteChanged(itemView, newFavorite);
         }
+    }
+
+    private void changeFavoriteIcon(MessageListItem view, boolean isFavorite) {
+        ((ImageView) view.findViewById(R.id.favorite)).setImageDrawable(
+                isFavorite ? mFavoriteIconOn : mFavoriteIconOff);
     }
 
     /**

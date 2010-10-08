@@ -22,6 +22,7 @@ import com.android.email.Utility;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
 
@@ -79,6 +80,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private static final String PREFERENCE_OUTGOING = "outgoing";
     private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
     private static final String PREFERENCE_SYNC_CALENDAR = "account_sync_calendar";
+    private static final String PREFERENCE_SYNC_EMAIL = "account_sync_email";
     private static final String PREFERENCE_DELETE_ACCOUNT_CATEGORY = "category_delete_account";
     private static final String PREFERENCE_DELETE_ACCOUNT = "delete_account";
 
@@ -98,6 +100,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private RingtonePreference mAccountRingtone;
     private CheckBoxPreference mSyncContacts;
     private CheckBoxPreference mSyncCalendar;
+    private CheckBoxPreference mSyncEmail;
 
     private Context mContext;
     private Account mAccount;
@@ -142,6 +145,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
      * Called when a fragment is first attached to its activity.
      * {@link #onCreate(Bundle)} will be called after this.
      */
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
@@ -495,6 +499,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
         mSyncContacts = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CONTACTS);
         mSyncCalendar = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_CALENDAR);
+        mSyncEmail = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_EMAIL);
         if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
             android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
                     Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
@@ -502,11 +507,14 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
             mSyncCalendar.setChecked(ContentResolver
                     .getSyncAutomatically(acct, Calendar.AUTHORITY));
+            mSyncEmail.setChecked(ContentResolver
+                    .getSyncAutomatically(acct, EmailContent.AUTHORITY));
         } else {
             PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
                     PREFERENCE_SERVER_CATEGORY);
             serverCategory.removePreference(mSyncContacts);
             serverCategory.removePreference(mSyncCalendar);
+            serverCategory.removePreference(mSyncEmail);
         }
 
         // Temporary home for delete account
@@ -558,7 +566,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     mSyncContacts.isChecked());
             ContentResolver.setSyncAutomatically(acct, Calendar.AUTHORITY,
                     mSyncCalendar.isChecked());
-
+            ContentResolver.setSyncAutomatically(acct, EmailContent.AUTHORITY,
+                    mSyncEmail.isChecked());
         }
         AccountSettingsUtils.commitSettings(mContext, mAccount);
         Email.setServicesEnabled(mContext);
