@@ -509,6 +509,9 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         public void addResultCallback(Result listener) {
             Assert.assertTrue(mListener == null);
             mListener = listener;
+
+            // Let it call listener.setRegistered(). Otherwise callbacks won't fire.
+            super.addResultCallback(listener);
         }
     }
 
