@@ -49,6 +49,7 @@ import java.util.HashMap;
 public class RefreshManager {
     private static final boolean DEBUG_CALLBACK_LOG = true;
     private static final long MAILBOX_AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // in milliseconds
+    private static final long MAILBOX_LIST_AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // in milliseconds
 
     private static RefreshManager sInstance;
 
@@ -206,6 +207,11 @@ public class RefreshManager {
     public boolean isMailboxStale(long mailboxId) {
         return mClock.getTime() >= (mMessageListStatus.get(mailboxId).getLastRefreshTime()
                 + MAILBOX_AUTO_REFRESH_INTERVAL);
+    }
+
+    public boolean isMailboxListStale(long accountId) {
+        return mClock.getTime() >= (mMailboxListStatus.get(accountId).getLastRefreshTime()
+                + MAILBOX_LIST_AUTO_REFRESH_INTERVAL);
     }
 
     /**
