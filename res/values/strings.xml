@@ -362,7 +362,7 @@ save attachment.</string>
     <!-- String that is displayed when the attachment could not be loaded.[CHAR LIMIT=none] -->
     <string name="message_view_load_attachment_failed_toast">The attachment \"
         <xliff:g id="filename">%s</xliff:g>\" could not be loaded.</string>
-    <!-- String that is displayed when a long message is being parsed. -->
+    <!-- String that is displayed when a long message is being parsed. [CHAR LIMIT=none] -->
     <string name="message_view_parse_message_toast">Opening message\u2026</string>
     <!-- Toast shown after moving a message to a different mailbox. [CHAR LIMIT=none]-->
     <plurals name="message_moved_toast">
@@ -670,7 +670,8 @@ save attachment.</string>
     <string name="account_settings_default_summary">Send email from this account by default</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_notify_label">Email notifications</string>
-    <!-- On Settings screen, summary line when called via AccountManager for Exchange accounts -->
+    <!-- On Settings screen, summary line when called via AccountManager for Exchange accounts
+        [CHAR LIMIT=50] -->
     <string name="account_settings_summary">Sync frequency, notifications, etc.</string>
     <!-- On Settings screen, setting summary text -->
     <string name="account_settings_notify_summary">Notify in status bar when email arrives</string>
@@ -691,17 +692,17 @@ save attachment.</string>
     <!-- On Settings screen, section heading -->
     <string name="account_settings_notifications">Notification settings</string>
 
-    <!-- On settings screen, sync contacts check box label -->
+    <!-- On settings screen, sync contacts check box label [CHAR LIMIT=20]-->
     <string name="account_settings_sync_contacts_enable">Sync Contacts</string>
-    <!-- On settings screen, sync contacts summary text -->
+    <!-- On settings screen, sync contacts summary text [CHAR LIMIT=35] -->
     <string name="account_settings_sync_contacts_summary">Sync contacts for this account</string>
-    <!-- On settings screen, sync calendar check box label -->
+    <!-- On settings screen, sync calendar check box label [CHAR LIMIT=20]-->
         <string name="account_settings_sync_calendar_enable">Sync Calendar</string>
-    <!-- On settings screen, sync calendar summary text -->
+    <!-- On settings screen, sync calendar summary text [CHAR LIMIT=35] -->
     <string name="account_settings_sync_calendar_summary">Sync calendar for this account</string>
-    <!-- On settings screen, sync email check box label -->
+    <!-- On settings screen, sync email check box label [CHAR LIMIT=20]-->
     <string name="account_settings_sync_email_enable">Sync Email</string>
-    <!-- On settings screen, sync email summary text -->
+    <!-- On settings screen, sync email summary text [CHAR LIMIT=35] -->
     <string name="account_settings_sync_email_summary">Sync email for this account</string>
 
     <!-- On Settings screen, vibrate pop-up menu label -->
