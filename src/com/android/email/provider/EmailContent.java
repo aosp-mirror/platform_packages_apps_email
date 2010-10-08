@@ -32,7 +32,6 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.text.TextUtils;
 
 import java.io.File;
 import java.net.URI;
@@ -619,6 +618,9 @@ public abstract class EmailContent {
             FLAG_OUTGOING_MEETING_TENTATIVE;
         public static final int FLAG_OUTGOING_MEETING_REQUEST_MASK =
             FLAG_OUTGOING_MEETING_INVITE | FLAG_OUTGOING_MEETING_CANCEL;
+        // 8 general purpose flags (bits) that may be used at the discretion of the sync adapter
+        public static final int FLAG_SYNC_ADAPTER_SHIFT = 9;
+        public static final int FLAG_SYNC_ADAPTER_MASK = 255 << FLAG_SYNC_ADAPTER_SHIFT;
 
         public Message() {
             mBaseUri = CONTENT_URI;
