@@ -61,7 +61,7 @@ public class MockProviderTests extends ProviderTestCase2<MockProvider> {
         super.setUp();
         mMockContext = getMockContext();
         mMockResolver = (MockContentResolver)mMockContext.getContentResolver();
-        mMockResolver.addProvider(CANHAZ_AUTHORITY, new MockProvider());
+        mMockResolver.addProvider(CANHAZ_AUTHORITY, new MockProvider(mMockContext));
     }
 
     @Override

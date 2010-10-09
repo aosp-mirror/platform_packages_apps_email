@@ -51,7 +51,7 @@ public class SyncAdapterTestCase<T extends AbstractSyncAdapter>
         super.setUp();
         mMockContext = getMockContext();
         mMockResolver = (MockContentResolver)mMockContext.getContentResolver();
-        mMockResolver.addProvider(MockProvider.AUTHORITY, new MockProvider());
+        mMockResolver.addProvider(MockProvider.AUTHORITY, new MockProvider(mMockContext));
     }
 
     @Override

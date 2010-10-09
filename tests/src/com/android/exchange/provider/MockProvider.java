@@ -18,6 +18,7 @@ package com.android.exchange.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -68,6 +69,10 @@ public class MockProvider extends ContentProvider {
     /*package*/ static final int RECORD = 101;
 
     public static final String ID_COLUMN = "_id";
+
+    public MockProvider(Context context) {
+        super(context, null, null, null);
+    }
 
     // We'll store our values here
     private HashMap<String, ContentValues> mMockStore = new HashMap<String, ContentValues>();
