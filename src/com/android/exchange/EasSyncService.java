@@ -1386,9 +1386,9 @@ public class EasSyncService extends AbstractSyncService {
             PolicySet ps = pp.getPolicySet();
             // Update the account with a null policyKey (the key we've gotten is
             // temporary and cannot be used for syncing)
-            if (ps.writeAccount(mAccount, null, true, mContext)) {
-                sp.updatePolicies(mAccount.mId);
-            }
+            ps.writeAccount(mAccount, null, true, mContext);
+            // Make sure that SecurityPolicy is up-to-date
+            sp.updatePolicies(mAccount.mId);
             if (pp.getRemoteWipe()) {
                 // We've gotten a remote wipe command
                 // If we're not the admin, we can't do the wipe, so just return

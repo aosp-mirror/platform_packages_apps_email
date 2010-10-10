@@ -235,10 +235,6 @@ public class MessageList extends Activity implements OnClickListener,
         super.onResume();
         mController.addResultCallback(mControllerCallback);
 
-        // clear notifications here
-        NotificationController.getInstance(this).cancelNewMessageNotification(
-                mListFragment.getAccountId());
-
         // Exit immediately if the accounts list has changed (e.g. externally deleted)
         if (Email.getNotifyUiAccountsChanged()) {
             Welcome.actionStart(this);

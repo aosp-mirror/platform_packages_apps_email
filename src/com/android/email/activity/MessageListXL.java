@@ -173,13 +173,11 @@ public class MessageListXL extends Activity implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onResume");
         super.onResume();
 
-        mFragmentManager.onResume();
-        NotificationController.getInstance(this).cancelNewMessageNotification(
-                mFragmentManager.getAccountId());
-
         // On MessageList.onResume, we go back to Welcome if an account has been added/removed.
         // We don't need to do that here, because when the activity resumes, the account list loader
         // will load the latest list.
+        // And if all the accounts have been removed, the loader will detect it and do
+        // appropriate things.
     }
 
     @Override

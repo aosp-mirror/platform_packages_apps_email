@@ -54,6 +54,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private long mAccountId = -1;
     private long mSelectedMailboxId = -1;
 
+    private RefreshManager mRefreshManager;
+
     // UI Support
     private Activity mActivity;
     private MailboxesAdapter mListAdapter;
@@ -92,6 +94,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         super.onCreate(savedInstanceState);
 
         mActivity = getActivity();
+        mRefreshManager = RefreshManager.getInstance(mActivity);
         mListAdapter = new MailboxesAdapter(mActivity, MailboxesAdapter.MODE_NORMAL);
         if (savedInstanceState != null) {
             restoreInstanceState(savedInstanceState);
@@ -235,6 +238,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if ((mLastLoadedAccountId != -1) && (mLastLoadedAccountId != mAccountId)) {
             accountChanging = true;
             getLoaderManager().stopLoader(LOADER_ID_MAILBOX_LIST);
+
+            // Also, when we're changing account, update the mailbox list if stale.
+            refreshMailboxListIfStale();
         }
         getLoaderManager().initLoader(LOADER_ID_MAILBOX_LIST, null,
                 new MailboxListLoaderCallbacks(accountChanging));
@@ -307,7 +313,13 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     public void onRefresh() {
         if (mAccountId != -1) {
-            RefreshManager.getInstance(getActivity()).refreshMailboxList(mAccountId);
+            mRefreshManager.refreshMailboxList(mAccountId);
+        }
+    }
+
+    private void refreshMailboxListIfStale() {
+        if (mRefreshManager.isMailboxListStale(mAccountId)) {
+            mRefreshManager.refreshMailboxList(mAccountId);
         }
     }
 
