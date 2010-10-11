@@ -23,6 +23,8 @@ import com.android.email.activity.Welcome;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
 
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -47,6 +49,12 @@ public class AccountSetupBasics extends AccountSetupActivity
     private AccountSetupBasicsFragment mFragment;
     private boolean mManualButtonDisplayed;
     private boolean mNextButtonEnabled;
+
+    // Used when this Activity is called as part of account authentification flow,
+    // which requires to do extra work before and after the account creation.
+    // See also AccountAuthenticatorActivity.
+    private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
+    private Bundle mResultBundle = null;
 
     public static void actionNewAccount(Activity fromActivity) {
         SetupData.init(SetupData.FLOW_MODE_NORMAL);
@@ -132,6 +140,28 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         // Configure fragment
         mFragment.setCallback(this, alternateStrings);
+
+        mAccountAuthenticatorResponse =
+            getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
+
+        if (mAccountAuthenticatorResponse != null) {
+            mAccountAuthenticatorResponse.onRequestContinued();
+        }
+    }
+
+    @Override
+    public void finish() {
+        if (mAccountAuthenticatorResponse != null) {
+            // send the result bundle back if set, otherwise send an error.
+            if (mResultBundle != null) {
+                mAccountAuthenticatorResponse.onResult(mResultBundle);
+            } else {
+                mAccountAuthenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED,
+                        "canceled");
+            }
+            mAccountAuthenticatorResponse = null;
+        }
+        super.finish();
     }
 
     /**
