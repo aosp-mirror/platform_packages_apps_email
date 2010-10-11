@@ -549,7 +549,7 @@ save attachment.</string>
     <!-- In Account setup options screen, Activity title -->
     <string name="account_setup_options_title">Account options</string>
     <!-- In Account setup options screen, label for email check frequency selector -->
-    <string name="account_setup_options_mail_check_frequency_label">Email checking frequency</string>
+    <string name="account_setup_options_mail_check_frequency_label">Inbox checking frequency</string>
     <!-- In Account setup options & Account Settings screens, label for email check frequency option -->
     <string name="account_setup_options_mail_check_frequency_never">Never</string>
     <!-- In Account setup options & Account Settings screens, label for email check frequency option -->
@@ -676,7 +676,7 @@ save attachment.</string>
     <!-- On Settings screen, setting summary text -->
     <string name="account_settings_notify_summary">Notify in status bar when email arrives</string>
     <!-- On Settings screen, setting option name and title of dialog box that opens -->
-    <string name="account_settings_mail_check_frequency_label">Email check frequency</string>
+    <string name="account_settings_mail_check_frequency_label">Inbox check frequency</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_incoming_label">Incoming settings</string>
     <!-- On Settings screen, setting option name -->
