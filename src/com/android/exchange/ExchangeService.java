@@ -1288,7 +1288,7 @@ public class ExchangeService extends Service implements Runnable {
      *
      * @param acctId
      */
-    static public void folderListReloaded(long acctId) {
+    static public void stopNonAccountMailboxSyncsForAccount(long acctId) {
         ExchangeService exchangeService = INSTANCE;
         if (exchangeService != null) {
             exchangeService.stopAccountSyncs(acctId, false);
