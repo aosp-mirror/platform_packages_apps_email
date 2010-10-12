@@ -44,7 +44,6 @@ import java.security.InvalidParameterException;
  * See {@link MessageViewBase} for the class relation diagram.
  */
 public class MessageViewFragment extends MessageViewFragmentBase {
-
     private ImageView mFavoriteIcon;
     private View mInviteSection;
 
@@ -62,8 +61,13 @@ public class MessageViewFragment extends MessageViewFragmentBase {
     private Drawable mFavoriteIconOn;
     private Drawable mFavoriteIconOff;
 
-    /** ID of the message that will be loaded */
+    /**
+     * ID of the message that will be loaded.  Protect with {@link #mLock}.
+     */
     private long mMessageIdToOpen = -1;
+
+    /** Lock object to protect {@link #mMessageIdToOpen} */
+    private final Object mLock = new Object();
 
     /** ID of the currently shown message */
     private long mCurrentMessageId = -1;
@@ -205,14 +209,18 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         if (messageId == -1) {
             throw new InvalidParameterException();
         }
-        mMessageIdToOpen = messageId;
+        synchronized (mLock) {
+            mMessageIdToOpen = messageId;
+        }
         openMessageIfStarted();
     }
 
     @Override
     public void clearContent() {
-        super.clearContent();
-        mMessageIdToOpen = -1;
+        synchronized (mLock) {
+            super.clearContent();
+            mMessageIdToOpen = -1;
+        }
     }
 
     @Override
@@ -223,12 +231,23 @@ public class MessageViewFragment extends MessageViewFragmentBase {
 
     @Override
     protected boolean isMessageSpecified() {
-        return mMessageIdToOpen != -1;
+        synchronized (mLock) {
+            return mMessageIdToOpen != -1;
+        }
     }
 
+    /**
+     * NOTE See the comment on the super method.  It's called on a worker thread.
+     */
     @Override
     protected Message openMessageSync() {
-        return Message.restoreMessageWithId(getActivity(), mMessageIdToOpen);
+        synchronized (mLock) {
+            long messageId = mMessageIdToOpen;
+            if (messageId < 0) {
+                return null; // Called after clearContent().
+            }
+            return Message.restoreMessageWithId(getActivity(), messageId);
+        }
     }
 
     @Override

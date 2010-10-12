@@ -35,7 +35,14 @@ import java.security.InvalidParameterException;
  * See {@link MessageViewBase} for the class relation diagram.
  */
 public class MessageFileViewFragment extends MessageViewFragmentBase {
+    /**
+     * URI of message to open.  Protect with {@link #mLock}.
+     */
     private Uri mFileEmailUri;
+
+    /** Lock object to protect {@link #mFileEmailUri} */
+    private final Object mLock = new Object();
+
     /**
      * # of instances of this class.  When it gets 0, and the last one is not destroying for
      * a config change, we delete all the EML files.
@@ -78,33 +85,48 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
         if (fileEmailUri == null) {
             throw new InvalidParameterException();
         }
-        mFileEmailUri = fileEmailUri;
+        synchronized (mLock) {
+            mFileEmailUri = fileEmailUri;
+        }
         openMessageIfStarted();
     }
 
     @Override
     public void clearContent() {
-        super.clearContent();
-        mFileEmailUri = null;
+        synchronized (mLock) {
+            super.clearContent();
+            mFileEmailUri = null;
+        }
     }
 
     @Override
     protected boolean isMessageSpecified() {
-        return mFileEmailUri != null;
+        synchronized (mLock) {
+            return mFileEmailUri != null;
+        }
     }
 
+    /**
+     * NOTE See the comment on the super method.  It's called on a worker thread.
+     */
     @Override
     protected Message openMessageSync() {
-        final Activity activity = getActivity();
-        // Put up a toast; this can take a little while...
-        Utility.showToast(activity, R.string.message_view_parse_message_toast);
-        Message msg = getController().loadMessageFromUri(mFileEmailUri);
-        if (msg == null) {
-            // Indicate that the attachment couldn't be loaded
-            Utility.showToast(activity, R.string.message_view_display_attachment_toast);
-            return null;
+        synchronized (mLock) {
+            final Activity activity = getActivity();
+            Uri messageUri = mFileEmailUri;
+            if (messageUri == null) {
+                return null; // Called after clearContent().
+            }
+            // Put up a toast; this can take a little while...
+            Utility.showToast(activity, R.string.message_view_parse_message_toast);
+            Message msg = getController().loadMessageFromUri(messageUri);
+            if (msg == null) {
+                // Indicate that the attachment couldn't be loaded
+                Utility.showToast(activity, R.string.message_view_display_attachment_toast);
+                return null;
+            }
+            return msg;
         }
-        return msg;
     }
 
     /**

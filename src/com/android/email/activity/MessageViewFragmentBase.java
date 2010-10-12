@@ -769,8 +769,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     /**
-     * Called on a worker thread by {@link LoadMessageTask} to load a message in a subclass specific
-     * way.
+     * Called by {@link LoadMessageTask} and {@link ReloadMessageTask} to load a message in a
+     * subclass specific way.
+     *
+     * NOTE This method is called on a worker thread!  Implementations must properly synchronize
+     * when accessing members.  This method may be called after or even at the same time as
+     * {@link #clearContent()}.
      */
     protected abstract Message openMessageSync();
 
@@ -803,16 +807,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected void onPostExecute(Message message) {
-            /* doInBackground() may return null result (due to restoreMessageWithId())
-             * and in that situation we want to Activity.finish().
-             *
-             * OTOH we don't want to Activity.finish() for isCancelled() because this
-             * would introduce a surprise side-effect to task cancellation: every task
-             * cancelation would also result in finish().
-             *
-             * Right now LoadMesageTask is cancelled not only from onDestroy(),
-             * and it would be a bug to also finish() the activity in that situation.
-             */
             if (isCancelled()) {
                 return;
             }
