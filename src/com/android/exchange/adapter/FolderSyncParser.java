@@ -118,7 +118,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                         mContentResolver.delete(Mailbox.CONTENT_URI, ALL_BUT_ACCOUNT_MAILBOX,
                                 new String[] {Long.toString(mAccountId)});
                         // Stop existing syncs and reconstruct _main
-                        ExchangeService.folderListReloaded(mAccountId);
+                        ExchangeService.stopNonAccountMailboxSyncsForAccount(mAccountId);
                         res = true;
                         resetFolders = true;
                     } else {
