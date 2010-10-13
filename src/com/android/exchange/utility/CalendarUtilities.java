@@ -1716,4 +1716,16 @@ public class CalendarUtilities {
         }
         return null;
     }
+
+    /**
+     * Return a boolean value for an integer ContentValues column
+     * @param values a ContentValues object
+     * @param columnName the name of a column to be found in the ContentValues
+     * @return a boolean representation of the value of columnName in values; null and 0 = false,
+     * other integers = true
+     */
+    static public boolean getIntegerValueAsBoolean(ContentValues values, String columnName) {
+        Integer intValue = values.getAsInteger(columnName);
+        return (intValue != null && intValue != 0);
+    }
 }

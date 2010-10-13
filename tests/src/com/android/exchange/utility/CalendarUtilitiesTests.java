@@ -882,6 +882,17 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         // Milliseconds aren't zeroed out and may not be the same
         assertEquals(convertedLocalTime/1000, correctLocalTime/1000);
     }
+
+    public void testGetIntegerValueAsBoolean() {
+        ContentValues cv = new ContentValues();
+        cv.put("A", 1);
+        cv.put("B", 69);
+        cv.put("C", 0);
+        assertTrue(CalendarUtilities.getIntegerValueAsBoolean(cv, "A"));
+        assertTrue(CalendarUtilities.getIntegerValueAsBoolean(cv, "B"));
+        assertFalse(CalendarUtilities.getIntegerValueAsBoolean(cv, "C"));
+        assertFalse(CalendarUtilities.getIntegerValueAsBoolean(cv, "D"));
+    }
 }
 
     // TODO Planned unit tests
