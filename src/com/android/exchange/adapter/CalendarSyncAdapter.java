@@ -1423,18 +1423,12 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         // 2) Serialize attendees and reminders from subvalues
         // 3) Look for exceptions and serialize with the top-level event
         ContentValues entityValues = entity.getEntityValues();
-        boolean isException = (clientId == null);
+        final boolean isException = (clientId == null);
         boolean hasAttendees = false;
-        boolean isChange = entityValues.containsKey(Events._SYNC_ID);
-        Double version = mService.mProtocolVersionDouble;
-
-        boolean allDay = false;
-        if (entityValues.containsKey(Events.ALL_DAY)) {
-            Integer ade = entityValues.getAsInteger(Events.ALL_DAY);
-            if (ade != null && ade != 0) {
-                allDay = true;
-            }
-        }
+        final boolean isChange = entityValues.containsKey(Events._SYNC_ID);
+        final Double version = mService.mProtocolVersionDouble;
+        final boolean allDay =
+            CalendarUtilities.getIntegerValueAsBoolean(entityValues, Events.ALL_DAY);
 
         // NOTE: Exchange 2003 (EAS 2.5) seems to require the "exception deleted" and "exception
         // start time" data before other data in exceptions.  Failure to do so results in a
@@ -1450,7 +1444,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                 // If we're deleted, the UI will continue to show this exception until we mark
                 // it canceled, so we'll do that here...
                 if (isDeleted && !isCanceled) {
-                    long eventId = entityValues.getAsLong(Events._ID);
+                    final long eventId = entityValues.getAsLong(Events._ID);
                     ContentValues cv = new ContentValues();
                     cv.put(Events.STATUS, Events.STATUS_CANCELED);
                     mService.mContentResolver.update(
@@ -1463,7 +1457,10 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             // TODO Add reminders to exceptions (allow them to be specified!)
             Long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
             if (originalTime != null) {
-                if (allDay) {
+                final boolean originalAllDay =
+                    CalendarUtilities.getIntegerValueAsBoolean(entityValues,
+                            Events.ORIGINAL_ALL_DAY);
+                if (originalAllDay) {
                     // For all day events, we need our local all-day time
                     originalTime =
                         CalendarUtilities.getLocalAllDayCalendarTime(originalTime, mLocalTimeZone);
