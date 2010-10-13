@@ -1436,6 +1436,45 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
+        // NOTE: Exchange 2003 (EAS 2.5) seems to require the "exception deleted" and "exception
+        // start time" data before other data in exceptions.  Failure to do so results in a
+        // status 6 error during sync
+        if (isException) {
+           // Send exception deleted flag if necessary
+            Integer deleted = entityValues.getAsInteger(Calendar.EventsColumns.DELETED);
+            boolean isDeleted = deleted != null && deleted == 1;
+            Integer eventStatus = entityValues.getAsInteger(Events.STATUS);
+            boolean isCanceled = eventStatus != null && eventStatus.equals(Events.STATUS_CANCELED);
+            if (isDeleted || isCanceled) {
+                s.data(Tags.CALENDAR_EXCEPTION_IS_DELETED, "1");
+                // If we're deleted, the UI will continue to show this exception until we mark
+                // it canceled, so we'll do that here...
+                if (isDeleted && !isCanceled) {
+                    long eventId = entityValues.getAsLong(Events._ID);
+                    ContentValues cv = new ContentValues();
+                    cv.put(Events.STATUS, Events.STATUS_CANCELED);
+                    mService.mContentResolver.update(
+                            ContentUris.withAppendedId(EVENTS_URI, eventId), cv, null, null);
+                }
+            } else {
+                s.data(Tags.CALENDAR_EXCEPTION_IS_DELETED, "0");
+            }
+
+            // TODO Add reminders to exceptions (allow them to be specified!)
+            Long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
+            if (originalTime != null) {
+                if (allDay) {
+                    // For all day events, we need our local all-day time
+                    originalTime =
+                        CalendarUtilities.getLocalAllDayCalendarTime(originalTime, mLocalTimeZone);
+                }
+                s.data(Tags.CALENDAR_EXCEPTION_START_TIME,
+                        CalendarUtilities.millisToEasDateTime(originalTime));
+            } else {
+                // Illegal; what should we do?
+            }
+        }
+
         // Get the event's time zone
         String timeZoneName =
             entityValues.getAsString(allDay ? EVENT_TIMEZONE2_COLUMN : Events.EVENT_TIMEZONE);
@@ -1493,14 +1532,6 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             s.data(Tags.CALENDAR_LOCATION, loc);
         }
         s.writeStringValue(entityValues, Events.TITLE, Tags.CALENDAR_SUBJECT);
-
-        Integer visibility = entityValues.getAsInteger(Events.VISIBILITY);
-        if (visibility != null) {
-            s.data(Tags.CALENDAR_SENSITIVITY, decodeVisibility(visibility));
-        } else {
-            // Default to private if not set
-            s.data(Tags.CALENDAR_SENSITIVITY, "1");
-        }
 
         String desc = entityValues.getAsString(Events.DESCRIPTION);
         if (desc != null && desc.length() > 0) {
@@ -1651,37 +1682,15 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
                     organizerName != null) {
                 s.data(Tags.CALENDAR_ORGANIZER_NAME, organizerName);
             }
-        } else {
-            // TODO Add reminders to exceptions (allow them to be specified!)
-            Long originalTime = entityValues.getAsLong(Events.ORIGINAL_INSTANCE_TIME);
-            if (originalTime != null) {
-                if (allDay) {
-                    // For all day events, we need our local all-day time
-                    originalTime =
-                        CalendarUtilities.getLocalAllDayCalendarTime(originalTime, mLocalTimeZone);
-                }
-                s.data(Tags.CALENDAR_EXCEPTION_START_TIME,
-                        CalendarUtilities.millisToEasDateTime(originalTime));
-            } else {
-                // Illegal; what should we do?
-            }
 
-            // Send exception deleted flag if necessary
-            Integer deleted = entityValues.getAsInteger(Events.DELETED);
-            boolean isDeleted = deleted != null && deleted == 1;
-            Integer eventStatus = entityValues.getAsInteger(Events.STATUS);
-            boolean isCanceled = eventStatus != null && eventStatus.equals(Events.STATUS_CANCELED);
-            if (isDeleted || isCanceled) {
-                s.data(Tags.CALENDAR_EXCEPTION_IS_DELETED, "1");
-                // If we're deleted, the UI will continue to show this exception until we mark
-                // it canceled, so we'll do that here...
-                if (isDeleted && !isCanceled) {
-                    long eventId = entityValues.getAsLong(Events._ID);
-                    ContentValues cv = new ContentValues();
-                    cv.put(Events.STATUS, Events.STATUS_CANCELED);
-                    mService.mContentResolver.update(
-                            ContentUris.withAppendedId(EVENTS_URI, eventId), cv, null, null);
-                }
+            // NOTE: Sensitivity must NOT be sent to the server for exceptions in Exchange 2003
+            // The result will be a status 6 failure during sync
+            Integer visibility = entityValues.getAsInteger(Events.VISIBILITY);
+            if (visibility != null) {
+                s.data(Tags.CALENDAR_SENSITIVITY, decodeVisibility(visibility));
+            } else {
+                // Default to private if not set
+                s.data(Tags.CALENDAR_SENSITIVITY, "1");
             }
         }
     }
