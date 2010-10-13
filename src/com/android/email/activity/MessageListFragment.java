@@ -94,6 +94,8 @@ public class MessageListFragment extends ListFragment
     private TextView mListFooterText;
     private View mListFooterProgress;
     private View mSendPanel;
+    private View mListPanel;
+    private View mNoMessagesPanel;
 
     private static final int LIST_FOOTER_MODE_NONE = 0;
     private static final int LIST_FOOTER_MODE_MORE = 1;
@@ -200,6 +202,8 @@ public class MessageListFragment extends ListFragment
         // Use a custom layout, which includes the original layout with "send messages" panel.
         View root = inflater.inflate(R.layout.message_list_fragment,null);
         mSendPanel = root.findViewById(R.id.send_panel);
+        mListPanel = root.findViewById(R.id.list_panel);
+        mNoMessagesPanel = root.findViewById(R.id.no_messages_panel);
         ((Button) mSendPanel.findViewById(R.id.send_messages)).setOnClickListener(this);
         return root;
     }
@@ -842,6 +846,17 @@ public class MessageListFragment extends ListFragment
         mSendPanel.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    private void showNoMessageText(boolean visible) {
+        mNoMessagesPanel.setVisibility(visible ? View.VISIBLE : View.GONE);
+        mListPanel.setVisibility(visible ? View.GONE : View.VISIBLE);
+    }
+
+    private void showNoMessageTextIfNecessary() {
+        boolean noItem = (mListFooterMode == LIST_FOOTER_MODE_NONE)
+                && (mListView.getCount() == 0);
+        showNoMessageText(noItem);
+    }
+
     private void startLoading() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessageListFragment startLoading");
@@ -849,6 +864,7 @@ public class MessageListFragment extends ListFragment
         mOpenRequested = false;
 
         // Clear the list. (ListFragment will show the "Loading" animation)
+        showNoMessageText(false);
         setListShown(false);
         hideSendPanel();
 
@@ -969,11 +985,11 @@ public class MessageListFragment extends ListFragment
             setListShown(true);
 
             // Various post processing...
-            // (resetNewMessageCount should be here. See above.)
             autoRefreshStaleMailbox();
             addFooterView();
             updateSelectionMode();
             showSendPanelIfNecessary();
+            showNoMessageTextIfNecessary();
 
             // We want to make selection visible only when the loader was explicitly started.
             // i.e. Refresh caused by content changed events shouldn't scroll the list.

@@ -18,26 +18,42 @@
   The default ListFragment layout (include) + the "send outgoing message" button.
 -->
 
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <LinearLayout android:id="@+id/send_panel"
-        android:orientation="horizontal"
+    android:layout_height="match_parent"
+    >
+    <TextView
+        android:id="@+id/no_messages_panel"
+        android:text="@string/message_list_no_messages"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:visibility="gone"
+        />
+    <LinearLayout
+        android:id="@+id/list_panel"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         >
+        <LinearLayout
+            android:id="@+id/send_panel"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            >
 
-        <Button
-            android:id="@+id/send_messages"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="@string/message_list_send_pending_messages_action" />
+            <Button
+                android:id="@+id/send_messages"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/message_list_send_pending_messages_action" />
 
+        </LinearLayout>
+
+        <include layout="@android:layout/list_content" />
     </LinearLayout>
-
-    <include layout="@android:layout/list_content" />
-</LinearLayout>
+</FrameLayout>
