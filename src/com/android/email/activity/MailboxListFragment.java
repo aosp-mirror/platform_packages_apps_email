@@ -308,7 +308,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mCallback.onMailboxSelected(mAccountId, id);
+        // Don't use the id parameter.  See MailboxesAdapter.
+        mCallback.onMailboxSelected(mAccountId, mListAdapter.getMailboxId(position));
     }
 
     public void onRefresh() {
@@ -334,7 +335,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         final int count = mListView.getCount();
         for (int i = 0; i < count; i++) {
-            if (mListView.getItemIdAtPosition(i) != mSelectedMailboxId) {
+            if (mListAdapter.getMailboxId(i) != mSelectedMailboxId) {
                 continue;
             }
             mListView.setItemChecked(i, true);
