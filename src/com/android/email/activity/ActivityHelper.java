@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Controller;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -100,11 +101,21 @@ public final class ActivityHelper {
                 activity.getResources().getQuantityString(R.plurals.message_deleted_toast, 1));
     }
 
-    public static void moveMessages(Activity activity, long newMailboxId, long[] messageIds) {
-        // TODO Support moving multiple messages
+    public static void moveMessages(final Activity activity, final long newMailboxId,
+            final long[] messageIds) {
         Controller.getInstance(activity).moveMessage(messageIds, newMailboxId);
-        String message = activity.getResources().getQuantityString(R.plurals.message_moved_toast,
-                messageIds.length, messageIds.length , "a mailbox"); // STOPSHIP get mailbox name
-        Utility.showToast(activity, message);
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                String mailboxName = Mailbox.getDisplayName(activity, newMailboxId);
+                if (mailboxName == null) {
+                    return; // Mailbox gone??
+                }
+                String message = activity.getResources().getQuantityString(
+                        R.plurals.message_moved_toast, messageIds.length, messageIds.length ,
+                        mailboxName);
+                Utility.showToast(activity, message);
+            }
+        });
     }
 }

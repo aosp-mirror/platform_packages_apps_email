@@ -187,6 +187,38 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
                 EmailContent.ID_PROJECTION_COLUMN, -1));
     }
 
+    public void testGetFirstRowString() {
+        final String[] DISPLAY_NAME_PROJECTION = new String[] {Account.DISPLAY_NAME};
+
+        Account account1 = ProviderTestUtils.setupAccount("1", true, mMockContext);
+        Account account2 = ProviderTestUtils.setupAccount("X1", true, mMockContext);
+        Account account3 = ProviderTestUtils.setupAccount("X2", true, mMockContext);
+
+        // case 1. Account found
+        assertEquals(account2.mDisplayName, Utility.getFirstRowString(
+                mMockContext, Account.CONTENT_URI, DISPLAY_NAME_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                Account.DISPLAY_NAME, 0));
+
+        // different sort order
+        assertEquals(account3.mDisplayName, Utility.getFirstRowString(
+                mMockContext, Account.CONTENT_URI, DISPLAY_NAME_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"X%"},
+                Account.DISPLAY_NAME + " desc", 0));
+
+        // case 2. no row found
+        assertEquals(null, Utility.getFirstRowString(
+                mMockContext, Account.CONTENT_URI, DISPLAY_NAME_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                null, 0));
+
+        // case 3. no row found with default value
+        assertEquals("-", Utility.getFirstRowString(
+                mMockContext, Account.CONTENT_URI, DISPLAY_NAME_PROJECTION,
+                Account.DISPLAY_NAME + " like :1", new String[] {"NO SUCH ACCOUNT"},
+                null, 0, "-"));
+    }
+
     public void testBuildMailboxIdSelection() {
         // Create dummy data...
         Context c = mMockContext;
