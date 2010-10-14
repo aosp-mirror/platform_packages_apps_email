@@ -831,6 +831,12 @@ public class Utility {
         }
     };
 
+    private static final CursorGetter<String> STRING_GETTER = new CursorGetter<String>() {
+        public String get(Cursor cursor, int column) {
+            return cursor.getString(column);
+        }
+    };
+
     private static final CursorGetter<byte[]> BLOB_GETTER = new CursorGetter<byte[]>() {
         public byte[] get(Cursor cursor, int column) {
             return cursor.getBlob(column);
@@ -899,7 +905,26 @@ public class Utility {
     }
 
     /**
-     * {@link #getFirstRowColumn} for a byte array with null as a default value.
+     * {@link #getFirstRowColumn} for a String with null as a default value.
+     */
+    public static String getFirstRowString(Context context, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder, int column) {
+        return getFirstRowColumn(context, uri, projection, selection, selectionArgs,
+                sortOrder, column, null, STRING_GETTER);
+    }
+
+    /**
+     * {@link #getFirstRowColumn} for a String with a provided default value.
+     */
+    public static String getFirstRowString(Context context, Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder, int column,
+            String defaultValue) {
+        return getFirstRowColumn(context, uri, projection, selection, selectionArgs,
+                sortOrder, column, defaultValue, STRING_GETTER);
+    }
+
+    /**
+     * {@link #getFirstRowColumn} for a byte array with a provided default value.
      */
     public static byte[] getFirstRowBlob(Context context, Uri uri, String[] projection,
             String selection, String[] selectionArgs, String sortOrder, int column,
