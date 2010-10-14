@@ -31,8 +31,18 @@
         android:layout_centerVertical="true"
         />
     <ImageView
-        android:id="@+id/selected"
+        android:id="@+id/handle"
         android:layout_toRightOf="@id/chip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:paddingLeft="10dip"
+        android:paddingRight="5dip"
+        android:src="@drawable/drag_handle"
+        />
+    <ImageView
+        android:id="@+id/selected"
+        android:layout_toRightOf="@id/handle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"

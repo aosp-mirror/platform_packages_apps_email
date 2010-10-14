@@ -111,7 +111,9 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
         AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                 .setTitle(activity.getResources().getString(R.string.move_to_folder_dialog_title));
 
-        mAdapter = new MailboxesAdapter(builder.getContext(), MailboxesAdapter.MODE_MOVE_TO_TARGET);
+        mAdapter =
+            new MailboxesAdapter(builder.getContext(), MailboxesAdapter.MODE_MOVE_TO_TARGET,
+                    new MailboxesAdapter.EmptyCallback());
         builder.setSingleChoiceItems(mAdapter, -1, this);
 
         activity.getLoaderManager().initLoader(
