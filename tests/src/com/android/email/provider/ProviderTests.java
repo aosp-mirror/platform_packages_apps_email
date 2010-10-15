@@ -2114,6 +2114,18 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(-1, Mailbox.getMailboxType(c, 999999)); // mailbox not found
     }
 
+    public void testGetDisplayName() {
+        final Context c = mMockContext;
+
+        Account a = ProviderTestUtils.setupAccount("acct1", true, c);
+        Mailbox bi = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_INBOX);
+        Mailbox bm = ProviderTestUtils.setupMailbox("b2", a.mId, true, c, Mailbox.TYPE_MAIL);
+
+        assertEquals("b1", Mailbox.getDisplayName(c, bi.mId));
+        assertEquals("b2", Mailbox.getDisplayName(c, bm.mId));
+        assertEquals(null, Mailbox.getDisplayName(c, 999999)); // mailbox not found
+    }
+
     public void testMailboxIsRefreshable() {
         final Context c = mMockContext;
 

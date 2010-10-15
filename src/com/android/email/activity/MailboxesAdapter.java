@@ -41,8 +41,13 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.security.InvalidParameterException;
+
 /**
  * The adapter for displaying mailboxes.
+ *
+ * Do not use {@link #getItemId(int)} -- It's only for ListView.  Use {@link #getMailboxId}
+ * instead.  (See the comment below)
  *
  * TODO New UI will probably not distinguish unread counts from # of messages.
  *      i.e. we won't need two different viewes for them.
@@ -53,14 +58,25 @@ import android.widget.TextView;
     public static final int MODE_NORMAL = 0;
     public static final int MODE_MOVE_TO_TARGET = 1;
 
-    private static final String[] PROJECTION = new String[] { MailboxColumns.ID,
+    /*
+     * Note here we have two ID columns.  The first one is for ListView, which doesn't like ID
+     * values to be negative.  The second one is the actual mailbox ID, which we use in the rest
+     * of code.
+     * ListView uses row IDs for some operations, including onSave/RestoreInstanceState,
+     * and if we use negative IDs they don't work as expected.
+     * Because ListView finds the ID column by name ("_id"), we rename the second column
+     * so that ListView gets the correct column.
+     */
+    /* package */ static final String[] PROJECTION = new String[] { MailboxColumns.ID,
+            MailboxColumns.ID + " AS org_mailbox_id",
             MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
             MailboxColumns.MESSAGE_COUNT};
-    private static final int COLUMN_ID = 0;
-    private static final int COLUMN_DISPLAY_NAME = 1;
-    private static final int COLUMN_TYPE = 2;
-    private static final int COLUMN_UNREAD_COUNT = 3;
-    private static final int COLUMN_MESSAGE_COUNT = 4;
+    // Column 0 is only for ListView; we don't use it in our code.
+    private static final int COLUMN_ID = 1;
+    private static final int COLUMN_DISPLAY_NAME = 2;
+    private static final int COLUMN_TYPE = 3;
+    private static final int COLUMN_UNREAD_COUNT = 4;
+    private static final int COLUMN_MESSAGE_COUNT = 5;
 
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
@@ -87,6 +103,11 @@ import android.widget.TextView;
         super(context, null, 0 /* no auto-requery */);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mMode = mode;
+    }
+
+    public long getMailboxId(int position) {
+        Cursor c = (Cursor) getItem(position);
+        return c.getLong(COLUMN_ID);
     }
 
     @Override
@@ -271,13 +292,33 @@ import android.widget.TextView;
 
     private static void addSummaryMailboxRow(Context context, MatrixCursor cursor,
             long id, int type, int count, boolean showAlways) {
+        if (id >= 0) {
+            throw new InvalidParameterException(); // Must be QUERY_ALL_*, which are all negative.
+        }
         if (showAlways || (count > 0)) {
             RowBuilder row = cursor.newRow();
-            row.add(id);
+            row.add(Long.MAX_VALUE + id); // Map QUERY_ALL_* constants to positive ints.
+            row.add(id); // The real mailbox ID.
             row.add(""); // Display name.  We get it from FolderProperties.
             row.add(type);
             row.add(count);
             row.add(count);
         }
+    }
+
+    /* package */ static long getIdForTest(Cursor cursor) {
+        return cursor.getLong(COLUMN_ID);
+    }
+
+    /* package */ static int getTypeForTest(Cursor cursor) {
+        return cursor.getInt(COLUMN_TYPE);
+    }
+
+    /* package */ static int getMessageCountForTest(Cursor cursor) {
+        return cursor.getInt(COLUMN_MESSAGE_COUNT);
+    }
+
+    /* package */ static int getUnreadCountForTest(Cursor cursor) {
+        return cursor.getInt(COLUMN_UNREAD_COUNT);
     }
 }

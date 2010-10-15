@@ -2165,6 +2165,11 @@ public abstract class EmailContent {
                 };
         private static final int MAILBOX_TYPE_TYPE_COLUMN = 0;
 
+        private static final String[] MAILBOX_DISPLAY_NAME_PROJECTION = new String [] {
+                MailboxColumns.DISPLAY_NAME
+                };
+        private static final int MAILBOX_DISPLAY_NAME_COLUMN = 0;
+
         public static final long NO_MAILBOX = -1;
 
         // Sentinel values for the mSyncInterval field of both Mailbox records
@@ -2364,6 +2369,15 @@ public abstract class EmailContent {
             Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
             return Utility.getFirstRowInt(context, url, MAILBOX_TYPE_PROJECTION,
                     null, null, null, MAILBOX_TYPE_TYPE_COLUMN, -1);
+        }
+
+        /**
+         * @return mailbox display name, or null if mailbox not found.
+         */
+        public static String getDisplayName(Context context, long mailboxId) {
+            Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
+            return Utility.getFirstRowString(context, url, MAILBOX_DISPLAY_NAME_PROJECTION,
+                    null, null, null, MAILBOX_DISPLAY_NAME_COLUMN, null);
         }
 
         /**
