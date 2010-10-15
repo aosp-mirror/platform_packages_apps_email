@@ -199,36 +199,72 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
     public void testDeleteMessage() throws InterruptedException, ExecutionException {
         Account account1 = ProviderTestUtils.setupAccount("message-delete", true, mProviderContext);
         long account1Id = account1.mId;
-        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mProviderContext);
-        long box1Id = box1.mId;
-        Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, false, mProviderContext);
-        box2.mType = EmailContent.Mailbox.TYPE_TRASH;
-        box2.save(mProviderContext);
-        long box2Id = box2.mId;
+        Mailbox box = ProviderTestUtils.setupMailbox("box1", account1Id, true, mProviderContext);
+        long boxId = box.mId;
 
-        Message message1 = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
-                true, mProviderContext);
-        long message1Id = message1.mId;
+        Mailbox trashBox = ProviderTestUtils.setupMailbox("box2", account1Id, false,
+                mProviderContext);
+        trashBox.mType = EmailContent.Mailbox.TYPE_TRASH;
+        trashBox.save(mProviderContext);
+        long trashBoxId = trashBox.mId;
 
-        // Because deleteMessage now runs asynchronously, call get() to force it to complete
-        mTestController.deleteMessage(message1Id, account1Id).get();
+        Mailbox draftBox = ProviderTestUtils.setupMailbox("box3", account1Id, false,
+                mProviderContext);
+        draftBox.mType = EmailContent.Mailbox.TYPE_DRAFTS;
+        draftBox.save(mProviderContext);
+        long draftBoxId = draftBox.mId;
 
-        // now read back a fresh copy and confirm it's in the trash
-        Message message1get = EmailContent.Message.restoreMessageWithId(mProviderContext,
-                message1Id);
-        assertEquals(box2Id, message1get.mMailboxKey);
+        {
+            // Case 1: Message in a regular mailbox, account known.
+            Message message = ProviderTestUtils.setupMessage("message1", account1Id, boxId, false,
+                    true, mProviderContext);
+            long messageId = message.mId;
 
-        // Now repeat test with accountId "unknown"
-        Message message2 = ProviderTestUtils.setupMessage("message2", account1Id, box1Id, false,
-                true, mProviderContext);
-        long message2Id = message2.mId;
+            mTestController.deleteMessageSync(messageId, account1Id);
 
-        mTestController.deleteMessage(message2Id, -1).get();
+            // now read back a fresh copy and confirm it's in the trash
+            Message restored = EmailContent.Message.restoreMessageWithId(mProviderContext,
+                    messageId);
+            assertEquals(trashBoxId, restored.mMailboxKey);
+        }
 
-        // now read back a fresh copy and confirm it's in the trash
-        Message message2get = EmailContent.Message.restoreMessageWithId(mProviderContext,
-                message2Id);
-        assertEquals(box2Id, message2get.mMailboxKey);
+        {
+            // Case 2: Message in a regular mailbox, account *un*known.
+            Message message = ProviderTestUtils.setupMessage("message2", account1Id, boxId, false,
+                    true, mProviderContext);
+            long messageId = message.mId;
+
+            mTestController.deleteMessageSync(messageId, -1);
+
+            // now read back a fresh copy and confirm it's in the trash
+            Message restored = EmailContent.Message.restoreMessageWithId(mProviderContext,
+                    messageId);
+            assertEquals(trashBoxId, restored.mMailboxKey);
+        }
+
+        {
+            // Case 3: Already in trash
+            Message message = ProviderTestUtils.setupMessage("message3", account1Id, trashBoxId,
+                    false, true, mProviderContext);
+            long messageId = message.mId;
+
+            mTestController.deleteMessageSync(messageId, account1Id);
+
+            // Message should be deleted.
+            assertNull(EmailContent.Message.restoreMessageWithId(mProviderContext, messageId));
+        }
+
+        {
+            // Case 4: Draft
+            Message message = ProviderTestUtils.setupMessage("message3", account1Id, draftBoxId,
+                    false, true, mProviderContext);
+            long messageId = message.mId;
+
+            mTestController.deleteMessageSync(messageId, account1Id);
+
+            // Message should be deleted.
+            assertNull(EmailContent.Message.restoreMessageWithId(mProviderContext, messageId));
+        }
     }
 
     /**
@@ -248,8 +284,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                         mProviderContext);
         long message1Id = message1.mId;
 
-        // Because deleteMessage now runs asynchronously, call get() to force it to complete
-        mTestController.deleteMessage(message1Id, account1Id).get();
+        mTestController.deleteMessageSync(message1Id, account1Id);
 
         // now read back a fresh copy and confirm it's in the trash
         Message message1get =
