@@ -47,6 +47,7 @@ import android.content.SyncStatusObserver;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -58,6 +59,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Background service for refreshing non-push email accounts.
@@ -93,11 +95,17 @@ public class MailService extends Service {
     private static final String[] NEW_MESSAGE_COUNT_PROJECTION =
         new String[] {AccountColumns.NEW_MESSAGE_COUNT};
 
+    // Keep track of the number of times we're calling the reconciler
+    // If the count is > 1, don't try to run another one (it means that one is running and one is
+    // already queued).
+    private static AtomicInteger sReconcilerCount = new AtomicInteger(0);
+    private static MailService sMailService;
+
     /*package*/ Controller mController;
     private final Controller.Result mControllerCallback = new ControllerResults();
     private ContentResolver mContentResolver;
     private Context mContext;
-    private AccountsUpdatedListener mAccountsUpdatedListener;
+    /*package*/ AccountsUpdatedListener mAccountsUpdatedListener;
     private Handler mHandler = new Handler();
 
     private int mStartId;
@@ -182,9 +190,16 @@ public class MailService extends Service {
         context.startService(i);
     }
 
+    /*package*/ static MailService getMailServiceForTest() {
+        return sMailService;
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
+        // Save the service away (for unit tests)
+        sMailService = this;
 
         // Restore accounts, if it has not happened already
         AccountBackupRestore.restoreAccountsIfNeeded(this);
@@ -787,12 +802,28 @@ public class MailService extends Service {
      * required argument is ignored (we request those of our specific type within the method)
      */
     public class AccountsUpdatedListener implements OnAccountsUpdateListener {
+
         public void onAccountsUpdated(android.accounts.Account[] accounts) {
-            Utility.runAsync(new Runnable() {
-               @Override
-                public void run() {
+            // Only allow one to be queued at a time (and one running)
+            if (sReconcilerCount.getAndIncrement() > 1) {
+                sReconcilerCount.decrementAndGet();
+                return;
+            }
+            new AccountReconcilerTask().execute();
+        }
+
+        private class AccountReconcilerTask extends AsyncTask<Void, Void, Void> {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
                     reconcilePopImapAccounts(MailService.this);
-                }});
+                } finally {
+                    // Belt & suspenders; most likely, any RuntimeException in this code would
+                    // kill the Email process
+                    sReconcilerCount.decrementAndGet();
+                }
+                return null;
+            }
         }
     }
 
