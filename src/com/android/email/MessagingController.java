@@ -16,6 +16,7 @@
 
 package com.android.email;
 
+import com.android.email.mail.AuthenticationFailedException;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
@@ -376,6 +377,7 @@ public class MessagingController implements Runnable {
     private void synchronizeMailboxSynchronous(final EmailContent.Account account,
             final EmailContent.Mailbox folder) {
         mListeners.synchronizeMailboxStarted(account.mId, folder.mId);
+        NotificationController nc = NotificationController.getInstance(mContext);
         try {
             processPendingActionsSynchronous(account);
 
@@ -393,9 +395,15 @@ public class MessagingController implements Runnable {
             mListeners.synchronizeMailboxFinished(account.mId, folder.mId,
                                                   results.mTotalMessages,
                                                   results.mNewMessages);
+            // Clear authentication notification for this account
+            nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException e) {
             if (Email.LOGD) {
                 Log.v(Email.LOG_TAG, "synchronizeMailbox", e);
+            }
+            if (e instanceof AuthenticationFailedException) {
+                // Generate authentication notification
+                nc.showLoginFailedNotification(account.mId);
             }
             mListeners.synchronizeMailboxFailed(account.mId, folder.mId, e);
         }
@@ -1974,6 +1982,7 @@ public class MessagingController implements Runnable {
      */
     public void sendPendingMessagesSynchronous(final EmailContent.Account account,
             long sentFolderId) {
+        NotificationController nc = NotificationController.getInstance(mContext);
         // 1.  Loop through all messages in the account's outbox
         long outboxId = Mailbox.findMailboxOfType(mContext, account.mId, Mailbox.TYPE_OUTBOX);
         if (outboxId == Mailbox.NO_MAILBOX) {
@@ -2018,6 +2027,9 @@ public class MessagingController implements Runnable {
                     sender.sendMessage(messageId);
                 } catch (MessagingException me) {
                     // report error for this message, but keep trying others
+                    if (me instanceof AuthenticationFailedException) {
+                        nc.showLoginFailedNotification(account.mId);
+                    }
                     mListeners.sendPendingMessagesFailed(account.mId, messageId, me);
                     continue;
                 }
@@ -2045,8 +2057,11 @@ public class MessagingController implements Runnable {
             }
             // 6. report completion/success
             mListeners.sendPendingMessagesCompleted(account.mId);
-
+            nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException me) {
+            if (me instanceof AuthenticationFailedException) {
+                nc.showLoginFailedNotification(account.mId);
+            }
             mListeners.sendPendingMessagesFailed(account.mId, -1, me);
         } finally {
             c.close();

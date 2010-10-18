@@ -73,7 +73,8 @@ public class ExchangeServiceAccountTests extends AccountTestCase {
         // We should have 4
         assertEquals(4, errorMap.keySet().size());
         // Release the holds on acct2 (there are two of them)
-        exchangeService.releaseSyncHolds(context, AbstractSyncService.EXIT_SECURITY_FAILURE, acct2);
+        assertTrue(exchangeService.releaseSyncHolds(context,
+                AbstractSyncService.EXIT_SECURITY_FAILURE, acct2));
         // There should be two left
         assertEquals(2, errorMap.keySet().size());
         // And these are the two...
@@ -86,19 +87,22 @@ public class ExchangeServiceAccountTests extends AccountTestCase {
         // We should have 4 again
         assertEquals(4, errorMap.keySet().size());
         // Release all of the security holds
-        exchangeService.releaseSyncHolds(context, AbstractSyncService.EXIT_SECURITY_FAILURE, null);
+        assertTrue(exchangeService.releaseSyncHolds(context,
+                AbstractSyncService.EXIT_SECURITY_FAILURE, null));
         // There should be one left
         assertEquals(1, errorMap.keySet().size());
         // And this is the one
         assertNotNull(errorMap.get(box2.mId));
 
         // Release the i/o holds on account 2 (there aren't any)
-        exchangeService.releaseSyncHolds(context, AbstractSyncService.EXIT_IO_ERROR, acct2);
+        assertFalse(exchangeService.releaseSyncHolds(context,
+                AbstractSyncService.EXIT_IO_ERROR, acct2));
         // There should still be one left
         assertEquals(1, errorMap.keySet().size());
 
         // Release the i/o holds on account 1 (there's one)
-        exchangeService.releaseSyncHolds(context, AbstractSyncService.EXIT_IO_ERROR, acct1);
+        assertTrue(exchangeService.releaseSyncHolds(context,
+                AbstractSyncService.EXIT_IO_ERROR, acct1));
         // There should still be one left
         assertEquals(0, errorMap.keySet().size());
     }

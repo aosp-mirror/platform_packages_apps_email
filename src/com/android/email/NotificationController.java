@@ -18,15 +18,18 @@ package com.android.email;
 
 import com.android.email.activity.ContactStatusLoader;
 import com.android.email.activity.Welcome;
+import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
 
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
@@ -41,8 +44,10 @@ import android.text.TextUtils;
 public class NotificationController {
     public static final int NOTIFICATION_ID_SECURITY_NEEDED = 1;
     public static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 2;
-    public static final int NOTIFICATION_ID_WARNING = 3;
-    private static final int NOTIFICATION_ID_NEW_MESSAGES_BASE = 10;
+    public static final int NOTIFICATION_ID_ATTACHMENT_WARNING = 3;
+
+    private static final int NOTIFICATION_ID_BASE_NEW_MESSAGES = 0x10000000;
+    private static final int NOTIFICATION_ID_BASE_LOGIN_WARNING = 0x20000000;
 
     private static NotificationController sInstance;
     private final Context mContext;
@@ -70,7 +75,7 @@ public class NotificationController {
      *         accountID won't be too huge. Any other smarter/cleaner way?
      */
     private int getNewMessageNotificationId(long accountId) {
-        return (int) (NOTIFICATION_ID_NEW_MESSAGES_BASE + accountId);
+        return (int) (NOTIFICATION_ID_BASE_NEW_MESSAGES + accountId);
     }
 
     /**
@@ -223,5 +228,52 @@ public class NotificationController {
         // This code is identical to that used by Gmail and GTalk for notifications
         notification.flags |= Notification.FLAG_SHOW_LIGHTS;
         notification.defaults |= Notification.DEFAULT_LIGHTS;
+    }
+
+    /**
+     * Generic warning notification
+     */
+    public void showWarningNotification(int id, String tickerText, String notificationText,
+            Intent intent) {
+        PendingIntent pendingIntent =
+            PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification n = new Notification(android.R.drawable.stat_notify_error, tickerText,
+                System.currentTimeMillis());
+        n.setLatestEventInfo(mContext, tickerText, notificationText, pendingIntent);
+        n.flags = Notification.FLAG_AUTO_CANCEL;
+        mNotificationManager.notify(id, n);
+    }
+
+    /**
+     * Alert the user that an attachment couldn't be forwarded.  This is a very unusual case, and
+     * perhaps we shouldn't even send a notification. For now, it's helpful for debugging.
+     */
+    public void showDownloadForwardFailedNotification(Attachment att) {
+        showWarningNotification(NOTIFICATION_ID_ATTACHMENT_WARNING,
+                mContext.getString(R.string.forward_download_failed_ticker),
+                mContext.getString(R.string.forward_download_failed_notification,
+                        att.mFileName),
+                Welcome.createOpenCombinedOutboxIntent(mContext));
+    }
+
+    /**
+     * Alert the user that login failed for the specified account
+     */
+    private int getLoginFailedNotificationId(long accountId) {
+        return NOTIFICATION_ID_BASE_LOGIN_WARNING + (int)accountId;
+    }
+
+    // NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
+    public void showLoginFailedNotification(long accountId) {
+        final Account account = Account.restoreAccountWithId(mContext, accountId);
+        if (account == null) return;
+        showWarningNotification(getLoginFailedNotificationId(accountId),
+                mContext.getString(R.string.login_failed_ticker, account.mDisplayName),
+                mContext.getString(R.string.login_failed_notification),
+                AccountSettingsXL.createAccountSettingsIntent(mContext, accountId));
+    }
+
+    public void cancelLoginFailedNotification(long accountId) {
+        mNotificationManager.cancel(getLoginFailedNotificationId(accountId));
     }
 }

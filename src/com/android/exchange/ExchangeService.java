@@ -19,6 +19,7 @@ package com.android.exchange;
 
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
+import com.android.email.NotificationController;
 import com.android.email.Utility;
 import com.android.email.mail.transport.SSLUtils;
 import com.android.email.provider.EmailContent;
@@ -975,14 +976,17 @@ public class ExchangeService extends Service implements Runnable {
      * is null, mailboxes from all accounts with the specified hold will be released
      * @param reason the reason for the SyncError (AbstractSyncService.EXIT_XXX)
      * @param account an Account whose mailboxes should be released (or all if null)
+     * @return whether or not any mailboxes were released
      */
-    /*package*/ void releaseSyncHolds(Context context, int reason, Account account) {
-        releaseSyncHoldsImpl(context, reason, account);
+    /*package*/ boolean releaseSyncHolds(Context context, int reason, Account account) {
+        boolean holdWasReleased = releaseSyncHoldsImpl(context, reason, account);
         kick("security release");
+        return holdWasReleased;
     }
 
-    private void releaseSyncHoldsImpl(Context context, int reason, Account account) {
+    private boolean releaseSyncHoldsImpl(Context context, int reason, Account account) {
         synchronized(sSyncLock) {
+            boolean holdWasReleased = false;
             ArrayList<Long> releaseList = new ArrayList<Long>();
             for (long mailboxId: mSyncErrorMap.keySet()) {
                 if (account != null) {
@@ -1000,7 +1004,9 @@ public class ExchangeService extends Service implements Runnable {
             }
             for (long mailboxId: releaseList) {
                 mSyncErrorMap.remove(mailboxId);
+                holdWasReleased = true;
             }
+            return holdWasReleased;
         }
     }
 
@@ -2376,6 +2382,20 @@ public class ExchangeService extends Service implements Runnable {
             SyncError syncError = errorMap.get(mailboxId);
             exchangeService.releaseMailbox(mailboxId);
             int exitStatus = svc.mExitStatus;
+            Mailbox m = Mailbox.restoreMailboxWithId(exchangeService, mailboxId);
+            if (m == null) return;
+
+            if (exitStatus != AbstractSyncService.EXIT_LOGIN_FAILURE) {
+                long accountId = m.mAccountKey;
+                Account account = Account.restoreAccountWithId(exchangeService, accountId);
+                if (account == null) return;
+                if (exchangeService.releaseSyncHolds(exchangeService,
+                        AbstractSyncService.EXIT_LOGIN_FAILURE, account)) {
+                    NotificationController.getInstance(exchangeService)
+                        .cancelLoginFailedNotification(accountId);
+                }
+            }
+
             switch (exitStatus) {
                 case AbstractSyncService.EXIT_DONE:
                     if (svc.hasPendingRequests()) {
@@ -2389,8 +2409,6 @@ public class ExchangeService extends Service implements Runnable {
                     break;
                 // I/O errors get retried at increasing intervals
                 case AbstractSyncService.EXIT_IO_ERROR:
-                    Mailbox m = Mailbox.restoreMailboxWithId(exchangeService, mailboxId);
-                    if (m == null) return;
                     if (syncError != null) {
                         syncError.escalate();
                         log(m.mDisplayName + " held for " + syncError.holdDelay + "ms");
@@ -2400,8 +2418,11 @@ public class ExchangeService extends Service implements Runnable {
                     }
                     break;
                 // These errors are not retried automatically
-                case AbstractSyncService.EXIT_SECURITY_FAILURE:
                 case AbstractSyncService.EXIT_LOGIN_FAILURE:
+                    NotificationController.getInstance(exchangeService)
+                        .showLoginFailedNotification(m.mAccountKey);
+                    // Fall through
+                case AbstractSyncService.EXIT_SECURITY_FAILURE:
                 case AbstractSyncService.EXIT_EXCEPTION:
                     errorMap.put(mailboxId, exchangeService.new SyncError(exitStatus, true));
                     break;

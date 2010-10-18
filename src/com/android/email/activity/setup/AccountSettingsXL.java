@@ -122,6 +122,16 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
     }
 
     /**
+     * Create and return an intent to display (and edit) settings for a specific account, or -1
+     * for any/all accounts
+     */
+    public static Intent createAccountSettingsIntent(Context context, long accountId) {
+        Intent i = new Intent(context, AccountSettingsXL.class);
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        return i;
+    }
+
+    /**
      * Launch generic settings and pre-enable the debug preferences
      */
     public static void actionSettingsWithDebug(Context fromContext) {

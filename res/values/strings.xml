@@ -378,11 +378,15 @@ save attachment.</string>
         messages moved to <xliff:g id="mailbox_name" example="Inbox" >%2$s</xliff:g></item>
     </plurals>
     <!-- Notification ticker when a forwarded attachment couldn't be sent [CHAR LIMIT=none] -->
-    <string name="forward_download_failed_ticker">"An attachment couldn't be forwarded"</string>
+    <string name="forward_download_failed_ticker">Could not forward one or more attachments</string>
     <!-- Notification text when a forwarded attachment couldn't be sent -->
-    <string name="forward_download_failed_notification">"The attachment "<xliff:g id="filename">%s
-        </xliff:g>" couldn't be sent with your outgoing mail because it couldn't be downloaded."
-        </string>
+    <string name="forward_download_failed_notification">Could not forward <xliff:g id="filename">
+        %s</xliff:g></string>
+    <!-- Notification ticker when email account authentication fails [CHAR LIMIT=20] -->
+    <string name="login_failed_ticker"><xliff:g id="account_name">%s
+        </xliff:g> sign-in failed</string>
+    <!-- Notification text when email account authentication fails [CHAR LIMIT=75]-->
+    <string name="login_failed_notification">Touch to change account settings</string>
 
     <!-- Size unit for bytes for attachments [CHAR LIMIT=10] -->
     <plurals name="message_view_attachment_bytes">
