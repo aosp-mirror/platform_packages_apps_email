@@ -74,6 +74,10 @@ public class MockProvider extends ContentProvider {
         super(context, null, null, null);
     }
 
+    public MockProvider() {
+        super();
+    }
+
     // We'll store our values here
     private HashMap<String, ContentValues> mMockStore = new HashMap<String, ContentValues>();
     // And we'll generate new id's from here
