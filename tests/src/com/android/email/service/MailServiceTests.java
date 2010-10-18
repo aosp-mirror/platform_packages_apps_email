@@ -19,6 +19,7 @@ package com.android.email.service;
 import com.android.email.AccountTestCase;
 import com.android.email.Controller;
 import com.android.email.Email;
+import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
@@ -97,6 +98,23 @@ public class MailServiceTests extends AccountTestCase {
                 assertTrue(firstAccountFound);
             }
         }
+    }
+
+    /**
+     * Call onAccountsUpdated as fast as we can from a single thread (simulating them all coming
+     * from the UI thread); it shouldn't crash
+     */
+    public void testThrashOnAccountsUpdated() {
+        final MailService mailService = MailService.getMailServiceForTest();
+        assertNotNull(mailService);
+        final android.accounts.Account[] accounts = getExchangeAccounts();
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 1000; i++) {
+                    mailService.mAccountsUpdatedListener.onAccountsUpdated(accounts);
+                }
+            }});
     }
 
     /**
