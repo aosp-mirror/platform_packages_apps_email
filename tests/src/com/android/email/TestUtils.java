@@ -16,6 +16,9 @@
 
 package com.android.email;
 
+import android.app.KeyguardManager;
+import android.content.Context;
+import android.os.PowerManager;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.util.Log;
@@ -139,5 +142,21 @@ public class TestUtils extends TestCase /* It tests itself */ {
                 }, 0);
             }
         }, AssertionFailedError.class);
+    }
+
+    /**
+     * @return true if the screen is on and not locked; false otherwise, in which case tests that
+     * send key events will fail.
+     */
+    public static boolean isScreenOnAndNotLocked(Context context) {
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        if (!pm.isScreenOn()) {
+            return false;
+        }
+        KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        if (km.inKeyguardRestrictedInputMode()) {
+            return false;
+        }
+        return true;
     }
 }
