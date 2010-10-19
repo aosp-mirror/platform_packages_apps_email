@@ -1182,6 +1182,15 @@ public class EasSyncService extends AbstractSyncService {
             InputStream is = res.getEntity().getContent();
             if (len != 0) {
                 new MeetingResponseParser(is, this).parse();
+                String meetingInfo = msg.mMeetingInfo;
+                if (meetingInfo != null) {
+                    String responseRequested =
+                        new PackedString(meetingInfo).get(MeetingInfo.MEETING_RESPONSE_REQUESTED);
+                    // If there's no tag, or a non-zero tag, we send the response mail
+                    if ("0".equals(responseRequested)) {
+                        return;
+                    }
+                }
                 sendMeetingResponseMail(msg, req.mResponse);
             }
         } else if (isAuthError(status)) {
