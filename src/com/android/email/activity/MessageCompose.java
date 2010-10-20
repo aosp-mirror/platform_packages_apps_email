@@ -60,7 +60,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
-import android.view.Window;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -873,7 +872,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         // this attachment is new so save it to DB.
                         attachment.mMessageKey = mDraft.mId;
                         attachment.save(MessageCompose.this);
-                    } else {
+                    } else if (attachment.mMessageKey != mDraft.mId) {
                         // We clone the attachment and save it again; otherwise, it will
                         // continue to point to the source message.  From this point forward,
                         // the attachments will be independent of the original message in the
