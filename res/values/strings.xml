@@ -287,6 +287,9 @@
     <string name="message_compose_reply_header_fmt">\n\n<xliff:g id="sender">%s</xliff:g> wrote:\n\n</string>
     <!-- Heading that appears before forwarded text -->
     <string name="message_compose_quoted_text_label">Quoted text</string>
+    <!-- Label of checkbox to include original message in a forwarded/replied message
+         [CHAR_LIMIT=32] -->
+    <string name="message_compose_include_quoted_text_checkbox_label">Include text</string>
     <!-- Toast that appears if you try to send with no recipients. -->
     <string name="message_compose_error_no_recipients">You must add at least one recipient.</string>
     <!-- An address field contains invalid email addresses. -->

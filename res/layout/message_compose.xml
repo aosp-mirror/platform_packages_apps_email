@@ -95,26 +95,42 @@
                 android:imeOptions="actionDone|flagNoEnterAction"
                 />
         <!--  quoted text bar -->
-            <RelativeLayout android:id="@+id/quoted_text_bar"
+            <RelativeLayout
+                android:id="@+id/quoted_text_bar"
                 android:layout_width="match_parent"
-                android:layout_height="45dip" android:background="@drawable/email_quoted_bar">
-                <TextView android:layout_width="wrap_content"
+                android:layout_height="45dip"
+                android:background="@drawable/email_quoted_bar"
+                >
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="?android:attr/textColorSecondaryInverse"
                     android:text="@string/message_compose_quoted_text_label"
                     android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true" />
-                <ImageButton android:id="@+id/quoted_text_delete"
+                    android:layout_centerVertical="true"
+                    />
+                <CheckBox
+                    android:id="@+id/include_quoted_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@android:drawable/btn_dialog"
                     android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true" />
+                    android:layout_alignParentRight="true"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@id/include_quoted_text"
+                    android:layout_centerVertical="true"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?android:attr/textColorSecondaryInverse"
+                    android:text="@string/message_compose_include_quoted_text_checkbox_label"
+                    />
             </RelativeLayout>
             <WebView android:id="@+id/quoted_text"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent" />
+                android:layout_width="match_parent"
+                />
         </LinearLayout>
     </ScrollView>
 
