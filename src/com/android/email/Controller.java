@@ -677,51 +677,58 @@ public class Controller {
     }
 
     /**
-     * Delete a single message by moving it to the trash, or deleting it from the trash
+     * Delete a single message by moving it to the trash, or really delete it if it's already in
+     * trash or a draft message.
      *
      * This function has no callback, no result reporting, because the desired outcome
      * is reflected entirely by changes to one or more cursors.
      *
      * @param messageId The id of the message to "delete".
      * @param accountId The id of the message's account, or -1 if not known by caller
-     * @return the AsyncTask used to execute the deletion
      */
-    public AsyncTask<Void, Void, Void> deleteMessage(final long messageId, long accountId) {
-        return Utility.runAsync(new Runnable() {
+    public void deleteMessage(final long messageId, final long accountId) {
+        Utility.runAsync(new Runnable() {
             public void run() {
-                // 1. Get the message's account
-                Account account = Account.getAccountForMessageId(mProviderContext, messageId);
-
-                // 2. Confirm that there is a trash mailbox available.  If not, create one
-                long trashMailboxId = findOrCreateMailboxOfType(account.mId, Mailbox.TYPE_TRASH);
-
-                // 3. Get the message's original mailbox
-                Mailbox mailbox = Mailbox.getMailboxForMessageId(mProviderContext, messageId);
-
-                // 4.  Drop non-essential data for the message (e.g. attachment files)
-                AttachmentProvider.deleteAllAttachmentFiles(mProviderContext, account.mId,
-                        messageId);
-
-                Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI,
-                        messageId);
-                ContentResolver resolver = mProviderContext.getContentResolver();
-
-                // 5. Perform "delete" as appropriate
-                if (mailbox.mId == trashMailboxId) {
-                    // 5a. Delete from trash
-                    resolver.delete(uri, null, null);
-                } else {
-                    // 5b. Move to trash
-                    ContentValues cv = new ContentValues();
-                    cv.put(EmailContent.MessageColumns.MAILBOX_KEY, trashMailboxId);
-                    resolver.update(uri, cv, null, null);
-                }
-
-                if (isMessagingController(account)) {
-                    mLegacyController.processPendingActions(account.mId);
-                }
+                deleteMessageSync(messageId, accountId);
             }
         });
+    }
+
+    /**
+     * Synchronous version of {@link #deleteMessage} for tests.
+     */
+    /* package */ void deleteMessageSync(long messageId, long accountId) {
+        // 1. Get the message's account
+        Account account = Account.getAccountForMessageId(mProviderContext, messageId);
+
+        // 2. Confirm that there is a trash mailbox available.  If not, create one
+        long trashMailboxId = findOrCreateMailboxOfType(account.mId, Mailbox.TYPE_TRASH);
+
+        // 3. Get the message's original mailbox
+        Mailbox mailbox = Mailbox.getMailboxForMessageId(mProviderContext, messageId);
+
+        // 4.  Drop non-essential data for the message (e.g. attachment files)
+        AttachmentProvider.deleteAllAttachmentFiles(mProviderContext, account.mId,
+                messageId);
+
+        Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI,
+                messageId);
+        ContentResolver resolver = mProviderContext.getContentResolver();
+
+        // 5. Perform "delete" as appropriate
+        if ((mailbox.mId == trashMailboxId) || (mailbox.mType == Mailbox.TYPE_DRAFTS)) {
+            // 5a. Really delete it
+            resolver.delete(uri, null, null);
+        } else {
+            // 5b. Move to trash
+            ContentValues cv = new ContentValues();
+            cv.put(EmailContent.MessageColumns.MAILBOX_KEY, trashMailboxId);
+            resolver.update(uri, cv, null, null);
+        }
+
+        if (isMessagingController(account)) {
+            mLegacyController.processPendingActions(account.mId);
+        }
     }
 
     /**
