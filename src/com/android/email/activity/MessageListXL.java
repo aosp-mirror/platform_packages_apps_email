@@ -18,7 +18,6 @@ package com.android.email.activity;
 
 import com.android.email.Clock;
 import com.android.email.Email;
-import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
@@ -30,7 +29,6 @@ import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Intent;
@@ -531,8 +529,19 @@ public class MessageListXL extends Activity implements
     private class RefreshListener
             implements RefreshManager.Listener {
         @Override
-        public void onMessagingError(long accountId, long mailboxId, String message) {
-            Utility.showToast(MessageListXL.this, message); // STOPSHIP temporary UI
+        public void onMessagingError(final long accountId, long mailboxId, final String message) {
+            // STOPSHIP temporary UI
+            Utility.runAsync(new Runnable() {
+               @Override
+                public void run() {
+                    Account account = Account.restoreAccountWithId(mContext, accountId);
+                    String msg = message;
+                    if (account != null) {
+                        msg = account.mDisplayName + ": " + msg;
+                    }
+                    Utility.showToast(MessageListXL.this, msg);
+                }});
+            // END STOPSHIP
             updateProgressIcon();
         }
 

@@ -621,6 +621,10 @@ public abstract class EmailContent {
         // 8 general purpose flags (bits) that may be used at the discretion of the sync adapter
         public static final int FLAG_SYNC_ADAPTER_SHIFT = 9;
         public static final int FLAG_SYNC_ADAPTER_MASK = 255 << FLAG_SYNC_ADAPTER_SHIFT;
+        // Bit used in mFlags indicating that the outgoing message should include quoted original
+        // message.
+        public static final int FLAG_INCLUDE_QUOTED_TEXT_SHIFT = 17;
+        public static final int FLAG_INCLUDE_QUOTED_TEXT = 1 << FLAG_INCLUDE_QUOTED_TEXT_SHIFT;
 
         public Message() {
             mBaseUri = CONTENT_URI;

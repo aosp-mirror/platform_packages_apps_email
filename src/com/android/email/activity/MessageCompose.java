@@ -60,9 +60,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
-import android.view.Window;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -153,14 +153,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private Button mSaveButton;
     private LinearLayout mAttachments;
     private View mQuotedTextBar;
-    private ImageButton mQuotedTextDelete;
+    private CheckBox mIncludeQuotedTextCheckBox;
     private WebView mQuotedText;
 
     private Controller mController;
     private boolean mDraftNeedsSaving;
     private boolean mMessageLoaded;
     private AsyncTask<Long, Void, Attachment[]> mLoadAttachmentsTask;
-    private AsyncTask<Long, Void, Object[]> mLoadMessageTask;
+    private AsyncTask<Void, Void, Object[]> mLoadMessageTask;
 
     private EmailAddressAdapter mAddressAdapterTo;
     private EmailAddressAdapter mAddressAdapterCc;
@@ -315,7 +315,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
             long messageId = draftId != -1 ? draftId : intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
             if (messageId != -1) {
-                mLoadMessageTask = new LoadMessageTask().execute(messageId);
+                mLoadMessageTask = new LoadMessageTask(messageId).execute();
             } else {
                 setAccount(intent);
                 // Since this is a new message, we don't need to call LoadMessageTask.
@@ -441,7 +441,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mSaveButton = (Button)findViewById(R.id.save);
         mAttachments = (LinearLayout)findViewById(R.id.attachments);
         mQuotedTextBar = findViewById(R.id.quoted_text_bar);
-        mQuotedTextDelete = (ImageButton)findViewById(R.id.quoted_text_delete);
+        mIncludeQuotedTextCheckBox = (CheckBox) findViewById(R.id.include_quoted_text);
         mQuotedText = (WebView)findViewById(R.id.quoted_text);
 
         TextWatcher watcher = new TextWatcher() {
@@ -525,9 +525,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          * needed.
          */
         mQuotedTextBar.setVisibility(View.GONE);
-        mQuotedText.setVisibility(View.GONE);
+        setIncludeQuotedText(false);
 
-        mQuotedTextDelete.setOnClickListener(this);
+        mIncludeQuotedTextCheckBox.setOnClickListener(this);
 
         EmailAddressValidator addressValidator = new EmailAddressValidator();
 
@@ -563,9 +563,15 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     // TODO: is there any way to unify this with MessageView.LoadMessageTask?
-    private class LoadMessageTask extends AsyncTask<Long, Void, Object[]> {
+    private class LoadMessageTask extends AsyncTask<Void, Void, Object[]> {
+        private final long mMessageId;
+
+        public LoadMessageTask(long messageId) {
+            mMessageId = messageId;
+        }
+
         @Override
-        protected Object[] doInBackground(Long... messageIds) {
+        protected Object[] doInBackground(Void... params) {
             synchronized (sSaveInProgressCondition) {
                 while (sSaveInProgress) {
                     try {
@@ -575,7 +581,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     }
                 }
             }
-            Message message = Message.restoreMessageWithId(MessageCompose.this, messageIds[0]);
+            Message message = Message.restoreMessageWithId(MessageCompose.this, mMessageId);
             if (message == null) {
                 return new Object[] {null, null};
             }
@@ -620,8 +626,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // Something unexpected happened:
                 // the message or the body couldn't be loaded by SQLite.
                 // Bail out.
-                Toast.makeText(MessageCompose.this, R.string.error_loading_message_body,
-                               Toast.LENGTH_LONG).show();
+                Utility.showToast(MessageCompose.this, R.string.error_loading_message_body);
                 finish();
                 return;
             }
@@ -756,7 +761,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /**
      * @param message The message to be updated.
      * @param account the account (used to obtain From: address).
-     * @param bodyText the body text.
+     * @param hasAttachments true if it has one or more attachment.
      */
     private void updateMessage(Message message, Account account, boolean hasAttachments) {
         if (message.mMessageId == null || message.mMessageId.length() == 0) {
@@ -800,6 +805,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     getString(R.string.message_compose_reply_header_fmt, fromAsString);
             }
         }
+        if (includeQuotedText()) {
+            message.mFlags |= Message.FLAG_INCLUDE_QUOTED_TEXT;
+        } else {
+            message.mFlags &= ~Message.FLAG_INCLUDE_QUOTED_TEXT;
+        }
     }
 
     private Attachment[] getAttachmentsFromUI() {
@@ -832,14 +842,28 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private class SendOrSaveMessageTask extends AsyncTask<Boolean, Void, Boolean> {
+    private class SendOrSaveMessageTask extends AsyncTask<Void, Void, Void> {
+        private final boolean mSend;
+
+        public SendOrSaveMessageTask(boolean send) {
+            mSend = send;
+        }
 
         @Override
-        protected Boolean doInBackground(Boolean... params) {
-            boolean send = params[0];
+        protected Void doInBackground(Void... params) {
             final Attachment[] attachments = getAttachmentsFromUI();
             updateMessage(mDraft, mAccount, attachments.length > 0);
             synchronized (mDraft) {
+                if (mSend) {
+                    // If sending, and "include original" isn't checked, remove the original.
+                    // It has to be done before saving below.
+                    if (!includeQuotedText()) {
+                        mDraft.mIntroText = null;
+                        mDraft.mTextReply = null;
+                        mDraft.mHtmlReply = null;
+                        mDraft.mSourceKey = 0;
+                    }
+                }
                 ContentResolver resolver = getContentResolver();
                 if (mDraft.isSaved()) {
                     // Update the message
@@ -873,7 +897,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         // this attachment is new so save it to DB.
                         attachment.mMessageKey = mDraft.mId;
                         attachment.save(MessageCompose.this);
-                    } else {
+                    } else if (attachment.mMessageKey != mDraft.mId) {
                         // We clone the attachment and save it again; otherwise, it will
                         // continue to point to the source message.  From this point forward,
                         // the attachments will be independent of the original message in the
@@ -886,7 +910,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     }
                 }
 
-                if (send) {
+                if (mSend) {
                     // Let the user know if message sending might be delayed by background
                     // downlading of unloaded attachments
                     if (hasUnloadedAttachments) {
@@ -895,12 +919,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     }
                     mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
                 }
-                return send;
+                return null;
             }
         }
 
         @Override
-        protected void onPostExecute(Boolean send) {
+        protected void onPostExecute(Void param) {
             synchronized (sSaveInProgressCondition) {
                 sSaveInProgress = false;
                 sSaveInProgressCondition.notify();
@@ -909,7 +933,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 return;
             }
             // Don't display the toast if the user is just changing the orientation
-            if (!send && (getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
+            if (!mSend && (getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
                 Toast.makeText(MessageCompose.this, R.string.message_saved_toast,
                         Toast.LENGTH_LONG).show();
             }
@@ -931,7 +955,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         synchronized (sSaveInProgressCondition) {
             sSaveInProgress = true;
         }
-        new SendOrSaveMessageTask().execute(send);
+        new SendOrSaveMessageTask(send).execute();
    }
 
     private void saveIfNeeded() {
@@ -1118,16 +1142,25 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             case R.id.attachment_delete:
                 onDeleteAttachment(view);
                 break;
-            case R.id.quoted_text_delete:
-                mQuotedTextBar.setVisibility(View.GONE);
-                mQuotedText.setVisibility(View.GONE);
-                mDraft.mIntroText = null;
-                mDraft.mTextReply = null;
-                mDraft.mHtmlReply = null;
-                mDraft.mSourceKey = 0;
-                setDraftNeedsSaving(true);
+            case R.id.include_quoted_text:
+                onIncludeQuotedTextChanged();
                 break;
         }
+    }
+
+    private boolean includeQuotedText() {
+        return mIncludeQuotedTextCheckBox.isChecked();
+    }
+
+    private void setIncludeQuotedText(boolean include) {
+        mIncludeQuotedTextCheckBox.setChecked(include);
+        onIncludeQuotedTextChanged();
+    }
+
+    private void onIncludeQuotedTextChanged() {
+        mQuotedText.setVisibility(mIncludeQuotedTextCheckBox.isChecked()
+                ? View.VISIBLE : View.GONE);
+        setDraftNeedsSaving(true);
     }
 
     private void onDeleteAttachment(View delButtonView) {
@@ -1365,7 +1398,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             //                                     text, message, 0);
             mQuotedTextBar.setVisibility(View.VISIBLE);
             if (mQuotedText != null) {
-                mQuotedText.setVisibility(View.VISIBLE);
                 mQuotedText.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
             }
         }
@@ -1442,6 +1474,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          */
         if (ACTION_EDIT_DRAFT.equals(mAction)) {
             displayQuotedText(message.mTextReply, message.mHtmlReply);
+            setIncludeQuotedText((mDraft.mFlags & Message.FLAG_INCLUDE_QUOTED_TEXT) != 0);
         }
     }
 
@@ -1463,11 +1496,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mSubjectView.setText(subject);
             }
             displayQuotedText(message.mText, message.mHtml);
+            setIncludeQuotedText(true);
             setInitialComposeText(null, (account != null) ? account.mSignature : null);
         } else if (ACTION_FORWARD.equals(mAction)) {
             mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
                     "Fwd: " + subject : subject);
             displayQuotedText(message.mText, message.mHtml);
+            setIncludeQuotedText(true);
             setInitialComposeText(null, (account != null) ? account.mSignature : null);
         } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
             mSubjectView.setText(subject);
