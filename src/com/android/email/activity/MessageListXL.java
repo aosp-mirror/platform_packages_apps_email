@@ -534,13 +534,15 @@ public class MessageListXL extends Activity implements
             Utility.runAsync(new Runnable() {
                @Override
                 public void run() {
-                    Account account = Account.restoreAccountWithId(mContext, accountId);
-                    String msg = message;
-                    if (account != null) {
-                        msg = account.mDisplayName + ": " + msg;
-                    }
-                    Utility.showToast(MessageListXL.this, msg);
-                }});
+                   String msg = message;
+                   if (accountId != -1) {
+                       Account account = Account.restoreAccountWithId(mContext, accountId);
+                       if (account != null) {
+                           msg = account.mDisplayName + ": " + msg;
+                       }
+                   }
+                   Utility.showToast(MessageListXL.this, msg);
+               }});
             // END STOPSHIP
             updateProgressIcon();
         }

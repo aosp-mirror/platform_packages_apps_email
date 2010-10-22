@@ -62,7 +62,22 @@ public class RefreshManager {
     private String mErrorMessage;
 
     public interface Listener {
+        /**
+         * Refresh status of a mailbox list or a message list has changed.
+         *
+         * @param accountId ID of the account.
+         * @param mailboxId -1 if it's about the mailbox list, or the ID of the mailbox list in
+         * question.
+         */
         public void onRefreshStatusChanged(long accountId, long mailboxId);
+
+        /**
+         * Error callback.
+         *
+         * @param accountId ID of the account, or -1 if unknown.
+         * @param mailboxId ID of the mailbox, or -1 if unknown.
+         * @param message error message which can be shown to the user.
+         */
         public void onMessagingError(long accountId, long mailboxId, String message);
     }
 
@@ -145,7 +160,6 @@ public class RefreshManager {
 
     private final RefreshStatusMap mMailboxListStatus = new RefreshStatusMap();
     private final RefreshStatusMap mMessageListStatus = new RefreshStatusMap();
-    private final RefreshStatusMap mOutboxStatus = new RefreshStatusMap();
 
     /**
      * @return the singleton instance.
@@ -248,11 +262,7 @@ public class RefreshManager {
      * Send pending messages.
      */
     public boolean sendPendingMessages(long accountId) {
-        final Status status = mOutboxStatus.get(accountId);
-        if (!status.canRefresh()) return false;
-
         Log.i(Email.LOG_TAG, "sendPendingMessages " + accountId);
-        status.onRefreshRequested();
         notifyRefreshStatusChanged(accountId, -1);
         mController.sendPendingMessages(accountId);
         return true;
@@ -285,20 +295,12 @@ public class RefreshManager {
         return mMessageListStatus.get(mailboxId).getLastRefreshTime();
     }
 
-    public long getLastSendMessageTime(long accountId) {
-        return mOutboxStatus.get(accountId).getLastRefreshTime();
-    }
-
     public boolean isMailboxListRefreshing(long accountId) {
         return mMailboxListStatus.get(accountId).isRefreshing();
     }
 
     public boolean isMessageListRefreshing(long mailboxId) {
         return mMessageListStatus.get(mailboxId).isRefreshing();
-    }
-
-    public boolean isSendingMessage(long accountId) {
-        return mOutboxStatus.get(accountId).isRefreshing();
     }
 
     public boolean isRefreshingAnyMailboxList() {
@@ -309,13 +311,8 @@ public class RefreshManager {
         return mMessageListStatus.isRefreshingAny();
     }
 
-    public boolean isSendingAnyMessage() {
-        return mOutboxStatus.isRefreshingAny();
-    }
-
-    public boolean isRefreshingOrSendingAny() {
-        return isRefreshingAnyMailboxList() || isRefreshingAnyMessageList()
-                || isSendingAnyMessage();
+    public boolean isRefreshingAny() {
+        return isRefreshingAnyMailboxList() || isRefreshingAnyMessageList();
     }
 
     public String getErrorMessage() {
@@ -345,10 +342,6 @@ public class RefreshManager {
 
     /* package */ Status getMessageListStatusForTest(long mailboxId) {
         return mMessageListStatus.get(mailboxId);
-    }
-
-    /* package */ Status getOutboxStatusForTest(long acountId) {
-        return mOutboxStatus.get(acountId);
     }
 
     private class ControllerResult extends Controller.Result {
@@ -425,20 +418,8 @@ public class RefreshManager {
         /**
          * Send message progress callback.
          *
-         * This callback is overly overloaded:
-         *
-         * First, we get this.
-         *  result == null, messageId == -1, progress == 0:     start batch send
-         *
-         * Then we get these callbacks per message.
-         * (Exchange backend may skip "start sending one message".)
-         *  result == null, messageId == xx, progress == 0:     start sending one message
-         *  result == xxxx, messageId == xx, progress == 0;     failed sending one message
-         *
-         * Finally we get this.
-         *  result == null, messageId == -1, progres == 100;    finish sending batch
-         *
-         * So, let's just report the first exception we get, and ignore the rest.
+         * We don't keep track of the status of outboxes, but we monitor this to catch
+         * errors.
          */
         @Override
         public void sendMailCallback(MessagingException exception, long accountId, long messageId,
@@ -450,16 +431,13 @@ public class RefreshManager {
             if (progress == 0 && messageId == -1) {
                 mSendMailExceptionReported = false;
             }
-            if (messageId == -1) {
-                // Update the status only for the batch start/end.
-                // (i.e. don't report for each message.)
-                mOutboxStatus.get(accountId).onCallback(exception, progress, mClock);
-                notifyRefreshStatusChanged(accountId, -1);
-            }
             if (exception != null && !mSendMailExceptionReported) {
                 // Only the first error in a batch will be reported.
                 mSendMailExceptionReported = true;
                 reportError(accountId, messageId, exception.getUiErrorMessage(mContext));
+            }
+            if (progress == 100) {
+                mSendMailExceptionReported = false;
             }
         }
     }
