@@ -104,7 +104,7 @@
     <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Apri"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Salva"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Allegato salvato come <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Impossibile salvare l\'allegato."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Impossibile salvare l\'allegato"</string>
     <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Seleziona \"Mostra immagini\" per visualizzare le immagini incorporate."</string>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Mostra immagini"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Recupero allegato in corso."</string>
