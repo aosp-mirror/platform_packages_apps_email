@@ -30,7 +30,7 @@
     <string name="reply_action" msgid="4262472229221507619">"Antworten"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Allen antworten"</string>
     <string name="delete_action" msgid="8421026208288857155">"Löschen"</string>
-    <string name="forward_action" msgid="669174181042344116">"Vorwärts"</string>
+    <string name="forward_action" msgid="669174181042344116">"Weiterleiten"</string>
     <string name="done_action" msgid="7497990549515580249">"Fertig"</string>
     <string name="discard_action" msgid="6532206074859505968">"Verwerfen"</string>
     <string name="save_draft_action" msgid="812855865552028622">"Als Entwurf speichern"</string>
