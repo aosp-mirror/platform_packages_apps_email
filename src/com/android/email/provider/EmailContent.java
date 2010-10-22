@@ -2381,7 +2381,7 @@ public abstract class EmailContent {
         public static String getDisplayName(Context context, long mailboxId) {
             Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
             return Utility.getFirstRowString(context, url, MAILBOX_DISPLAY_NAME_PROJECTION,
-                    null, null, null, MAILBOX_DISPLAY_NAME_COLUMN, null);
+                    null, null, null, MAILBOX_DISPLAY_NAME_COLUMN);
         }
 
         /**

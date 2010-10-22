@@ -909,8 +909,8 @@ public class Utility {
      */
     public static String getFirstRowString(Context context, Uri uri, String[] projection,
             String selection, String[] selectionArgs, String sortOrder, int column) {
-        return getFirstRowColumn(context, uri, projection, selection, selectionArgs,
-                sortOrder, column, null, STRING_GETTER);
+        return getFirstRowString(context, uri, projection, selection, selectionArgs, sortOrder,
+                column, null);
     }
 
     /**
