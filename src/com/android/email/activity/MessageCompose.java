@@ -762,8 +762,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param message The message to be updated.
      * @param account the account (used to obtain From: address).
      * @param hasAttachments true if it has one or more attachment.
+     * @param sending set true if the message is about to sent, in which case we perform final
+     *        clean up;
      */
-    private void updateMessage(Message message, Account account, boolean hasAttachments) {
+    private void updateMessage(Message message, Account account, boolean hasAttachments,
+            boolean sending) {
         if (message.mMessageId == null || message.mMessageId.length() == 0) {
             message.mMessageId = Utility.generateMessageId();
         }
@@ -805,10 +808,22 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     getString(R.string.message_compose_reply_header_fmt, fromAsString);
             }
         }
+
         if (includeQuotedText()) {
             message.mFlags |= Message.FLAG_INCLUDE_QUOTED_TEXT;
         } else {
             message.mFlags &= ~Message.FLAG_INCLUDE_QUOTED_TEXT;
+            if (sending) {
+                // If we are about to send a message, and not including the original message,
+                // clear the related field.
+                // We can't do this until the last minutes, so that the user can change their
+                // mind later and want to include it again.
+                mDraft.mIntroText = null;
+                mDraft.mTextReply = null;
+                mDraft.mHtmlReply = null;
+                mDraft.mSourceKey = 0;
+                mDraft.mFlags &= ~Message.FLAG_TYPE_MASK;
+            }
         }
     }
 
@@ -836,7 +851,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 return -1;
             }
             final Attachment[] attachments = getAttachmentsFromUI();
-            updateMessage(mDraft, mAccount, attachments.length > 0);
+            updateMessage(mDraft, mAccount, attachments.length > 0, false);
             mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
             return mDraft.mId;
         }
@@ -851,19 +866,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         @Override
         protected Void doInBackground(Void... params) {
-            final Attachment[] attachments = getAttachmentsFromUI();
-            updateMessage(mDraft, mAccount, attachments.length > 0);
             synchronized (mDraft) {
-                if (mSend) {
-                    // If sending, and "include original" isn't checked, remove the original.
-                    // It has to be done before saving below.
-                    if (!includeQuotedText()) {
-                        mDraft.mIntroText = null;
-                        mDraft.mTextReply = null;
-                        mDraft.mHtmlReply = null;
-                        mDraft.mSourceKey = 0;
-                    }
-                }
+                final Attachment[] attachments = getAttachmentsFromUI();
+                updateMessage(mDraft, mAccount, attachments.length > 0, mSend);
                 ContentResolver resolver = getContentResolver();
                 if (mDraft.isSaved()) {
                     // Update the message
