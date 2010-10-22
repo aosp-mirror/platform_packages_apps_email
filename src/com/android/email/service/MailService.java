@@ -24,6 +24,7 @@ import com.android.email.activity.MessageList;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
+import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.AlarmManager;
@@ -314,6 +315,9 @@ public class MailService extends Service {
                 if (report.syncInterval <= 0) {                         // no timed checks - skip
                     continue;
                 }
+                if ("eas".equals(report.protocol)) {                    // no checks for eas accts
+                    continue;
+                }
                 long prevSyncTime = report.prevSyncTime;
                 long nextSyncTime = report.nextSyncTime;
 
@@ -411,6 +415,7 @@ public class MailService extends Service {
      */
     private static class AccountSyncReport {
         long accountId;
+        String protocol;
         long prevSyncTime;      // 0 == unknown
         long nextSyncTime;      // 0 == ASAP  -1 == don't sync
         int numNewMessages;
@@ -483,7 +488,13 @@ public class MailService extends Service {
                     syncInterval = 1;
                 }
 
-                report.accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+                long acctId = c.getLong(Account.CONTENT_ID_COLUMN);
+                Account account = Account.restoreAccountWithId(this, acctId);
+                if (account == null) continue;
+                HostAuth hostAuth = HostAuth.restoreHostAuthWithId(this, account.mHostAuthKeyRecv);
+                if (hostAuth == null) continue;
+                report.accountId = acctId;
+                report.protocol = hostAuth.mProtocol;
                 report.prevSyncTime = 0;
                 report.nextSyncTime = (syncInterval > 0) ? 0 : -1;  // 0 == ASAP -1 == no sync
                 report.numNewMessages = 0;
