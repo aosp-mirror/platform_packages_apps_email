@@ -663,9 +663,33 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
     }
 
-    private void onLoadAttachment(AttachmentInfo attachment) {
+    private void onLoadAttachment(final AttachmentInfo attachment) {
         attachment.loadButton.setVisibility(View.GONE);
-        attachment.cancelButton.setVisibility(View.VISIBLE);
+        // If there's nothing in the download queue, we'll probably start right away so wait a
+        // second before showing the cancel button
+        if (AttachmentDownloadService.getQueueSize() == 0) {
+            // Set to invisible; if the button is still in this state one second from now, we'll
+            // assume the download won't start right away, and we make the cancel button visible
+            attachment.cancelButton.setVisibility(View.INVISIBLE);
+            // Create the timed task that will change the button state
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException e) { }
+                    return null;
+                }
+                @Override
+                protected void onPostExecute(Void result) {
+                    if (attachment.cancelButton.getVisibility() == View.INVISIBLE) {
+                        attachment.cancelButton.setVisibility(View.VISIBLE);
+                    }
+                }
+            }.execute();
+        } else {
+            attachment.cancelButton.setVisibility(View.VISIBLE);
+        }
         ProgressBar bar = attachment.progressView;
         bar.setVisibility(View.VISIBLE);
         bar.setIndeterminate(true);
