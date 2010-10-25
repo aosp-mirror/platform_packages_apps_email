@@ -178,7 +178,7 @@
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"采用安全连接 (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"接受所有 SSL 证书"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"帐户选项"</string>
-    <!-- outdated translation 4598023962234986194 -->     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"电子邮件检查频率"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"收件箱检查频率"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"一律不"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"自动（推送）"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"每隔 5 分钟"</string>
@@ -221,7 +221,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"电子邮件通知"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"同步频率、通知等。"</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"收到电子邮件时在状态栏中显示通知"</string>
-    <!-- outdated translation 2067835530563849675 -->     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"电子邮件检查频率"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"收件箱检查频率"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"接收设置"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"外发设置"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"帐户名称"</string>
