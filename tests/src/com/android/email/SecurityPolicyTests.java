@@ -379,6 +379,12 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(Account.FLAGS_VIBRATE_ALWAYS, a2b.mFlags);
     }
 
+    private static class MockController extends Controller {
+         protected MockController(Context context) {
+            super(context);
+        }
+    }
+
     /**
      * Test the response to disabling DeviceAdmin status
      */
@@ -410,15 +416,22 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a3a = Account.restoreAccountWithId(mMockContext, a3.mId);
         assertNull(a3a.mSecuritySyncKey);
 
-        // Revoke device admin status.  In the accounts we set up, security values should be reset
-        sp.onAdminEnabled(false);        // "disabled" should clear policies
-        PolicySet after2 = sp.getAggregatePolicy();
-        assertEquals(SecurityPolicy.NO_POLICY_SET, after2);
-        Account a1b = Account.restoreAccountWithId(mMockContext, a1.mId);
-        assertNull(a1b.mSecuritySyncKey);
-        Account a2b = Account.restoreAccountWithId(mMockContext, a2.mId);
-        assertNull(a2b.mSecuritySyncKey);
-        Account a3b = Account.restoreAccountWithId(mMockContext, a3.mId);
-        assertNull(a3b.mSecuritySyncKey);
+        // Simulate revoke of device admin; directly call deleteSecuredAccounts, which is normally
+        // called from a background thread
+        MockController mockController = new MockController(mMockContext);
+        Controller.injectMockControllerForTest(mockController);
+        try {
+            sp.deleteSecuredAccounts(mMockContext);
+            PolicySet after2 = sp.getAggregatePolicy();
+            assertEquals(SecurityPolicy.NO_POLICY_SET, after2);
+            Account a1b = Account.restoreAccountWithId(mMockContext, a1.mId);
+            assertNull(a1b);
+            Account a2b = Account.restoreAccountWithId(mMockContext, a2.mId);
+            assertNull(a2b);
+            Account a3b = Account.restoreAccountWithId(mMockContext, a3.mId);
+            assertNull(a3b.mSecuritySyncKey);
+        } finally {
+            Controller.injectMockControllerForTest(null);
+        }
     }
 }

@@ -20,7 +20,6 @@ import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
-import com.android.email.service.MailService;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -28,6 +27,7 @@ import android.app.PendingIntent;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -43,7 +43,7 @@ import android.util.Log;
  * into and out of various security states.
  */
 public class SecurityPolicy {
-
+    private static final String TAG = "SecurityPolicy";
     private static SecurityPolicy sInstance = null;
     private Context mContext;
     private DevicePolicyManager mDPM;
@@ -703,19 +703,40 @@ public class SecurityPolicy {
     }
 
     /**
-     * Internal handler for enabled->disabled transitions.  Resets all security keys
-     * forcing EAS to resync security state.
+     * Delete all accounts whose security flags aren't zero (i.e. they have security enabled).
+     * This method is synchronous, so it should normally be called within a worker thread (the
+     * exception being for unit tests)
+     *
+     * @param context the caller's context
      */
-    /* package */ void onAdminEnabled(boolean isEnabled) {
+    /*package*/ void deleteSecuredAccounts(Context context) {
+        ContentResolver cr = context.getContentResolver();
+        // Find all accounts with security and delete them
+        Cursor c = cr.query(Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+                AccountColumns.SECURITY_FLAGS + "!=0", null, null);
+        try {
+            Log.w(TAG, "Email administration disabled; deleting " + c.getCount() +
+                    " secured account(s)");
+            while (c.moveToNext()) {
+                Controller.getInstance(context).deleteAccountSync(
+                        c.getLong(EmailContent.ID_PROJECTION_COLUMN), context);
+            }
+        } finally {
+            c.close();
+        }
+        updatePolicies(-1);
+    }
+
+    /**
+     * Internal handler for enabled->disabled transitions.  Deletes all secured accounts.
+     */
+    /*package*/ void onAdminEnabled(boolean isEnabled) {
         if (!isEnabled) {
-            // transition to disabled state
-            // Response:  clear *all* security state information from the accounts, forcing
-            // them back to the initial configurations requiring policy administration
-            ContentValues cv = new ContentValues();
-            cv.put(AccountColumns.SECURITY_FLAGS, 0);
-            cv.putNull(AccountColumns.SECURITY_SYNC_KEY);
-            mContext.getContentResolver().update(Account.CONTENT_URI, cv, null, null);
-            updatePolicies(-1);
+            Utility.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    deleteSecuredAccounts(mContext);
+                }});
         }
     }
 
@@ -741,6 +762,15 @@ public class SecurityPolicy {
         @Override
         public void onDisabled(Context context, Intent intent) {
             SecurityPolicy.getInstance(context).onAdminEnabled(false);
+        }
+
+        /**
+         * Called when the user asks to disable administration; we return a warning string that
+         * will be presented to the user
+         */
+        @Override
+        public CharSequence onDisableRequested(Context context, Intent intent) {
+            return context.getString(R.string.disable_admin_warning);
         }
 
         /**

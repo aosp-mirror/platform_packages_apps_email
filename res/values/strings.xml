@@ -650,6 +650,11 @@ save attachment.</string>
          being supported -->
     <string name="account_setup_failed_security_policies_unsupported">
          This server requires security features your phone does not support.</string>
+    <!-- Warning given to users when they request disabling device administration (i.e. that their
+         administered accounts will be deleted) [CHAR LIMIT=none] -->
+    <string name="disable_admin_warning">WARNING: Deactivating the Email application\'s authority
+         to administer your device will delete all Email accounts that require it, along with their
+         email, contacts, calendar events, and other data.</string>
 
     <!-- Notification ticker  when device security required -->
     <string name="security_notification_ticker_fmt">
