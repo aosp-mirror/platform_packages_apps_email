@@ -368,6 +368,9 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                     case Tags.EMAIL_RECURRENCES:
                         recurrencesParser();
                         break;
+                    case Tags.EMAIL_RESPONSE_REQUESTED:
+                        packedString.put(MeetingInfo.MEETING_RESPONSE_REQUESTED, getValue());
+                        break;
                     default:
                         skipTag();
                 }

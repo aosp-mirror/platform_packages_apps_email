@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
+import com.android.email.TestUtils;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
@@ -31,6 +32,7 @@ import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
@@ -47,6 +49,8 @@ import android.widget.MultiAutoCompleteTextView;
 @LargeTest
 public class MessageComposeTests
         extends ActivityInstrumentationTestCase2<MessageCompose> {
+
+    private Context mContext;
 
     private MultiAutoCompleteTextView mToView;
     private MultiAutoCompleteTextView mCcView;
@@ -119,21 +123,21 @@ public class MessageComposeTests
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Context context = getInstrumentation().getTargetContext();
+        mContext = getInstrumentation().getTargetContext();
 
         // Force assignment of a default account
-        long accountId = Account.getDefaultAccountId(context);
+        long accountId = Account.getDefaultAccountId(mContext);
         if (accountId == -1) {
             Account account = new Account();
             account.mSenderName = "Bob Sender";
             account.mEmailAddress = "bob@sender.com";
-            account.save(context);
+            account.save(mContext);
             accountId = account.mId;
             mCreatedAccountId = accountId;
         }
-        Account account = Account.restoreAccountWithId(context, accountId);
+        Account account = Account.restoreAccountWithId(mContext, accountId);
         mSignature = account.getSignature();
-        Email.setServicesEnabled(context);
+        Email.setServicesEnabled(mContext);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
         setActivityIntent(intent);
@@ -889,6 +893,11 @@ public class MessageComposeTests
      * but we only run the full set on To:
      */
     public void testCommaInserting() throws Throwable {
+        if (!TestUtils.isScreenOnAndNotLocked(mContext)) {
+            Log.w(Email.LOG_TAG, "SKIP testCommaInserting: Screen off or locked");
+            return;
+        }
+
         // simple appending cases
         checkCommaInsert("a", "", false);
         checkCommaInsert("a@", "", false);
