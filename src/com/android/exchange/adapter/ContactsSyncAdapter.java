@@ -56,6 +56,7 @@ import android.provider.ContactsContract.CommonDataKinds.Relation;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.CommonDataKinds.Website;
+import android.text.TextUtils;
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Base64;
@@ -1547,21 +1548,11 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
     private void sendOnePostal(Serializer s, ContentValues cv, int[] fieldNames)
             throws IOException{
-        if (cv.containsKey(StructuredPostal.CITY)) {
-            s.data(fieldNames[0], cv.getAsString(StructuredPostal.CITY));
-        }
-        if (cv.containsKey(StructuredPostal.COUNTRY)) {
-            s.data(fieldNames[1], cv.getAsString(StructuredPostal.COUNTRY));
-        }
-        if (cv.containsKey(StructuredPostal.POSTCODE)) {
-            s.data(fieldNames[2], cv.getAsString(StructuredPostal.POSTCODE));
-        }
-        if (cv.containsKey(StructuredPostal.REGION)) {
-            s.data(fieldNames[3], cv.getAsString(StructuredPostal.REGION));
-        }
-        if (cv.containsKey(StructuredPostal.STREET)) {
-            s.data(fieldNames[4], cv.getAsString(StructuredPostal.STREET));
-        }
+        sendStringData(s, cv, StructuredPostal.CITY, fieldNames[0]);
+        sendStringData(s, cv, StructuredPostal.COUNTRY, fieldNames[1]);
+        sendStringData(s, cv, StructuredPostal.POSTCODE, fieldNames[2]);
+        sendStringData(s, cv, StructuredPostal.REGION, fieldNames[3]);
+        sendStringData(s, cv, StructuredPostal.STREET, fieldNames[4]);
     }
 
     private void sendStructuredPostal(Serializer s, ContentValues cv) throws IOException {
@@ -1580,63 +1571,47 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
     }
 
+    private void sendStringData(Serializer s, ContentValues cv, String column, int tag)
+            throws IOException {
+        if (cv.containsKey(column)) {
+            String value = cv.getAsString(column);
+            if (!TextUtils.isEmpty(value)) {
+                s.data(tag, value);
+            }
+        }
+    }
+
     private String sendStructuredName(Serializer s, ContentValues cv) throws IOException {
         String displayName = null;
-        if (cv.containsKey(StructuredName.FAMILY_NAME)) {
-            s.data(Tags.CONTACTS_LAST_NAME, cv.getAsString(StructuredName.FAMILY_NAME));
-        }
-        if (cv.containsKey(StructuredName.GIVEN_NAME)) {
-            s.data(Tags.CONTACTS_FIRST_NAME, cv.getAsString(StructuredName.GIVEN_NAME));
-        }
-        if (cv.containsKey(StructuredName.MIDDLE_NAME)) {
-            s.data(Tags.CONTACTS_MIDDLE_NAME, cv.getAsString(StructuredName.MIDDLE_NAME));
-        }
-        if (cv.containsKey(StructuredName.SUFFIX)) {
-            s.data(Tags.CONTACTS_SUFFIX, cv.getAsString(StructuredName.SUFFIX));
-        }
-        if (cv.containsKey(StructuredName.PHONETIC_GIVEN_NAME)) {
-            s.data(Tags.CONTACTS_YOMI_FIRST_NAME,
-                    cv.getAsString(StructuredName.PHONETIC_GIVEN_NAME));
-        }
-        if (cv.containsKey(StructuredName.PHONETIC_FAMILY_NAME)) {
-            s.data(Tags.CONTACTS_YOMI_LAST_NAME,
-                    cv.getAsString(StructuredName.PHONETIC_FAMILY_NAME));
-        }
-        if (cv.containsKey(StructuredName.PREFIX)) {
-            s.data(Tags.CONTACTS_TITLE, cv.getAsString(StructuredName.PREFIX));
-        }
+        sendStringData(s, cv, StructuredName.FAMILY_NAME, Tags.CONTACTS_LAST_NAME);
+        sendStringData(s, cv, StructuredName.GIVEN_NAME, Tags.CONTACTS_FIRST_NAME);
+        sendStringData(s, cv, StructuredName.MIDDLE_NAME, Tags.CONTACTS_MIDDLE_NAME);
+        sendStringData(s, cv, StructuredName.SUFFIX, Tags.CONTACTS_SUFFIX);
+        sendStringData(s, cv, StructuredName.PHONETIC_GIVEN_NAME, Tags.CONTACTS_YOMI_FIRST_NAME);
+        sendStringData(s, cv, StructuredName.PHONETIC_FAMILY_NAME, Tags.CONTACTS_YOMI_LAST_NAME);
+        sendStringData(s, cv, StructuredName.PREFIX, Tags.CONTACTS_TITLE);
         if (cv.containsKey(StructuredName.DISPLAY_NAME)) {
             displayName = cv.getAsString(StructuredName.DISPLAY_NAME);
-            s.data(Tags.CONTACTS_FILE_AS, displayName);
+            if (!TextUtils.isEmpty(displayName)) {
+                s.data(Tags.CONTACTS_FILE_AS, displayName);
+            }
         }
         return displayName;
     }
 
     private void sendBusiness(Serializer s, ContentValues cv) throws IOException {
-        if (cv.containsKey(EasBusiness.ACCOUNT_NAME)) {
-            s.data(Tags.CONTACTS2_ACCOUNT_NAME, cv.getAsString(EasBusiness.ACCOUNT_NAME));
-        }
-        if (cv.containsKey(EasBusiness.CUSTOMER_ID)) {
-            s.data(Tags.CONTACTS2_CUSTOMER_ID, cv.getAsString(EasBusiness.CUSTOMER_ID));
-        }
-        if (cv.containsKey(EasBusiness.GOVERNMENT_ID)) {
-            s.data(Tags.CONTACTS2_GOVERNMENT_ID, cv.getAsString(EasBusiness.GOVERNMENT_ID));
-        }
+        sendStringData(s, cv, EasBusiness.ACCOUNT_NAME, Tags.CONTACTS2_ACCOUNT_NAME);
+        sendStringData(s, cv, EasBusiness.CUSTOMER_ID, Tags.CONTACTS2_CUSTOMER_ID);
+        sendStringData(s, cv, EasBusiness.GOVERNMENT_ID, Tags.CONTACTS2_GOVERNMENT_ID);
     }
 
     private void sendPersonal(Serializer s, ContentValues cv) throws IOException {
-        if (cv.containsKey(EasPersonal.ANNIVERSARY)) {
-            s.data(Tags.CONTACTS_ANNIVERSARY, cv.getAsString(EasPersonal.ANNIVERSARY));
-        }
-        if (cv.containsKey(EasPersonal.FILE_AS)) {
-            s.data(Tags.CONTACTS_FILE_AS, cv.getAsString(EasPersonal.FILE_AS));
-        }
+        sendStringData(s, cv, EasPersonal.ANNIVERSARY, Tags.CONTACTS_ANNIVERSARY);
+        sendStringData(s, cv, EasPersonal.FILE_AS, Tags.CONTACTS_FILE_AS);
     }
 
     private void sendBirthday(Serializer s, ContentValues cv) throws IOException {
-        if (cv.containsKey(Event.START_DATE)) {
-            s.data(Tags.CONTACTS_BIRTHDAY, cv.getAsString(Event.START_DATE));
-        }
+        sendStringData(s, cv, Event.START_DATE, Tags.CONTACTS_BIRTHDAY);
     }
 
     private void sendPhoto(Serializer s, ContentValues cv) throws IOException {
@@ -1651,30 +1626,18 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     }
 
     private void sendOrganization(Serializer s, ContentValues cv) throws IOException {
-        if (cv.containsKey(Organization.TITLE)) {
-            s.data(Tags.CONTACTS_JOB_TITLE, cv.getAsString(Organization.TITLE));
-        }
-        if (cv.containsKey(Organization.COMPANY)) {
-            s.data(Tags.CONTACTS_COMPANY_NAME, cv.getAsString(Organization.COMPANY));
-        }
-        if (cv.containsKey(Organization.DEPARTMENT)) {
-            s.data(Tags.CONTACTS_DEPARTMENT, cv.getAsString(Organization.DEPARTMENT));
-        }
-        if (cv.containsKey(Organization.OFFICE_LOCATION)) {
-            s.data(Tags.CONTACTS_OFFICE_LOCATION, cv.getAsString(Organization.OFFICE_LOCATION));
-        }
+        sendStringData(s, cv, Organization.TITLE, Tags.CONTACTS_JOB_TITLE);
+        sendStringData(s, cv, Organization.COMPANY, Tags.CONTACTS_COMPANY_NAME);
+        sendStringData(s, cv, Organization.DEPARTMENT, Tags.CONTACTS_DEPARTMENT);
+        sendStringData(s, cv, Organization.OFFICE_LOCATION, Tags.CONTACTS_OFFICE_LOCATION);
     }
 
     private void sendNickname(Serializer s, ContentValues cv) throws IOException {
-        if (cv.containsKey(Nickname.NAME)) {
-            s.data(Tags.CONTACTS2_NICKNAME, cv.getAsString(Nickname.NAME));
-        }
+        sendStringData(s, cv, Nickname.NAME, Tags.CONTACTS2_NICKNAME);
     }
 
     private void sendWebpage(Serializer s, ContentValues cv) throws IOException {
-        if (cv.containsKey(Website.URL)) {
-            s.data(Tags.CONTACTS_WEBPAGE, cv.getAsString(Website.URL));
-        }
+        sendStringData(s, cv, Website.URL, Tags.CONTACTS_WEBPAGE);
     }
 
     private void sendNote(Serializer s, ContentValues cv) throws IOException {
