@@ -1072,6 +1072,26 @@ public class Controller {
          * Callback for sending pending messages.  This will be called once to start the
          * group, multiple times for messages, and once to complete the group.
          *
+         * Unfortunately this callback works differently on SMTP and EAS.
+         *
+         * On SMTP:
+         *
+         * First, we get this.
+         *  result == null, messageId == -1, progress == 0:     start batch send
+         *
+         * Then we get these callbacks per message.
+         * (Exchange backend may skip "start sending one message".)
+         *  result == null, messageId == xx, progress == 0:     start sending one message
+         *  result == xxxx, messageId == xx, progress == 0;     failed sending one message
+         *
+         * Finally we get this.
+         *  result == null, messageId == -1, progres == 100;    finish sending batch
+         *
+         * On EAS: Almost same as above, except:
+         *
+         * - There's no first ("start batch send") callback.
+         * - accountId is always -1.
+         *
          * @param result If null, the operation completed without error
          * @param accountId The account being operated on
          * @param messageId The being sent (may be unknown at start)

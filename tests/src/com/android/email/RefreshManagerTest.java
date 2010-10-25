@@ -329,22 +329,10 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertEquals(ACCOUNT_1, mController.mAccountId);
         assertEquals(-1, mController.mMailboxId);
         mController.reset();
-        assertTrue(mTarget.isSendingMessage(ACCOUNT_1));
-        assertTrue(mTarget.isSendingAnyMessage());
-
-        // Request again -- shouldn't be accepted.
-        assertFalse(mTarget.sendPendingMessages(ACCOUNT_1));
-
-        assertFalse(mListener.mCalledOnRefreshStatusChanged);
-        assertFalse(mListener.mCalledOnConnectionError);
-        mListener.reset();
-        assertFalse(mController.mCalledSendPendingMessages);
-        mController.reset();
 
         // request sending for account 2
         assertTrue(mTarget.sendPendingMessages(ACCOUNT_2));
 
-        assertTrue(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
         assertEquals(ACCOUNT_2, mListener.mAccountId);
         assertEquals(-1, mListener.mMailboxId);
@@ -353,33 +341,24 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertEquals(ACCOUNT_2, mController.mAccountId);
         assertEquals(-1, mController.mMailboxId);
         mController.reset();
-        assertTrue(mTarget.isSendingMessage(ACCOUNT_2));
-        assertTrue(mTarget.isSendingAnyMessage());
 
-        // sending for account 1...
+        // Sending start for account 1...
+        // batch send start.  (message id == -1, progress == 0)
         mController.mListener.sendMailCallback(null, ACCOUNT_1, -1, 0);
 
-        assertTrue(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
-        assertEquals(ACCOUNT_1, mListener.mAccountId);
-        assertEquals(-1, mListener.mMailboxId);
         mListener.reset();
-        assertTrue(mTarget.isSendingMessage(ACCOUNT_1));
-        assertEquals(0, mTarget.getOutboxStatusForTest(ACCOUNT_1).getLastRefreshTime());
 
-        // Per message callback (1)
+        // Per message callback
         mController.mListener.sendMailCallback(null, ACCOUNT_1, 100, 0);
         mController.mListener.sendMailCallback(null, ACCOUNT_1, 101, 0);
 
-        // No callback per message
-        assertFalse(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
         mListener.reset();
 
         // Exception -- first error will be reported.
         mController.mListener.sendMailCallback(EXCEPTION, ACCOUNT_1, 102, 0);
 
-        assertFalse(mListener.mCalledOnRefreshStatusChanged);
         assertTrue(mListener.mCalledOnConnectionError);
         assertEquals(EXCEPTION.getUiErrorMessage(mContext), mListener.mMessage);
         mListener.reset();
@@ -388,7 +367,6 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         mController.mListener.sendMailCallback(null, ACCOUNT_1, 103, 0);
         mController.mListener.sendMailCallback(EXCEPTION, ACCOUNT_1, 104, 0);
 
-        assertFalse(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
         mListener.reset();
 
@@ -396,46 +374,8 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         Log.w(Email.LOG_TAG, "" + mController.mListener.getClass());
         mController.mListener.sendMailCallback(null, ACCOUNT_1, -1, 100);
 
-        assertTrue(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
-        assertEquals(ACCOUNT_1, mListener.mAccountId);
-        assertEquals(-1, mListener.mMailboxId);
         mListener.reset();
-        assertFalse(mTarget.isSendingMessage(ACCOUNT_1));
-        assertEquals(mClock.mTime, mTarget.getOutboxStatusForTest(ACCOUNT_1)
-                .getLastRefreshTime());
-
-        // Check "any" method.
-        assertTrue(mTarget.isSendingAnyMessage()); // still sending for account 2
-
-        // sending for account 2...
-        mClock.advance();
-
-        mController.mListener.sendMailCallback(null, ACCOUNT_2, -1, 0);
-
-        assertTrue(mListener.mCalledOnRefreshStatusChanged);
-        assertFalse(mListener.mCalledOnConnectionError);
-        assertEquals(ACCOUNT_2, mListener.mAccountId);
-        assertEquals(-1, mListener.mMailboxId);
-        mListener.reset();
-        assertTrue(mTarget.isSendingMessage(ACCOUNT_2));
-        assertEquals(0, mTarget.getOutboxStatusForTest(ACCOUNT_2).getLastRefreshTime());
-
-        // Done with exception.
-        mController.mListener.sendMailCallback(EXCEPTION, ACCOUNT_2, -1, 0);
-
-        assertTrue(mListener.mCalledOnRefreshStatusChanged);
-        assertTrue(mListener.mCalledOnConnectionError);
-        assertEquals(ACCOUNT_2, mListener.mAccountId);
-        assertEquals(-1, mListener.mMailboxId);
-        assertEquals(EXCEPTION.getUiErrorMessage(mContext), mListener.mMessage);
-        mListener.reset();
-        assertFalse(mTarget.isSendingMessage(ACCOUNT_2));
-        assertEquals(mClock.mTime, mTarget.getOutboxStatusForTest(ACCOUNT_2)
-                .getLastRefreshTime());
-
-        // Check "any" method.
-        assertFalse(mTarget.isSendingAnyMessage());
     }
 
     public void testSendPendingMessagesForAllAccounts() throws Throwable {
