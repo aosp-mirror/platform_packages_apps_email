@@ -178,7 +178,7 @@
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"安全な接続（SSL）を使用する"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"すべてのSSL証明書を承認"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"アカウントのオプション"</string>
-    <!-- outdated translation 4598023962234986194 -->     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"新着メール自動確認"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"受信トレイを確認する頻度"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"自動確認しない"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"自動（プッシュ）"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"5分毎"</string>
@@ -221,7 +221,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"メール着信通知"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"自動確認や通知などを同期"</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"メール受信: ステータスバーで通知"</string>
-    <!-- outdated translation 2067835530563849675 -->     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"新着メール確認の頻度"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"受信トレイの確認頻度"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"受信設定"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"送信設定"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"アカウント名"</string>

@@ -178,7 +178,7 @@
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Beveiligde verbinding (SSL) gebruiken"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Alle SSL-certificaten accepteren"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Accountopties"</string>
-    <!-- outdated translation 4598023962234986194 -->     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Frequentie voor controle op nieuwe berichten"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Controlefrequentie inbox"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nooit"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automatisch (push)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Elke 5 minuten"</string>
@@ -221,7 +221,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Meldingen via e-mail"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"Synchonisatiefrequentie, meldingen, enzovoort"</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Melding in statusbalk als e-mail binnenkomt"</string>
-    <!-- outdated translation 2067835530563849675 -->     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Frequentie voor controle op nieuwe e-mail"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Controlefrequentie inbox"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Instellingen inkomende e-mail"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Instellingen uitgaande e-mail"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Accountnaam"</string>
