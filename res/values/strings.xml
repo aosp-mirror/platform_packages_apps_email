@@ -244,21 +244,24 @@
     <!-- The text in the small separator between smart folders and the accounts -->
     <string name="account_folder_list_separator_accounts">Accounts</string>
     <!-- The summary section entry in the AccountFolder list to display all inboxes -->
-    <string name="account_folder_list_summary_inbox">Combined Inbox</string>
+    <string name="account_folder_list_summary_inbox">Inbox</string>
     <!-- The summary section entry in the AccountFolder list to display all starred
         [CHAR LIMIT=200dip] -->
-    <string name="account_folder_list_summary_starred">All Starred</string>
+    <string name="account_folder_list_summary_starred">Starred</string>
     <!-- The summary section entry in the AccountFolder list to display all drafts
         [CHAR LIMIT=200dip] -->
-    <string name="account_folder_list_summary_drafts">All Drafts</string>
+    <string name="account_folder_list_summary_drafts">Drafts</string>
     <!-- The summary section entry in the AccountFolder list to display all outboxes
         [CHAR LIMIT=200dip] -->
-    <string name="account_folder_list_summary_outbox">Combined Outbox</string>
+    <string name="account_folder_list_summary_outbox">Outbox</string>
     <!-- Toast that appears when you select "Refresh" menu option -->
     <string name="account_folder_list_refresh_toast">Please longpress an account to refresh it</string>
 
     <!-- Title of the screen that shows a list of mailboxes for an account -->
     <string name="mailbox_list_title">Mailbox</string>
+    <!-- Label shown in the account selector to select "Combined view", which contains
+         Combined Inbox, Combined Outbox, etc. [CHAR LIMIT=30] -->
+    <string name="mailbox_list_account_selector_combined_view">Combined view</string>
 
     <!-- Appears at the bottom of list of messages; user selects to load more messages from that folder. -->
     <string name="message_list_load_more_messages_action">Load more messages</string>

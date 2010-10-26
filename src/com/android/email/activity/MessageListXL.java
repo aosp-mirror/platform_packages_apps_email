@@ -339,6 +339,12 @@ public class MessageListXL extends Activity implements
         public void onMailboxSelected(long accountId, long mailboxId) {
             mFragmentManager.selectMailbox(mailboxId, true);
         }
+
+        @Override
+        public void onAccountSelected(long accountId) {
+            mFragmentManager.selectAccount(accountId, -1, true);
+            loadAccounts(); // This will update the account spinner, and select the account.
+        }
     }
 
     private class MessageListFragmentCallback implements MessageListFragment.Callback {
@@ -464,6 +470,13 @@ public class MessageListXL extends Activity implements
         updateProgressIcon();
     }
 
+    /**
+     * Load account list for the action bar.
+     *
+     * If there's only one account configured, show the account name in the action bar.
+     * If more than one account are configured, show a spinner in the action bar, and select the
+     * current account.
+     */
     private void loadAccounts() {
         getLoaderManager().initLoader(LOADER_ID_ACCOUNT_LIST, null, new LoaderCallbacks<Cursor>() {
             @Override
@@ -511,10 +524,8 @@ public class MessageListXL extends Activity implements
 
         // Update the dropdown list.
         mAccountsSelectorAdapter.changeCursor(accountsCursor);
-        if (ab.getNavigationMode() != ActionBar.NAVIGATION_MODE_DROPDOWN_LIST) {
-            ab.setDropdownNavigationMode(mAccountsSelectorAdapter,
-                    mActionBarNavigationCallback, defaultSelection);
-        }
+        ab.setDropdownNavigationMode(mAccountsSelectorAdapter,
+                mActionBarNavigationCallback, defaultSelection);
     }
 
     private class ActionBarNavigationCallback implements ActionBar.NavigationCallback {

@@ -69,7 +69,7 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         createMessage(c, b2d, false, true);
 
         // Kick the method
-        Cursor cursor = MailboxesAdapter.getSpecialMailboxesCursor(c, true);
+        Cursor cursor = MailboxesAdapter.getSpecialMailboxesCursor(c);
 
         // Check the result
         assertEquals(4, cursor.getCount());

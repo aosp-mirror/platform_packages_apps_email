@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.Fragment;
@@ -289,7 +290,10 @@ class MessageListXLFragmentManager {
         mMessageListFragment.clearContent();
         hideMessageView();
 
-        if (mailboxId == -1) {
+        if ((accountId == Account.ACCOUNT_ID_COMBINED_VIEW) && (mailboxId == -1)) {
+            // When opening the Combined view, the right pane will be "combined inbox".
+            selectMailbox(Mailbox.QUERY_ALL_INBOXES, false);
+        } else if (mailboxId == -1) {
             startInboxLookup();
         } else {
             selectMailbox(mailboxId, byExplicitUserAction);

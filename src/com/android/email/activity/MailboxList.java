@@ -202,8 +202,17 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     /**
      * Implements MailboxFragment.Callback
      */
+    @Override
     public void onMailboxSelected(long accountId, long mailboxId) {
         onOpenMailbox(mailboxId);
+    }
+
+    /**
+     * Implements MailboxFragment.Callback
+     */
+    @Override
+    public void onAccountSelected(long accountId) {
+        // Only used on the Combined view, which isn't used on the phone UI.
     }
 
     /**

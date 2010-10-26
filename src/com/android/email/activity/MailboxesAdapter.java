@@ -22,6 +22,7 @@ import com.android.email.Utility;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
@@ -51,12 +52,20 @@ import java.security.InvalidParameterException;
  *
  * TODO New UI will probably not distinguish unread counts from # of messages.
  *      i.e. we won't need two different viewes for them.
- * TODO Show "Starred" per account?  (Right now we have only "All Starred")
+ * TODO Show "Starred" per account
  * TODO Unit test, when UI is settled.
  */
 /* package */ class MailboxesAdapter extends CursorAdapter {
     public static final int MODE_NORMAL = 0;
     public static final int MODE_MOVE_TO_TARGET = 1;
+
+    /**
+     * Row type, used in the "row_type" in {@link PROJECTION}.
+     * {@link #ROW_TYPE_MAILBOX} for regular mailboxes and combined mailboxes.
+     * {@link #ROW_TYPE_ACCOUNT} for account row in the combined view.
+     */
+    private static final int ROW_TYPE_MAILBOX = 0;
+    private static final int ROW_TYPE_ACCOUNT = 1;
 
     /*
      * Note here we have two ID columns.  The first one is for ListView, which doesn't like ID
@@ -70,13 +79,14 @@ import java.security.InvalidParameterException;
     /* package */ static final String[] PROJECTION = new String[] { MailboxColumns.ID,
             MailboxColumns.ID + " AS org_mailbox_id",
             MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
-            MailboxColumns.MESSAGE_COUNT};
+            MailboxColumns.MESSAGE_COUNT, ROW_TYPE_MAILBOX + " AS row_type"};
     // Column 0 is only for ListView; we don't use it in our code.
     private static final int COLUMN_ID = 1;
     private static final int COLUMN_DISPLAY_NAME = 2;
     private static final int COLUMN_TYPE = 3;
     private static final int COLUMN_UNREAD_COUNT = 4;
     private static final int COLUMN_MESSAGE_COUNT = 5;
+    private static final int COLUMN_ROW_TYPE = 6;
 
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
@@ -88,11 +98,12 @@ import java.security.InvalidParameterException;
     private static final String MAILBOX_ORDER_BY = "CASE " + MailboxColumns.TYPE +
             " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0" +
             " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN 1" +
-            " WHEN " + Mailbox.TYPE_SENT    + " THEN 2" +
-            " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN 3" +
-            " WHEN " + Mailbox.TYPE_TRASH   + " THEN 20" + // After standard mailboxes
-            " WHEN " + Mailbox.TYPE_JUNK    + " THEN 21" + // After standard mailboxes
-            " ELSE 10 END" + // for Mailbox.TYPE_MAIL, standard mailboxes
+            " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN 2" +
+            " WHEN " + Mailbox.TYPE_SENT    + " THEN 3" +
+            " WHEN " + Mailbox.TYPE_TRASH   + " THEN 4" +
+            " WHEN " + Mailbox.TYPE_JUNK    + " THEN 5" +
+            // Other mailboxes (i.e. of Mailbox.TYPE_MAIL) are shown in alphabetical order.
+            " ELSE 10 END" +
             " ," + MailboxColumns.DISPLAY_NAME;
 
     private final LayoutInflater mInflater;
@@ -105,7 +116,19 @@ import java.security.InvalidParameterException;
         mMode = mode;
     }
 
-    public long getMailboxId(int position) {
+    /**
+     * @return true if the specified row is of an account in the combined view.
+     */
+    public boolean isAccountRow(int position) {
+        Cursor c = (Cursor) getItem(position);
+        return c.getInt(COLUMN_ROW_TYPE) == ROW_TYPE_ACCOUNT;
+    }
+
+    /**
+     * @return ID of the mailbox (or account, if {@link #isAccountRow} == true) of the specified
+     * row.
+     */
+    public long getId(int position) {
         Cursor c = (Cursor) getItem(position);
         return c.getLong(COLUMN_ID);
     }
@@ -134,15 +157,20 @@ import java.security.InvalidParameterException;
         throw new IllegalStateException();
     }
 
-    private static String getMailboxName(Context context, Cursor cursor) {
-        final int type = cursor.getInt(COLUMN_TYPE);
-        final long mailboxId = cursor.getLong(COLUMN_ID);
-        String mailboxName = Utility.FolderProperties.getInstance(context)
-                .getDisplayName(type, mailboxId);
-        if (mailboxName == null) {
-            mailboxName = cursor.getString(COLUMN_DISPLAY_NAME);
+    private static String getDisplayName(Context context, Cursor cursor) {
+        String name = null;
+        if (cursor.getInt(COLUMN_ROW_TYPE) == ROW_TYPE_MAILBOX) {
+            // If it's a mailbox (as opposed to account row in combined view), and of certain types,
+            // we use the predefined names.
+            final int type = cursor.getInt(COLUMN_TYPE);
+            final long mailboxId = cursor.getLong(COLUMN_ID);
+            name = Utility.FolderProperties.getInstance(context)
+                    .getDisplayName(type, mailboxId);
         }
-        return mailboxName;
+        if (name == null) {
+            name = cursor.getString(COLUMN_DISPLAY_NAME);
+        }
+        return name;
     }
 
     private void bindViewNormalMode(View view, Context context, Cursor cursor) {
@@ -151,7 +179,7 @@ import java.security.InvalidParameterException;
 
         // Set mailbox name
         final TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);
-        nameView.setText(getMailboxName(context, cursor));
+        nameView.setText(getDisplayName(context, cursor));
 
         // Set count
         boolean useTotalCount = false;
@@ -197,7 +225,7 @@ import java.security.InvalidParameterException;
 
     private void bindViewMoveToTargetMode(View view, Context context, Cursor cursor) {
         TextView t = (TextView) view;
-        t.setText(getMailboxName(context, cursor));
+        t.setText(getDisplayName(context, cursor));
     }
 
     private View newViewMoveToTargetMode(Context context, Cursor cursor, ViewGroup parent) {
@@ -212,12 +240,15 @@ import java.security.InvalidParameterException;
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MailboxesAdapter createLoader accountId=" + accountId);
         }
-        return new MailboxesLoader(context, accountId, mode);
+        if (accountId != Account.ACCOUNT_ID_COMBINED_VIEW) {
+            return new MailboxesLoader(context, accountId, mode);
+        } else {
+            return new CombinedMailboxesLoader(context);
+        }
     }
 
     /**
-     * Loader for mailboxes.  If there's more than 1 account set up, the result will also include
-     * special mailboxes.  (e.g. combined inbox, etc)
+     * Loader for mailboxes of an account.
      */
     private static class MailboxesLoader extends ThrottlingCursorLoader {
         private final Context mContext;
@@ -241,51 +272,94 @@ import java.security.InvalidParameterException;
 
         @Override
         public Cursor loadInBackground() {
-            final Cursor mailboxes = super.loadInBackground();
+            final Cursor mailboxesCursor = super.loadInBackground();
             if (mMode == MODE_MOVE_TO_TARGET) {
-                return mailboxes;
-            }
-            if (mailboxes.getCount() == 0) {
-                // If there's no mailboxes, don't merge special mailboxes.  Just return 0 row
-                // cursor.
-                // If there's no row, this means the account has just been set up or recovered and
-                // we're fetching mailboxes.  In this case, the mailbox list shouldn't just show
-                // special mailboxes.  It should show something to indicate it's still loading the
-                // list, which MailboxListFragment will do if it returns an empty cursor.
-                return mailboxes;
+                return mailboxesCursor;
             }
 
-            final int numAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
-            return new MergeCursor(
-                    new Cursor[] {getSpecialMailboxesCursor(mContext, numAccounts > 1), mailboxes});
+            // Add "Starred".
+            // TODO It's currently "combined starred", but the plan is to make it per-account
+            // starred.
+            final int starredCount = Message.getFavoriteMessageCount(mContext);
+            if (starredCount == 0) {
+                return mailboxesCursor; // no starred message
+            }
+
+            final MatrixCursor starredCursor = new MatrixCursor(getProjection());
+
+            addSummaryMailboxRow(mContext, starredCursor,
+                    Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL, starredCount, true);
+
+            return new MergeCursor(new Cursor[] {starredCursor, mailboxesCursor});
         }
     }
 
-    /* package */ static Cursor getSpecialMailboxesCursor(Context context, boolean mShowCombined) {
-        MatrixCursor cursor = new MatrixCursor(PROJECTION);
-        if (mShowCombined) {
-            // Combined inbox -- show unread count
-            addSummaryMailboxRow(context, cursor,
-                    Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
-                    Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX), true);
+    /**
+     * Loader for mailboxes in "Combined view".
+     */
+    private static class CombinedMailboxesLoader extends ThrottlingCursorLoader {
+        private static final String[] ACCOUNT_PROJECTION = new String[] {
+                EmailContent.RECORD_ID, AccountColumns.DISPLAY_NAME,
+                };
+        private static final int COLUMN_ACCOUND_ID = 0;
+        private static final int COLUMN_ACCOUNT_DISPLAY_NAME = 1;
+
+        private final Context mContext;
+
+        public CombinedMailboxesLoader(Context context) {
+            // Tell the super class to load accounts.
+            // But we don't directly return that...
+            super(context, Account.CONTENT_URI, ACCOUNT_PROJECTION, null, null, null);
+            mContext = context;
         }
+
+        @Override
+        public Cursor loadInBackground() {
+            final MatrixCursor combinedWithAccounts = getSpecialMailboxesCursor(mContext);
+            final Cursor accounts = super.loadInBackground();
+            try {
+                accounts.moveToPosition(-1);
+                while (accounts.moveToNext()) {
+                    RowBuilder row =  combinedWithAccounts.newRow();
+                    final long accountId = accounts.getLong(COLUMN_ACCOUND_ID);
+                    row.add(accountId);
+                    row.add(accountId);
+                    row.add(accounts.getString(COLUMN_ACCOUNT_DISPLAY_NAME));
+                    row.add(-1); // No mailbox type.  Shouldn't really be used.
+                    final int unreadCount = 0; // TODO get inbox's unread count
+                    row.add(unreadCount);
+                    row.add(unreadCount);
+                    row.add(ROW_TYPE_ACCOUNT);
+                }
+            } finally {
+                accounts.close();
+            }
+
+            return combinedWithAccounts;
+        }
+    }
+
+    /* package */ static MatrixCursor getSpecialMailboxesCursor(Context context) {
+        MatrixCursor cursor = new MatrixCursor(PROJECTION);
+        // Combined inbox -- show unread count
+        addSummaryMailboxRow(context, cursor,
+                Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
+                Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX), true);
 
         // Favorite (starred) -- show # of favorites
         addSummaryMailboxRow(context, cursor,
                 Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
                 Message.getFavoriteMessageCount(context), false);
 
-        if (mShowCombined) {
-            // Drafts -- show # of drafts
-            addSummaryMailboxRow(context, cursor,
-                    Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS,
-                    Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS), false);
+        // Drafts -- show # of drafts
+        addSummaryMailboxRow(context, cursor,
+                Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS,
+                Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS), false);
 
-            // Outbox -- # of sent messages
-            addSummaryMailboxRow(context, cursor,
-                    Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX,
-                    Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX), false);
-        }
+        // Outbox -- # of sent messages
+        addSummaryMailboxRow(context, cursor,
+                Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX,
+                Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX), false);
 
         return cursor;
     }
@@ -303,6 +377,7 @@ import java.security.InvalidParameterException;
             row.add(type);
             row.add(count);
             row.add(count);
+            row.add(ROW_TYPE_MAILBOX);
         }
     }
 
