@@ -626,7 +626,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 Attachment att = Attachment.restoreAttachmentWithId(mContext, req.attachmentId);
                 if (att == null) {
                     pw.println("      Attachment not in database?");
-                } else {
+                } else if (att.mFileName != null) {
                     String fileName = att.mFileName;
                     String suffix = "[none]";
                     int lastDot = fileName.lastIndexOf('.');
@@ -642,6 +642,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         pw.print(att.mMimeType);
                     } else {
                         pw.print(AttachmentProvider.inferMimeType(fileName, null));
+                        pw.print(" [inferred]");
                     }
                     pw.println(" Size: " + att.mSize);
                 }
