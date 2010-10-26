@@ -16,12 +16,12 @@
 
 package com.android.email.service;
 
-import com.android.email.Controller.ControllerService;
 import com.android.email.Email;
-import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.Controller.ControllerService;
+import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
@@ -45,6 +45,8 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -88,6 +90,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
         final long messageId;
         final long accountId;
         boolean inProgress = false;
+        int lastStatusCode;
+        int lastProgress;
+        long lastCallbackTime;
+        long startTime;
 
         private DownloadRequest(Context context, Attachment attachment) {
             attachmentId = attachment.mId;
@@ -287,6 +293,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 }
                 // Don't actually run the load if this is the NullEmailService (used in unit tests)
                 if (!serviceClass.equals(NullEmailService.class)) {
+                    req.startTime = System.currentTimeMillis();
                     proxy.loadAttachment(req.attachmentId, file.getAbsolutePath(),
                             AttachmentProvider.getAttachmentUri(req.accountId, req.attachmentId)
                             .toString());
@@ -418,8 +425,13 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 Log.d(TAG, "loadAttachmentStatus, id = " + attachmentId + " code = "+ code +
                         ", " + progress + "%");
             }
-            // The only thing we're interested in here is whether the download is finished and, if
-            // so, what the result was.
+            // Record status and progress
+            DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
+            if (req != null) {
+                req.lastStatusCode = statusCode;
+                req.lastProgress = progress;
+                req.lastCallbackTime = System.currentTimeMillis();
+            }
             switch (statusCode) {
                 case EmailServiceStatus.IN_PROGRESS:
                     break;
@@ -626,5 +638,54 @@ public class AttachmentDownloadService extends Service implements Runnable {
             kick();
         }
         sRunningService = null;
+    }
+
+    @Override
+    public void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
+        pw.println("AttachmentDownloadService");
+        long time = System.currentTimeMillis();
+        synchronized(mDownloadSet) {
+            pw.println("  Queue, " + mDownloadSet.size() + " entries");
+            Iterator<DownloadRequest> iterator = mDownloadSet.descendingIterator();
+            // First, start up any required downloads, in priority order
+            while (iterator.hasNext()) {
+                DownloadRequest req = iterator.next();
+                pw.println("    Account: " + req.accountId + ", Attachment: " + req.attachmentId);
+                pw.println("      Priority: " + req.priority + ", Time: " + req.time +
+                        (req.inProgress ? " [In progress]" : ""));
+                Attachment att = Attachment.restoreAttachmentWithId(mContext, req.attachmentId);
+                if (att == null) {
+                    pw.println("      Attachment not in database?");
+                } else {
+                    String fileName = att.mFileName;
+                    String suffix = "[none]";
+                    int lastDot = fileName.lastIndexOf('.');
+                    if (lastDot >= 0) {
+                        suffix = fileName.substring(lastDot);
+                    }
+                    pw.print("      Suffix: " + suffix);
+                    if (att.mContentUri != null) {
+                        pw.print(" ContentUri: " + att.mContentUri);
+                    }
+                    pw.print(" Mime: ");
+                    if (att.mMimeType != null) {
+                        pw.print(att.mMimeType);
+                    } else {
+                        pw.print(AttachmentProvider.inferMimeType(fileName, null));
+                    }
+                    pw.println(" Size: " + att.mSize);
+                }
+                if (req.inProgress) {
+                    pw.println("      Status: " + req.lastStatusCode + ", Progress: " +
+                            req.lastProgress);
+                    pw.println("      Started: " + req.startTime + ", Callback: " +
+                            req.lastCallbackTime);
+                    pw.println("      Elapsed: " + ((time - req.startTime) / 1000L) + "s");
+                    if (req.lastCallbackTime > 0) {
+                        pw.println("      CB: " + ((time - req.lastCallbackTime) / 1000L) + "s");
+                    }
+                }
+            }
+        }
     }
 }
