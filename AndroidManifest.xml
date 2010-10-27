@@ -160,7 +160,6 @@
 
         <activity
             android:name=".activity.MessageList"
-            android:theme="@style/ThemeNoTitleBar"
             >
         </activity>
         <activity
