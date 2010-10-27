@@ -2363,10 +2363,14 @@ public class EasSyncService extends AbstractSyncService {
                 status = EmailServiceStatus.SUCCESS;
             }
 
-            try {
-                ExchangeService.callback().syncMailboxStatus(mMailboxId, status, 0);
-            } catch (RemoteException e1) {
-                // Don't care if this fails
+            // Send a callback if this run was initiated by a service call
+            if (mSyncReason == ExchangeService.SYNC_SERVICE_START_SYNC ||
+                    mSyncReason == ExchangeService.SYNC_SERVICE_PART_REQUEST) {
+                try {
+                    ExchangeService.callback().syncMailboxStatus(mMailboxId, status, 0);
+                } catch (RemoteException e1) {
+                    // Don't care if this fails
+                }
             }
 
             // Make sure ExchangeService knows about this
