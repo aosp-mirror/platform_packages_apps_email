@@ -942,7 +942,7 @@ public class Controller {
     public void deleteAccount(final long accountId) {
         Utility.runAsync(new Runnable() {
             public void run() {
-                deleteAccountSync(accountId);
+                deleteAccountSync(accountId, mContext);
             }
         });
     }
@@ -950,19 +950,19 @@ public class Controller {
     /**
      * Delete an account synchronously.  Intended to be used only by unit tests.
      */
-    public void deleteAccountSync(long accountId) {
+    public void deleteAccountSync(long accountId, Context context) {
         try {
             mLegacyControllerMap.remove(accountId);
             // Get the account URI.
-            final Account account = Account.restoreAccountWithId(mContext, accountId);
+            final Account account = Account.restoreAccountWithId(context, accountId);
             if (account == null) {
                 return; // Already deleted?
             }
 
-            final String accountUri = account.getStoreUri(mContext);
+            final String accountUri = account.getStoreUri(context);
             // Delete Remote store at first.
             if (!TextUtils.isEmpty(accountUri)) {
-                Store.getInstance(accountUri, mContext, null).delete();
+                Store.getInstance(accountUri, context, null).delete();
                 // Remove the Store instance from cache.
                 Store.removeInstance(accountUri);
             }
@@ -972,12 +972,12 @@ public class Controller {
             mContext.getContentResolver().delete(uri, null, null);
 
             // Update the backup (side copy) of the accounts
-            AccountBackupRestore.backupAccounts(mContext);
+            AccountBackupRestore.backupAccounts(context);
 
             // Release or relax device administration, if relevant
-            SecurityPolicy.getInstance(mContext).reducePolicies();
+            SecurityPolicy.getInstance(context).reducePolicies();
 
-            Email.setServicesEnabled(mContext);
+            Email.setServicesEnabled(context);
         } catch (Exception e) {
             Log.w(Email.LOG_TAG, "Exception while deleting account", e);
         } finally {
