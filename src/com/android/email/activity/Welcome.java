@@ -110,11 +110,20 @@ public class Welcome extends Activity {
     }
 
     /**
-     * Create an Intent to open "Combined Inbox".
+     * Create an Intent to open "Combined Outbox".
      */
     public static Intent createOpenCombinedInboxIntent(Context context) {
         Intent i = new Intent(context, Welcome.class);
         i.putExtra(EXTRA_MAILBOX_ID, Mailbox.QUERY_ALL_INBOXES);
+        return i;
+    }
+
+    /**
+     * Create an Intent to open "Combined Inbox".
+     */
+    public static Intent createOpenCombinedOutboxIntent(Context context) {
+        Intent i = new Intent(context, Welcome.class);
+        i.putExtra(EXTRA_MAILBOX_ID, Mailbox.QUERY_ALL_OUTBOX);
         return i;
     }
 
