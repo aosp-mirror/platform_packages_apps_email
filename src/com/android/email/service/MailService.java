@@ -403,10 +403,7 @@ public class MailService extends Service {
             long timeNow = SystemClock.elapsedRealtime();
 
             for (AccountSyncReport report : mSyncReports.values()) {
-                if (report.syncInterval <= 0) {  // no timed checks - skip
-                    continue;
-                }
-                if ("eas".equals(report.protocol)) {                    // no checks for eas accts
+                if (report.syncInterval <= 0) {                         // no timed checks - skip
                     continue;
                 }
                 long prevSyncTime = report.prevSyncTime;
@@ -503,10 +500,12 @@ public class MailService extends Service {
 
     /**
      * Note:  Times are relative to SystemClock.elapsedRealtime()
+     *
+     * TODO:  Look more closely at syncEnabled and see if we can simply coalesce it into
+     * syncInterval (e.g. if !syncEnabled, set syncInterval to -1).
      */
     /*package*/ static class AccountSyncReport {
         long accountId;
-        String protocol;
         long prevSyncTime;      // 0 == unknown
         long nextSyncTime;      // 0 == ASAP  -1 == don't sync
 
@@ -582,41 +581,33 @@ public class MailService extends Service {
             uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
         }
 
-        // TODO use a narrower projection here
+        // We use a full projection here because we'll restore each account object from it
         Cursor c = resolver.query(uri, Account.CONTENT_PROJECTION, null, null, null);
         try {
             while (c.moveToNext()) {
                 AccountSyncReport report = new AccountSyncReport();
-                int syncInterval = c.getInt(Account.CONTENT_SYNC_INTERVAL_COLUMN);
-                int flags = c.getInt(Account.CONTENT_FLAGS_COLUMN);
-                long id = c.getInt(Account.CONTENT_ID_COLUMN);
+                Account account = Account.getContent(c, Account.class);
+                int syncInterval = account.mSyncInterval;
 
                 // If we're not using MessagingController (EAS at this point), don't schedule syncs
-                if (!mController.isMessagingController(id)) {
+                if (!mController.isMessagingController(account.mId)) {
                     syncInterval = Account.CHECK_INTERVAL_NEVER;
                 } else if (DEBUG_FORCE_QUICK_REFRESH && syncInterval >= 0) {
                     syncInterval = 1;
                 }
 
-                long acctId = c.getLong(Account.CONTENT_ID_COLUMN);
-                Account account = Account.restoreAccountWithId(this, acctId);
-                if (account == null) continue;
-                HostAuth hostAuth = HostAuth.restoreHostAuthWithId(this, account.mHostAuthKeyRecv);
-                if (hostAuth == null) continue;
-                report.accountId = acctId;
-                report.protocol = hostAuth.mProtocol;
+                report.accountId = account.mId;
                 report.prevSyncTime = 0;
                 report.nextSyncTime = (syncInterval > 0) ? 0 : -1;  // 0 == ASAP -1 == no sync
                 report.unseenMessageCount = 0;
                 report.lastUnseenMessageCount = 0;
 
                 report.syncInterval = syncInterval;
-                report.notify = (flags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
+                report.notify = (account.mFlags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
 
                 // See if the account is enabled for sync in AccountManager
-                Account providerAccount = Account.restoreAccountWithId(context, id);
                 android.accounts.Account accountManagerAccount =
-                    new android.accounts.Account(providerAccount.mEmailAddress,
+                    new android.accounts.Account(account.mEmailAddress,
                             Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
                 report.syncEnabled = ContentResolver.getSyncAutomatically(accountManagerAccount,
                         EmailProvider.EMAIL_AUTHORITY);
