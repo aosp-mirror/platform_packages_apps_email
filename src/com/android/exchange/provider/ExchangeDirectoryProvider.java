@@ -228,7 +228,7 @@ public class ExchangeDirectoryProvider extends ContentProvider {
                             } else if (column.equals(Directory.EXPORT_SUPPORT)) {
                                 row[i] = Directory.EXPORT_SUPPORT_SAME_ACCOUNT_ONLY;
                             } else if (column.equals(Directory.SHORTCUT_SUPPORT)) {
-                                row[i] = Directory.SHORTCUT_SUPPORT_FULL;
+                                row[i] = Directory.SHORTCUT_SUPPORT_NONE;
                             }
                         }
                         cursor.addRow(row);

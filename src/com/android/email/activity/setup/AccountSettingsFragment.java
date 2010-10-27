@@ -164,7 +164,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onCreate");
+            Log.d(Email.LOG_TAG, "AccountSettingsFragment onCreate");
         }
         super.onCreate(savedInstanceState);
 
@@ -187,7 +187,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onActivityCreated");
+            Log.d(Email.LOG_TAG, "AccountSettingsFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
     }
@@ -198,7 +198,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onStart");
+            Log.d(Email.LOG_TAG, "AccountSettingsFragment onStart");
         }
         super.onStart();
         mStarted = true;
@@ -215,7 +215,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onResume");
+            Log.d(Email.LOG_TAG, "AccountSettingsFragment onResume");
         }
         super.onResume();
 
@@ -244,7 +244,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onPause");
+            Log.d(Email.LOG_TAG, "AccountSettingsFragment onPause");
         }
         super.onPause();
     }
@@ -255,7 +255,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onStop");
+            Log.d(Email.LOG_TAG, "AccountSettingsFragment onStop");
         }
         super.onStop();
         mStarted = false;
@@ -267,7 +267,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onDestroy");
+            Log.d(Email.LOG_TAG, "AccountSettingsFragment onDestroy");
         }
         super.onDestroy();
 
@@ -284,7 +284,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onSaveInstanceState");
+            Log.d(Email.LOG_TAG, "AccountSettingsFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
     }
