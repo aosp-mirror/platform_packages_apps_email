@@ -418,9 +418,17 @@ public class ImapStore extends Store {
         } catch (IOException ioe) {
             connection.close();
             throw new MessagingException("Unable to get folder list.", ioe);
-        } finally {
+        } catch (AuthenticationFailedException afe) {
+            // We do NOT want this connection pooled, or we will continue to send NOOP and SELECT
+            // commands to the server
             connection.destroyResponses();
-            poolConnection(connection);
+            connection = null;
+            throw afe;
+        } finally {
+            if (connection != null) {
+                connection.destroyResponses();
+                poolConnection(connection);
+            }
         }
     }
 
@@ -601,6 +609,11 @@ public class ImapStore extends Store {
                 } finally {
                     destroyResponses();
                 }
+            } catch (AuthenticationFailedException e) {
+                // Don't cache this connection, so we're forced to try connecting/login again
+                mConnection = null;
+                close(false);
+                throw e;
             } catch (MessagingException e) {
                 mExists = false;
                 close(false);
@@ -1633,6 +1646,8 @@ public class ImapStore extends Store {
     }
 
     static class ImapException extends MessagingException {
+        private static final long serialVersionUID = 1L;
+
         String mAlertText;
 
         public ImapException(String message, String alertText, Throwable throwable) {

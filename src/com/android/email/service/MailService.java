@@ -454,7 +454,7 @@ public class MailService extends Service {
      * Create a watchdog alarm and set it.  This is used in case a mail check fails (e.g. we are
      * killed by the system due to memory pressure.)  Normally, a mail check will complete and
      * the watchdog will be replaced by the call to reschedule().
-     * @param accountId the account we were trying to check
+    * @param accountId the account we were trying to check
      * @param alarmMgr system alarm manager
      */
     private void setWatchdog(long accountId, AlarmManager alarmMgr) {
@@ -701,7 +701,9 @@ public class MailService extends Service {
         @Override
         public void updateMailboxCallback(MessagingException result, long accountId,
                 long mailboxId, int progress, int numNewMessages) {
-            if (result != null || progress == 100) {
+            // First, look for authentication failures and notify
+           //checkAuthenticationStatus(result, accountId);
+           if (result != null || progress == 100) {
                 // We only track the inbox here in the service - ignore other mailboxes
                 long inboxId = Mailbox.findMailboxOfType(MailService.this,
                         accountId, Mailbox.TYPE_INBOX);

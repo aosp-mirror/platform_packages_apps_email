@@ -98,9 +98,6 @@ public class EmailBroadcastProcessorService extends IntentService {
      * Handles {@link Intent#ACTION_BOOT_COMPLETED}.  Called on a worker thread.
      */
     private void onBootCompleted() {
-        if (Config.LOGD) {
-            Log.d(Email.LOG_TAG, "BOOT_COMPLETED");
-        }
         performOneTimeInitialization();
 
         enableComponentsIfNecessary();

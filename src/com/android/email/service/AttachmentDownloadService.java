@@ -18,11 +18,9 @@ package com.android.email.service;
 
 import com.android.email.Email;
 import com.android.email.NotificationController;
-import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.Controller.ControllerService;
 import com.android.email.ExchangeUtils.NullEmailService;
-import com.android.email.activity.Welcome;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -30,9 +28,6 @@ import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
 import com.android.exchange.ExchangeService;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
@@ -42,7 +37,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -349,7 +343,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         // message never get sent
                         EmailContent.delete(mContext, Attachment.CONTENT_URI, attachment.mId);
                         // TODO: Talk to UX about whether this is even worth doing
-                        showDownloadForwardFailedNotification(attachment);
+                        NotificationController nc = NotificationController.getInstance(mContext);
+                        nc.showDownloadForwardFailedNotification(attachment);
                         deleted = true;
                     }
                     // If we're an attachment on forwarded mail, and if we're not still blocked,
@@ -455,31 +450,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
         public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
                 throws RemoteException {
         }
-    }
-
-    /**
-     * Alert the user that an attachment couldn't be forwarded.  This is a very unusual case, and
-     * perhaps we shouldn't even send a notification. For now, it's helpful for debugging.
-     * Note the STOPSHIP below...
-     */
-    void showDownloadForwardFailedNotification(Attachment att) {
-        // STOPSHIP: Tentative UI; if we use a notification, replace this text with a resource
-        RemoteViews contentView = new RemoteViews(getPackageName(),
-                R.layout.attachment_forward_failed_notification);
-        contentView.setImageViewResource(R.id.image, R.drawable.ic_email_attachment);
-        contentView.setTextViewText(R.id.text,
-                getString(R.string.forward_download_failed_notification, att.mFileName));
-        Notification n = new Notification(R.drawable.stat_notify_email_generic,
-                getString(R.string.forward_download_failed_ticker), System.currentTimeMillis());
-        n.contentView = contentView;
-        Intent i = new Intent(mContext, Welcome.class);
-        PendingIntent pending = PendingIntent.getActivity(mContext, 0, i,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        n.contentIntent = pending;
-        n.flags = Notification.FLAG_AUTO_CANCEL;
-        NotificationManager nm =
-                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.notify(NotificationController.NOTIFICATION_ID_WARNING, n);
     }
 
     /**
@@ -656,7 +626,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 Attachment att = Attachment.restoreAttachmentWithId(mContext, req.attachmentId);
                 if (att == null) {
                     pw.println("      Attachment not in database?");
-                } else {
+                } else if (att.mFileName != null) {
                     String fileName = att.mFileName;
                     String suffix = "[none]";
                     int lastDot = fileName.lastIndexOf('.');
@@ -672,6 +642,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         pw.print(att.mMimeType);
                     } else {
                         pw.print(AttachmentProvider.inferMimeType(fileName, null));
+                        pw.print(" [inferred]");
                     }
                     pw.println(" Size: " + att.mSize);
                 }
