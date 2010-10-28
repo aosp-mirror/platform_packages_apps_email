@@ -74,6 +74,14 @@
     <item quantity="few" msgid="1991747245324120305">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontoer"</item>
     <item quantity="other" msgid="2723797835410343458">"i <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontoer"</item>
   </plurals>
+  <plurals name="notification_sender_name_multi_messages">
+    <item quantity="one" msgid="3212542153806717105">"<xliff:g id="SENDER_NAME">%1$s</xliff:g> + <xliff:g id="NUM_MORE_MAILS">%2$d</xliff:g> flere"</item>
+    <item quantity="other" msgid="4440886271354944083">"<xliff:g id="SENDER_NAME">%1$s</xliff:g> + <xliff:g id="NUM_MORE_MAILS">%2$d</xliff:g> flere"</item>
+  </plurals>
+    <!-- no translation found for notification_num_new_messages_single_account:one (1186049567068059726) -->
+    <!-- no translation found for notification_num_new_messages_single_account:other (5620484088786656170) -->
+    <!-- no translation found for notification_num_new_messages_multi_account:one (958868322080140627) -->
+    <!-- no translation found for notification_num_new_messages_multi_account:other (3254100178329220009) -->
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Innboks"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Utboks"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Utkast"</string>
@@ -93,6 +101,8 @@
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> valgt"</item>
     <item quantity="other" msgid="7901361399231876038">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> valgt"</item>
   </plurals>
+    <!-- no translation found for message_list_no_messages (7846910091922523867) -->
+    <skip />
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Til"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Kopi"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Blindkopi"</string>
@@ -101,6 +111,8 @@
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Original Message --------"\n"Subject: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"From: <xliff:g id="SENDER">%2$s</xliff:g>"\n"To: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Sitert tekst"</string>
+    <!-- no translation found for message_compose_include_quoted_text_checkbox_label (8165567368956050390) -->
+    <skip />
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Du må legge til minst én mottager."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Noen e-postadresser er ugyldige."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Filen er for stor til å bli lagt ved."</string>
@@ -111,10 +123,15 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Laste inn"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Lagre"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Stopp"</string>
-    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Vedlegget ble lagret til minnekortet som <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"Kunne ikke lagre vedlegget til minnekort."</string>
+    <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Vedlegget lagret som <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Kan ikke lagre vedlegget."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Merk: Ett eller flere vedlegg i den videresendte meldingen lastes ned før sending."</string>
-    <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Velg «Vis bilder» for å vise vedlagte bilder."</string>
+    <!-- no translation found for message_view_show_message_action (5134222901019191436) -->
+    <skip />
+    <!-- no translation found for message_view_show_invite_action (8862797393776226777) -->
+    <skip />
+    <!-- no translation found for message_view_show_attachments_action:one (7594476368958824007) -->
+    <!-- no translation found for message_view_show_attachments_action:other (974463163535515223) -->
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Vis bilder"</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Vis i kalender"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Kalenderinvitasjon"</string>
@@ -138,8 +155,12 @@
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> melding flyttet til <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> meldinger flyttet til <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="forward_download_failed_ticker" msgid="6654377128589312623">"Kan ikke videresende vedlegget"</string>
-    <string name="forward_download_failed_notification" msgid="3239753701377399676">"Vedlegget <xliff:g id="FILENAME">%s </xliff:g> kan ikke lastes ned, og kan derfor ikke sendes med den utgående e-postmeldingen."</string>
+    <!-- outdated translation 6654377128589312623 -->     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Kan ikke videresende vedlegget"</string>
+    <!-- outdated translation 3239753701377399676 -->     <string name="forward_download_failed_notification" msgid="3122309797954781752">"Vedlegget <xliff:g id="FILENAME"> %s</xliff:g> kan ikke lastes ned, og kan derfor ikke sendes med den utgående e-postmeldingen."</string>
+    <!-- no translation found for login_failed_ticker (7452091306512654139) -->
+    <skip />
+    <!-- no translation found for login_failed_notification (2405086379065472222) -->
+    <skip />
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -210,7 +231,7 @@
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Godkjenn alle SSL-sertifikater"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Mobilenhets-ID"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Kontoinnstillinger"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Hvor ofte e-post skal sjekkes"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Frekvens for kontroll av innboks"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Aldri"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automatisk (push)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Hvert 5. minutt"</string>
@@ -234,17 +255,20 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Feil brukernavn eller passord."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Kan ikke åpne en sikker tilkobling til tjeneren."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Kan ikke åpne en sikker tilkobling til tjeneren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_check_credentials_message (1364052504743821082) -->
+    <skip />
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Kan ikke koble til tjeneren."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Kan ikke koble til tjeneren."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS påkrevd, men tjeneren støtter det ikke."</string>
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Tjeneren støtter ikke de påkrevde autentiseringsmetodene."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Kunne ikke koble til tjeneren på grunn av sikkerhetsfeil."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Kunne ikke koble til tjeneren."</string>
-    <!-- no translation found for account_setup_failed_protocol_unsupported (5476633232659376833) -->
-    <skip />
+    <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Du har angitt feil tjeneradresse, eller tjeneren krever en protokollversjon som ikke håndteres av e-postprogrammet."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Fjernadministrasjon av sikkerhet"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Tjeneren <xliff:g id="SERVER">%s</xliff:g> krever at den kan kontrollere noen av sikkerhetsfunksjonene på telefonen utenfra. Vil du fullføre oppsettet av kontoen?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Tjeneren krever sikkerhetsfunksjoner som denne telefonen ikke håndterer."</string>
+    <!-- no translation found for disable_admin_warning (4940147098039352135) -->
+    <skip />
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Kontoen «<xliff:g id="ACCOUNT">%s</xliff:g>» krever oppdatering av sikkerhetsinnstillingene."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Oppdater sikkerhetsinnstilinger"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Enhetssikkerhet"</string>
@@ -257,7 +281,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Varsling om e-post"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkroniseringsfrekvens, varslinger m.m."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Varsle i statusfeltet når det kommer e-post"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Hvor ofte skal e-post sjekkes"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Frekvens for kontroll av innboks"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Inngående innstillinger"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Utgående innstillinger"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Kontonavn"</string>
@@ -313,16 +337,10 @@
     <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Første <xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"Innstillinger for e-post"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Innstillinger for program"</string>
-    <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_summary (4540091103768602710) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_dialog_title (5405052109452503909) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_newer (1336720027570509885) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_older (8273143493185128646) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_message_list (7834069275897767359) -->
-    <skip />
+    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Autoflytting"</string>
+    <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Velg hvilken skjerm som skal vises når du sletter en melding"</string>
+    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Gå til"</string>
+    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Nyere melding"</string>
+    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Eldre melding"</string>
+    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Meldingsliste"</string>
 </resources>
