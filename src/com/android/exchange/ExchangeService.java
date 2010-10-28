@@ -1785,29 +1785,16 @@ public class ExchangeService extends Service implements Runnable {
     }
 
     void maybeStartExchangeServiceThread() {
-        synchronized (sSyncLock) {
-            // Start our thread...
-            // See if there are any EAS accounts; otherwise, just go away
-            if (sServiceThread != null || sServiceThread.isAlive()) {
-                return;
+        // Start our thread...
+        // See if there are any EAS accounts; otherwise, just go away
+        if (EmailContent.count(this, HostAuth.CONTENT_URI, WHERE_PROTOCOL_EAS, null) > 0) {
+            if (sServiceThread == null || !sServiceThread.isAlive()) {
+                log(sServiceThread == null ? "Starting thread..." : "Restarting thread...");
+                sServiceThread = new Thread(this, "ExchangeService");
+                INSTANCE = this;
+                sServiceThread.start();
             }
         }
-        final ExchangeService service = this;
-        Utility.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (sSyncLock) {
-                    if (EmailContent.count(service, HostAuth.CONTENT_URI,
-                            WHERE_PROTOCOL_EAS, null) > 0) {
-                        log(sServiceThread == null ? "Starting thread..."
-                                : "Restarting thread...");
-                        sServiceThread = new Thread(this, "ExchangeService");
-                        INSTANCE = service;
-                        sServiceThread.start();
-                    }
-                }
-            }
-        });
     }
 
     /**
