@@ -1332,7 +1332,7 @@ public class SyncManager extends Service implements Runnable {
      *
      * @param acctId
      */
-    static public void folderListReloaded(long acctId) {
+    static public void stopNonAccountMailboxSyncsForAccount(long acctId) {
         SyncManager syncManager = INSTANCE;
         if (syncManager != null) {
             syncManager.stopAccountSyncs(acctId, false);
