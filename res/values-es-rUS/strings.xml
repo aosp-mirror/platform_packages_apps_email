@@ -74,6 +74,14 @@
     <item quantity="few" msgid="1991747245324120305">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</item>
     <item quantity="other" msgid="2723797835410343458">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</item>
   </plurals>
+  <plurals name="notification_sender_name_multi_messages">
+    <item quantity="one" msgid="3212542153806717105">"<xliff:g id="SENDER_NAME">%1$s</xliff:g> + <xliff:g id="NUM_MORE_MAILS">%2$d</xliff:g> más"</item>
+    <item quantity="other" msgid="4440886271354944083">"<xliff:g id="SENDER_NAME">%1$s</xliff:g> + <xliff:g id="NUM_MORE_MAILS">%2$d</xliff:g> más"</item>
+  </plurals>
+    <!-- no translation found for notification_num_new_messages_single_account:one (1186049567068059726) -->
+    <!-- no translation found for notification_num_new_messages_single_account:other (5620484088786656170) -->
+    <!-- no translation found for notification_num_new_messages_multi_account:one (958868322080140627) -->
+    <!-- no translation found for notification_num_new_messages_multi_account:other (3254100178329220009) -->
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Bandeja de entrada"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Bandeja de salida"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Borradores"</string>
@@ -93,6 +101,8 @@
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> seleccionados"</item>
     <item quantity="other" msgid="7901361399231876038">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> seleccionados"</item>
   </plurals>
+    <!-- no translation found for message_list_no_messages (7846910091922523867) -->
+    <skip />
     <string name="message_compose_to_hint" msgid="2891895306418177013">"Para"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"CC"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"CCO"</string>
@@ -101,6 +111,8 @@
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Mensaje original --------"\n"Asunto: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"De: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Para: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> escribió:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Texto citado"</string>
+    <!-- no translation found for message_compose_include_quoted_text_checkbox_label (8165567368956050390) -->
+    <skip />
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Debes agregar al menos un destinatario."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Algunas direcciones de correo electrónico no son válidas."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"El archivo es demasiado grande para adjuntarlo."</string>
@@ -111,10 +123,15 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Cargar"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Guardar"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Detener"</string>
-    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"Archivo adjunto guardado en la tarjeta SD como <xliff:g id="FILENAME">%s</xliff:g>."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"No es posible guardar un archivo adjunto a la tarjeta SD."</string>
+    <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Archivo adj guardado como <xliff:g id="FILENAME">%s</xliff:g>"</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"No se pudo guardar el arch adj"</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Nota: Se descargarán uno o más archivos adjuntos de tu mensaje reenviado antes de enviar."</string>
-    <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Seleccionar \"Mostrar imágenes\" para visualizar las imágenes insertadas."</string>
+    <!-- no translation found for message_view_show_message_action (5134222901019191436) -->
+    <skip />
+    <!-- no translation found for message_view_show_invite_action (8862797393776226777) -->
+    <skip />
+    <!-- no translation found for message_view_show_attachments_action:one (7594476368958824007) -->
+    <!-- no translation found for message_view_show_attachments_action:other (974463163535515223) -->
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Mostrar imágenes"</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Ver en Calendar"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Invitación de Calendar"</string>
@@ -138,8 +155,12 @@
     <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> mensaje trasladado a <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> mensajes trasladados a <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="forward_download_failed_ticker" msgid="6654377128589312623">"No se pudo reenviar un archivo adjunto"</string>
-    <string name="forward_download_failed_notification" msgid="3239753701377399676">"El archivo adjunto <xliff:g id="FILENAME">%s </xliff:g> no pudo enviarse con tu correo de salida porque no pudo descargarse."</string>
+    <!-- outdated translation 6654377128589312623 -->     <string name="forward_download_failed_ticker" msgid="328380505427633405">"No se pudo reenviar un archivo adjunto"</string>
+    <!-- outdated translation 3239753701377399676 -->     <string name="forward_download_failed_notification" msgid="3122309797954781752">"El archivo adjunto <xliff:g id="FILENAME"> %s</xliff:g> no pudo enviarse con tu correo de salida porque no pudo descargarse."</string>
+    <!-- no translation found for login_failed_ticker (7452091306512654139) -->
+    <skip />
+    <!-- no translation found for login_failed_notification (2405086379065472222) -->
+    <skip />
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -210,7 +231,7 @@
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Aceptar todos los certificados SSL"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID de dispositivo móvil"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Opciones de cuenta"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"Frecuencia de verificación de correo electrónico"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Frecuencia de verificación de la bandeja de entrada"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nunca"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automático (Empujar)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Cada 5 minutos"</string>
@@ -234,17 +255,20 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nombre de usuario o contraseña incorrecta."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"No se puede conectar de forma segura al servidor."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"No se puede conectar de forma segura al servidor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_check_credentials_message (1364052504743821082) -->
+    <skip />
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"No se puede conectar al servidor."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"No se puede conectar al servidor."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"Se requiere TLS pero el servidor no la admite."</string>
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"El servidor no admite los métodos de autenticación."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"No es posible iniciar la conexión al servidor debido a un error de seguridad."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"No es posible iniciar la conexión a tu servidor."</string>
-    <!-- no translation found for account_setup_failed_protocol_unsupported (5476633232659376833) -->
-    <skip />
+    <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Ingresaste una dirección de servidor incorrecta o el servidor requiere una versión de protocolo que el correo electrónico no admite."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administración de seguridad remota"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"El servidor <xliff:g id="SERVER">%s</xliff:g> requiere tu permiso para controlar de forma remota algunas funciones de seguridad en tu teléfono. ¿Deseas finalizar la configuración de esta cuenta?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Este servidor requiere funciones de seguridad que no son compatibles con tu teléfono."</string>
+    <!-- no translation found for disable_admin_warning (4940147098039352135) -->
+    <skip />
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"La cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requiere que se actualice la configuración de seguridad."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Actualizar la configuración de seguridad"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Dispositivo de seguridad"</string>
@@ -257,7 +281,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificaciones de correo electrónico"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sincronizar frecuencia, notificaciones, etc."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Notificar en la barra de estado cuando llegue un mensaje de correo electrónico"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"Frecuencia de verificación de correo electrónico"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Frecuencia de verificación de bandeja de entrada"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configuración entrante"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configuración saliente"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nombre de la cuenta"</string>
@@ -313,16 +337,10 @@
     <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Primeros <xliff:g id="RESULTS">%1$d</xliff:g> resultados de <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"Preferencias de correo electrónico"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Preferencias de aplicación"</string>
-    <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_summary (4540091103768602710) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_dialog_title (5405052109452503909) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_newer (1336720027570509885) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_older (8273143493185128646) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_message_list (7834069275897767359) -->
-    <skip />
+    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Avance automático"</string>
+    <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Selecciona qué pantalla mostrar después de eliminar un mensaje"</string>
+    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Avanzar a"</string>
+    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Mensaje más nuevo"</string>
+    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Mensaje antiguo"</string>
+    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Lista de mensaje"</string>
 </resources>

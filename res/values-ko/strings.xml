@@ -74,6 +74,14 @@
     <item quantity="few" msgid="1991747245324120305">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정"</item>
     <item quantity="other" msgid="2723797835410343458">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정"</item>
   </plurals>
+  <plurals name="notification_sender_name_multi_messages">
+    <item quantity="one" msgid="3212542153806717105">"<xliff:g id="SENDER_NAME">%1$s</xliff:g>님의 메일 + <xliff:g id="NUM_MORE_MAILS">%2$d</xliff:g>개"</item>
+    <item quantity="other" msgid="4440886271354944083">"<xliff:g id="SENDER_NAME">%1$s</xliff:g>님의 메일 + <xliff:g id="NUM_MORE_MAILS">%2$d</xliff:g>개"</item>
+  </plurals>
+    <!-- no translation found for notification_num_new_messages_single_account:one (1186049567068059726) -->
+    <!-- no translation found for notification_num_new_messages_single_account:other (5620484088786656170) -->
+    <!-- no translation found for notification_num_new_messages_multi_account:one (958868322080140627) -->
+    <!-- no translation found for notification_num_new_messages_multi_account:other (3254100178329220009) -->
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"받은편지함"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"보낼편지함"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"임시보관함"</string>
@@ -93,6 +101,8 @@
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g>개 선택됨"</item>
     <item quantity="other" msgid="7901361399231876038">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g>개 선택됨"</item>
   </plurals>
+    <!-- no translation found for message_list_no_messages (7846910091922523867) -->
+    <skip />
     <string name="message_compose_to_hint" msgid="2891895306418177013">"받는사람"</string>
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"참조"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"숨은 참조"</string>
@@ -101,20 +111,27 @@
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- 원본 메시지 --------"\n"제목: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"보낸사람: <xliff:g id="SENDER">%2$s</xliff:g>"\n"받는사람: <xliff:g id="TO">%3$s</xliff:g>"\n"참조: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>님이 작성:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"받은메일"</string>
+    <!-- no translation found for message_compose_include_quoted_text_checkbox_label (8165567368956050390) -->
+    <skip />
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"받는 사람을 한 명 이상 추가해야 합니다."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"일부 이메일 주소가 올바르지 않습니다."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"파일이 너무 커서 첨부할 수 없습니다."</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> 외 <xliff:g id="NUMBER">%2$d</xliff:g>명"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"받는사람:"</string>
-    <string name="message_view_cc_label" msgid="6322992216371163122">"참조: "</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"참조:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"보기"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"로드"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"저장"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"중지"</string>
-    <string name="message_view_status_attachment_saved" msgid="2802843795251453632">"첨부파일(<xliff:g id="FILENAME">%s</xliff:g>)이 SD 카드에 저장되었습니다."</string>
-    <string name="message_view_status_attachment_not_saved" msgid="5039599647697750874">"SD 카드에 첨부파일을 저장할 수 없습니다."</string>
+    <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"첨부파일을 <xliff:g id="FILENAME">%s</xliff:g>(으)로 저장했습니다."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"첨부파일을 저장할 수 없습니다."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"참고: 전달된 메시지에서 하나 이상의 첨부파일을 보내기 전에 다운로드합니다."</string>
-    <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"\'사진 표시\'를 선택하여 삽입된 사진을 표시합니다."</string>
+    <!-- no translation found for message_view_show_message_action (5134222901019191436) -->
+    <skip />
+    <!-- no translation found for message_view_show_invite_action (8862797393776226777) -->
+    <skip />
+    <!-- no translation found for message_view_show_attachments_action:one (7594476368958824007) -->
+    <!-- no translation found for message_view_show_attachments_action:other (974463163535515223) -->
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"사진 표시"</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"캘린더에서 보기"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"캘린더 초대"</string>
@@ -138,8 +155,12 @@
     <item quantity="one" msgid="3098493230185412871">"메일 <xliff:g id="NUM_MESSAGE">%1$d</xliff:g>개가 <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>(으)로 이동됨"</item>
     <item quantity="other" msgid="2286739630865943494">"메일 <xliff:g id="NUM_MESSAGE">%1$d</xliff:g>개가 <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>(으)로 이동됨"</item>
   </plurals>
-    <string name="forward_download_failed_ticker" msgid="6654377128589312623">"첨부파일을 전달할 수 없음"</string>
-    <string name="forward_download_failed_notification" msgid="3239753701377399676">"첨부파일(<xliff:g id="FILENAME">%s </xliff:g>)을 다운로드할 수 없으므로 발신 메일과 함께 보내지 못했습니다."</string>
+    <!-- outdated translation 6654377128589312623 -->     <string name="forward_download_failed_ticker" msgid="328380505427633405">"첨부파일을 전달할 수 없음"</string>
+    <!-- outdated translation 3239753701377399676 -->     <string name="forward_download_failed_notification" msgid="3122309797954781752">"첨부파일(<xliff:g id="FILENAME"> %s</xliff:g>)을 다운로드할 수 없으므로 발신 메일과 함께 보내지 못했습니다."</string>
+    <!-- no translation found for login_failed_ticker (7452091306512654139) -->
+    <skip />
+    <!-- no translation found for login_failed_notification (2405086379065472222) -->
+    <skip />
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -170,7 +191,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"올바른 이메일 주소와 비밀번호를 입력하세요."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"중복 계정"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"이 로그인은 이미 \'<xliff:g id="DUPLICATE">%s</xliff:g>\' 계정에서 사용 중입니다."</string>
-    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"계정 정보 검색 중... "</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"계정 정보 검색 중..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"받는 서버 설정 확인 중..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"발신 서버 설정 확인 중..."</string>
     <string name="account_setup_names_title" msgid="8875040521875381849">"이메일 설정"</string>
@@ -210,7 +231,7 @@
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"모든 SSL 인증서 수락"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"휴대기기 ID"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"계정 옵션"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4598023962234986194">"이메일 확인 빈도"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"받은편지함 확인 빈도"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"안함"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"자동(푸시)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"5분마다"</string>
@@ -234,17 +255,20 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"사용자 이름 또는 비밀번호가 잘못되었습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"서버에 안전하게 연결할 수 없습니다."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"서버에 안전하게 연결할 수 없습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_check_credentials_message (1364052504743821082) -->
+    <skip />
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"서버에 연결할 수 없습니다."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"서버에 연결할 수 없습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS가 필요하지만 서버에서 지원하지 않습니다."</string>
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"인증 방법이 서버에서 지원되지 않습니다."</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"보안 오류 때문에 서버에 연결할 수 없습니다."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"서버에 연결할 수 없습니다."</string>
-    <!-- no translation found for account_setup_failed_protocol_unsupported (5476633232659376833) -->
-    <skip />
+    <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"입력한 서버 주소가 잘못되었거나, 서버에 이메일 지원이 되지 않는 프로토콜 버전이 필요합니다."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"원격 보안 관리"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"<xliff:g id="SERVER">%s</xliff:g> 서버가 휴대전화의 몇 가지 보안 기능을 원격으로 제어할 수 있도록 해야 합니다. 이 계정 설정을 완료하시겠습니까?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"서버에 필요한 보안 기능 중, 휴대전화에서 지원하지 않는 것이 있습니다."</string>
+    <!-- no translation found for disable_admin_warning (4940147098039352135) -->
+    <skip />
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"\'<xliff:g id="ACCOUNT">%s</xliff:g>\' 계정을 사용하려면 보안 설정을 업데이트해야 합니다."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"보안 설정 업데이트"</string>
     <string name="account_security_title" msgid="4441470647344315196">"기기 보안"</string>
@@ -257,7 +281,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"이메일 알림"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"빈도 및 알림 등을 동기화합니다."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"이메일이 오면 상태 표시줄에 알림"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="2067835530563849675">"이메일 확인 빈도"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"받은편지함 확인 빈도"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"수신 설정"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"발신 설정"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"계정 이름"</string>
@@ -313,16 +337,10 @@
     <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="DOMAIN">%2$s</xliff:g>의 처음 <xliff:g id="RESULTS">%1$d</xliff:g>개 검색결과"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"이메일 환경설정"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"애플리케이션 환경설정"</string>
-    <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_summary (4540091103768602710) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_dialog_title (5405052109452503909) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_newer (1336720027570509885) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_older (8273143493185128646) -->
-    <skip />
-    <!-- no translation found for general_preference_auto_advance_message_list (7834069275897767359) -->
-    <skip />
+    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"자동 진행"</string>
+    <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"메일을 삭제한 다음 표시할 화면 선택"</string>
+    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"이동"</string>
+    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"다음 메일"</string>
+    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"이전 메일"</string>
+    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"메일 목록"</string>
 </resources>

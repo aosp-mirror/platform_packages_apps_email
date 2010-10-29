@@ -181,8 +181,8 @@
          used when only one account is set up.
          "num_new_message" will be replaced with the number of new messages. [CHAR LIMIT=none] -->
     <plurals name="notification_num_new_messages_single_account">
-        <item quantity="one"><xliff:g id="num_new_message">%1$d</xliff:g></item> new
-        <item quantity="other"><xliff:g id="num_new_message">%1$d</xliff:g></item> new
+        <item quantity="one"><xliff:g id="num_new_message">%1$d</xliff:g> new</item>
+        <item quantity="other"><xliff:g id="num_new_message">%1$d</xliff:g> new</item>
     </plurals>
 
     <!-- "new message" notification body for the number of new messages,
