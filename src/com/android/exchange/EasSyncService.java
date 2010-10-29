@@ -1282,17 +1282,28 @@ public class EasSyncService extends AbstractSyncService {
             }
             if (pp.getRemoteWipe()) {
                 // We've gotten a remote wipe command
+                SyncManager.alwaysLog("!!! Remote wipe request received");
+                // Start by setting the account to security hold
+                sp.setAccountHoldFlag(mAccount, true);
+                // Force a stop to any running syncs for this account (except this one)
+                SyncManager.stopNonAccountMailboxSyncsForAccount(mAccount.mId);
+
                 // If we're not the admin, we can't do the wipe, so just return
-                if (!sp.isActiveAdmin()) return false;
+                if (!sp.isActiveAdmin()) {
+                    SyncManager.alwaysLog("!!! Not device admin; can't wipe");
+                    return false;
+                }
                 // First, we've got to acknowledge it, but wrap the wipe in try/catch so that
                 // we wipe the device regardless of any errors in acknowledgment
                 try {
+                    SyncManager.alwaysLog("!!! Acknowledging remote wipe to server");
                     acknowledgeRemoteWipe(pp.getPolicyKey());
                 } catch (Exception e) {
                     // Because remote wipe is such a high priority task, we don't want to
                     // circumvent it if there's an exception in acknowledgment
                 }
                 // Then, tell SecurityPolicy to wipe the device
+                SyncManager.alwaysLog("!!! Executing remote wipe");
                 sp.remoteWipe();
                 return false;
             } else if (sp.isActive(ps)) {
