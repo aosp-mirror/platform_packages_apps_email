@@ -261,15 +261,23 @@ public class ExchangeService extends Service implements Runnable {
                 (INSTANCE == null) ? null: INSTANCE.mCallbackList;
             if (callbackList != null) {
                 // Call everyone on our callback list
-                // Exceptions can be safely ignored
                 int count = callbackList.beginBroadcast();
-                for (int i = 0; i < count; i++) {
-                    try {
-                        wrapper.call(callbackList.getBroadcastItem(i));
-                    } catch (RemoteException e) {
+                try {
+                    for (int i = 0; i < count; i++) {
+                        try {
+                            wrapper.call(callbackList.getBroadcastItem(i));
+                        } catch (RemoteException e) {
+                            // Safe to ignore
+                        } catch (RuntimeException e) {
+                            // We don't want an exception in one call to prevent other calls, so
+                            // we'll just log this and continue
+                            Log.e(TAG, "Caught RuntimeException in broadcast", e);
+                        }
                     }
+                } finally {
+                    // No matter what, we need to finish the broadcast
+                    callbackList.finishBroadcast();
                 }
-                callbackList.finishBroadcast();
             }
         }
 

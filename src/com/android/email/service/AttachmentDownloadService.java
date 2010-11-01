@@ -324,15 +324,20 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 kick();
                 return;
             }
+
             // Remove the request from the queue
             remove(req);
             if (Email.DEBUG) {
-                long secs = (System.currentTimeMillis() - req.time) / 1000;
+                long secs = 0;
+                if (req != null) {
+                    secs = (System.currentTimeMillis() - req.time) / 1000;
+                }
                 String status = (statusCode == EmailServiceStatus.SUCCESS) ? "Success" :
                     "Error " + statusCode;
                 Log.d(TAG, "<< Download finished for attachment #" + attachmentId + "; " + secs +
                            " seconds from request, status: " + status);
             }
+
             Attachment attachment = Attachment.restoreAttachmentWithId(mContext, attachmentId);
             if (attachment != null) {
                 boolean deleted = false;
@@ -349,7 +354,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     }
                     // If we're an attachment on forwarded mail, and if we're not still blocked,
                     // try to send pending mail now (as mediated by MailService)
-                    if (!Utility.hasUnloadedAttachments(mContext, attachment.mMessageKey)) {
+                    if ((req != null) && 
+                            !Utility.hasUnloadedAttachments(mContext, attachment.mMessageKey)) {
                         if (Email.DEBUG) {
                             Log.d(TAG, "== Downloads finished for outgoing msg #" + req.messageId);
                         }
@@ -489,6 +495,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
     /*package*/ boolean dequeue(long attachmentId) {
         DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
         if (req != null) {
+            if (Email.DEBUG) {
+                Log.d(TAG, "Dequeued attachmentId:  " + attachmentId);
+            }
             mDownloadSet.remove(req);
             return true;
         }
