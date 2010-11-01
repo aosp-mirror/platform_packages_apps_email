@@ -136,11 +136,11 @@ public class Preferences {
     }
 
     public void setDefaultAccount(Account account) {
-        mSharedPreferences.edit().putString(DEFAULT_ACCOUNT_UUID, account.getUuid()).commit();
+        mSharedPreferences.edit().putString(DEFAULT_ACCOUNT_UUID, account.getUuid()).apply();
     }
 
     public void setEnableDebugLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean(ENABLE_DEBUG_LOGGING, value).commit();
+        mSharedPreferences.edit().putBoolean(ENABLE_DEBUG_LOGGING, value).apply();
     }
 
     public boolean getEnableDebugLogging() {
@@ -148,7 +148,7 @@ public class Preferences {
     }
 
     public void setEnableExchangeLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean(ENABLE_EXCHANGE_LOGGING, value).commit();
+        mSharedPreferences.edit().putBoolean(ENABLE_EXCHANGE_LOGGING, value).apply();
     }
 
     public boolean getEnableExchangeLogging() {
@@ -156,7 +156,7 @@ public class Preferences {
     }
 
     public void setEnableExchangeFileLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean(ENABLE_EXCHANGE_FILE_LOGGING, value).commit();
+        mSharedPreferences.edit().putBoolean(ENABLE_EXCHANGE_FILE_LOGGING, value).apply();
     }
 
     public boolean getEnableExchangeFileLogging() {
@@ -172,7 +172,7 @@ public class Preferences {
          String result = mSharedPreferences.getString(DEVICE_UID, null);
          if (result == null) {
              result = UUID.randomUUID().toString();
-             mSharedPreferences.edit().putString(DEVICE_UID, result).commit();
+             mSharedPreferences.edit().putString(DEVICE_UID, result).apply();
          }
          return result;
     }
@@ -182,7 +182,7 @@ public class Preferences {
     }
 
     public void setOneTimeInitializationProgress(int progress) {
-        mSharedPreferences.edit().putInt(ONE_TIME_INITIALIZATION_PROGRESS, progress).commit();
+        mSharedPreferences.edit().putInt(ONE_TIME_INITIALIZATION_PROGRESS, progress).apply();
     }
 
     public int getAutoAdvanceDirection() {
@@ -190,14 +190,14 @@ public class Preferences {
     }
 
     public void setAutoAdvanceDirection(int direction) {
-        mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).commit();
+        mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).apply();
     }
 
     public void save() {
     }
 
     public void clear() {
-        mSharedPreferences.edit().clear().commit();
+        mSharedPreferences.edit().clear().apply();
     }
 
     public void dump() {
