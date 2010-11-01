@@ -58,8 +58,8 @@
 
     <application android:icon="@drawable/icon" android:label="@string/app_name"
         android:name="Email"
-        android:theme="@android:style/Theme.Light.Holo"
-        android:hardwareAccelerated="false" 
+        android:theme="@android:style/Theme.Holo.Light.Extended"
+        android:hardwareAccelerated="false"
         >
         <!-- STOPSHIP android:hardwareAccelerated should be "true" -->
         <activity
