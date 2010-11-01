@@ -17,6 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
+import com.android.email.activity.ActivityHelper;
 import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
@@ -45,6 +46,7 @@ public class AccountSetupIncoming extends AccountSetupActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.account_setup_incoming);
 
         mFragment = (AccountSetupIncomingFragment)

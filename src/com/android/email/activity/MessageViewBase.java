@@ -58,6 +58,7 @@ public abstract class MessageViewBase extends Activity implements MessageViewFra
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        ActivityHelper.debugSetWindowFlags(this);
         setContentView(getLayoutId());
 
         // TODO Turn it into a "managed" dialog?

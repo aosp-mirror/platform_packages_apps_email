@@ -275,6 +275,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.message_compose);
 
         mController = Controller.getInstance(getApplication());

@@ -109,6 +109,7 @@ public class MessageListXL extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onCreate");
         super.onCreate(savedInstanceState);
+        ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.message_list_xl);
         mFragmentManager.onActivityViewReady();
 

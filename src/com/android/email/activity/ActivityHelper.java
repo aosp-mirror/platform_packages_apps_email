@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
+import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent.Mailbox;
@@ -26,6 +27,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Browser;
+import android.view.WindowManager;
 
 /**
  * Various methods that are used by both 1-pane and 2-pane activities.
@@ -117,5 +119,23 @@ public final class ActivityHelper {
                 Utility.showToast(activity, message);
             }
         });
+    }
+
+    /**
+     * If configured via debug flags, inhibit hardware graphics acceleration.  Must be called
+     * early in onCreate().
+     *
+     * NOTE: Currently, this only works if HW accel is *not* enabled via the manifest.
+     */
+    public static void debugSetWindowFlags(Activity activity) {
+        if (Email.sDebugInhibitGraphicsAcceleration) {
+            // Clear the flag in the activity's window
+            activity.getWindow().setFlags(0,
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+        } else {
+            // Set the flag in the activity's window
+            activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+        }
     }
 }

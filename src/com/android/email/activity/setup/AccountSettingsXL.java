@@ -21,6 +21,7 @@ import com.android.email.Email;
 import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
@@ -144,6 +145,7 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityHelper.debugSetWindowFlags(this);
 
         Intent i = getIntent();
         if (savedInstanceState == null) {

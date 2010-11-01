@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.SecurityPolicy.PolicySet;
+import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -69,6 +70,7 @@ public class AccountSetupOptions extends AccountSetupActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.account_setup_options);
 
         mCheckFrequencyView = (Spinner)findViewById(R.id.account_check_frequency);

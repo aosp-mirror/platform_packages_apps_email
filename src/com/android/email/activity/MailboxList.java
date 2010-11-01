@@ -75,6 +75,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        ActivityHelper.debugSetWindowFlags(this);
 
         mAccountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
         if (mAccountId == -1) {

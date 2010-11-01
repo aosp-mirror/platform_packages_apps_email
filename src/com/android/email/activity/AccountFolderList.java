@@ -68,6 +68,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        ActivityHelper.debugSetWindowFlags(this);
 
         // STOPSHIP make progress work properly - temporarily missing from ActionBar
         // requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // this disables ActionBar
