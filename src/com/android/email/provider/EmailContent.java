@@ -667,8 +667,14 @@ public abstract class EmailContent {
 
         public static Message restoreMessageWithId(Context context, long id) {
             Uri u = ContentUris.withAppendedId(Message.CONTENT_URI, id);
-            Cursor c = context.getContentResolver().query(u, Message.CONTENT_PROJECTION,
-                    null, null, null);
+            if (context == null) {
+                throw new NullPointerException("context");
+            }
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) {
+                throw new NullPointerException("resolver");
+            }
+            Cursor c = resolver.query(u, Message.CONTENT_PROJECTION, null, null, null);
 
             try {
                 if (c.moveToFirst()) {
