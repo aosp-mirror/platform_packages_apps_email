@@ -451,7 +451,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         // The following two lines act as a workaround for the RingtonePreference
         // which does not let us set/get the value programmatically
         SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
-        prefs.edit().putString(PREFERENCE_RINGTONE, mAccount.getRingtone()).commit();
+        prefs.edit().putString(PREFERENCE_RINGTONE, mAccount.getRingtone()).apply();
 
         mAccountVibrateWhen = (ListPreference) findPreference(PREFERENCE_VIBRATE_WHEN);
         boolean flagsVibrate = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_ALWAYS);
