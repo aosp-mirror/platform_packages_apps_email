@@ -19,7 +19,6 @@ package com.android.email.activity;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
-import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSecurity;
@@ -168,6 +167,7 @@ public class MessageList extends Activity implements OnClickListener,
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.message_list);
 
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(

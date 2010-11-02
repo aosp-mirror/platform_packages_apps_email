@@ -16,13 +16,17 @@
 
 package com.android.email.activity;
 
+import com.android.email.R;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
-import android.text.TextUtils;
+import android.database.MatrixCursor;
+import android.database.MatrixCursor.RowBuilder;
+import android.database.MergeCursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,8 +57,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
     private final LayoutInflater mInflater;
 
     public static Loader<Cursor> createLoader(Context context) {
-        return new ThrottlingCursorLoader(context, EmailContent.Account.CONTENT_URI, PROJECTION,
-                null, null, ORDER_BY);
+        return new AccountsLoader(context);
     }
 
     public AccountSelectorAdapter(Context context, Cursor c) {
@@ -94,5 +97,34 @@ public class AccountSelectorAdapter extends CursorAdapter {
     /** @return Account name extracted from a Cursor. */
     public static String getAccountDisplayName(Cursor cursor) {
         return cursor.getString(DISPLAY_NAME_COLUMN);
+    }
+
+    /**
+     * Load the account list.  Also add the "Combined view" row if there's more than one account.
+     */
+    private static class AccountsLoader extends ThrottlingCursorLoader {
+        private final Context mContext;
+
+        public AccountsLoader(Context context) {
+            super(context, EmailContent.Account.CONTENT_URI, PROJECTION, null, null, ORDER_BY);
+            mContext = context;
+        }
+
+        @Override
+        public Cursor loadInBackground() {
+            final Cursor accountsCursor = super.loadInBackground();
+            if (accountsCursor.getCount() <= 1) {
+                return accountsCursor;
+            }
+            // If more than 1 account, add "Combined view".
+            final MatrixCursor combinedViewRow = new MatrixCursor(PROJECTION);
+            RowBuilder rb = combinedViewRow.newRow();
+
+            // Add ID and display name
+            rb.add(Account.ACCOUNT_ID_COMBINED_VIEW);
+            rb.add(mContext.getResources().getString(
+                    R.string.mailbox_list_account_selector_combined_view));
+            return new MergeCursor(new Cursor[] {accountsCursor, combinedViewRow});
+        }
     }
 }

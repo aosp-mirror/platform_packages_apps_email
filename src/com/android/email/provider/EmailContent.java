@@ -667,8 +667,14 @@ public abstract class EmailContent {
 
         public static Message restoreMessageWithId(Context context, long id) {
             Uri u = ContentUris.withAppendedId(Message.CONTENT_URI, id);
-            Cursor c = context.getContentResolver().query(u, Message.CONTENT_PROJECTION,
-                    null, null, null);
+            if (context == null) {
+                throw new NullPointerException("context");
+            }
+            ContentResolver resolver = context.getContentResolver();
+            if (resolver == null) {
+                throw new NullPointerException("resolver");
+            }
+            Cursor c = resolver.query(u, Message.CONTENT_PROJECTION, null, null, null);
 
             try {
                 if (c.moveToFirst()) {
@@ -825,8 +831,6 @@ public abstract class EmailContent {
 
         /**
          * @return number of favorite (starred) messages throughout all accounts.
-         *
-         * TODO Add trigger to keep track.  (index isn't efficient in this case.)
          */
         public static int getFavoriteMessageCount(Context context) {
             return count(context, Message.CONTENT_URI, FAVORITE_COUNT_SELECTION, null);
@@ -909,6 +913,15 @@ public abstract class EmailContent {
             Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
         public static final Uri RESET_NEW_MESSAGE_COUNT_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/resetNewMessageCount");
+
+        /**
+         * Value used by UI to represent "combined view".
+         *
+         * NOTE: This must be used only by UI, and mustn't be stored in the database.
+         *
+         * This is defined here to avoid conflict with other pseudo account IDs, if any.
+         */
+        public static final long ACCOUNT_ID_COMBINED_VIEW = 0x1000000000000000L;
 
         public final static int FLAGS_NOTIFY_NEW_MAIL = 1;
         public final static int FLAGS_VIBRATE_ALWAYS = 2;

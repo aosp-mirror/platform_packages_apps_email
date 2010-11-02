@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.RefreshManager;
 import com.android.email.Utility;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.app.ListFragment;
@@ -72,14 +73,17 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Callback interface that owning activities must implement
      */
     public interface Callback {
+        /** Called when a mailbox (including combined mailbox) is selected. */
         public void onMailboxSelected(long accountId, long mailboxId);
+
+        /** Called when an account is selected on the combined view. */
+        public void onAccountSelected(long accountId);
     }
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-        @Override
-        public void onMailboxSelected(long accountId, long mailboxId) {
-        }
+        @Override public void onMailboxSelected(long accountId, long mailboxId) { }
+        @Override public void onAccountSelected(long accountId) { }
     }
 
     /**
@@ -307,9 +311,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
     }
 
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        // Don't use the id parameter.  See MailboxesAdapter.
-        mCallback.onMailboxSelected(mAccountId, mListAdapter.getMailboxId(position));
+    public void onItemClick(AdapterView<?> parent, View view, int position,
+            long idDontUseIt /* see MailboxesAdapter */ ) {
+        final long id = mListAdapter.getId(position);
+        if (mListAdapter.isAccountRow(position)) {
+            mCallback.onAccountSelected(id);
+        } else {
+            mCallback.onMailboxSelected(mAccountId, id);
+        }
     }
 
     public void onRefresh() {
@@ -335,7 +344,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         final int count = mListView.getCount();
         for (int i = 0; i < count; i++) {
-            if (mListAdapter.getMailboxId(i) != mSelectedMailboxId) {
+            if (mListAdapter.getId(i) != mSelectedMailboxId) {
                 continue;
             }
             mListView.setItemChecked(i, true);

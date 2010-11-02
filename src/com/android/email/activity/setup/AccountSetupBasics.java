@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
+import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
@@ -105,6 +106,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityHelper.debugSetWindowFlags(this);
 
         int flowMode = SetupData.getFlowMode();
         if (flowMode == SetupData.FLOW_MODE_RETURN_TO_CALLER) {

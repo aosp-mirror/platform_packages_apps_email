@@ -51,4 +51,10 @@
         android:layout_height="wrap_content"
         android:text="@string/debug_clear_webview_cache"
     />
+    <CheckBox
+        android:id="@+id/debug_disable_graphics_acceleration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/debug_disable_graphics_acceleration_label"
+    />
 </LinearLayout>

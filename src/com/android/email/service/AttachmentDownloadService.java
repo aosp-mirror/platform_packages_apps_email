@@ -492,6 +492,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
         return mDownloadSet.findDownloadRequest(attachmentId) != null;
     }
 
+    /*package*/ int getSize() {
+        return mDownloadSet.size();
+    }
+
     /*package*/ boolean dequeue(long attachmentId) {
         DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
         if (req != null) {
@@ -502,6 +506,17 @@ public class AttachmentDownloadService extends Service implements Runnable {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Ask the service for the number of items in the download queue
+     * @return the number of items queued for download
+     */
+    public static int getQueueSize() {
+        if (sRunningService != null) {
+            return sRunningService.getSize();
+        }
+        return 0;
     }
 
     /**

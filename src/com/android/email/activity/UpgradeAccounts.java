@@ -107,6 +107,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        ActivityHelper.debugSetWindowFlags(this);
 
         Preferences p = Preferences.getPreferences(this);
         Account[] legacyAccounts = p.getAccounts();

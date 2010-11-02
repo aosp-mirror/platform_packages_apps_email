@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.VendorPolicyLoader;
+import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -47,6 +48,7 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityHelper.debugSetWindowFlags(this);
         int flowMode = SetupData.getFlowMode();
 
         // If we're in account setup flow mode, for EAS, skip this screen and "click" EAS

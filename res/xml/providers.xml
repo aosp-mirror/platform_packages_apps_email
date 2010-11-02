@@ -158,6 +158,20 @@
         <incoming uri="pop3://pop.juno.com" username="$user" />
         <outgoing uri="smtp://smtp.juno.com" username="$user" />
     </provider>
+    <!-- EXCHANGE-REMOVE-SECTION-START -->
+    <provider id="live" label="Windows Live Hotmail Plus" domain="live.com">
+        <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
+        <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+    </provider>
+    <provider id="hotmail" label="Windows Live Hotmail Plus" domain="hotmail.com">
+        <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
+        <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+    </provider>
+    <provider id="msn" label="Windows Live Hotmail Plus" domain="msn.com">
+        <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
+        <outgoing uri="eas+ssl+://m.hotmail.com" username="$email" />
+    </provider>
+    <!-- EXCHANGE-REMOVE-SECTION-END -->
     <provider id="live" label="Windows Live Hotmail Plus" domain="live.com"
             note="@string/provider_note_live">
         <incoming uri="pop3+ssl+://pop3.live.com"  username="$email" />

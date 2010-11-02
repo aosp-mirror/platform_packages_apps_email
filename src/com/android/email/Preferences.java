@@ -34,6 +34,7 @@ public class Preferences {
     private static final String ENABLE_DEBUG_LOGGING = "enableDebugLogging";
     private static final String ENABLE_EXCHANGE_LOGGING = "enableExchangeLogging";
     private static final String ENABLE_EXCHANGE_FILE_LOGGING = "enableExchangeFileLogging";
+    private static final String INHIBIT_GRAPHICS_ACCELERATION = "inhibitGraphicsAcceleration";
     private static final String DEVICE_UID = "deviceUID";
     private static final String ONE_TIME_INITIALIZATION_PROGRESS = "oneTimeInitializationProgress";
     private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
@@ -136,11 +137,11 @@ public class Preferences {
     }
 
     public void setDefaultAccount(Account account) {
-        mSharedPreferences.edit().putString(DEFAULT_ACCOUNT_UUID, account.getUuid()).commit();
+        mSharedPreferences.edit().putString(DEFAULT_ACCOUNT_UUID, account.getUuid()).apply();
     }
 
     public void setEnableDebugLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean(ENABLE_DEBUG_LOGGING, value).commit();
+        mSharedPreferences.edit().putBoolean(ENABLE_DEBUG_LOGGING, value).apply();
     }
 
     public boolean getEnableDebugLogging() {
@@ -148,7 +149,7 @@ public class Preferences {
     }
 
     public void setEnableExchangeLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean(ENABLE_EXCHANGE_LOGGING, value).commit();
+        mSharedPreferences.edit().putBoolean(ENABLE_EXCHANGE_LOGGING, value).apply();
     }
 
     public boolean getEnableExchangeLogging() {
@@ -156,11 +157,19 @@ public class Preferences {
     }
 
     public void setEnableExchangeFileLogging(boolean value) {
-        mSharedPreferences.edit().putBoolean(ENABLE_EXCHANGE_FILE_LOGGING, value).commit();
+        mSharedPreferences.edit().putBoolean(ENABLE_EXCHANGE_FILE_LOGGING, value).apply();
     }
 
     public boolean getEnableExchangeFileLogging() {
         return mSharedPreferences.getBoolean(ENABLE_EXCHANGE_FILE_LOGGING, false);
+    }
+
+    public void setInhibitGraphicsAcceleration(boolean value) {
+        mSharedPreferences.edit().putBoolean(INHIBIT_GRAPHICS_ACCELERATION, value).apply();
+    }
+
+    public boolean getInhibitGraphicsAcceleration() {
+        return mSharedPreferences.getBoolean(INHIBIT_GRAPHICS_ACCELERATION, false);
     }
 
     /**
@@ -172,7 +181,7 @@ public class Preferences {
          String result = mSharedPreferences.getString(DEVICE_UID, null);
          if (result == null) {
              result = UUID.randomUUID().toString();
-             mSharedPreferences.edit().putString(DEVICE_UID, result).commit();
+             mSharedPreferences.edit().putString(DEVICE_UID, result).apply();
          }
          return result;
     }
@@ -182,7 +191,7 @@ public class Preferences {
     }
 
     public void setOneTimeInitializationProgress(int progress) {
-        mSharedPreferences.edit().putInt(ONE_TIME_INITIALIZATION_PROGRESS, progress).commit();
+        mSharedPreferences.edit().putInt(ONE_TIME_INITIALIZATION_PROGRESS, progress).apply();
     }
 
     public int getAutoAdvanceDirection() {
@@ -190,14 +199,14 @@ public class Preferences {
     }
 
     public void setAutoAdvanceDirection(int direction) {
-        mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).commit();
+        mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).apply();
     }
 
     public void save() {
     }
 
     public void clear() {
-        mSharedPreferences.edit().clear().commit();
+        mSharedPreferences.edit().clear().apply();
     }
 
     public void dump() {

@@ -1144,7 +1144,7 @@ public class MessageListFragment extends ListFragment
         private final ListStateSaver mListState;
 
         private State(Parcel p) {
-            mListState = p.readParcelable(null);
+            mListState = p.readParcelable(getClass().getClassLoader());
         }
 
         private State(MessageListFragment messageListFragment) {

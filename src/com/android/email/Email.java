@@ -75,6 +75,11 @@ public class Email extends Application {
     public static final boolean DEBUG_THREAD_CHECK = false; // DON'T SUBMIT WITH TRUE
 
     /**
+     * If true, inhibit hardware graphics acceleration in UI (for a/b testing)
+     */
+    public static boolean sDebugInhibitGraphicsAcceleration = false;
+
+    /**
      * The MIME type(s) of attachments we're willing to send via attachments.
      *
      * Any attachments may be added via Intents with Intent.ACTION_SEND or ACTION_SEND_MULTIPLE.
@@ -290,6 +295,7 @@ public class Email extends Application {
         sUiThread = Thread.currentThread();
         Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.getEnableDebugLogging();
+        sDebugInhibitGraphicsAcceleration = prefs.getInhibitGraphicsAcceleration();
         setTempDirectory(this);
 
         // Tie MailRefreshManager to the Controller.

@@ -940,7 +940,7 @@ public class Utility {
         private final Parcelable mState;
 
         private ListStateSaver(Parcel p) {
-            mState = p.readParcelable(null);
+            mState = p.readParcelable(getClass().getClassLoader());
         }
 
         public ListStateSaver(AbsListView lv) {

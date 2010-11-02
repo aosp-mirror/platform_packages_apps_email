@@ -295,7 +295,7 @@ public class Account {
         // also delete any deprecated fields
         editor.remove(mUuid + ".transportUri");
         
-        editor.commit();
+        editor.apply();
     }
 
     public void save(Preferences preferences) {
@@ -329,7 +329,7 @@ public class Account {
             accountUuids += (accountUuids.length() != 0 ? "," : "") + mUuid;
             SharedPreferences.Editor editor = preferences.mSharedPreferences.edit();
             editor.putString("accountUuids", accountUuids);
-            editor.commit();
+            editor.apply();
         }
 
         SharedPreferences.Editor editor = preferences.mSharedPreferences.edit();
@@ -365,7 +365,7 @@ public class Account {
         // also delete any deprecated fields
         editor.remove(mUuid + ".transportUri");
 
-        editor.commit();
+        editor.apply();
     }
 
     @Override

@@ -41,6 +41,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
     private CheckBox mEnableDebugLoggingView;
     private CheckBox mEnableExchangeLoggingView;
     private CheckBox mEnableExchangeFileLoggingView;
+    private CheckBox mInhibitGraphicsAccelerationView;
 
     private Preferences mPreferences;
 
@@ -78,6 +79,11 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
 
         view.findViewById(R.id.clear_webview_cache).setOnClickListener(this);
 
+        mInhibitGraphicsAccelerationView = (CheckBox)
+                view.findViewById(R.id.debug_disable_graphics_acceleration);
+        mInhibitGraphicsAccelerationView.setChecked(Email.sDebugInhibitGraphicsAcceleration);
+        mInhibitGraphicsAccelerationView.setOnCheckedChangeListener(this);
+
         return view;
     }
 
@@ -99,6 +105,10 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
                 }
                 break;
             //EXCHANGE-REMOVE-SECTION-END
+            case R.id.debug_disable_graphics_acceleration:
+                Email.sDebugInhibitGraphicsAcceleration = isChecked;
+                mPreferences.setInhibitGraphicsAcceleration(isChecked);
+                break;
         }
 
         Email.updateLoggingFlags(getActivity());

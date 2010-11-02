@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
+import com.android.email.activity.ActivityHelper;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
 
@@ -60,6 +61,7 @@ public class AccountSecurity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityHelper.debugSetWindowFlags(this);
 
         Intent i = getIntent();
         long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);

@@ -203,13 +203,14 @@ public class SetupData implements Parcelable {
     }
 
     public SetupData(Parcel in) {
+        ClassLoader loader = getClass().getClassLoader();
         mFlowMode = in.readInt();
-        mAccount = in.readParcelable(null);
+        mAccount = in.readParcelable(loader);
         mUsername = in.readString();
         mPassword = in.readString();
         mCheckSettingsMode = in.readInt();
         mAllowAutodiscover = in.readInt() == 1;
-        mPolicySet = in.readParcelable(null);
+        mPolicySet = in.readParcelable(loader);
         mAutoSetup = in.readInt() == 1;
         mDefault = in.readInt() == 1;
     }
