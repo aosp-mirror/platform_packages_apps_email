@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
+import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Throttle;
 import com.android.email.Utility;
@@ -59,6 +60,7 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -351,6 +353,18 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             Log.d(Email.LOG_TAG, "MessageViewFragment onResume");
         }
         super.onResume();
+
+        // Dynamic configuration of WebView
+        WebSettings.TextSize textZoom;
+        switch (Preferences.getPreferences(mContext).getTextZoom()) {
+            case Preferences.TEXT_ZOOM_TINY:    textZoom = WebSettings.TextSize.SMALLEST; break;
+            case Preferences.TEXT_ZOOM_SMALL:   textZoom = WebSettings.TextSize.SMALLER; break;
+            case Preferences.TEXT_ZOOM_NORMAL:  textZoom = WebSettings.TextSize.NORMAL; break;
+            case Preferences.TEXT_ZOOM_LARGE:   textZoom = WebSettings.TextSize.LARGER; break;
+            case Preferences.TEXT_ZOOM_HUGE:    textZoom = WebSettings.TextSize.LARGEST; break;
+            default:                            textZoom = WebSettings.TextSize.NORMAL; break;
+        }
+        mMessageContentView.getSettings().setTextSize(textZoom);
     }
 
     @Override
