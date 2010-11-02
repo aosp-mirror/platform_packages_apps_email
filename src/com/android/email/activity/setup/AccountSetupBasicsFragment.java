@@ -363,12 +363,17 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
         SetupData.setDefault(isDefault);        // TODO - why duplicated, if already set in account
         account.setStoreUri(mContext, incomingUri.toString());
         account.setSenderUri(mContext, outgoingUri.toString());
-        if (incomingUri.toString().startsWith("imap")) {
+        String incomingUriString = incomingUri.toString();
+        if (incomingUriString.startsWith("imap")) {
             // Delete policy must be set explicitly, because IMAP does not provide a UI selection
             // for it. This logic needs to be followed in the auto setup flow as well.
             account.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
         }
-        account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
+        if (incomingUriString.startsWith("eas")) {
+            account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
+        } else {
+            account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
+        }
         mCallback.onProceedAutomatic();
     }
 
