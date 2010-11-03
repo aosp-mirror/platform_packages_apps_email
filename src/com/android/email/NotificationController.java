@@ -235,8 +235,11 @@ public class NotificationController {
      */
     public void showWarningNotification(int id, String tickerText, String notificationText,
             Intent intent) {
-        PendingIntent pendingIntent =
-            PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = null;
+        if (intent != null) {
+            pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+        }
         Notification n = new Notification(android.R.drawable.stat_notify_error, tickerText,
                 System.currentTimeMillis());
         n.setLatestEventInfo(mContext, tickerText, notificationText, pendingIntent);
@@ -252,8 +255,7 @@ public class NotificationController {
         showWarningNotification(NOTIFICATION_ID_ATTACHMENT_WARNING,
                 mContext.getString(R.string.forward_download_failed_ticker),
                 mContext.getString(R.string.forward_download_failed_notification,
-                        att.mFileName),
-                Welcome.createOpenCombinedOutboxIntent(mContext));
+                        att.mFileName), null);
     }
 
     /**
