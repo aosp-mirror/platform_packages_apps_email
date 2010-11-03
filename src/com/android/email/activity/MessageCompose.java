@@ -62,7 +62,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -82,9 +81,8 @@ import java.util.List;
  * Activity to compose a message.
  *
  * TODO Revive shortcuts command for removed menu options.
- * S: send
- * D: save draft
- * Q: discard
+ * C: add cc/bcc
+ * N: add attachment
  */
 public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener {
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
@@ -149,9 +147,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private MultiAutoCompleteTextView mBccView;
     private EditText mSubjectView;
     private EditText mMessageContentView;
-    private Button mSendButton;
-    private Button mDiscardButton;
-    private Button mSaveButton;
     private LinearLayout mAttachments;
     private View mQuotedTextBar;
     private CheckBox mIncludeQuotedTextCheckBox;
@@ -166,6 +161,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private EmailAddressAdapter mAddressAdapterTo;
     private EmailAddressAdapter mAddressAdapterCc;
     private EmailAddressAdapter mAddressAdapterBcc;
+
+    /** Whether the save command should be enabled. */
+    private boolean mSaveEnabled;
 
     /**
      * Compose a new message using the given account. If account is -1 the default account
@@ -428,7 +426,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private void setDraftNeedsSaving(boolean needsSaving) {
         mDraftNeedsSaving = needsSaving;
-        mSaveButton.setEnabled(needsSaving);
+        mSaveEnabled = needsSaving;
+        invalidateOptionsMenu();
     }
 
     private void initViews() {
@@ -438,9 +437,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mBccView = (MultiAutoCompleteTextView)findViewById(R.id.bcc);
         mSubjectView = (EditText)findViewById(R.id.subject);
         mMessageContentView = (EditText)findViewById(R.id.message_content);
-        mSendButton = (Button)findViewById(R.id.send);
-        mDiscardButton = (Button)findViewById(R.id.discard);
-        mSaveButton = (Button)findViewById(R.id.save);
         mAttachments = (LinearLayout)findViewById(R.id.attachments);
         mQuotedTextBar = findViewById(R.id.quoted_text_bar);
         mIncludeQuotedTextCheckBox = (CheckBox) findViewById(R.id.include_quoted_text);
@@ -546,9 +542,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mBccView.setTokenizer(new Rfc822Tokenizer());
         mBccView.setValidator(addressValidator);
 
-        mSendButton.setOnClickListener(this);
-        mDiscardButton.setOnClickListener(this);
-        mSaveButton.setOnClickListener(this);
+        findViewById(R.id.add_cc_bcc).setOnClickListener(this);
+        findViewById(R.id.add_attachment).setOnClickListener(this);
 
         mSubjectView.setOnFocusChangeListener(this);
         mMessageContentView.setOnFocusChangeListener(this);
@@ -1139,28 +1134,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setDraftNeedsSaving(true);
     }
 
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.send:
-                onSend();
-                break;
-            case R.id.save:
-                onSave();
-                break;
-            case R.id.discard:
-                onDiscard();
-                break;
-            case R.id.attachment_delete:
-                onDeleteAttachment(view);
-                break;
-            case R.id.include_quoted_text:
-                onIncludeQuotedTextChanged();
-                break;
-        }
-    }
-
     private boolean includeQuotedText() {
         return mIncludeQuotedTextCheckBox.isChecked();
+    }
+
+    public void onClick(View view) {
+        if (handleCommand(view.getId())) {
+            return;
+        }
+        switch (view.getId()) {
+            case R.id.attachment_delete:
+                onDeleteAttachment(view); // Needs a view; can't be a menu item
+                break;
+        }
     }
 
     private void setIncludeQuotedText(boolean include) {
@@ -1200,32 +1186,46 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.send:
-                onSend();
-                break;
-            case R.id.save:
-                onSave();
-                break;
-            case R.id.discard:
-                onDiscard();
-                break;
-            case R.id.add_cc_bcc:
-                onAddCcBcc();
-                break;
-            case R.id.add_attachment:
-                onAddAttachment();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (handleCommand(item.getItemId())) {
+            return true;
         }
-        return true;
+        return super.onOptionsItemSelected(item);
+    }
+
+    private boolean handleCommand(int viewId) {
+        switch (viewId) {
+        case R.id.send:
+            onSend();
+            return true;
+        case R.id.save:
+            onSave();
+            return true;
+        case R.id.discard:
+            onDiscard();
+            return true;
+        case R.id.include_quoted_text:
+            onIncludeQuotedTextChanged();
+            return true;
+        case R.id.add_cc_bcc:
+            onAddCcBcc();
+            return true;
+        case R.id.add_attachment:
+            onAddAttachment();
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_compose_option, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.save).setEnabled(mSaveEnabled);
         return true;
     }
 

@@ -82,8 +82,8 @@
     <string name="done_action">Done</string>
     <!-- Menu item/button name -->
     <string name="discard_action">Discard</string>
-    <!-- Menu item/button name -->
-    <string name="save_draft_action">Save as draft</string>
+    <!-- Menu item/button name [CHAR_LIMIT=16] -->
+    <string name="save_draft_action">Save draft</string>
     <!-- Menu item/button name -->
     <string name="read_unread_action">Read/Unread</string>
     <!-- Menu item/button name -->
@@ -122,8 +122,8 @@
     <string name="mark_as_unread_action">Mark as unread</string>
     <!-- Menu item for moving messages to folders [CHAR LIMIT=10] -->
     <string name="move_action" translatable="false">Move</string>
-    <!-- Menu item -->
-    <string name="add_cc_bcc_action">Add Cc/Bcc</string>
+    <!-- Menu item / button label for adding CC/BCC fields on message compose. [CHAR LIMIT=16] -->
+    <string name="add_cc_bcc_action">+ Cc/Bcc</string>
     <!-- Menu item -->
     <string name="add_attachment_action">Add attachment</string>
     <!-- Menu item (debug screen) -->
