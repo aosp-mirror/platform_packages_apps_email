@@ -2283,11 +2283,14 @@ public class EasSyncService extends AbstractSyncService {
     public void run() {
         if (!setupService()) return;
 
-        try {
-            ExchangeService.callback().syncMailboxStatus(mMailboxId, EmailServiceStatus.IN_PROGRESS,
-                    0);
-        } catch (RemoteException e1) {
-            // Don't care if this fails
+        if (mSyncReason == ExchangeService.SYNC_SERVICE_START_SYNC ||
+                mSyncReason == ExchangeService.SYNC_SERVICE_PART_REQUEST) {
+            try {
+                ExchangeService.callback().syncMailboxStatus(mMailboxId,
+                        EmailServiceStatus.IN_PROGRESS, 0);
+            } catch (RemoteException e1) {
+                // Don't care if this fails
+            }
         }
 
         // Whether or not we're the account mailbox
