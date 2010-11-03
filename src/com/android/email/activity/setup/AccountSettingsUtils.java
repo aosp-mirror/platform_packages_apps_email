@@ -159,4 +159,49 @@ public class AccountSettingsUtils {
         public String outgoingUsernameTemplate;
         public String note;
     }
+
+    /**
+     * Infer potential email server addresses from domain names
+     *
+     * Incoming: Prepend "imap" or "pop3" to domain, unless "pop", "pop3",
+     *          "imap", or "mail" are found.
+     * Outgoing: Prepend "smtp" if "pop", "pop3", "imap" are found.
+     *          Leave "mail" as-is.
+     * TBD: Are there any useful defaults for exchange?
+     *
+     * @param server name as we know it so far
+     * @param incoming "pop3" or "imap" (or null)
+     * @param outgoing "smtp" or null
+     * @return the post-processed name for use in the UI
+     */
+    public static String inferServerName(String server, String incoming, String outgoing) {
+        // Default values cause entire string to be kept, with prepended server string
+        int keepFirstChar = 0;
+        int firstDotIndex = server.indexOf('.');
+        if (firstDotIndex != -1) {
+            // look at first word and decide what to do
+            String firstWord = server.substring(0, firstDotIndex).toLowerCase();
+            boolean isImapOrPop = "imap".equals(firstWord)
+                    || "pop3".equals(firstWord) || "pop".equals(firstWord);
+            boolean isMail = "mail".equals(firstWord);
+            // Now decide what to do
+            if (incoming != null) {
+                // For incoming, we leave imap/pop/pop3/mail alone, or prepend incoming
+                if (isImapOrPop || isMail) {
+                    return server;
+                }
+            } else {
+                // For outgoing, replace imap/pop/pop3 with outgoing, leave mail alone, or
+                // prepend outgoing
+                if (isImapOrPop) {
+                    keepFirstChar = firstDotIndex + 1;
+                } else if (isMail) {
+                    return server;
+                } else {
+                    // prepend
+                }
+            }
+        }
+        return ((incoming != null) ? incoming : outgoing) + '.' + server.substring(keepFirstChar);
+    }
 }

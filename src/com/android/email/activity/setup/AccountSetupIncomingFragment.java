@@ -391,14 +391,17 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         EmailContent.Account account = SetupData.getAccount();
 
         // Set the username and password for the outgoing settings to the username and
-        // password the user just set for incoming.
+        // password the user just set for incoming.  Use the verified host address to try and
+        // pick a smarter outgoing address.
         try {
+            String hostName =
+                AccountSettingsUtils.inferServerName(account.mHostAuthRecv.mAddress, null, "smtp");
             URI oldUri = new URI(account.getSenderUri(mContext));
             URI uri = new URI(
                     oldUri.getScheme(),
                     mUsernameView.getText().toString().trim() + ":"
-                            + mPasswordView.getText().toString().trim(),
-                    oldUri.getHost(),
+                            + mPasswordView.getText().toString(),
+                    hostName,
                     oldUri.getPort(),
                     null,
                     null,
