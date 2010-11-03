@@ -103,27 +103,10 @@ public class Welcome extends Activity {
      */
     public static Intent createOpenAccountInboxIntent(Context context, long accountId) {
         Intent i = new Intent(context, Welcome.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         }
-        return i;
-    }
-
-    /**
-     * Create an Intent to open "Combined Outbox".
-     */
-    public static Intent createOpenCombinedInboxIntent(Context context) {
-        Intent i = new Intent(context, Welcome.class);
-        i.putExtra(EXTRA_MAILBOX_ID, Mailbox.QUERY_ALL_INBOXES);
-        return i;
-    }
-
-    /**
-     * Create an Intent to open "Combined Inbox".
-     */
-    public static Intent createOpenCombinedOutboxIntent(Context context) {
-        Intent i = new Intent(context, Welcome.class);
-        i.putExtra(EXTRA_MAILBOX_ID, Mailbox.QUERY_ALL_OUTBOX);
         return i;
     }
 

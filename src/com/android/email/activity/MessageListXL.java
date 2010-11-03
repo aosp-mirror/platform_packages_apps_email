@@ -92,7 +92,8 @@ public class MessageListXL extends Activity implements
      * Launch and open a mailbox.
      *
      * @param accountId must not be -1.
-     * @param mailboxId must not be -1.
+     * @param mailboxId must not be -1.  Magic mailboxes IDs (such as
+     * {@link Mailbox#QUERY_ALL_INBOXES}) don't work.
      */
     public static void actionOpenMailbox(Activity fromActivity, long accountId, long mailboxId) {
         Intent i = new Intent(fromActivity, MessageListXL.class);
@@ -100,7 +101,7 @@ public class MessageListXL extends Activity implements
             throw new InvalidParameterException();
         }
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
-        i.putExtra(EXTRA_MAILBOX_ID, Mailbox.QUERY_ALL_INBOXES);
+        i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
@@ -138,8 +139,7 @@ public class MessageListXL extends Activity implements
         final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
         final long mailboxId = i.getLongExtra(EXTRA_MAILBOX_ID, -1);
         if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG,
-                    String.format("Welcome: %d %d", accountId, mailboxId));
+            Log.d(Email.LOG_TAG, String.format("initFromIntent: %d %d", accountId, mailboxId));
         }
 
         if (accountId != -1) {
