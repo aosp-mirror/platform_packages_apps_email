@@ -118,6 +118,24 @@
         <item>list</item>
     </string-array>
 
+    <!-- Text Zoom options (DO NOT change the order.  Code assumes this order)-->
+    <string-array name="general_preference_text_zoom_entries">
+        <item>@string/general_preference_text_zoom_tiny</item>
+        <item>@string/general_preference_text_zoom_small</item>
+        <item>@string/general_preference_text_zoom_normal</item>
+        <item>@string/general_preference_text_zoom_large</item>
+        <item>@string/general_preference_text_zoom_huge</item>
+    </string-array>
+
+    <!-- Text Zoom option values (DO NOT change the order.  Code assumes this order)-->
+    <string-array translatable="false" name="general_preference_text_zoom_values">
+        <item>tiny</item>
+        <item>small</item>
+        <item>normal</item>
+        <item>large</item>
+        <item>huge</item>
+    </string-array>
+
     <!-- Arrays "mailbox_display_names" and "mailbox_display_icons" MUST match the order
          of the types of mailboxes defined in EmailContent -->
     <string-array name="mailbox_display_names" translatable="false">

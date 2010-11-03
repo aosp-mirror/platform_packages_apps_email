@@ -38,12 +38,21 @@ public class Preferences {
     private static final String DEVICE_UID = "deviceUID";
     private static final String ONE_TIME_INITIALIZATION_PROGRESS = "oneTimeInitializationProgress";
     private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
+    private static final String TEXT_ZOOM = "textZoom";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;
     public static final int AUTO_ADVANCE_MESSAGE_LIST = 2;
     // "move to older" was the behavior on older versions.
     public static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
+
+    public static final int TEXT_ZOOM_TINY = 0;
+    public static final int TEXT_ZOOM_SMALL = 1;
+    public static final int TEXT_ZOOM_NORMAL = 2;
+    public static final int TEXT_ZOOM_LARGE = 3;
+    public static final int TEXT_ZOOM_HUGE = 4;
+    // "large" will be the default
+    public static final int TEXT_ZOOM_DEFAULT = TEXT_ZOOM_LARGE;
 
     private static Preferences sPreferences;
 
@@ -200,6 +209,14 @@ public class Preferences {
 
     public void setAutoAdvanceDirection(int direction) {
         mSharedPreferences.edit().putInt(AUTO_ADVANCE_DIRECTION, direction).apply();
+    }
+
+    public int getTextZoom() {
+        return mSharedPreferences.getInt(TEXT_ZOOM, TEXT_ZOOM_DEFAULT);
+    }
+
+    public void setTextZoom(int zoom) {
+        mSharedPreferences.edit().putInt(TEXT_ZOOM, zoom).apply();
     }
 
     public void save() {

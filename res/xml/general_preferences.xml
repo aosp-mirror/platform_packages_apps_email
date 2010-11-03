@@ -14,9 +14,7 @@
      limitations under the License.
 -->
 
-<!-- This is a primitive example showing the different types of preferences available. -->
-<!-- STOPSHIP add some real preferences -->
-
+<!-- App-wide preferences -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
@@ -29,6 +27,14 @@
             android:entries="@array/general_preference_auto_advance_entries"
             android:entryValues="@array/general_preference_auto_advance_values"
             android:dialogTitle="@string/general_preference_auto_advance_dialog_title" />
+
+        <!-- Note, summary is set dynamically in GeneralPreferences.java -->
+        <ListPreference
+            android:key="text_zoom"
+            android:title="@string/general_preference_text_zoom_label"
+            android:entries="@array/general_preference_text_zoom_entries"
+            android:entryValues="@array/general_preference_text_zoom_values"
+            android:dialogTitle="@string/general_preference_text_zoom_dialog_title" />
 
     </PreferenceCategory>
 </PreferenceScreen>

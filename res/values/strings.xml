@@ -894,6 +894,32 @@ save attachment.</string>
          This option is for "move back to the message list" [CHAR LIMIT=32] -->
     <string name="general_preference_auto_advance_message_list">Message list</string>
 
+    <!-- General preference: Label of the setting for the text zoom.  [CHAR LIMIT=32] -->
+    <string name="general_preference_text_zoom_label">Message text size</string>
+    <!-- General preference: Description of each setting for text zoom.  The entries here must
+         correspond to the strings general_preference_text_zoom_tiny,
+         general_preference_text_zoom_small, general_preference_text_zoom_normal, etc.
+         [CHAR LIMIT=64] -->
+    <string-array name="general_preference_text_zoom_summary_array">
+        <item>Display content of messages in tiny sized text</item>
+        <item>Display content of messages in small sized text</item>
+        <item>Display content of messages in normal sized text</item>
+        <item>Display content of messages in large sized text</item>
+        <item>Display content of messages in huge sized text</item>
+    </string-array>
+    <!-- General preference: Title of the dialog box with options for text zoom. [CHAR LIMIT=32] -->
+    <string name="general_preference_text_zoom_dialog_title">Message text size</string>
+    <!-- General preference:  Text zoom.  Value is "tiny" (-2) [CHAR LIMIT=32] -->
+    <string name="general_preference_text_zoom_tiny">Tiny</string>
+    <!-- General preference:  Text zoom.  Value is "small" (-1) [CHAR LIMIT=32] -->
+    <string name="general_preference_text_zoom_small">Small</string>
+    <!-- General preference:  Text zoom.  Value is "normal" (0) [CHAR LIMIT=32] -->
+    <string name="general_preference_text_zoom_normal">Normal</string>
+    <!-- General preference:  Text zoom.  Value is "large" (+1) [CHAR LIMIT=32] -->
+    <string name="general_preference_text_zoom_large">Large</string>
+    <!-- General preference:  Text zoom.  Value is "huge" (+2) [CHAR LIMIT=32] -->
+    <string name="general_preference_text_zoom_huge">Huge</string>
+
     <!--
         Strings for temporary UI
         STOPSHIP Remove them or move them up and make translatable

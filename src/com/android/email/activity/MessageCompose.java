@@ -35,6 +35,7 @@ import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -862,6 +863,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         private final boolean mSend;
 
         public SendOrSaveMessageTask(boolean send) {
+            if (send && ActivityManager.isUserAMonkey()) {
+                Log.d(Email.LOG_TAG, "Inhibiting send while monkey is in charge.");
+                send = false;
+            }
             mSend = send;
         }
 

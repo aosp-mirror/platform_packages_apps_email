@@ -21,14 +21,20 @@ import com.android.email.R;
 
 import android.os.Bundle;
 import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 
-public class GeneralPreferences extends PreferenceFragment {
+public class GeneralPreferences extends PreferenceFragment implements OnPreferenceChangeListener  {
 
-    private static final String PREFERENCE_AUTO_ADVANCE= "auto_advance";
+    private static final String PREFERENCE_KEY_AUTO_ADVANCE = "auto_advance";
+    private static final String PREFERENCE_KEY_TEXT_ZOOM = "text_zoom";
 
     private Preferences mPreferences;
     private ListPreference mAutoAdvance;
+    private ListPreference mTextZoom;
+
+    CharSequence[] mSizeSummaries;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,19 +51,47 @@ public class GeneralPreferences extends PreferenceFragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        saveSettings();
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        String key = preference.getKey();
+
+        if (PREFERENCE_KEY_AUTO_ADVANCE.equals(key)) {
+            mPreferences.setAutoAdvanceDirection(mAutoAdvance.findIndexOfValue((String) newValue));
+            return true;
+        } else if (PREFERENCE_KEY_TEXT_ZOOM.equals(key)) {
+            mPreferences.setTextZoom(mTextZoom.findIndexOfValue((String) newValue));
+            reloadDynamicSummaries();
+            return true;
+        }
+        return false;
     }
 
     private void loadSettings() {
         mPreferences = Preferences.getPreferences(getActivity());
-        mAutoAdvance = (ListPreference) findPreference(PREFERENCE_AUTO_ADVANCE);
+        mAutoAdvance = (ListPreference) findPreference(PREFERENCE_KEY_AUTO_ADVANCE);
         mAutoAdvance.setValueIndex(mPreferences.getAutoAdvanceDirection());
+        mAutoAdvance.setOnPreferenceChangeListener(this);
+
+        mTextZoom = (ListPreference) findPreference(PREFERENCE_KEY_TEXT_ZOOM);
+        mTextZoom.setValueIndex(mPreferences.getTextZoom());
+        mTextZoom.setOnPreferenceChangeListener(this);
+
+        reloadDynamicSummaries();
     }
 
-    private void saveSettings() {
-        mPreferences.setAutoAdvanceDirection(
-                mAutoAdvance.findIndexOfValue(mAutoAdvance.getValue()));
+    /**
+     * Reload any preference summaries that are updated dynamically
+     */
+    private void reloadDynamicSummaries() {
+        int textZoomIndex = mPreferences.getTextZoom();
+        // Update summary - but only load the array once
+        if (mSizeSummaries == null) {
+            mSizeSummaries = getActivity().getResources()
+                    .getTextArray(R.array.general_preference_text_zoom_summary_array);
+        }
+        CharSequence summary = null;
+        if (textZoomIndex >= 0 && textZoomIndex < mSizeSummaries.length) {
+            summary = mSizeSummaries[textZoomIndex];
+        }
+        mTextZoom.setSummary(summary);
     }
 }
