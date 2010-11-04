@@ -559,7 +559,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mAddressAdapterBcc = new EmailAddressAdapter(this);
     }
 
-    // TODO: is there any way to unify this with MessageView.LoadMessageTask?
     private class LoadMessageTask extends AsyncTask<Void, Void, Object[]> {
         private final long mMessageId;
 
@@ -807,9 +806,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         if (includeQuotedText()) {
-            message.mFlags |= Message.FLAG_INCLUDE_QUOTED_TEXT;
+            message.mFlags &= ~Message.FLAG_NOT_INCLUDE_QUOTED_TEXT;
         } else {
-            message.mFlags &= ~Message.FLAG_INCLUDE_QUOTED_TEXT;
+            message.mFlags |= Message.FLAG_NOT_INCLUDE_QUOTED_TEXT;
             if (sending) {
                 // If we are about to send a message, and not including the original message,
                 // clear the related field.
@@ -1485,7 +1484,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          */
         if (ACTION_EDIT_DRAFT.equals(mAction)) {
             displayQuotedText(message.mTextReply, message.mHtmlReply);
-            setIncludeQuotedText((mDraft.mFlags & Message.FLAG_INCLUDE_QUOTED_TEXT) != 0);
+            setIncludeQuotedText((mDraft.mFlags & Message.FLAG_NOT_INCLUDE_QUOTED_TEXT) == 0);
         }
     }
 
