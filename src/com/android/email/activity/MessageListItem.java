@@ -17,22 +17,10 @@
 package com.android.email.activity;
 
 import com.android.email.R;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.EmailContent.Message;
 
-import android.content.ClipData;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Point;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.RelativeLayout;
 
 /**
@@ -41,7 +29,6 @@ import android.widget.RelativeLayout;
  * 2.  It handles internal clicks such as the checkbox or the favorite star
  */
 public class MessageListItem extends RelativeLayout {
-    private static final String TAG = "MessageListItem";
     // Note: messagesAdapter directly fiddles with these fields.
     /* package */ long mMessageId;
     /* package */ long mMailboxId;
@@ -53,7 +40,6 @@ public class MessageListItem extends RelativeLayout {
 
     private boolean mDownEvent;
     private boolean mCachedViewPositions;
-    private int mDragRight = -1;
     private int mCheckRight;
     private int mStarLeft;
 
@@ -86,59 +72,6 @@ public class MessageListItem extends RelativeLayout {
         mCachedViewPositions = false;
     }
 
-    // This is tentative drag & drop UI
-    // STOPSHIP this entire class needs to be rewritten based on the actual UI design
-    private static class ThumbnailBuilder extends DragThumbnailBuilder {
-        private static Drawable sBackground;
-        private static TextPaint sPaint;
-
-        private View mView;
-        private static final int mWidth = 250;
-        private final Bitmap mDragHandle;
-        private final float mDragHandleX;
-        private final float mDragHandleY;
-        private String mDragDesc;
-        private float mDragDescX;
-        private float mDragDescY;
-
-        public ThumbnailBuilder(View view, int count) {
-            super(view);
-            Resources resources = view.getResources();
-            mView = view;
-            mDragHandle = BitmapFactory.decodeResource(resources, R.drawable.drag_handle);
-            mDragHandleY = view.getHeight() - (mDragHandle.getHeight() / 2);
-            View handleView = view.findViewById(R.id.handle);
-            mDragHandleX = handleView.getLeft() + handleView.getPaddingLeft();
-            mDragDesc = resources.getQuantityString(R.plurals.move_messages, count, count);
-            mDragDescX = handleView.getRight() + 50;
-            // Use height of this font??
-            mDragDescY = view.getHeight() / 2;
-            if (sBackground == null) {
-                sBackground = resources.getDrawable(R.drawable.drag_background_holo);
-                sBackground.setBounds(0, 0, mWidth, view.getHeight());
-                sPaint = new TextPaint();
-                sPaint.setTypeface(Typeface.DEFAULT_BOLD);
-                sPaint.setTextSize(18);
-            }
-        }
-
-        @Override
-        public void onProvideThumbnailMetrics(Point thumbnailSize, Point thumbnailTouchPoint) {
-            //float width = mView.getWidth();
-            float height = mView.getHeight();
-            thumbnailSize.set(mWidth, (int) height);
-            thumbnailTouchPoint.set((int) mDragHandleX, (int) mDragHandleY / 2);
-        }
-
-        @Override
-        public void onDrawThumbnail(Canvas canvas) {
-            super.onDrawThumbnail(canvas);
-            sBackground.draw(canvas);
-            canvas.drawBitmap(mDragHandle, mDragHandleX, mDragHandleY, sPaint);
-            canvas.drawText(mDragDesc, mDragDescX, mDragDescY, sPaint);
-        }
-    }
-
     /**
      * Overriding this method allows us to "catch" clicks in the checkbox or star
      * and process them accordingly.
@@ -152,10 +85,6 @@ public class MessageListItem extends RelativeLayout {
             final float paddingScale = getContext().getResources().getDisplayMetrics().density;
             final int checkPadding = (int) ((CHECKMARK_PAD * paddingScale) + 0.5);
             final int starPadding = (int) ((STAR_PAD * paddingScale) + 0.5);
-            View dragHandle = findViewById(R.id.handle);
-            if (dragHandle != null) {
-                mDragRight = dragHandle.getRight();
-            }
             mCheckRight = findViewById(R.id.selected).getRight() + checkPadding;
             mStarLeft = findViewById(R.id.favorite).getLeft() - starPadding;
             mCachedViewPositions = true;
@@ -163,20 +92,7 @@ public class MessageListItem extends RelativeLayout {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (touchX < mDragRight) {
-                    Context context = getContext();
-                    // Drag
-                    ClipData data = ClipData.newUri(context.getContentResolver(),
-                            MessageListItem.MESSAGE_LIST_ITEMS_CLIP_LABEL, null,
-                            Message.CONTENT_URI.buildUpon()
-                                .appendPath(Long.toString(mMessageId))
-                                .appendQueryParameter(
-                                        EmailProvider.MESSAGE_URI_PARAMETER_MAILBOX_ID,
-                                        Long.toString(mMailboxId))
-                                .build());
-                    startDrag(data, new ThumbnailBuilder(this, 1), false);
-                    handled = true;
-                } else {
+                if (touchX < mCheckRight) {
                     mDownEvent = true;
                     if ((touchX < mCheckRight) || (touchX > mStarLeft)) {
                         handled = true;
