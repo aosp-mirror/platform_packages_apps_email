@@ -45,12 +45,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,7 +75,7 @@ import java.util.Set;
  */
 public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
-        OnClickListener, MoveMessageToDialog.Callback {
+        MoveMessageToDialog.Callback {
     private static final String BUNDLE_LIST_STATE = "MessageListFragment.state.listState";
     private static final String BUNDLE_KEY_SELECTED_MESSAGE_ID
             = "messageListFragment.state.listState.selected_message_id";
@@ -93,7 +91,6 @@ public class MessageListFragment extends ListFragment
     private View mListFooterView;
     private TextView mListFooterText;
     private View mListFooterProgress;
-    private View mSendPanel;
     private View mListPanel;
     private View mNoMessagesPanel;
 
@@ -129,6 +126,9 @@ public class MessageListFragment extends ListFragment
      * {@link ActionMode} shown when 1 or more message is selected.
      */
     private ActionMode mSelectionMode;
+
+    /** Whether "Send all messages" should be shown. */
+    private boolean mShowSendCommand;
 
     private Utility.ListStateSaver mSavedListState;
 
@@ -191,6 +191,7 @@ public class MessageListFragment extends ListFragment
         }
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
+        setHasOptionsMenu(true);
         mController = Controller.getInstance(mActivity);
         mRefreshManager = RefreshManager.getInstance(mActivity);
         mRefreshManager.registerListener(mRefreshListener);
@@ -201,10 +202,8 @@ public class MessageListFragment extends ListFragment
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Use a custom layout, which includes the original layout with "send messages" panel.
         View root = inflater.inflate(R.layout.message_list_fragment,null);
-        mSendPanel = root.findViewById(R.id.send_panel);
         mListPanel = root.findViewById(R.id.list_panel);
         mNoMessagesPanel = root.findViewById(R.id.no_messages_panel);
-        ((Button) mSendPanel.findViewById(R.id.send_messages)).setOnClickListener(this);
         return root;
     }
 
@@ -302,6 +301,27 @@ public class MessageListFragment extends ListFragment
         mSelectedMessageId = savedInstanceState.getLong(BUNDLE_KEY_SELECTED_MESSAGE_ID);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.message_list_fragment_option, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.send).setVisible(mShowSendCommand);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.send:
+                onSendPendingMessages();
+                return true;
+
+        }
+        return false;
+    }
+
     public void setCallback(Callback callback) {
         mCallback = (callback != null) ? callback : EmptyCallback.INSTANCE;
     }
@@ -391,15 +411,6 @@ public class MessageListFragment extends ListFragment
      */
     public boolean isInSelectionMode() {
         return mSelectionMode != null;
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.send_messages:
-                onSendPendingMessages();
-                break;
-        }
     }
 
     /**
@@ -834,16 +845,13 @@ public class MessageListFragment extends ListFragment
         }
     }
 
-    private void hideSendPanel() {
-        mSendPanel.setVisibility(View.GONE);
+    private void showSendCommand(boolean show) {
+        mShowSendCommand = show;
+        mActivity.invalidateOptionsMenu();
     }
 
-    private void showSendPanelIfNecessary() {
-        final boolean show =
-                isOutbox()
-                && (mListAdapter != null)
-                && (mListAdapter.getCount() > 0);
-        mSendPanel.setVisibility(show ? View.VISIBLE : View.GONE);
+    private void showSendCommandIfNecessary() {
+        showSendCommand(isOutbox() && (mListAdapter != null) && (mListAdapter.getCount() > 0));
     }
 
     private void showNoMessageText(boolean visible) {
@@ -866,7 +874,7 @@ public class MessageListFragment extends ListFragment
         // Clear the list. (ListFragment will show the "Loading" animation)
         showNoMessageText(false);
         setListShown(false);
-        hideSendPanel();
+        showSendCommand(false);
 
         // Start loading...
         final LoaderManager lm = getLoaderManager();
@@ -988,7 +996,7 @@ public class MessageListFragment extends ListFragment
             autoRefreshStaleMailbox();
             addFooterView();
             updateSelectionMode();
-            showSendPanelIfNecessary();
+            showSendCommandIfNecessary();
             showNoMessageTextIfNecessary();
 
             // We want to make selection visible only when the loader was explicitly started.

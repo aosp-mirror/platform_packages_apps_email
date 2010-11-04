@@ -33,9 +33,8 @@
     <!-- STOPSHIP Remove them if they're not used after all -->
     <!-- Appears in message list view of outbox while messages are being sent -->
     <string name="status_sending_messages">Sending messages\u2026</string>
-    <!-- Appears at the bottom of list of messages of outbox;
-         user selects to send pending messages. -->
-    <string name="message_list_send_pending_messages_action">Send outgoing messages</string>
+    <!-- Command shown on Outbox to send all pending messages [CHAR_LIMIT=15] -->
+    <string name="message_list_send_pending_messages_action">Send all</string>
     <!-- Toast while fetching attachment -->
     <string name="message_view_fetching_attachment_toast">Fetching attachment.</string>
     <!-- Appears progress dialog for fetching attachment -->
