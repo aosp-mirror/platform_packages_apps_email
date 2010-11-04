@@ -411,7 +411,7 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
      */
     public void onManualSetup(boolean allowAutoDiscover) {
         String email = mEmailView.getText().toString().trim();
-        String password = mPasswordView.getText().toString().trim();
+        String password = mPasswordView.getText().toString();
         String[] emailParts = email.split("@");
         String user = emailParts[0].trim();
         String domain = emailParts[1].trim();

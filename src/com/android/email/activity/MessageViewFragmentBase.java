@@ -320,8 +320,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mInviteScroll = view.findViewById(R.id.invite_scroll);
 
         mMessageContentView.setVerticalScrollBarEnabled(false);
-        mMessageContentView.getSettings().setBlockNetworkLoads(true);
-        mMessageContentView.getSettings().setSupportZoom(false);
+        WebSettings webSettings = mMessageContentView.getSettings();
+        webSettings.setBlockNetworkLoads(true);
+        webSettings.setSupportZoom(true);
+        webSettings.setBuiltInZoomControls(true);
         mMessageContentView.setWebViewClient(new CustomWebViewClient());
         return view;
     }

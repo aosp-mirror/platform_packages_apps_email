@@ -22,6 +22,7 @@ import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -77,18 +78,16 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         // TODO: Dynamic creation of buttons, instead of just hiding things we don't need
     }
 
+    /**
+     * For POP accounts, we rewrite the username to the full user@domain, and we set the
+     * default server name to pop3.domain
+     */
     private void onPop() {
         Account account = SetupData.getAccount();
-        try {
-            URI uri = new URI(account.getStoreUri(this));
-            uri = new URI("pop3", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-            account.setStoreUri(this, uri.toString());
-        } catch (URISyntaxException use) {
-            /*
-             * This should not happen.
-             */
-            throw new Error(use);
-        }
+        HostAuth hostAuth = account.mHostAuthRecv;
+        hostAuth.mProtocol = "pop3";
+        hostAuth.mLogin = hostAuth.mLogin + "@" + hostAuth.mAddress;
+        hostAuth.mAddress = AccountSettingsUtils.inferServerName(hostAuth.mAddress, "pop3", null);
         SetupData.setCheckSettingsMode(SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING);
         AccountSetupIncoming.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
@@ -100,16 +99,10 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
      */
     private void onImap() {
         Account account = SetupData.getAccount();
-        try {
-            URI uri = new URI(account.getStoreUri(this));
-            uri = new URI("imap", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-            account.setStoreUri(this, uri.toString());
-        } catch (URISyntaxException use) {
-            /*
-             * This should not happen.
-             */
-            throw new Error(use);
-        }
+        HostAuth hostAuth = account.mHostAuthRecv;
+        hostAuth.mProtocol = "imap";
+        hostAuth.mLogin = hostAuth.mLogin + "@" + hostAuth.mAddress;
+        hostAuth.mAddress = AccountSettingsUtils.inferServerName(hostAuth.mAddress, "imap", null);
         // Delete policy must be set explicitly, because IMAP does not provide a UI selection
         // for it. This logic needs to be followed in the auto setup flow as well.
         account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
