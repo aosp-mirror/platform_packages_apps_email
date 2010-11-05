@@ -21,12 +21,12 @@ import com.android.email.mail.Address;
 import com.android.email.mail.FetchProfile;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Transport;
 import com.android.email.mail.Folder.FolderType;
 import com.android.email.mail.Folder.OpenMode;
+import com.android.email.mail.Message;
 import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Transport;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.transport.MockTransport;
 
@@ -202,6 +202,37 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
         } catch (MessagingException me) {
             // this is expected, so eat it
         }
+    }
+
+    /**
+     * Test a strange case that causes open to proceed without mCapabilities
+     *  open - fail with "-" error code
+     *  then check capabilities
+     */
+    public void testCheckSettingsCapabilities() throws MessagingException {
+
+        MockTransport mockTransport = openAndInjectMockTransport();
+
+        // First, preload an open that fails for some reason
+        mockTransport.expect(null, "-ERR from the Mock Transport.");
+
+        // And watch it fail
+        try {
+            Pop3Store.Pop3Folder folder = mStore.new Pop3Folder("INBOX");
+            folder.open(OpenMode.READ_WRITE, null);
+            fail("Should have thrown exception");
+        } catch (MessagingException me) {
+            // Expected - continue.
+        }
+
+        // Now try again (assuming a slightly different connection setup - successful)
+        // Note, checkSettings is going to try to close the connection again, so we expect
+        // one extra QUIT before we spin it up again
+        mockTransport.expect("QUIT", "");
+        mockTransport.expectClose();
+        setupOpenFolder(mockTransport, 0, "UIDL");
+        mockTransport.expect("QUIT", "");
+        mStore.checkSettings();
     }
 
     /**
