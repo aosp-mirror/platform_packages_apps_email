@@ -124,7 +124,7 @@ public class MessageListXL extends Activity implements
         mFragmentManager.setMessageListFragmentCallback(new MessageListFragmentCallback());
         mFragmentManager.setMessageViewFragmentCallback(new MessageViewFragmentCallback());
 
-        mAccountsSelectorAdapter = new AccountSelectorAdapter(mContext, null);
+        mAccountsSelectorAdapter = new AccountSelectorAdapter(this, null);
 
         if (isRestoring) {
             mFragmentManager.loadState(savedInstanceState);
@@ -503,7 +503,7 @@ public class MessageListXL extends Activity implements
         final ActionBar ab = getActionBar();
         if (count == 1) {
             accountsCursor.moveToFirst();
-            ab.setStandardNavigationMode();
+            ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
             ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(accountsCursor));
             return;
         }
@@ -525,8 +525,9 @@ public class MessageListXL extends Activity implements
 
         // Update the dropdown list.
         mAccountsSelectorAdapter.changeCursor(accountsCursor);
-        ab.setDropdownNavigationMode(mAccountsSelectorAdapter,
-                mActionBarNavigationCallback, defaultSelection);
+        ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        ab.setListNavigationCallbacks(mAccountsSelectorAdapter, mActionBarNavigationCallback);
+        ab.setSelectedNavigationItem(defaultSelection);
     }
 
     private class ActionBarNavigationCallback implements ActionBar.NavigationCallback {
