@@ -38,6 +38,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -66,22 +67,22 @@ public class AccountSettingsFragment extends PreferenceFragment {
     // Keys used for arguments bundle
     private static final String BUNDLE_KEY_ACCOUNT_ID = "AccountSettingsFragment.AccountId";
 
-    private static final String PREFERENCE_TOP_CATEGORY = "account_settings";
+    private static final String PREFERENCE_CATEGORY_TOP = "account_settings";
     private static final String PREFERENCE_DESCRIPTION = "account_description";
     private static final String PREFERENCE_NAME = "account_name";
     private static final String PREFERENCE_SIGNATURE = "account_signature";
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
     private static final String PREFERENCE_DEFAULT = "account_default";
+    private static final String PREFERENCE_CATEGORY_NOTIFICATIONS = "account_notifications";
     private static final String PREFERENCE_NOTIFY = "account_notify";
     private static final String PREFERENCE_VIBRATE_WHEN = "account_settings_vibrate_when";
     private static final String PREFERENCE_RINGTONE = "account_ringtone";
-    private static final String PREFERENCE_SERVER_CATEGORY = "account_servers";
+    private static final String PREFERENCE_CATEGORY_SERVER = "account_servers";
     private static final String PREFERENCE_INCOMING = "incoming";
     private static final String PREFERENCE_OUTGOING = "outgoing";
     private static final String PREFERENCE_SYNC_CONTACTS = "account_sync_contacts";
     private static final String PREFERENCE_SYNC_CALENDAR = "account_sync_calendar";
     private static final String PREFERENCE_SYNC_EMAIL = "account_sync_email";
-    private static final String PREFERENCE_DELETE_ACCOUNT_CATEGORY = "category_delete_account";
     private static final String PREFERENCE_DELETE_ACCOUNT = "delete_account";
 
     // These strings must match account_settings_vibrate_when_* strings in strings.xml
@@ -350,7 +351,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         mSaveOnExit = true;
 
         PreferenceCategory topCategory =
-            (PreferenceCategory) findPreference(PREFERENCE_TOP_CATEGORY);
+            (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_TOP);
         topCategory.setTitle(mContext.getString(R.string.account_settings_title_fmt));
 
         mAccountDescription = (EditTextPreference) findPreference(PREFERENCE_DESCRIPTION);
@@ -453,13 +454,22 @@ public class AccountSettingsFragment extends PreferenceFragment {
         SharedPreferences prefs = mAccountRingtone.getPreferenceManager().getSharedPreferences();
         prefs.edit().putString(PREFERENCE_RINGTONE, mAccount.getRingtone()).apply();
 
+        // Set the vibrator value, or hide it on devices w/o a vibrator
         mAccountVibrateWhen = (ListPreference) findPreference(PREFERENCE_VIBRATE_WHEN);
-        boolean flagsVibrate = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_ALWAYS);
-        boolean flagsVibrateSilent = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_WHEN_SILENT);
-        mAccountVibrateWhen.setValue(
-                flagsVibrate ? PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS :
-                flagsVibrateSilent ? PREFERENCE_VALUE_VIBRATE_WHEN_SILENT :
-                    PREFERENCE_VALUE_VIBRATE_WHEN_NEVER);
+        Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator.hasVibrator()) {
+            boolean flagsVibrate = 0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_ALWAYS);
+            boolean flagsVibrateSilent =
+                    0 != (mAccount.getFlags() & Account.FLAGS_VIBRATE_WHEN_SILENT);
+            mAccountVibrateWhen.setValue(
+                    flagsVibrate ? PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS :
+                    flagsVibrateSilent ? PREFERENCE_VALUE_VIBRATE_WHEN_SILENT :
+                        PREFERENCE_VALUE_VIBRATE_WHEN_NEVER);
+        } else {
+            PreferenceCategory notificationsCategory = (PreferenceCategory)
+                    findPreference(PREFERENCE_CATEGORY_NOTIFICATIONS);
+            notificationsCategory.removePreference(mAccountVibrateWhen);
+        }
 
         findPreference(PREFERENCE_INCOMING).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
@@ -493,7 +503,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     });
         } else {
             PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
-                    PREFERENCE_SERVER_CATEGORY);
+                    PREFERENCE_CATEGORY_SERVER);
             serverCategory.removePreference(prefOutgoing);
         }
 
@@ -511,7 +521,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     .getSyncAutomatically(acct, EmailContent.AUTHORITY));
         } else {
             PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
-                    PREFERENCE_SERVER_CATEGORY);
+                    PREFERENCE_CATEGORY_SERVER);
             serverCategory.removePreference(mSyncContacts);
             serverCategory.removePreference(mSyncCalendar);
             serverCategory.removePreference(mSyncEmail);
