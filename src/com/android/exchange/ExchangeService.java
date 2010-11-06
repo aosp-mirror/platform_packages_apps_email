@@ -1921,7 +1921,9 @@ public class ExchangeService extends Service implements Runnable {
                                 nextWait = 1*SECONDS;
                             }
                             if (nextWait > 10*SECONDS) {
-                                log("Next awake in " + nextWait / 1000 + "s: " + mNextWaitReason);
+                                if (mNextWaitReason != null) {
+                                    log("Next awake " + nextWait / 1000 + "s: " + mNextWaitReason);
+                                }
                                 runAsleep(EXTRA_MAILBOX_ID, nextWait + (3*SECONDS));
                             }
                             wait(nextWait);
