@@ -673,6 +673,18 @@ public class AccountCheckSettingsFragment extends Fragment {
             return dialog;
         }
 
+        /**
+         * Listen for cancellation, which can happen from places other than the
+         * negative button (e.g. touching outside the dialog), and stop the checker
+         */
+        @Override
+        public void onCancel(DialogInterface dialog) {
+            AccountCheckSettingsFragment target =
+                (AccountCheckSettingsFragment) getTargetFragment();
+            target.onCheckingDialogCancel();
+            super.onCancel(dialog);
+        }
+
         @Override
         public void onSaveInstanceState(Bundle outState) {
             super.onSaveInstanceState(outState);
