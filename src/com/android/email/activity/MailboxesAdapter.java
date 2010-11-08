@@ -31,8 +31,8 @@ import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.database.MatrixCursor.RowBuilder;
 import android.database.MergeCursor;
+import android.database.MatrixCursor.RowBuilder;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,6 +56,8 @@ import java.security.InvalidParameterException;
  * TODO Unit test, when UI is settled.
  */
 /* package */ class MailboxesAdapter extends CursorAdapter {
+    public static final String TAG = "MailboxesAdapter";
+
     public static final int MODE_NORMAL = 0;
     public static final int MODE_MOVE_TO_TARGET = 1;
 
@@ -109,11 +111,29 @@ import java.security.InvalidParameterException;
     private final LayoutInflater mInflater;
 
     private final int mMode;
+    private static boolean sEnableUpdate = false;
+    private Callback mCallback;
 
-    public MailboxesAdapter(Context context, int mode) {
+    public MailboxesAdapter(Context context, int mode, Callback callback) {
         super(context, null, 0 /* no auto-requery */);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mMode = mode;
+        mCallback = callback;
+    }
+
+    /**
+     * Callback interface used to report clicks other than the basic list item click or longpress.
+     */
+    public interface Callback {
+        /**
+         * Callback for setting background of mailbox list items during a drag
+         */
+        public void onSetDropTargetBackground(MailboxListItem listItem);
+    }
+
+    public static class EmptyCallback implements Callback {
+        @Override
+        public void onSetDropTargetBackground(MailboxListItem listItem) {};
     }
 
     /**
@@ -131,6 +151,15 @@ import java.security.InvalidParameterException;
     public long getId(int position) {
         Cursor c = (Cursor) getItem(position);
         return c.getLong(COLUMN_ID);
+    }
+
+    /**
+     * Turn on and off list updates; during a drag operation, we do NOT want to the list of
+     * mailboxes to update, as this would be visually jarring
+     * @param state whether or not the MailboxList can be updated
+     */
+    public void enableUpdates(boolean state) {
+        sEnableUpdate = state;
     }
 
     @Override
@@ -176,6 +205,15 @@ import java.security.InvalidParameterException;
     private void bindViewNormalMode(View view, Context context, Cursor cursor) {
         final int type = cursor.getInt(COLUMN_TYPE);
         final long mailboxId = cursor.getLong(COLUMN_ID);
+
+        MailboxListItem listItem = (MailboxListItem)view;
+        listItem.mMailboxType = type;
+        listItem.mMailboxId = mailboxId;
+        listItem.mAdapter = this;
+
+        // Set the background depending on whether we're in drag mode, the mailbox is a valid
+        // target, etc.
+        mCallback.onSetDropTargetBackground(listItem);
 
         // Set mailbox name
         final TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);
@@ -268,6 +306,13 @@ import java.security.InvalidParameterException;
                     new String[] { String.valueOf(accountId) }, MAILBOX_ORDER_BY);
             mContext = context;
             mMode = mode;
+        }
+
+        @Override
+        public void onContentChanged() {
+            if (sEnableUpdate) {
+                super.onContentChanged();
+            }
         }
 
         @Override

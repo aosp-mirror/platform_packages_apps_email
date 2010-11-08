@@ -20,45 +20,47 @@
         android:key="account_settings">
 
         <EditTextPreference
-            android:order="1"
             android:key="account_description"
+            android:order="1"
             android:title="@string/account_settings_description_label"
             android:summary=""
             android:dialogTitle="@string/account_settings_description_label" />
 
         <EditTextPreference
-            android:order="2"
             android:key="account_name"
+            android:order="2"
             android:title="@string/account_settings_name_label"
             android:summary=""
             android:dialogTitle="@string/account_settings_name_label" />
 
         <EditTextPreference
-            android:order="3"
             android:key="account_signature"
+            android:order="3"
             android:title="@string/account_settings_signature_label"
             android:summary=""
             android:dialogTitle="@string/account_settings_signature_label" />
 
         <ListPreference
-            android:order="4"
             android:key="account_check_frequency"
+            android:order="4"
             android:title="@string/account_settings_mail_check_frequency_label"
             android:entries="@array/account_settings_check_frequency_entries"
             android:entryValues="@array/account_settings_check_frequency_values"
             android:dialogTitle="@string/account_settings_mail_check_frequency_label" />
 
-		<!-- Reserve order#5 here for window size (if inserted) -->
-		
+        <!-- Reserve order#5 here for window size (if inserted) -->
+
         <CheckBoxPreference
-            android:order="6"
             android:key="account_default"
+            android:order="6"
             android:title="@string/account_settings_default_label"
             android:summary="@string/account_settings_default_summary" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/account_settings_notifications">
+    <PreferenceCategory
+        android:key="account_notifications"
+        android:title="@string/account_settings_notifications">
 
         <CheckBoxPreference
             android:key="account_notify"
@@ -67,17 +69,17 @@
             android:summary="@string/account_settings_notify_summary" />
 
         <RingtonePreference
+            android:key="account_ringtone"
             android:layout="?android:attr/preferenceLayoutChild"
             android:dependency="account_notify"
-            android:key="account_ringtone"
             android:title="@string/account_settings_ringtone"
             android:ringtoneType="notification"
             android:defaultValue="content://settings/system/notification_sound" />
 
         <ListPreference
+            android:key="account_settings_vibrate_when"
             android:layout="?android:attr/preferenceLayoutChild"
             android:dependency="account_notify"
-            android:key="account_settings_vibrate_when"
             android:defaultValue="never"
             android:title="@string/account_settings_vibrate_when_label"
             android:summary="@string/account_settings_vibrate_when_summary"
@@ -100,20 +102,20 @@
             android:title="@string/account_settings_outgoing_label" />
 
         <CheckBoxPreference
-            android:layout="?android:attr/preferenceLayoutChild"
             android:key="account_sync_email"
+            android:layout="?android:attr/preferenceLayoutChild"
             android:defaultValue="true"
             android:title="@string/account_settings_sync_email_enable"
             android:summary="@string/account_settings_sync_email_summary" />
         <CheckBoxPreference
-            android:layout="?android:attr/preferenceLayoutChild"
             android:key="account_sync_contacts"
+            android:layout="?android:attr/preferenceLayoutChild"
             android:defaultValue="true"
             android:title="@string/account_settings_sync_contacts_enable"
             android:summary="@string/account_settings_sync_contacts_summary" />
         <CheckBoxPreference
-            android:layout="?android:attr/preferenceLayoutChild"
             android:key="account_sync_calendar"
+            android:layout="?android:attr/preferenceLayoutChild"
             android:defaultValue="true"
             android:title="@string/account_settings_sync_calendar_enable"
             android:summary="@string/account_settings_sync_calendar_summary" />

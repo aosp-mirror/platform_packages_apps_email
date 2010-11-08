@@ -174,6 +174,10 @@ public class Pop3Store extends Store {
     public Bundle checkSettings() throws MessagingException {
         Pop3Folder folder = new Pop3Folder("INBOX");
         Bundle bundle = null;
+        // Close any open or half-open connections - checkSettings should always be "fresh"
+        if (mTransport.isOpen()) {
+            folder.close(false);
+        }
         try {
             folder.open(OpenMode.READ_WRITE, null);
             bundle = folder.checkSettings();

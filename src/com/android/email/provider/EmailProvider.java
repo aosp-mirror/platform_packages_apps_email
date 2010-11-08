@@ -63,6 +63,8 @@ public class EmailProvider extends ContentProvider {
     public static final String ATTACHMENT_UPDATED_EXTRA_FLAGS =
         "com.android.email.ATTACHMENT_UPDATED_FLAGS";
 
+    public static final String EMAIL_MESSAGE_MIME_TYPE =
+        "vnd.android.cursor.item/email-message";
     public static final String EMAIL_ATTACHMENT_MIME_TYPE =
         "vnd.android.cursor.item/email-attachment";
 
@@ -198,6 +200,8 @@ public class EmailProvider extends ContentProvider {
         "; end";
 
     private static final ContentValues CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
+
+    public static final String MESSAGE_URI_PARAMETER_MAILBOX_ID = "mailboxId";
 
     static {
         // Email URI matching table
@@ -987,10 +991,20 @@ public class EmailProvider extends ContentProvider {
             case BODY_ID:
                 return "vnd.android.cursor.item/email-body";
             case BODY:
-                return "vnd.android.cursor.dir/email-message";
+                return "vnd.android.cursor.dir/email-body";
             case UPDATED_MESSAGE_ID:
             case MESSAGE_ID:
-                return "vnd.android.cursor.item/email-message";
+                // NOTE: According to the framework folks, we're supposed to invent mime types as
+                // a way of passing information to drag & drop recipients.
+                // If there's a mailboxId parameter in the url, we respond with a mime type that
+                // has -n appended, where n is the mailboxId of the message.  The drag & drop code
+                // uses this information to know not to allow dragging the item to its own mailbox
+                String mimeType = EMAIL_MESSAGE_MIME_TYPE;
+                String mailboxId = uri.getQueryParameter(MESSAGE_URI_PARAMETER_MAILBOX_ID);
+                if (mailboxId != null) {
+                    mimeType += "-" + mailboxId;
+                }
+                return mimeType;
             case UPDATED_MESSAGE:
             case MESSAGE:
                 return "vnd.android.cursor.dir/email-message";

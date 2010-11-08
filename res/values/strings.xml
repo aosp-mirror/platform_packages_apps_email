@@ -33,9 +33,8 @@
     <!-- STOPSHIP Remove them if they're not used after all -->
     <!-- Appears in message list view of outbox while messages are being sent -->
     <string name="status_sending_messages">Sending messages\u2026</string>
-    <!-- Appears at the bottom of list of messages of outbox;
-         user selects to send pending messages. -->
-    <string name="message_list_send_pending_messages_action">Send outgoing messages</string>
+    <!-- Command shown on Outbox to send all pending messages [CHAR_LIMIT=15] -->
+    <string name="message_list_send_pending_messages_action">Send all</string>
     <!-- Toast while fetching attachment -->
     <string name="message_view_fetching_attachment_toast">Fetching attachment.</string>
     <!-- Appears progress dialog for fetching attachment -->
@@ -82,8 +81,8 @@
     <string name="done_action">Done</string>
     <!-- Menu item/button name -->
     <string name="discard_action">Discard</string>
-    <!-- Menu item/button name -->
-    <string name="save_draft_action">Save as draft</string>
+    <!-- Menu item/button name [CHAR_LIMIT=16] -->
+    <string name="save_draft_action">Save draft</string>
     <!-- Menu item/button name -->
     <string name="read_unread_action">Read/Unread</string>
     <!-- Menu item/button name -->
@@ -122,8 +121,8 @@
     <string name="mark_as_unread_action">Mark as unread</string>
     <!-- Menu item for moving messages to folders [CHAR LIMIT=10] -->
     <string name="move_action" translatable="false">Move</string>
-    <!-- Menu item -->
-    <string name="add_cc_bcc_action">Add Cc/Bcc</string>
+    <!-- Menu item / button label for adding CC/BCC fields on message compose. [CHAR LIMIT=16] -->
+    <string name="add_cc_bcc_action">+ Cc/Bcc</string>
     <!-- Menu item -->
     <string name="add_attachment_action">Add attachment</string>
     <!-- Menu item (debug screen) -->
@@ -142,6 +141,13 @@
     <!-- Dialog text when we are unable to load the message for display -->
     <string name="error_loading_message_body">Unexpected error while loading message text.  Message
         may be too large to view.</string>
+    <!-- Text shown with dragged messages to indicate how many are being dragged -->
+    <plurals name="move_messages">
+        <item quantity="one">Move <xliff:g id="num_message" example="1">%1$d</xliff:g> message
+        </item>
+        <item quantity="other">Move <xliff:g id="num_message" example="3">%1$d</xliff:g> messages
+        </item>
+    </plurals>
 
     <!-- Notification message in notifications window when one account has
          one or more new messages; e.g, "279 unread (someone@google.com)". -->

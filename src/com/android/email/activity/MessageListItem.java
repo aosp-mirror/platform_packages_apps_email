@@ -47,6 +47,9 @@ public class MessageListItem extends RelativeLayout {
     private final static float CHECKMARK_PAD = 20.0F;
     private final static float STAR_PAD = 20.0F;
 
+    public static final String MESSAGE_LIST_ITEMS_CLIP_LABEL =
+        "com.android.email.MESSAGE_LIST_ITEMS";
+
     public MessageListItem(Context context) {
         super(context);
     }
@@ -89,9 +92,11 @@ public class MessageListItem extends RelativeLayout {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                mDownEvent = true;
-                if ((touchX < mCheckRight) || (touchX > mStarLeft)) {
-                    handled = true;
+                if (touchX < mCheckRight) {
+                    mDownEvent = true;
+                    if ((touchX < mCheckRight) || (touchX > mStarLeft)) {
+                        handled = true;
+                    }
                 }
                 break;
 

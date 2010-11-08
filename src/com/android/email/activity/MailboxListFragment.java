@@ -16,22 +16,30 @@
 
 package com.android.email.activity;
 
+import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.RefreshManager;
 import com.android.email.Utility;
-import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
 
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.View;
+import android.view.View.OnDragListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.AdapterView.OnItemClickListener;
 
 import java.security.InvalidParameterException;
 
@@ -45,11 +53,18 @@ import java.security.InvalidParameterException;
  *
  * TODO Restoring ListView state -- don't do this when changing accounts
  */
-public class MailboxListFragment extends ListFragment implements OnItemClickListener {
+public class MailboxListFragment extends ListFragment implements OnItemClickListener,
+        OnDragListener {
+    private static final String TAG = "MailboxListFragment";
     private static final String BUNDLE_KEY_SELECTED_MAILBOX_ID
             = "MailboxListFragment.state.selected_mailbox_id";
     private static final String BUNDLE_LIST_STATE = "MailboxListFragment.state.listState";
     private static final int LOADER_ID_MAILBOX_LIST = 1;
+    private static final boolean DEBUG_DRAG_DROP = false; // MUST NOT SUBMIT SET TO TRUE
+
+    private static final int NO_DROP_TARGET = -1;
+    // Top and bottom scroll zone size, in pixels
+    private static final int SCROLL_ZONE_SIZE = 64;
 
     private long mLastLoadedAccountId = -1;
     private long mAccountId = -1;
@@ -67,7 +82,35 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private boolean mOpenRequested;
     private boolean mResumed;
 
+    // Color used when we're dragging over a valid drop target
+    private static final int DROP_TARGET = 0xFFFFCC33;
+    // Color used when we're dragging over a "delete" target (i.e. the trash mailbox)
+    private static final int DROP_TARGET_TRASH = 0xFFFF0000;
+
+    // True if a drag is currently in progress
+    private boolean mDragInProgress = false;
+    // The mailbox id of the dragged item's mailbox.  We use it to prevent that box from being a
+    // valid drop target
+    private long mDragItemMailboxId = -1;
+    // The adapter position that the user's finger is hovering over
+    private int mDropTargetAdapterPosition = NO_DROP_TARGET;
+    // The mailbox list item view that the user's finger is hovering over
+    private MailboxListItem mDropTargetView;
+    // Lazily instantiated height of a mailbox list item (-1 is a sentinel for 'not initialized')
+    private int mDragItemHeight = -1;
+    // STOPSHIP  Scrolling related code is preliminary and will likely be completely replaced
+    // True if we are currently scrolling under the drag item
+    private boolean mTargetScrolling = false;
+    private int mScrollSpeed = -1;
+
     private Utility.ListStateSaver mSavedListState;
+
+    private MailboxesAdapter.Callback mMailboxesAdapterCallback = new MailboxesAdapter.Callback() {
+       @Override
+        public void onSetDropTargetBackground(MailboxListItem listItem) {
+            listItem.setDropTargetBackground(mDragInProgress, mDragItemMailboxId);
+        }
+    };
 
     /**
      * Callback interface that owning activities must implement
@@ -99,7 +142,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         mActivity = getActivity();
         mRefreshManager = RefreshManager.getInstance(mActivity);
-        mListAdapter = new MailboxesAdapter(mActivity, MailboxesAdapter.MODE_NORMAL);
+        mListAdapter = new MailboxesAdapter(mActivity, MailboxesAdapter.MODE_NORMAL,
+                mMailboxesAdapterCallback);
         if (savedInstanceState != null) {
             restoreInstanceState(savedInstanceState);
         }
@@ -115,6 +159,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mListView = getListView();
         mListView.setOnItemClickListener(this);
         mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        mListView.setOnDragListener(this);
         registerForContextMenu(mListView);
     }
 
@@ -354,5 +399,271 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             }
             break;
         }
+    }
+
+    // Drag & Drop handling
+
+    /**
+     * Update all of the list's child views with the proper target background (for now, orange if
+     * a valid target, except red if the trash; standard background otherwise)
+     */
+    private void updateChildViews() {
+        int itemCount = mListView.getChildCount();
+        // Lazily initialize the height of our list items
+        if (itemCount > 0 && mDragItemHeight < 0) {
+            mDragItemHeight = mListView.getChildAt(0).getHeight();
+        }
+        for (int i = 0; i < itemCount; i++) {
+            MailboxListItem item = (MailboxListItem)mListView.getChildAt(i);
+            item.setDropTargetBackground(mDragInProgress, mDragItemMailboxId);
+        }
+    }
+
+    /**
+     * Called when our ListView gets a DRAG_EXITED event
+     */
+    private void onDragExited() {
+        // Reset the background of the current target
+        if (mDropTargetAdapterPosition != NO_DROP_TARGET) {
+            mDropTargetView.setDropTargetBackground(mDragInProgress, mDragItemMailboxId);
+            mDropTargetAdapterPosition = NO_DROP_TARGET;
+        }
+        stopScrolling();
+    }
+
+    /**
+     * STOPSHIP: Very preliminary scrolling code
+     */
+    private void onDragLocation(DragEvent event) {
+        // The drag is somewhere in the ListView
+        if (mDragItemHeight <= 0) {
+            // This shouldn't be possible, but avoid NPE
+            return;
+        }
+        // Find out which item we're in and highlight as appropriate
+        int rawTouchY = (int)event.getY();
+        int offset = 0;
+        if (mListView.getCount() > 0) {
+            offset = mListView.getChildAt(0).getTop();
+        }
+        int targetScreenPosition = (rawTouchY - offset) / mDragItemHeight;
+        int firstVisibleItem = mListView.getFirstVisiblePosition();
+        int targetAdapterPosition = firstVisibleItem + targetScreenPosition;
+        if (targetAdapterPosition != mDropTargetAdapterPosition) {
+            if (DEBUG_DRAG_DROP) {
+                Log.d(TAG, "========== DROP TARGET " + mDropTargetAdapterPosition + " -> " +
+                        targetAdapterPosition);
+            }
+            // Unhighlight the current target, if we've got one
+            if (mDropTargetAdapterPosition != NO_DROP_TARGET) {
+                mDropTargetView.setDropTargetBackground(true, mDragItemMailboxId);
+            }
+            // Get the new target mailbox view
+            MailboxListItem newTarget =
+                (MailboxListItem)mListView.getChildAt(targetScreenPosition);
+            // This can be null due to a bug in the framework (checking on that)
+            // In any event, we're no longer dragging in the list view if newTarget is null
+            if (newTarget == null) {
+                if (DEBUG_DRAG_DROP) {
+                    Log.d(TAG, "========== WTF??? DRAG EXITED");
+                }
+                onDragExited();
+                return;
+            } else if (newTarget.mMailboxType == Mailbox.TYPE_TRASH) {
+                Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " TRASH");
+                newTarget.setBackgroundColor(DROP_TARGET_TRASH);
+            } else if (newTarget.isDropTarget(mDragItemMailboxId)) {
+                Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " TARGET");
+                newTarget.setBackgroundColor(DROP_TARGET);
+            } else {
+                Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " (CALL)");
+                targetAdapterPosition = NO_DROP_TARGET;
+                newTarget.setDropTargetBackground(true, mDragItemMailboxId);
+            }
+            // Save away our current position and view
+            mDropTargetAdapterPosition = targetAdapterPosition;
+            mDropTargetView = newTarget;
+        }
+
+        // STOPSHIP
+        // This is a quick-and-dirty implementation of drag-under-scroll.  To be rewritten
+        int scrollDiff = rawTouchY - (mListView.getHeight() - SCROLL_ZONE_SIZE);
+        boolean scrollDown = false;
+        boolean scrollUp = false;
+        // 1 to 4
+        int scrollSpeed = 0;
+        if (scrollDiff > 0) {
+            scrollDown = true;
+            scrollSpeed = (scrollDiff / SCROLL_ZONE_SIZE / 4) + 1;
+        } else {
+            scrollDiff = SCROLL_ZONE_SIZE - rawTouchY;
+            if (scrollDiff > 0) {
+                scrollUp = true;
+                scrollSpeed = (scrollDiff / SCROLL_ZONE_SIZE / 4) + 1;
+            }
+        }
+        if ((!mTargetScrolling || (mScrollSpeed != scrollSpeed)) && scrollDown) {
+            mScrollSpeed = scrollSpeed;
+            int itemsToScroll = mListView.getCount() - targetAdapterPosition;
+            int pixelsToScroll = (itemsToScroll+1)*mDragItemHeight;
+            mListView.smoothScrollBy(pixelsToScroll, pixelsToScroll*16/scrollSpeed/4);
+            if (DEBUG_DRAG_DROP) {
+                Log.d(TAG, "========== START TARGET SCROLLING DOWN");
+            }
+            mTargetScrolling = true;
+        } else if ((!mTargetScrolling || mScrollSpeed != scrollSpeed) && scrollUp) {
+            mScrollSpeed = scrollSpeed;
+            int pixelsToScroll = (firstVisibleItem+1)*mDragItemHeight;
+            mListView.smoothScrollBy(-pixelsToScroll, pixelsToScroll*16/scrollSpeed/4);
+            if (DEBUG_DRAG_DROP) {
+                Log.d(TAG, "========== START TARGET SCROLLING UP");
+            }
+            mTargetScrolling = true;
+        } else if (!scrollUp && !scrollDown) {
+            stopScrolling();
+        }
+    }
+
+    /**
+     * Indicate that scrolling has stopped
+     */
+    private void stopScrolling() {
+        if (mTargetScrolling) {
+            mTargetScrolling = false;
+            if (DEBUG_DRAG_DROP) {
+                Log.d(TAG, "========== STOP TARGET SCROLLING");
+            }
+            // Stop the scrolling
+            mListView.smoothScrollBy(0, 0);
+        }
+    }
+
+    private void onDragEnded() {
+        if (mDragInProgress) {
+            mDragInProgress = false;
+            // Reenable updates to the view and redraw (in case it changed)
+            mListAdapter.enableUpdates(true);
+            mListAdapter.notifyDataSetChanged();
+            // Stop highlighting targets
+            updateChildViews();
+            // Stop any scrolling that was going on
+            stopScrolling();
+        }
+    }
+
+    private boolean onDragStarted(DragEvent event) {
+        // We handle dropping of items with our email mime type
+        // If the mime type has a mailbox id appended, that is the mailbox of the item
+        // being draged
+        ClipDescription description = event.getClipDescription();
+        int mimeTypeCount = description.getMimeTypeCount();
+        for (int i = 0; i < mimeTypeCount; i++) {
+            String mimeType = description.getMimeType(i);
+            if (mimeType.startsWith(EmailProvider.EMAIL_MESSAGE_MIME_TYPE)) {
+                if (DEBUG_DRAG_DROP) {
+                    Log.d(TAG, "========== DRAG STARTED");
+                }
+                mDragItemMailboxId = -1;
+                // See if we find a mailbox id here
+                int dash = mimeType.lastIndexOf('-');
+                if (dash > 0) {
+                    try {
+                        mDragItemMailboxId = Long.parseLong(mimeType.substring(dash + 1));
+                    } catch (NumberFormatException e) {
+                        // Ignore; we just won't know the mailbox
+                    }
+                }
+                mDragInProgress = true;
+                // Stop the list from updating
+                mListAdapter.enableUpdates(false);
+                // Update the backgrounds of our child views to highlight drop targets
+                updateChildViews();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean onDrop(DragEvent event) {
+        stopScrolling();
+        // If we're not on a target, we're done
+        if (mDropTargetAdapterPosition == NO_DROP_TARGET) return false;
+        final Controller controller = Controller.getInstance(mActivity);
+        ClipData clipData = event.getClipData();
+        int count = clipData.getItemCount();
+        if (DEBUG_DRAG_DROP) {
+            Log.d(TAG, "Received a drop of " + count + " items.");
+        }
+        // Extract the messageId's to move from the ClipData (set up in MessageListItem)
+        final long[] messageIds = new long[count];
+        for (int i = 0; i < count; i++) {
+            Uri uri = clipData.getItem(i).getUri();
+            String msgNum = uri.getPathSegments().get(1);
+            long id = Long.parseLong(msgNum);
+            messageIds[i] = id;
+        }
+        // Call either deleteMessage or moveMessage, depending on the target
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                if (mDropTargetView.mMailboxType == Mailbox.TYPE_TRASH) {
+                    for (long messageId: messageIds) {
+                        // TODO Get this off UI thread (put in clip)
+                        Message msg = Message.restoreMessageWithId(mActivity, messageId);
+                        if (msg != null) {
+                            controller.deleteMessage(messageId, msg.mAccountKey);
+                        }
+                    }
+                } else {
+                    controller.moveMessage(messageIds, mDropTargetView.mMailboxId);
+                }
+            }});
+        return true;
+    }
+
+    @Override
+    public boolean onDrag(View view, DragEvent event) {
+        boolean result = false;
+        switch (event.getAction()) {
+            case DragEvent.ACTION_DRAG_STARTED:
+                result = onDragStarted(event);
+                break;
+            case DragEvent.ACTION_DRAG_ENTERED:
+                // The drag has entered the ListView window
+                if (DEBUG_DRAG_DROP) {
+                    Log.d(TAG, "========== DRAG ENTERED (target = " + mDropTargetAdapterPosition +
+                    ")");
+                }
+                break;
+            case DragEvent.ACTION_DRAG_EXITED:
+                // The drag has left the building
+                if (DEBUG_DRAG_DROP) {
+                    Log.d(TAG, "========== DRAG EXITED (target = " + mDropTargetAdapterPosition +
+                            ")");
+                }
+                onDragExited();
+                break;
+            case DragEvent.ACTION_DRAG_ENDED:
+                // The drag is over
+                if (DEBUG_DRAG_DROP) {
+                    Log.d(TAG, "========== DRAG ENDED");
+                }
+                onDragEnded();
+                break;
+            case DragEvent.ACTION_DRAG_LOCATION:
+                // We're moving around within our window; handle scroll, if necessary
+                onDragLocation(event);
+                break;
+            case DragEvent.ACTION_DROP:
+                // The drag item was dropped
+                if (DEBUG_DRAG_DROP) {
+                    Log.d(TAG, "========== DROP");
+                }
+                result = onDrop(event);
+                break;
+            default:
+                break;
+        }
+        return result;
     }
 }

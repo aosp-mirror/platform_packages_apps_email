@@ -144,20 +144,15 @@
         android:paddingBottom="1dip"
         android:background="@android:drawable/bottom_bar" >
         <Button
-            android:id="@+id/send"
-            android:text="@string/send_action"
+            android:id="@+id/add_cc_bcc"
+            android:text="@string/add_cc_bcc_action"
             android:layout_height="match_parent"
             android:layout_width="0dip"
             android:layout_weight="1" />
+        <!-- STOPSHIP Need icon -->
         <Button
-            android:id="@+id/save"
-            android:text="@string/save_draft_action"
-            android:layout_height="match_parent"
-            android:layout_width="0dip"
-            android:layout_weight="1" />
-        <Button
-            android:id="@+id/discard"
-            android:text="@string/discard_action"
+            android:id="@+id/add_attachment"
+            android:text="@string/add_attachment_action"
             android:layout_height="match_parent"
             android:layout_width="0dip"
             android:layout_weight="1" />

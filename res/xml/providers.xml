@@ -118,46 +118,29 @@
         <outgoing uri="smtp+ssl+://smtp.gmail.com" username="$email" />
     </provider>
 
-    <!-- USA -->
-    <!-- STOPSHIP For Marc's debugging -->
-    <provider id="eon" label="Everyone.net" domain="nextobject.com">
-        <incoming uri="imap://imap.everyone.net" label="IMAP" username="$email" />
-        <outgoing uri="smtp://smtp.everyone.net" username="$email" />
-    </provider>
-    <!-- Note, AOL appears to support SSL on both sides, as well -->
+    <!-- AOL and variants -->
     <provider id="aim" label="AIM" domain="aim.com">
-        <incoming uri="imap://imap.aim.com" label="IMAP" username="$email" />
-        <outgoing uri="smtp://smtp.aim.com" username="$email" />
+        <incoming uri="imap+ssl+://imap.aim.com" label="IMAP" username="$email" />
+        <outgoing uri="smtp+ssl+://smtp.aim.com" username="$email" />
     </provider>
     <!-- Note, AOL appears to support SSL on both sides, as well -->
     <provider id="aol" label="AOL" domain="aol.com">
-        <incoming uri="imap://imap.aol.com" label="IMAP" username="$email" />
-        <outgoing uri="smtp://smtp.aol.com" username="$email" />
+        <incoming uri="imap+ssl+://imap.aol.com" label="IMAP" username="$email" />
+        <outgoing uri="smtp+ssl+://smtp.aol.com" username="$email" />
     </provider>
-    <provider id="comcast" label="Comcast" domain="comcast.net">
-        <incoming uri="pop3+ssl+://mail.comcast.net" username="$user" />
-        <outgoing uri="smtp+ssl+://smtp.comcast.net" username="$user" />
-    </provider>
-    <provider id="compuserve" label="CompuServe" domain="cs.com">
-        <incoming uri="imap://imap.cs.com" username="$user" />
-        <outgoing uri="smtp://smtp.cs.com" username="$user" />
-    </provider>
-    <provider id="cox" label="Cox" domain="cox.net">
-        <incoming uri="pop3+ssl+://pop.east.cox.net" username="$user" />
-        <outgoing uri="smtp+ssl+://smtp.east.cox.net" username="$user" />
-    </provider> 
+
+    <!-- MobileMe and variants -->
     <provider id="dotmac" label=".Mac" domain="mac.com">
         <incoming uri="imap+ssl+://mail.mac.com" username="$email" />
-        <outgoing uri="smtp+tls+trustallcerts://smtp.mac.com" username="$email" />
+        <outgoing uri="smtp+tls+://smtp.mac.com" username="$email" />
     </provider>
-    <provider id="earthlink" label="Earthlink" domain="earthlink.net">
-        <incoming uri="pop3://pop.earthlink.net" username="$email" />
-        <outgoing uri="smtp://smtpauth.earthlink.net:587" username="$email" />
+    <!-- Note: Mac Mail.app sets IMAP to mail.mac.com, but it's the same server -->
+    <provider id="mobileme" label="MobileMe" domain="me.com">
+        <incoming uri="imap+ssl+://mail.me.com" username="$email" />
+        <outgoing uri="smtp+tls+://smtp.me.com" username="$email" />
     </provider>
-    <provider id="juno" label="Juno" domain="juno.com">
-        <incoming uri="pop3://pop.juno.com" username="$user" />
-        <outgoing uri="smtp://smtp.juno.com" username="$user" />
-    </provider>
+
+    <!-- Hotmail and variants.  NOTE: These are handled by exchange if available, else POP3. -->
     <!-- EXCHANGE-REMOVE-SECTION-START -->
     <provider id="live" label="Windows Live Hotmail Plus" domain="live.com">
         <incoming uri="eas+ssl+://m.hotmail.com"  username="$email" />
@@ -187,26 +170,61 @@
         <incoming uri="pop3+ssl+://pop3.live.com"  username="$email" />
         <outgoing uri="smtp+tls+://smtp.live.com" username="$email" />
     </provider>
-    <!-- Note: Mac Mail.app sets IMAP to mail.mac.com, but it's the same server -->
-    <provider id="mobileme" label="MobileMe" domain="me.com">
-        <incoming uri="imap+ssl+://mail.me.com" username="$email" />
-        <outgoing uri="smtp+tls+trustallcerts://smtp.me.com" username="$email" />
+
+    <!-- Yahoo! and variants -->
+    <provider id="yahoo" label="Yahoo Plus" domain="yahoo.com" note="@string/provider_note_yahoo">
+        <incoming uri="pop3+ssl+://plus.pop.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://plus.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="ymail" label="Ymail" domain="ymail.com" note="@string/provider_note_yahoo">
+        <incoming uri="pop3+ssl+://plus.pop.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://plus.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="rocketmail" label="RocketMail" domain="rocketmail.com"
+            note="@string/provider_note_yahoo">
+        <incoming uri="pop3+ssl+://plus.pop.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://plus.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="sbcglobal" label="SBC Global" domain="sbcglobal.net">
+        <incoming uri="pop3+ssl+trustallcerts://pop.sbcglobal.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+trustallcerts://smtp.sbcglobal.yahoo.com" username="$email" />
+    </provider>
+
+    <!-- USA (other)-->
+    <!-- STOPSHIP For Marc's debugging -->
+    <provider id="eon" label="Everyone.net" domain="nextobject.com">
+        <incoming uri="imap://imap.everyone.net" label="IMAP" username="$email" />
+        <outgoing uri="smtp://smtp.everyone.net" username="$email" />
+    </provider>
+    <provider id="comcast" label="Comcast" domain="comcast.net">
+        <incoming uri="pop3+ssl+://mail.comcast.net" username="$user" />
+        <outgoing uri="smtp+ssl+://smtp.comcast.net" username="$user" />
+    </provider>
+    <provider id="compuserve" label="CompuServe" domain="cs.com">
+        <incoming uri="imap://imap.cs.com" username="$user" />
+        <outgoing uri="smtp://smtp.cs.com" username="$user" />
+    </provider>
+    <provider id="cox" label="Cox" domain="cox.net">
+        <incoming uri="pop3+ssl+://pop.east.cox.net" username="$user" />
+        <outgoing uri="smtp+ssl+://smtp.east.cox.net" username="$user" />
+    </provider>
+    <provider id="earthlink" label="Earthlink" domain="earthlink.net">
+        <incoming uri="pop3://pop.earthlink.net" username="$email" />
+        <outgoing uri="smtp://smtpauth.earthlink.net:587" username="$email" />
+    </provider>
+    <!-- Tested with imap/ssl (no connection) and imap/tls (unsupported)-->
+    <!-- Tested with smtp/ssl (no connection) and smtp/tls (unsupported)-->
+    <provider id="juno" label="Juno" domain="juno.com">
+        <incoming uri="pop3://pop.juno.com" username="$user" />
+        <outgoing uri="smtp://smtp.juno.com" username="$user" />
     </provider>
     <provider id="netzero" label="NetZero" domain="netzero.com">
         <incoming uri="pop3://pop.netzero.com" username="$user" />
         <outgoing uri="smtp://smtp.netzero.com" username="$user" />
     </provider>
-    <provider id="sbcglobal" label="SBC Global" domain="sbcglobal.net">
-        <incoming uri="pop3://pop.sbcglobal.yahoo.com" username="$email" />
-        <outgoing uri="smtp://smtp.sbcglobal.yahoo.com" username="$email" />
-    </provider>
     <provider id="verizon" label="Verizon" domain="verizon.net">
         <incoming uri="pop3://incoming.verizon.net" username="$user" />
         <outgoing uri="smtp://outgoing.verizon.net" username="$user" />
-    </provider>
-    <provider id="yahoo" label="Yahoo Plus" domain="yahoo.com" note="@string/provider_note_yahoo">
-        <incoming uri="pop3+ssl+://plus.pop.mail.yahoo.com" username="$user" />
-        <outgoing uri="smtp+ssl+://plus.smtp.mail.yahoo.com" username="$user" />
     </provider>
     
     <!-- UK -->

@@ -24,36 +24,47 @@ import com.android.email.Utility;
 import com.android.email.Utility.ListStateSaver;
 import com.android.email.data.MailboxAccountLoader;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.MailService;
 
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
+import android.content.ClipData;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Loader;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Canvas;
+import android.graphics.Point;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextPaint;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.View.DragThumbnailBuilder;
+import android.view.View.OnDragListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 import java.security.InvalidParameterException;
 import java.util.HashSet;
@@ -77,7 +88,7 @@ import java.util.Set;
  */
 public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
-        OnClickListener, MoveMessageToDialog.Callback {
+        MoveMessageToDialog.Callback, OnDragListener {
     private static final String BUNDLE_LIST_STATE = "MessageListFragment.state.listState";
     private static final String BUNDLE_KEY_SELECTED_MESSAGE_ID
             = "messageListFragment.state.listState.selected_message_id";
@@ -93,7 +104,6 @@ public class MessageListFragment extends ListFragment
     private View mListFooterView;
     private TextView mListFooterText;
     private View mListFooterProgress;
-    private View mSendPanel;
     private View mListPanel;
     private View mNoMessagesPanel;
 
@@ -129,6 +139,9 @@ public class MessageListFragment extends ListFragment
      * {@link ActionMode} shown when 1 or more message is selected.
      */
     private ActionMode mSelectionMode;
+
+    /** Whether "Send all messages" should be shown. */
+    private boolean mShowSendCommand;
 
     private Utility.ListStateSaver mSavedListState;
 
@@ -191,6 +204,7 @@ public class MessageListFragment extends ListFragment
         }
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
+        setHasOptionsMenu(true);
         mController = Controller.getInstance(mActivity);
         mRefreshManager = RefreshManager.getInstance(mActivity);
         mRefreshManager.registerListener(mRefreshListener);
@@ -201,10 +215,8 @@ public class MessageListFragment extends ListFragment
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Use a custom layout, which includes the original layout with "send messages" panel.
         View root = inflater.inflate(R.layout.message_list_fragment,null);
-        mSendPanel = root.findViewById(R.id.send_panel);
         mListPanel = root.findViewById(R.id.list_panel);
         mNoMessagesPanel = root.findViewById(R.id.no_messages_panel);
-        ((Button) mSendPanel.findViewById(R.id.send_messages)).setOnClickListener(this);
         return root;
     }
 
@@ -302,6 +314,27 @@ public class MessageListFragment extends ListFragment
         mSelectedMessageId = savedInstanceState.getLong(BUNDLE_KEY_SELECTED_MESSAGE_ID);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.message_list_fragment_option, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.send).setVisible(mShowSendCommand);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.send:
+                onSendPendingMessages();
+                return true;
+
+        }
+        return false;
+    }
+
     public void setCallback(Callback callback) {
         mCallback = (callback != null) ? callback : EmptyCallback.INSTANCE;
     }
@@ -393,15 +426,6 @@ public class MessageListFragment extends ListFragment
         return mSelectionMode != null;
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.send_messages:
-                onSendPendingMessages();
-                break;
-        }
-    }
-
     /**
      * Called when a message is clicked.
      */
@@ -414,9 +438,89 @@ public class MessageListFragment extends ListFragment
         }
     }
 
+    // This is tentative drag & drop UI
+    // STOPSHIP this entire class needs to be rewritten based on the actual UI design
+    private static class ThumbnailBuilder extends DragThumbnailBuilder {
+        private static Drawable sBackground;
+        private static TextPaint sPaint;
+
+        // TODO Get actual dimention from UI
+        private static final int mWidth = 250;
+        private final int mHeight;
+        private String mDragDesc;
+        private float mDragDescX;
+        private float mDragDescY;
+
+        public ThumbnailBuilder(View view, int count) {
+            super(view);
+            Resources resources = view.getResources();
+            // TODO Get actual dimension from UI
+            mHeight = view.getHeight();
+            mDragDesc = resources.getQuantityString(R.plurals.move_messages, count, count);
+            mDragDescX = 60;
+            // Use height of this font??
+            mDragDescY = view.getHeight() / 2;
+            if (sBackground == null) {
+                sBackground = resources.getDrawable(R.drawable.drag_background_holo);
+                sBackground.setBounds(0, 0, mWidth, view.getHeight());
+                sPaint = new TextPaint();
+                sPaint.setTypeface(Typeface.DEFAULT_BOLD);
+                sPaint.setTextSize(18);
+            }
+        }
+
+        @Override
+        public void onProvideThumbnailMetrics(Point thumbnailSize, Point thumbnailTouchPoint) {
+            thumbnailSize.set(mWidth, (int) mHeight);
+            thumbnailTouchPoint.set((int) 20, (int) mHeight / 2);
+        }
+
+        @Override
+        public void onDrawThumbnail(Canvas canvas) {
+            super.onDrawThumbnail(canvas);
+            sBackground.draw(canvas);
+            canvas.drawText(mDragDesc, mDragDescX, mDragDescY, sPaint);
+        }
+    }
+
+    public boolean onDrag(View view, DragEvent event) {
+        switch(event.getAction()) {
+            case DragEvent.ACTION_DRAG_ENDED:
+                if (event.getResult()) {
+                    finishSelectionMode();
+                }
+                break;
+        }
+        return false;
+    }
+
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
-            toggleSelection((MessageListItem) view);
+            MessageListItem listItem = (MessageListItem)view;
+            if (!mListAdapter.isSelected(listItem)) {
+                toggleSelection(listItem);
+            }
+            // Create ClipData with the Uri of the message we're long clicking
+            ClipData data = ClipData.newUri(mActivity.getContentResolver(),
+                    MessageListItem.MESSAGE_LIST_ITEMS_CLIP_LABEL, null,
+                    Message.CONTENT_URI.buildUpon()
+                    .appendPath(Long.toString(listItem.mMessageId))
+                    .appendQueryParameter(
+                            EmailProvider.MESSAGE_URI_PARAMETER_MAILBOX_ID,
+                            Long.toString(mMailboxId))
+                            .build());
+            Set<Long> selectedMessageIds = mListAdapter.getSelectedSet();
+            int size = selectedMessageIds.size();
+            // Add additional Uri's for any other selected messages
+            for (Long messageId: selectedMessageIds) {
+                if (messageId.longValue() != listItem.mMessageId) {
+                    data.addItem(new ClipData.Item(
+                            ContentUris.withAppendedId(Message.CONTENT_URI, messageId)));
+                }
+            }
+            // Start dragging now
+            listItem.setOnDragListener(this);
+            listItem.startDrag(data, new ThumbnailBuilder(listItem, size), false);
             return true;
         }
         return false;
@@ -834,16 +938,13 @@ public class MessageListFragment extends ListFragment
         }
     }
 
-    private void hideSendPanel() {
-        mSendPanel.setVisibility(View.GONE);
+    private void showSendCommand(boolean show) {
+        mShowSendCommand = show;
+        mActivity.invalidateOptionsMenu();
     }
 
-    private void showSendPanelIfNecessary() {
-        final boolean show =
-                isOutbox()
-                && (mListAdapter != null)
-                && (mListAdapter.getCount() > 0);
-        mSendPanel.setVisibility(show ? View.VISIBLE : View.GONE);
+    private void showSendCommandIfNecessary() {
+        showSendCommand(isOutbox() && (mListAdapter != null) && (mListAdapter.getCount() > 0));
     }
 
     private void showNoMessageText(boolean visible) {
@@ -866,7 +967,7 @@ public class MessageListFragment extends ListFragment
         // Clear the list. (ListFragment will show the "Loading" animation)
         showNoMessageText(false);
         setListShown(false);
-        hideSendPanel();
+        showSendCommand(false);
 
         // Start loading...
         final LoaderManager lm = getLoaderManager();
@@ -988,7 +1089,7 @@ public class MessageListFragment extends ListFragment
             autoRefreshStaleMailbox();
             addFooterView();
             updateSelectionMode();
-            showSendPanelIfNecessary();
+            showSendCommandIfNecessary();
             showNoMessageTextIfNecessary();
 
             // We want to make selection visible only when the loader was explicitly started.
