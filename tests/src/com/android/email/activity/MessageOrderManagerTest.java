@@ -70,6 +70,10 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
 
         // Both callbacks shouldn't have called.
         mCallback.assertCallbacksCalled(false, false);
+
+        // Cursor not open yet, so these are both 0.
+        assertEquals(0, mom.getCurrentPosition());
+        assertEquals(0, mom.getTotalMessageCount());
     }
 
     public void testSelection() {
@@ -93,50 +97,61 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
         MyCursor cursor = new MyCursor(11, 22, 33, 44); // Newer to older
         mom.onCursorOpenDone(cursor);
 
+        assertEquals(0, mom.getCurrentPosition());
+        assertEquals(4, mom.getTotalMessageCount());
+
         // Current message id not set yet, so callback should have called yet.
         mCallback.assertCallbacksCalled(false, false);
 
         // Set current message id -- now onMessagesChanged() should get called.
         mom.moveTo(22);
+        assertEquals(1, mom.getCurrentPosition());
         mCallback.assertCallbacksCalled(true, false);
         assertEquals(22, mom.getCurrentMessageId());
         assertCanMove(mom, true, true);
 
         // Move to row 1
         assertTrue(mom.moveToNewer());
+        assertEquals(0, mom.getCurrentPosition());
         assertEquals(11, mom.getCurrentMessageId());
         assertCanMove(mom, false, true);
         mCallback.assertCallbacksCalled(true, false);
 
         // Try to move to newer, but no newer messages
         assertFalse(mom.moveToNewer());
+        assertEquals(0, mom.getCurrentPosition());
         assertEquals(11, mom.getCurrentMessageId()); // Still row 1
         mCallback.assertCallbacksCalled(false, false);
 
         // Move to row 2
         assertTrue(mom.moveToOlder());
+        assertEquals(1, mom.getCurrentPosition());
         assertEquals(22, mom.getCurrentMessageId());
         assertCanMove(mom, true, true);
         mCallback.assertCallbacksCalled(true, false);
 
         // Move to row 3
         assertTrue(mom.moveToOlder());
+        assertEquals(2, mom.getCurrentPosition());
         assertEquals(33, mom.getCurrentMessageId());
         assertCanMove(mom, true, true);
         mCallback.assertCallbacksCalled(true, false);
 
         // Move to row 4
         assertTrue(mom.moveToOlder());
+        assertEquals(3, mom.getCurrentPosition());
         assertEquals(44, mom.getCurrentMessageId());
         assertCanMove(mom, true, false);
         mCallback.assertCallbacksCalled(true, false);
 
         // Try to move older, but no Older messages
         assertFalse(mom.moveToOlder());
+        assertEquals(3, mom.getCurrentPosition());
         mCallback.assertCallbacksCalled(false, false);
 
         // Move to row 3
         assertTrue(mom.moveToNewer());
+        assertEquals(2, mom.getCurrentPosition());
         assertEquals(33, mom.getCurrentMessageId());
         assertCanMove(mom, true, true);
         mCallback.assertCallbacksCalled(true, false);
@@ -158,6 +173,10 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
         mCallback.assertCallbacksCalled(false, false); // Cursor not open, callback not called yet.
         assertEquals(22, mom.getCurrentMessageId());
 
+        // cursor not open yet
+        assertEquals(0, mom.getCurrentPosition());
+        assertEquals(0, mom.getTotalMessageCount());
+
         // Inject mock cursor.  (Imitate async query done.)
         MyCursor cursor = new MyCursor(11, 22, 33, 44); // Newer to older
         mom.onCursorOpenDone(cursor);
@@ -165,6 +184,9 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
         // As soon as the cursor opens, callback gets called.
         mCallback.assertCallbacksCalled(true, false);
         assertEquals(22, mom.getCurrentMessageId());
+
+        assertEquals(1, mom.getCurrentPosition());
+        assertEquals(4, mom.getTotalMessageCount());
     }
 
     public void testContentChanged() {

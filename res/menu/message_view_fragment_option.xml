@@ -15,26 +15,23 @@
 -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- STOPSHIP Need icons, Don't need text -->
     <item
-        android:id="@+id/compose"
-        android:orderInCategory="100"
-        android:alphabeticShortcut="c"
-        android:title="@string/compose_action"
-        android:icon="@drawable/ic_menu_compose"
+        android:id="@+id/move"
+        android:orderInCategory="1000"
+        android:title="@string/move_action"
         android:showAsAction="ifRoom"
     />
     <item
-        android:id="@+id/refresh"
-        android:orderInCategory="200"
-        android:alphabeticShortcut="r"
-        android:title="@string/refresh_action"
-        android:icon="@drawable/ic_menu_refresh"
+        android:id="@+id/delete"
+        android:orderInCategory="1100"
+        android:title="@string/delete_action"
         android:showAsAction="ifRoom"
     />
     <item
-        android:id="@+id/account_settings"
-        android:orderInCategory="2000"
-        android:title="@string/account_settings_action"
-        android:icon="@android:drawable/ic_menu_preferences"
+        android:id="@+id/mark_as_unread"
+        android:orderInCategory="1200"
+        android:title="@string/mark_as_unread_action"
+        android:showAsAction="ifRoom"
     />
 </menu>
