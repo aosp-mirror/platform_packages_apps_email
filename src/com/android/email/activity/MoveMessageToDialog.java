@@ -34,6 +34,7 @@ import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 
 import java.security.InvalidParameterException;
 
@@ -142,6 +143,21 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     }
 
     /**
+     * Delay-call {@link #dismiss()} using a {@link Handler}.  Calling {@link #dismiss()} from
+     * {@link LoaderManager.LoaderCallbacks#onLoadFinished} is not allowed, so we use it instead.
+     */
+    private void dismissAsync() {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (!mDestroyed) {
+                    dismiss();
+                }
+            }
+        });
+    }
+
+    /**
      * Loader callback for {@link MessageChecker}
      */
     private class MessageCheckerCallback implements LoaderManager.LoaderCallbacks<Long> {
@@ -157,7 +173,8 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
             }
             // accountId shouldn't be null, but I'm paranoia.
             if ((accountId == null) || (accountId == -1)) {
-                dismiss(); // Some of the messages can't be moved.
+                // Some of the messages can't be moved.  Close the dialog.
+                dismissAsync();
                 return;
             }
             mAccountId = accountId;
