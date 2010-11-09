@@ -158,7 +158,7 @@ public class NotificationController {
             return null;
         }
         // Get the latest message
-        final Message message = Message.getLatestMessage(mContext, accountId);
+        final Message message = Message.getLatestIncomingMessage(mContext, accountId);
         if (message == null) {
             return null; // no message found???
         }

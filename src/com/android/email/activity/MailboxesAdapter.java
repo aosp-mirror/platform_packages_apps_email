@@ -91,8 +91,7 @@ import java.security.InvalidParameterException;
     private static final int COLUMN_ROW_TYPE = 6;
 
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
-            " AND " + MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
-            " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
+            " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
 
     private static final String MAILBOX_SELECTION_MOVE_TO_FOLDER =
             MAILBOX_SELECTION + " AND " + Mailbox.MOVE_TO_TARGET_MAILBOX_SELECTION;
