@@ -36,11 +36,13 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
@@ -84,7 +86,8 @@ import java.util.List;
  * C: add cc/bcc
  * N: add attachment
  */
-public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener {
+public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener,
+        DeleteMessageConfirmationDialog.Callback {
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
     private static final String ACTION_REPLY_ALL = "com.android.email.intent.action.REPLY_ALL";
     private static final String ACTION_FORWARD = "com.android.email.intent.action.FORWARD";
@@ -1003,10 +1006,24 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void onDiscard() {
+        DeleteMessageConfirmationDialog.newInstance(1, null).show(getFragmentManager(), "dialog");
+    }
+
+    /**
+     * Called when ok on the "discard draft" dialog is pressed.  Actually delete the draft.
+     */
+    @Override
+    public void onDeleteMessageConfirmationDialogOkPressed() {
         if (mDraft.mId > 0) {
+            // By the way, we can't pass the message ID from onDiscard() to here (using a
+            // dialog argument or whatever), because you can rotate the screen when the dialog is
+            // shown, and during rotation we save & restore the draft.  If it's the
+            // first save, we give it an ID at this point for the first time (and last time).
+            // Which means it's possible for a draft to not have an ID in onDiscard(),
+            // but here.
             mController.deleteMessage(mDraft.mId, mDraft.mAccountKey);
         }
-        Toast.makeText(this, getString(R.string.message_discarded_toast), Toast.LENGTH_LONG).show();
+        Utility.showToast(MessageCompose.this, R.string.message_discarded_toast);
         setDraftNeedsSaving(false);
         finish();
     }

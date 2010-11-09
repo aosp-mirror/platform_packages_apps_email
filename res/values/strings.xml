@@ -370,6 +370,13 @@ save attachment.</string>
         You have replied \"maybe\" to this invitation</string>
     <!-- Toast shown following a meeting invite reply, declined -->
     <string name="message_view_invite_toast_no">You have declined this invitation</string>
+    <!--Confirmation dialog title shown when user tries to delete messages.  [CHAR LIMIT=16] -->
+    <string name="message_delete_dialog_title">Discard message</string>
+    <!--Confirmation dialog text shown when user tries to delete messages.  [CHAR LIMIT=32] -->
+    <plurals name="message_delete_confirm">
+        <item quantity="one">Discard this message?</item>
+        <item quantity="other">Discard these messages?</item>
+    </plurals>
     <!-- Toast shown briefly while deleting a message -->
     <plurals name="message_deleted_toast">
         <item quantity="one">Message deleted.</item>
