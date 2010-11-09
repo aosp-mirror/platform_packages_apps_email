@@ -220,41 +220,35 @@ import java.security.InvalidParameterException;
         nameView.setText(getDisplayName(context, cursor));
 
         // Set count
+        boolean showCount = true;
         boolean useTotalCount = false;
         switch (type) {
             case Mailbox.TYPE_DRAFTS:
             case Mailbox.TYPE_OUTBOX:
-            case Mailbox.TYPE_SENT:
-            case Mailbox.TYPE_TRASH:
                 useTotalCount = true;
                 break;
+            case Mailbox.TYPE_SENT:
+            case Mailbox.TYPE_TRASH:
+                showCount = false; // Don't show count.
+                break;
+
         }
-        final int count = cursor.getInt(useTotalCount ? COLUMN_MESSAGE_COUNT : COLUMN_UNREAD_COUNT);
-        final TextView unreadCountView = (TextView) view.findViewById(R.id.new_message_count);
-        final TextView allCountView = (TextView) view.findViewById(R.id.all_message_count);
+        final int count =
+            showCount ? cursor.getInt(useTotalCount ? COLUMN_MESSAGE_COUNT : COLUMN_UNREAD_COUNT)
+                    : 0;
+        final TextView countView = (TextView) view.findViewById(R.id.message_count);
 
         // If the unread count is zero, not to show countView.
         if (count > 0) {
-            nameView.setTypeface(Typeface.DEFAULT_BOLD);
-            if (useTotalCount) {
-                unreadCountView.setVisibility(View.GONE);
-                allCountView.setVisibility(View.VISIBLE);
-                allCountView.setText(Integer.toString(count));
-            } else {
-                allCountView.setVisibility(View.GONE);
-                unreadCountView.setVisibility(View.VISIBLE);
-                unreadCountView.setText(Integer.toString(count));
-            }
+            countView.setVisibility(View.VISIBLE);
+            countView.setText(Integer.toString(count));
         } else {
-            nameView.setTypeface(Typeface.DEFAULT);
-            allCountView.setVisibility(View.GONE);
-            unreadCountView.setVisibility(View.GONE);
+            countView.setVisibility(View.GONE);
         }
 
         // Set folder icon
-        ((ImageView) view.findViewById(R.id.folder_icon))
-                .setImageDrawable(Utility.FolderProperties.getInstance(context)
-                .getIcon(type, mailboxId));
+        ((ImageView) view.findViewById(R.id.folder_icon)).setImageDrawable(
+                Utility.FolderProperties.getInstance(context).getIcon(type, mailboxId));
     }
 
     private View newViewNormalMode(Context context, Cursor cursor, ViewGroup parent) {
@@ -401,7 +395,7 @@ import java.security.InvalidParameterException;
                 Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS,
                 Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS), false);
 
-        // Outbox -- # of sent messages
+        // Outbox -- # of outstanding messages
         addSummaryMailboxRow(context, cursor,
                 Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX,
                 Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX), false);

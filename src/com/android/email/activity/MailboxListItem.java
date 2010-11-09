@@ -22,9 +22,9 @@ import com.android.internal.util.ArrayUtils;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
-public class MailboxListItem extends LinearLayout {
+public class MailboxListItem extends RelativeLayout {
     // STOPSHIP Need final color/ui
     // Color used for valid drop targets
     private static final int DROP_AVAILABLE = 0xFFFFFF33;

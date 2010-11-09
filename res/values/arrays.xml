@@ -163,9 +163,9 @@
         <!-- TYPE_INBOX = 0 -->
         <item>@drawable/ic_list_inbox</item>
         <!-- TYPE_MAIL = 1 -->
-        <item>@drawable/ic_list_folder</item>
+        <item></item>
         <!-- TYPE_PARENT = 2 -->
-        <item>@drawable/ic_list_folder</item>
+        <item></item>
         <!-- TYPE_DRAFTS = 3 -->
         <item>@drawable/ic_list_drafts</item>
         <!-- TYPE_OUTBOX = 4 -->
