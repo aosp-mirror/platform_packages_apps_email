@@ -111,7 +111,7 @@ import java.security.InvalidParameterException;
     private final LayoutInflater mInflater;
 
     private final int mMode;
-    private static boolean sEnableUpdate = false;
+    private static boolean sEnableUpdate = true;
     private Callback mCallback;
 
     public MailboxesAdapter(Context context, int mode, Callback callback) {
