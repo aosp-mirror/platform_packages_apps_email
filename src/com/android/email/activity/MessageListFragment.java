@@ -471,8 +471,8 @@ public class MessageListFragment extends ListFragment
 
         @Override
         public void onProvideThumbnailMetrics(Point thumbnailSize, Point thumbnailTouchPoint) {
-            thumbnailSize.set(mWidth, (int) mHeight);
-            thumbnailTouchPoint.set((int) 20, (int) mHeight / 2);
+            thumbnailSize.set(mWidth, mHeight);
+            thumbnailTouchPoint.set(20, mHeight / 2);
         }
 
         @Override
@@ -496,6 +496,13 @@ public class MessageListFragment extends ListFragment
 
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
+            // We can't move from combined accounts view
+            // We also need to check the actual mailbox to see if we can move items from it
+            if (mAccount == null || mMailbox == null) {
+                return false;
+            } else if (mMailboxId > 0 && !Mailbox.canMoveFrom(mActivity, mMailboxId)) {
+                return false;
+            }
             MessageListItem listItem = (MessageListItem)view;
             if (!mListAdapter.isSelected(listItem)) {
                 toggleSelection(listItem);
