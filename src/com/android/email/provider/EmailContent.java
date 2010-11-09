@@ -2184,6 +2184,9 @@ public abstract class EmailContent {
             MailboxColumns.SYNC_STATUS, MailboxColumns.MESSAGE_COUNT
         };
 
+        private static final String ACCOUNT_AND_MAILBOX_TYPE_SELECTION =
+                MailboxColumns.ACCOUNT_KEY + " =? AND " +
+                MailboxColumns.TYPE + " =?";
         private static final String MAILBOX_TYPE_SELECTION =
                 MailboxColumns.TYPE + " =?";
         private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {
@@ -2372,6 +2375,15 @@ public abstract class EmailContent {
                 return Mailbox.restoreMailboxWithId(context, mailboxId);
             }
             return null;
+        }
+
+        public static int getUnreadCountByAccountAndMailboxType(Context context, long accountId,
+                int type) {
+            return Utility.getFirstRowInt(context, Mailbox.CONTENT_URI,
+                    MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION,
+                    ACCOUNT_AND_MAILBOX_TYPE_SELECTION,
+                    new String[] { String.valueOf(accountId), String.valueOf(type) },
+                    null, UNREAD_COUNT_COUNT_COLUMN, 0);
         }
 
         public static int getUnreadCountByMailboxType(Context context, int type) {

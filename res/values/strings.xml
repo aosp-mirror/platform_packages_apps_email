@@ -206,6 +206,12 @@
             <xliff:g id="account_name">%2$s</xliff:g></item>
     </plurals>
 
+    <!-- The number of accounts configured. [CHAR LIMIT=16] -->
+    <plurals name="number_of_accounts">
+        <item quantity="one"><xliff:g id="num_accounts" example="1">%1$d</xliff:g> account</item>
+        <item quantity="other"><xliff:g id="num_accounts" example="2">%1$d</xliff:g> accounts</item>
+    </plurals>
+
     <!-- The next set of strings are used server-side and must not be localized. -->
     <!-- Do Not Translate.  This is the name of the "inbox" folder, on the server. -->
     <string name="mailbox_name_server_inbox" translatable="false">Inbox</string>
