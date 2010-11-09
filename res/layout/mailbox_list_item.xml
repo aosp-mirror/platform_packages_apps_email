@@ -14,57 +14,44 @@
      limitations under the License.
 -->
 
-<!-- extends LinearLayout  -->
+<!-- extends RelativeLayout  -->
 <com.android.email.activity.MailboxListItem
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
     android:paddingRight="8dip"
     android:background="?android:attr/activatedBackgroundIndicator"
     >
-    <View
-        android:id="@+id/chip"
-        android:background="@drawable/appointment_indicator_leftside_1"
-        android:layout_width="4dip"
-        android:layout_height="match_parent"
-        android:layout_centerVertical="true" />
     <ImageView
         android:id="@+id/folder_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_list_folder"
-        android:paddingLeft="2dip" />
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_vertical"
-        android:paddingLeft="4dip">
-        <!--
-            STOPSHIP android:textColor="?android:attr/textColorPrimary"
-            which was somehow white in the "move to" dialog.
-        -->
-        <TextView
-            android:id="@+id/mailbox_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="#000" />
-    </LinearLayout>
+        android:layout_width="32dip"
+        android:layout_height="32dip"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:paddingLeft="2dip"
+        />
     <TextView
-        android:id="@+id/new_message_count"
+        android:id="@+id/message_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dip"
-        android:background="@drawable/ind_unread"
-        style="@style/unreadCount"/>
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="12dip"
+        android:layout_centerVertical="true"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorPrimary"
+        />
     <TextView
-        android:id="@+id/all_message_count"
+        android:id="@+id/mailbox_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dip"
-        android:background="@drawable/ind_sum"
-        style="@style/unreadCount"/>
+        android:layout_toRightOf="@id/folder_icon"
+        android:layout_toLeftOf="@id/message_count"
+        android:layout_centerVertical="true"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:attr/textColorPrimary"
+        />
 </com.android.email.activity.MailboxListItem>
