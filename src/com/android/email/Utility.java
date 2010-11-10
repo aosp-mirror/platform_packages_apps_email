@@ -366,7 +366,6 @@ public class Utility {
         // Caches for frequently accessed resources.
         private final String[] mSpecialMailbox;
         private final TypedArray mSpecialMailboxDrawable;
-        private final Drawable mDefaultMailboxDrawable;
         private final Drawable mSummaryStarredMailboxDrawable;
         private final Drawable mSummaryCombinedInboxDrawable;
 
@@ -381,8 +380,6 @@ public class Utility {
             }
             mSpecialMailboxDrawable =
                 context.getResources().obtainTypedArray(R.array.mailbox_display_icons);
-            mDefaultMailboxDrawable =
-                context.getResources().getDrawable(R.drawable.ic_list_folder);
             mSummaryStarredMailboxDrawable =
                 context.getResources().getDrawable(R.drawable.ic_list_starred);
             mSummaryCombinedInboxDrawable =
@@ -447,9 +444,12 @@ public class Utility {
                 return mSpecialMailboxDrawable.getDrawable(Mailbox.TYPE_OUTBOX);
             }
             if (0 <= type && type < mSpecialMailboxDrawable.length()) {
-                return mSpecialMailboxDrawable.getDrawable(type);
+                final int resId = mSpecialMailboxDrawable.getResourceId(type, -1);
+                if (resId != -1) {
+                    return mContext.getResources().getDrawable(resId);
+                }
             }
-            return mDefaultMailboxDrawable;
+            return null; // No icon
         }
     }
 
