@@ -120,7 +120,7 @@
     <!-- Menu item -->
     <string name="mark_as_unread_action">Mark as unread</string>
     <!-- Menu item for moving messages to folders [CHAR LIMIT=10] -->
-    <string name="move_action" translatable="false">Move</string>
+    <string name="move_action">Move</string>
     <!-- Menu item / button label for adding CC/BCC fields on message compose. [CHAR LIMIT=16] -->
     <string name="add_cc_bcc_action">+ Cc/Bcc</string>
     <!-- Menu item -->
@@ -426,10 +426,10 @@ save attachment.</string>
         <item quantity="other"><xliff:g id="size_in_gigabytes" example="279">%d</xliff:g>GB</item>
     </plurals>
 
-    <!-- Do Not Translate.  The label of the next button on the message view screen. -->
-    <string name="message_view_move_to_newer" translatable="false">&lt;</string>
-    <!-- Do Not Translate.  The label of the previous button on the message view screen. -->
-    <string name="message_view_move_to_older" translatable="false">&gt;</string>
+    <!-- The label of the next button on the message view screen. -->
+    <string name="message_view_move_to_newer">Newer</string>
+    <!-- The label of the previous button on the message view screen. -->
+    <string name="message_view_move_to_older">Older</string>
 
     <!-- The message snippet, of the form subject + separator + start of text  -->
     <string name="message_list_snippet"><xliff:g id="subject" example="Re: Foo">
@@ -926,6 +926,9 @@ save attachment.</string>
     <!-- General preference:  Text zoom.  Value is "huge" (+2) [CHAR LIMIT=32] -->
     <string name="general_preference_text_zoom_huge">Huge</string>
 
+    <!-- Generic string for "current position" / "total number" [CHAR LIMIT=12] -->
+    <string name="position_of_count"><xliff:g example="1">%1$d</xliff:g> of <xliff:g
+            example="12">%2$s</xliff:g></string>
     <!--
         Strings for temporary UI
         STOPSHIP Remove them or move them up and make translatable

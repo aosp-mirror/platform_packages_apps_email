@@ -59,6 +59,10 @@ public class MessageOrderManager {
 
     private long mCurrentMessageId = -1;
 
+    private int mTotalMessageCount;
+
+    private int mCurrentPosition;
+
     private boolean mClosed = false;
 
     public interface Callback {
@@ -92,6 +96,20 @@ public class MessageOrderManager {
 
     public long getMailboxId() {
         return mMailboxId;
+    }
+
+    /**
+     * @return the total number of messages.
+     */
+    public int getTotalMessageCount() {
+        return mTotalMessageCount;
+    }
+
+    /**
+     * @return current cursor position, starting from 0.
+     */
+    public int getCurrentPosition() {
+        return mCurrentPosition;
     }
 
     /**
@@ -171,6 +189,7 @@ public class MessageOrderManager {
     }
 
     private void adjustCursorPosition() {
+        mCurrentPosition = 0;
         if (mCurrentMessageId == -1) {
             return; // Current ID not specified yet.
         }
@@ -182,8 +201,10 @@ public class MessageOrderManager {
         mCursor.moveToPosition(-1);
         while (mCursor.moveToNext()
                 && mCursor.getLong(EmailContent.ID_PROJECTION_COLUMN) != mCurrentMessageId) {
+            mCurrentPosition++;
         }
         if (mCursor.isAfterLast()) {
+            mCurrentPosition = 0;
             mCallback.onMessageNotFound(); // Message not found... Already deleted?
         } else {
             mCallback.onMessagesChanged();
@@ -214,6 +235,7 @@ public class MessageOrderManager {
      */
     public boolean moveToOlder() {
         if (canMoveToOlder() && mCursor.moveToNext()) {
+            mCurrentPosition++;
             setCurrentMessageIdFromCursor();
             mCallback.onMessagesChanged();
             return true;
@@ -229,6 +251,7 @@ public class MessageOrderManager {
      */
     public boolean moveToNewer() {
         if (canMoveToNewer() && mCursor.moveToPrevious()) {
+            mCurrentPosition--;
             setCurrentMessageIdFromCursor();
             mCallback.onMessagesChanged();
             return true;
@@ -289,9 +312,12 @@ public class MessageOrderManager {
         try {
             closeCursor();
             if (cursor == null || cursor.isClosed()) {
+                mTotalMessageCount = 0;
+                mCurrentPosition = 0;
                 return; // Task canceled
             }
             mCursor = cursor;
+            mTotalMessageCount = mCursor.getCount();
             mCursor.registerContentObserver(mObserver);
             adjustCursorPosition();
         } finally {

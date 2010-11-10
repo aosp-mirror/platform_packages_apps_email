@@ -310,10 +310,10 @@ public class MessageListXL extends Activity implements
             return;
         }
         if (mOrderManager == null) {
-            f.enableNavigationButons(false, false); // shouldn't happen, but just in case
+            f.enableNavigationButons(false, false, 0, 0); // shouldn't happen, but just in case
         } else {
-            f.enableNavigationButons(mOrderManager.canMoveToNewer(),
-                    mOrderManager.canMoveToOlder());
+            f.enableNavigationButons(mOrderManager.canMoveToNewer(), mOrderManager.canMoveToOlder(),
+                    mOrderManager.getCurrentPosition(), mOrderManager.getTotalMessageCount());
         }
     }
 
