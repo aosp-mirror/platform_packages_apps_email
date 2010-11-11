@@ -207,11 +207,6 @@ public class ExchangeService extends Service implements Runnable {
     private Object mStatusChangeListener;
     private EasAccountsUpdatedListener mAccountsUpdatedListener;
 
-    // Long-lived cursor with all syncable EAS mailboxes
-    private Cursor mMailboxCursor;
-    // Flag indicating whether or not the cursor is invalid (via change to mailbox data)
-    private boolean mMailboxCursorInvalid = false;
-
     private HashMap<Long, CalendarObserver> mCalendarObservers =
         new HashMap<Long, CalendarObserver>();
 
@@ -611,7 +606,6 @@ public class ExchangeService extends Service implements Runnable {
                                         WHERE_IN_ACCOUNT_AND_TYPE_INBOX, new String[] {
                                             Long.toString(account.mId)
                                         });
-                                mailboxScheduleChanged("Account settings changed");
                                 // Stop all current syncs; the appropriate ones will restart
                                 log("Account " + account.mDisplayName + " changed; stop syncs");
                                 stopAccountSyncs(account.mId, true);
@@ -1276,7 +1270,8 @@ public class ExchangeService extends Service implements Runnable {
                     context.getContentResolver().update(Mailbox.CONTENT_URI, cv,
                             WHERE_PUSH_OR_PING_NOT_ACCOUNT_MAILBOX,
                             new String[] {Long.toString(accountId)});
-                    mailboxScheduleChanged("Set push/ping boxes to push/hold");
+                    log("Set push/ping boxes to push/hold");
+
                     long id = m.mId;
                     AbstractSyncService svc = exchangeService.mServiceMap.get(id);
                     // Tell the service we're done
@@ -1530,8 +1525,8 @@ public class ExchangeService extends Service implements Runnable {
             if (cv.containsKey(MailboxColumns.SYNC_INTERVAL)) {
                 mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
                         cv,null, null);
-                mailboxScheduleChanged("Sync settings changed");
-           }
+                kick("sync settings change");
+            }
         }
     }
 
@@ -1824,9 +1819,6 @@ public class ExchangeService extends Service implements Runnable {
         }
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Runnable#run()
-     */
     public void run() {
         sStop = false;
         alwaysLog("!!! ExchangeService thread running");
@@ -1895,24 +1887,7 @@ public class ExchangeService extends Service implements Runnable {
                 runAwake(EXTRA_MAILBOX_ID);
                 waitForConnectivity();
                 mNextWaitReason = "Heartbeat";
-
-                // If the mailbox cursor has been invalidated, close it
-                if (mMailboxCursorInvalid) {
-                    if (mMailboxCursor != null) {
-                        mMailboxCursor.close();
-                        mMailboxCursor = null;
-                    }
-                    mMailboxCursorInvalid = false;
-                }
-
-                if (mMailboxCursor == null) {
-                    // If we have no mailbox cursor, query the database
-                    mMailboxCursor = getContentResolver().query(Mailbox.CONTENT_URI,
-                            Mailbox.CONTENT_PROJECTION,
-                            mAccountObserver.getSyncableEasMailboxWhere(), null, null);
-                }
-
-                long nextWait = checkMailboxes(mMailboxCursor);
+                long nextWait = checkMailboxes();
                 try {
                     synchronized (this) {
                         if (!mKicked) {
@@ -2001,12 +1976,6 @@ public class ExchangeService extends Service implements Runnable {
                     mSyncStatusObserver = null;
                 }
 
-                // Close our mailbox cursor
-                if (mMailboxCursor != null) {
-                    mMailboxCursor.close();
-                    mMailboxCursor = null;
-                }
-
                 // Clear pending alarms and associated Intents
                 clearAlarms();
 
@@ -2053,15 +2022,7 @@ public class ExchangeService extends Service implements Runnable {
         return false;
     }
 
-    private long checkMailboxes (Cursor cursor) {
-        long nextWait = EXCHANGE_SERVICE_HEARTBEAT_TIME;
-        // Reset cursor position
-        mMailboxCursor.moveToPosition(0);
-        // In case there aren't any mailboxes (the service will shut down momentarily)
-        if (cursor.isAfterLast()) {
-            return nextWait;
-        }
-
+    private long checkMailboxes () {
         // First, see if any running mailboxes have been deleted
         ArrayList<Long> deletedMailboxes = new ArrayList<Long>();
         synchronized (sSyncLock) {
@@ -2087,9 +2048,10 @@ public class ExchangeService extends Service implements Runnable {
                         releaseMailbox(mailboxId);
                     }
                 }
-           }
+            }
         }
 
+        long nextWait = EXCHANGE_SERVICE_HEARTBEAT_TIME;
         long now = System.currentTimeMillis();
 
         // Start up threads that need it; use a query which finds eas mailboxes where the
@@ -2098,146 +2060,152 @@ public class ExchangeService extends Service implements Runnable {
             log("mAccountObserver null; service died??");
             return nextWait;
         }
+        Cursor c = getContentResolver().query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
+                mAccountObserver.getSyncableEasMailboxWhere(), null, null);
 
         // Contacts/Calendar obey this setting from ContentResolver
         // Mail is on its own schedule
         boolean masterAutoSync = ContentResolver.getMasterSyncAutomatically();
-        do {
-            long mid = cursor.getLong(Mailbox.CONTENT_ID_COLUMN);
-            AbstractSyncService service = null;
-            synchronized (sSyncLock) {
-                service = mServiceMap.get(mid);
-            }
-            if (service == null) {
-                // We handle a few types of mailboxes specially
-                int type = cursor.getInt(Mailbox.CONTENT_TYPE_COLUMN);
-
-                // If background data is off, we only sync Outbox
-                // Manual syncs are initiated elsewhere, so they will continue to be respected
-                if (!mBackgroundData && type != Mailbox.TYPE_OUTBOX) {
-                    continue;
+        try {
+            while (c.moveToNext()) {
+                long mid = c.getLong(Mailbox.CONTENT_ID_COLUMN);
+                AbstractSyncService service = null;
+                synchronized (sSyncLock) {
+                    service = mServiceMap.get(mid);
                 }
+                if (service == null) {
+                    // We handle a few types of mailboxes specially
+                    int type = c.getInt(Mailbox.CONTENT_TYPE_COLUMN);
 
-                if (type == Mailbox.TYPE_CONTACTS || type == Mailbox.TYPE_CALENDAR) {
-                    // We don't sync these automatically if master auto sync is off
-                    if (!masterAutoSync) {
+                    // If background data is off, we only sync Outbox
+                    // Manual syncs are initiated elsewhere, so they will continue to be respected
+                    if (!mBackgroundData && type != Mailbox.TYPE_OUTBOX) {
                         continue;
                     }
-                    // Get the right authority for the mailbox
-                    String authority;
-                    Account account =
-                        getAccountById(cursor.getInt(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN));
-                    if (account != null) {
-                        if (type == Mailbox.TYPE_CONTACTS) {
-                            authority = ContactsContract.AUTHORITY;
-                        } else {
-                            authority = Calendar.AUTHORITY;
-                            if (!mCalendarObservers.containsKey(account.mId)){
-                                // Make sure we have an observer for this Calendar, as
-                                // we need to be able to detect sync state changes, sigh
-                                registerCalendarObserver(account);
+
+                    if (type == Mailbox.TYPE_CONTACTS || type == Mailbox.TYPE_CALENDAR) {
+                        // We don't sync these automatically if master auto sync is off
+                        if (!masterAutoSync) {
+                            continue;
+                        }
+                        // Get the right authority for the mailbox
+                        String authority;
+                        Account account =
+                            getAccountById(c.getInt(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN));
+                        if (account != null) {
+                            if (type == Mailbox.TYPE_CONTACTS) {
+                                authority = ContactsContract.AUTHORITY;
+                            } else {
+                                authority = Calendar.AUTHORITY;
+                                if (!mCalendarObservers.containsKey(account.mId)){
+                                    // Make sure we have an observer for this Calendar, as
+                                    // we need to be able to detect sync state changes, sigh
+                                    registerCalendarObserver(account);
+                                }
+                            }
+                            android.accounts.Account a =
+                                new android.accounts.Account(account.mEmailAddress,
+                                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                            // See if "sync automatically" is set; if not, punt
+                            if (!ContentResolver.getSyncAutomatically(a, authority)) {
+                                continue;
+                            // See if the calendar is enabled; if not, punt
+                            } else if ((type == Mailbox.TYPE_CALENDAR) &&
+                                    !isCalendarEnabled(account.mId)) {
+                                continue;
                             }
                         }
-                        android.accounts.Account a =
-                            new android.accounts.Account(account.mEmailAddress,
-                                    Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                        // See if "sync automatically" is set; if not, punt
-                        if (!ContentResolver.getSyncAutomatically(a, authority)) {
-                            continue;
-                            // See if the calendar is enabled; if not, punt
-                        } else if ((type == Mailbox.TYPE_CALENDAR) &&
-                                !isCalendarEnabled(account.mId)) {
-                            continue;
-                        }
-                    }
-                } else if (type == Mailbox.TYPE_TRASH) {
-                    continue;
-                }
-
-                // Check whether we're in a hold (temporary or permanent)
-                SyncError syncError = mSyncErrorMap.get(mid);
-                if (syncError != null) {
-                    // Nothing we can do about fatal errors
-                    if (syncError.fatal) continue;
-                    if (now < syncError.holdEndTime) {
-                        // If release time is earlier than next wait time,
-                        // move next wait time up to the release time
-                        if (syncError.holdEndTime < now + nextWait) {
-                            nextWait = syncError.holdEndTime - now;
-                            mNextWaitReason = "Release hold";
-                        }
+                    } else if (type == Mailbox.TYPE_TRASH) {
                         continue;
-                    } else {
-                        // Keep the error around, but clear the end time
-                        syncError.holdEndTime = 0;
                     }
-                }
 
-                // Otherwise, we use the sync interval
-                long interval = cursor.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
-                if (interval == Mailbox.CHECK_INTERVAL_PUSH) {
-                    Mailbox m = EmailContent.getContent(cursor, Mailbox.class);
-                    requestSync(m, SYNC_PUSH, null);
-                } else if (type == Mailbox.TYPE_OUTBOX) {
-                    if (hasSendableMessages(cursor)) {
-                        Mailbox m = EmailContent.getContent(cursor, Mailbox.class);
-                        startServiceThread(new EasOutboxService(this, m), m);
-                    }
-                } else if (interval > 0 && interval <= ONE_DAY_MINUTES) {
-                    long lastSync = cursor.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
-                    long sinceLastSync = now - lastSync;
-                    if (sinceLastSync < 0) {
-                        log("WHOA! lastSync in the future for mailbox: " + mid);
-                        sinceLastSync = interval*MINUTES;
-                    }
-                    long toNextSync = interval*MINUTES - sinceLastSync;
-                    String name = cursor.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
-                    if (toNextSync <= 0) {
-                        Mailbox m = EmailContent.getContent(cursor, Mailbox.class);
-                        requestSync(m, SYNC_SCHEDULED, null);
-                    } else if (toNextSync < nextWait) {
-                        nextWait = toNextSync;
-                        if (Eas.USER_LOG) {
-                            log("Next sync for " + name + " in " + nextWait/1000 + "s");
+                    // Check whether we're in a hold (temporary or permanent)
+                    SyncError syncError = mSyncErrorMap.get(mid);
+                    if (syncError != null) {
+                        // Nothing we can do about fatal errors
+                        if (syncError.fatal) continue;
+                        if (now < syncError.holdEndTime) {
+                            // If release time is earlier than next wait time,
+                            // move next wait time up to the release time
+                            if (syncError.holdEndTime < now + nextWait) {
+                                nextWait = syncError.holdEndTime - now;
+                                mNextWaitReason = "Release hold";
+                            }
+                            continue;
+                        } else {
+                            // Keep the error around, but clear the end time
+                            syncError.holdEndTime = 0;
                         }
-                        mNextWaitReason = "Scheduled sync, " + name;
-                    } else if (Eas.USER_LOG) {
-                        log("Next sync for " + name + " in " + toNextSync/1000 + "s");
                     }
-                }
-            } else {
-                Thread thread = service.mThread;
-                // Look for threads that have died and remove them from the map
-                if (thread != null && !thread.isAlive()) {
-                    if (Eas.USER_LOG) {
-                        log("Dead thread, mailbox released: " +
-                                cursor.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN));
-                    }
-                    releaseMailbox(mid);
-                    // Restart this if necessary
-                    if (nextWait > 3*SECONDS) {
-                        nextWait = 3*SECONDS;
-                        mNextWaitReason = "Clean up dead thread(s)";
+
+                    // Otherwise, we use the sync interval
+                    long interval = c.getInt(Mailbox.CONTENT_SYNC_INTERVAL_COLUMN);
+                    if (interval == Mailbox.CHECK_INTERVAL_PUSH) {
+                        Mailbox m = EmailContent.getContent(c, Mailbox.class);
+                        requestSync(m, SYNC_PUSH, null);
+                    } else if (type == Mailbox.TYPE_OUTBOX) {
+                        if (hasSendableMessages(c)) {
+                            Mailbox m = EmailContent.getContent(c, Mailbox.class);
+                            startServiceThread(new EasOutboxService(this, m), m);
+                        }
+                    } else if (interval > 0 && interval <= ONE_DAY_MINUTES) {
+                        long lastSync = c.getLong(Mailbox.CONTENT_SYNC_TIME_COLUMN);
+                        long sinceLastSync = now - lastSync;
+                        if (sinceLastSync < 0) {
+                            log("WHOA! lastSync in the future for mailbox: " + mid);
+                            sinceLastSync = interval*MINUTES;
+                        }
+                        long toNextSync = interval*MINUTES - sinceLastSync;
+                        String name = c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN);
+                        if (toNextSync <= 0) {
+                            Mailbox m = EmailContent.getContent(c, Mailbox.class);
+                            requestSync(m, SYNC_SCHEDULED, null);
+                        } else if (toNextSync < nextWait) {
+                            nextWait = toNextSync;
+                            if (Eas.USER_LOG) {
+                                log("Next sync for " + name + " in " + nextWait/1000 + "s");
+                            }
+                            mNextWaitReason = "Scheduled sync, " + name;
+                        } else if (Eas.USER_LOG) {
+                            log("Next sync for " + name + " in " + toNextSync/1000 + "s");
+                        }
                     }
                 } else {
-                    long requestTime = service.mRequestTime;
-                    if (requestTime > 0) {
-                        long timeToRequest = requestTime - now;
-                        if (timeToRequest <= 0) {
-                            service.mRequestTime = 0;
-                            service.alarm();
-                        } else if (requestTime > 0 && timeToRequest < nextWait) {
-                            if (timeToRequest < 11*MINUTES) {
-                                nextWait = timeToRequest < 250 ? 250 : timeToRequest;
-                                mNextWaitReason = "Sync data change";
-                            } else {
-                                log("Illegal timeToRequest: " + timeToRequest);
+                    Thread thread = service.mThread;
+                    // Look for threads that have died and remove them from the map
+                    if (thread != null && !thread.isAlive()) {
+                        if (Eas.USER_LOG) {
+                            log("Dead thread, mailbox released: " +
+                                    c.getString(Mailbox.CONTENT_DISPLAY_NAME_COLUMN));
+                        }
+                        releaseMailbox(mid);
+                        // Restart this if necessary
+                        if (nextWait > 3*SECONDS) {
+                            nextWait = 3*SECONDS;
+                            mNextWaitReason = "Clean up dead thread(s)";
+                        }
+                    } else {
+                        long requestTime = service.mRequestTime;
+                        if (requestTime > 0) {
+                            long timeToRequest = requestTime - now;
+                            if (timeToRequest <= 0) {
+                                service.mRequestTime = 0;
+                                service.alarm();
+                            } else if (requestTime > 0 && timeToRequest < nextWait) {
+                                if (timeToRequest < 11*MINUTES) {
+                                    nextWait = timeToRequest < 250 ? 250 : timeToRequest;
+                                    mNextWaitReason = "Sync data change";
+                                } else {
+                                    log("Illegal timeToRequest: " + timeToRequest);
+                                }
                             }
                         }
                     }
                 }
             }
-        } while (cursor.moveToNext());
+        } finally {
+            c.close();
+        }
         return nextWait;
     }
 
@@ -2395,17 +2363,6 @@ public class ExchangeService extends Service implements Runnable {
                 }
             }
         }
-    }
-
-    /**
-     * Tell ExchangeService that one or more syncable mailboxes has changed its schedule
-     */
-    static public void mailboxScheduleChanged(String reason) {
-        ExchangeService exchangeService = INSTANCE;
-        if (exchangeService == null) return;
-        exchangeService.mMailboxCursorInvalid = true;
-        log("Mailbox schedule changed: " + reason);
-        kick(reason);
     }
 
     /**
