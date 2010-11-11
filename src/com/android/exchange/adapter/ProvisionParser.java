@@ -68,9 +68,9 @@ public class ProvisionParser extends Parser {
         int passwordExpiration = 0;
         int passwordHistory = 0;
         int passwordComplexChars = 0;
-        boolean supported = true;
 
         while (nextTag(Tags.PROVISION_EAS_PROVISION_DOC) != END) {
+            boolean tagIsSupported = true;
             switch (tag) {
                 case Tags.PROVISION_DEVICE_PASSWORD_ENABLED:
                     if (getValueInt() == 1) {
@@ -98,7 +98,7 @@ public class ProvisionParser extends Parser {
                     passwordExpiration = getValueInt();
                     // We don't yet support this
                     if (passwordExpiration > 0) {
-                        supported = false;
+                        tagIsSupported = false;
                     }
                     break;
                 case Tags.PROVISION_DEVICE_PASSWORD_HISTORY:
@@ -124,13 +124,13 @@ public class ProvisionParser extends Parser {
                 case Tags.PROVISION_ALLOW_CONSUMER_EMAIL:
                 case Tags.PROVISION_ALLOW_INTERNET_SHARING:
                     if (getValueInt() == 0) {
-                        supported = false;
+                        tagIsSupported = false;
                     }
                     break;
                 // Bluetooth: 0 = no bluetooth; 1 = only hands-free; 2 = allowed
                 case Tags.PROVISION_ALLOW_BLUETOOTH:
                     if (getValueInt() != 2) {
-                        supported = false;
+                        tagIsSupported = false;
                     }
                     break;
                 // The following policies, if true, can't be supported at the moment
@@ -143,21 +143,21 @@ public class ProvisionParser extends Parser {
                 case Tags.PROVISION_REQUIRE_ENCRYPTION_SMIME_ALGORITHM:
                 case Tags.PROVISION_REQUIRE_MANUAL_SYNC_WHEN_ROAMING:
                     if (getValueInt() == 1) {
-                        supported = false;
+                        tagIsSupported = false;
                     }
                     break;
                 // The following, if greater than zero, can't be supported at the moment
                 case Tags.PROVISION_MAX_ATTACHMENT_SIZE:
                     if (getValueInt() > 0) {
-                        supported = false;
+                        tagIsSupported = false;
                     }
                     break;
                 // Complex character setting is only used if we're in "strong" (alphanumeric) mode
                 case Tags.PROVISION_MIN_DEVICE_PASSWORD_COMPLEX_CHARS:
                     passwordComplexChars = getValueInt();
-                    if ((passwordMode == PolicySet.PASSWORD_MODE_STRONG) &&
+                    if ((passwordMode != PolicySet.PASSWORD_MODE_STRONG) &&
                             (passwordComplexChars > 0)) {
-                        supported = false;
+                        tagIsSupported = false;
                     }
                     break;
                 // The following policies are moot; they allow functionality that we don't support
@@ -172,7 +172,7 @@ public class ProvisionParser extends Parser {
                 case Tags.PROVISION_APPROVED_APPLICATION_LIST:
                     // Parse and throw away the content
                     if (specifiesApplications(tag)) {
-                        supported = false;
+                        tagIsSupported = false;
                     }
                     break;
                 // NOTE: We can support these entirely within the email application if we choose
@@ -180,7 +180,7 @@ public class ProvisionParser extends Parser {
                 case Tags.PROVISION_MAX_EMAIL_AGE_FILTER:
                     // 0 indicates no specified filter
                     if (getValueInt() != 0) {
-                        supported = false;
+                        tagIsSupported = false;
                     }
                     break;
                 // NOTE: We can support these entirely within the email application if we choose
@@ -189,14 +189,14 @@ public class ProvisionParser extends Parser {
                     String value = getValue();
                     // -1 indicates no required truncation
                     if (!value.equals("-1")) {
-                        supported = false;
+                        tagIsSupported = false;
                     }
                     break;
                 default:
                     skipTag();
             }
 
-            if (!supported) {
+            if (!tagIsSupported) {
                 log("Policy not supported: " + tag);
                 mIsSupportable = false;
             }
