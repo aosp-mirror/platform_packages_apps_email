@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="status_sending_messages" msgid="3971880826111264523">"Wysyłanie wiadomości…"</string>
-    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Wyślij wiadomości wychodzące"</string>
+    <!-- outdated translation 9100624762133992435 -->     <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"Wyślij wiadomości wychodzące"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Pobieranie załącznika."</string>
     <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Pobieranie załącznika <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"Odczytaj załączniki w wiadomościach e-mail"</string>
@@ -37,7 +37,7 @@
     <string name="forward_action" msgid="669174181042344116">"Przekaż dalej"</string>
     <string name="done_action" msgid="7497990549515580249">"Gotowe"</string>
     <string name="discard_action" msgid="6532206074859505968">"Odrzuć"</string>
-    <string name="save_draft_action" msgid="812855865552028622">"Zapisz wersję roboczą"</string>
+    <!-- outdated translation 812855865552028622 -->     <string name="save_draft_action" msgid="6413714270991417223">"Zapisz wersję roboczą"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"Przeczytane/nieprzeczytane"</string>
     <string name="read_action" msgid="4701484794504781686">"Zaznacz jako przeczytane"</string>
     <string name="unread_action" msgid="6280399049357552826">"Zaznacz jako nieprzeczytane"</string>
@@ -56,7 +56,7 @@
     <string name="accounts_action" msgid="901105887272231493">"Konta"</string>
     <string name="mark_as_read_action" msgid="5031651846998842419">"Oznacz jako przeczytane"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Oznacz jako nieprzeczyt."</string>
-    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Dodaj DW/UDW"</string>
+    <!-- outdated translation 5569074812077509737 -->     <string name="add_cc_bcc_action" msgid="413546910281713891">"Dodaj DW/UDW"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Dodaj załącznik"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Zrzut ustawień"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Wybierz załącznik"</string>
@@ -65,6 +65,8 @@
     <string name="status_network_error" msgid="6045933332005067021">"Błąd połączenia"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Nowa wiadomość e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Nieoczekiwany błąd podczas wczytywania tekstu wiadomości. Wiadomość może być zbyt duża do wyświetlenia."</string>
+    <!-- no translation found for move_messages:one (1891601902988083907) -->
+    <!-- no translation found for move_messages:other (8792313600381332865) -->
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"Nieprzeczytane: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"Nieprzeczytane: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -90,12 +92,14 @@
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Wiadomości-śmieci"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Wersja: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Konta"</string>
-    <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Wszystkie skrzynki odbiorcze"</string>
-    <string name="account_folder_list_summary_starred" msgid="2699605259405555890">"Wszystkie oznaczone gwiazdką"</string>
-    <string name="account_folder_list_summary_drafts" msgid="1582947228021407150">"Wszystkie kopie robocze"</string>
-    <string name="account_folder_list_summary_outbox" msgid="1438676397481851177">"Wszystkie skrzynki nadawcze"</string>
+    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Odebrane"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Oznaczone gwiazdką"</string>
+    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Kopie robocze"</string>
+    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Do wysłania"</string>
     <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Naciśnij i przytrzymaj konto, aby je odświeżyć"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Skrzynka pocztowa"</string>
+    <!-- no translation found for mailbox_list_account_selector_combined_view (1556327299894225044) -->
+    <skip />
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Załaduj więcej wiadomości"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"Wybrano: <xliff:g id="MESSAGE_COUNT">%d</xliff:g>"</item>
@@ -343,4 +347,23 @@
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Nowsza wiadomość"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Starsza wiadomość"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Lista wiadomości"</string>
+    <!-- no translation found for general_preference_text_zoom_label (4021955890499565713) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_summary_array:0 (1728778773460367725) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:1 (8239633518447359057) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:2 (55959821477704302) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:3 (446236334663020508) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:4 (235926149071179467) -->
+    <!-- no translation found for general_preference_text_zoom_dialog_title (7446841758331151643) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_tiny (2948174583663330937) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_small (6618520238223144876) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_normal (1765540147950855479) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
+    <skip />
 </resources>

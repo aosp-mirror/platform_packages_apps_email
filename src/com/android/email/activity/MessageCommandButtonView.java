@@ -20,50 +20,39 @@ import com.android.email.R;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * A View that is shown at the bottom of {@link MessageViewFragment} and contains buttons such
- * as "Delete" "Mark unread".
+ * as "(move to) newer".
  *
  * This class is meant to hide layout differences between portrait and landscape, if any.
  * e.g. We might combine some of the buttons when we have small real estate.
  */
-public class MessageCommandButtonView extends LinearLayout implements View.OnClickListener {
+public class MessageCommandButtonView extends RelativeLayout implements View.OnClickListener {
+    /**
+     * If false, we don't want to show anything, in which case all fields holding a view
+     * (e.g. {@link #mMoveToNewerButton}) are null.
+     */
+    private boolean mShowPanel;
+
     private View mMoveToNewerButton;
     private View mMoveToOlderButton;
-    private View mForwardButton;
-    private View mReplyButton;
-    private View mReplyAllButton;
-    private View mDeleteButton;
-    private View mMarkUneadButton;
-    private View mMoveButton;
+    private TextView mMessagePosition;
 
     private Callback mCallback = EmptyCallback.INSTANCE;
 
     public interface Callback {
         public void onMoveToNewer();
         public void onMoveToOlder();
-        public void onForward();
-        public void onReply();
-        public void onReplyAll();
-        public void onDelete();
-        public void onMarkUnread();
-        public void onMove();
     }
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onDelete() {}
-        @Override public void onForward() {}
-        @Override public void onMarkUnread() {}
-        @Override public void onMove() {}
         @Override public void onMoveToNewer() {}
         @Override public void onMoveToOlder() {}
-        @Override public void onReply() {}
-        @Override public void onReplyAll() {}
     }
 
     public MessageCommandButtonView(Context context, AttributeSet attrs, int defStyle) {
@@ -83,37 +72,39 @@ public class MessageCommandButtonView extends LinearLayout implements View.OnCli
         super.onFinishInflate();
 
         mMoveToNewerButton = findViewById(R.id.move_to_newer_button);
+        if (mMoveToNewerButton == null) {
+            mShowPanel = false;
+            return;
+        }
+        mShowPanel = true;
         mMoveToOlderButton = findViewById(R.id.move_to_older_button);
-        mForwardButton = findViewById(R.id.forward_button);
-        mReplyButton = findViewById(R.id.reply_button);
-        mReplyAllButton = findViewById(R.id.reply_all_button);
-        mDeleteButton = findViewById(R.id.delete_button);
-        mMarkUneadButton = findViewById(R.id.unread_button);
-        mMoveButton = findViewById(R.id.move_button);
+        mMessagePosition = (TextView) findViewById(R.id.message_position);
 
         mMoveToNewerButton.setOnClickListener(this);
         mMoveToOlderButton.setOnClickListener(this);
-        mForwardButton.setOnClickListener(this);
-        mReplyButton.setOnClickListener(this);
-        mReplyAllButton.setOnClickListener(this);
-        mDeleteButton.setOnClickListener(this);
-        mMarkUneadButton.setOnClickListener(this);
-        mMoveButton.setOnClickListener(this);
     }
 
     public void setCallback(Callback callback) {
         mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
     }
 
-    public void enableReplyForwardButtons(boolean enabled) {
-        mForwardButton.setEnabled(enabled);
-        mReplyButton.setEnabled(enabled);
-        mReplyAllButton.setEnabled(enabled);
-    }
-
-    public void enableNavigationButons(boolean enableMoveToNewer, boolean enableMoveToOlder) {
+    public void enableNavigationButtons(boolean enableMoveToNewer, boolean enableMoveToOlder,
+            int currentPosition, int countMessages) {
+        if (!mShowPanel) {
+            return;
+        }
         mMoveToNewerButton.setEnabled(enableMoveToNewer);
         mMoveToOlderButton.setEnabled(enableMoveToOlder);
+
+        // Show "POSITION of TOTAL"
+        final String positionOfCount;
+        if (countMessages == 0) {
+            positionOfCount = "";
+        } else {
+            positionOfCount = getContext().getResources().getString(R.string.position_of_count,
+                (currentPosition + 1), countMessages);
+        }
+        mMessagePosition.setText(positionOfCount);
     }
 
     @Override
@@ -124,24 +115,6 @@ public class MessageCommandButtonView extends LinearLayout implements View.OnCli
                 break;
             case R.id.move_to_older_button:
                 mCallback.onMoveToOlder();
-                break;
-            case R.id.forward_button:
-                mCallback.onForward();
-                break;
-            case R.id.reply_button:
-                mCallback.onReply();
-                break;
-            case R.id.reply_all_button:
-                mCallback.onReplyAll();
-                break;
-            case R.id.delete_button:
-                mCallback.onDelete();
-                break;
-            case R.id.unread_button:
-                mCallback.onMarkUnread();
-                break;
-            case R.id.move_button:
-                mCallback.onMove();
                 break;
         }
     }

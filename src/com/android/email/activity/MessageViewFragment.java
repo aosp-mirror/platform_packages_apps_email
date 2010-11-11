@@ -30,6 +30,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -188,6 +191,11 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         super.onResume();
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.message_view_fragment_option, menu);
+    }
+
     private void enableReplyForwardButtons(boolean enabled) {
         // We don't have disabled button assets, so let's hide them for now
         final int visibility = enabled ? View.VISIBLE : View.GONE;
@@ -220,6 +228,12 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         synchronized (mLock) {
             super.clearContent();
             mMessageIdToOpen = -1;
+
+            // Hide the menu.
+            // This isn't really necessary if we're really hiding the fragment.  However,
+            // for now, we're actually *not* hiding the fragment (just hiding the root view of it),
+            // so need to remove menus manually.
+            setHasOptionsMenu(false);
         }
     }
 
@@ -259,10 +273,15 @@ public class MessageViewFragment extends MessageViewFragmentBase {
 
         // Disable forward/reply buttons as necessary.
         enableReplyForwardButtons(Mailbox.isMailboxTypeReplyAndForwardable(mailboxType));
+
+        // Show the menu when it's showing a message.
+        setHasOptionsMenu(true);
     }
 
-    public void enableNavigationButons(boolean enableMoveToNewer, boolean enableMoveToOlder) {
-        mCommandButtons.enableNavigationButons(enableMoveToNewer, enableMoveToOlder);
+    public void enableNavigationButons(boolean enableMoveToNewer, boolean enableMoveToOlder,
+            int currentPosition, int countMessages) {
+        mCommandButtons.enableNavigationButtons(enableMoveToNewer, enableMoveToOlder,
+                currentPosition, countMessages);
     }
 
     /**
@@ -358,6 +377,36 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         super.onClick(view);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.move:
+                onMove();
+                return true;
+            case R.id.delete:
+                onDelete();
+                return true;
+            case R.id.mark_as_unread:
+                onMarkAsUnread();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void onMove() {
+        mCallback.onMoveMessage();
+    }
+
+    private void onDelete() {
+        mCallback.onBeforeMessageDelete();
+        ActivityHelper.deleteMessage(getActivity(), mCurrentMessageId);
+    }
+
+    private void onMarkAsUnread() {
+        onMarkMessageAsRead(false);
+        mCallback.onMessageSetUnread();
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -389,35 +438,6 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         @Override
         public void onMoveToOlder() {
             mCallback.onMoveToOlder();
-        }
-
-        @Override
-        public void onDelete() {
-            mCallback.onBeforeMessageDelete();
-            ActivityHelper.deleteMessage(getActivity(), mCurrentMessageId);
-        }
-
-        @Override
-        public void onMove() {
-            mCallback.onMoveMessage();
-        }
-
-        @Override
-        public void onForward() {
-        }
-
-        @Override
-        public void onReply() {
-        }
-
-        @Override
-        public void onReplyAll() {
-        }
-
-        @Override
-        public void onMarkUnread() {
-            onMarkMessageAsRead(false);
-            mCallback.onMessageSetUnread();
         }
     }
 }

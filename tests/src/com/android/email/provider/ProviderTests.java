@@ -1920,6 +1920,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
      *
      * It also covers:
      * - {@link Mailbox#getMessageCountByMailboxType(Context, int)}
+     * - {@link Mailbox#getUnreadCountByAccountAndMailboxType(Context, long, int)}
      * - {@link Mailbox#getUnreadCountByMailboxType(Context, int)}
      * - {@link Message#getFavoriteMessageCount(Context)}
      */
@@ -1949,22 +1950,31 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_INBOX));
         assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
 
+        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a1.mId, Mailbox.TYPE_INBOX));
+        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a1.mId, Mailbox.TYPE_OUTBOX));
+        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a2.mId, Mailbox.TYPE_INBOX));
+        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a2.mId, Mailbox.TYPE_OUTBOX));
+
         // 1. Test for insert triggers.
 
         // Create some messages
-        // b1: 1 message
+        // b1 (account 1, inbox): 1 message
         Message m11 = createMessage(c, b1, true, false);
 
-        // b2: 2 message
+        // b2 (account 1, outbox): 2 message
         Message m21 = createMessage(c, b2, false, false);
         Message m22 = createMessage(c, b2, true, true);
 
-        // b3: 3 message
+        // b3 (account 2, inbox): 3 message
         Message m31 = createMessage(c, b3, false, false);
         Message m32 = createMessage(c, b3, false, false);
         Message m33 = createMessage(c, b3, true, true);
 
-        // b4 has no messages.
+        // b4 (account 2, outbox) has no messages.
 
         // Check message counts
         assertEquals(1, getMessageCount(b1.mId));
@@ -1978,6 +1988,15 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(1, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
         assertEquals(4, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_INBOX));
         assertEquals(2, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
+
+        assertEquals(1, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a1.mId, Mailbox.TYPE_INBOX));
+        assertEquals(1, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a1.mId, Mailbox.TYPE_OUTBOX));
+        assertEquals(2, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a2.mId, Mailbox.TYPE_INBOX));
+        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a2.mId, Mailbox.TYPE_OUTBOX));
 
         // 2. test for recalculateMessageCount.
 
@@ -2030,7 +2049,12 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // No such mailbox type.
         assertEquals(0, Mailbox.getMessageCountByMailboxType(c, 99999));
+        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c, a1.mId, 99999));
         assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, 99999));
+
+        // No such account
+        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                99999, Mailbox.TYPE_INBOX));
     }
 
     private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read) {
@@ -2231,7 +2255,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         return m;
     }
 
-    public void testMessageGetLatestMessage() {
+    public void testMessageGetLatestIncomingMessage() {
         final Context c = mMockContext;
 
         // Create 2 accounts with a inbox.
@@ -2239,22 +2263,28 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Account a2 = ProviderTestUtils.setupAccount("a2", true, c);
 
         Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a1.mId, true, c, Mailbox.TYPE_INBOX);
-        Mailbox b2 = ProviderTestUtils.setupMailbox("box3", a2.mId, true, c, Mailbox.TYPE_INBOX);
+        Mailbox b1d = ProviderTestUtils.setupMailbox("box1d", a1.mId, true, c, Mailbox.TYPE_DRAFTS);
+        Mailbox b1o = ProviderTestUtils.setupMailbox("box1o", a1.mId, true, c, Mailbox.TYPE_OUTBOX);
+        Mailbox b1s = ProviderTestUtils.setupMailbox("box1s", a1.mId, true, c, Mailbox.TYPE_SENT);
+        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", a2.mId, true, c, Mailbox.TYPE_MAIL);
 
         // Create some messages
         Message m11 = createMessageWithTimestamp(c, b1, 33);
         Message m12 = createMessageWithTimestamp(c, b1, 10);
-        Message m13 = createMessageWithTimestamp(c, b1, 1000);
+        Message m13 = createMessageWithTimestamp(c, b1, 1000); // latest incoming
+        Message m1d = createMessageWithTimestamp(c, b1d, 2000);
+        Message m1o = createMessageWithTimestamp(c, b1o, 2000);
+        Message m1s = createMessageWithTimestamp(c, b1s, 2000);
 
-        Message m21 = createMessageWithTimestamp(c, b2, 99);
+        Message m21 = createMessageWithTimestamp(c, b2, 99); // latest incoming
         Message m22 = createMessageWithTimestamp(c, b2, 1);
         Message m23 = createMessageWithTimestamp(c, b2, 2);
 
         // Check!
-        assertEquals(m13.mId, Message.getLatestMessage(c, a1.mId).mId);
-        assertEquals(m21.mId, Message.getLatestMessage(c, a2.mId).mId);
+        assertEquals(m13.mId, Message.getLatestIncomingMessage(c, a1.mId).mId);
+        assertEquals(m21.mId, Message.getLatestIncomingMessage(c, a2.mId).mId);
 
         // No such account
-        assertEquals(null, Message.getLatestMessage(c, 9999999L));
+        assertEquals(null, Message.getLatestIncomingMessage(c, 9999999L));
     }
 }

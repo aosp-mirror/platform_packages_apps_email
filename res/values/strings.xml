@@ -120,7 +120,7 @@
     <!-- Menu item -->
     <string name="mark_as_unread_action">Mark as unread</string>
     <!-- Menu item for moving messages to folders [CHAR LIMIT=10] -->
-    <string name="move_action" translatable="false">Move</string>
+    <string name="move_action">Move</string>
     <!-- Menu item / button label for adding CC/BCC fields on message compose. [CHAR LIMIT=16] -->
     <string name="add_cc_bcc_action">+ Cc/Bcc</string>
     <!-- Menu item -->
@@ -204,6 +204,12 @@
         <item quantity="other"><xliff:g id="num_new_message">%1$d</xliff:g
             > new<xliff:g id="separator">&#8195;</xliff:g>
             <xliff:g id="account_name">%2$s</xliff:g></item>
+    </plurals>
+
+    <!-- The number of accounts configured. [CHAR LIMIT=16] -->
+    <plurals name="number_of_accounts">
+        <item quantity="one"><xliff:g id="num_accounts" example="1">%1$d</xliff:g> account</item>
+        <item quantity="other"><xliff:g id="num_accounts" example="2">%1$d</xliff:g> accounts</item>
     </plurals>
 
     <!-- The next set of strings are used server-side and must not be localized. -->
@@ -370,6 +376,13 @@ save attachment.</string>
         You have replied \"maybe\" to this invitation</string>
     <!-- Toast shown following a meeting invite reply, declined -->
     <string name="message_view_invite_toast_no">You have declined this invitation</string>
+    <!--Confirmation dialog title shown when user tries to delete messages.  [CHAR LIMIT=16] -->
+    <string name="message_delete_dialog_title">Discard message</string>
+    <!--Confirmation dialog text shown when user tries to delete messages.  [CHAR LIMIT=32] -->
+    <plurals name="message_delete_confirm">
+        <item quantity="one">Discard this message?</item>
+        <item quantity="other">Discard these messages?</item>
+    </plurals>
     <!-- Toast shown briefly while deleting a message -->
     <plurals name="message_deleted_toast">
         <item quantity="one">Message deleted.</item>
@@ -426,10 +439,10 @@ save attachment.</string>
         <item quantity="other"><xliff:g id="size_in_gigabytes" example="279">%d</xliff:g>GB</item>
     </plurals>
 
-    <!-- Do Not Translate.  The label of the next button on the message view screen. -->
-    <string name="message_view_move_to_newer" translatable="false">&lt;</string>
-    <!-- Do Not Translate.  The label of the previous button on the message view screen. -->
-    <string name="message_view_move_to_older" translatable="false">&gt;</string>
+    <!-- The label of the next button on the message view screen. -->
+    <string name="message_view_move_to_newer">Newer</string>
+    <!-- The label of the previous button on the message view screen. -->
+    <string name="message_view_move_to_older">Older</string>
 
     <!-- The message snippet, of the form subject + separator + start of text  -->
     <string name="message_list_snippet"><xliff:g id="subject" example="Re: Foo">
@@ -926,6 +939,9 @@ save attachment.</string>
     <!-- General preference:  Text zoom.  Value is "huge" (+2) [CHAR LIMIT=32] -->
     <string name="general_preference_text_zoom_huge">Huge</string>
 
+    <!-- Generic string for "current position" / "total number" [CHAR LIMIT=12] -->
+    <string name="position_of_count"><xliff:g example="1">%1$d</xliff:g> of <xliff:g
+            example="12">%2$s</xliff:g></string>
     <!--
         Strings for temporary UI
         STOPSHIP Remove them or move them up and make translatable

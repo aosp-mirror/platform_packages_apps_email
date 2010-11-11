@@ -543,6 +543,21 @@ public abstract class EmailContent {
         private static final String ACCOUNT_KEY_SELECTION =
             MessageColumns.ACCOUNT_KEY + "=?";
 
+        /**
+         * Selection for latest incoming messages.  In order to tell whether incoming or not,
+         * we need the mailbox type, which is in the mailbox table, not the message table, so
+         * use a subquery.
+         */
+        private static final String LATEST_INCOMING_MESSAGE_SELECTION =
+            MessageColumns.MAILBOX_KEY + " IN (SELECT " + RECORD_ID + " FROM " + Mailbox.TABLE_NAME
+            + " WHERE " + MailboxColumns.ACCOUNT_KEY + "=? AND "
+            + Mailbox.USER_VISIBLE_MAILBOX_SELECTION + " AND "
+            + MailboxColumns.TYPE + " NOT IN ("
+                + Mailbox.TYPE_DRAFTS + ","
+                + Mailbox.TYPE_OUTBOX + ","
+                + Mailbox.TYPE_SENT
+            + "))";
+
         // _id field is in AbstractContent
         public String mDisplayName;
         public long mTimeStamp;
@@ -851,10 +866,10 @@ public abstract class EmailContent {
         /**
          * @return the latest messages on an account.
          */
-        public static Message getLatestMessage(Context context, Long accountId) {
+        public static Message getLatestIncomingMessage(Context context, Long accountId) {
             Cursor c = context.getContentResolver().query(Message.CONTENT_URI_LIMIT_1,
                     Message.CONTENT_PROJECTION,
-                    ACCOUNT_KEY_SELECTION, new String[] {Long.toString(accountId)},
+                    LATEST_INCOMING_MESSAGE_SELECTION, new String[] {Long.toString(accountId)},
                     EmailContent.MessageColumns.TIMESTAMP + " DESC");
             try {
                 if (c.moveToFirst()) {
@@ -2169,6 +2184,9 @@ public abstract class EmailContent {
             MailboxColumns.SYNC_STATUS, MailboxColumns.MESSAGE_COUNT
         };
 
+        private static final String ACCOUNT_AND_MAILBOX_TYPE_SELECTION =
+                MailboxColumns.ACCOUNT_KEY + " =? AND " +
+                MailboxColumns.TYPE + " =?";
         private static final String MAILBOX_TYPE_SELECTION =
                 MailboxColumns.TYPE + " =?";
         private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {
@@ -2210,6 +2228,9 @@ public abstract class EmailContent {
         public static final Integer[] INVALID_DROP_TARGETS = new Integer[] {Mailbox.TYPE_DRAFTS,
             Mailbox.TYPE_OUTBOX, Mailbox.TYPE_SENT};
 
+        public static final String USER_VISIBLE_MAILBOX_SELECTION =
+            MailboxColumns.TYPE + "<" + Mailbox.TYPE_NOT_EMAIL +
+            " AND " + MailboxColumns.FLAG_VISIBLE + "=1";
 
         // Types of mailboxes.  The list is ordered to match a typical UI presentation, e.g.
         // placing the inbox at the top.
@@ -2354,6 +2375,15 @@ public abstract class EmailContent {
                 return Mailbox.restoreMailboxWithId(context, mailboxId);
             }
             return null;
+        }
+
+        public static int getUnreadCountByAccountAndMailboxType(Context context, long accountId,
+                int type) {
+            return Utility.getFirstRowInt(context, Mailbox.CONTENT_URI,
+                    MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION,
+                    ACCOUNT_AND_MAILBOX_TYPE_SELECTION,
+                    new String[] { String.valueOf(accountId), String.valueOf(type) },
+                    null, UNREAD_COUNT_COUNT_COLUMN, 0);
         }
 
         public static int getUnreadCountByMailboxType(Context context, int type) {
