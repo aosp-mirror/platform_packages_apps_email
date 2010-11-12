@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 // TODO Implement animation
 // TODO On STATE_PORTRAIT_MIDDLE_EXPANDED state, right pane should be pushed out, rather than
 // squished.
+// TODO Test SavedState too.
 
 /**
  * The "three pane" layout used on tablet.
@@ -248,7 +249,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
-            out.writeLong(mPaneState);
+            out.writeInt(mPaneState);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR
