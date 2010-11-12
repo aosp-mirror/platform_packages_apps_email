@@ -132,6 +132,9 @@ public class MessageListXL extends Activity implements
             initFromIntent();
         }
         loadAccounts();
+
+        ActionBar ab = getActionBar();
+        ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME);
     }
 
     private void initFromIntent() {
@@ -209,18 +212,11 @@ public class MessageListXL extends Activity implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessageListXL onBackPressed");
         }
-        if (mFragmentManager.isMessageSelected()) {
-            // Go back to the message list.
-            // We currently don't use the built-in back mechanism.
-            // It'd be nice if we could make use of it, but the semantics of the built-in back is
-            // a bit different from how we do it in MessageListXLFragmentManager.
-            // Switching to the built-in back will probably require re-writing
-            // MessageListXLFragmentManager quite a bit.
-            mFragmentManager.goBackToMailbox();
-        } else {
-            // Perform the default behavior == close the activity.
-            super.onBackPressed();
+        if (mFragmentManager.onBackPressed()) {
+            return;
         }
+        // Perform the default behavior.
+        super.onBackPressed();
     }
 
     private void onCurrentMessageGone() {
@@ -603,6 +599,9 @@ public class MessageListXL extends Activity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                // Comes from the action bar when the app icon on the left is pressed.
+                return mFragmentManager.onBackPressed();
             case R.id.compose:
                 return onCompose();
             case R.id.refresh:

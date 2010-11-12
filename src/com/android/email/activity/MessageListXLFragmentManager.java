@@ -21,6 +21,7 @@ import com.android.email.R;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 
+import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -67,6 +68,7 @@ class MessageListXLFragmentManager {
 
     private MailboxFinder mMailboxFinder;
     private final MailboxFinderCallback mMailboxFinderCallback = new MailboxFinderCallback();
+    private final ThreePaneLayoutCallback mThreePaneLayoutCallback = new ThreePaneLayoutCallback();
 
     /**
      * Save state for the "message list -> message view -[back press]-> message list" transition.
@@ -79,6 +81,7 @@ class MessageListXLFragmentManager {
      * for MessageListXLFragmentManager.
      */
     public interface TargetActivity {
+        public ActionBar getActionBar();
         public FragmentManager getFragmentManager();
 
         /**
@@ -112,6 +115,7 @@ class MessageListXLFragmentManager {
             Log.d(Email.LOG_TAG, "MessageListXLFragmentManager.onActivityViewReady");
         }
         mThreePane = (ThreePaneLayout) mTargetActivity.findViewById(R.id.three_pane);
+        mThreePane.setCallback(mThreePaneLayoutCallback);
 
         FragmentManager fm = mTargetActivity.getFragmentManager();
         mMailboxListFragment = (MailboxListFragment) fm.findFragmentById(
@@ -120,6 +124,8 @@ class MessageListXLFragmentManager {
                 mThreePane.getMiddlePaneId());
         mMessageViewFragment = (MessageViewFragment) fm.findFragmentById(
                 mThreePane.getRightPaneId());
+
+        updateActionBar();
     }
 
     /** Set callback for fragment. */
@@ -258,6 +264,15 @@ class MessageListXLFragmentManager {
         }
     }
 
+    private void updateActionBar() {
+        // Shwo the "back" arrow next to the app icon if back is enabled.
+        final int visiblePanes = mThreePane.getVisiblePanes();
+        final boolean backable = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
+        final ActionBar ab = mTargetActivity.getActionBar();
+        ab.setDisplayOptions(backable ? ActionBar.DISPLAY_HOME_AS_UP : 0,
+                ActionBar.DISPLAY_HOME_AS_UP);
+    }
+
     /**
      * Call it to select an account.
      *
@@ -298,6 +313,20 @@ class MessageListXLFragmentManager {
         } else {
             selectMailbox(mailboxId, byExplicitUserAction);
         }
+    }
+
+    /**
+     * Handles back press.
+     *
+     * @return true "back" is handled.
+     */
+    public boolean onBackPressed() {
+        if (isMessageSelected()) {
+            // Go back to the message list.
+            goBackToMailbox();
+            return true;
+        }
+        return false; // Not handled.
     }
 
     /**
@@ -435,6 +464,13 @@ class MessageListXLFragmentManager {
                 Log.d(Email.LOG_TAG, "MailboxFinderCallback.onMailboxNotFound");
             }
             // Shouldn't happen
+        }
+    }
+
+    private class ThreePaneLayoutCallback implements ThreePaneLayout.Callback {
+        @Override
+        public void onVisiblePanesChanged() {
+            updateActionBar();
         }
     }
 }
