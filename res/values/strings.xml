@@ -330,6 +330,7 @@
     <string name="message_view_to_label">To:</string>
     <!-- Label for CC field in read message view -->
     <string name="message_view_cc_label">Cc:</string>
+    <string name="message_view_bcc_label">Bcc:</string>
     <!-- Button name to view an attachment (in another activity) [CHAR LIMIT=10]-->
     <string name="message_view_attachment_view_action">View</string>
     <!-- Button name, to load an attachment from the mail server [CHAR LIMIT=10]-->
