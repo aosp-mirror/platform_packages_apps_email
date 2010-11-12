@@ -1577,7 +1577,7 @@ public class EasSyncService extends AbstractSyncService {
             if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
                     WHERE_ACCOUNT_AND_SYNC_INTERVAL_PING,
                     new String[] {Long.toString(mAccount.mId)}) > 0) {
-                ExchangeService.mailboxScheduleChanged("Account mailbox startup");
+                ExchangeService.kick("change ping boxes to push");
             }
 
             // Determine our protocol version, if we haven't already and save it in the Account
@@ -1626,8 +1626,7 @@ public class EasSyncService extends AbstractSyncService {
                 if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
                         ExchangeService.WHERE_IN_ACCOUNT_AND_PUSHABLE,
                         new String[] {Long.toString(mAccount.mId)}) > 0) {
-                    ExchangeService.mailboxScheduleChanged(
-                            "Push account; set pushable boxes to push...");
+                    userLog("Push account; set pushable boxes to push...");
                 }
             }
 
@@ -1649,7 +1648,6 @@ public class EasSyncService extends AbstractSyncService {
                                 .parse()) {
                             continue;
                         }
-                        ExchangeService.mailboxScheduleChanged("Folder sync");
                     }
                 } else if (isProvisionError(code)) {
                     // If the sync error is a provisioning failure (perhaps the policies changed),
@@ -1678,7 +1676,7 @@ public class EasSyncService extends AbstractSyncService {
                 if (mContentResolver.update(Mailbox.CONTENT_URI, cv,
                         WHERE_PUSH_HOLD_NOT_ACCOUNT_MAILBOX,
                         new String[] {Long.toString(mAccount.mId)}) > 0) {
-                    ExchangeService.mailboxScheduleChanged("Set push/hold boxes to push...");
+                    userLog("Set push/hold boxes to push...");
                 }
 
                 try {
@@ -1789,7 +1787,7 @@ public class EasSyncService extends AbstractSyncService {
         mContentResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
                 cv, null, null);
         errorLog("*** PING ERROR LOOP: Set " + mailbox.mDisplayName + " to " + mins + " min sync");
-        ExchangeService.mailboxScheduleChanged("PING ERROR");
+        ExchangeService.kick("push fallback");
     }
 
     /**
@@ -2205,13 +2203,12 @@ public class EasSyncService extends AbstractSyncService {
                     // if necessary
                     userLog("Empty sync response; finishing");
                     if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
+                        userLog("Changing mailbox from push to ping");
                         ContentValues cv = new ContentValues();
                         cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PING);
                         mContentResolver.update(
                                 ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId), cv,
                                 null, null);
-                        ExchangeService.mailboxScheduleChanged(
-                                "Changing mailbox from push to ping");
                     }
                     if (mRequestQueue.isEmpty()) {
                         mExitStatus = EXIT_DONE;
