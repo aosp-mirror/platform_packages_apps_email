@@ -50,6 +50,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+// TODO Rework the menu for the phone UI
+// Menu won't show up on the phone UI -- not sure if it's a framework issue or our bug.
+
 public class MessageList extends Activity implements OnClickListener,
         AnimationListener, MessageListFragment.Callback {
     // Intent extras (internal to this activity)
@@ -314,13 +317,28 @@ public class MessageList extends Activity implements OnClickListener,
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true; // Tell the framework it has the menu
+    }
+
+    private boolean mMenuCreated;
+
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        // Re-create menu every time.  (We may not know the mailbox id yet)
-        menu.clear();
-        if (mListFragment.isMagicMailbox()) {
-            getMenuInflater().inflate(R.menu.message_list_option_smart_folder, menu);
-        } else {
-            getMenuInflater().inflate(R.menu.message_list_option, menu);
+        if (mListFragment == null) {
+            // Activity not initialized.
+            // This method indirectly gets called from MessageListFragment.onCreate()
+            // due to the setHasOptionsMenu() call, at which point this.onCreate() hasn't been
+            // called -- thus mListFragment == null.
+            return false;
+        }
+        if (!mMenuCreated) {
+            mMenuCreated = true;
+            if (mListFragment.isMagicMailbox()) {
+                getMenuInflater().inflate(R.menu.message_list_option_smart_folder, menu);
+            } else {
+                getMenuInflater().inflate(R.menu.message_list_option, menu);
+            }
         }
         boolean showDeselect = mListFragment.getSelectedCount() > 0;
         menu.setGroupVisible(R.id.deselect_all_group, showDeselect);
