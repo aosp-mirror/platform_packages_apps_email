@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 
+<!-- TODO Simplify this.  This layout is way too deep. -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent" android:layout_width="match_parent"
     android:orientation="vertical" android:background="#ffffff">
@@ -36,28 +38,36 @@
                     android:inputType="textEmailAddress|textMultiLine"
                     android:imeOptions="actionNext"
                     android:hint="@string/message_compose_to_hint" />
-                <com.android.email.activity.AddressTextView
-                    android:id="@+id/cc" android:layout_width="match_parent"
+                <LinearLayout
+                    android:id="@+id/cc_bcc_container"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:layout_marginLeft="6dip"
-                    android:layout_marginRight="6dip"
-                    android:inputType="textEmailAddress|textMultiLine"
-                    android:imeOptions="actionNext"
-                    android:hint="@string/message_compose_cc_hint"
-                    android:visibility="gone" />
-                <com.android.email.activity.AddressTextView
-                    android:id="@+id/bcc" android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:layout_marginLeft="6dip"
-                    android:layout_marginRight="6dip"
-                    android:inputType="textEmailAddress|textMultiLine"
-                    android:imeOptions="actionNext"
-                    android:hint="@string/message_compose_bcc_hint"
-                    android:visibility="gone" />
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    >
+                    <com.android.email.activity.AddressTextView
+                        android:id="@+id/cc" android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:layout_marginLeft="6dip"
+                        android:layout_marginRight="6dip"
+                        android:inputType="textEmailAddress|textMultiLine"
+                        android:imeOptions="actionNext"
+                        android:hint="@string/message_compose_cc_hint"
+                        />
+                    <com.android.email.activity.AddressTextView
+                        android:id="@+id/bcc" android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:layout_marginLeft="6dip"
+                        android:layout_marginRight="6dip"
+                        android:inputType="textEmailAddress|textMultiLine"
+                        android:imeOptions="actionNext"
+                        android:hint="@string/message_compose_bcc_hint"
+                        />
+                </LinearLayout>
                 <EditText android:id="@+id/subject"
                     android:layout_width="match_parent"
                     android:textAppearance="?android:attr/textAppearanceMedium"
