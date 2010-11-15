@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2010 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- Large-screen holder - portrait - see layout/ for small-screen version -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="64dip"
+    android:paddingLeft="96dip"
+    android:paddingRight="96dip"
+    >
+
+    <!-- Headline and hairline divider -->
+    <TextView
+        android:id="@+id/headline"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="16dip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/account_setup_basics_headline"
+        android:textAppearance="@style/accountSetupHeadline" />
+
+    <View
+        android:id="@+id/top_divider"
+        android:layout_below="@+id/headline"
+        android:layout_marginBottom="32dip"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/account_setup_divider_color" />
+
+    <!-- Fragment in the middle containing the setup info -->
+    <fragment
+        android:id="@+id/setup_basics_fragment"
+        class="com.android.email.activity.setup.AccountSetupBasicsFragment"
+        android:layout_below="@+id/top_divider"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+    />
+
+    <!-- Buttons below -->
+    <Button
+        android:id="@+id/manual_setup"
+        android:layout_below="@+id/setup_basics_fragment"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="48dip"
+        style="@style/accountSetupButton"
+        android:text="@string/account_setup_basics_manual_setup_action" />
+    <Button
+        android:id="@+id/next"
+        android:layout_below="@+id/manual_setup"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="48dip"
+        style="@style/accountSetupButton"
+        android:text="@string/next_action" />
+
+</RelativeLayout>

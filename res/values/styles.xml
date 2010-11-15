@@ -14,6 +14,7 @@
      limitations under the License.
 -->
 
+<!-- See also values-xlarge for specializations for xlarge screens -->
 <resources>
     <style name="unreadCount">
         <item name="android:ellipsize">end</item>
@@ -33,4 +34,18 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <!-- The large headline at the top of every account setup screen -->
+    <!-- STOPSHIP copied from xlarge - do something for phone UX -->
+    <style name="accountSetupHeadline">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/account_setup_headline_color</item>
+    </style>
+
+    <!-- Wizard buttons on the account setup screens -->
+    <!-- TODO these are estimates based on TBD phone UX -->
+    <style name="accountSetupButton">
+        <item name="android:layout_width">160sp</item>
+        <item name="android:layout_height">40sp</item>
+        <item name="android:textAppearance">?android:attr/textColorPrimary</item>
+    </style>
 </resources>

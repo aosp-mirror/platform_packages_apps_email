@@ -14,16 +14,45 @@
      limitations under the License.
 -->
 
+<!-- Small-screen holder - see layout-xlarge for large-screen version -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
 
-    <fragment
-        android:id="@+id/setup_basics_fragment"
-        class="com.android.email.activity.setup.AccountSetupBasicsFragment"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-    />
+        android:layout_height="match_parent"
+        >
+
+        <!-- Fragment in the middle containing the setup info -->
+        <fragment
+            android:id="@+id/setup_basics_fragment"
+            class="com.android.email.activity.setup.AccountSetupBasicsFragment"
+            android:layout_below="@+id/top_divider"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+        />
+
+        <!-- Buttons below -->
+        <Button
+            android:id="@+id/manual_setup"
+            android:layout_below="@+id/setup_basics_fragment"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="32dip"
+            style="@style/accountSetupButton"
+            android:text="@string/account_setup_basics_manual_setup_action" />
+        <Button
+            android:id="@+id/next"
+            android:layout_below="@+id/manual_setup"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dip"
+            style="@style/accountSetupButton"
+            android:text="@string/next_action" />
+
+    </RelativeLayout>
+
 </ScrollView>

@@ -50,6 +50,10 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     /** Portrait mode only: message view + expanded message list */
     private static final int STATE_PORTRAIT_MIDDLE_EXPANDED = 3;
 
+    public static final int PANE_LEFT = 1 << 0;
+    public static final int PANE_MIDDLE = 1 << 1;
+    public static final int PANE_RIGHT = 1 << 2;
+
     private int mPaneState = STATE_LEFT_UNINITIALIZED;
 
     private View mLeftPane;
@@ -60,6 +64,19 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     private View mCollapser;
     private View mFoggedGlass;
     private View mRightWithFog;
+
+    private Callback mCallback = EmptyCallback.INSTANCE;
+
+    public interface Callback {
+        /** Called when {@link ThreePaneLayout#getVisiblePanes()} has changed. */
+        public void onVisiblePanesChanged();
+    }
+
+    private static final class EmptyCallback implements Callback {
+        public static final Callback INSTANCE = new EmptyCallback();
+
+        @Override public void onVisiblePanesChanged() {}
+    }
 
     public ThreePaneLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -93,6 +110,10 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         }
 
         changePaneState(STATE_LEFT_VISIBLE, false);
+    }
+
+    public void setCallback(Callback callback) {
+        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
     }
 
     /**
@@ -130,6 +151,18 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     }
 
     /**
+     * @return bit flags for visible panes.  Combination of {@link #PANE_LEFT}, {@link #PANE_MIDDLE}
+     * and {@link #PANE_RIGHT},
+     */
+    public int getVisiblePanes() {
+        int ret = 0;
+        if (mLeftPane.getVisibility() == View.VISIBLE) ret |= PANE_LEFT;
+        if (mMiddlePane.getVisibility() == View.VISIBLE) ret |= PANE_MIDDLE;
+        if (mRightPane.getVisibility() == View.VISIBLE) ret |= PANE_RIGHT;
+        return ret;
+    }
+
+    /**
      * Show/hide the right most pane.  (i.e. message view)
      */
     public void showRightPane(boolean show) {
@@ -157,7 +190,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
                     mRightWithFog.setVisibility(View.GONE);
                 }
-
                 break;
             case STATE_RIGHT_VISIBLE:
                 mLeftPane.setVisibility(View.GONE);
@@ -185,6 +217,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                 mFoggedGlass.setVisibility(View.VISIBLE);
                 break;
         }
+        mCallback.onVisiblePanesChanged();
     }
 
     /**
