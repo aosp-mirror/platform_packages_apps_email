@@ -62,8 +62,10 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         setContentView(R.layout.account_setup_account_type);
         ((Button)findViewById(R.id.pop)).setOnClickListener(this);
         ((Button)findViewById(R.id.imap)).setOnClickListener(this);
-        final Button exchangeButton = ((Button)findViewById(R.id.exchange));
+        final Button exchangeButton = (Button) findViewById(R.id.exchange);
         exchangeButton.setOnClickListener(this);
+        final Button previousButton = (Button) findViewById(R.id.previous);
+        if (previousButton != null) previousButton.setOnClickListener(this);
 
         // TODO If we decide to exclude the Exchange option in POP_IMAP mode, use the following line
         // instead of the line that follows it
@@ -204,6 +206,9 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
                 break;
             case R.id.exchange:
                 onExchange();
+                break;
+            case R.id.previous:
+                finish();
                 break;
         }
     }

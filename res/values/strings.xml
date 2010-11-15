@@ -513,10 +513,14 @@ save attachment.</string>
     <string name="account_setup_names_user_name_label">Your name (displayed on outgoing messages)</string>
 
     <!-- Activity Title for the first screen in manual setup (where you select IMAP or POP3) -->
-    <string name="account_setup_account_type_title">Add new email account</string>
+    <string name="account_setup_account_type_title">Account setup</string>
+    <!-- Headline for the first screen in manual setup (where you select IMAP or POP3) -->
+    <string name="account_setup_account_type_headline">Account type</string>
     <!-- "Add new email account" screen, text that appears on screen -->
     <string name="account_setup_account_type_instructions">What type of account is this?</string>
 
+    <!-- Button name on account setup "Account Type" screen, to exit (return to previous screen) -->
+    <string name="account_setup_account_type_previous_action">Previous</string>
     <!-- Do Not Translate. "Add new email account" screen, button name in response to what
          type of account this is -->
     <string name="account_setup_account_type_pop_action" translatable="false">POP3</string>
