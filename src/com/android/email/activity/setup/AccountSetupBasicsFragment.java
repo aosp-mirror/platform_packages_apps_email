@@ -31,6 +31,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -55,6 +56,7 @@ import java.net.URISyntaxException;
  * AccountSetupAccountType activity.
  *
  * TODO: Move provider lookups to AsyncTask(s)
+ * TODO: Confirm not broken on Phone UX
  */
 public class AccountSetupBasicsFragment extends Fragment implements TextWatcher {
     private final static boolean ENTER_DEBUG_SCREEN = true;
@@ -130,13 +132,9 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
         mEmailView.addTextChangedListener(this);
         mPasswordView.addTextChangedListener(this);
 
-        // TODO move this to an AsyncTask
-        // Find out how many accounts we have, and if there one or more, then we have a choice
-        // about being default or not.
-        int numAccounts = EmailContent.count(getActivity(), EmailContent.Account.CONTENT_URI);
-        if (numAccounts > 0) {
-            mDefaultView.setVisibility(View.VISIBLE);
-        }
+        // If there are one or more accounts already in existence, then display
+        // the "use as default" checkbox (it defaults to hidden).
+        new DisplayCheckboxTask().execute();
 
         return view;
     }
@@ -298,6 +296,28 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
             }
         }
         return name;
+    }
+
+    /**
+     * AsyncTask checks count of accounts and displays "use this account as default" checkbox
+     * if there are more than one.
+     */
+    private class DisplayCheckboxTask extends AsyncTask<Void, Void, Integer> {
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            return EmailContent.count(getActivity(), EmailContent.Account.CONTENT_URI);
+        }
+
+        @Override
+        protected void onPostExecute(Integer numAccounts) {
+            if (numAccounts > 0) {
+                View container = AccountSetupBasicsFragment.this.getView();
+                container.findViewById(R.id.account_default_divider_1).setVisibility(View.VISIBLE);
+                mDefaultView.setVisibility(View.VISIBLE);
+                container.findViewById(R.id.account_default_divider_2).setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     /**

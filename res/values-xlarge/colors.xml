@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2008 The Android Open Source Project
+<!-- Copyright (C) 2010 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
-  
+
           http://www.apache.org/licenses/LICENSE-2.0
-  
+
      Unless required by applicable law or agreed to in writing, software
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,15 +15,9 @@
 -->
 
 <!-- STOPSHIP need final colors for all of account_setup_* -->
-<!-- See also values-xlarge for specializations for xlarge screens -->
+<!-- Specializations for xlarge screens - most colors are in values/colors.xml -->
 <resources>
     <!-- Account setup screens -->
-    <color name="account_setup_headline_color">#FFA6C839</color>
+    <color name="account_setup_title_color">#FFA6C839</color>
     <color name="account_setup_divider_color">#b6d650</color>
-
-    <!-- Main UI -->
-    <color name="message_list_item_background_unread">#404040</color>
-    <color name="message_list_item_background_read">#000000</color>
-    <color name="account_folder_list_item_separator">#303030</color>
-    <color name="connection_error_banner">#fffff1a8</color>
 </resources>

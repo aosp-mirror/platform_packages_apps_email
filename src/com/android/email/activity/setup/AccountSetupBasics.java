@@ -31,8 +31,9 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 /**
  * Prompts the user for the email address and password. Also prompts for "Use this account as
@@ -45,11 +46,14 @@ import android.view.MenuItem;
  * AccountSetupAccountType activity where the user can begin to manually configure the account.
  */
 public class AccountSetupBasics extends AccountSetupActivity
-        implements AccountSetupBasicsFragment.Callback, AccountCheckSettingsFragment.Callbacks {
+        implements AccountSetupBasicsFragment.Callback, AccountCheckSettingsFragment.Callbacks,
+        OnClickListener {
 
     private AccountSetupBasicsFragment mFragment;
     private boolean mManualButtonDisplayed;
     private boolean mNextButtonEnabled;
+    private Button mManualButton;
+    private Button mNextButton;
 
     // Used when this Activity is called as part of account authentification flow,
     // which requires to do extra work before and after the account creation.
@@ -127,7 +131,6 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         mFragment = (AccountSetupBasicsFragment)
                 getFragmentManager().findFragmentById(R.id.setup_basics_fragment);
-
         mManualButtonDisplayed = true;
         boolean alternateStrings = false;
         if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
@@ -142,6 +145,16 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         // Configure fragment
         mFragment.setCallback(this, alternateStrings);
+
+        // Configure buttons
+        mManualButton = (Button) findViewById(R.id.manual_setup);
+        mNextButton = (Button) findViewById(R.id.next);
+        mManualButton.setVisibility(mManualButtonDisplayed ? View.VISIBLE : View.INVISIBLE);
+        mManualButton.setOnClickListener(this);
+        mNextButton.setOnClickListener(this);
+        // Force disabled until fragment notifies otherwise
+        mNextButtonEnabled = true;
+        this.onEnableProceedButtons(false);
 
         mAccountAuthenticatorResponse =
             getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
@@ -193,44 +206,19 @@ public class AccountSetupBasics extends AccountSetupActivity
     }
 
     /**
-     * Add "Next" & "Manual" buttons when this activity is displayed
+     * Implements OnClickListener
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        int menuId = mManualButtonDisplayed
-                ? R.menu.account_setup_manual_next_option
-                : R.menu.account_setup_next_option;
-        getMenuInflater().inflate(menuId, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    /**
-     * Enable/disable "Next" & "Manual" buttons
-     */
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.next).setEnabled(mNextButtonEnabled);
-        if (mManualButtonDisplayed) {
-            menu.findItem(R.id.manual_setup).setEnabled(mNextButtonEnabled);
-        }
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    /**
-     * Respond to clicks in the "Next" button
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+    public void onClick(View v) {
+        switch (v.getId()) {
             case R.id.next:
                 mFragment.onNext();
-                return true;
+                break;
             case R.id.manual_setup:
                 // no AutoDiscover - user clicked "manual"
                 mFragment.onManualSetup(false);
-                return true;
+                break;
         }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -242,7 +230,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         mNextButtonEnabled = enabled;
 
         if (enabled != wasEnabled) {
-            invalidateOptionsMenu();
+            mManualButton.setEnabled(enabled);
+            mNextButton.setEnabled(enabled);
         }
     }
 

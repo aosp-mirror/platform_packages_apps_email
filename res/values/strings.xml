@@ -19,6 +19,10 @@
     <!-- Deprecated strings - Move the identifiers to this section, mark as DO NOT TRANSLATE,
          and remove the actual text.  These will be removed in a bulk operation. -->
     <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_basics_email_hint" translatable="false"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_setup_basics_password_hint" translatable="false"></string>
+    <!-- Do Not Translate.  Unused string. -->
     <string name="account_settings_exchange_summary" translatable="false"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="message_compose_attachments_skipped_toast" translatable="false"></string>
@@ -449,13 +453,15 @@ save attachment.</string>
         %1$s</xliff:g> - <xliff:g id="text" example="Hi, John. Blah...">%2$s</xliff:g></string>
 
     <!-- Title of screen when setting up new email account -->
-    <string name="account_setup_basics_title">Set up email</string>
+    <string name="account_setup_basics_title">Account setup</string>
     <!-- Title of the screen when adding exchange account -->
     <string name="account_setup_basics_exchange_title">
         Add an Exchange account</string>
     <!-- Title of the screen when adding exchange account -->
     <string name="account_setup_basics_exchange_title_alternate">
         Add an Exchange ActiveSync account</string>
+    <!-- Headline of screen when setting up new email account (large text over divider) -->
+    <string name="account_setup_basics_headline">Email account</string>
     <!-- On "Set up email" screen, enthusiastic welcome message. -->
     <string name="accounts_welcome">You can configure Email for most accounts in just a few steps.
         </string>
@@ -466,16 +472,19 @@ save attachment.</string>
     <string name="accounts_welcome_exchange_alternate">
         You can configure an Exchange ActiveSync account in just a few steps.</string>
     <!-- On "Set up email" screen, hint for account email address text field -->
-    <string name="account_setup_basics_email_hint">Email address</string>
+    <string name="account_setup_basics_email_label">Email address</string>
     <!-- On "Set up email" screen, hint for account email password text field -->
-    <string name="account_setup_basics_password_hint">Password</string>
-    <!-- On "Set up email" screen, checkbox label for making this the new account be the default account -->
-    <string name="account_setup_basics_default_label">Send email from this account by default.</string>
+    <string name="account_setup_basics_password_label">Password</string>
+    <!-- On "Set up email" screen, checkbox label for making the new account the default account -->
+    <string name="account_setup_basics_default_label">
+        Send email from this account by default.</string>
     <!-- Button name on "Set up email" screen -->
     <string name="account_setup_basics_manual_setup_action">Manual setup</string>
     <!-- Toast when we can't build a URI from the given email & password -->
-    <!-- Note, the error message in the toast is purposefully vague, because I *don't* know exactly what's wrong. -->
-    <string name="account_setup_username_password_toast">Please type a valid email address and password.</string>
+    <!-- Note, the error message in the toast is purposefully vague, because I *don't* know
+        exactly what's wrong. -->
+    <string name="account_setup_username_password_toast">
+        Please type a valid email address and password.</string>
     <!-- Title of dialog shown when a duplicate account is created -->
     <string name="account_duplicate_dlg_title">Duplicate Account</string>
     <!-- Message of dialog shown when a duplicate account is created.  The display name of
