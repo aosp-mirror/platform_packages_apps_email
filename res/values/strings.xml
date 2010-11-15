@@ -505,13 +505,16 @@ save attachment.</string>
     Checking outgoing server settings\u2026</string>
 
     <!-- Title of "Set up email" screen after success -->
-    <string name="account_setup_names_title">Set up email</string>
-    <!-- Text that appears on top of "Set up email" screen after successfully setting up an account -->
-    <string name="account_setup_names_instructions">Your account is set up, and email is on its way!</string>
+    <string name="account_setup_names_title">Account setup</string>
+    <!-- Text that appears on "Set up email" screen after successfully setting up an account -->
+    <string name="account_setup_names_headline">
+        Your account is set up, and email is on its way!</string>
     <!-- On "Set up email" screen, label of text field -->
-    <string name="account_setup_names_account_name_label">Give this account a name (optional)</string>
+    <string name="account_setup_names_account_name_label">
+        Give this account a name (optional)</string>
     <!-- On "Set up email" screen, label of text field -->
-    <string name="account_setup_names_user_name_label">Your name (displayed on outgoing messages)</string>
+    <string name="account_setup_names_user_name_label">
+        Your name (displayed on outgoing messages)</string>
 
     <!-- Activity Title for the first screen in manual setup (where you select IMAP or POP3) -->
     <string name="account_setup_account_type_title">Account setup</string>
