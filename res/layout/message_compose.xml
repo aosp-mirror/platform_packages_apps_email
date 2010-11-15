@@ -14,6 +14,7 @@
      limitations under the License.
 -->
 
+<!-- small -->
 <!-- TODO Simplify this.  This layout is way too deep. -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -28,6 +29,13 @@
             <LinearLayout android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:background="#ededed">
+                <!-- Invisible from field to keep it compatible with the xlarge counterpart. -->
+                <TextView
+                    android:id="@+id/from"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    />
                 <com.android.email.activity.AddressTextView
                     android:id="@+id/to" android:layout_width="match_parent"
                     android:layout_height="wrap_content"

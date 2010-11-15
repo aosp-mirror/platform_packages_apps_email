@@ -308,6 +308,16 @@
     <string name="message_compose_bcc_hint">Bcc</string>
     <!-- Hint text in Subject field -->
     <string name="message_compose_subject_hint">Subject</string>
+    <!-- Label for From field [CHAR LIMIT=12] -->
+    <string name="message_compose_from_label">From:</string>
+    <!-- Label for To field [CHAR LIMIT=12] -->
+    <string name="message_compose_to_label">To:</string>
+    <!-- Label for Cc field [CHAR LIMIT=12] -->
+    <string name="message_compose_cc_label">Cc:</string>
+    <!-- Label for Bcc field [CHAR LIMIT=12] -->
+    <string name="message_compose_bcc_label">Bcc:</string>
+    <!-- Label for Subject field [CHAR LIMIT=12] -->
+    <string name="message_compose_subject_label">Subject:</string>
     <!-- Hint text in Message composer body field -->
     <string name="message_compose_body_hint">Compose Mail</string>
     <!-- Header for forwarded original messages -->
