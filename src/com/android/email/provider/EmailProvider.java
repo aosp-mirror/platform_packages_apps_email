@@ -17,6 +17,7 @@
 package com.android.email.provider;
 
 import com.android.email.Email;
+import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
@@ -78,6 +79,16 @@ public class EmailProvider extends ContentProvider {
     private static final int ORPHANS_MAILBOX_KEY = 1;
 
     private static final String WHERE_ID = EmailContent.RECORD_ID + "=?";
+
+    // We'll cache the following four tables; sizes are best estimates of effective values
+    private static final ContentCache sCacheAccount =
+        new ContentCache("Account", Account.CONTENT_PROJECTION, 4);
+    private static final ContentCache sCacheHostAuth =
+        new ContentCache("HostAuth", HostAuth.CONTENT_PROJECTION, 8);
+    /*package*/ static final ContentCache sCacheMailbox =
+        new ContentCache("Mailbox", Mailbox.CONTENT_PROJECTION, 8);
+    private static final ContentCache sCacheMessage =
+        new ContentCache("Message", Message.CONTENT_PROJECTION, 3);
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 3
@@ -150,6 +161,8 @@ public class EmailProvider extends ContentProvider {
 
     private static final int BASE_SHIFT = 12;  // 12 bits to the base type: 0, 0x1000, 0x2000, etc.
 
+    // TABLE_NAMES MUST remain in the order of the BASE constants above (e.g. ACCOUNT_BASE = 0x0000,
+    // MESSAGE_BASE = 0x1000, etc.)
     private static final String[] TABLE_NAMES = {
         EmailContent.Account.TABLE_NAME,
         EmailContent.Mailbox.TABLE_NAME,
@@ -160,6 +173,17 @@ public class EmailProvider extends ContentProvider {
         EmailContent.Message.DELETED_TABLE_NAME,
         EmailContent.Body.TABLE_NAME
     };
+
+    // CONTENT_CACHES MUST remain in the order of the BASE constants above
+    private static final ContentCache[] CONTENT_CACHES = {
+        sCacheAccount,
+        sCacheMailbox,
+        sCacheMessage,
+        null,
+        sCacheHostAuth,
+        null,
+        null,
+        null};
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -892,6 +916,8 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
         }
 
+        ContentCache cache = CONTENT_CACHES[table];
+        String tableName = TABLE_NAMES[table];
         int result = -1;
 
         try {
@@ -912,7 +938,6 @@ public class EmailProvider extends ContentProvider {
                     //  3) End the transaction, committing all changes atomically
                     //
                     // Bodies are auto-deleted here;  Attachments are auto-deleted via trigger
-
                     messageDeletion = true;
                     db.beginTransaction();
                     break;
@@ -935,13 +960,40 @@ public class EmailProvider extends ContentProvider {
                         db.execSQL(DELETED_MESSAGE_INSERT + id);
                         db.execSQL(UPDATED_MESSAGE_DELETE + id);
                     }
-                    result = db.delete(TABLE_NAMES[table], whereWithId(id, selection),
-                            selectionArgs);
+                    if (cache != null) {
+                        cache.lock(id);
+                    }
+                    try {
+                        result = db.delete(tableName, whereWithId(id, selection), selectionArgs);
+                        if (cache != null) {
+                            switch(match) {
+                                case ACCOUNT_ID:
+                                    // Account deletion will clear all of the caches, as HostAuth's,
+                                    // Mailboxes, and Messages will be deleted in the process
+                                    sCacheMailbox.invalidate("Delete", uri, selection);
+                                    sCacheHostAuth.invalidate("Delete", uri, selection);
+                                    //$FALL-THROUGH$
+                                case MAILBOX_ID:
+                                    // Mailbox deletion will clear the Message cache
+                                    sCacheMessage.invalidate("Delete", uri, selection);
+                                    //$FALL-THROUGH$
+                                case SYNCED_MESSAGE_ID:
+                                case MESSAGE_ID:
+                                case HOSTAUTH_ID:
+                                    cache.invalidate("Delete", uri, selection);
+                                    break;
+                            }
+                        }
+                    } finally {
+                        if (cache != null) {
+                            cache.unlock(id);
+                        }
+                   }
                     break;
                 case ATTACHMENTS_MESSAGE_ID:
                     // All attachments for the given message
                     id = uri.getPathSegments().get(2);
-                    result = db.delete(TABLE_NAMES[table],
+                    result = db.delete(tableName,
                             whereWith(Attachment.MESSAGE_KEY + "=" + id, selection), selectionArgs);
                     break;
 
@@ -953,7 +1005,21 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX:
                 case ACCOUNT:
                 case HOSTAUTH:
-                    result = db.delete(TABLE_NAMES[table], selection, selectionArgs);
+                    switch(match) {
+                        // See the comments above for deletion of ACCOUNT_ID, etc
+                        case ACCOUNT:
+                            sCacheMailbox.invalidate("Delete", uri, selection);
+                            sCacheHostAuth.invalidate("Delete", uri, selection);
+                            //$FALL-THROUGH$
+                        case MAILBOX:
+                            sCacheMessage.invalidate("Delete", uri, selection);
+                            //$FALL-THROUGH$
+                        case MESSAGE:
+                        case HOSTAUTH:
+                            cache.invalidate("Delete", uri, selection);
+                            break;
+                    }
+                    result = db.delete(tableName, selection, selectionArgs);
                     break;
 
                 default:
@@ -1150,6 +1216,10 @@ public class EmailProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
+        long time = 0L;
+        if (Email.DEBUG) {
+            time = System.nanoTime();
+        }
         if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         Cursor c = null;
         int match = sURIMatcher.match(uri);
@@ -1164,6 +1234,17 @@ public class EmailProvider extends ContentProvider {
             Log.v(TAG, "EmailProvider.query: uri=" + uri + ", match is " + match);
         }
 
+        // Find the cache for this query's table (if any)
+        ContentCache cache = null;
+        String tableName = TABLE_NAMES[table];
+        // We can only use the cache if there's no selection
+        if (selection == null) {
+            cache = CONTENT_CACHES[table];
+        }
+        if (cache == null) {
+            ContentCache.notCacheable(uri, selection);
+        }
+
         try {
             switch (match) {
                 case BODY:
@@ -1174,7 +1255,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX:
                 case ACCOUNT:
                 case HOSTAUTH:
-                    c = db.query(TABLE_NAMES[table], projection,
+                    c = db.query(tableName, projection,
                             selection, selectionArgs, null, null, sortOrder, limit);
                     break;
                 case BODY_ID:
@@ -1186,9 +1267,20 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
                     id = uri.getPathSegments().get(1);
-                    c = db.query(TABLE_NAMES[table], projection,
-                            whereWithId(id, selection), selectionArgs, null, null, sortOrder,
-                            limit);
+                    if (cache != null) {
+                        c = cache.getCachedCursor(id, projection);
+                    }
+                    if (c == null) {
+                        CacheToken token = null;
+                        if (cache != null) {
+                            token = cache.getCacheToken(id);
+                        }
+                        c = db.query(tableName, projection, whereWithId(id, selection),
+                                selectionArgs, null, null, sortOrder, limit);
+                        if (cache != null) {
+                            c = cache.putCursor(c, id, projection, token);
+                        }
+                    }
                     break;
                 case ATTACHMENTS_MESSAGE_ID:
                     // All attachments for the given message
@@ -1203,6 +1295,14 @@ public class EmailProvider extends ContentProvider {
         } catch (SQLiteException e) {
             checkDatabases();
             throw e;
+        } catch (RuntimeException e) {
+            checkDatabases();
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (cache != null && Email.DEBUG) {
+                cache.recordQueryTime(c, System.nanoTime() - time);
+            }
         }
 
         if ((c != null) && !isTemporary()) {
@@ -1276,7 +1376,10 @@ public class EmailProvider extends ContentProvider {
             values.remove(MailboxColumns.MESSAGE_COUNT);
         }
 
+        ContentCache cache = CONTENT_CACHES[table];
+        String tableName = TABLE_NAMES[table];
         String id;
+
         try {
             switch (match) {
                 case MAILBOX_ID_ADD_TO_FIELD:
@@ -1288,7 +1391,7 @@ public class EmailProvider extends ContentProvider {
                     if (field == null || add == null) {
                         throw new IllegalArgumentException("No field/add specified " + uri);
                     }
-                    Cursor c = db.query(TABLE_NAMES[table],
+                    Cursor c = db.query(tableName,
                             new String[] {EmailContent.RECORD_ID, field},
                             whereWithId(id, selection),
                             selectionArgs, null, null, null);
@@ -1300,7 +1403,7 @@ public class EmailProvider extends ContentProvider {
                             bind[0] = c.getString(0);
                             long value = c.getLong(1) + add;
                             cv.put(field, value);
-                            result = db.update(TABLE_NAMES[table], cv, ID_EQUALS, bind);
+                            result = db.update(tableName, cv, ID_EQUALS, bind);
                         }
                     } finally {
                         c.close();
@@ -1317,17 +1420,30 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
                     id = uri.getPathSegments().get(1);
-                    if (match == SYNCED_MESSAGE_ID) {
-                        // For synced messages, first copy the old message to the updated table
-                        // Note the insert or ignore semantics, guaranteeing that only the first
-                        // update will be reflected in the updated message table; therefore this row
-                        // will always have the "original" data
-                        db.execSQL(UPDATED_MESSAGE_INSERT + id);
-                    } else if (match == MESSAGE_ID) {
-                        db.execSQL(UPDATED_MESSAGE_DELETE + id);
+                    if (cache != null) {
+                        cache.lock(id);
                     }
-                    result = db.update(TABLE_NAMES[table], values, whereWithId(id, selection),
-                            selectionArgs);
+                    try {
+                        if (match == SYNCED_MESSAGE_ID) {
+                            // For synced messages, first copy the old message to the updated table
+                            // Note the insert or ignore semantics, guaranteeing that only the first
+                            // update will be reflected in the updated message table; therefore this
+                            // row will always have the "original" data
+                            db.execSQL(UPDATED_MESSAGE_INSERT + id);
+                        } else if (match == MESSAGE_ID) {
+                            db.execSQL(UPDATED_MESSAGE_DELETE + id);
+                        }
+                        result = db.update(tableName, values, whereWithId(id, selection),
+                                selectionArgs);
+                    } catch (SQLiteException e) {
+                        // Null out values (so they aren't cached) and re-throw
+                        values = null;
+                        throw e;
+                    } finally {
+                        if (cache != null) {
+                            cache.unlock(id, values);
+                        }
+                    }
                     if (match == ATTACHMENT_ID) {
                         if (values.containsKey(Attachment.FLAGS)) {
                             int flags = values.getAsInteger(Attachment.FLAGS);
@@ -1343,16 +1459,26 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX:
                 case ACCOUNT:
                 case HOSTAUTH:
-                    result = db.update(TABLE_NAMES[table], values, selection, selectionArgs);
+                    switch(match) {
+                        case MESSAGE:
+                        case ACCOUNT:
+                        case MAILBOX:
+                        case HOSTAUTH:
+                            // If we're doing some generic update, the whole cache needs to be
+                            // invalidated.  This case should be quite rare
+                            cache.invalidate("Update", uri, selection);
+                            break;
+                    }
+                    result = db.update(tableName, values, selection, selectionArgs);
                     break;
                 case ACCOUNT_RESET_NEW_COUNT_ID:
                     id = uri.getPathSegments().get(1);
-                    result = db.update(TABLE_NAMES[table], CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
+                    result = db.update(tableName, CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
                             whereWithId(id, selection), selectionArgs);
                     notificationUri = Account.CONTENT_URI; // Only notify account cursors.
                     break;
                 case ACCOUNT_RESET_NEW_COUNT:
-                    result = db.update(TABLE_NAMES[table], CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
+                    result = db.update(tableName, CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
                             selection, selectionArgs);
                     notificationUri = Account.CONTENT_URI; // Only notify account cursors.
                     break;

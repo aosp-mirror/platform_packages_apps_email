@@ -2151,12 +2151,10 @@ public abstract class EmailContent {
         public int mSyncLookback;
         public int mSyncInterval;
         public long mSyncTime;
-        public int mUnreadCount;
         public boolean mFlagVisible = true;
         public int mFlags;
         public int mVisibleLimit;
         public String mSyncStatus;
-        public int mMessageCount;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -2169,19 +2167,17 @@ public abstract class EmailContent {
         public static final int CONTENT_SYNC_LOOKBACK_COLUMN = 8;
         public static final int CONTENT_SYNC_INTERVAL_COLUMN = 9;
         public static final int CONTENT_SYNC_TIME_COLUMN = 10;
-        public static final int CONTENT_UNREAD_COUNT_COLUMN = 11;
-        public static final int CONTENT_FLAG_VISIBLE_COLUMN = 12;
-        public static final int CONTENT_FLAGS_COLUMN = 13;
-        public static final int CONTENT_VISIBLE_LIMIT_COLUMN = 14;
-        public static final int CONTENT_SYNC_STATUS_COLUMN = 15;
-        public static final int CONTENT_MESSAGE_COUNT_COLUMN = 16;
+        public static final int CONTENT_FLAG_VISIBLE_COLUMN = 11;
+        public static final int CONTENT_FLAGS_COLUMN = 12;
+        public static final int CONTENT_VISIBLE_LIMIT_COLUMN = 13;
+        public static final int CONTENT_SYNC_STATUS_COLUMN = 14;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.SERVER_ID,
             MailboxColumns.PARENT_SERVER_ID, MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
             MailboxColumns.DELIMITER, MailboxColumns.SYNC_KEY, MailboxColumns.SYNC_LOOKBACK,
-            MailboxColumns.SYNC_INTERVAL, MailboxColumns.SYNC_TIME,MailboxColumns.UNREAD_COUNT,
+            MailboxColumns.SYNC_INTERVAL, MailboxColumns.SYNC_TIME,
             MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT,
-            MailboxColumns.SYNC_STATUS, MailboxColumns.MESSAGE_COUNT
+            MailboxColumns.SYNC_STATUS
         };
 
         private static final String ACCOUNT_AND_MAILBOX_TYPE_SELECTION =
@@ -2321,12 +2317,10 @@ public abstract class EmailContent {
             mSyncLookback = cursor.getInt(CONTENT_SYNC_LOOKBACK_COLUMN);
             mSyncInterval = cursor.getInt(CONTENT_SYNC_INTERVAL_COLUMN);
             mSyncTime = cursor.getLong(CONTENT_SYNC_TIME_COLUMN);
-            mUnreadCount = cursor.getInt(CONTENT_UNREAD_COUNT_COLUMN);
             mFlagVisible = cursor.getInt(CONTENT_FLAG_VISIBLE_COLUMN) == 1;
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mVisibleLimit = cursor.getInt(CONTENT_VISIBLE_LIMIT_COLUMN);
             mSyncStatus = cursor.getString(CONTENT_SYNC_STATUS_COLUMN);
-            mMessageCount = cursor.getInt(CONTENT_MESSAGE_COUNT_COLUMN);
             return this;
         }
 
@@ -2343,12 +2337,10 @@ public abstract class EmailContent {
             values.put(MailboxColumns.SYNC_LOOKBACK, mSyncLookback);
             values.put(MailboxColumns.SYNC_INTERVAL, mSyncInterval);
             values.put(MailboxColumns.SYNC_TIME, mSyncTime);
-            values.put(MailboxColumns.UNREAD_COUNT, mUnreadCount);
             values.put(MailboxColumns.FLAG_VISIBLE, mFlagVisible);
             values.put(MailboxColumns.FLAGS, mFlags);
             values.put(MailboxColumns.VISIBLE_LIMIT, mVisibleLimit);
             values.put(MailboxColumns.SYNC_STATUS, mSyncStatus);
-            values.put(MailboxColumns.MESSAGE_COUNT, mMessageCount);
             return values;
         }
 

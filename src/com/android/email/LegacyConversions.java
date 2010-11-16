@@ -705,7 +705,6 @@ public class LegacyConversions {
         // result.mSyncLookback
         // result.mSyncInterval
         result.mSyncTime = 0;
-        result.mUnreadCount = fromFolder.getUnreadMessageCount();
         result.mFlagVisible = true;
         result.mFlags = 0;
         result.mVisibleLimit = Email.VISIBLE_LIMIT_DEFAULT;

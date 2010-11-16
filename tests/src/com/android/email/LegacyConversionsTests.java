@@ -758,7 +758,6 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, toMailbox.mSyncLookback);
         assertEquals(0, toMailbox.mSyncInterval);
         assertEquals(0, toMailbox.mSyncTime);
-        assertEquals(100, toMailbox.mUnreadCount);
         assertTrue(toMailbox.mFlagVisible);
         assertEquals(0, toMailbox.mFlags);
         assertEquals(Email.VISIBLE_LIMIT_DEFAULT, toMailbox.mVisibleLimit);

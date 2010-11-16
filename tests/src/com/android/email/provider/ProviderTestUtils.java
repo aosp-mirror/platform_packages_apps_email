@@ -123,8 +123,6 @@ public class ProviderTestUtils extends Assert {
         box.mSyncLookback = 2;
         box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
         box.mSyncTime = 3;
-        // Should always be saved as zero
-        box.mUnreadCount = 0;
         box.mFlagVisible = true;
         box.mFlags = 5;
         box.mVisibleLimit = 6;
@@ -347,7 +345,6 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mSyncLookback", expect.mSyncLookback, actual.mSyncLookback);
         assertEquals(caller + " mSyncInterval", expect.mSyncInterval, actual.mSyncInterval);
         assertEquals(caller + " mSyncTime", expect.mSyncTime, actual.mSyncTime);
-        assertEquals(caller + " mUnreadCount", expect.mUnreadCount, actual.mUnreadCount);
         assertEquals(caller + " mFlagVisible", expect.mFlagVisible, actual.mFlagVisible);
         assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
         assertEquals(caller + " mVisibleLimit", expect.mVisibleLimit, actual.mVisibleLimit);
