@@ -152,13 +152,9 @@ public class ProvisionParser extends Parser {
                         tagIsSupported = false;
                     }
                     break;
-                // Complex character setting is only used if we're in "strong" (alphanumeric) mode
+                // Complex characters are supported
                 case Tags.PROVISION_MIN_DEVICE_PASSWORD_COMPLEX_CHARS:
                     passwordComplexChars = getValueInt();
-                    if ((passwordMode != PolicySet.PASSWORD_MODE_STRONG) &&
-                            (passwordComplexChars > 0)) {
-                        tagIsSupported = false;
-                    }
                     break;
                 // The following policies are moot; they allow functionality that we don't support
                 case Tags.PROVISION_ALLOW_DESKTOP_SYNC:

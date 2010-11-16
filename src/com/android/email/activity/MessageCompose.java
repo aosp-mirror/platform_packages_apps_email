@@ -97,8 +97,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private static final String EXTRA_MESSAGE_ID = "message_id";
     private static final String STATE_KEY_CC_SHOWN =
         "com.android.email.activity.MessageCompose.ccShown";
-    private static final String STATE_KEY_BCC_SHOWN =
-        "com.android.email.activity.MessageCompose.bccShown";
     private static final String STATE_KEY_QUOTED_TEXT_SHOWN =
         "com.android.email.activity.MessageCompose.quotedTextShown";
     private static final String STATE_KEY_SOURCE_MESSAGE_PROCED =
@@ -148,6 +146,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private MultiAutoCompleteTextView mToView;
     private MultiAutoCompleteTextView mCcView;
     private MultiAutoCompleteTextView mBccView;
+    private View mCcBccContainer;
     private EditText mSubjectView;
     private EditText mMessageContentView;
     private LinearLayout mAttachments;
@@ -406,8 +405,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (draftId != -1) {
             outState.putLong(STATE_KEY_DRAFT_ID, draftId);
         }
-        outState.putBoolean(STATE_KEY_CC_SHOWN, mCcView.getVisibility() == View.VISIBLE);
-        outState.putBoolean(STATE_KEY_BCC_SHOWN, mBccView.getVisibility() == View.VISIBLE);
+        outState.putBoolean(STATE_KEY_CC_SHOWN, mCcBccContainer.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_QUOTED_TEXT_SHOWN,
                 mQuotedTextBar.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, mSourceMessageProcessed);
@@ -416,10 +414,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mCcView.setVisibility(savedInstanceState.getBoolean(STATE_KEY_CC_SHOWN) ?
-                View.VISIBLE : View.GONE);
-        mBccView.setVisibility(savedInstanceState.getBoolean(STATE_KEY_BCC_SHOWN) ?
-                View.VISIBLE : View.GONE);
+        if (savedInstanceState.getBoolean(STATE_KEY_CC_SHOWN)) {
+            showCcBccFields();
+        }
         mQuotedTextBar.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN) ?
                 View.VISIBLE : View.GONE);
         mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN) ?
@@ -438,6 +435,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mToView = (MultiAutoCompleteTextView)findViewById(R.id.to);
         mCcView = (MultiAutoCompleteTextView)findViewById(R.id.cc);
         mBccView = (MultiAutoCompleteTextView)findViewById(R.id.bcc);
+        mCcBccContainer = findViewById(R.id.cc_bcc_container);
         mSubjectView = (EditText)findViewById(R.id.subject);
         mMessageContentView = (EditText)findViewById(R.id.message_content);
         mAttachments = (LinearLayout)findViewById(R.id.attachments);
@@ -1033,9 +1031,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         finish();
     }
 
-    private void onAddCcBcc() {
-        mCcView.setVisibility(View.VISIBLE);
-        mBccView.setVisibility(View.VISIBLE);
+    private void showCcBccFields() {
+        mCcBccContainer.setVisibility(View.VISIBLE);
+        findViewById(R.id.add_cc_bcc).setVisibility(View.GONE);
     }
 
     /**
@@ -1223,7 +1221,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             onIncludeQuotedTextChanged();
             return true;
         case R.id.add_cc_bcc:
-            onAddCcBcc();
+            showCcBccFields();
             return true;
         case R.id.add_attachment:
             onAddAttachment();
@@ -1537,12 +1535,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             Address[] cc = Address.unpack(message.mCc);
             if (cc.length > 0) {
                 addAddresses(mCcView, cc);
-                mCcView.setVisibility(View.VISIBLE);
+                showCcBccFields();
             }
             Address[] bcc = Address.unpack(message.mBcc);
             if (bcc.length > 0) {
                 addAddresses(mBccView, bcc);
-                mBccView.setVisibility(View.VISIBLE);
+                showCcBccFields();
             }
 
             mMessageContentView.setText(message.mText);

@@ -47,6 +47,8 @@ import android.content.Loader;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -101,17 +103,20 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private static int PREVIEW_ICON_HEIGHT = 62;
 
     private TextView mSubjectView;
-    private TextView mFromView;
+    private TextView mFromNameView;
+    private TextView mFromAddressView;
     private TextView mDateView;
     private TextView mTimeView;
     private TextView mToView;
     private TextView mCcView;
     private View mCcContainerView;
+    private TextView mBccView;
+    private View mBccContainerView;
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
     private ImageView mAttachmentIcon;
     private View mTabSection;
-    private QuickContactBadge mFromBadge;
+    private ImageView mFromBadge;
     private ImageView mSenderPresenceView;
 
     private TextView mMessageTab;
@@ -288,20 +293,24 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         final View view = inflater.inflate(R.layout.message_view_fragment, container, false);
 
         mSubjectView = (TextView) view.findViewById(R.id.subject);
-        mFromView = (TextView) view.findViewById(R.id.from);
+        mFromNameView = (TextView) view.findViewById(R.id.from_name);
+        mFromAddressView = (TextView) view.findViewById(R.id.from_address);
         mToView = (TextView) view.findViewById(R.id.to);
         mCcView = (TextView) view.findViewById(R.id.cc);
         mCcContainerView = view.findViewById(R.id.cc_container);
+        mBccView = (TextView) view.findViewById(R.id.bcc);
+        mBccContainerView = view.findViewById(R.id.bcc_container);
         mDateView = (TextView) view.findViewById(R.id.date);
         mTimeView = (TextView) view.findViewById(R.id.time);
         mMessageContentView = (WebView) view.findViewById(R.id.message_content);
         mAttachments = (LinearLayout) view.findViewById(R.id.attachments);
         mAttachmentIcon = (ImageView) view.findViewById(R.id.attachment);
         mTabSection = view.findViewById(R.id.message_tabs_section);
-        mFromBadge = (QuickContactBadge) view.findViewById(R.id.badge);
+        mFromBadge = (ImageView) view.findViewById(R.id.badge);
         mSenderPresenceView = (ImageView) view.findViewById(R.id.presence);
 
-        mFromView.setOnClickListener(this);
+        mFromNameView.setOnClickListener(this);
+        mFromAddressView.setOnClickListener(this);
         mFromBadge.setOnClickListener(this);
         mSenderPresenceView.setOnClickListener(this);
 
@@ -490,7 +499,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mContactStatusState = CONTACT_STATUS_STATE_UNLOADED;
         mQuickContactLookupUri = null;
         mSenderPresenceView.setImageResource(ContactStatusLoader.PRESENCE_UNKNOWN_RESOURCE_ID);
-        mFromBadge.setImageToDefault();
+        showDefaultQuickContactBadgeImage();
+    }
+
+    private static final Drawable sEmptyBadgeDrawable = new ColorDrawable(0xFF808080);
+
+    private void showDefaultQuickContactBadgeImage() {
+        // STOPSHIP Show the default 'Andy' icon.
+        mFromBadge.setImageDrawable(sEmptyBadgeDrawable);
     }
 
     protected final void addTabFlags(int tabFlags) {
@@ -756,7 +772,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             return; // Ignore.
         }
         switch (view.getId()) {
-            case R.id.from:
+            case R.id.from_name:
+            case R.id.from_address:
             case R.id.badge:
             case R.id.presence:
                 onClickSender();
@@ -1154,7 +1171,16 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     protected void updateHeaderView(Message message) {
         mSubjectView.setText(message.mSubject);
-        mFromView.setText(Address.toFriendly(Address.unpack(message.mFrom)));
+        final Address from = Address.unpackFirst(message.mFrom);
+        if (from != null) {
+            final String fromFriendly = from.toFriendly();
+            final String fromAddress = from.getAddress();
+            mFromNameView.setText(fromFriendly);
+            mFromAddressView.setText(fromFriendly.equals(fromAddress) ? "" : fromAddress);
+        } else {
+            mFromNameView.setText("");
+            mFromAddressView.setText("");
+        }
         Date date = new Date(message.mTimeStamp);
         mTimeView.setText(mTimeFormat.format(date));
         mDateView.setText(Utility.isDateToday(date) ? null : mDateFormat.format(date));
@@ -1162,6 +1188,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         String friendlyCc = Address.toFriendly(Address.unpack(message.mCc));
         mCcView.setText(friendlyCc);
         mCcContainerView.setVisibility((friendlyCc != null) ? View.VISIBLE : View.GONE);
+        String friendlyBcc = Address.toFriendly(Address.unpack(message.mBcc));
+        mBccView.setText(friendlyBcc);
+        mBccContainerView.setVisibility((friendlyBcc != null) ? View.VISIBLE : View.GONE);
         mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
     }
 

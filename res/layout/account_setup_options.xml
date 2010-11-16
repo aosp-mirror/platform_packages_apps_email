@@ -75,5 +75,17 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:text="@string/account_setup_options_sync_email_label" />
+
+        <!-- Buttons below -->
+        <Button
+            android:id="@+id/previous"
+            android:layout_marginTop="16dip"
+            style="@style/accountSetupButton"
+            android:text="@string/previous_action" />
+        <Button
+            android:id="@+id/next"
+            android:layout_marginTop="16dip"
+            style="@style/accountSetupButton"
+            android:text="@string/next_action" />
     </LinearLayout>
 </ScrollView>
