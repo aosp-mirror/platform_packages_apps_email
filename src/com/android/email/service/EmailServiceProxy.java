@@ -328,6 +328,17 @@ public class EmailServiceProxy implements IEmailService {
         });
     }
 
+    public void deleteAccountPIMData(final long accountId) throws RemoteException {
+        setTask(new Runnable () {
+            public void run() {
+                try {
+                    mService.deleteAccountPIMData(accountId);
+                } catch (RemoteException e) {
+                }
+            }
+        });
+    }
+
     public IBinder asBinder() {
         return null;
     }

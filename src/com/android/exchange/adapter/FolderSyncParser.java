@@ -20,10 +20,10 @@ package com.android.exchange.adapter;
 import com.android.email.Utility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.email.provider.EmailProvider;
 import com.android.exchange.Eas;
 import com.android.exchange.ExchangeService;
 import com.android.exchange.MockParserStream;
@@ -462,10 +462,6 @@ public class FolderSyncParser extends AbstractSyncParser {
      */
     @Override
     public void commit() throws IOException {
-    }
-
-    @Override
-    public void wipe() {
     }
 
     @Override

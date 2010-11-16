@@ -17,9 +17,9 @@
 package com.android.email;
 
 import com.android.email.mail.AuthenticationFailedException;
+import com.android.email.mail.Folder.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
-import com.android.email.mail.Folder.MessageRetrievalListener;
 import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
@@ -1606,6 +1606,9 @@ public class Controller {
             }
 
             public void moveMessage(long messageId, long mailboxId) throws RemoteException {
+            }
+
+            public void deleteAccountPIMData(long accountId) throws RemoteException {
             }
         };
 

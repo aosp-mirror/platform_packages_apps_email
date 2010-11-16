@@ -96,10 +96,6 @@ public class ProvisionParser extends Parser {
                     break;
                 case Tags.PROVISION_DEVICE_PASSWORD_EXPIRATION:
                     passwordExpiration = getValueInt();
-                    // We don't yet support this
-                    if (passwordExpiration > 0) {
-                        tagIsSupported = false;
-                    }
                     break;
                 case Tags.PROVISION_DEVICE_PASSWORD_HISTORY:
                     passwordHistory = getValueInt();

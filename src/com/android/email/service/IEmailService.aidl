@@ -46,4 +46,6 @@ interface IEmailService {
     void sendMeetingResponse(long messageId, int response);
 
     void moveMessage(long messageId, long mailboxId);
+
+    void deleteAccountPIMData(long accountId);
 }

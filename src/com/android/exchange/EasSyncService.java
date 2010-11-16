@@ -18,8 +18,8 @@
 package com.android.exchange;
 
 import com.android.email.SecurityPolicy;
-import com.android.email.Utility;
 import com.android.email.SecurityPolicy.PolicySet;
+import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MeetingInfo;
 import com.android.email.mail.MessagingException;
@@ -46,11 +46,11 @@ import com.android.exchange.adapter.FolderSyncParser;
 import com.android.exchange.adapter.GalParser;
 import com.android.exchange.adapter.MeetingResponseParser;
 import com.android.exchange.adapter.MoveItemsParser;
+import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
-import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.provider.GalResult;
 import com.android.exchange.utility.CalendarUtilities;
 
@@ -1644,8 +1644,7 @@ public class EasSyncService extends AbstractSyncService {
                     if (len != 0) {
                         InputStream is = entity.getContent();
                         // Returns true if we need to sync again
-                        if (new FolderSyncParser(is, new AccountSyncAdapter(mMailbox, this))
-                                .parse()) {
+                        if (new FolderSyncParser(is, new AccountSyncAdapter(this)).parse()) {
                             continue;
                         }
                     }
@@ -2303,11 +2302,11 @@ public class EasSyncService extends AbstractSyncService {
             } else {
                 AbstractSyncAdapter target;
                 if (mMailbox.mType == Mailbox.TYPE_CONTACTS) {
-                    target = new ContactsSyncAdapter(mMailbox, this);
+                    target = new ContactsSyncAdapter( this);
                 } else if (mMailbox.mType == Mailbox.TYPE_CALENDAR) {
-                    target = new CalendarSyncAdapter(mMailbox, this);
+                    target = new CalendarSyncAdapter(this);
                 } else {
-                    target = new EmailSyncAdapter(mMailbox, this);
+                    target = new EmailSyncAdapter(this);
                 }
                 // We loop here because someone might have put a request in while we were syncing
                 // and we've missed that opportunity...
