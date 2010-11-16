@@ -71,6 +71,8 @@
     <string name="okay_action">OK</string>
     <!--  Button name used to cancel out of dialog boxes -->
     <string name="cancel_action">Cancel</string>
+    <!-- Button name used to move to previous step during setup sequence [CHAR_LIMIT=16] -->
+    <string name="previous_action">Previous</string>
     <!-- Menu item/button name -->
     <string name="send_action">Send</string>
     <!-- Menu item/button name -->
@@ -461,7 +463,8 @@ save attachment.</string>
     <!-- Title of the screen when adding exchange account -->
     <string name="account_setup_basics_exchange_title_alternate">
         Add an Exchange ActiveSync account</string>
-    <!-- Headline of screen when setting up new email account (large text over divider) -->
+    <!-- Headline of screen when setting up new email account (large text over divider)
+        [CHAR LIMIT=none] -->
     <string name="account_setup_basics_headline">Email account</string>
     <!-- On "Set up email" screen, enthusiastic welcome message. -->
     <string name="accounts_welcome">You can configure Email for most accounts in just a few steps.
@@ -506,7 +509,8 @@ save attachment.</string>
 
     <!-- Title of "Set up email" screen after success -->
     <string name="account_setup_names_title">Account setup</string>
-    <!-- Text that appears on "Set up email" screen after successfully setting up an account -->
+    <!-- Text that appears on "Set up email" screen after successfully setting up an account
+        [CHAR LIMIT=none] -->
     <string name="account_setup_names_headline">
         Your account is set up, and email is on its way!</string>
     <!-- On "Set up email" screen, label of text field -->
@@ -518,13 +522,12 @@ save attachment.</string>
 
     <!-- Activity Title for the first screen in manual setup (where you select IMAP or POP3) -->
     <string name="account_setup_account_type_title">Account setup</string>
-    <!-- Headline for the first screen in manual setup (where you select IMAP or POP3) -->
+    <!-- Headline for the first screen in manual setup (where you select IMAP or POP3)
+        [CHAR LIMIT=none] -->
     <string name="account_setup_account_type_headline">Account type</string>
     <!-- "Add new email account" screen, text that appears on screen -->
     <string name="account_setup_account_type_instructions">What type of account is this?</string>
 
-    <!-- Button name on account setup "Account Type" screen, to exit (return to previous screen) -->
-    <string name="account_setup_account_type_previous_action">Previous</string>
     <!-- Do Not Translate. "Add new email account" screen, button name in response to what
          type of account this is -->
     <string name="account_setup_account_type_pop_action" translatable="false">POP3</string>
@@ -604,7 +607,9 @@ save attachment.</string>
     <string name="account_setup_exchange_device_id_label">Mobile Device ID</string>
 
     <!-- In Account setup options screen, Activity title -->
-    <string name="account_setup_options_title">Account options</string>
+    <string name="account_setup_options_title">Account settings</string>
+    <!-- In Account setup options screen, Activity headline [CHAR LIMIT=none] -->
+    <string name="account_setup_options_headline">Account options</string>
     <!-- In Account setup options screen, label for email check frequency selector -->
     <string name="account_setup_options_mail_check_frequency_label">Inbox checking frequency</string>
     <!-- In Account setup options & Account Settings screens, label for email check frequency option -->

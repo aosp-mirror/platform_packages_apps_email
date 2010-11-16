@@ -37,16 +37,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 
 import java.io.IOException;
 
-public class AccountSetupOptions extends AccountSetupActivity {
+public class AccountSetupOptions extends AccountSetupActivity implements OnClickListener {
 
     private Spinner mCheckFrequencyView;
     private Spinner mSyncWindowView;
@@ -81,6 +80,8 @@ public class AccountSetupOptions extends AccountSetupActivity {
         mSyncCalendarView = (CheckBox) findViewById(R.id.account_sync_calendar);
         mSyncEmailView = (CheckBox) findViewById(R.id.account_sync_email);
         mSyncEmailView.setChecked(true);
+        findViewById(R.id.previous).setOnClickListener(this);
+        findViewById(R.id.next).setOnClickListener(this);
 
         // Generate spinner entries using XML arrays used by the preferences
         int frequencyValuesId;
@@ -130,6 +131,9 @@ public class AccountSetupOptions extends AccountSetupActivity {
             mSyncContactsView.setChecked(true);
             mSyncCalendarView.setVisibility(View.VISIBLE);
             mSyncCalendarView.setChecked(true);
+            // Show the associated dividers
+            findViewById(R.id.account_sync_contacts_divider).setVisibility(View.VISIBLE);
+            findViewById(R.id.account_sync_calendar_divider).setVisibility(View.VISIBLE);
         }
 
         if (SetupData.isAutoSetup()) {
@@ -138,20 +142,11 @@ public class AccountSetupOptions extends AccountSetupActivity {
     }
 
     /**
-     * Add "Next" button when this activity is displayed
+     * Respond to clicks in the "Next" or "Previous" buttons
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.account_setup_next_option, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    /**
-     * Respond to clicks in the "Next" button
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+    public void onClick(View view) {
+        switch (view.getId()) {
             case R.id.next:
                 // Don't allow this more than once (Exchange accounts call an async method
                 // before finish()'ing the Activity, which allows this code to potentially be
@@ -160,12 +155,12 @@ public class AccountSetupOptions extends AccountSetupActivity {
                     onDone();
                     mDonePressed = true;
                 }
-                return true;
+                break;
+            case R.id.previous:
+                onBackPressed();
+                break;
         }
-        return super.onOptionsItemSelected(item);
     }
-
-
 
     AccountManagerCallback<Bundle> mAccountManagerCallback = new AccountManagerCallback<Bundle>() {
         public void run(AccountManagerFuture<Bundle> future) {
@@ -248,7 +243,7 @@ public class AccountSetupOptions extends AccountSetupActivity {
         account.setFlags(newFlags);
         account.setSyncInterval((Integer)((SpinnerOption)mCheckFrequencyView
                 .getSelectedItem()).value);
-        if (mSyncWindowView.getVisibility() == View.VISIBLE) {
+        if (findViewById(R.id.account_sync_window_row).getVisibility() == View.VISIBLE) {
             int window = (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value;
             account.setSyncLookback(window);
         }
@@ -285,8 +280,7 @@ public class AccountSetupOptions extends AccountSetupActivity {
      */
     private void enableEASSyncWindowSpinner() {
         // Show everything
-        findViewById(R.id.account_sync_window_label).setVisibility(View.VISIBLE);
-        mSyncWindowView.setVisibility(View.VISIBLE);
+        findViewById(R.id.account_sync_window_row).setVisibility(View.VISIBLE);
 
         // Generate spinner entries using XML arrays used by the preferences
         CharSequence[] windowValues = getResources().getTextArray(

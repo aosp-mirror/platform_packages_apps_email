@@ -50,7 +50,7 @@
         android:layout_marginTop="32dip"
         android:layout_marginRight="16dip"
         style="@style/accountSetupButton"
-        android:text="@string/account_setup_account_type_previous_action" />
+        android:text="@string/previous_action" />
 
     <!-- Layout on the left containing the setup info -->
     <RelativeLayout
