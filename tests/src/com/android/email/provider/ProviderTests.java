@@ -73,6 +73,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     public void setUp() throws Exception {
         super.setUp();
         mMockContext = getMockContext();
+        // Invalidate all caches, since we reset the database for each test
+        ContentCache.invalidateAllCachesForTest();
     }
 
     @Override
