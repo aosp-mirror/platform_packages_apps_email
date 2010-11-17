@@ -174,6 +174,7 @@ public class MessageListXL extends Activity implements
     protected void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onResume");
         super.onResume();
+        mFragmentManager.onResume();
 
         // On MessageList.onResume, we go back to Welcome if an account has been added/removed.
         // We don't need to do that here, because when the activity resumes, the account list loader
@@ -212,11 +213,25 @@ public class MessageListXL extends Activity implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessageListXL onBackPressed");
         }
+        onBackPressed(true);
+    }
+
+    /**
+     * Performs the back action.
+     *
+     * @param mayCloseActivity if true, the activity will close if it's already on top of the
+     * internal back state stack.
+     */
+    private boolean onBackPressed(boolean mayCloseActivity) {
         if (mFragmentManager.onBackPressed()) {
-            return;
+            return true;
         }
-        // Perform the default behavior.
-        super.onBackPressed();
+        if (mayCloseActivity) {
+            // Perform the default behavior.
+            super.onBackPressed();
+            return true;
+        }
+        return false;
     }
 
     private void onCurrentMessageGone() {
@@ -601,7 +616,8 @@ public class MessageListXL extends Activity implements
         switch (item.getItemId()) {
             case android.R.id.home:
                 // Comes from the action bar when the app icon on the left is pressed.
-                return mFragmentManager.onBackPressed();
+                // It works like a back press, but it won't close the activity.
+                return onBackPressed(false);
             case R.id.compose:
                 return onCompose();
             case R.id.refresh:
