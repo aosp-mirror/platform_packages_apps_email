@@ -65,17 +65,17 @@ public class ContentCacheTests extends ProviderTestCase2<EmailProvider> {
         map.add("2");
         map.add("2");
         // Make sure we can remove once for each add
-        map.remove("2");
+        map.subtract("2");
         assertTrue(map.contains("2"));
-        map.remove("2");
+        map.subtract("2");
         // Make sure that over-removing throws an exception
         try {
-            map.remove("2");
+            map.subtract("2");
             fail("Removing a third time should throw an exception");
         } catch (IllegalStateException e) {
         }
         try {
-            map.remove("3");
+            map.subtract("3");
             fail("Removing object never added should throw an exception");
         } catch (IllegalStateException e) {
         }
@@ -152,9 +152,8 @@ public class ContentCacheTests extends ProviderTestCase2<EmailProvider> {
         Cursor activeCursor = cachedCursor.getWrappedCursor();
 
         // The cursor should be in active cursors
-        Integer activeCount = ContentCache.sActiveCursors.get(activeCursor);
-        assertNotNull(activeCount);
-        assertEquals(1, activeCount.intValue());
+        int activeCount = ContentCache.sActiveCursors.getCount(activeCursor);
+        assertEquals(1, activeCount);
 
         // Some basic functionality that shouldn't throw exceptions and should otherwise act as the
         // underlying cursor would
@@ -184,17 +183,19 @@ public class ContentCacheTests extends ProviderTestCase2<EmailProvider> {
         // that in testContentCache)
         assertFalse(activeCursor.isClosed());
         // Our cursor should no longer be in the active cursors map
-        activeCount = ContentCache.sActiveCursors.get(activeCursor);
-        assertNull(activeCount);
+        assertFalse(ContentCache.sActiveCursors.contains(activeCursor));
 
-        // Make sure that we won't accept cursors with multiple rows
-        cursor = resolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION, null, null, null);
-        try {
-            cursor = new CachedCursor(cursor, null, "Foo");
-            fail("Mustn't accept cursor with more than one row");
-        } catch (IllegalArgumentException e) {
-            // Correct
-        }
+        // TODO - change the code or the test to enforce the assertion that a cached cursor
+        // should have only zero or one rows.  We cannot test this in the constructor, however,
+        // due to potential for deadlock.
+//        // Make sure that we won't accept cursors with multiple rows
+//        cursor = resolver.query(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION, null, null, null);
+//        try {
+//            cursor = new CachedCursor(cursor, null, "Foo");
+//            fail("Mustn't accept cursor with more than one row");
+//        } catch (IllegalArgumentException e) {
+//            // Correct
+//        }
     }
 
     private static final String[] SIMPLE_PROJECTION = new String[] {"Foo"};
