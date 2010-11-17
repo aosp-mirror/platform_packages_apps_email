@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2010 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- xlarge -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffffff"
+    >
+    <!-- Subject -->
+    <TextView
+        android:id="@+id/subject"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="30dip"
+        android:layout_marginLeft="30dip"
+        android:layout_marginRight="30dip"
+        android:singleLine="false"
+        android:ellipsize="none"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="?android:attr/textColorPrimary"
+        />
+
+    <!-- Horizontal line below subject -->
+    <View
+        android:id="@+id/top_divider"
+        android:layout_width="0dip"
+        android:layout_below="@id/subject"
+        android:layout_alignLeft="@id/subject"
+        android:layout_alignRight="@id/subject"
+        android:layout_marginTop="8dip"
+        android:layout_marginBottom="16dip"
+        style="@style/horizontalDivider"
+        />
+
+    <!-- Badge -->
+    <ImageView
+        android:id="@+id/badge"
+        android:layout_width="60dip"
+        android:layout_height="60dip"
+        android:layout_gravity="center_vertical"
+        android:layout_alignTop="@id/top_divider"
+        android:layout_alignLeft="@id/subject"
+        />
+
+    <!-- Presence icon -->
+    <ImageView
+        android:id="@+id/presence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top_divider"
+        android:layout_toRightOf="@id/badge"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="12dip"
+        android:src="@drawable/presence_inactive"
+        android:background="@drawable/quickcontact_presence_bg"
+        />
+    <!-- reply, reply-all, forward, Star -->
+    <ImageView
+        android:id="@+id/favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top_divider"
+        android:layout_alignRight="@id/subject"
+        android:layout_marginRight="16dip"
+        android:layout_marginLeft="16dip"
+        android:src="@drawable/btn_star_big_buttonless_off"
+        />
+    <ImageView
+        android:id="@+id/forward"
+        android:layout_width="32dip"
+        android:layout_height="24dip"
+        android:layout_below="@id/top_divider"
+        android:layout_toLeftOf="@id/favorite"
+        android:layout_marginRight="16dip"
+        android:layout_marginLeft="16dip"
+        android:src="@drawable/forward"
+        android:visibility="gone"
+        />
+    <ImageView
+        android:id="@+id/reply_all"
+        android:layout_width="32dip"
+        android:layout_height="24dip"
+        android:layout_below="@id/top_divider"
+        android:layout_toLeftOf="@id/forward"
+        android:layout_marginRight="16dip"
+        android:layout_marginLeft="16dip"
+        android:src="@drawable/reply_all"
+        android:visibility="gone"
+        />
+    <ImageView
+        android:id="@+id/reply"
+        android:layout_width="32dip"
+        android:layout_height="24dip"
+        android:layout_below="@id/top_divider"
+        android:layout_toLeftOf="@id/reply_all"
+        android:layout_marginRight="16dip"
+        android:layout_marginLeft="16dip"
+        android:src="@drawable/reply"
+        android:visibility="gone"
+        />
+
+    <!-- Sender display name -->
+    <TextView
+        android:id="@+id/from_name"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/top_divider"
+        android:layout_toRightOf="@id/presence"
+        android:layout_toLeftOf="@id/reply"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:attr/textColorPrimary"
+        android:singleLine="true"
+        android:ellipsize="end"
+        />
+
+    <!-- From address -->
+    <TextView
+        android:id="@+id/from_address"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/presence"
+        android:layout_below="@id/from_name"
+        android:layout_toLeftOf="@id/reply"
+        android:layout_marginTop="2dip"
+        android:layout_marginBottom="8dip"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorSecondary"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:paddingRight="6dip"
+        />
+
+    <!-- To: and timestamp  -->
+    <TextView
+        android:id="@+id/datetime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/from_address"
+        android:layout_alignRight="@id/subject"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorSecondary"
+        android:singleLine="true"
+        />
+
+    <TextView
+        android:id="@+id/to_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/datetime"
+        android:layout_alignLeft="@id/from_address"
+        android:layout_marginRight="4dip"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorSecondary"
+        android:singleLine="true"
+        android:text="@string/message_compose_to_label"
+        />
+
+    <TextView
+        android:id="@+id/to"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/datetime"
+        android:layout_toRightOf="@id/to_label"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorSecondary"
+        android:singleLine="true"
+        />
+
+    <!-- Cc -->
+    <LinearLayout
+        android:id="@+id/cc_container"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/to_label"
+        android:layout_alignLeft="@id/to_label"
+        android:layout_alignRight="@id/subject"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dip"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondary"
+            android:singleLine="true"
+            android:text="@string/message_compose_cc_label"
+            />
+        <TextView
+            android:id="@+id/cc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondary"
+            android:singleLine="true"
+            android:ellipsize="end"
+            />
+    </LinearLayout>
+
+    <!-- Bcc -->
+    <LinearLayout
+        android:id="@+id/bcc_container"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cc_container"
+        android:layout_alignLeft="@id/to_label"
+        android:layout_alignRight="@id/subject"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dip"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondary"
+            android:singleLine="true"
+            android:text="@string/message_compose_bcc_label"
+            />
+        <TextView
+            android:id="@+id/bcc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondary"
+            android:singleLine="true"
+            android:ellipsize="end"
+            />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/below_header_divider"
+        android:layout_width="0dip"
+        android:layout_below="@id/bcc_container"
+        android:layout_alignLeft="@id/bcc_container"
+        android:layout_alignRight="@id/subject"
+        android:layout_marginTop="8dip"
+        android:layout_marginBottom="2dip"
+        style="@style/horizontalDivider"
+        />
+
+    <!-- Tabs -->
+    <LinearLayout
+        android:id="@+id/message_tabs_section"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/below_header_divider"
+        android:layout_alignLeft="@id/below_header_divider"
+        android:layout_alignRight="@id/below_header_divider"
+        android:orientation="horizontal"
+        android:paddingLeft="6dip"
+        android:paddingRight="6dip"
+        android:paddingTop="6dip"
+        android:paddingBottom="6dip"
+        >
+        <Button
+            android:id="@+id/show_message"
+            android:text="@string/message_view_show_message_action"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+        <!--
+            Even though the "invite" section is only for MessageViewFragment, it's managed
+            by MessageViewFragmentBase for simplicity.
+        -->
+        <Button
+            android:id="@+id/show_invite"
+            android:text="@string/message_view_show_invite_action"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+        <Button
+            android:id="@+id/show_attachments"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+        <View
+            android:layout_width="0dip"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            />
+        <Button
+            android:id="@+id/show_pictures"
+            android:text="@string/message_view_show_pictures_action"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+
+    <!-- Buttons at the bottom.
+         Only MessageViewFragment uses these. MessageFileViewFragment doesn't. -->
+    <include
+        layout="@layout/message_command_button_view"
+        android:id="@+id/message_command_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"
+        />
+
+    <!-- content area - only one of them is visible at a time -->
+    <!-- Message body -->
+    <WebView
+        android:id="@+id/message_content"
+        android:layout_width="0dip"
+        android:layout_height="0dip"
+        android:layout_below="@id/message_tabs_section"
+        android:layout_alignLeft="@id/message_tabs_section"
+        android:layout_alignRight="@id/message_tabs_section"
+        android:layout_above="@id/message_command_buttons"
+        android:background="#ffffffff"
+        android:visibility="gone"
+        />
+
+    <!-- Invite: Even though this section is only for MessageViewFragment,
+         Its visibility is controlled by MessageViewFragmentBase for simplicity.
+         MessageFileViewFragment shouldn't touch this. -->
+    <ScrollView
+        android:id="@+id/invite_scroll"
+        android:layout_width="0dip"
+        android:layout_height="0dip"
+        android:layout_below="@id/message_tabs_section"
+        android:layout_alignLeft="@id/message_tabs_section"
+        android:layout_alignRight="@id/message_tabs_section"
+        android:layout_above="@id/message_command_buttons"
+        android:visibility="gone"
+        >
+        <include layout="@layout/message_view_invitation" />
+    </ScrollView>
+
+    <!-- Attachments -->
+    <ScrollView
+        android:id="@+id/attachments_scroll"
+        android:layout_width="0dip"
+        android:layout_height="0dip"
+        android:layout_below="@id/message_tabs_section"
+        android:layout_alignLeft="@id/message_tabs_section"
+        android:layout_alignRight="@id/message_tabs_section"
+        android:layout_above="@id/message_command_buttons"
+        android:visibility="gone"
+        >
+        <LinearLayout
+            android:id="@+id/attachments"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="4dip"
+            android:background="#ffffff"
+            />
+    </ScrollView>
+</RelativeLayout>

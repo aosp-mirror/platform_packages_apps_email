@@ -14,6 +14,7 @@
      limitations under the License.
 -->
 
+<!-- small -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
@@ -31,7 +32,6 @@
         android:paddingLeft="3dip"
         android:paddingRight="6dip">
         <LinearLayout
-            android:id="@+id/from_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:baselineAligned="true" >
@@ -78,13 +78,6 @@
                 android:ellipsize="end"
                 android:paddingRight="6dip"
                 />
-            <ImageView
-                android:id="@+id/attachment"
-                android:src="@drawable/ic_email_attachment_small"
-                android:layout_width="22dip"
-                android:layout_height="22dip"
-                android:baselineAlignBottom="true" />
-
             <!-- Reply/Forward buttons are default gone for MessageFileView -->
             <ImageView
                 android:id="@+id/reply"
@@ -115,7 +108,7 @@
                 />
 
             <TextView
-                android:id="@+id/date"
+                android:id="@+id/datetime"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?android:attr/textColorPrimary"
                 android:layout_width="wrap_content"
@@ -124,7 +117,6 @@
                 android:singleLine="true" />
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/to_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
             <TextView
@@ -144,14 +136,6 @@
                 android:layout_marginLeft="4dip"
                 android:singleLine="false"
                 android:ellipsize="none" />
-            <TextView
-                android:id="@+id/time"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorPrimary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dip"
-                android:singleLine="true" />
         </LinearLayout>
         <LinearLayout
             android:id="@+id/cc_container"

@@ -53,4 +53,9 @@
     <style name="PlainEditText" parent="android:Widget.EditText">
         <item name="android:background">#ffffff</item>
     </style>
+
+    <style name="horizontalDivider">
+        <item name="android:layout_height">1dip</item>
+        <item name="android:background">@color/divider_color</item>
+    </style>
 </resources>

@@ -78,10 +78,8 @@
         <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
-    <style name="message_compose_divider">
+
+    <style name="message_compose_divider" parent="horizontalDivider">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dip</item>
-        <!-- STOPSHIP Use same color as EditText tray? -->
-        <item name="android:background">#ff808080</item>
     </style>
 </resources>
