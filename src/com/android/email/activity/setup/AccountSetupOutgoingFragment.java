@@ -65,7 +65,8 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     private EditText mServerView;
     private EditText mPortView;
     private CheckBox mRequireLoginView;
-    private ViewGroup mRequireLoginSettingsView;
+    private View mRequireLoginSettingsView;
+    private View mRequireLoginSettingsView2;
     private Spinner mSecurityTypeView;
 
     // Support for lifecycle
@@ -98,8 +99,8 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         mServerView = (EditText) view.findViewById(R.id.account_server);
         mPortView = (EditText) view.findViewById(R.id.account_port);
         mRequireLoginView = (CheckBox) view.findViewById(R.id.account_require_login);
-        mRequireLoginSettingsView =
-                (ViewGroup) view.findViewById(R.id.account_require_login_settings);
+        mRequireLoginSettingsView = view.findViewById(R.id.account_require_login_settings);
+        mRequireLoginSettingsView2 = view.findViewById(R.id.account_require_login_settings_2);
         mSecurityTypeView = (Spinner) view.findViewById(R.id.account_security_type);
         mRequireLoginView.setOnCheckedChangeListener(this);
 
@@ -317,6 +318,9 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         mRequireLoginSettingsView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        if (mRequireLoginSettingsView2 != null) {
+            mRequireLoginSettingsView2.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        }
         validateFields();
     }
 

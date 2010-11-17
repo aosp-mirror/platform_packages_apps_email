@@ -143,6 +143,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private boolean mSourceMessageProcessed = false;
 
     private ActionBar mActionBar;
+    private TextView mFromView;
     private MultiAutoCompleteTextView mToView;
     private MultiAutoCompleteTextView mCcView;
     private MultiAutoCompleteTextView mBccView;
@@ -266,7 +267,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private void setAccount(Account account) {
         mAccount = account;
         if (account != null) {
-            mActionBar.setSubtitle(account.mDisplayName);
+            mFromView.setText(account.mEmailAddress);
             mAddressAdapterTo.setAccount(account);
             mAddressAdapterCc.setAccount(account);
             mAddressAdapterBcc.setAccount(account);
@@ -432,6 +433,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private void initViews() {
         mActionBar = getActionBar();
+        mFromView = (TextView)findViewById(R.id.from);
         mToView = (MultiAutoCompleteTextView)findViewById(R.id.to);
         mCcView = (MultiAutoCompleteTextView)findViewById(R.id.cc);
         mBccView = (MultiAutoCompleteTextView)findViewById(R.id.bcc);

@@ -17,6 +17,7 @@
 package com.android.email.provider;
 
 import com.android.email.Snippet;
+import com.android.email.Utility;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
@@ -1647,36 +1648,6 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(newStr, oldStr);
     }
 
-    public void testIdAddToField() {
-        ContentResolver cr = mMockContext.getContentResolver();
-        ContentValues cv = new ContentValues();
-
-        // Try changing the newMessageCount of an account
-        Account account = ProviderTestUtils.setupAccount("field-add", true, mMockContext);
-        int startCount = account.mNewMessageCount;
-        // "field" and "add" are the two required elements
-        cv.put(EmailContent.FIELD_COLUMN_NAME, AccountColumns.NEW_MESSAGE_COUNT);
-        cv.put(EmailContent.ADD_COLUMN_NAME, 17);
-        cr.update(ContentUris.withAppendedId(Account.ADD_TO_FIELD_URI, account.mId),
-                cv, null, null);
-        Account restoredAccount = Account.restoreAccountWithId(mMockContext, account.mId);
-        assertEquals(17 + startCount, restoredAccount.mNewMessageCount);
-        cv.put(EmailContent.ADD_COLUMN_NAME, -11);
-        cr.update(ContentUris.withAppendedId(Account.ADD_TO_FIELD_URI, account.mId),
-                cv, null, null);
-        restoredAccount = Account.restoreAccountWithId(mMockContext, account.mId);
-        assertEquals(17 - 11 + startCount, restoredAccount.mNewMessageCount);
-
-        // Now try with a mailbox
-        Mailbox boxA = ProviderTestUtils.setupMailbox("boxA", account.mId, true, mMockContext);
-        assertEquals(0, boxA.mUnreadCount);
-        cv.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.UNREAD_COUNT);
-        cv.put(EmailContent.ADD_COLUMN_NAME, 11);
-        cr.update(ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, boxA.mId), cv, null, null);
-        Mailbox restoredBoxA = Mailbox.restoreMailboxWithId(mMockContext, boxA.mId);
-        assertEquals(11, restoredBoxA.mUnreadCount);
-    }
-
     public void testDatabaseCorruptionRecovery() {
         final ContentResolver resolver = mMockContext.getContentResolver();
         final Context context = mMockContext;
@@ -1900,8 +1871,9 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
      * @return the number of messages in a mailbox.
      */
     private int getMessageCount(long mailboxId) {
-        Mailbox b = Mailbox.restoreMailboxWithId(mMockContext, mailboxId);
-        return b.mMessageCount;
+        return Utility.getFirstRowInt(mMockContext,
+                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                new String[] {MailboxColumns.MESSAGE_COUNT}, null, null, null, 0);
     }
 
     /** Set -1 to the message count of all mailboxes for the recalculateMessageCount test. */

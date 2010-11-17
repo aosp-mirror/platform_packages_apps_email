@@ -20,11 +20,34 @@
     android:layout_height="match_parent"
     android:fillViewport="true" >
 
-    <fragment
-        android:id="@+id/setup_fragment"
-        class="com.android.email.activity.setup.AccountSetupIncomingFragment"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-    />
+        android:layout_height="wrap_content" >
+
+        <fragment
+            android:id="@+id/setup_fragment"
+            class="com.android.email.activity.setup.AccountSetupIncomingFragment"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+        />
+
+        <!-- Buttons below -->
+        <!-- TODO - quick placeholder - phone UX still TBD -->
+        <Button
+            android:id="@+id/previous"
+            android:layout_below="@+id/setup_fragment"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="16dip"
+            style="@style/accountSetupButton"
+            android:text="@string/previous_action" />
+        <Button
+            android:id="@+id/next"
+            android:layout_below="@+id/setup_fragment"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="16dip"
+            style="@style/accountSetupButton"
+            android:text="@string/next_action" />
+    </RelativeLayout>
 </ScrollView>

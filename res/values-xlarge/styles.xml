@@ -30,4 +30,58 @@
         <item name="android:textSize">24sp</item>
     </style>
 
+    <!-- Message compose STOPSHIP not final -->
+    <style name="message_compose_header_field_container_no_tray" parent="PlainEditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dip</item>
+        <item name="android:layout_marginLeft">16dip</item>
+        <item name="android:layout_marginRight">4dip</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <style name="message_compose_header_field_container" parent="android:Widget.EditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dip</item>
+        <item name="android:layout_marginLeft">16dip</item>
+        <item name="android:layout_marginRight">4dip</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:addStatesFromChildren">true</item>
+        <item name="android:focusable">false</item>
+        <item name="android:focusableInTouchMode">false</item>
+    </style>
+    <style name="message_compose_header_field_label">
+        <item name="android:layout_width">@dimen/message_compose_field_label_width</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">0</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+    <style name="message_compose_header_field_value" parent="PlainEditText">
+        <item name="android:layout_width">0dip</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="message_compose_message_content" parent="PlainEditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dip</item>
+        <item name="android:layout_marginBottom">16dip</item>
+        <item name="android:layout_marginLeft">16dip</item>
+        <item name="android:layout_marginRight">16dip</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+    <style name="message_compose_divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dip</item>
+        <!-- STOPSHIP Use same color as EditText tray? -->
+        <item name="android:background">#ff808080</item>
+    </style>
 </resources>

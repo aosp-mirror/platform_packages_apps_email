@@ -124,8 +124,6 @@ class MessageListXLFragmentManager {
                 mThreePane.getMiddlePaneId());
         mMessageViewFragment = (MessageViewFragment) fm.findFragmentById(
                 mThreePane.getRightPaneId());
-
-        updateActionBar();
     }
 
     /** Set callback for fragment. */
@@ -197,6 +195,8 @@ class MessageListXLFragmentManager {
             return;
         }
         mIsActivityResumed = true;
+
+        updateActionBar();
     }
 
     /**
@@ -303,7 +303,7 @@ class MessageListXLFragmentManager {
         // Open mailbox list, clear message list / message view
         mMailboxListFragment.openMailboxes(mAccountId);
         mMessageListFragment.clearContent();
-        hideMessageView();
+        mThreePane.showLeftPane(); // Show mailbox list
 
         if ((accountId == Account.ACCOUNT_ID_COMBINED_VIEW) && (mailboxId == -1)) {
             // When opening the Combined view, the right pane will be "combined inbox".
@@ -321,12 +321,7 @@ class MessageListXLFragmentManager {
      * @return true "back" is handled.
      */
     public boolean onBackPressed() {
-        if (isMessageSelected()) {
-            // Go back to the message list.
-            goBackToMailbox();
-            return true;
-        }
-        return false; // Not handled.
+        return mThreePane.onBackPressed();
     }
 
     /**
@@ -334,7 +329,6 @@ class MessageListXLFragmentManager {
      */
     public void goBackToMailbox() {
         if (isMessageSelected()) {
-            hideMessageView();
             selectMailbox(getMailboxId(), false);
         }
     }
@@ -374,7 +368,7 @@ class MessageListXLFragmentManager {
 
         mMailboxListFragment.setSelectedMailbox(mMailboxId);
         mTargetActivity.onMailboxChanged(mAccountId, mMailboxId);
-        hideMessageView();
+        mThreePane.showLeftPane(); // Show mailbox list
     }
 
     /**
@@ -402,16 +396,17 @@ class MessageListXLFragmentManager {
         // Open message
         mMessageListFragment.setSelectedMessage(mMessageId);
         mMessageViewFragment.openMessage(mMessageId);
-        hideMessageBoxList();
+        mThreePane.showRightPane(); // Show message view
     }
 
-    private void hideMessageBoxList() {
-        mThreePane.showRightPane(true);
-    }
-
-    private void hideMessageView() {
+    /**
+     * Unselect the currently viewed message, if any, and release the resoruce grabbed by the
+     * message view.
+     *
+     * This must be called when the three pane reports that the message view pane gets hidden.
+     */
+    private void onMessageViewClosed() {
         mMessageId = -1;
-        mThreePane.showRightPane(false);
         mMessageListFragment.setSelectedMessage(-1);
         mMessageViewFragment.clearContent();
     }
@@ -469,8 +464,14 @@ class MessageListXLFragmentManager {
 
     private class ThreePaneLayoutCallback implements ThreePaneLayout.Callback {
         @Override
-        public void onVisiblePanesChanged() {
+        public void onVisiblePanesChanged(int previousVisiblePanes) {
             updateActionBar();
+            final int visiblePanes = mThreePane.getVisiblePanes();
+            if (((visiblePanes & ThreePaneLayout.PANE_RIGHT) == 0) &&
+                    ((previousVisiblePanes & ThreePaneLayout.PANE_RIGHT) != 0)) {
+                // Message view just got hidden
+                onMessageViewClosed();
+            }
         }
     }
 }

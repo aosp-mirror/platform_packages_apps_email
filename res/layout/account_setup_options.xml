@@ -77,6 +77,7 @@
             android:text="@string/account_setup_options_sync_email_label" />
 
         <!-- Buttons below -->
+        <!-- TODO - quick placeholder - phone UX still TBD -->
         <Button
             android:id="@+id/previous"
             android:layout_marginTop="16dip"

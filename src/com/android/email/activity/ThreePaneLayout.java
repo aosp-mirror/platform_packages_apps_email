@@ -50,9 +50,10 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     /** Portrait mode only: message view + expanded message list */
     private static final int STATE_PORTRAIT_MIDDLE_EXPANDED = 3;
 
-    public static final int PANE_LEFT = 1 << 0;
+    // Flags for getVisiblePanes()
+    public static final int PANE_LEFT = 1 << 2;
     public static final int PANE_MIDDLE = 1 << 1;
-    public static final int PANE_RIGHT = 1 << 2;
+    public static final int PANE_RIGHT = 1 << 0;
 
     private int mPaneState = STATE_LEFT_UNINITIALIZED;
 
@@ -69,13 +70,13 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
     public interface Callback {
         /** Called when {@link ThreePaneLayout#getVisiblePanes()} has changed. */
-        public void onVisiblePanesChanged();
+        public void onVisiblePanesChanged(int previousVisiblePanes);
     }
 
     private static final class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
 
-        @Override public void onVisiblePanesChanged() {}
+        @Override public void onVisiblePanesChanged(int previousVisiblePanes) {}
     }
 
     public ThreePaneLayout(Context context, AttributeSet attrs, int defStyle) {
@@ -162,11 +163,38 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         return ret;
     }
 
+    public boolean onBackPressed() {
+        if (isLandscape()) {
+            switch (mPaneState) {
+            case STATE_RIGHT_VISIBLE:
+                changePaneState(STATE_LEFT_VISIBLE, true); // Close the right pane
+                return true;
+            }
+        } else {
+            switch (mPaneState) {
+                case STATE_RIGHT_VISIBLE:
+                    changePaneState(STATE_PORTRAIT_MIDDLE_EXPANDED, true);
+                    return true;
+                case STATE_PORTRAIT_MIDDLE_EXPANDED:
+                    changePaneState(STATE_LEFT_VISIBLE, true);
+                    return true;
+                }
+        }
+        return false;
+    }
+
     /**
-     * Show/hide the right most pane.  (i.e. message view)
+     * Show the left most pane.  (i.e. mailbox list)
      */
-    public void showRightPane(boolean show) {
-        changePaneState(show ? STATE_RIGHT_VISIBLE : STATE_LEFT_VISIBLE, true);
+    public void showLeftPane() {
+        changePaneState(STATE_LEFT_VISIBLE, true);
+    }
+
+    /**
+     * Show the right most pane.  (i.e. message view)
+     */
+    public void showRightPane() {
+        changePaneState(STATE_RIGHT_VISIBLE, true);
     }
 
     private void changePaneState(int newState, boolean animate) {
@@ -176,6 +204,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         if (newState == mPaneState) {
             return;
         }
+        final int previousVisiblePanes = getVisiblePanes();
         mPaneState = newState;
         switch (mPaneState) {
             case STATE_LEFT_VISIBLE:
@@ -217,7 +246,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                 mFoggedGlass.setVisibility(View.VISIBLE);
                 break;
         }
-        mCallback.onVisiblePanesChanged();
+        mCallback.onVisiblePanesChanged(previousVisiblePanes);
     }
 
     /**

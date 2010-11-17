@@ -41,14 +41,14 @@
         <Button
             android:id="@+id/manual_setup"
             android:layout_below="@+id/setup_basics_fragment"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="32dip"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="16dip"
             style="@style/accountSetupButton"
             android:text="@string/account_setup_basics_manual_setup_action" />
         <Button
             android:id="@+id/next"
-            android:layout_below="@+id/manual_setup"
-            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/setup_basics_fragment"
+            android:layout_alignParentRight="true"
             android:layout_marginTop="16dip"
             style="@style/accountSetupButton"
             android:text="@string/next_action" />

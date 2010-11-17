@@ -48,4 +48,9 @@
         <item name="android:layout_height">40sp</item>
         <item name="android:textAppearance">?android:attr/textColorPrimary</item>
     </style>
+
+    <!-- EditText style without the "tray" -->
+    <style name="PlainEditText" parent="android:Widget.EditText">
+        <item name="android:background">#ffffff</item>
+    </style>
 </resources>
