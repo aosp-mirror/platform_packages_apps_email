@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- Large-screen holder - landscape - see layout/ for small-screen version -->
+<!-- Account setup - XL - landscape - see layout/ for small-screen version -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

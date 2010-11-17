@@ -24,6 +24,9 @@ import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 /**
  * Provides setup flow for SMTP (for IMAP/POP accounts).
@@ -32,9 +35,10 @@ import android.os.Bundle;
  * the settings as entered.  If the account is OK, proceeds to AccountSetupOptions.
  */
 public class AccountSetupOutgoing extends Activity
-        implements AccountSetupOutgoingFragment.Callback {
+        implements AccountSetupOutgoingFragment.Callback, OnClickListener {
 
     /* package */ AccountSetupOutgoingFragment mFragment;
+    private Button mNextButton;
     /* package */ boolean mNextButtonEnabled;
 
     public static void actionOutgoingSettings(Activity fromActivity, int mode, Account account) {
@@ -54,6 +58,28 @@ public class AccountSetupOutgoing extends Activity
 
         // Configure fragment
         mFragment.setCallback(this);
+        // TODO temp code to inhibit the options menu - still needed for AccountSettings
+        mFragment.mNextButtonDisplayed = false;
+        invalidateOptionsMenu();
+
+        mNextButton = (Button) findViewById(R.id.next);
+        mNextButton.setOnClickListener(this);
+        findViewById(R.id.previous).setOnClickListener(this);
+    }
+
+    /**
+     * Implements View.OnClickListener
+     */
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.next:
+                mFragment.onNext();
+                break;
+            case R.id.previous:
+                onBackPressed();
+                break;
+        }
     }
 
     /**
@@ -74,12 +100,8 @@ public class AccountSetupOutgoing extends Activity
      * Implements AccountServerBaseFragment.Callback
      */
     public void onEnableProceedButtons(boolean enable) {
-        boolean wasEnabled = mNextButtonEnabled;
         mNextButtonEnabled = enable;
-
-        if (enable != wasEnabled) {
-            invalidateOptionsMenu();
-        }
+        mNextButton.setEnabled(enable);
     }
 
     /**

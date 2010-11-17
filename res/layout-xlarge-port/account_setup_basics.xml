@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- Large-screen holder - portrait - see layout/ for small-screen version -->
+<!-- Account setup - XL - portrait - see layout/ for small-screen version -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -57,15 +57,15 @@
     <Button
         android:id="@+id/manual_setup"
         android:layout_below="@+id/setup_basics_fragment"
-        android:layout_centerHorizontal="true"
         android:layout_marginTop="48dip"
+        android:layout_alignParentLeft="true"
         style="@style/accountSetupButton"
         android:text="@string/account_setup_basics_manual_setup_action" />
     <Button
         android:id="@+id/next"
-        android:layout_below="@+id/manual_setup"
-        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/setup_basics_fragment"
         android:layout_marginTop="48dip"
+        android:layout_alignParentRight="true"
         style="@style/accountSetupButton"
         android:text="@string/next_action" />
 

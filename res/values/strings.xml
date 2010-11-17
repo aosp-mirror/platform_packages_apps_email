@@ -465,12 +465,12 @@ save attachment.</string>
     <string name="message_list_snippet"><xliff:g id="subject" example="Re: Foo">
         %1$s</xliff:g> - <xliff:g id="text" example="Hi, John. Blah...">%2$s</xliff:g></string>
 
-    <!-- Title of screen when setting up new email account -->
+    <!-- Title of screen when setting up new email account [CHAR LIMIT=45] -->
     <string name="account_setup_basics_title">Account setup</string>
-    <!-- Title of the screen when adding exchange account -->
+    <!-- Title of the screen when adding exchange account [CHAR LIMIT=45] -->
     <string name="account_setup_basics_exchange_title">
         Add an Exchange account</string>
-    <!-- Title of the screen when adding exchange account -->
+    <!-- Title of the screen when adding exchange account [CHAR LIMIT=45] -->
     <string name="account_setup_basics_exchange_title_alternate">
         Add an Exchange ActiveSync account</string>
     <!-- Headline of screen when setting up new email account (large text over divider)
@@ -517,7 +517,7 @@ save attachment.</string>
     <string name="account_setup_check_settings_check_outgoing_msg">
     Checking outgoing server settings\u2026</string>
 
-    <!-- Title of "Set up email" screen after success -->
+    <!-- Title of "Set up email" screen after success [CHAR LIMIT=45] -->
     <string name="account_setup_names_title">Account setup</string>
     <!-- Text that appears on "Set up email" screen after successfully setting up an account
         [CHAR LIMIT=none] -->
@@ -530,10 +530,9 @@ save attachment.</string>
     <string name="account_setup_names_user_name_label">
         Your name (displayed on outgoing messages)</string>
 
-    <!-- Activity Title for the first screen in manual setup (where you select IMAP or POP3) -->
+    <!-- Activity Title for the account type selector (IMAP or POP3 or EAS) [CHAR LIMIT=45] -->
     <string name="account_setup_account_type_title">Account setup</string>
-    <!-- Headline for the first screen in manual setup (where you select IMAP or POP3)
-        [CHAR LIMIT=none] -->
+    <!-- Headline for the the account type selector (IMAP or POP3 or EAS) [CHAR LIMIT=none] -->
     <string name="account_setup_account_type_headline">Account type</string>
     <!-- "Add new email account" screen, text that appears on screen -->
     <string name="account_setup_account_type_instructions">What type of account is this?</string>
@@ -552,8 +551,10 @@ save attachment.</string>
     <string name="account_setup_account_type_exchange_action_alternate"
          translatable="false">Microsoft Exchange ActiveSync</string>
 
-    <!-- "Incoming server settings" screen, label for text field -->
-    <string name="account_setup_incoming_title">Incoming server settings</string>
+    <!-- "Incoming server settings" screen, title [CHAR LIMIT=45] -->
+    <string name="account_setup_incoming_title">Account setup</string>
+    <!-- "Incoming server settings" screen, headline (text over divider) [CHAR LIMIT=none] -->
+    <string name="account_setup_incoming_headline">Incoming server settings</string>
     <!-- "Incoming server settings" screen, label for text field -->
     <string name="account_setup_incoming_username_label">Username</string>
     <!-- "Incoming server settings" screen, label for text field -->
@@ -569,11 +570,13 @@ save attachment.</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
     <string name="account_setup_incoming_security_none_label">None</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_ssl_trust_certificates_label">SSL (Accept all certificates)</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label">
+        SSL (Accept all certificates)</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
     <string name="account_setup_incoming_security_ssl_label">SSL</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
-    <string name="account_setup_incoming_security_tls_trust_certificates_label">TLS (Accept all certificates)</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label">
+        TLS (Accept all certificates)</string>
     <!-- "Incoming server settings" screen, options for "Security type" pop-up menu -->
     <string name="account_setup_incoming_security_tls_label">TLS</string>
     <!-- "Incoming server settings" screen, label for pop-up menu -->
@@ -582,14 +585,17 @@ save attachment.</string>
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
     <string name="account_setup_incoming_delete_policy_never_label">Never</string>
     <!-- "Incoming server settings" screen, options in pop-up menu for Delete email from server: -->
-    <string name="account_setup_incoming_delete_policy_delete_label">When I delete from Inbox</string>
-
+    <string name="account_setup_incoming_delete_policy_delete_label">
+        When I delete from Inbox</string>
     <!-- "Incoming server settings" screen, label for setting IMAP path prefix: -->
     <string name="account_setup_incoming_imap_path_prefix_label">IMAP path prefix</string>
     <!-- "Incoming server settings" screen, hint for setting IMAP path prefix: -->
     <string name="account_setup_incoming_imap_path_prefix_hint">Optional</string>
-    <!-- Title of "Outgoing server settings" screen -->
-    <string name="account_setup_outgoing_title">Outgoing server settings</string>
+
+    <!-- "Outgoing server settings" screen, title [CHAR LIMIT=45] -->
+    <string name="account_setup_outgoing_title">Account setup</string>
+    <!-- "Outgoing server settings" screen, headline (text over divider) [CHAR LIMIT=none] -->
+    <string name="account_setup_outgoing_headline">Outgoing server settings</string>
     <!-- On "Outgoing server settings" screen, label for text field -->
     <string name="account_setup_outgoing_smtp_server_label">SMTP server</string>
     <!-- On "Outgoing server settings" screen, label for text field -->
@@ -603,8 +609,10 @@ save attachment.</string>
     <!-- On "Outgoing server settings" screen, label for text field -->
     <string name="account_setup_outgoing_password_label">Password</string>
 
-    <!-- Title of "Exchange server settings" screen -->
-    <string name="account_setup_exchange_title">Server settings</string>
+    <!-- Title of "Exchange server settings" screen [CHAR LIMIT=45] -->
+    <string name="account_setup_exchange_title">Account setup</string>
+    <!-- Headline of "Exchange server settings" screen (text over divider) [CHAR LIMIT=none] -->
+    <string name="account_setup_exchange_headline">Server settings</string>
     <!-- On "Exchange" setup screen, the name of the server -->
     <string name="account_setup_exchange_server_label">Server</string>
     <!-- On "Exchange" setup screen, the domain\\username -->
@@ -616,7 +624,7 @@ save attachment.</string>
     <!-- On "Exchange" setup screen, the exchange device-id label [CHAR LIMIT=30] -->
     <string name="account_setup_exchange_device_id_label">Mobile Device ID</string>
 
-    <!-- In Account setup options screen, Activity title -->
+    <!-- In Account setup options screen, Activity title [CHAR LIMIT=45] -->
     <string name="account_setup_options_title">Account settings</string>
     <!-- In Account setup options screen, Activity headline [CHAR LIMIT=none] -->
     <string name="account_setup_options_headline">Account options</string>

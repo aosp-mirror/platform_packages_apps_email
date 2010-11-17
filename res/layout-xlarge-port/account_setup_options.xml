@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- Large-screen holder - portrait - see layout/ for small-screen version -->
+<!-- Account Options - XL - portrait - see layout/ for small-screen version -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -43,7 +43,7 @@
 
     <!-- Layout on the top containing the setup info -->
     <RelativeLayout
-        android:id="@+id/setup_basics_fragment"
+        android:id="@+id/setup_options_section"
         android:layout_below="@+id/top_divider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -180,14 +180,14 @@
     <!-- Buttons below -->
     <Button
         android:id="@+id/previous"
-        android:layout_below="@+id/setup_basics_fragment"
+        android:layout_below="@+id/setup_options_section"
         android:layout_marginTop="48dip"
         android:layout_alignParentLeft="true"
         style="@style/accountSetupButton"
         android:text="@string/previous_action" />
     <Button
         android:id="@+id/next"
-        android:layout_below="@+id/setup_basics_fragment"
+        android:layout_below="@+id/setup_options_section"
         android:layout_marginTop="48dip"
         android:layout_alignParentRight="true"
         style="@style/accountSetupButton"

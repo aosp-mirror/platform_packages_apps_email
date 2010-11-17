@@ -25,6 +25,9 @@ import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 /**
  * Provides generic setup for Exchange accounts.  The following fields are supported:
@@ -61,7 +64,7 @@ import android.os.Bundle;
  *       finish() (removes self from back stack)
  */
 public class AccountSetupExchange extends AccountSetupActivity
-        implements AccountSetupExchangeFragment.Callback {
+        implements AccountSetupExchangeFragment.Callback, OnClickListener {
 
     // Keys for savedInstanceState
     private final static String STATE_STARTED_AUTODISCOVERY =
@@ -69,6 +72,7 @@ public class AccountSetupExchange extends AccountSetupActivity
 
     boolean mStartedAutoDiscovery;
     /* package */ AccountSetupExchangeFragment mFragment;
+    private Button mNextButton;
     /* package */ boolean mNextButtonEnabled;
 
     public static void actionIncomingSettings(Activity fromActivity, int mode, Account account) {
@@ -86,6 +90,13 @@ public class AccountSetupExchange extends AccountSetupActivity
         mFragment = (AccountSetupExchangeFragment)
                 getFragmentManager().findFragmentById(R.id.setup_fragment);
         mFragment.setCallback(this);
+        // TODO temp code to inhibit the options menu - still needed for AccountSettings
+        mFragment.mNextButtonDisplayed = false;
+        invalidateOptionsMenu();
+
+        mNextButton = (Button) findViewById(R.id.next);
+        mNextButton.setOnClickListener(this);
+        findViewById(R.id.previous).setOnClickListener(this);
 
         // One-shot to launch autodiscovery at the entry to this activity (but not if it restarts)
         mStartedAutoDiscovery = false;
@@ -94,6 +105,21 @@ public class AccountSetupExchange extends AccountSetupActivity
         }
         if (!mStartedAutoDiscovery) {
             startAutoDiscover();
+        }
+    }
+
+    /**
+     * Implements View.OnClickListener
+     */
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.next:
+                mFragment.onNext();
+                break;
+            case R.id.previous:
+                onBackPressed();
+                break;
         }
     }
 
@@ -168,13 +194,9 @@ public class AccountSetupExchange extends AccountSetupActivity
     /**
      * Implements AccountServerBaseFragment.Callback
      */
-    public void onEnableProceedButtons(boolean enabled) {
-        boolean wasEnabled = mNextButtonEnabled;
-        mNextButtonEnabled = enabled;
-
-        if (enabled != wasEnabled) {
-            invalidateOptionsMenu();
-        }
+    public void onEnableProceedButtons(boolean enable) {
+        mNextButtonEnabled = enable;
+        mNextButton.setEnabled(enable);
     }
 
     /**

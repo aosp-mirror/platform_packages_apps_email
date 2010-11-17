@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- Large-screen version - see layout/ for small-screen version -->
+<!-- Account-type picker - xlarge - see layout/ for small-screen version -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

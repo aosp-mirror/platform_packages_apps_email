@@ -41,6 +41,8 @@ public abstract class AccountServerBaseFragment extends Fragment
     protected Context mContext;
     protected Callback mCallback = EmptyCallback.INSTANCE;
     protected boolean mNextButtonEnabled;
+    // STOPSHIP - this is a temp UI for "next" in AccountSettings.  Disabled during Account Setup.
+    public boolean mNextButtonDisplayed = true;
 
     /**
      * Callback interface that owning activities must provide
@@ -103,23 +105,30 @@ public abstract class AccountServerBaseFragment extends Fragment
     }
 
     // Add a "Next" button when this fragment is displayed
+    // TODO remove this and replace with a button during Account Settings
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.account_setup_next_option, menu);
+        if (mNextButtonDisplayed) {
+            inflater.inflate(R.menu.account_setup_next_option, menu);
+        }
     }
 
     /**
      * Enable/disable "next" button
+     * TODO remove this and replace with a button during Account Settings
      */
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.next);
-        item.setEnabled(mNextButtonEnabled);
+        if (mNextButtonDisplayed) {
+            MenuItem item = menu.findItem(R.id.next);
+            item.setEnabled(mNextButtonEnabled);
+        }
     }
 
     /**
      * Respond to clicks in the "Next" button
+     * TODO remove this and replace with a button during Account Settings
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
