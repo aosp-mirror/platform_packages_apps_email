@@ -69,7 +69,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.QuickContactBadge;
 import android.widget.TextView;
 
 import java.io.File;
@@ -105,8 +104,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private TextView mSubjectView;
     private TextView mFromNameView;
     private TextView mFromAddressView;
-    private TextView mDateView;
-    private TextView mTimeView;
+    private TextView mDateTimeView;
     private TextView mToView;
     private TextView mCcView;
     private View mCcContainerView;
@@ -114,7 +112,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private View mBccContainerView;
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
-    private ImageView mAttachmentIcon;
     private View mTabSection;
     private ImageView mFromBadge;
     private ImageView mSenderPresenceView;
@@ -300,11 +297,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mCcContainerView = view.findViewById(R.id.cc_container);
         mBccView = (TextView) view.findViewById(R.id.bcc);
         mBccContainerView = view.findViewById(R.id.bcc_container);
-        mDateView = (TextView) view.findViewById(R.id.date);
-        mTimeView = (TextView) view.findViewById(R.id.time);
+        mDateTimeView = (TextView) view.findViewById(R.id.datetime);
         mMessageContentView = (WebView) view.findViewById(R.id.message_content);
         mAttachments = (LinearLayout) view.findViewById(R.id.attachments);
-        mAttachmentIcon = (ImageView) view.findViewById(R.id.attachment);
         mTabSection = view.findViewById(R.id.message_tabs_section);
         mFromBadge = (ImageView) view.findViewById(R.id.badge);
         mSenderPresenceView = (ImageView) view.findViewById(R.id.presence);
@@ -491,7 +486,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mInviteScroll.scrollTo(0, 0);
         mAttachments.removeAllViews();
         mAttachments.setVisibility(View.GONE);
-        mAttachmentIcon.setVisibility(View.GONE);
         initContactStatusViews();
     }
 
@@ -1182,8 +1176,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mFromAddressView.setText("");
         }
         Date date = new Date(message.mTimeStamp);
-        mTimeView.setText(mTimeFormat.format(date));
-        mDateView.setText(Utility.isDateToday(date) ? null : mDateFormat.format(date));
+        // STOPSHIP Use the same format as MessageListItem uses
+        mDateTimeView.setText(mTimeFormat.format(date));
         mToView.setText(Address.toFriendly(Address.unpack(message.mTo)));
         String friendlyCc = Address.toFriendly(Address.unpack(message.mCc));
         mCcView.setText(friendlyCc);
@@ -1191,7 +1185,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         String friendlyBcc = Address.toFriendly(Address.unpack(message.mBcc));
         mBccView.setText(friendlyBcc);
         mBccContainerView.setVisibility((friendlyBcc != null) ? View.VISIBLE : View.GONE);
-        mAttachmentIcon.setVisibility(message.mAttachments != null ? View.VISIBLE : View.GONE);
     }
 
     /**
