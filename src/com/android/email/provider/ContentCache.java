@@ -15,6 +15,7 @@
  */
 
 package com.android.email.provider;
+
 import com.android.email.Email;
 
 import android.content.ContentValues;
@@ -29,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An LRU cache for EmailContent (Account, HostAuth, Mailbox, and Message, thus far).  The intended
@@ -69,6 +71,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
     private static final boolean DEBUG_CACHE = false;
     private static final boolean DEBUG_TOKENS = false;
     private static final boolean DEBUG_NOT_CACHEABLE = false;
+    private static final boolean DEBUG_NO_OBJECTS_IN_CACHE = false;
 
     // Count of non-cacheable queries (debug only)
     private static int sNotCacheable = 0;
@@ -99,56 +102,59 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
     private final Statistics mStats;
 
     /**
-     * A synchronized map used as a counter for arbitrary objects (e.g. a reference count)
+     * A synchronized reference counter for arbitrary objects
      */
-    /*package*/ static class CounterMap<T> extends HashMap<T, Integer> {
+    /*package*/ static class CounterMap<T> {
         private static final long serialVersionUID = 1L;
+        private HashMap<T, Integer> mMap;
 
         /*package*/ CounterMap(int maxSize) {
-            super(maxSize);
+            mMap = new HashMap<T, Integer>(maxSize);
         }
 
         /*package*/ CounterMap() {
-            super();
+            mMap = new HashMap<T, Integer>();
         }
 
-        /*package*/ void remove(T object) {
-            synchronized(this) {
-                Integer refCount = get(object);
-                if (refCount == null || refCount.intValue() == 0) {
-                    throw new IllegalStateException();
-                }
-                if (refCount > 1) {
-                    put(object, refCount - 1);
-                } else {
-                    super.remove(object);
-                }
+        /*package*/ synchronized void subtract(T object) {
+            Integer refCount = mMap.get(object);
+            if (refCount == null || refCount.intValue() == 0) {
+                throw new IllegalStateException();
+            }
+            if (refCount > 1) {
+                mMap.put(object, refCount - 1);
+            } else {
+                mMap.remove(object);
             }
         }
 
-        /*package*/ void add(T object) {
-            synchronized(this) {
-                Integer refCount = get(object);
-                if (refCount == null) {
-                    put(object, 1);
-                } else {
-                    put(object, refCount + 1);
-                }
+        /*package*/ synchronized void add(T object) {
+            Integer refCount = mMap.get(object);
+            if (refCount == null) {
+                mMap.put(object, 1);
+            } else {
+                mMap.put(object, refCount + 1);
             }
         }
 
-        /*package*/ boolean contains(T object) {
-            synchronized(this) {
-                Integer refCount = get(object);
-                return (refCount != null && refCount.intValue() > 0);
-            }
+        /*package*/ synchronized boolean contains(T object) {
+            return mMap.containsKey(object);
         }
 
-        /*package*/ int getCount(T object) {
-            synchronized(this) {
-                Integer refCount = get(object);
-                return (refCount == null) ? 0 : refCount.intValue();
-            }
+        /*package*/ synchronized int getCount(T object) {
+            Integer refCount = mMap.get(object);
+            return (refCount == null) ? 0 : refCount.intValue();
+        }
+
+        synchronized int size() {
+            return mMap.size();
+        }
+
+        /**
+         * For Debugging Only - not efficient
+         */
+        synchronized Set<HashMap.Entry<T, Integer>> entrySet() {
+            return mMap.entrySet();
         }
     }
 
@@ -226,6 +232,11 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
 
         /*package*/ CacheToken(String id) {
             mId = id;
+            // For debugging purposes only, this will cause all items to be rejected (as though
+            // there is no cache.)
+            if (DEBUG_NO_OBJECTS_IN_CACHE) {
+                mIsValid = false;
+            }
         }
 
         /*package*/ String getId() {
@@ -286,7 +297,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
             if (!mCache.containsValue(mCursor)) {
                 super.close();
             }
-            sActiveCursors.remove(mCursor);
+            sActiveCursors.subtract(mCursor);
             isClosed = true;
         }
 
@@ -611,7 +622,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
             }
         }
         if (wasLocked) {
-            mLockMap.remove(id);
+            mLockMap.subtract(id);
         }
     }
 
