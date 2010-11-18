@@ -68,10 +68,12 @@ import java.util.Set;
 public final class ContentCache extends LinkedHashMap<String, Cursor> {
     private static final long serialVersionUID = 1L;
 
-    private static final boolean DEBUG_CACHE = false;
-    private static final boolean DEBUG_TOKENS = false;
-    private static final boolean DEBUG_NOT_CACHEABLE = false;
-    private static final boolean DEBUG_NO_OBJECTS_IN_CACHE = false;
+    private static final boolean DEBUG_CACHE = false;  // DO NOT CHECK IN TRUE
+    private static final boolean DEBUG_TOKENS = false;  // DO NOT CHECK IN TRUE
+    private static final boolean DEBUG_NOT_CACHEABLE = false;  // DO NOT CHECK IN TRUE
+
+    // If false, reads will not use the cache; this is intended for debugging only
+    private static final boolean READ_CACHE_ENABLED = true;  // DO NOT CHECK IN FALSE
 
     // Count of non-cacheable queries (debug only)
     private static int sNotCacheable = 0;
@@ -228,15 +230,10 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
     public static final class CacheToken {
         private static final long serialVersionUID = 1L;
         private final String mId;
-        private boolean mIsValid = true;
+        private boolean mIsValid = READ_CACHE_ENABLED;
 
         /*package*/ CacheToken(String id) {
             mId = id;
-            // For debugging purposes only, this will cause all items to be rejected (as though
-            // there is no cache.)
-            if (DEBUG_NO_OBJECTS_IN_CACHE) {
-                mIsValid = false;
-            }
         }
 
         /*package*/ String getId() {
@@ -715,6 +712,13 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         Arrays.sort(array);
         for (CacheCounter cc: array) {
             Log.d("NotCacheable", cc.count + ": " + cc.uri);
+        }
+    }
+
+    // For use with unit tests
+    public static void invalidateAllCachesForTest() {
+        for (ContentCache cache: sContentCaches) {
+            cache.invalidate();
         }
     }
 

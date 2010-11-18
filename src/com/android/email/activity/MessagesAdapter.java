@@ -26,24 +26,14 @@ import com.android.email.provider.EmailContent.MessageColumns;
 
 import android.content.Context;
 import android.content.Loader;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.content.res.Resources.Theme;
-import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,18 +64,6 @@ import java.util.Set;
     public static final int COLUMN_FLAGS = 9;
     public static final int COLUMN_SNIPPET = 10;
 
-    private final LayoutInflater mInflater;
-    private final Drawable mFavoriteIconOn;
-    private final Drawable mFavoriteIconOff;
-    private final Drawable mSelectedIconOn;
-    private final Drawable mSelectedIconOff;
-
-    private final ColorStateList mTextColorPrimary;
-    private final ColorStateList mTextColorSecondary;
-
-    private final java.text.DateFormat mDateFormat;
-    private final java.text.DateFormat mTimeFormat;
-
     /**
      * Set of seleced message IDs.
      */
@@ -107,23 +85,6 @@ import java.util.Set;
     public MessagesAdapter(Context context, Callback callback) {
         super(context.getApplicationContext(), null, 0 /* no auto requery */);
         mCallback = callback;
-        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        Resources resources = context.getResources();
-        mFavoriteIconOn = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_on);
-        mFavoriteIconOff = resources.getDrawable(R.drawable.btn_star_big_buttonless_dark_off);
-        mSelectedIconOn = resources.getDrawable(R.drawable.btn_check_buttonless_dark_on);
-        mSelectedIconOff = resources.getDrawable(R.drawable.btn_check_buttonless_dark_off);
-
-        Theme theme = context.getTheme();
-        TypedArray array;
-        array = theme.obtainStyledAttributes(new int[] { android.R.attr.textColorPrimary });
-        mTextColorPrimary = resources.getColorStateList(array.getResourceId(0, 0));
-        array = theme.obtainStyledAttributes(new int[] { android.R.attr.textColorSecondary });
-        mTextColorSecondary = resources.getColorStateList(array.getResourceId(0, 0));
-
-        mDateFormat = android.text.format.DateFormat.getDateFormat(context);    // short date
-        mTimeFormat = android.text.format.DateFormat.getTimeFormat(context);    // 12/24 time
     }
 
     public void onSaveInstanceState(Bundle outState) {
@@ -163,23 +124,16 @@ import java.util.Set;
         itemView.mMailboxId = cursor.getLong(COLUMN_MAILBOX_KEY);
         itemView.mAccountId = cursor.getLong(COLUMN_ACCOUNT_KEY);
         itemView.mRead = cursor.getInt(COLUMN_READ) != 0;
-        itemView.mFavorite = cursor.getInt(COLUMN_FAVORITE) != 0;
+        itemView.mIsFavorite = cursor.getInt(COLUMN_FAVORITE) != 0;
+        itemView.mHasInvite =
+            (cursor.getInt(COLUMN_FLAGS) & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
+        itemView.mHasAttachment = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
+        itemView.mTimestamp = cursor.getLong(COLUMN_DATE);
+        itemView.mSender = cursor.getString(COLUMN_DISPLAY_NAME);
+        itemView.mSnippet = cursor.getString(COLUMN_SNIPPET);
+        itemView.mSnippetLineCount = MessageListItem.NEEDS_LAYOUT;
 
-        // Load the UI
-        View chipView = view.findViewById(R.id.chip);
-        chipView.setBackgroundResource(Email.getAccountColorResourceId(itemView.mAccountId));
-
-        TextView fromView = (TextView) view.findViewById(R.id.from);
-        String text = cursor.getString(COLUMN_DISPLAY_NAME);
-        fromView.setText(text);
-
-        TextView subjectView = (TextView) view.findViewById(R.id.subject);
-        text = cursor.getString(COLUMN_SUBJECT);
-        // Add in the snippet if we have one
-        // TODO Should this be spanned text?
-        // The mocks show, for new messages, only the real subject in bold...
-        // Would it be easier to simply use a 2nd TextView? This would also allow ellipsizing an
-        // overly-long subject, to let the beautiful snippet shine through.
+        String text = cursor.getString(COLUMN_SUBJECT);
         String snippet = cursor.getString(COLUMN_SNIPPET);
         if (!TextUtils.isEmpty(snippet)) {
             if (TextUtils.isEmpty(text)) {
@@ -188,52 +142,15 @@ import java.util.Set;
                 text = context.getString(R.string.message_list_snippet, text, snippet);
             }
         }
-        subjectView.setText(text);
-
-        final boolean hasInvitation =
-                    (cursor.getInt(COLUMN_FLAGS) & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
-        makeVisible(view.findViewById(R.id.icon_invite), hasInvitation);
-        final boolean hasAttachments = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
-        makeVisible(view.findViewById(R.id.icon_attachment), hasAttachments);
-
-        // TODO ui spec suggests "time", "day", "date" - implement "day"
-        TextView dateView = (TextView) view.findViewById(R.id.date);
-        long timestamp = cursor.getLong(COLUMN_DATE);
-        Date date = new Date(timestamp);
-        if (Utility.isDateToday(date)) {
-            text = mTimeFormat.format(date);
-        } else {
-            text = mDateFormat.format(date);
-        }
-        dateView.setText(text);
-
-        if (itemView.mRead) {
-            subjectView.setTypeface(Typeface.DEFAULT);
-            fromView.setTypeface(Typeface.DEFAULT);
-            fromView.setTextColor(mTextColorSecondary);
-        } else {
-            subjectView.setTypeface(Typeface.DEFAULT_BOLD);
-            fromView.setTypeface(Typeface.DEFAULT_BOLD);
-            fromView.setTextColor(mTextColorPrimary);
-        }
-
-        updateCheckBox(itemView);
-        changeFavoriteIcon(itemView, itemView.mFavorite);
-        updateBackgroundColor(itemView);
-    }
-
-    private static void makeVisible(View v, boolean visible) {
-        v.setVisibility(visible ? View.VISIBLE : View.GONE);
+        itemView.mSnippet = text;
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return mInflater.inflate(R.layout.message_list_item, parent, false);
-    }
-
-    private void updateCheckBox(MessageListItem itemView) {
-        ImageView selectedView = (ImageView) itemView.findViewById(R.id.selected);
-        selectedView.setImageDrawable(isSelected(itemView) ? mSelectedIconOn : mSelectedIconOff);
+        //return mInflater.inflate(R.layout.message_list_item, parent, false);
+        MessageListItem item = new MessageListItem(context);
+        item.setVisibility(View.VISIBLE);
+        return item;
     }
 
     public void toggleSelected(MessageListItem itemView) {
@@ -254,8 +171,6 @@ import java.util.Set;
         } else {
             mSelectedSet.remove(itemView.mMessageId);
         }
-        updateCheckBox(itemView);
-        updateBackgroundColor(itemView);
         if (mCallback != null) {
             mCallback.onAdapterSelectedChanged(itemView, newSelected, mSelectedSet.size());
         }
@@ -277,15 +192,7 @@ import java.util.Set;
     }
 
     private void changeFavoriteIcon(MessageListItem view, boolean isFavorite) {
-        ((ImageView) view.findViewById(R.id.favorite)).setImageDrawable(
-                isFavorite ? mFavoriteIconOn : mFavoriteIconOff);
-    }
-
-    /**
-     * Update the background color according to the selection state.
-     */
-    public void updateBackgroundColor(MessageListItem itemView) {
-        // TODO Visual for selected items is not decided.
+        view.invalidate();
     }
 
     public static Loader<Cursor> createLoader(Context context, long mailboxId) {

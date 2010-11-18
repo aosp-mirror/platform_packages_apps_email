@@ -16,4 +16,14 @@
 
 <resources>
     <dimen name="button_minWidth">100sp</dimen>
+    <dimen name="message_list_item_text_size">16dip</dimen>
+    <dimen name="message_list_item_checkbox_hit_width">60dip</dimen>
+    <dimen name="message_list_item_favorite_hit_width">50dip</dimen>
+    <dimen name="message_list_item_padding_medium">6dip</dimen>
+    <dimen name="message_list_item_padding_small">4dip</dimen>
+    <dimen name="message_list_item_padding_very_small">2dip</dimen>
+    <dimen name="message_list_item_minimum_date_width">64dip</dimen>
+    <dimen name="message_list_item_height_wide">64dip</dimen>
+    <dimen name="message_list_item_height_narrow">72dip</dimen>
+    <dimen name="message_list_item_minimum_width_wide_mode">720dip</dimen>
 </resources>

@@ -62,7 +62,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     private View mRightPane;
 
     // Views used only on portrait
-    private View mCollapser;
     private View mFoggedGlass;
     private View mRightWithFog;
 
@@ -107,7 +106,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
         if (!isLandscape()) {
             mFoggedGlass.setOnClickListener(this);
-            mCollapser.setOnClickListener(this);
         }
 
         changePaneState(STATE_LEFT_VISIBLE, false);
@@ -125,15 +123,14 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         mMiddlePane = findViewById(R.id.middle_pane);
         mRightPane = findViewById(R.id.right_pane);
 
-        mCollapser = findViewById(R.id.collapser);
-        if (mCollapser != null) { // If it's there, it's portrait.
-            mFoggedGlass = findViewById(R.id.fogged_glass);
+        mFoggedGlass = findViewById(R.id.fogged_glass);
+        if (mFoggedGlass != null) { // If it's there, it's portrait.
             mRightWithFog = findViewById(R.id.right_pane_with_fog);
         }
     }
 
     private boolean isLandscape() {
-        return mCollapser == null;
+        return mFoggedGlass == null;
     }
 
     @Override
@@ -215,7 +212,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                     mRightPane.setVisibility(View.GONE);
                 } else { // Portrait
                     mMiddlePane.setVisibility(View.VISIBLE);
-                    mCollapser.setVisibility(View.GONE);
 
                     mRightWithFog.setVisibility(View.GONE);
                 }
@@ -228,7 +224,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                     mRightPane.setVisibility(View.VISIBLE);
                 } else { // Portrait
                     mMiddlePane.setVisibility(View.GONE);
-                    mCollapser.setVisibility(View.VISIBLE);
 
                     mRightWithFog.setVisibility(View.VISIBLE);
                     mRightPane.setVisibility(View.VISIBLE);
@@ -239,7 +234,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                 mLeftPane.setVisibility(View.GONE);
 
                 mMiddlePane.setVisibility(View.VISIBLE);
-                mCollapser.setVisibility(View.VISIBLE);
 
                 mRightWithFog.setVisibility(View.VISIBLE);
                 mRightPane.setVisibility(View.VISIBLE);
@@ -273,14 +267,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.collapser:
-                if (isLandscape()) {
-                    return; // Shouldn't happen
-                }
-                changePaneState((mPaneState == STATE_RIGHT_VISIBLE)
-                        ? STATE_PORTRAIT_MIDDLE_EXPANDED
-                        : STATE_RIGHT_VISIBLE, true);
-                break;
             case R.id.fogged_glass:
                 if (isLandscape()) {
                     return; // Shouldn't happen
