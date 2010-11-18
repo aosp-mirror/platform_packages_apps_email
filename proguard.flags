@@ -23,11 +23,10 @@
 
 -keep class * extends org.apache.james.mime4j.util.TempStorage
 
-# Keep names that are used only by unit tests
-
-# Any methods whose name is '*ForTest' are preserved.
+# Keep names that are used only by unit tests or by animators
 -keep class ** {
   *** *ForTest(...);
+  *** *Anim(...);
 }
 
 -keepclasseswithmembers class com.android.email.GroupMessagingListener {

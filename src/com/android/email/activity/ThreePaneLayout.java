@@ -16,30 +16,40 @@
 
 package com.android.email.activity;
 
+import com.android.email.Email;
 import com.android.email.R;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.animation.TimeInterpolator;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
-
-// TODO Collapsing the middle pane should cancel the selection mode on message list
-// TODO Implement animation
-// TODO On STATE_PORTRAIT_MIDDLE_EXPANDED state, right pane should be pushed out, rather than
-// squished.
-// TODO Test SavedState too.
 
 /**
  * The "three pane" layout used on tablet.
  *
  * It'll encapsulate the behavioral differences between portrait mode and landscape mode.
+ *
+ * TODO Unit tests, when UX is settled.
  */
 public class ThreePaneLayout extends LinearLayout implements View.OnClickListener {
+    private static final boolean ANIMATION_DEBUG = false; // DON'T SUBMIT WITH true
+
+    // STOPSHIP Make sure we're using the same parameters as gmail does
+    private static final int ANIMATION_DURATION = ANIMATION_DEBUG ? 1000 : 80;
+    private static final TimeInterpolator INTERPOLATOR = new DecelerateInterpolator(1.5f);
 
     /** Uninitialized state -- {@link #changePaneState} hasn't been called yet. */
-    private static final int STATE_LEFT_UNINITIALIZED = 0;
+    private static final int STATE_UNINITIALIZED = 0;
 
     /** Mailbox list + message list */
     private static final int STATE_LEFT_VISIBLE = 1;
@@ -55,7 +65,11 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     public static final int PANE_MIDDLE = 1 << 1;
     public static final int PANE_RIGHT = 1 << 0;
 
-    private int mPaneState = STATE_LEFT_UNINITIALIZED;
+    /** Current pane state.  See {@link #changePaneState} */
+    private int mPaneState = STATE_UNINITIALIZED;
+
+    /** See {@link #changePaneState} and {@link #onFirstSizeChanged} */
+    private int mInitialPaneState = STATE_UNINITIALIZED;
 
     private View mLeftPane;
     private View mMiddlePane;
@@ -63,7 +77,34 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
     // Views used only on portrait
     private View mFoggedGlass;
-    private View mRightWithFog;
+
+    private boolean mFirstSizeChangedDone;
+
+    /** Mailbox list width.  Comes from resources. */
+    private int mMailboxListWidth;
+    /**
+     * Message list width, on:
+     * - the message list + message view mode, on landscape.
+     * - the message view + expanded message list mode, on portrait.
+     * Comes from resources.
+     */
+    private int mMessageListWidth;
+
+    /** Hold last animator to cancel. */
+    private Animator mLastAnimator;
+
+    /**
+     * Hold last animator listener to cancel.  See {@link #startLayoutAnimation} for why
+     * we need both {@link #mLastAnimator} and {@link #mLastAnimatorListener}
+     */
+    private AnimatorListener mLastAnimatorListener;
+
+    // Arrays used in {@link #changePaneState}
+    private View[] mViewsLeft;
+    private View[] mViewsRight;
+    private View[] mViewsLeftMiddle;
+    private View[] mViewsMiddleRightFogged;
+    private View[] mViewsLeftMiddleFogged;
 
     private Callback mCallback = EmptyCallback.INSTANCE;
 
@@ -102,31 +143,33 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        getViews();
+        mLeftPane = findViewById(R.id.left_pane);
+        mMiddlePane = findViewById(R.id.middle_pane);
 
-        if (!isLandscape()) {
+        mFoggedGlass = findViewById(R.id.fogged_glass);
+        if (mFoggedGlass != null) { // If it's around, it's portrait.
+            mRightPane = findViewById(R.id.right_pane_with_fog);
             mFoggedGlass.setOnClickListener(this);
+        } else { // landscape
+            mRightPane = findViewById(R.id.right_pane);
         }
+        mViewsLeft = new View[] {mLeftPane};
+        mViewsRight = new View[] {mRightPane};
+        mViewsLeftMiddle = new View[] {mLeftPane, mMiddlePane};
+        mViewsMiddleRightFogged = new View[] {mMiddlePane, mRightPane, mFoggedGlass};
+        mViewsLeftMiddleFogged = new View[] {mLeftPane, mMiddlePane, mFoggedGlass};
 
-        changePaneState(STATE_LEFT_VISIBLE, false);
+        mInitialPaneState = STATE_LEFT_VISIBLE;
+
+        final Resources resources = getResources();
+        mMailboxListWidth = getResources().getDimensionPixelSize(
+                R.dimen.mailbox_list_width);
+        mMessageListWidth = getResources().getDimensionPixelSize(R.dimen.message_list_width);
     }
+
 
     public void setCallback(Callback callback) {
         mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
-    }
-
-    /**
-     * Look for views and set to members.  {@link #isLandscape} can be used after this method.
-     */
-    private void getViews() {
-        mLeftPane = findViewById(R.id.left_pane);
-        mMiddlePane = findViewById(R.id.middle_pane);
-        mRightPane = findViewById(R.id.right_pane);
-
-        mFoggedGlass = findViewById(R.id.fogged_glass);
-        if (mFoggedGlass != null) { // If it's there, it's portrait.
-            mRightWithFog = findViewById(R.id.right_pane_with_fog);
-        }
     }
 
     private boolean isLandscape() {
@@ -145,7 +188,16 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         // Called after onFinishInflate()
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
-        changePaneState(ss.mPaneState, false);
+        mInitialPaneState = ss.mPaneState;
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (!mFirstSizeChangedDone) {
+            mFirstSizeChangedDone = true;
+            onFirstSizeChanged();
+        }
     }
 
     /**
@@ -188,6 +240,19 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     }
 
     /**
+     * Before the first call to {@link #onSizeChanged}, we don't know the width of the view, so we
+     * can't layout properly.  We just remember all the requests to {@link #changePaneState}
+     * until the first {@link #onSizeChanged}, at which point we actually change to the last
+     * requested state.
+     */
+    private void onFirstSizeChanged() {
+        if (mInitialPaneState != STATE_UNINITIALIZED) {
+            changePaneState(mInitialPaneState, false);
+            mInitialPaneState = STATE_UNINITIALIZED;
+        }
+    }
+
+    /**
      * Show the right most pane.  (i.e. message view)
      */
     public void showRightPane() {
@@ -198,49 +263,105 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         if (isLandscape() && (newState == STATE_PORTRAIT_MIDDLE_EXPANDED)) {
             newState = STATE_RIGHT_VISIBLE;
         }
+        if (!mFirstSizeChangedDone) {
+            // Before first onSizeChanged(), we don't know the width of the view, so we can't
+            // layout properly.
+            // Just remember the new state and return.
+            mInitialPaneState = newState;
+            return;
+        }
         if (newState == mPaneState) {
             return;
         }
+        // Just make sure the first transition doesn't animate.
+        if (mPaneState == STATE_UNINITIALIZED) {
+            animate = false;
+        }
+
         final int previousVisiblePanes = getVisiblePanes();
         mPaneState = newState;
-        switch (mPaneState) {
-            case STATE_LEFT_VISIBLE:
-                mLeftPane.setVisibility(View.VISIBLE);
 
-                if (isLandscape()) {
-                    mMiddlePane.setVisibility(View.VISIBLE);
-                    mRightPane.setVisibility(View.GONE);
-                } else { // Portrait
-                    mMiddlePane.setVisibility(View.VISIBLE);
+        // Animate to the new state.
+        // (We still use animator even if animate == false; we just use 0 duration.)
+        final int totalWidth = getMeasuredWidth();
 
-                    mRightWithFog.setVisibility(View.GONE);
-                }
-                break;
-            case STATE_RIGHT_VISIBLE:
-                mLeftPane.setVisibility(View.GONE);
+        final int expectedMailboxLeft;
+        final int expectedMessageListWidth;
 
-                if (isLandscape()) {
-                    mMiddlePane.setVisibility(View.VISIBLE);
-                    mRightPane.setVisibility(View.VISIBLE);
-                } else { // Portrait
-                    mMiddlePane.setVisibility(View.GONE);
+        final String animatorLabel; // for debug purpose
 
-                    mRightWithFog.setVisibility(View.VISIBLE);
-                    mRightPane.setVisibility(View.VISIBLE);
-                    mFoggedGlass.setVisibility(View.GONE);
-                }
-                break;
-            case STATE_PORTRAIT_MIDDLE_EXPANDED:
-                mLeftPane.setVisibility(View.GONE);
+        final View[] viewsToShow;
+        final View[] viewsToHide;
 
-                mMiddlePane.setVisibility(View.VISIBLE);
+        if (isLandscape()) { // Landscape
+            setViewWidth(mLeftPane, mMailboxListWidth);
+            setViewWidth(mRightPane, totalWidth - mMessageListWidth);
 
-                mRightWithFog.setVisibility(View.VISIBLE);
-                mRightPane.setVisibility(View.VISIBLE);
-                mFoggedGlass.setVisibility(View.VISIBLE);
-                break;
+            switch (mPaneState) {
+                case STATE_LEFT_VISIBLE:
+                    // mailbox + message list
+                    animatorLabel = "moving to [mailbox list + message list]";
+                    expectedMailboxLeft = 0;
+                    expectedMessageListWidth = totalWidth - mMailboxListWidth;
+                    viewsToShow = mViewsLeft;
+                    viewsToHide = mViewsRight;
+                    break;
+                case STATE_RIGHT_VISIBLE:
+                    // message list + message view
+                    animatorLabel = "moving to [message list + message view]";
+                    expectedMailboxLeft = -mMailboxListWidth;
+                    expectedMessageListWidth = mMessageListWidth;
+                    viewsToShow = mViewsRight;
+                    viewsToHide = mViewsLeft;
+                    break;
+                default:
+                    throw new IllegalStateException();
+            }
+
+        } else { // Portrait
+            setViewWidth(mLeftPane, mMailboxListWidth);
+            setViewWidth(mRightPane, totalWidth);
+
+            switch (mPaneState) {
+                case STATE_LEFT_VISIBLE:
+                    // message list + Message view -> mailbox + message list
+                    animatorLabel = "moving to [mailbox list + message list]";
+                    expectedMailboxLeft = 0;
+                    expectedMessageListWidth = totalWidth - mMailboxListWidth;
+                    viewsToShow = mViewsLeftMiddle;
+                    viewsToHide = mViewsRight;
+                    break;
+                case STATE_PORTRAIT_MIDDLE_EXPANDED:
+                    // mailbox + message list -> message list + message view
+                    animatorLabel = "moving to [message list + message view]";
+                    expectedMailboxLeft = -mMailboxListWidth;
+                    expectedMessageListWidth = mMessageListWidth;
+                    viewsToShow = mViewsMiddleRightFogged;
+                    viewsToHide = mViewsLeft;
+                    break;
+                case STATE_RIGHT_VISIBLE:
+                    // message view only
+                    animatorLabel = "moving to [message view]";
+                    expectedMailboxLeft = -(mMailboxListWidth + mMessageListWidth);
+                    expectedMessageListWidth = mMessageListWidth;
+                    viewsToShow = mViewsRight;
+                    viewsToHide = mViewsLeftMiddleFogged;
+                    break;
+                default:
+                    throw new IllegalStateException();
+            }
         }
-        mCallback.onVisiblePanesChanged(previousVisiblePanes);
+
+        final AnimatorListener listener = new AnimatorListener(animatorLabel, viewsToShow,
+                viewsToHide, previousVisiblePanes) ;
+
+        // Animation properties -- mailbox list left and message list width, at the same time.
+        startLayoutAnimation(animate ? ANIMATION_DURATION : 0, listener,
+                PropertyValuesHolder.ofInt(PROP_MAILBOX_LIST_LEFT,
+                        getCurrentMailboxLeft(), expectedMailboxLeft),
+                PropertyValuesHolder.ofInt(PROP_MESSAGE_LIST_WIDTH,
+                        getCurrentMessageListWidth(), expectedMessageListWidth)
+                );
     }
 
     /**
@@ -273,6 +394,130 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                 }
                 changePaneState(STATE_RIGHT_VISIBLE, true);
                 break;
+        }
+    }
+
+    private void setViewWidth(View v, int value) {
+        v.getLayoutParams().width = value;
+        requestLayout();
+    }
+
+    private static final String PROP_MAILBOX_LIST_LEFT = "mailboxListLeftAnim";
+    private static final String PROP_MESSAGE_LIST_WIDTH = "messageListWidthAnim";
+
+    @SuppressWarnings("unused")
+    public void setMailboxListLeftAnim(int value) {
+        ((ViewGroup.MarginLayoutParams) mLeftPane.getLayoutParams()).leftMargin = value;
+        requestLayout();
+    }
+
+    @SuppressWarnings("unused")
+    public void setMessageListWidthAnim(int value) {
+        setViewWidth(mMiddlePane, value);
+    }
+
+    private int getCurrentMailboxLeft() {
+        return ((ViewGroup.MarginLayoutParams) mLeftPane.getLayoutParams()).leftMargin;
+    }
+
+    private int getCurrentMessageListWidth() {
+        return mMiddlePane.getLayoutParams().width;
+    }
+
+    /**
+     * Helper method to start animation.
+     */
+    private void startLayoutAnimation(int duration, AnimatorListener listener,
+            PropertyValuesHolder... values) {
+        if (mLastAnimator != null) {
+            mLastAnimator.cancel();
+        }
+        if (mLastAnimatorListener != null) {
+            if (ANIMATION_DEBUG) {
+                Log.w(Email.LOG_TAG, "Anim: Cancelling last animation: " + mLastAnimator);
+            }
+            // Animator.cancel() doesn't call listener.cancel() immediately, so sometimes
+            // we end up cancelling the previous one *after* starting the next one.
+            // Directly tell the listener it's cancelled to avoid that.
+            mLastAnimatorListener.cancel();
+        }
+
+        final ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(
+                this, values).setDuration(duration);
+        animator.setInterpolator(INTERPOLATOR);
+        if (listener != null) {
+            animator.addListener(listener);
+        }
+        mLastAnimator = animator;
+        mLastAnimatorListener = listener;
+        animator.start();
+    }
+
+    /**
+     * Animation listener.
+     *
+     * Update the visibility of each pane before/after an animation.
+     */
+    private class AnimatorListener implements Animator.AnimatorListener {
+        private final String mLogLabel;
+        private final View[] mViewsToShow;
+        private final View[] mViewsToHide;
+        private final int mPreviousVisiblePanes;
+
+        private boolean mCancelled;
+
+        public AnimatorListener(String logLabel, View[] viewsToShow, View[] viewsToHide,
+                int previousVisiblePanes) {
+            mLogLabel = logLabel;
+            mViewsToShow = viewsToShow;
+            mViewsToHide = viewsToHide;
+            mPreviousVisiblePanes = previousVisiblePanes;
+        }
+
+        private void log(String message) {
+            if (ANIMATION_DEBUG) {
+                Log.w(Email.LOG_TAG, "Anim: " + mLogLabel + "[" + this + "] " + message);
+            }
+        }
+
+        public void cancel() {
+            log("cancel");
+            mCancelled = true;
+        }
+
+        /**
+         * Show the about-to-become-visible panes before an animation.
+         */
+        @Override
+        public void onAnimationStart(Animator animation) {
+            log("start");
+            for (View v : mViewsToShow) {
+                v.setVisibility(View.VISIBLE);
+            }
+            mCallback.onVisiblePanesChanged(mPreviousVisiblePanes);
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animation) {
+        }
+
+        /**
+         * Hide the about-to-become-hidden panes after an animation.
+         */
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            if (mCancelled) {
+                return; // But they shouldn't be hidden when cancelled.
+            }
+            log("end");
+            for (View v : mViewsToHide) {
+                v.setVisibility(View.INVISIBLE);
+            }
+            mCallback.onVisiblePanesChanged(mPreviousVisiblePanes);
         }
     }
 
