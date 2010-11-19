@@ -31,9 +31,8 @@ import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.database.MergeCursor;
 import android.database.MatrixCursor.RowBuilder;
-import android.graphics.Typeface;
+import android.database.MergeCursor;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,16 +41,12 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.security.InvalidParameterException;
-
 /**
  * The adapter for displaying mailboxes.
  *
  * Do not use {@link #getItemId(int)} -- It's only for ListView.  Use {@link #getMailboxId}
  * instead.  (See the comment below)
  *
- * TODO New UI will probably not distinguish unread counts from # of messages.
- *      i.e. we won't need two different viewes for them.
  * TODO Show "Starred" per account
  * TODO Unit test, when UI is settled.
  */
@@ -68,6 +63,13 @@ import java.security.InvalidParameterException;
      */
     private static final int ROW_TYPE_MAILBOX = 0;
     private static final int ROW_TYPE_ACCOUNT = 1;
+
+    /**
+     * Return value from {@link #getCountType}.
+     */
+    public static final int COUNT_TYPE_UNREAD = 0;
+    public static final int COUNT_TYPE_TOTAL = 1;
+    public static final int COUNT_TYPE_NO_COUNT = 2;
 
     /*
      * Note here we have two ID columns.  The first one is for ListView, which doesn't like ID
@@ -107,6 +109,7 @@ import java.security.InvalidParameterException;
             " ELSE 10 END" +
             " ," + MailboxColumns.DISPLAY_NAME;
 
+    private final Context mContext;
     private final LayoutInflater mInflater;
 
     private final int mMode;
@@ -115,6 +118,7 @@ import java.security.InvalidParameterException;
 
     public MailboxesAdapter(Context context, int mode, Callback callback) {
         super(context, null, 0 /* no auto-requery */);
+        mContext = context;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mMode = mode;
         mCallback = callback;
@@ -136,11 +140,65 @@ import java.security.InvalidParameterException;
     }
 
     /**
+     * @return true if the current row is of an account in the combined view.
+     */
+    private static boolean isAccountRow(Cursor c) {
+        return c.getInt(COLUMN_ROW_TYPE) == ROW_TYPE_ACCOUNT;
+    }
+
+    /**
      * @return true if the specified row is of an account in the combined view.
      */
     public boolean isAccountRow(int position) {
+        return isAccountRow((Cursor) getItem(position));
+    }
+
+    /**
+     * @return which type of count should be used for the current row.
+     * Possible return values are COUNT_TYPE_*.
+     */
+    private static int getCountTypeForMailboxType(Cursor c) {
+        if (isAccountRow(c)) {
+            return COUNT_TYPE_UNREAD; // Use the unread count for account rows.
+        }
+        switch (c.getInt(COLUMN_TYPE)) {
+            case Mailbox.TYPE_DRAFTS:
+            case Mailbox.TYPE_OUTBOX:
+                return COUNT_TYPE_TOTAL;
+            case Mailbox.TYPE_SENT:
+            case Mailbox.TYPE_TRASH:
+                return COUNT_TYPE_NO_COUNT;
+        }
+        return COUNT_TYPE_UNREAD;
+    }
+
+    /**
+     * @return count type for the specified row.  See {@link #getCountTypeForMailboxType}
+     */
+    private int getCountType(int position) {
+        if (isAccountRow(position)) {
+            return COUNT_TYPE_UNREAD;
+        }
+        return getCountTypeForMailboxType((Cursor) getItem(position));
+    }
+
+    /**
+     * @return count type for the specified row.
+     */
+    public int getUnreadCount(int position) {
+        if (getCountType(position) != COUNT_TYPE_UNREAD) {
+            return 0; // Don't have a unread count.
+        }
         Cursor c = (Cursor) getItem(position);
-        return c.getInt(COLUMN_ROW_TYPE) == ROW_TYPE_ACCOUNT;
+        return c.getInt(COLUMN_UNREAD_COUNT);
+    }
+
+    /**
+     * @return display name for the specified row.
+     */
+    public String getDisplayName(int position) {
+        Cursor c = (Cursor) getItem(position);
+        return getDisplayName(mContext, c);
     }
 
     /**
@@ -219,22 +277,18 @@ import java.security.InvalidParameterException;
         nameView.setText(getDisplayName(context, cursor));
 
         // Set count
-        boolean showCount = true;
-        boolean useTotalCount = false;
-        switch (type) {
-            case Mailbox.TYPE_DRAFTS:
-            case Mailbox.TYPE_OUTBOX:
-                useTotalCount = true;
+        final int count;
+        switch (getCountTypeForMailboxType(cursor)) {
+            case COUNT_TYPE_UNREAD:
+                count = cursor.getInt(COLUMN_UNREAD_COUNT);
                 break;
-            case Mailbox.TYPE_SENT:
-            case Mailbox.TYPE_TRASH:
-                showCount = false; // Don't show count.
+            case COUNT_TYPE_TOTAL:
+                count = cursor.getInt(COLUMN_MESSAGE_COUNT);
                 break;
-
+            default: // no count
+                count = 0;
+                break;
         }
-        final int count =
-            showCount ? cursor.getInt(useTotalCount ? COLUMN_MESSAGE_COUNT : COLUMN_UNREAD_COUNT)
-                    : 0;
         final TextView countView = (TextView) view.findViewById(R.id.message_count);
 
         // If the unread count is zero, not to show countView.
@@ -364,7 +418,8 @@ import java.security.InvalidParameterException;
                     row.add(accountId);
                     row.add(accounts.getString(COLUMN_ACCOUNT_DISPLAY_NAME));
                     row.add(-1); // No mailbox type.  Shouldn't really be used.
-                    final int unreadCount = 0; // TODO get inbox's unread count
+                    final int unreadCount = Mailbox.getUnreadCountByAccountAndMailboxType(
+                            mContext, accountId, Mailbox.TYPE_INBOX);
                     row.add(unreadCount);
                     row.add(unreadCount);
                     row.add(ROW_TYPE_ACCOUNT);
@@ -405,7 +460,7 @@ import java.security.InvalidParameterException;
     private static void addSummaryMailboxRow(Context context, MatrixCursor cursor,
             long id, int type, int count, boolean showAlways) {
         if (id >= 0) {
-            throw new InvalidParameterException(); // Must be QUERY_ALL_*, which are all negative.
+            throw new IllegalArgumentException(); // Must be QUERY_ALL_*, which are all negative.
         }
         if (showAlways || (count > 0)) {
             RowBuilder row = cursor.newRow();

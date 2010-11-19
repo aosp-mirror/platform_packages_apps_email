@@ -22,12 +22,13 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 
 import android.app.ActionBar;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import java.security.InvalidParameterException;
 
@@ -60,7 +61,11 @@ class MessageListXLFragmentManager {
     /** Current message id. (-1 = not selected) */
     private long mMessageId = -1;
 
+    private ActionBar mActionBar;
     private ThreePaneLayout mThreePane;
+    private View mActionBarMailboxNameView;
+    private TextView mActionBarMailboxName;
+    private TextView mActionBarUnreadCount;
 
     private MailboxListFragment mMailboxListFragment;
     private MessageListFragment mMessageListFragment;
@@ -124,6 +129,19 @@ class MessageListXLFragmentManager {
                 mThreePane.getMiddlePaneId());
         mMessageViewFragment = (MessageViewFragment) fm.findFragmentById(
                 mThreePane.getRightPaneId());
+
+        mActionBar = mTargetActivity.getActionBar();
+
+        // Set a view for the current mailbox to the action bar.
+        final LayoutInflater inflater = LayoutInflater.from(mContext);
+        mActionBarMailboxNameView = inflater.inflate(R.layout.action_bar_current_mailbox, null);
+        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
+        mActionBar.setCustomView(mActionBarMailboxNameView);
+
+        mActionBarMailboxName =
+                (TextView) mActionBarMailboxNameView.findViewById(R.id.mailbox_name);
+        mActionBarUnreadCount =
+                (TextView) mActionBarMailboxNameView.findViewById(R.id.unread_count);
     }
 
     /** Set callback for fragment. */
@@ -265,12 +283,24 @@ class MessageListXLFragmentManager {
     }
 
     private void updateActionBar() {
-        // Shwo the "back" arrow next to the app icon if back is enabled.
+        // If the left pane (mailbox list pane) is hidden, the back action on action bar will be
+        // enabled, and we also show the current mailbox name.
         final int visiblePanes = mThreePane.getVisiblePanes();
-        final boolean backable = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
-        final ActionBar ab = mTargetActivity.getActionBar();
-        ab.setDisplayOptions(backable ? ActionBar.DISPLAY_HOME_AS_UP : 0,
+        final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
+        mActionBar.setDisplayOptions(leftPaneHidden ? ActionBar.DISPLAY_HOME_AS_UP : 0,
                 ActionBar.DISPLAY_HOME_AS_UP);
+        mActionBarMailboxNameView.setVisibility(leftPaneHidden ? View.VISIBLE : View.GONE);
+    }
+
+    public void setCurrentMailboxName(String mailboxName, int unreadCount) {
+        mActionBarMailboxName.setText(mailboxName);
+        if (unreadCount == 0) {
+            // No unread messages, or it's the mailbox doesn't have the idea of "unread".
+            // (e.g. outbox)
+            mActionBarUnreadCount.setText("");
+        } else {
+            mActionBarUnreadCount.setText(Integer.toString(unreadCount));
+        }
     }
 
     /**
