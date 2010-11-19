@@ -131,19 +131,6 @@ public class NotificationController {
         return ContactStatusLoader.load(mContext, email).mPhoto;
     }
 
-    private Bitmap[] getNotificationBitmaps(Bitmap senderPhoto) {
-        // TODO Should we cache these objects?  (bitmaps and arrays)
-        // They don't have to be on this process's memory once we post a notification request to
-        // the system, and decodeResource() seems to be reasonably fast.  We don't want them to
-        // take up memory when not necessary.
-        Bitmap appIcon = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.icon);
-        if (senderPhoto == null) {
-            return new Bitmap[] {appIcon};
-        } else {
-            return new Bitmap[] {senderPhoto, appIcon};
-        }
-    }
-
     /**
      * Create a notification
      *
@@ -193,16 +180,15 @@ public class NotificationController {
                     unseenMessageCount, account.mDisplayName);
         }
 
-        Notification notification = new Notification(R.drawable.stat_notify_email_generic,
-                mContext.getString(R.string.notification_new_title), System.currentTimeMillis());
-        notification.setLatestEventInfo(mContext, notificationTitle, subject, contentIntent);
+        Notification.Builder builder = new Notification.Builder(mContext)
+                .setSmallIcon(R.drawable.stat_notify_email_generic)
+                .setWhen(System.currentTimeMillis())
+                .setTicker(mContext.getString(R.string.notification_new_title))
+                .setLargeIcon(senderPhoto)
+                .setContentTitle(notificationTitle)
+                .setContentText(subject + "\n" + numNewMessages);
 
-        notification.tickerTitle = notificationTitle;
-        // STOPSHIPO numNewMessages should be the 3rd line on expanded notification.  But it's not
-        // clear how to do that yet.
-        // For now we just append it to subject.
-        notification.tickerSubtitle = subject + "  " + numNewMessages;
-        notification.tickerIcons = getNotificationBitmaps(senderPhoto);
+        Notification notification = builder.getNotification();
 
         setupNotificationSoundAndVibrationFromAccount(notification, account);
         return notification;
