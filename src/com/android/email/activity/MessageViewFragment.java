@@ -220,7 +220,7 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         synchronized (mLock) {
             mMessageIdToOpen = messageId;
         }
-        openMessageIfStarted();
+        loadMessageIfResumed();
     }
 
     @Override
