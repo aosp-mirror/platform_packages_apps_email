@@ -121,12 +121,23 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         /** Called when an account is selected on the combined view. */
         public void onAccountSelected(long accountId);
+
+        /**
+         * Called when the list updates to propagate the current mailbox name and the unread count
+         * for it.
+         *
+         * Note the reason why it's separated from onMailboxSelected is because this needs to be
+         * reported when the unread count changes without changing the current mailbox.
+         */
+        public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount);
     }
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
         @Override public void onMailboxSelected(long accountId, long mailboxId) { }
         @Override public void onAccountSelected(long accountId) { }
+        @Override public void onCurrentMailboxUpdated(long mailboxId, String mailboxName,
+                int unreadCount) { }
     }
 
     /**
@@ -382,23 +393,27 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Highlight the selected mailbox.
      */
     private void highlightSelectedMailbox(boolean ensureSelectionVisible) {
+        String mailboxName = "";
+        int unreadCount = 0;
         if (mSelectedMailboxId == -1) {
             // No mailbox selected
             mListView.clearChoices();
-            return;
-        }
-        final int count = mListView.getCount();
-        for (int i = 0; i < count; i++) {
-            if (mListAdapter.getId(i) != mSelectedMailboxId) {
-                continue;
+        } else {
+            final int count = mListView.getCount();
+            for (int i = 0; i < count; i++) {
+                if (mListAdapter.getId(i) != mSelectedMailboxId) {
+                    continue;
+                }
+                mListView.setItemChecked(i, true);
+                if (ensureSelectionVisible) {
+                    Utility.listViewSmoothScrollToPosition(getActivity(), mListView, i);
+                }
+                mailboxName = mListAdapter.getDisplayName(i);
+                unreadCount = mListAdapter.getUnreadCount(i);
+                break;
             }
-            mListView.setItemChecked(i, true);
-            if (ensureSelectionVisible) {
-                Log.w(Email.LOG_TAG, "MailboxListFragment -- ensure visible");
-                Utility.listViewSmoothScrollToPosition(getActivity(), mListView, i);
-            }
-            break;
         }
+        mCallback.onCurrentMailboxUpdated(mSelectedMailboxId, mailboxName, unreadCount);
     }
 
     // Drag & Drop handling

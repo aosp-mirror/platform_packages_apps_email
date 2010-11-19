@@ -37,6 +37,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -114,9 +115,11 @@ public class MessageListXL extends Activity implements
         ActivityHelper.debugSetWindowFlags(this);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.message_list_xl);
-        mFragmentManager.onActivityViewReady();
 
-        final boolean isRestoring = (savedInstanceState != null);
+        ActionBar ab = getActionBar();
+        ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME);
+
+        mFragmentManager.onActivityViewReady();
 
         mContext = getApplicationContext();
         mRefreshManager = RefreshManager.getInstance(this);
@@ -128,15 +131,12 @@ public class MessageListXL extends Activity implements
 
         mAccountsSelectorAdapter = new AccountSelectorAdapter(this, null);
 
-        if (isRestoring) {
+        if (savedInstanceState != null) {
             mFragmentManager.loadState(savedInstanceState);
         } else {
             initFromIntent();
         }
         loadAccounts();
-
-        ActionBar ab = getActionBar();
-        ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME);
 
         // Halt the progress indicator (we'll display it later when needed)
         setProgressBarIndeterminate(true);
@@ -362,6 +362,11 @@ public class MessageListXL extends Activity implements
         public void onAccountSelected(long accountId) {
             mFragmentManager.selectAccount(accountId, -1, true);
             loadAccounts(); // This will update the account spinner, and select the account.
+        }
+
+        @Override
+        public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount) {
+            mFragmentManager.setCurrentMailboxName(mailboxName, unreadCount);
         }
     }
 
