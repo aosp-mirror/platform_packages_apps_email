@@ -48,6 +48,10 @@
     <string name="status_loading_more_failed"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="status_sending_messages_failed"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="provider_note_yahoo"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="provider_note_yahoo_uk"></string>
 
     <!-- Permissions label for reading attachments -->
     <string name="read_attachment_label">Read Email attachments</string>
@@ -611,13 +615,6 @@
     <string name="upgrade_accounts_title">Upgrade accounts</string>
     <string name="upgrade_accounts_error">Unable to upgrade account</string>
 
-    <!-- Message that appears when user adds a Yahoo mail account. This alert has no title. -->
-    <string name="provider_note_yahoo">Mailbox access is not supported for some types of
-        Yahoo! mail accounts.  If you have trouble connecting, visit yahoo.com for more
-        information.</string>
-    <!-- Message that appears when user adds a Yahoo UK mail account. -->
-    <string name="provider_note_yahoo_uk">Before setting up this email account, please visit the
-        Yahoo! web site and enable POP3 email access for this account.</string>
     <!-- Message that appears when adding a Windows Live Hotmail Plus account -->
     <string name="provider_note_live">Only some \"Plus\" accounts include POP access
         allowing this program to connect. If you are not able to sign in with
