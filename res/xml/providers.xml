@@ -118,6 +118,60 @@
         <outgoing uri="smtp+ssl+://smtp.gmail.com" username="$email" />
     </provider>
 
+    <!-- Yahoo! Mail variants -->
+    <provider id="yahoo" label="Yahoo!" domain="yahoo.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="rocketmail" label="Yahoo! RocketMail" domain="rocketmail.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="ymail" label="Yahoo!" domain="ymail.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="bellsouth" label="AT&amp;T Bell South" domain="bellsouth.net">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="att" label="AT&amp;T" domain="att.net">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="pacbell" label="AT&amp;T Pacific Bell" domain="pacbell.net">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="sbcglobal" label="AT&amp;T SBC Global" domain="sbcglobal.net">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="swbell" label="AT&amp;T Southwest Bell" domain="swbell.net">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="btinternet" label="BT Internet" domain="btinternet.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="btopenworld" label="BT Open World" domain="btopenworld.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="talk21" label="BT Talk 21" domain="talk21.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="rogers" label="Rogers" domain="rogers.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="rogers-nl" label="Rogers" domain="nl.rogers.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+
     <!-- USA -->
     <!-- Note, AOL appears to support SSL on both sides, as well -->
     <provider id="aim" label="AIM" domain="aim.com">
@@ -177,31 +231,15 @@
         <incoming uri="pop3://pop.netzero.com" username="$user" />
         <outgoing uri="smtp://smtp.netzero.com" username="$user" />
     </provider>
-    <provider id="sbcglobal" label="SBC Global" domain="sbcglobal.net">
-        <incoming uri="pop3://pop.sbcglobal.yahoo.com" username="$email" />
-        <outgoing uri="smtp://smtp.sbcglobal.yahoo.com" username="$email" />
-    </provider>
     <provider id="verizon" label="Verizon" domain="verizon.net">
         <incoming uri="pop3://incoming.verizon.net" username="$user" />
         <outgoing uri="smtp://outgoing.verizon.net" username="$user" />
-    </provider>
-    <provider id="yahoo" label="Yahoo Plus" domain="yahoo.com" note="@string/provider_note_yahoo">
-        <incoming uri="pop3+ssl+://plus.pop.mail.yahoo.com" username="$user" />
-        <outgoing uri="smtp+ssl+://plus.smtp.mail.yahoo.com" username="$user" />
     </provider>
     
     <!-- UK -->
     <provider id="aol-uk" label="AOL" domain="aol.co.uk">
         <incoming uri="imap+ssl+://imap.uk.aol.com" label="IMAP" username="$user" />
         <outgoing uri="smtp+ssl+://smtp.uk.aol.com" username="$user" />
-    </provider>
-    <provider id="bt" label="BT Internet" domain="btinternet.com">
-        <incoming uri="pop3://mail.btinternet.com" username="$email" />
-        <outgoing uri="smtp://mail.btinternet.com" username="" />
-    </provider>
-    <provider id="yahoo-uk" label="Yahoo" domain="yahoo.co.uk" note="@string/provider_note_yahoo_uk">
-        <incoming uri="pop3+ssl+://pop.mail.yahoo.co.uk" username="$user" />
-        <outgoing uri="smtp+ssl+://smtp.mail.yahoo.co.uk" username="$user" />
     </provider>
     
     <!-- Germany -->
@@ -270,4 +308,215 @@
         <outgoing uri="smtp+ssl://poczta.o2.pl" username="$user" />
     </provider>
 
+    <!-- Yahoo! country-specific email domains -->
+    <provider id="yahoo-ar" label="Yahoo! Argentina" domain="yahoo.com.ar">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-y7" label="Yahoo!7" domain="y7mail.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-au" label="Yahoo! Australia" domain="yahoo.com.au">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-bg" label="Yahoo! Bulgaria" domain="yahoo.bg">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-br" label="Yahoo! Brazil" domain="yahoo.com.br">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-ca" label="Yahoo! Canada" domain="yahoo.ca">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-cl" label="Yahoo! Cote d'Ivoire" domain="yahoo.cl">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-com-cn" label="Yahoo! China" domain="yahoo.com.cn">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-cn" label="Yahoo! China" domain="yahoo.cn">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-co" label="Yahoo! Colombia" domain="yahoo.com.co">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-cz" label="Yahoo! Czech Republic" domain="yahoo.cz">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-de" label="Yahoo! Germany" domain="yahoo.de">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-dk" label="Yahoo! Denmark" domain="yahoo.dk">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-ec" label="Yahoo! Ecuador" domain="yahoo.com.ec">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-ee" label="Yahoo! Estonia" domain="yahoo.ee">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-es" label="Yahoo! Spain" domain="yahoo.es">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-fr" label="Yahoo! France" domain="yahoo.fr">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-gr" label="Yahoo! Greece" domain="yahoo.gr">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-hk" label="Yahoo! Hong Kong" domain="yahoo.com.hk">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-hu" label="Yahoo! Hungary" domain="yahoo.hu">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-id" label="Yahoo! Indonesia" domain="yahoo.co.id">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-ie" label="Yahoo! Ireland" domain="yahoo.ie">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-in" label="Yahoo! India" domain="yahoo.in">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-it" label="Yahoo! Italy" domain="yahoo.it">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <!-- Note: Yahoo! Japan's ne.jp and co.jp domains do not yet support open IMAP -->
+    <provider id="yahoo-jp-ybb" label="Yahoo! Japan" domain="ybb.ne.jp">
+        <incoming uri="pop3+ssl+://android.ybbpop.mail.yahoo.co.jp" username="$email" />
+        <outgoing uri="smtp+ssl+://android.ybbsmtp.mail.yahoo.co.jp" username="$email" />
+    </provider>
+    <!-- Note: Yahoo! Japan's co.jp domain requires $user rather than the usual $email -->
+    <provider id="yahoo-jp" label="Yahoo! Japan" domain="yahoo.co.jp">
+        <incoming uri="pop3+ssl+://android.pop.mail.yahoo.co.jp" username="$user" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.co.jp" username="$user" />
+    </provider>
+    <provider id="yahoo-kr" label="Yahoo! Republic of Korea" domain="yahoo.co.kr">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-lt" label="Yahoo! Lithuania" domain="yahoo.lt">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-lv" label="Yahoo! Latvia" domain="yahoo.lv">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-mx" label="Yahoo! Mexico" domain="yahoo.com.mx">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-my" label="Yahoo! Malaysia" domain="yahoo.com.my">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-ng" label="Yahoo! Nigeria" domain="yahoo.com.ng">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-no" label="Yahoo! Norway" domain="yahoo.no">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-nz" label="Yahoo! New Zealand" domain="yahoo.co.nz">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-pe" label="Yahoo! Peru" domain="yahoo.com.pe">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-ph" label="Yahoo! Philippines" domain="yahoo.com.ph">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-pk" label="Yahoo! Pakistan" domain="yahoo.com.pk">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-pl" label="Yahoo! Poland" domain="yahoo.pl">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-ru" label="Yahoo! Russia" domain="yahoo.ru">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-ro" label="Yahoo! Romania" domain="yahoo.ro">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-se" label="Yahoo! Sweden" domain="yahoo.se">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-sg" label="Yahoo! Singapore" domain="yahoo.com.sg">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-th" label="Yahoo! Thailand" domain="yahoo.co.th">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-tr" label="Yahoo! Turkey" domain="yahoo.com.tr">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="kimo" label="Yahoo! Taiwan" domain="kimo.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-tw" label="Yahoo! Taiwan" domain="yahoo.com.tw">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-ua" label="Yahoo! Ukraine" domain="yahoo.ua">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-uk" label="Yahoo! UK" domain="yahoo.co.uk">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-ve" label="Yahoo! Venezuela" domain="yahoo.com.ve">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-vn" label="Yahoo! Vietnam" domain="yahoo.com.vn">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo-za" label="Yahoo! South Africa" domain="yahoo.co.za">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="xtra" label="Yahoo! Xtra" domain="xtra.co.nz">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
 </providers>
