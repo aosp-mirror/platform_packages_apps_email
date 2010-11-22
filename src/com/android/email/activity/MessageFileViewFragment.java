@@ -88,7 +88,7 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
         synchronized (mLock) {
             mFileEmailUri = fileEmailUri;
         }
-        openMessageIfStarted();
+        loadMessageIfResumed();
     }
 
     @Override
