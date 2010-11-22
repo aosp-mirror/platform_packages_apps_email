@@ -203,7 +203,6 @@ public class ExchangeService extends Service implements Runnable {
     private AccountObserver mAccountObserver;
     private MailboxObserver mMailboxObserver;
     private SyncedMessageObserver mSyncedMessageObserver;
-    private MessageObserver mMessageObserver;
     private EasSyncStatusObserver mSyncStatusObserver;
     private Object mStatusChangeListener;
     private EasAccountsUpdatedListener mAccountsUpdatedListener;
@@ -889,22 +888,6 @@ public class ExchangeService extends Service implements Runnable {
         public void onChange(boolean selfChange) {
             alarmManager.set(AlarmManager.RTC_WAKEUP,
                     System.currentTimeMillis() + 10*SECONDS, syncAlarmPendingIntent);
-        }
-    }
-
-    private class MessageObserver extends ContentObserver {
-
-        public MessageObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            // A rather blunt instrument here.  But we don't have information about the URI that
-            // triggered this, though it must have been an insert
-            if (!selfChange) {
-                kick(null);
-            }
         }
     }
 
@@ -1876,8 +1859,6 @@ public class ExchangeService extends Service implements Runnable {
                 mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
                 mResolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true,
                         mSyncedMessageObserver);
-                mMessageObserver = new MessageObserver(mHandler);
-                mResolver.registerContentObserver(Message.CONTENT_URI, true, mMessageObserver);
                 mSyncStatusObserver = new EasSyncStatusObserver();
                 mStatusChangeListener =
                     ContentResolver.addStatusChangeListener(
@@ -1973,10 +1954,6 @@ public class ExchangeService extends Service implements Runnable {
                 if (mSyncedMessageObserver != null) {
                     resolver.unregisterContentObserver(mSyncedMessageObserver);
                     mSyncedMessageObserver = null;
-                }
-                if (mMessageObserver != null) {
-                    resolver.unregisterContentObserver(mMessageObserver);
-                    mMessageObserver = null;
                 }
                 if (mAccountObserver != null) {
                     resolver.unregisterContentObserver(mAccountObserver);
