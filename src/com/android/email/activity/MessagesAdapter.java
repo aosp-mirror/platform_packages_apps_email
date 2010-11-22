@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.ResourceHelper;
 import com.android.email.Utility;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
@@ -64,6 +65,11 @@ import java.util.Set;
     public static final int COLUMN_FLAGS = 9;
     public static final int COLUMN_SNIPPET = 10;
 
+    private final ResourceHelper mResourceHelper;
+
+    /** If true, show color chips. */
+    private boolean mShowColorChips;
+
     /**
      * Set of seleced message IDs.
      */
@@ -84,6 +90,7 @@ import java.util.Set;
 
     public MessagesAdapter(Context context, Callback callback) {
         super(context.getApplicationContext(), null, 0 /* no auto requery */);
+        mResourceHelper = ResourceHelper.getInstance(context);
         mCallback = callback;
     }
 
@@ -105,6 +112,13 @@ import java.util.Set;
         }
     }
 
+    /**
+     * Set true for combined mailboxes.
+     */
+    public void setShowColorChips(boolean show) {
+        mShowColorChips = show;
+    }
+
     public Set<Long> getSelectedSet() {
         return mSelectedSet;
     }
@@ -122,7 +136,8 @@ import java.util.Set;
         // Load the public fields in the view (for later use)
         itemView.mMessageId = cursor.getLong(COLUMN_ID);
         itemView.mMailboxId = cursor.getLong(COLUMN_MAILBOX_KEY);
-        itemView.mAccountId = cursor.getLong(COLUMN_ACCOUNT_KEY);
+        final long accountId = cursor.getLong(COLUMN_ACCOUNT_KEY);
+        itemView.mAccountId = accountId;
         itemView.mRead = cursor.getInt(COLUMN_READ) != 0;
         itemView.mIsFavorite = cursor.getInt(COLUMN_FAVORITE) != 0;
         itemView.mHasInvite =
@@ -132,6 +147,8 @@ import java.util.Set;
         itemView.mSender = cursor.getString(COLUMN_DISPLAY_NAME);
         itemView.mSnippet = cursor.getString(COLUMN_SNIPPET);
         itemView.mSnippetLineCount = MessageListItem.NEEDS_LAYOUT;
+        itemView.mColorChipPaint =
+                mShowColorChips ? mResourceHelper.getAccountColorPaint(accountId) : null;
 
         String text = cursor.getString(COLUMN_SUBJECT);
         String snippet = cursor.getString(COLUMN_SNIPPET);
@@ -199,15 +216,15 @@ import java.util.Set;
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessagesAdapter createLoader mailboxId=" + mailboxId);
         }
-        return new MessagesCursor(context, mailboxId);
+        return new MessagesCursorLoader(context, mailboxId);
 
     }
 
-    private static class MessagesCursor extends ThrottlingCursorLoader {
+    private static class MessagesCursorLoader extends ThrottlingCursorLoader {
         private final Context mContext;
         private final long mMailboxId;
 
-        public MessagesCursor(Context context, long mailboxId) {
+        public MessagesCursorLoader(Context context, long mailboxId) {
             // Initialize with no where clause.  We'll set it later.
             super(context, EmailContent.Message.CONTENT_URI,
                     MESSAGE_PROJECTION, null, null,

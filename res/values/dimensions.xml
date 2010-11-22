@@ -4,9 +4,9 @@
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
-  
+
           http://www.apache.org/licenses/LICENSE-2.0
-  
+
      Unless required by applicable law or agreed to in writing, software
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,4 +26,8 @@
     <dimen name="message_list_item_height_wide">64dip</dimen>
     <dimen name="message_list_item_height_narrow">72dip</dimen>
     <dimen name="message_list_item_minimum_width_wide_mode">720dip</dimen>
+    <dimen name="message_list_item_color_tip_width">35dip</dimen>
+    <dimen name="message_list_item_color_tip_height">8dip</dimen>
+    <dimen name="message_list_item_color_tip_right_margin_on_narrow">32dip</dimen>
+    <dimen name="message_list_item_color_tip_right_margin_on_wide">65dip</dimen>
 </resources>

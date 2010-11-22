@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.FontMetricsInt;
 import android.graphics.Typeface;
@@ -98,6 +99,8 @@ public class MessageListItem extends View {
     public boolean mHasAttachment = false;
     public boolean mHasInvite = true;
     public boolean mIsFavorite = false;
+    /** {@link Paint} for account color chips.  null if no chips should be drawn.  */
+    public Paint mColorChipPaint;
 
     private int mMode = -1;
 
@@ -117,6 +120,10 @@ public class MessageListItem extends View {
     private static int sItemHeightWide;
     private static int sItemHeightNarrow;
     private static int sMinimumWidthWideMode;
+    private static int sColorTipWidth;
+    private static int sColorTipHeight;
+    private static int sColorTipRightMarginOnNarrow;
+    private static int sColorTipRightMarginOnWide;
 
     public int mSnippetLineCount = NEEDS_LAYOUT;
     private final CharSequence[] mSnippetLines = new CharSequence[MAX_SUBJECT_SNIPPET_LINES];
@@ -147,6 +154,14 @@ public class MessageListItem extends View {
                 r.getDimensionPixelSize(R.dimen.message_list_item_height_narrow);
             sMinimumWidthWideMode =
                 r.getDimensionPixelSize(R.dimen.message_list_item_minimum_width_wide_mode);
+            sColorTipWidth =
+                r.getDimensionPixelSize(R.dimen.message_list_item_color_tip_width);
+            sColorTipHeight =
+                r.getDimensionPixelSize(R.dimen.message_list_item_color_tip_height);
+            sColorTipRightMarginOnNarrow =
+                r.getDimensionPixelSize(R.dimen.message_list_item_color_tip_right_margin_on_narrow);
+            sColorTipRightMarginOnWide =
+                r.getDimensionPixelSize(R.dimen.message_list_item_color_tip_right_margin_on_wide);
 
             sDefaultPaint.setTypeface(Typeface.DEFAULT);
             sDefaultPaint.setTextSize(sTextSize);
@@ -310,6 +325,14 @@ public class MessageListItem extends View {
         } else {
             senderY = 20;  // TODO Remove magic number
             snippetY = senderY + lineHeight + sPaddingVerySmall;
+        }
+
+        // Draw the color chip
+        if (mColorChipPaint != null) {
+            final int rightMargin = (mMode == MODE_WIDE)
+                    ? sColorTipRightMarginOnWide : sColorTipRightMarginOnNarrow;
+            final int x = mViewWidth - rightMargin - sColorTipWidth;
+            canvas.drawRect(x, 0, x + sColorTipWidth, sColorTipHeight, mColorChipPaint);
         }
 
         // Draw the checkbox

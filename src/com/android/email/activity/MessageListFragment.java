@@ -1089,6 +1089,7 @@ public class MessageListFragment extends ListFragment
 
             // Update the list
             mListAdapter.changeCursor(cursor);
+            mListAdapter.setShowColorChips(mMailboxId < 0); // Show chips if combined view
             setListAdapter(mListAdapter);
             setListShown(true);
 

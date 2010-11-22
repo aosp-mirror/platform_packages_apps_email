@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.ResourceHelper;
 import com.android.email.Utility;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
@@ -111,6 +112,7 @@ import android.widget.TextView;
 
     private final Context mContext;
     private final LayoutInflater mInflater;
+    private final ResourceHelper mResourceHelper;
 
     private final int mMode;
     private static boolean sEnableUpdate = true;
@@ -122,6 +124,7 @@ import android.widget.TextView;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mMode = mode;
         mCallback = callback;
+        mResourceHelper = ResourceHelper.getInstance(mContext);
     }
 
     /**
@@ -260,12 +263,13 @@ import android.widget.TextView;
     }
 
     private void bindViewNormalMode(View view, Context context, Cursor cursor) {
+        final boolean isAccount = isAccountRow(cursor);
         final int type = cursor.getInt(COLUMN_TYPE);
-        final long mailboxId = cursor.getLong(COLUMN_ID);
+        final long id = cursor.getLong(COLUMN_ID);
 
         MailboxListItem listItem = (MailboxListItem)view;
         listItem.mMailboxType = type;
-        listItem.mMailboxId = mailboxId;
+        listItem.mMailboxId = id;
         listItem.mAdapter = this;
 
         // Set the background depending on whether we're in drag mode, the mailbox is a valid
@@ -301,7 +305,15 @@ import android.widget.TextView;
 
         // Set folder icon
         ((ImageView) view.findViewById(R.id.folder_icon)).setImageDrawable(
-                Utility.FolderProperties.getInstance(context).getIcon(type, mailboxId));
+                Utility.FolderProperties.getInstance(context).getIcon(type, id));
+
+        final View chipView = view.findViewById(R.id.color_chip);
+        if (isAccount) {
+            chipView.setVisibility(View.VISIBLE);
+            chipView.setBackgroundColor(mResourceHelper.getAccountColor(id));
+        } else {
+            chipView.setVisibility(View.GONE);
+        }
     }
 
     private View newViewNormalMode(Context context, Cursor cursor, ViewGroup parent) {
