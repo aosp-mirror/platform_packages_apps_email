@@ -110,9 +110,8 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
      * NOTE See the comment on the super method.  It's called on a worker thread.
      */
     @Override
-    protected Message openMessageSync() {
+    protected Message openMessageSync(Activity activity) {
         synchronized (mLock) {
-            final Activity activity = getActivity();
             Uri messageUri = mFileEmailUri;
             if (messageUri == null) {
                 return null; // Called after clearContent().

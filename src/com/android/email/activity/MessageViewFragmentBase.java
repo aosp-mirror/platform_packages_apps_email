@@ -36,6 +36,7 @@ import com.android.email.service.AttachmentDownloadService;
 
 import org.apache.commons.io.IOUtils;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ActivityNotFoundException;
@@ -394,7 +395,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         mCallback.onMessageViewGone();
         mController.removeResultCallback(mControllerCallback);
-        cancelAllTasks();
+        clearContent();
         mMessageContentView.destroy();
         mMessageContentView = null;
         super.onDestroy();
@@ -837,8 +838,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * NOTE This method is called on a worker thread!  Implementations must properly synchronize
      * when accessing members.  This method may be called after or even at the same time as
      * {@link #clearContent()}.
+     *
+     * @param activity the parent activity.  Subclass use it as a context, and to show a toast.
      */
-    protected abstract Message openMessageSync();
+    protected abstract Message openMessageSync(Activity activity);
 
     /**
      * Async task for loading a single message outside of the UI thread
@@ -857,7 +860,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected Message doInBackground(Void... params) {
-            Message message = openMessageSync();
+            Activity activity = getActivity();
+            Message message = null;
+            if (activity != null) {
+                message = openMessageSync(activity);
+            }
             if (message != null) {
                 mMailboxType = Mailbox.getMailboxType(mContext, message.mMailboxKey);
                 if (mMailboxType == -1) {
@@ -893,7 +900,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             if (!isMessageSpecified()) { // just in case
                 return null;
             }
-            return openMessageSync();
+            Activity activity = getActivity();
+            if (activity == null) {
+                return null;
+            } else {
+                return openMessageSync(activity);
+            }
         }
 
         @Override
