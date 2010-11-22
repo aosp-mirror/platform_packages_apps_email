@@ -31,7 +31,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -186,7 +185,8 @@ public class NotificationController {
                 .setTicker(mContext.getString(R.string.notification_new_title))
                 .setLargeIcon(senderPhoto)
                 .setContentTitle(notificationTitle)
-                .setContentText(subject + "\n" + numNewMessages);
+                .setContentText(subject + "\n" + numNewMessages)
+                .setContentIntent(contentIntent);
 
         Notification notification = builder.getNotification();
 
