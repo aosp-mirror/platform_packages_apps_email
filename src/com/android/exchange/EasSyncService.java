@@ -412,73 +412,80 @@ public class EasSyncService extends AbstractSyncService {
             // Any string will do, but we'll go for "validate"
             svc.mDeviceId = "validate";
             HttpResponse resp = svc.sendHttpClientOptions();
-            int code = resp.getStatusLine().getStatusCode();
-            userLog("Validation (OPTIONS) response: " + code);
-            if (code == HttpStatus.SC_OK) {
-                // No exception means successful validation
-                Header commands = resp.getFirstHeader("MS-ASProtocolCommands");
-                Header versions = resp.getFirstHeader("ms-asprotocolversions");
-                // Make sure we've got the right protocol version set up
-                try {
-                    if (commands == null || versions == null) {
-                        userLog("OPTIONS response without commands or versions");
-                        // We'll treat this as a protocol exception
-                        throw new MessagingException(0);
+            HttpEntity entity = resp.getEntity();
+            try {
+                int code = resp.getStatusLine().getStatusCode();
+                userLog("Validation (OPTIONS) response: " + code);
+                if (code == HttpStatus.SC_OK) {
+                    // No exception means successful validation
+                    Header commands = resp.getFirstHeader("MS-ASProtocolCommands");
+                    Header versions = resp.getFirstHeader("ms-asprotocolversions");
+                    // Make sure we've got the right protocol version set up
+                    try {
+                        if (commands == null || versions == null) {
+                            userLog("OPTIONS response without commands or versions");
+                            // We'll treat this as a protocol exception
+                            throw new MessagingException(0);
+                        }
+                        setupProtocolVersion(svc, versions);
+                    } catch (MessagingException e) {
+                        bundle.putInt(EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE,
+                                MessagingException.PROTOCOL_VERSION_UNSUPPORTED);
+                        return bundle;
                     }
-                    setupProtocolVersion(svc, versions);
-                } catch (MessagingException e) {
-                    bundle.putInt(EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE,
-                            MessagingException.PROTOCOL_VERSION_UNSUPPORTED);
-                    return bundle;
-                }
 
-                // Run second test here for provisioning failures using FolderSync
-                userLog("Try folder sync");
-                // Send "0" as the sync key for new accounts; otherwise we'll use the current key
-                String syncKey = "0";
-                Account existingAccount =
-                    Utility.findExistingAccount(context, -1L, hostAddress, userName);
-                if (existingAccount != null && existingAccount.mSyncKey != null) {
-                    syncKey = existingAccount.mSyncKey;
-                }
-                Serializer s = new Serializer();
-                s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY).text(syncKey)
-                    .end().end().done();
-                resp = svc.sendHttpClientPost("FolderSync", s.toByteArray());
-                code = resp.getStatusLine().getStatusCode();
-                // We'll get one of the following responses if policies are required by the server
-                if (code == HttpStatus.SC_FORBIDDEN || code == HTTP_NEED_PROVISIONING) {
-                    // Get the policies and see if we are able to support them
-                    ProvisionParser pp = svc.canProvision();
-                    if (pp != null) {
-                        // If so, set the proper result code and save the PolicySet in our Bundle
-                        resultCode = MessagingException.SECURITY_POLICIES_REQUIRED;
-                        bundle.putParcelable(EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET,
-                                pp.getPolicySet());
-                    } else
-                        // If not, set the proper code (the account will not be created)
-                        resultCode = MessagingException.SECURITY_POLICIES_UNSUPPORTED;
-                } else if (code == HttpStatus.SC_NOT_FOUND) {
-                    // We get a 404 from OWA addresses (which are NOT EAS addresses)
-                    resultCode = MessagingException.PROTOCOL_VERSION_UNSUPPORTED;
-                } else if (code != HttpStatus.SC_OK) {
-                    // Fail generically with anything other than success
-                    userLog("Unexpected response for FolderSync: ", code);
-                    resultCode = MessagingException.UNSPECIFIED_EXCEPTION;
+                    // Run second test here for provisioning failures using FolderSync
+                    userLog("Try folder sync");
+                    // Send "0" as the sync key for new accounts; otherwise, use the current key
+                    String syncKey = "0";
+                    Account existingAccount =
+                        Utility.findExistingAccount(context, -1L, hostAddress, userName);
+                    if (existingAccount != null && existingAccount.mSyncKey != null) {
+                        syncKey = existingAccount.mSyncKey;
+                    }
+                    Serializer s = new Serializer();
+                    s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY).text(syncKey)
+                        .end().end().done();
+                    resp = svc.sendHttpClientPost("FolderSync", s.toByteArray());
+                    code = resp.getStatusLine().getStatusCode();
+                    // We'll get one of the following responses if policies are required
+                    if (code == HttpStatus.SC_FORBIDDEN || code == HTTP_NEED_PROVISIONING) {
+                        // Get the policies and see if we are able to support them
+                        ProvisionParser pp = svc.canProvision();
+                        if (pp != null) {
+                            // Set the proper result code and save the PolicySet in our Bundle
+                            resultCode = MessagingException.SECURITY_POLICIES_REQUIRED;
+                            bundle.putParcelable(EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET,
+                                    pp.getPolicySet());
+                        } else
+                            // If not, set the proper code (the account will not be created)
+                            resultCode = MessagingException.SECURITY_POLICIES_UNSUPPORTED;
+                    } else if (code == HttpStatus.SC_NOT_FOUND) {
+                        // We get a 404 from OWA addresses (which are NOT EAS addresses)
+                        resultCode = MessagingException.PROTOCOL_VERSION_UNSUPPORTED;
+                    } else if (code != HttpStatus.SC_OK) {
+                        // Fail generically with anything other than success
+                        userLog("Unexpected response for FolderSync: ", code);
+                        resultCode = MessagingException.UNSPECIFIED_EXCEPTION;
+                    } else {
+                        userLog("Validation successful");
+                    }
+                } else if (isAuthError(code)) {
+                    userLog("Authentication failed");
+                    resultCode = MessagingException.AUTHENTICATION_FAILED;
+                } else if (code == INTERNAL_SERVER_ERROR_CODE) {
+                    // For Exchange 2003, this could mean an authentication failure OR server error
+                    userLog("Internal server error");
+                    resultCode = MessagingException.AUTHENTICATION_FAILED_OR_SERVER_ERROR;
                 } else {
-                    userLog("Validation successful");
+                    // TODO Need to catch other kinds of errors (e.g. policy) For now, report code.
+                    userLog("Validation failed, reporting I/O error: ", code);
+                    resultCode = MessagingException.IOERROR;
                 }
-            } else if (isAuthError(code)) {
-                userLog("Authentication failed");
-                resultCode = MessagingException.AUTHENTICATION_FAILED;
-            } else if (code == INTERNAL_SERVER_ERROR_CODE) {
-                // For Exchange 2003, this could mean an authenticiation failure OR a server error
-                userLog("Internal server error");
-                resultCode = MessagingException.AUTHENTICATION_FAILED_OR_SERVER_ERROR;
-            } else {
-                // TODO Need to catch other kinds of errors (e.g. policy) For now, report the code.
-                userLog("Validation failed, reporting I/O error: ", code);
-                resultCode = MessagingException.IOERROR;
+            } finally {
+                if (entity != null) {
+                    entity.consumeContent();
+                }
             }
         } catch (IOException e) {
             Throwable cause = e.getCause();
@@ -631,15 +638,14 @@ public class EasSyncService extends AbstractSyncService {
                 resp = postAutodiscover(client, post, true /*canRetry*/);
             }
 
-            // Get the "final" code; if it's not 200, just return null
-            int code = resp.getStatusLine().getStatusCode();
-            userLog("Code: " + code);
-            if (code != HttpStatus.SC_OK) return null;
-
-            // At this point, we have a 200 response (SC_OK)
-            HttpEntity e = resp.getEntity();
-            InputStream is = e.getContent();
+            HttpEntity entity = resp.getEntity();
             try {
+                // Get the "final" code; if it's not 200, just return null
+                int code = resp.getStatusLine().getStatusCode();
+                userLog("Code: " + code);
+                if (code != HttpStatus.SC_OK) return null;
+
+                InputStream is = entity.getContent();
                 // The response to Autodiscover is regular XML (not WBXML)
                 // If we ever get an error in this process, we'll just punt and return null
                 XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -676,6 +682,10 @@ public class EasSyncService extends AbstractSyncService {
             } catch (XmlPullParserException e1) {
                 // This would indicate an I/O error of some sort
                 // We will simply return null and user can configure manually
+            } finally {
+               if (entity != null) {
+                   entity.consumeContent();
+               }
             }
         // There's no reason at all for exceptions to be thrown, and it's ok if so.
         // We just won't do auto-discover; user can configure manually
@@ -853,18 +863,29 @@ public class EasSyncService extends AbstractSyncService {
                 s.end().end().end().done();
                 if (DEBUG_GAL_SERVICE) svc.userLog("GAL lookup starting for " + ha.mAddress);
                 HttpResponse resp = svc.sendHttpClientPost("Search", s.toByteArray());
-                int code = resp.getStatusLine().getStatusCode();
-                if (code == HttpStatus.SC_OK) {
-                    InputStream is = resp.getEntity().getContent();
-                    GalParser gp = new GalParser(is, svc);
-                    if (gp.parse()) {
-                        if (DEBUG_GAL_SERVICE) svc.userLog("GAL lookup OK for " + ha.mAddress);
-                        return gp.getGalResult();
+                HttpEntity entity = resp.getEntity();
+                try {
+                    int code = resp.getStatusLine().getStatusCode();
+                    if (code == HttpStatus.SC_OK) {
+                        InputStream is = entity.getContent();
+                        try {
+                            GalParser gp = new GalParser(is, svc);
+                            if (gp.parse()) {
+                                if (DEBUG_GAL_SERVICE) svc.userLog("GAL lookup OK: " + ha.mAddress);
+                                return gp.getGalResult();
+                            } else {
+                                if (DEBUG_GAL_SERVICE) svc.userLog("GAL lookup: no matches");
+                            }
+                        } finally {
+                            is.close();
+                        }
                     } else {
-                        if (DEBUG_GAL_SERVICE) svc.userLog("GAL lookup returned no matches");
+                        svc.userLog("GAL lookup returned " + code);
                     }
-                } else {
-                    svc.userLog("GAL lookup returned " + code);
+                } finally {
+                    if (entity != null) {
+                        entity.consumeContent();
+                    }
                 }
             } catch (IOException e) {
                 // GAL is non-critical; we'll just go on
@@ -935,80 +956,85 @@ public class EasSyncService extends AbstractSyncService {
 
         String cmd = "GetAttachment&AttachmentName=" + att.mLocation;
         HttpResponse res = sendHttpClientPost(cmd, null, COMMAND_TIMEOUT);
+        HttpEntity entity = res.getEntity();
 
-        int status = res.getStatusLine().getStatusCode();
-        if (status == HttpStatus.SC_OK) {
-            HttpEntity e = res.getEntity();
-            int len = (int)e.getContentLength();
-            InputStream is = res.getEntity().getContent();
-            File f = (req.mDestination != null)
-                    ? new File(req.mDestination)
-                    : createUniqueFileInternal(req.mDestination, att.mFileName);
-            if (f != null) {
-                // Ensure that the target directory exists
-                File destDir = f.getParentFile();
-                if (!destDir.exists()) {
-                    destDir.mkdirs();
-                }
-                FileOutputStream os = new FileOutputStream(f);
-                // len > 0 means that Content-Length was set in the headers
-                // len < 0 means "chunked" transfer-encoding
-                if (len != 0) {
-                    try {
-                        mPendingRequest = req;
-                        byte[] bytes = new byte[CHUNK_SIZE];
-                        int length = len;
-                        // Loop terminates 1) when EOF is reached or 2) if an IOException occurs
-                        // One of these is guaranteed to occur
-                        int totalRead = 0;
-                        userLog("Attachment content-length: ", len);
-                        while (true) {
-                            int read = is.read(bytes, 0, CHUNK_SIZE);
+        try {
+            int status = res.getStatusLine().getStatusCode();
+            if (status == HttpStatus.SC_OK) {
+                int len = (int)entity.getContentLength();
+                InputStream is = entity.getContent();
+                File f = (req.mDestination != null) ? new File(req.mDestination) :
+                    createUniqueFileInternal(req.mDestination, att.mFileName);
+                if (f != null) {
+                    // Ensure that the target directory exists
+                    File destDir = f.getParentFile();
+                    if (!destDir.exists()) {
+                        destDir.mkdirs();
+                    }
+                    FileOutputStream os = new FileOutputStream(f);
+                    // len > 0 means that Content-Length was set in the headers
+                    // len < 0 means "chunked" transfer-encoding
+                    if (len != 0) {
+                        try {
+                            mPendingRequest = req;
+                            byte[] bytes = new byte[CHUNK_SIZE];
+                            int length = len;
+                            // Loop terminates 1) when EOF is reached or 2) IOException occurs
+                            // One of these is guaranteed to occur
+                            int totalRead = 0;
+                            userLog("Attachment content-length: ", len);
+                            while (true) {
+                                int read = is.read(bytes, 0, CHUNK_SIZE);
 
-                            // read < 0 means that EOF was reached
-                            if (read < 0) {
-                                userLog("Attachment load reached EOF, totalRead: ", totalRead);
-                                break;
-                            }
-
-                            // Keep track of how much we've read for progress callback
-                            totalRead += read;
-
-                            // Write these bytes out
-                            os.write(bytes, 0, read);
-
-                            // We can't report percentages if this is chunked; by definition, the
-                            // length of incoming data is unknown
-                            if (length > 0) {
-                                // Belt and suspenders check to prevent runaway reading
-                                if (totalRead > length) {
-                                    errorLog("totalRead is greater than attachment length?");
+                                // read < 0 means that EOF was reached
+                                if (read < 0) {
+                                    userLog("Attachment load reached EOF, totalRead: ", totalRead);
                                     break;
                                 }
-                                int pct = (totalRead * 100) / length;
-                                doProgressCallback(msg.mId, att.mId, pct);
+
+                                // Keep track of how much we've read for progress callback
+                                totalRead += read;
+
+                                // Write these bytes out
+                                os.write(bytes, 0, read);
+
+                                // We can't report percentages if this is chunked; the
+                                // length of incoming data is unknown
+                                if (length > 0) {
+                                    // Belt and suspenders check to prevent runaway reading
+                                    if (totalRead > length) {
+                                        errorLog("totalRead is greater than attachment length?");
+                                        break;
+                                    }
+                                    int pct = (totalRead * 100) / length;
+                                    doProgressCallback(msg.mId, att.mId, pct);
+                                }
                             }
-                       }
-                    } finally {
-                        mPendingRequest = null;
+                        } finally {
+                            mPendingRequest = null;
+                        }
+                    }
+                    os.flush();
+                    os.close();
+
+                    // EmailProvider will throw an exception if update an unsaved attachment
+                    if (att.isSaved()) {
+                        String contentUriString = (req.mContentUriString != null) ?
+                            req.mContentUriString :
+                            "file://" + f.getAbsolutePath();
+                        ContentValues cv = new ContentValues();
+                        cv.put(AttachmentColumns.CONTENT_URI, contentUriString);
+                        att.update(mContext, cv);
+                        doStatusCallback(msg.mId, att.mId, EmailServiceStatus.SUCCESS);
                     }
                 }
-                os.flush();
-                os.close();
-
-                // EmailProvider will throw an exception if we try to update an unsaved attachment
-                if (att.isSaved()) {
-                    String contentUriString = (req.mContentUriString != null)
-                            ? req.mContentUriString
-                            : "file://" + f.getAbsolutePath();
-                    ContentValues cv = new ContentValues();
-                    cv.put(AttachmentColumns.CONTENT_URI, contentUriString);
-                    att.update(mContext, cv);
-                    doStatusCallback(msg.mId, att.mId, EmailServiceStatus.SUCCESS);
-                }
+            } else {
+                doStatusCallback(msg.mId, att.mId, EmailServiceStatus.MESSAGE_NOT_FOUND);
             }
-        } else {
-            doStatusCallback(msg.mId, att.mId, EmailServiceStatus.MESSAGE_NOT_FOUND);
+        } finally {
+            if (entity != null) {
+                entity.consumeContent();
+            }
         }
     }
 
@@ -1115,44 +1141,52 @@ public class EasSyncService extends AbstractSyncService {
         s.data(Tags.MOVE_DSTFLDID, dstMailbox.mServerId);
         s.end().end().done();
         HttpResponse res = sendHttpClientPost("MoveItems", s.toByteArray());
-        int status = res.getStatusLine().getStatusCode();
-        if (status == HttpStatus.SC_OK) {
-            HttpEntity e = res.getEntity();
-            int len = (int)e.getContentLength();
-            InputStream is = res.getEntity().getContent();
-            if (len != 0) {
-                MoveItemsParser p = new MoveItemsParser(is, this);
-                p.parse();
-                int statusCode = p.getStatusCode();
-                ContentValues cv = new ContentValues();
-                if (statusCode == MoveItemsParser.STATUS_CODE_REVERT) {
-                    // Restore the old mailbox id
-                    cv.put(MessageColumns.MAILBOX_KEY, srcMailbox.mServerId);
-                    mContentResolver.update(ContentUris.withAppendedId(
-                            Message.CONTENT_URI, req.mMessageId), cv, null, null);
-                } else if (statusCode == MoveItemsParser.STATUS_CODE_SUCCESS) {
-                    // Update with the new server id
-                    cv.put(SyncColumns.SERVER_ID, p.getNewServerId());
-                    cv.put(Message.FLAGS, msg.mFlags | MESSAGE_FLAG_MOVED_MESSAGE);
-                    mContentResolver.update(ContentUris.withAppendedId(
-                            Message.CONTENT_URI, req.mMessageId), cv, null, null);
-                }
-                if (statusCode == MoveItemsParser.STATUS_CODE_SUCCESS ||
-                        statusCode == MoveItemsParser.STATUS_CODE_REVERT) {
-                    // If we revert or if we succeeded, we no longer need the update information
-                    // OR the now-duplicate email (the new copy will eventually be synced down)
-                    mContentResolver.delete(ContentUris.withAppendedId(
-                            Message.UPDATED_CONTENT_URI, req.mMessageId), null, null);
-                } else {
-                    // In this case, we're retrying, so do nothing.  The request will be handled
-                    // next sync
-                }
+        HttpEntity entity = res.getEntity();
+        try {
+            int status = res.getStatusLine().getStatusCode();
+            if (status == HttpStatus.SC_OK) {
+                    int len = (int) entity.getContentLength();
+                    InputStream is = res.getEntity().getContent();
+                    if (len != 0) {
+                        MoveItemsParser p = new MoveItemsParser(is, this);
+                        p.parse();
+                        int statusCode = p.getStatusCode();
+                        ContentValues cv = new ContentValues();
+                        if (statusCode == MoveItemsParser.STATUS_CODE_REVERT) {
+                            // Restore the old mailbox id
+                            cv.put(MessageColumns.MAILBOX_KEY, srcMailbox.mServerId);
+                            mContentResolver.update(
+                                    ContentUris.withAppendedId(Message.CONTENT_URI, req.mMessageId),
+                                    cv, null, null);
+                        } else if (statusCode == MoveItemsParser.STATUS_CODE_SUCCESS) {
+                            // Update with the new server id
+                            cv.put(SyncColumns.SERVER_ID, p.getNewServerId());
+                            cv.put(Message.FLAGS, msg.mFlags | MESSAGE_FLAG_MOVED_MESSAGE);
+                            mContentResolver.update(
+                                    ContentUris.withAppendedId(Message.CONTENT_URI, req.mMessageId),
+                                    cv, null, null);
+                        }
+                        if (statusCode == MoveItemsParser.STATUS_CODE_SUCCESS
+                                || statusCode == MoveItemsParser.STATUS_CODE_REVERT) {
+                            // If we revert or succeed, we no longer need the update information
+                            // OR the now-duplicate email (the new copy will be synced down)
+                            mContentResolver.delete(ContentUris.withAppendedId(
+                                    Message.UPDATED_CONTENT_URI, req.mMessageId), null, null);
+                        } else {
+                            // In this case, we're retrying, so do nothing.  The request will be
+                            // handled next sync
+                        }
+                    }
+            } else if (isAuthError(status)) {
+                throw new EasAuthenticationException();
+            } else {
+                userLog("Move items request failed, code: " + status);
+                throw new IOException();
             }
-        } else if (isAuthError(status)) {
-            throw new EasAuthenticationException();
-        } else {
-            userLog("Move items request failed, code: " + status);
-            throw new IOException();
+        } finally {
+            if (entity != null) {
+                entity.consumeContent();
+            }
         }
     }
 
@@ -1175,30 +1209,36 @@ public class EasSyncService extends AbstractSyncService {
         s.data(Tags.MREQ_REQ_ID, msg.mServerId);
         s.end().end().done();
         HttpResponse res = sendHttpClientPost("MeetingResponse", s.toByteArray());
-        int status = res.getStatusLine().getStatusCode();
-        if (status == HttpStatus.SC_OK) {
-            HttpEntity e = res.getEntity();
-            int len = (int)e.getContentLength();
-            InputStream is = res.getEntity().getContent();
-            if (len != 0) {
-                new MeetingResponseParser(is, this).parse();
-                String meetingInfo = msg.mMeetingInfo;
-                if (meetingInfo != null) {
-                    String responseRequested =
-                        new PackedString(meetingInfo).get(MeetingInfo.MEETING_RESPONSE_REQUESTED);
-                    // If there's no tag, or a non-zero tag, we send the response mail
-                    if ("0".equals(responseRequested)) {
-                        return;
+        HttpEntity entity = res.getEntity();
+        try {
+            int status = res.getStatusLine().getStatusCode();
+            if (status == HttpStatus.SC_OK) {
+                int len = (int)entity.getContentLength();
+                if (len != 0) {
+                    InputStream is = res.getEntity().getContent();
+                    new MeetingResponseParser(is, this).parse();
+                    String meetingInfo = msg.mMeetingInfo;
+                    if (meetingInfo != null) {
+                        String responseRequested = new PackedString(meetingInfo).get(
+                                MeetingInfo.MEETING_RESPONSE_REQUESTED);
+                        // If there's no tag, or a non-zero tag, we send the response mail
+                        if ("0".equals(responseRequested)) {
+                            return;
+                        }
                     }
+                    sendMeetingResponseMail(msg, req.mResponse);
                 }
-                sendMeetingResponseMail(msg, req.mResponse);
+            } else if (isAuthError(status)) {
+                throw new EasAuthenticationException();
+            } else {
+                userLog("Meeting response request failed, code: " + status);
+                throw new IOException();
             }
-        } else if (isAuthError(status)) {
-            throw new EasAuthenticationException();
-        } else {
-            userLog("Meeting response request failed, code: " + status);
-            throw new IOException();
-        }
+        } finally {
+            if (entity != null) {
+                entity.consumeContent();
+            }
+       }
     }
 
     /**
@@ -1462,26 +1502,33 @@ public class EasSyncService extends AbstractSyncService {
         s.start(Tags.PROVISION_POLICY).data(Tags.PROVISION_POLICY_TYPE, getPolicyType())
             .end().end().end().done();
         HttpResponse resp = sendHttpClientPost("Provision", s.toByteArray());
-        int code = resp.getStatusLine().getStatusCode();
-        if (code == HttpStatus.SC_OK) {
-            InputStream is = resp.getEntity().getContent();
-            ProvisionParser pp = new ProvisionParser(is, this);
-            if (pp.parse()) {
-                // The PolicySet in the ProvisionParser will have the requirements for all KNOWN
-                // policies.  If others are required, hasSupportablePolicySet will be false
-                if (pp.hasSupportablePolicySet()) {
-                    // If the policies are supportable (in this context, meaning that there are no
-                    // completely unimplemented policies required), just return the parser itself
-                    return pp;
-                } else {
-                    // Try to acknowledge using the "partial" status (i.e. we can partially
-                    // accommodate the required policies).  The server will agree to this if the
-                    // "allow non-provisionable devices" setting is enabled on the server
-                    String policyKey = acknowledgeProvision(pp.getPolicyKey(),
-                            PROVISION_STATUS_PARTIAL);
-                    // Return either the parser (success) or null (failure)
-                    return (policyKey != null) ? pp : null;
+        HttpEntity entity = resp.getEntity();
+        try {
+            int code = resp.getStatusLine().getStatusCode();
+            if (code == HttpStatus.SC_OK) {
+                InputStream is = entity.getContent();
+                ProvisionParser pp = new ProvisionParser(is, this);
+                if (pp.parse()) {
+                    // The PolicySet in the ProvisionParser will have the requirements for all KNOWN
+                    // policies.  If others are required, hasSupportablePolicySet will be false
+                    if (pp.hasSupportablePolicySet()) {
+                        // If the policies are supportable (in this context, meaning there are no
+                        // completely unimplemented policies required), return the parser itself
+                        return pp;
+                    } else {
+                        // Try to acknowledge using the "partial" status (i.e. we can partially
+                        // accommodate the required policies).  The server will agree to this if the
+                        // "allow non-provisionable devices" setting is enabled on the server
+                        String policyKey = acknowledgeProvision(pp.getPolicyKey(),
+                                PROVISION_STATUS_PARTIAL);
+                        // Return either the parser (success) or null (failure)
+                        return (policyKey != null) ? pp : null;
+                    }
                 }
+            }
+        } finally {
+            if (entity != null) {
+                entity.consumeContent();
             }
         }
         // On failures, simply return null
@@ -1522,13 +1569,20 @@ public class EasSyncService extends AbstractSyncService {
         }
         s.end().done(); // PROVISION_PROVISION
         HttpResponse resp = sendHttpClientPost("Provision", s.toByteArray());
-        int code = resp.getStatusLine().getStatusCode();
-        if (code == HttpStatus.SC_OK) {
-            InputStream is = resp.getEntity().getContent();
-            ProvisionParser pp = new ProvisionParser(is, this);
-            if (pp.parse()) {
-                // Return the final policy key from the ProvisionParser
-                return pp.getPolicyKey();
+        HttpEntity entity = resp.getEntity();
+        try {
+            int code = resp.getStatusLine().getStatusCode();
+            if (code == HttpStatus.SC_OK) {
+                InputStream is = entity.getContent();
+                ProvisionParser pp = new ProvisionParser(is, this);
+                if (pp.parse()) {
+                    // Return the final policy key from the ProvisionParser
+                    return pp.getPolicyKey();
+                }
+            }
+        } finally {
+            if (entity != null) {
+                entity.consumeContent();
             }
         }
         // On failures, return null
@@ -1636,37 +1690,44 @@ public class EasSyncService extends AbstractSyncService {
                 s.start(Tags.FOLDER_FOLDER_SYNC).start(Tags.FOLDER_SYNC_KEY)
                     .text(mAccount.mSyncKey).end().end().done();
                 HttpResponse resp = sendHttpClientPost("FolderSync", s.toByteArray());
-                if (mStop) break;
-                int code = resp.getStatusLine().getStatusCode();
-                if (code == HttpStatus.SC_OK) {
-                    HttpEntity entity = resp.getEntity();
-                    int len = (int)entity.getContentLength();
-                    if (len != 0) {
-                        InputStream is = entity.getContent();
-                        // Returns true if we need to sync again
-                        if (new FolderSyncParser(is, new AccountSyncAdapter(this)).parse()) {
+                HttpEntity entity = resp.getEntity();
+                try {
+                    if (mStop) break;
+                    int code = resp.getStatusLine().getStatusCode();
+                    if (code == HttpStatus.SC_OK) {
+                            int len = (int)entity.getContentLength();
+                            if (len != 0) {
+                                InputStream is = entity.getContent();
+                                // Returns true if we need to sync again
+                                if (new FolderSyncParser(is, new AccountSyncAdapter(this))
+                                        .parse()) {
+                                    continue;
+                                }
+                            }
+                    } else if (isProvisionError(code)) {
+                        // If the sync error is a provisioning failure (perhaps policies changed),
+                        // let's try the provisioning procedure
+                        // Provisioning must only be attempted for the account mailbox - trying to
+                        // provision any other mailbox may result in race conditions and the
+                        // creation of multiple policy keys.
+                        if (!tryProvision()) {
+                            // Set the appropriate failure status
+                            mExitStatus = EXIT_SECURITY_FAILURE;
+                            return;
+                        } else {
+                            // If we succeeded, try again...
                             continue;
                         }
-                    }
-                } else if (isProvisionError(code)) {
-                    // If the sync error is a provisioning failure (perhaps the policies changed),
-                    // let's try the provisioning procedure
-                    // Provisioning must only be attempted for the account mailbox - trying to
-                    // provision any other mailbox may result in race conditions and the creation
-                    // of multiple policy keys.
-                    if (!tryProvision()) {
-                        // Set the appropriate failure status
-                        mExitStatus = EXIT_SECURITY_FAILURE;
+                    } else if (isAuthError(code)) {
+                        mExitStatus = EXIT_LOGIN_FAILURE;
                         return;
                     } else {
-                        // If we succeeded, try again...
-                        continue;
+                        userLog("FolderSync response error: ", code);
                     }
-                } else if (isAuthError(code)) {
-                    mExitStatus = EXIT_LOGIN_FAILURE;
-                    return;
-                } else {
-                    userLog("FolderSync response error: ", code);
+                } finally {
+                    if (entity != null) {
+                        entity.consumeContent();
+                    }
                 }
 
                 // Change all push/hold boxes to push
@@ -1906,48 +1967,55 @@ public class EasSyncService extends AbstractSyncService {
                     }
                     HttpResponse res =
                         sendPing(s.toByteArray(), forcePing ? mPingForceHeartbeat : pingHeartbeat);
+                    HttpEntity entity = res.getEntity();
 
-                    int code = res.getStatusLine().getStatusCode();
-                    userLog("Ping response: ", code);
+                    try {
+                        int code = res.getStatusLine().getStatusCode();
+                        userLog("Ping response: ", code);
 
-                    // Return immediately if we've been asked to stop during the ping
-                    if (mStop) {
-                        userLog("Stopping pingLoop");
-                        return;
-                    }
+                        // Return immediately if we've been asked to stop during the ping
+                        if (mStop) {
+                            userLog("Stopping pingLoop");
+                            return;
+                        }
 
-                    if (code == HttpStatus.SC_OK) {
-                        // Make sure to clear out any pending sync errors
-                        ExchangeService.removeFromSyncErrorMap(mMailboxId);
-                        HttpEntity e = res.getEntity();
-                        int len = (int)e.getContentLength();
-                        InputStream is = res.getEntity().getContent();
-                        if (len != 0) {
-                            int pingResult = parsePingResult(is, mContentResolver, pingErrorMap);
-                            // If our ping completed (status = 1), and we weren't forced and we're
-                            // not at the maximum, try increasing timeout by two minutes
-                            if (pingResult == PROTOCOL_PING_STATUS_COMPLETED && !forcePing) {
-                                if (pingHeartbeat > mPingHighWaterMark) {
-                                    mPingHighWaterMark = pingHeartbeat;
-                                    userLog("Setting high water mark at: ", mPingHighWaterMark);
-                                }
-                                if ((pingHeartbeat < mPingMaxHeartbeat) &&
-                                        !mPingHeartbeatDropped) {
-                                    pingHeartbeat += PING_HEARTBEAT_INCREMENT;
-                                    if (pingHeartbeat > mPingMaxHeartbeat) {
-                                        pingHeartbeat = mPingMaxHeartbeat;
+                        if (code == HttpStatus.SC_OK) {
+                            // Make sure to clear out any pending sync errors
+                            ExchangeService.removeFromSyncErrorMap(mMailboxId);
+                            int len = (int)entity.getContentLength();
+                            InputStream is = entity.getContent();
+                            if (len != 0) {
+                                int pingResult = parsePingResult(is, mContentResolver,
+                                        pingErrorMap);
+                                // If our ping completed (status = 1), and wasn't forced and we're
+                                // not at the maximum, try increasing timeout by two minutes
+                                if (pingResult == PROTOCOL_PING_STATUS_COMPLETED && !forcePing) {
+                                    if (pingHeartbeat > mPingHighWaterMark) {
+                                        mPingHighWaterMark = pingHeartbeat;
+                                        userLog("Setting high water mark at: ", mPingHighWaterMark);
                                     }
-                                    userLog("Increasing ping heartbeat to ", pingHeartbeat, "s");
+                                    if ((pingHeartbeat < mPingMaxHeartbeat) &&
+                                            !mPingHeartbeatDropped) {
+                                        pingHeartbeat += PING_HEARTBEAT_INCREMENT;
+                                        if (pingHeartbeat > mPingMaxHeartbeat) {
+                                            pingHeartbeat = mPingMaxHeartbeat;
+                                        }
+                                        userLog("Increase ping heartbeat to ", pingHeartbeat, "s");
+                                    }
                                 }
+                            } else {
+                                userLog("Ping returned empty result; throwing IOException");
+                                throw new IOException();
                             }
-                        } else {
-                            userLog("Ping returned empty result; throwing IOException");
+                        } else if (isAuthError(code)) {
+                            mExitStatus = EXIT_LOGIN_FAILURE;
+                            userLog("Authorization error during Ping: ", code);
                             throw new IOException();
                         }
-                    } else if (isAuthError(code)) {
-                        mExitStatus = EXIT_LOGIN_FAILURE;
-                        userLog("Authorization error during Ping: ", code);
-                        throw new IOException();
+                    } finally {
+                        if (entity != null) {
+                            entity.consumeContent();
+                        }
                     }
                 } catch (IOException e) {
                     String message = e.getMessage();
@@ -2192,59 +2260,66 @@ public class EasSyncService extends AbstractSyncService {
             s.end().end().end().done();
             HttpResponse resp = sendHttpClientPost("Sync", new ByteArrayEntity(s.toByteArray()),
                     timeout);
-            int code = resp.getStatusLine().getStatusCode();
-            if (code == HttpStatus.SC_OK) {
-                // In EAS 12.1, we can get "empty" sync responses, which indicate that there are
-                // no changes in the mailbox; handle that case here
-                Header header = resp.getFirstHeader("content-length");
-                if (header != null && header.getValue().equals("0")) {
-                    // If this happens, exit cleanly, and change the interval from push to ping
-                    // if necessary
-                    userLog("Empty sync response; finishing");
-                    if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
-                        userLog("Changing mailbox from push to ping");
-                        ContentValues cv = new ContentValues();
-                        cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PING);
-                        mContentResolver.update(
-                                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId), cv,
-                                null, null);
-                    }
-                    if (mRequestQueue.isEmpty()) {
-                        mExitStatus = EXIT_DONE;
-                        return;
-                    } else {
-                        continue;
-                    }
-                }
-                InputStream is = resp.getEntity().getContent();
-                if (is != null) {
-                    moreAvailable = target.parse(is);
-                    if (target.isLooping()) {
-                        loopingCount++;
-                        userLog("** Looping: " + loopingCount);
-                        // After the maximum number of loops, we'll set moreAvailable to false and
-                        // allow the sync loop to terminate
-                        if (moreAvailable && (loopingCount > MAX_LOOPING_COUNT)) {
-                            userLog("** Looping force stopped");
-                            moreAvailable = false;
+            HttpEntity entity = resp.getEntity();
+            try {
+                int code = resp.getStatusLine().getStatusCode();
+                if (code == HttpStatus.SC_OK) {
+                    // In EAS 12.1, we can get "empty" sync responses, which indicate that there are
+                    // no changes in the mailbox; handle that case here
+                    Header header = resp.getFirstHeader("content-length");
+                    if (header != null && header.getValue().equals("0")) {
+                        // If this happens, exit cleanly, and change the interval from push to ping
+                        // if necessary
+                        userLog("Empty sync response; finishing");
+                        if (mMailbox.mSyncInterval == Mailbox.CHECK_INTERVAL_PUSH) {
+                            userLog("Changing mailbox from push to ping");
+                            ContentValues cv = new ContentValues();
+                            cv.put(Mailbox.SYNC_INTERVAL, Mailbox.CHECK_INTERVAL_PING);
+                            mContentResolver.update(
+                                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailbox.mId),
+                                    cv, null, null);
                         }
-                    } else {
-                        loopingCount = 0;
+                        if (mRequestQueue.isEmpty()) {
+                            mExitStatus = EXIT_DONE;
+                            return;
+                        } else {
+                            continue;
+                        }
                     }
-                    target.cleanup();
+                    InputStream is = entity.getContent();
+                    if (is != null) {
+                        moreAvailable = target.parse(is);
+                        if (target.isLooping()) {
+                            loopingCount++;
+                            userLog("** Looping: " + loopingCount);
+                            // After the maximum number of loops, we'll set moreAvailable to false
+                            // and allow the sync loop to terminate
+                            if (moreAvailable && (loopingCount > MAX_LOOPING_COUNT)) {
+                                userLog("** Looping force stopped");
+                                moreAvailable = false;
+                            }
+                        } else {
+                            loopingCount = 0;
+                        }
+                        target.cleanup();
+                    } else {
+                        userLog("Empty input stream in sync command response");
+                    }
                 } else {
-                    userLog("Empty input stream in sync command response");
+                    userLog("Sync response error: ", code);
+                    if (isProvisionError(code)) {
+                        mExitStatus = EXIT_SECURITY_FAILURE;
+                    } else if (isAuthError(code)) {
+                        mExitStatus = EXIT_LOGIN_FAILURE;
+                    } else {
+                        mExitStatus = EXIT_IO_ERROR;
+                    }
+                    return;
                 }
-            } else {
-                userLog("Sync response error: ", code);
-                if (isProvisionError(code)) {
-                    mExitStatus = EXIT_SECURITY_FAILURE;
-                } else if (isAuthError(code)) {
-                    mExitStatus = EXIT_LOGIN_FAILURE;
-                } else {
-                    mExitStatus = EXIT_IO_ERROR;
+            } finally {
+                if (entity != null) {
+                    entity.consumeContent();
                 }
-                return;
             }
         }
         mExitStatus = EXIT_DONE;
