@@ -17,32 +17,24 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
+import android.content.ContentProviderOperation.Builder;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Entity;
+import android.content.Entity.NamedContentValues;
 import android.content.EntityIterator;
 import android.content.OperationApplicationException;
-import android.content.ContentProviderOperation.Builder;
-import android.content.Entity.NamedContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.ContactsContract;
-import android.provider.SyncStateContract;
-import android.provider.ContactsContract.Data;
-import android.provider.ContactsContract.Groups;
-import android.provider.ContactsContract.RawContacts;
-import android.provider.ContactsContract.RawContactsEntity;
-import android.provider.ContactsContract.Settings;
-import android.provider.ContactsContract.SyncState;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.provider.ContactsContract.CommonDataKinds.GroupMembership;
@@ -56,6 +48,13 @@ import android.provider.ContactsContract.CommonDataKinds.Relation;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.CommonDataKinds.StructuredPostal;
 import android.provider.ContactsContract.CommonDataKinds.Website;
+import android.provider.ContactsContract.Data;
+import android.provider.ContactsContract.Groups;
+import android.provider.ContactsContract.RawContacts;
+import android.provider.ContactsContract.RawContactsEntity;
+import android.provider.ContactsContract.Settings;
+import android.provider.ContactsContract.SyncState;
+import android.provider.SyncStateContract;
 import android.text.TextUtils;
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
@@ -124,10 +123,14 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     ArrayList<Long> mDeletedIdList = new ArrayList<Long>();
     ArrayList<Long> mUpdatedIdList = new ArrayList<Long>();
 
+    private final Uri mAccountUri;
+    private final ContentResolver mContentResolver;
     private boolean mGroupsUsed = false;
 
-    public ContactsSyncAdapter(Mailbox mailbox, EasSyncService service) {
-        super(mailbox, service);
+    public ContactsSyncAdapter(EasSyncService service) {
+        super(service);
+        mAccountUri = uriWithAccountAndIsSyncAdapter(RawContacts.CONTENT_URI);
+        mContentResolver = mContext.getContentResolver();
     }
 
     static Uri addCallerIsSyncAdapterParameter(Uri uri) {
@@ -151,6 +154,12 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     public boolean parse(InputStream is) throws IOException {
         EasContactsSyncParser p = new EasContactsSyncParser(is, this);
         return p.parse();
+    }
+
+
+    @Override
+    public void wipe() {
+        mContentResolver.delete(mAccountUri, null, null);
     }
 
     interface UntypedRow {
@@ -331,18 +340,11 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
 
         String[] mBindArgument = new String[1];
         String mMailboxIdAsString;
-        Uri mAccountUri;
         ContactOperations ops = new ContactOperations();
 
         public EasContactsSyncParser(InputStream in, ContactsSyncAdapter adapter)
                 throws IOException {
             super(in, adapter);
-            mAccountUri = uriWithAccountAndIsSyncAdapter(RawContacts.CONTENT_URI);
-        }
-
-        @Override
-        public void wipe() {
-            mContentResolver.delete(mAccountUri, null, null);
         }
 
         public void addData(String serverId, ContactOperations ops, Entity entity)

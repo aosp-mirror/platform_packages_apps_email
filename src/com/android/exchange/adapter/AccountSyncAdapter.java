@@ -1,6 +1,5 @@
 package com.android.exchange.adapter;
 
-import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.EasSyncService;
 
 import java.io.IOException;
@@ -8,12 +7,16 @@ import java.io.InputStream;
 
 public class AccountSyncAdapter extends AbstractSyncAdapter {
 
-    public AccountSyncAdapter(Mailbox mailbox, EasSyncService service) {
-        super(mailbox, service);
+    public AccountSyncAdapter(EasSyncService service) {
+        super(service);
      }
 
     @Override
     public void cleanup() {
+    }
+
+    @Override
+    public void wipe() {
     }
 
     @Override

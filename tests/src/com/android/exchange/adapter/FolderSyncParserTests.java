@@ -16,9 +16,9 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.ProviderTestUtils;
 import com.android.exchange.EasSyncService;
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ public class FolderSyncParserTests extends SyncAdapterTestCase<EmailSyncAdapter>
 
     public void testIsValidMailFolder() throws IOException {
         EasSyncService service = getTestService();
-        EmailSyncAdapter adapter = new EmailSyncAdapter(service.mMailbox, service);
+        EmailSyncAdapter adapter = new EmailSyncAdapter(service);
         FolderSyncParser parser = new FolderSyncParser(getTestInputStream(), adapter);
         HashMap<String, Mailbox> mailboxMap = new HashMap<String, Mailbox>();
         Account acct = ProviderTestUtils.setupAccount("account", true, mMockContext);
