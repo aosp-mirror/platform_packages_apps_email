@@ -95,6 +95,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private static final String EXTRA_ACCOUNT_ID = "account_id";
     private static final String EXTRA_MESSAGE_ID = "message_id";
+    /** If the intent is sent from the email app itself, it should have this boolean extra. */
+    private static final String EXTRA_FROM_WITHIN_APP = "from_within_app";
+
     private static final String STATE_KEY_CC_SHOWN =
         "com.android.email.activity.MessageCompose.ccShown";
     private static final String STATE_KEY_QUOTED_TEXT_SHOWN =
@@ -168,6 +171,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /** Whether the save command should be enabled. */
     private boolean mSaveEnabled;
 
+    private static Intent getBaseIntent(Context context) {
+        Intent i = new Intent(context, MessageCompose.class);
+        i.putExtra(EXTRA_FROM_WITHIN_APP, true);
+        return i;
+    }
+
     /**
      * Compose a new message using the given account. If account is -1 the default account
      * will be used.
@@ -176,7 +185,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     public static void actionCompose(Context context, long accountId) {
        try {
-           Intent i = new Intent(context, MessageCompose.class);
+           Intent i = getBaseIntent(context);
            i.putExtra(EXTRA_ACCOUNT_ID, accountId);
            context.startActivity(i);
        } catch (ActivityNotFoundException anfe) {
@@ -196,7 +205,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     public static boolean actionCompose(Context context, String uriString, long accountId) {
         try {
-            Intent i = new Intent(context, MessageCompose.class);
+            Intent i = getBaseIntent(context);
             i.setAction(Intent.ACTION_SEND);
             i.setData(Uri.parse(uriString));
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
@@ -243,7 +252,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private static void startActivityWithMessage(Context context, String action, long messageId) {
-        Intent i = new Intent(context, MessageCompose.class);
+        Intent i = getBaseIntent(context);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
         i.setAction(action);
         context.startActivity(i);
@@ -291,6 +300,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 savedInstanceState.getBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, false);
             draftId = savedInstanceState.getLong(STATE_KEY_DRAFT_ID, -1);
         }
+
+        // Show the back arrow on the action bar.
+        getActionBar().setDisplayOptions(
+                ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
 
         Intent intent = getIntent();
         mAction = intent.getAction();
@@ -423,6 +436,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN) ?
                 View.VISIBLE : View.GONE);
         setDraftNeedsSaving(false);
+    }
+
+    /**
+     * @return true if the activity was opened by the email app itself.
+     */
+    private boolean isOpenedFromWithinApp() {
+        Intent i = getIntent();
+        return (i != null && i.getBooleanExtra(EXTRA_FROM_WITHIN_APP, false));
     }
 
     private void setDraftNeedsSaving(boolean needsSaving) {
@@ -1210,6 +1231,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private boolean handleCommand(int viewId) {
         switch (viewId) {
+        case android.R.id.home:
+            onActionBarHomePressed();
+            return true;
         case R.id.send:
             onSend();
             return true;
@@ -1230,6 +1254,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return true;
         }
         return false;
+    }
+
+    private void onActionBarHomePressed() {
+        finish();
+        if (isOpenedFromWithinApp()) {
+            // If opend from within the app, we just close it.
+        } else {
+            // Otherwise, need to open the main screen.  Let Welcome do that.
+            Welcome.actionStart(this);
+        }
     }
 
     @Override

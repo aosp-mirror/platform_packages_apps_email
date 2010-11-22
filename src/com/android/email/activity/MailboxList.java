@@ -217,6 +217,13 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     }
 
     /**
+     * Implements MailboxFragment.Callback
+     */
+    @Override
+    public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount) {
+    }
+
+    /**
      * Refresh the mailbox list
      */
     private void onRefresh() {
