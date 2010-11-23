@@ -52,6 +52,9 @@ import java.net.URISyntaxException;
  */
 public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         implements OnCheckedChangeListener {
+
+    private final static String STATE_KEY_LOADED = "AccountSetupOutgoingFragment.loaded";
+
     private static final int SMTP_PORTS[] = {
             587, 465, 465, 587, 587
     };
@@ -83,6 +86,10 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onCreate");
         }
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            mLoaded = savedInstanceState.getBoolean(STATE_KEY_LOADED, false);
+        }
     }
 
     @Override
@@ -172,9 +179,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         }
         super.onStart();
         mStarted = true;
-        if (!mLoaded) {
-            loadSettings();
-        }
+        loadSettings();
     }
 
     /**
@@ -226,6 +231,8 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
+
+        outState.putBoolean(STATE_KEY_LOADED, mLoaded);
     }
 
     /**
@@ -234,7 +241,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public void setCallback(Callback callback) {
         super.setCallback(callback);
-        if (mStarted && !mLoaded) {
+        if (mStarted) {
             loadSettings();
         }
     }
@@ -243,6 +250,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      * Load the current settings into the UI
      */
     private void loadSettings() {
+        if (mLoaded) return;
         try {
             // TODO this should be accessed directly via the HostAuth structure
             URI uri = new URI(SetupData.getAccount().getSenderUri(mContext));
@@ -286,7 +294,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
              */
             throw new Error(use);
         }
-
+        mLoaded = true;
         validateFields();
     }
 
@@ -294,6 +302,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      * Preflight the values in the fields and decide if it makes sense to enable the "next" button
      */
     private void validateFields() {
+        if (!mLoaded) return;
         boolean enabled =
             Utility.isTextViewNotEmpty(mServerView) && Utility.isPortFieldValid(mPortView);
 

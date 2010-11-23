@@ -50,8 +50,8 @@ import java.net.URISyntaxException;
  */
 public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
-    private final static String STATE_KEY_CREDENTIAL =
-            "AccountSetupIncomingFragment.loginCredential";
+    private final static String STATE_KEY_CREDENTIAL = "AccountSetupIncomingFragment.credential";
+    private final static String STATE_KEY_LOADED = "AccountSetupIncomingFragment.loaded";
 
     private static final int POP_PORTS[] = {
             110, 995, 995, 110, 110
@@ -81,6 +81,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
     // Support for lifecycle
     private boolean mStarted;
+    private boolean mConfigured;
     private boolean mLoaded;
     private String mCacheLoginCredential;
 
@@ -97,6 +98,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
         if (savedInstanceState != null) {
             mCacheLoginCredential = savedInstanceState.getString(STATE_KEY_CREDENTIAL);
+            mLoaded = savedInstanceState.getBoolean(STATE_KEY_LOADED, false);
         }
     }
 
@@ -202,9 +204,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         }
         super.onStart();
         mStarted = true;
-        if (!mLoaded) {
-            loadSettings();
-        }
+        configureEditor();
+        loadSettings();
     }
 
     /**
@@ -258,6 +259,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         super.onSaveInstanceState(outState);
 
         outState.putString(STATE_KEY_CREDENTIAL, mCacheLoginCredential);
+        outState.putBoolean(STATE_KEY_LOADED, mLoaded);
     }
 
     /**
@@ -266,15 +268,41 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     @Override
     public void setCallback(Callback callback) {
         super.setCallback(callback);
-        if (mStarted && !mLoaded) {
+        if (mStarted) {
+            configureEditor();
             loadSettings();
         }
+    }
+
+    /**
+     * Configure the editor for the account type
+     */
+    private void configureEditor() {
+        if (mConfigured) return;
+        Account account = SetupData.getAccount();
+        String protocol = account.mHostAuthRecv.mProtocol;
+        if (protocol.startsWith("pop3")) {
+            mServerLabelView.setText(R.string.account_setup_incoming_pop_server_label);
+            mAccountPorts = POP_PORTS;
+            mAccountSchemes = POP_SCHEMES;
+            mImapPathPrefixSectionView.setVisibility(View.GONE);
+        } else if (protocol.startsWith("imap")) {
+            mServerLabelView.setText(R.string.account_setup_incoming_imap_server_label);
+            mAccountPorts = IMAP_PORTS;
+            mAccountSchemes = IMAP_SCHEMES;
+            mDeletePolicyLabelView.setVisibility(View.GONE);
+            mDeletePolicyView.setVisibility(View.GONE);
+        } else {
+            throw new Error("Unknown account type: " + account);
+        }
+        mConfigured = true;
     }
 
     /**
      * Load the current settings into the UI
      */
     private void loadSettings() {
+        if (mLoaded) return;
         try {
             // TODO this should be accessed directly via the HostAuth structure
             EmailContent.Account account = SetupData.getAccount();
@@ -298,18 +326,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             }
 
             if (uri.getScheme().startsWith("pop3")) {
-                mServerLabelView.setText(R.string.account_setup_incoming_pop_server_label);
-                mAccountPorts = POP_PORTS;
-                mAccountSchemes = POP_SCHEMES;
-
-                mImapPathPrefixSectionView.setVisibility(View.GONE);
+                SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, account.getDeletePolicy());
             } else if (uri.getScheme().startsWith("imap")) {
-                mServerLabelView.setText(R.string.account_setup_incoming_imap_server_label);
-                mAccountPorts = IMAP_PORTS;
-                mAccountSchemes = IMAP_SCHEMES;
-
-                mDeletePolicyLabelView.setVisibility(View.GONE);
-                mDeletePolicyView.setVisibility(View.GONE);
                 if (uri.getPath() != null && uri.getPath().length() > 0) {
                     mImapPathPrefixView.setText(uri.getPath().substring(1));
                 }
@@ -322,8 +340,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
                     SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, i);
                 }
             }
-
-            SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, account.getDeletePolicy());
 
             if (uri.getHost() != null) {
                 mServerView.setText(uri.getHost());
@@ -340,7 +356,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
              */
             throw new Error(use);
         }
-
+        mLoaded = true;
         validateFields();
     }
 
@@ -348,6 +364,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
      * Check the values in the fields and decide if it makes sense to enable the "next" button
      */
     private void validateFields() {
+        if (!mConfigured || !mLoaded) return;
         boolean enabled = Utility.isTextViewNotEmpty(mUsernameView)
                 && Utility.isTextViewNotEmpty(mPasswordView)
                 && Utility.isTextViewNotEmpty(mServerView)
