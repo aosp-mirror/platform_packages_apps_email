@@ -50,7 +50,6 @@
                 <TextView
                     android:id="@+id/from"
                     style="@style/message_compose_header_field_value"
-                    android:text="@string/message_compose_from_label"
                     />
             </LinearLayout>
 
@@ -65,6 +64,8 @@
                 <com.android.email.activity.AddressTextView
                     android:id="@+id/to"
                     style="@style/message_compose_header_field_value"
+                    android:inputType="textEmailAddress|textMultiLine"
+                    android:imeOptions="actionNext"
                     />
             </LinearLayout>
 
@@ -86,6 +87,8 @@
                     <com.android.email.activity.AddressTextView
                         android:id="@+id/cc"
                         style="@style/message_compose_header_field_value"
+                        android:inputType="textEmailAddress|textMultiLine"
+                        android:imeOptions="actionNext"
                         />
                 </LinearLayout>
 
@@ -100,6 +103,8 @@
                     <com.android.email.activity.AddressTextView
                         android:id="@+id/bcc"
                         style="@style/message_compose_header_field_value"
+                        android:inputType="textEmailAddress|textMultiLine"
+                        android:imeOptions="actionNext"
                         />
                 </LinearLayout>
             </LinearLayout>
@@ -115,6 +120,9 @@
                 <EditText
                     android:id="@+id/subject"
                     style="@style/message_compose_header_field_value"
+                    android:inputType
+                        ="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine"
+                    android:imeOptions="actionNext"
                     />
             </LinearLayout>
 
