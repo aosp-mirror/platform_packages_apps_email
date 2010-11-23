@@ -277,8 +277,6 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
 
         public CachedCursor(Cursor cursor, ContentCache cache, String name) {
             super(cursor);
-            // The underlying cursor must always be at position 0
-            cursor.moveToPosition(0);
             mCursor = cursor;
             mCache = cache;
             // Add this to our set of active cursors
@@ -445,7 +443,15 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
      * @param projection the projection represented by the cursor
      * @return whether or not the cursor was cached
      */
-    public synchronized Cursor putCursor(Cursor c, String id, String[] projection,
+    public Cursor putCursor(Cursor c, String id, String[] projection, CacheToken token) {
+        // Make sure the underlying cursor is at the first row, and do this without synchronizing,
+        // to prevent deadlock with a writing thread (which might, for example, be calling into
+        // CachedCursor.invalidate)
+        c.moveToPosition(0);
+        return putCursorImpl(c, id, projection, token);
+    }
+
+    public synchronized Cursor putCursorImpl(Cursor c, String id, String[] projection,
             CacheToken token) {
         try {
             if (!token.isValid()) {
@@ -465,7 +471,6 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
                    unlockImpl(id, null, false);
                 }
                 put(id, c);
-                c.moveToFirst();
                 return new CachedCursor(c, this, id);
             }
             return c;
