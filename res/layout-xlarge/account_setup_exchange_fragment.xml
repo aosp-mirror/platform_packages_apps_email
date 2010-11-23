@@ -102,11 +102,14 @@
             android:layout_marginLeft="32dip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/account_setup_exchange_trust_certificates_label" />
+            android:text="@string/account_setup_exchange_trust_certificates_label"
+            android:visibility="gone" />
         <View
+            android:id="@+id/account_trust_certificates_divider"
             android:layout_width="match_parent"
             android:layout_height="1px"
-            android:background="@color/account_setup_divider_color" />
+            android:background="@color/account_setup_divider_color"
+            android:visibility="gone" />
     </LinearLayout>
     <TableRow
         android:paddingTop="32dip" >

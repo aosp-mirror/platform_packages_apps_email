@@ -17,12 +17,12 @@
 package com.android.exchange.adapter;
 
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.email.provider.ProviderTestUtils;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.adapter.EmailSyncAdapter.EasEmailSyncParser;
 import com.android.exchange.adapter.EmailSyncAdapter.EasEmailSyncParser.ServerChange;
@@ -48,7 +48,7 @@ public class EmailSyncAdapterTests extends SyncAdapterTestCase<EmailSyncAdapter>
      */
     public void testGetMimeTypeFromFileName() throws IOException {
         EasSyncService service = getTestService();
-        EmailSyncAdapter adapter = new EmailSyncAdapter(service.mMailbox, service);
+        EmailSyncAdapter adapter = new EmailSyncAdapter(service);
         EasEmailSyncParser p = adapter.new EasEmailSyncParser(getTestInputStream(), adapter);
         // Test a few known types
         String mimeType = p.getMimeTypeFromFileName("foo.jpg");
@@ -87,7 +87,7 @@ public class EmailSyncAdapterTests extends SyncAdapterTestCase<EmailSyncAdapter>
 
     public void testSendDeletedItems() throws IOException {
         EasSyncService service = getTestService();
-        EmailSyncAdapter adapter = new EmailSyncAdapter(service.mMailbox, service);
+        EmailSyncAdapter adapter = new EmailSyncAdapter(service);
         Serializer s = new Serializer();
         ArrayList<Long> ids = new ArrayList<Long>();
         ArrayList<Long> deletedIds = new ArrayList<Long>();
@@ -150,7 +150,7 @@ public class EmailSyncAdapterTests extends SyncAdapterTestCase<EmailSyncAdapter>
 
     void setupSyncParserAndAdapter(Account account, Mailbox mailbox) throws IOException {
         EasSyncService service = getTestService(account, mailbox);
-        mSyncAdapter = new EmailSyncAdapter(mailbox, service);
+        mSyncAdapter = new EmailSyncAdapter(service);
         mSyncParser = mSyncAdapter.new EasEmailSyncParser(getTestInputStream(), mSyncAdapter);
     }
 

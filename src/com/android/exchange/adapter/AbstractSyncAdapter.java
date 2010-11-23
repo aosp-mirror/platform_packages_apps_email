@@ -23,6 +23,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 
+import android.content.ContentResolver;
 import android.content.Context;
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ public abstract class AbstractSyncAdapter {
     public EasSyncService mService;
     public Context mContext;
     public Account mAccount;
+    public final ContentResolver mContentResolver;
     public final android.accounts.Account mAccountManagerAccount;
 
     // Create the data for local changes that need to be sent up to the server
@@ -62,18 +64,23 @@ public abstract class AbstractSyncAdapter {
     // Add sync options (filter, body type - html vs plain, and truncation)
     public abstract void sendSyncOptions(Double protocolVersion, Serializer s)
         throws IOException;
+    /**
+     * Delete all records of this class in this account
+     */
+    public abstract void wipe();
 
     public boolean isLooping() {
         return false;
     }
 
-    public AbstractSyncAdapter(Mailbox mailbox, EasSyncService service) {
-        mMailbox = mailbox;
+    public AbstractSyncAdapter(EasSyncService service) {
         mService = service;
+        mMailbox = service.mMailbox;
         mContext = service.mContext;
         mAccount = service.mAccount;
         mAccountManagerAccount = new android.accounts.Account(mAccount.mEmailAddress,
                 Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+        mContentResolver = mContext.getContentResolver();
     }
 
     public void userLog(String ...strings) {

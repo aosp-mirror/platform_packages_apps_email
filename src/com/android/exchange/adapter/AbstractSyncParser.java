@@ -75,11 +75,6 @@ public abstract class AbstractSyncParser extends Parser {
      */
     public abstract void commit() throws IOException;
 
-    /**
-     * Delete all records of this class in this account
-     */
-    public abstract void wipe();
-
     public boolean isLooping() {
         return mLooping;
     }
@@ -121,7 +116,7 @@ public abstract class AbstractSyncParser extends Parser {
                         // TODO Make frequency conditional on user settings!
                         mMailbox.mSyncInterval = Mailbox.CHECK_INTERVAL_PUSH;
                         mService.errorLog("Bad sync key; RESET and delete data");
-                        wipe();
+                        mAdapter.wipe();
                         // Indicate there's more so that we'll start syncing again
                         moreAvailable = true;
                     } else if (status == 8) {

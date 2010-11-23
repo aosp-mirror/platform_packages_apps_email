@@ -54,14 +54,15 @@ import java.net.URISyntaxException;
 public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         implements OnCheckedChangeListener {
 
-    private final static String STATE_KEY_CREDENTIAL =
-        "AccountSetupExchangeFragment.loginCredential";
+    private final static String STATE_KEY_CREDENTIAL = "AccountSetupExchangeFragment.credential";
+    private final static String STATE_KEY_LOADED = "AccountSetupExchangeFragment.loaded";
 
     private EditText mUsernameView;
     private EditText mPasswordView;
     private EditText mServerView;
     private CheckBox mSslSecurityView;
     private CheckBox mTrustCertificatesView;
+    private View mTrustCertificatesDivider;
 
     // Support for lifecycle
     private boolean mStarted;
@@ -81,6 +82,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
 
         if (savedInstanceState != null) {
             mCacheLoginCredential = savedInstanceState.getString(STATE_KEY_CREDENTIAL);
+            mLoaded = savedInstanceState.getBoolean(STATE_KEY_LOADED, false);
         }
     }
 
@@ -99,6 +101,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         mSslSecurityView = (CheckBox) view.findViewById(R.id.account_ssl);
         mSslSecurityView.setOnCheckedChangeListener(this);
         mTrustCertificatesView = (CheckBox) view.findViewById(R.id.account_trust_certificates);
+        mTrustCertificatesDivider = view.findViewById(R.id.account_trust_certificates_divider);
 
         // Calls validateFields() which enables or disables the Next button
         // based on the fields' validity.
@@ -145,9 +148,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         }
         super.onStart();
         mStarted = true;
-        if (!mLoaded) {
-            loadSettings(SetupData.getAccount());
-        }
+        loadSettings(SetupData.getAccount());
     }
 
     /**
@@ -201,6 +202,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         super.onSaveInstanceState(outState);
 
         outState.putString(STATE_KEY_CREDENTIAL, mCacheLoginCredential);
+        outState.putBoolean(STATE_KEY_LOADED, mLoaded);
     }
 
     /**
@@ -209,7 +211,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     @Override
     public void setCallback(Callback callback) {
         super.setCallback(callback);
-        if (mStarted && !mLoaded) {
+        if (mStarted) {
             loadSettings(SetupData.getAccount());
         }
     }
@@ -220,6 +222,8 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      * @return true if the loaded values pass validation
      */
     /* package */ boolean loadSettings(Account account) {
+        if (mLoaded) return validateFields();
+
         HostAuth hostAuth = account.mHostAuthRecv;
 
         String userName = hostAuth.mLogin;
@@ -249,8 +253,9 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         boolean trustCertificates = 0 != (hostAuth.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES);
         mSslSecurityView.setChecked(ssl);
         mTrustCertificatesView.setChecked(trustCertificates);
-        mTrustCertificatesView.setVisibility(ssl ? View.VISIBLE : View.GONE);
+        showTrustCertificates(ssl);
 
+        mLoaded = true;
         return validateFields();
     }
 
@@ -264,6 +269,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      * @return true if all fields are valid, false if any fields are incomplete
      */
     private boolean validateFields() {
+        if (!mLoaded) return false;
         boolean enabled = usernameFieldValid(mUsernameView)
                 && Utility.isTextViewNotEmpty(mPasswordView)
                 && Utility.isTextViewNotEmpty(mServerView);
@@ -280,9 +286,19 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (buttonView.getId() == R.id.account_ssl) {
-            mTrustCertificatesView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            showTrustCertificates(isChecked);
         }
     }
+
+    public void showTrustCertificates(boolean visible) {
+        int mode = visible ? View.VISIBLE : View.GONE;
+        mTrustCertificatesView.setVisibility(mode);
+        // Divider is optional (only on XL layouts)
+        if (mTrustCertificatesDivider != null) {
+            mTrustCertificatesDivider.setVisibility(mode);
+        }
+    }
+
     /**
      * Entry point from Activity after editing settings and verifying them.  Must be FLOW_MODE_EDIT.
      *

@@ -36,6 +36,7 @@ import com.android.email.service.AttachmentDownloadService;
 
 import org.apache.commons.io.IOUtils;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ActivityNotFoundException;
@@ -147,7 +148,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     // contains the HTML content as set in WebView.
     private String mHtmlTextWebView;
 
-    private boolean mStarted;
+    private boolean mResumed;
+    private boolean mLoadWhenResumed;
 
     private boolean mIsMessageLoadedForTest;
 
@@ -347,10 +349,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             Log.d(Email.LOG_TAG, "MessageViewFragment onStart");
         }
         super.onStart();
-        mStarted = true;
-        if (isMessageSpecified()) {
-            openMessageIfStarted();
-        }
     }
 
     @Override
@@ -360,17 +358,17 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         super.onResume();
 
-        // Dynamic configuration of WebView
-        WebSettings.TextSize textZoom;
-        switch (Preferences.getPreferences(mContext).getTextZoom()) {
-            case Preferences.TEXT_ZOOM_TINY:    textZoom = WebSettings.TextSize.SMALLEST; break;
-            case Preferences.TEXT_ZOOM_SMALL:   textZoom = WebSettings.TextSize.SMALLER; break;
-            case Preferences.TEXT_ZOOM_NORMAL:  textZoom = WebSettings.TextSize.NORMAL; break;
-            case Preferences.TEXT_ZOOM_LARGE:   textZoom = WebSettings.TextSize.LARGER; break;
-            case Preferences.TEXT_ZOOM_HUGE:    textZoom = WebSettings.TextSize.LARGEST; break;
-            default:                            textZoom = WebSettings.TextSize.NORMAL; break;
+        mResumed = true;
+        if (isMessageSpecified()) {
+            if (mLoadWhenResumed) {
+                loadMessageIfResumed();
+            } else {
+                // This means, the user comes back from other (full-screen) activities.
+                // In this case we've already loaded the content, so don't load it again,
+                // which results in resetting all view state, including WebView zoom/pan
+                // and the current tab.
+            }
         }
-        mMessageContentView.getSettings().setTextSize(textZoom);
     }
 
     @Override
@@ -378,6 +376,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessageViewFragment onPause");
         }
+        mResumed = false;
         super.onPause();
     }
 
@@ -386,7 +385,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessageViewFragment onStop");
         }
-        mStarted = false;
         super.onStop();
     }
 
@@ -397,7 +395,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         mCallback.onMessageViewGone();
         mController.removeResultCallback(mControllerCallback);
-        cancelAllTasks();
+        clearContent();
         mMessageContentView.destroy();
         mMessageContentView = null;
         super.onDestroy();
@@ -464,10 +462,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         resetView();
     }
 
-    protected final void openMessageIfStarted() {
-        if (!mStarted) {
+    protected final void loadMessageIfResumed() {
+        if (!mResumed) {
+            mLoadWhenResumed = true;
             return;
         }
+        mLoadWhenResumed = false;
         cancelAllTasks();
         resetView();
         mLoadMessageTask = new LoadMessageTask(true);
@@ -481,6 +481,18 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mMessageContentView.getSettings().setBlockNetworkLoads(true);
             mMessageContentView.scrollTo(0, 0);
             mMessageContentView.loadUrl("file:///android_asset/empty.html");
+
+            // Dynamic configuration of WebView
+            WebSettings.TextSize textZoom;
+            switch (Preferences.getPreferences(mContext).getTextZoom()) {
+                case Preferences.TEXT_ZOOM_TINY:    textZoom = WebSettings.TextSize.SMALLEST; break;
+                case Preferences.TEXT_ZOOM_SMALL:   textZoom = WebSettings.TextSize.SMALLER; break;
+                case Preferences.TEXT_ZOOM_NORMAL:  textZoom = WebSettings.TextSize.NORMAL; break;
+                case Preferences.TEXT_ZOOM_LARGE:   textZoom = WebSettings.TextSize.LARGER; break;
+                case Preferences.TEXT_ZOOM_HUGE:    textZoom = WebSettings.TextSize.LARGEST; break;
+                default:                            textZoom = WebSettings.TextSize.NORMAL; break;
+            }
+            mMessageContentView.getSettings().setTextSize(textZoom);
         }
         mAttachmentsScroll.scrollTo(0, 0);
         mInviteScroll.scrollTo(0, 0);
@@ -826,8 +838,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * NOTE This method is called on a worker thread!  Implementations must properly synchronize
      * when accessing members.  This method may be called after or even at the same time as
      * {@link #clearContent()}.
+     *
+     * @param activity the parent activity.  Subclass use it as a context, and to show a toast.
      */
-    protected abstract Message openMessageSync();
+    protected abstract Message openMessageSync(Activity activity);
 
     /**
      * Async task for loading a single message outside of the UI thread
@@ -846,7 +860,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected Message doInBackground(Void... params) {
-            Message message = openMessageSync();
+            Activity activity = getActivity();
+            Message message = null;
+            if (activity != null) {
+                message = openMessageSync(activity);
+            }
             if (message != null) {
                 mMailboxType = Mailbox.getMailboxType(mContext, message.mMailboxKey);
                 if (mMailboxType == -1) {
@@ -882,7 +900,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             if (!isMessageSpecified()) { // just in case
                 return null;
             }
-            return openMessageSync();
+            Activity activity = getActivity();
+            if (activity == null) {
+                return null;
+            } else {
+                return openMessageSync(activity);
+            }
         }
 
         @Override

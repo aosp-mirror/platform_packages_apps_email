@@ -25,6 +25,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.EmailServiceConstants;
 
+import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -220,7 +221,7 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         synchronized (mLock) {
             mMessageIdToOpen = messageId;
         }
-        openMessageIfStarted();
+        loadMessageIfResumed();
     }
 
     @Override
@@ -254,13 +255,13 @@ public class MessageViewFragment extends MessageViewFragmentBase {
      * NOTE See the comment on the super method.  It's called on a worker thread.
      */
     @Override
-    protected Message openMessageSync() {
+    protected Message openMessageSync(Activity activity) {
         synchronized (mLock) {
             long messageId = mMessageIdToOpen;
             if (messageId < 0) {
                 return null; // Called after clearContent().
             }
-            return Message.restoreMessageWithId(getActivity(), messageId);
+            return Message.restoreMessageWithId(activity, messageId);
         }
     }
 

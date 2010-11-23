@@ -36,6 +36,7 @@ import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
 import com.android.email.service.MailService;
 import com.android.exchange.adapter.CalendarSyncAdapter;
+import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.utility.FileLogger;
 
 import org.apache.http.conn.ClientConnectionManager;
@@ -66,21 +67,21 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.NetworkInfo.State;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.os.PowerManager.WakeLock;
 import android.provider.Calendar;
-import android.provider.ContactsContract;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -202,7 +203,6 @@ public class ExchangeService extends Service implements Runnable {
     private AccountObserver mAccountObserver;
     private MailboxObserver mMailboxObserver;
     private SyncedMessageObserver mSyncedMessageObserver;
-    private MessageObserver mMessageObserver;
     private EasSyncStatusObserver mSyncStatusObserver;
     private Object mStatusChangeListener;
     private EasAccountsUpdatedListener mAccountsUpdatedListener;
@@ -447,6 +447,31 @@ public class ExchangeService extends Service implements Runnable {
 
         public void moveMessage(long messageId, long mailboxId) throws RemoteException {
             sendMessageRequest(new MessageMoveRequest(messageId, mailboxId));
+        }
+
+        /**
+         * Delete PIM (calendar, contacts) data for the specified account
+         *
+         * @param accountId the account whose data should be deleted
+         * @throws RemoteException
+         */
+        public void deleteAccountPIMData(long accountId) throws RemoteException {
+            ExchangeService exchangeService = INSTANCE;
+            if (exchangeService == null) return;
+            Mailbox mailbox =
+                Mailbox.restoreMailboxOfType(exchangeService, accountId, Mailbox.TYPE_CONTACTS);
+            if (mailbox != null) {
+                EasSyncService service = new EasSyncService(exchangeService, mailbox);
+                ContactsSyncAdapter adapter = new ContactsSyncAdapter(service);
+                adapter.wipe();
+            }
+            mailbox =
+                Mailbox.restoreMailboxOfType(exchangeService, accountId, Mailbox.TYPE_CALENDAR);
+            if (mailbox != null) {
+                EasSyncService service = new EasSyncService(exchangeService, mailbox);
+                CalendarSyncAdapter adapter = new CalendarSyncAdapter(service);
+                adapter.wipe();
+            }
         }
     };
 
@@ -796,7 +821,7 @@ public class ExchangeService extends Service implements Runnable {
                                         EasSyncService service =
                                             new EasSyncService(INSTANCE, mailbox);
                                         CalendarSyncAdapter adapter =
-                                            new CalendarSyncAdapter(mailbox, service);
+                                            new CalendarSyncAdapter(service);
                                         try {
                                             adapter.setSyncKey("0", false);
                                         } catch (IOException e) {
@@ -863,22 +888,6 @@ public class ExchangeService extends Service implements Runnable {
         public void onChange(boolean selfChange) {
             alarmManager.set(AlarmManager.RTC_WAKEUP,
                     System.currentTimeMillis() + 10*SECONDS, syncAlarmPendingIntent);
-        }
-    }
-
-    private class MessageObserver extends ContentObserver {
-
-        public MessageObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            // A rather blunt instrument here.  But we don't have information about the URI that
-            // triggered this, though it must have been an insert
-            if (!selfChange) {
-                kick(null);
-            }
         }
     }
 
@@ -1850,8 +1859,6 @@ public class ExchangeService extends Service implements Runnable {
                 mSyncedMessageObserver = new SyncedMessageObserver(mHandler);
                 mResolver.registerContentObserver(Message.SYNCED_CONTENT_URI, true,
                         mSyncedMessageObserver);
-                mMessageObserver = new MessageObserver(mHandler);
-                mResolver.registerContentObserver(Message.CONTENT_URI, true, mMessageObserver);
                 mSyncStatusObserver = new EasSyncStatusObserver();
                 mStatusChangeListener =
                     ContentResolver.addStatusChangeListener(
@@ -1947,10 +1954,6 @@ public class ExchangeService extends Service implements Runnable {
                 if (mSyncedMessageObserver != null) {
                     resolver.unregisterContentObserver(mSyncedMessageObserver);
                     mSyncedMessageObserver = null;
-                }
-                if (mMessageObserver != null) {
-                    resolver.unregisterContentObserver(mMessageObserver);
-                    mMessageObserver = null;
                 }
                 if (mAccountObserver != null) {
                     resolver.unregisterContentObserver(mAccountObserver);
