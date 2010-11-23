@@ -243,14 +243,16 @@ public class MessageListItem extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        mViewWidth = MeasureSpec.getSize(widthMeasureSpec);
-        int mode = getViewMode(mViewWidth);
-        if (mode != mMode) {
-            // If the mode has changed, set the snippet line count to indicate layout required
-            mMode = mode;
-            mSnippetLineCount = NEEDS_LAYOUT;
+        if (widthMeasureSpec != 0 || mViewWidth == 0) {
+            mViewWidth = MeasureSpec.getSize(widthMeasureSpec);
+            int mode = getViewMode(mViewWidth);
+            if (mode != mMode) {
+                // If the mode has changed, set the snippet line count to indicate layout required
+                mMode = mode;
+                mSnippetLineCount = NEEDS_LAYOUT;
+            }
+            mViewHeight = measureHeight(heightMeasureSpec, mMode);
         }
-        mViewHeight = measureHeight(heightMeasureSpec, mMode);
         setMeasuredDimension(mViewWidth, mViewHeight);
     }
 
