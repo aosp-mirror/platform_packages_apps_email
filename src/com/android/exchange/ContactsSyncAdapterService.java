@@ -17,7 +17,6 @@
 package com.android.exchange;
 
 import com.android.email.Email;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
@@ -35,6 +34,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.ContactsContract.Groups;
 import android.provider.ContactsContract.RawContacts;
 import android.util.Log;
 
@@ -43,7 +43,7 @@ public class ContactsSyncAdapterService extends Service {
     private static SyncAdapterImpl sSyncAdapter = null;
     private static final Object sSyncAdapterLock = new Object();
 
-    private static final String[] ID_PROJECTION = new String[] {EmailContent.RECORD_ID};
+    private static final String[] ID_PROJECTION = new String[] {"_id"};
     private static final String ACCOUNT_AND_TYPE_CONTACTS =
         MailboxColumns.ACCOUNT_KEY + "=? AND " + MailboxColumns.TYPE + '=' + Mailbox.TYPE_CONTACTS;
 
@@ -85,6 +85,15 @@ public class ContactsSyncAdapterService extends Service {
         return sSyncAdapter.getSyncAdapterBinder();
     }
 
+    private static boolean hasDirtyRows(ContentResolver resolver, Uri uri, String dirtyColumn) {
+        Cursor c = resolver.query(uri, ID_PROJECTION, dirtyColumn + "=1", null, null);
+        try {
+            return c.getCount() > 0;
+        } finally {
+            c.close();
+        }
+    }
+
     /**
      * Partial integration with system SyncManager; we tell our EAS ExchangeService to start a
      * contacts sync when we get the signal from SyncManager.
@@ -95,21 +104,29 @@ public class ContactsSyncAdapterService extends Service {
             String authority, ContentProviderClient provider, SyncResult syncResult)
             throws OperationCanceledException {
         ContentResolver cr = context.getContentResolver();
-        Log.i(TAG, "performSync");
+        if (Email.DEBUG) {
+            Log.d(TAG, "performSync");
+        }
+
+        // If we've been asked to do an upload, make sure we've got work to do
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD)) {
             Uri uri = RawContacts.CONTENT_URI.buildUpon()
                 .appendQueryParameter(RawContacts.ACCOUNT_NAME, account.name)
                 .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE)
                 .build();
-            Cursor c = cr.query(uri,
-                    new String[] {RawContacts._ID}, RawContacts.DIRTY + "=1", null, null);
-            try {
-                if (!c.moveToFirst()) {
-                    Log.i(TAG, "Upload sync; no changes");
-                    return;
-                }
-            } finally {
-                c.close();
+            // See if we've got dirty contacts or dirty groups containing our contacts
+            boolean changed = hasDirtyRows(cr, uri, RawContacts.DIRTY);
+            if (!changed) {
+                uri = Groups.CONTENT_URI.buildUpon()
+                    .appendQueryParameter(RawContacts.ACCOUNT_NAME, account.name)
+                    .appendQueryParameter(RawContacts.ACCOUNT_TYPE,
+                            Email.EXCHANGE_ACCOUNT_MANAGER_TYPE)
+                    .build();
+                changed = hasDirtyRows(cr, uri, Groups.DIRTY);
+            }
+            if (!changed) {
+                Log.i(TAG, "Upload sync; no changes");
+                return;
             }
         }
 
