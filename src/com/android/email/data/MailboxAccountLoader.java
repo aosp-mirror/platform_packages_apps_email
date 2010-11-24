@@ -16,6 +16,7 @@
 
 package com.android.email.data;
 
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 
@@ -35,14 +36,16 @@ public class MailboxAccountLoader extends AsyncTaskLoader<MailboxAccountLoader.R
         public final Mailbox mMailbox;
         public final boolean mIsEasAccount;
         public final boolean mIsRefreshable;
+        public final int mCountTotalAccounts;
 
         private Result(boolean found, Account account, Mailbox mailbox, boolean isEasAccount,
-                boolean isRefreshable) {
+                boolean isRefreshable, int countTotalAccounts) {
             mIsFound = found;
             mAccount = account;
             mMailbox = mailbox;
             mIsEasAccount = isEasAccount;
             mIsRefreshable = isRefreshable;
+            mCountTotalAccounts = countTotalAccounts;
         }
     }
 
@@ -82,7 +85,9 @@ public class MailboxAccountLoader extends AsyncTaskLoader<MailboxAccountLoader.R
                 }
             }
         }
-        Result result = new Result(found, account, mailbox, isEasAccount, isRefreshable);
+        final int countAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
+        Result result = new Result(found, account, mailbox, isEasAccount, isRefreshable,
+                countAccounts);
         return result;
     }
 
