@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Controller;
 import com.android.email.Email;
+import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.Utility;
 import com.android.email.provider.EmailProvider;
@@ -35,8 +36,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.DragEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnDragListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -158,6 +161,12 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (savedInstanceState != null) {
             restoreInstanceState(savedInstanceState);
         }
+    }
+
+    @Override
+    public View onCreateView(
+            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.mailbox_list_fragment, container, false);
     }
 
     @Override
