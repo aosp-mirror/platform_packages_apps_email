@@ -154,7 +154,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
      * - # of unread messages in inbox
      * - The "Combined view" row if there's more than one account.
      */
-    private static class AccountsLoader extends ThrottlingCursorLoader {
+    /* package */ static class AccountsLoader extends ThrottlingCursorLoader {
         private final Context mContext;
 
         public AccountsLoader(Context context) {
@@ -192,7 +192,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
             }
             // Add "combined view"
             final int countAccounts = resultCursor.getCount();
-            if (countAccounts > 0) {
+            if (countAccounts > 1) {
                 RowBuilder rb = resultCursor.newRow();
 
                 // Add ID, display name, # of accounts, total unread count.
