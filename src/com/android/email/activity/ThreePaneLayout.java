@@ -212,7 +212,14 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         return ret;
     }
 
-    public boolean onBackPressed() {
+    /**
+     * Handles the back event.
+     *
+     * @param isSystemBackKey set true if the system back key is pressed, rather than the home
+     * icon on action bar.
+     * @return true if the event is handled.
+     */
+    public boolean onBackPressed(boolean isSystemBackKey) {
         if (isLandscape()) {
             switch (mPaneState) {
             case STATE_RIGHT_VISIBLE:
@@ -222,7 +229,11 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         } else {
             switch (mPaneState) {
                 case STATE_RIGHT_VISIBLE:
-                    changePaneState(STATE_PORTRAIT_MIDDLE_EXPANDED, true);
+                    if (isSystemBackKey) {
+                        changePaneState(STATE_LEFT_VISIBLE, true);
+                    } else {
+                        changePaneState(STATE_PORTRAIT_MIDDLE_EXPANDED, true);
+                    }
                     return true;
                 case STATE_PORTRAIT_MIDDLE_EXPANDED:
                     changePaneState(STATE_LEFT_VISIBLE, true);

@@ -346,12 +346,13 @@ class MessageListXLFragmentManager {
     }
 
     /**
-     * Handles back press.
+     * Handles the back event.
      *
-     * @return true "back" is handled.
+     * @param isSystemBackKey See {@link ThreePaneLayout#onBackPressed}
+     * @return true if the event is handled.
      */
-    public boolean onBackPressed() {
-        return mThreePane.onBackPressed();
+    public boolean onBackPressed(boolean isSystemBackKey) {
+        return mThreePane.onBackPressed(isSystemBackKey);
     }
 
     /**

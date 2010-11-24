@@ -225,14 +225,14 @@ public class MessageListXL extends Activity implements
     /**
      * Performs the back action.
      *
-     * @param mayCloseActivity if true, the activity will close if it's already on top of the
-     * internal back state stack.
+     * @param isSystemBackKey set true if the system back key is pressed, rather than the home
+     * icon on action bar.
      */
-    private boolean onBackPressed(boolean mayCloseActivity) {
-        if (mFragmentManager.onBackPressed()) {
+    private boolean onBackPressed(boolean isSystemBackKey) {
+        if (mFragmentManager.onBackPressed(isSystemBackKey)) {
             return true;
         }
-        if (mayCloseActivity) {
+        if (isSystemBackKey) {
             // Perform the default behavior.
             super.onBackPressed();
             return true;
