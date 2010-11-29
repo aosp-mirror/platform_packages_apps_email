@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="status_sending_messages" msgid="3971880826111264523">"Nachrichten werden gesendet…"</string>
-    <!-- outdated translation 9100624762133992435 -->     <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"Ausgehende Nachrichten senden"</string>
+    <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"Alle senden"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Anhang wird abgerufen"</string>
     <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Anhang <xliff:g id="FILENAME">%s</xliff:g> wird abgerufen."</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"Anhänge lesen"</string>
@@ -39,7 +39,7 @@
     <string name="forward_action" msgid="669174181042344116">"Weiterleiten"</string>
     <string name="done_action" msgid="7497990549515580249">"Fertig"</string>
     <string name="discard_action" msgid="6532206074859505968">"Verwerfen"</string>
-    <!-- outdated translation 812855865552028622 -->     <string name="save_draft_action" msgid="6413714270991417223">"Als Entwurf speichern"</string>
+    <string name="save_draft_action" msgid="6413714270991417223">"Entwurf sp."</string>
     <string name="read_unread_action" msgid="4721446664849165077">"Gelesen/ungelesen"</string>
     <string name="read_action" msgid="4701484794504781686">"Als gelesen markieren"</string>
     <string name="unread_action" msgid="6280399049357552826">"Als ungelesen markieren"</string>
@@ -60,7 +60,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Als ungelesen markieren"</string>
     <!-- no translation found for move_action (3059189775933985898) -->
     <skip />
-    <!-- outdated translation 5569074812077509737 -->     <string name="add_cc_bcc_action" msgid="413546910281713891">"\"Cc\"/\"Bcc\" hinzufügen"</string>
+    <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Anhang hinzufügen"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Einstellungen für Speicherauszug"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Anhang auswählen"</string>
@@ -182,7 +182,8 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> Nachrichten verschoben in: <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Mindestens ein Anhang wurde nicht weitergeleitet."</string>
-    <!-- outdated translation 3239753701377399676 -->     <string name="forward_download_failed_notification" msgid="3122309797954781752">"Der Anhang <xliff:g id="FILENAME"> %s</xliff:g> konnte nicht mit Ihrer ausgehenden E-Mail gesendet werden, da er nicht heruntergeladen werden konnte."</string>
+    <!-- no translation found for forward_download_failed_notification (3122309797954781752) -->
+    <skip />
     <string name="login_failed_ticker" msgid="7452091306512654139">"<xliff:g id="ACCOUNT_NAME">%s </xliff:g> - Anmeldefehler"</string>
     <string name="login_failed_notification" msgid="2405086379065472222">"Berühren Sie diesen Bereich, um die Kontoeinstellungen zu ändern."</string>
   <plurals name="message_view_attachment_bytes">
@@ -348,10 +349,12 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" wird aus Email entfernt."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Konto entfernen"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Konto entfernen"</string>
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Upgrade für Konten"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Konto-Upgrade nicht durchführbar"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Der Zugang zum Postfach bestimmter E-Mail-Konten von Yahoo! wird nicht unterstützt. Bei Verbindungsproblemen besuchen Sie die Website von Yahoo! für weitere Informationen."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Vor Eröffnung dieses E-Mail-Kontos bitte die Website von Yahoo! besuchen und E-Mail-Zugang über POP3 für dieses Konto aktivieren."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Nur einige \"Plus\"-Konten ermöglichen einen POP-Zugang und damit diesem Programm, eine Verbindung aufzubauen. Sollten Sie nicht dazu in der Lage sein, sich mit Ihrer korrekten E-Mail-Adresse und dem richtigen Password anzumelden, verfügen Sie möglicherweise nicht über ein kostenpflichtiges \"Plus\"-Konto. Starten Sie Ihren Webbrowser, um Zugriff auf diese Konten zu erlangen."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Vor Erstellung des E-Mail Kontos bitte \\\"eMail-Passwort\\\" für den POP3-Zugang auf der T-Online-Startseite einrichten."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Geschäftlich"</string>
@@ -384,25 +387,20 @@
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Neuere Nachricht"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Ältere Nachricht"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Nachrichtenliste"</string>
-    <!-- no translation found for general_preference_text_zoom_label (4021955890499565713) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_summary_array:0 (1728778773460367725) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:1 (8239633518447359057) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:2 (55959821477704302) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:3 (446236334663020508) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:4 (235926149071179467) -->
-    <!-- no translation found for general_preference_text_zoom_dialog_title (7446841758331151643) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_tiny (2948174583663330937) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_small (6618520238223144876) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_normal (1765540147950855479) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
-    <skip />
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Nachrichtentextgröße"</string>
+  <string-array name="general_preference_text_zoom_summary_array">
+    <item msgid="1728778773460367725">"Inhalt von Nachrichten als sehr kleinen Text anzeigen"</item>
+    <item msgid="8239633518447359057">"Inhalt von Nachrichten als kleinen Text anzeigen"</item>
+    <item msgid="55959821477704302">"Inhalt von Nachrichten als normal großen Text anzeigen"</item>
+    <item msgid="446236334663020508">"Inhalt von Nachrichten als großen Text anzeigen"</item>
+    <item msgid="235926149071179467">"Inhalt von Nachrichten als sehr großen Text anzeigen"</item>
+  </string-array>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Nachrichtentextgröße"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Sehr klein"</string>
+    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Klein"</string>
+    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
+    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Groß"</string>
+    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Sehr groß"</string>
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />
 </resources>

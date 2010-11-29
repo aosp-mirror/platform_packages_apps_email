@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"A melléklet a következő néven került mentésre az SD-kártyán: <xliff:g id="FILENAME">%s</xliff:g>"</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"A mellékleteket nem sikerült az SD-kártyára menteni."</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Fiókok frissítése"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"A fiókot nem lehet frissíteni"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"A postaláda elérése bizonyos típusú Yahoo!-postafiókok esetén nem támogatott. Ha probléma merül fel a csatlakozás során, további információért keresse fel a yahoo.com webhelyet."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Kérjük, az e-mail fiók beállítása előtt látogasson el a Yahoo! webhelyére, és engedélyezze a POP3-alapú hozzáférést a fiókhoz."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Csak bizonyos \"Plus\" típusú fiókok rendelkeznek olyan POP-hozzáféréssel, amely lehetővé teszi a program számára a kapcsolódást. Ha nem tud bejelentkezni a megfelelő e-mail címmel és jelszóval, valószínűleg nem fizetett elő \"Plus\" típusú fiókra. Kérjük, indítsa el a webböngészőt az ilyen e-mail fiókok eléréséhez."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Kérjük, az e-mail fiók beállítása előtt keresse fel a T-Online webhelyét, és hozzon létre jelszót a POP3-alapú hozzáféréshez."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Vállalati"</string>

@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Tệp đính kèm được lưu vào thẻ SD dưới dạng <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Không thể lưu tệp đính kèm vào thẻ SD."</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Nâng cấp tài khoản"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Không thể nâng cấp tài khoản"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Truy cập hộp thư không được hỗ trợ đối với một số loại tài khoản thư của Yahoo!. Nếu bạn gặp sự cố khi kết nối, hãy truy cập yahoo.com để biết thêm thông tin."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Trước khi thiết lập tài khoản email này, vui lòng truy cập trang web Yahoo! và cho phép quyền truy cập vào email POP3 đối với tài khoản này."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Chỉ một số tài khoản \"Plus\" mới có quyền truy cập POP nhằm cho phép chương trình này kết nối. Nếu bạn không thể đăng nhập bằng địa chỉ email và mật khẩu chính xác của mình, bạn có thể không có tài khoản \"Plus\" trả tiền. Vui lòng khởi chạy trình duyệt Web để yêu cầu quyền truy cập vào các tài khoản thư này."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Trước khi thiết lập tài khoản email này, vui lòng truy cập trang Web T-Online và tạo mật khẩu để truy cập email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Doanh nghiệp"</string>

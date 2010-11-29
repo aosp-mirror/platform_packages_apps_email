@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Privitak je spremljen na SD karticu kao <xliff:g id="FILENAME">%s</xliff:g>"</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Spremanje privitka na SD karticu nije moguće."</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Nadogradnja računa"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Nadogradnja računa nije moguća"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Neke vrste Yahoo! računa e-pošte ne podržavaju pristup poštanskom sandučiću. Ako imate problema s povezivanje, posjetite yahoo.com za više informacija."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Prije postavljanja ovog računa e-pošte posjetite web-lokaciju Yahoo! i omogućite POP3 pristup e-pošti za ovaj račun."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Samo neki \"Plus\" računi uključuju POP pristup koji ovom programu omogućuje povezivanje. Ako se ne možete prijaviti sa svojom ispravnom adresom e-pošte i zaporkom, možda niste platili \"Plus\" račun. Pokrenite web-preglednik kako biste dobili pristup ovim računima e-pošte."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Prije postavljanja ovog računa e-pošte posjetite web-lokaciju T-Online i izradite zaporku za POP3 pristup e-pošti."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Korporacijski"</string>

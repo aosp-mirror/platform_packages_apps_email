@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Прилог је сачуван на SD картицу под називом <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Није могуће сачувати прилог на SD картици."</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Надоградња налога"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Није могуће надоградити налог."</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Приступ поштанском сандучету није подржан за поједине типове Yahoo! налога е-поште. Ако имате потешкоћа са повезивањем, додатне информације потражите на адреси yahoo.com."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Пре него што конфигуришете овај налог е-поште, посетите Yahoo! веб сајт и омогућите приступ е-пошти преко POP3 протокола за овај налог."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Само неки „Плус“ налози подржавају приступ преко POP протокола, што омогућава повезивање овог програма. Ако не можете да се пријавите користећи тачну адресу е-поште и лозинку, можда немате плаћени „Плус“ налог. Покрените веб прегледач да бисте приступили овим налозима е-поште."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Пре него што конфигуришете овај налог е-поште, посетите T-Online веб сајт и одредите лозинку за приступ е-пошти преко POP3 протокола."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>
