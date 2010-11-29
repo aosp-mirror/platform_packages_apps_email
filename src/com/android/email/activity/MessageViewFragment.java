@@ -167,6 +167,9 @@ public class MessageViewFragment extends MessageViewFragmentBase {
         mMeetingMaybe = (TextView) view.findViewById(R.id.maybe);
         mMeetingNo = (TextView) view.findViewById(R.id.decline);
 
+        // Star is only visible on this fragment (as opposed to MessageFileViewFragment.)
+        view.findViewById(R.id.favorite).setVisibility(View.VISIBLE);
+
         mFavoriteIcon.setOnClickListener(this);
         mReplyButton.setOnClickListener(this);
         mReplyAllButton.setOnClickListener(this);

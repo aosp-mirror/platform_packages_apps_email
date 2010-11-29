@@ -121,6 +121,7 @@ public class MessageListFragment extends ListFragment
     private Mailbox mMailbox;
     private boolean mIsEasAccount;
     private boolean mIsRefreshable;
+    private int mCountTotalAccounts;
 
     // Controller access
     private Controller mController;
@@ -1033,6 +1034,7 @@ public class MessageListFragment extends ListFragment
             mMailbox = result.mMailbox;
             mIsEasAccount = result.mIsEasAccount;
             mIsRefreshable = result.mIsRefreshable;
+            mCountTotalAccounts = result.mCountTotalAccounts;
             getLoaderManager().initLoader(LOADER_ID_MESSAGES_LOADER, null,
                     new MessagesLoaderCallback(mMailboxChanging));
 
@@ -1089,6 +1091,8 @@ public class MessageListFragment extends ListFragment
 
             // Update the list
             mListAdapter.changeCursor(cursor);
+            // Show chips if combined view.
+            mListAdapter.setShowColorChips(mMailboxId < 0 && mCountTotalAccounts > 1);
             setListAdapter(mListAdapter);
             setListShown(true);
 

@@ -17,33 +17,33 @@
 package com.android.email.activity;
 
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 
 import android.app.ListActivity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 
 /**
- *
  * This class implements a launcher shortcut for directly accessing a single account.
- *
- * This is simply a lightweight version of Accounts, and should almost certainly be merged with it
- * (or, one could be a base class of the other).
  *
  * TODO Handle upgraded shortcuts for the phone UI release.  Shortcuts used to launch MessageList
  * directly.  We need to detect this and redirect to Welcome.
  */
-public class AccountShortcutPicker extends ListActivity implements OnItemClickListener {
+public class AccountShortcutPicker extends ListActivity
+        implements OnClickListener, OnItemClickListener {
+
+    private AccountTask mAccountTask;
 
     /**
      * Support for list adapter
@@ -51,12 +51,10 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
     private final static String[] FROM_COLUMNS = new String[] {
             EmailContent.AccountColumns.DISPLAY_NAME,
             EmailContent.AccountColumns.EMAIL_ADDRESS,
-            EmailContent.RECORD_ID
     };
     private final static int[] TO_IDS = new int[] {
             R.id.description,
             R.id.email,
-            R.id.new_message_count
     };
 
     @Override
@@ -69,27 +67,40 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
             return;
         }
 
-        // finish() immediately if no accounts are configured
-        // TODO: lightweight projection with only those columns needed for this display
-        // TODO: query outside of UI thread
-        Cursor c = this.managedQuery(
-                EmailContent.Account.CONTENT_URI,
-                EmailContent.Account.CONTENT_PROJECTION,
-                null, null, null);
-        if (c.getCount() == 0) {
-            finish();
-            return;
-        }
+        setContentView(R.layout.account_shortcut_picker);
+        findViewById(R.id.cancel).setOnClickListener(this);
 
-        setContentView(R.layout.accounts);
         ListView listView = getListView();
         listView.setOnItemClickListener(this);
         listView.setItemsCanFocus(false);
-        listView.setEmptyView(findViewById(R.id.empty));
 
-        AccountsAdapter a = new AccountsAdapter(this,
-                R.layout.accounts_item, c, FROM_COLUMNS, TO_IDS);
-        listView.setAdapter(a);
+        mAccountTask = new AccountTask();
+        mAccountTask.execute();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Cleanup running async task (if any)
+        Utility.cancelTaskInterrupt(mAccountTask);
+        mAccountTask = null;
+        // Cleanup accounts cursor (if any)
+        SimpleCursorAdapter adapter = (SimpleCursorAdapter) getListAdapter();
+        if (adapter != null) {
+            adapter.changeCursor(null);
+        }
+    }
+
+    /**
+     * Implements View.OnClickListener
+     */
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.cancel:
+                finish();
+                break;
+        }
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -99,33 +110,40 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
         finish();
     }
 
-    private static class AccountsAdapter extends SimpleCursorAdapter {
+    /**
+     * Load the accounts and create the adapter.
+     */
+    private class AccountTask extends AsyncTask<Void, Void, Cursor> {
 
-        public AccountsAdapter(Context context, int layout, Cursor c, String[] from, int[] to) {
-            super(context, layout, c, from, to);
-            setViewBinder(new MyViewBinder());
+        @Override
+        protected Cursor doInBackground(Void... params) {
+            Cursor cursor = AccountShortcutPicker.this.getContentResolver().query(
+                    EmailContent.Account.CONTENT_URI,
+                    EmailContent.Account.CONTENT_PROJECTION,
+                    null, null, null);
+            if (isCancelled()) {
+                cursor.close();
+                cursor = null;
+            }
+            return cursor;
         }
 
-        /**
-         * This is only used for the unread messages count.  Most of the views are handled
-         * normally by SimpleCursorAdapter.
-         */
-        private static class MyViewBinder implements SimpleCursorAdapter.ViewBinder {
-
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                if (view.getId() == R.id.new_message_count) {
-
-                    int unreadMessageCount = 0;     // TODO get unread count from Account
-                    if (unreadMessageCount <= 0) {
-                        view.setVisibility(View.GONE);
-                    } else {
-                        ((TextView)view).setText(String.valueOf(unreadMessageCount));
-                    }
-                    return true;
-                }
-
-                return false;
+        @Override
+        protected void onPostExecute(Cursor cursor) {
+            // If canceled, get out immediately
+            if (cursor == null) {
+                return;
             }
+            // If there are no accounts, we should never have been here - exit the activity
+            if (cursor.getCount() == 0) {
+                finish();
+                return;
+            }
+            // Create an adapter and connect to the ListView
+            AccountShortcutPicker activity = AccountShortcutPicker.this;
+            SimpleCursorAdapter adapter = new SimpleCursorAdapter(activity,
+                    R.layout.account_shortcut_picker_item, cursor, FROM_COLUMNS, TO_IDS);
+            activity.getListView().setAdapter(adapter);
         }
     }
 
@@ -164,7 +182,7 @@ public class AccountShortcutPicker extends ListActivity implements OnItemClickLi
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
         intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, account.getDisplayName());
-        Parcelable iconResource = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon);
+        Parcelable iconResource = Intent.ShortcutIconResource.fromContext(this, R.mipmap.icon);
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
 
         // Now, return the result to the launcher

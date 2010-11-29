@@ -19,4 +19,11 @@
     <!-- message compose STOPSHIP not final -->
     <dimen name="message_compose_paper_width">800dip</dimen>
     <dimen name="message_compose_field_label_width">120dip</dimen>
+
+    <!-- XL activity dimensions -->
+
+    <!-- width of mailbox list -->
+    <dimen name="mailbox_list_width">312dip</dimen>
+    <!-- width of the message list, on the message list + message view mode. -->
+    <dimen name="message_list_width">466dip</dimen>
 </resources>

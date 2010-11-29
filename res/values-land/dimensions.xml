@@ -14,19 +14,8 @@
      limitations under the License.
 -->
 
-<!-- xlarge, portrait -->
+<!-- landscape -->
 <resources>
-    <!-- message compose STOPSHIP not final -->
-    <dimen name="message_compose_paper_width">700dip</dimen>
-    <dimen name="message_compose_field_label_width">120dip</dimen>
-
-    <!-- XL activity dimensions -->
-
-    <!-- width of mailbox list -->
-    <dimen name="mailbox_list_width">216dip</dimen>
-    <!--
-        width of the message list, on the message list + message view mode.
-        (i.e. on portrait, it's the "expanded" message list.)
-    -->
-    <dimen name="message_list_width">440dip</dimen>
+    <dimen name="mailbox_list_padding_left">8dip</dimen>
+    <dimen name="mailbox_list_padding_right">32dip</dimen>
 </resources>

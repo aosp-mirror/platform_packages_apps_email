@@ -162,48 +162,9 @@ public class Email extends Application {
     public static final String EXCHANGE_ACCOUNT_MANAGER_TYPE = "com.android.exchange";
     public static final String POP_IMAP_ACCOUNT_MANAGER_TYPE = "com.android.email";
 
-    // The color chip resources and the RGB color values in the array below must be kept in sync
-    private static final int[] ACCOUNT_COLOR_CHIP_RES_IDS = new int[] {
-        R.drawable.appointment_indicator_leftside_1,
-        R.drawable.appointment_indicator_leftside_2,
-        R.drawable.appointment_indicator_leftside_3,
-        R.drawable.appointment_indicator_leftside_4,
-        R.drawable.appointment_indicator_leftside_5,
-        R.drawable.appointment_indicator_leftside_6,
-        R.drawable.appointment_indicator_leftside_7,
-        R.drawable.appointment_indicator_leftside_8,
-        R.drawable.appointment_indicator_leftside_9,
-    };
-
-    private static final int[] ACCOUNT_COLOR_CHIP_RGBS = new int[] {
-        0x71aea7,
-        0x621919,
-        0x18462f,
-        0xbf8e52,
-        0x001f79,
-        0xa8afc2,
-        0x6b64c4,
-        0x738359,
-        0x9d50a4,
-    };
-
     private static File sTempDirectory;
 
     private static Thread sUiThread;
-
-    /* package for testing */ static int getColorIndexFromAccountId(long accountId) {
-        // Account id is 1-based, so - 1.
-        // Use abs so that it won't possibly return negative.
-        return Math.abs((int) (accountId - 1) % ACCOUNT_COLOR_CHIP_RES_IDS.length);
-    }
-
-    public static int getAccountColorResourceId(long accountId) {
-        return ACCOUNT_COLOR_CHIP_RES_IDS[getColorIndexFromAccountId(accountId)];
-    }
-
-    public static int getAccountColor(long accountId) {
-        return ACCOUNT_COLOR_CHIP_RGBS[getColorIndexFromAccountId(accountId)];
-    }
 
     public static void setTempDirectory(Context context) {
         sTempDirectory = context.getCacheDir();

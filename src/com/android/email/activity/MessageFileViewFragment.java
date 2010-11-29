@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent.Message;
@@ -23,9 +24,7 @@ import com.android.email.provider.EmailContent.Message;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.util.Log;
 
 import java.security.InvalidParameterException;
 
@@ -55,20 +54,6 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
         sFragmentCount++;
     }
 
-    /**
-     * Loads the layout.
-     *
-     * This class uses the same layout as {@link MessageViewFragment}, but hides the star.
-     */
-    @Override
-    public View onCreateView(
-            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
-
-        view.findViewById(R.id.favorite).setVisibility(View.GONE);
-        return view;
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -82,6 +67,9 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
 
     /** Called by activities with a URI to an EML file. */
     public void openMessage(Uri fileEmailUri) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "MessageFileViewFragment openMessage");
+        }
         if (fileEmailUri == null) {
             throw new InvalidParameterException();
         }
@@ -112,6 +100,9 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
     @Override
     protected Message openMessageSync(Activity activity) {
         synchronized (mLock) {
+            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "MessageFileViewFragment openMessageSync");
+            }
             Uri messageUri = mFileEmailUri;
             if (messageUri == null) {
                 return null; // Called after clearContent().

@@ -75,7 +75,10 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
     private static final String SERVER_ID_SELECTION = RawContacts.SOURCE_ID + "=?";
     private static final String CLIENT_ID_SELECTION = RawContacts.SYNC1 + "=?";
     private static final String[] ID_PROJECTION = new String[] {RawContacts._ID};
-    private static final String[] GROUP_PROJECTION = new String[] {Groups.SOURCE_ID};
+    private static final String[] GROUP_TITLE_PROJECTION = new String[] {Groups.TITLE};
+    private static final String MIMETYPE_GROUP_MEMBERSHIP_AND_ID_EQUALS = Data.MIMETYPE + "='" +
+        GroupMembership.CONTENT_ITEM_TYPE + "' AND " + GroupMembership.GROUP_ROW_ID + "=?";
+    private static final String[] GROUPS_ID_PROJECTION = new String[] {Groups._ID};
 
     private static final ArrayList<NamedContentValues> EMPTY_ARRAY_NAMEDCONTENTVALUES
         = new ArrayList<NamedContentValues>();
@@ -1742,17 +1745,47 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         }
     }
 
+    private void dirtyContactsWithinDirtyGroups() {
+        ContentResolver cr = mService.mContentResolver;
+        Cursor c = cr.query(uriWithAccountAndIsSyncAdapter(Groups.CONTENT_URI),
+                GROUPS_ID_PROJECTION, Groups.DIRTY + "=1", null, null);
+        try {
+            if (c.getCount() > 0) {
+                String[] updateArgs = new String[1];
+                ContentValues updateValues = new ContentValues();
+                while (c.moveToNext()) {
+                    // For each, "touch" all data rows with this group id; this will mark contacts
+                    // in this group as dirty (per ContactsContract).  We will then know to upload
+                    // them to the server with the modified group information
+                    long id = c.getLong(0);
+                    updateValues.put(GroupMembership.GROUP_ROW_ID, id);
+                    updateArgs[0] = Long.toString(id);
+                    cr.update(Data.CONTENT_URI, updateValues,
+                            MIMETYPE_GROUP_MEMBERSHIP_AND_ID_EQUALS, updateArgs);
+                }
+                // Really delete groups that are marked deleted
+                cr.delete(uriWithAccountAndIsSyncAdapter(Groups.CONTENT_URI), Groups.DELETED + "=1",
+                        null);
+                // Clear the dirty flag for all of our groups
+                updateValues.clear();
+                updateValues.put(Groups.DIRTY, 0);
+                cr.update(uriWithAccountAndIsSyncAdapter(Groups.CONTENT_URI), updateValues, null,
+                        null);
+            }
+        } finally {
+            c.close();
+        }
+    }
+
     @Override
     public boolean sendLocalChanges(Serializer s) throws IOException {
-        // First, let's find Contacts that have changed.
         ContentResolver cr = mService.mContentResolver;
-        Uri uri = RawContactsEntity.CONTENT_URI.buildUpon()
-                .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
-                .appendQueryParameter(RawContacts.ACCOUNT_TYPE,
-                        com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE)
-                .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
-                .build();
 
+        // Find any groups of ours that are dirty and dirty those groups' members
+        dirtyContactsWithinDirtyGroups();
+
+        // First, let's find Contacts that have changed.
+        Uri uri = uriWithAccountAndIsSyncAdapter(RawContactsEntity.CONTENT_URI);
         if (getSyncKey().equals("0")) {
             return false;
         }
@@ -1863,7 +1896,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     for (int id: groupIds) {
                         // Since we get id's from the provider, we need to find their names
                         Cursor c = cr.query(ContentUris.withAppendedId(Groups.CONTENT_URI, id),
-                                GROUP_PROJECTION, null, null, null);
+                                GROUP_TITLE_PROJECTION, null, null, null);
                         try {
                             // Presumably, this should always succeed, but ...
                             if (c.moveToFirst()) {

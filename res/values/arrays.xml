@@ -177,4 +177,13 @@
         <!-- TYPE_JUNK = 7 -->
         <item>@drawable/ic_list_spam</item>
     </array>
+
+    <!-- Account color chips on combined view -->
+    <array name="combined_view_account_colors" translatable="false">
+        <item>@color/combined_view_account_color_1</item>
+        <item>@color/combined_view_account_color_2</item>
+        <item>@color/combined_view_account_color_3</item>
+        <item>@color/combined_view_account_color_4</item>
+        <item>@color/combined_view_account_color_5</item>
+    </array>
 </resources>

@@ -53,7 +53,8 @@ public class MessageFileView extends MessageViewBase {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        mFragment = (MessageFileViewFragment) findFragmentById(R.id.message_file_view_fragment);
+        mFragment = (MessageFileViewFragment) getFragmentManager().findFragmentById(
+                R.id.message_file_view_fragment);
         mFragment.setCallback(this);
 
         Intent intent = getIntent();
@@ -65,14 +66,14 @@ public class MessageFileView extends MessageViewBase {
         }
 
         // TODO set title here: "Viewing XXX.eml".
+
+        // Load message.
+        getFragment().openMessage(mFileEmailUri);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // Note: We don't have to close the activity even if an account has been deleted,
-        // unlike MessageView.
-        getFragment().openMessage(mFileEmailUri);
     }
 
     /** @return always -1, as no accounts are associated with EML files. */

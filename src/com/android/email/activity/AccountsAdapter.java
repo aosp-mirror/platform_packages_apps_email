@@ -218,9 +218,9 @@ public class AccountsAdapter extends CursorAdapter {
         itemView.mAccountId = cursor.getLong(Account.CONTENT_ID_COLUMN);
 
         long accountId = cursor.getLong(Account.CONTENT_ID_COLUMN);
-        View chipView = view.findViewById(R.id.chip);
-        chipView.setBackgroundResource(Email.getAccountColorResourceId(accountId));
-        chipView.setVisibility(View.VISIBLE);
+
+        // No color chip for now.  TODO Revisit for phone UI
+        view.findViewById(R.id.chip).setVisibility(View.GONE);
 
         String text = cursor.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
         if (text != null) {

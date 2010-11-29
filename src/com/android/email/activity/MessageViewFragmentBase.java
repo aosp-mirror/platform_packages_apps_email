@@ -1189,14 +1189,18 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     protected void updateHeaderView(Message message) {
         mSubjectView.setText(message.mSubject);
         final Address from = Address.unpackFirst(message.mFrom);
+
+        // Set sender address/display name
+        // Note we set " " for empty field, so TextView's won't get squashed.
+        // Otherwise their height will be 0, which breaks the layout.
         if (from != null) {
             final String fromFriendly = from.toFriendly();
             final String fromAddress = from.getAddress();
             mFromNameView.setText(fromFriendly);
-            mFromAddressView.setText(fromFriendly.equals(fromAddress) ? "" : fromAddress);
+            mFromAddressView.setText(fromFriendly.equals(fromAddress) ? " " : fromAddress);
         } else {
-            mFromNameView.setText("");
-            mFromAddressView.setText("");
+            mFromNameView.setText(" ");
+            mFromAddressView.setText(" ");
         }
         Date date = new Date(message.mTimeStamp);
         // STOPSHIP Use the same format as MessageListItem uses

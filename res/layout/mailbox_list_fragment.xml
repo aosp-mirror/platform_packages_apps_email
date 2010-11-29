@@ -14,19 +14,12 @@
      limitations under the License.
 -->
 
-<!-- xlarge, portrait -->
-<resources>
-    <!-- message compose STOPSHIP not final -->
-    <dimen name="message_compose_paper_width">700dip</dimen>
-    <dimen name="message_compose_field_label_width">120dip</dimen>
-
-    <!-- XL activity dimensions -->
-
-    <!-- width of mailbox list -->
-    <dimen name="mailbox_list_width">216dip</dimen>
-    <!--
-        width of the message list, on the message list + message view mode.
-        (i.e. on portrait, it's the "expanded" message list.)
-    -->
-    <dimen name="message_list_width">440dip</dimen>
-</resources>
+<!-- Wrap list_content in a frame layout to apply the top margin. -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="16dip"
+    >
+    <include layout="@android:layout/list_content" />
+</FrameLayout>
