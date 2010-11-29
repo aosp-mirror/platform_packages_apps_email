@@ -408,7 +408,6 @@ public class MessageViewFragment extends MessageViewFragmentBase {
 
     private void onMarkAsUnread() {
         onMarkMessageAsRead(false);
-        mCallback.onMessageSetUnread();
     }
 
     /**
