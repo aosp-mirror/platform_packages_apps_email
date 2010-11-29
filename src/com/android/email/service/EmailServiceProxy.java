@@ -167,6 +167,14 @@ public class EmailServiceProxy implements IEmailService {
                     if (mCallback != null) mService.setCallback(mCallback);
                     mService.loadAttachment(attachmentId, destinationFile, contentUriString);
                 } catch (RemoteException e) {
+                    try {
+                        // Try to send a callback (if set)
+                        if (mCallback != null) {
+                            mCallback.loadAttachmentStatus(-1, attachmentId,
+                                    EmailServiceStatus.REMOTE_EXCEPTION, 0);
+                        }
+                    } catch (RemoteException e1) {
+                    }
                 }
             }
         });

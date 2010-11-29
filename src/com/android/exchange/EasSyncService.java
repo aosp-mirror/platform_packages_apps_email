@@ -952,7 +952,12 @@ public class EasSyncService extends AbstractSyncService {
     protected void loadAttachment(PartRequest req) throws IOException {
         Attachment att = req.mAttachment;
         Message msg = Message.restoreMessageWithId(mContext, att.mMessageKey);
-        doProgressCallback(msg.mId, att.mId, 0);
+        if (msg == null) {
+            doStatusCallback(att.mMessageKey, att.mId, EmailServiceStatus.MESSAGE_NOT_FOUND);
+            return;
+        } else {
+            doProgressCallback(msg.mId, att.mId, 0);
+        }
 
         String cmd = "GetAttachment&AttachmentName=" + att.mLocation;
         HttpResponse res = sendHttpClientPost(cmd, null, COMMAND_TIMEOUT);

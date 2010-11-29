@@ -232,6 +232,9 @@
         <receiver android:name="com.android.exchange.MailboxAlarmReceiver"/>
         <!--EXCHANGE-REMOVE-SECTION-END-->
 
+        <receiver android:name=".service.AttachmentDownloadService$Watchdog"
+            android:enabled="true"/>
+
         <receiver android:name=".service.EmailBroadcastReceiver" android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
