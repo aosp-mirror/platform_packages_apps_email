@@ -360,7 +360,7 @@ class MessageListXLFragmentManager {
      */
     public void goBackToMailbox() {
         if (isMessageSelected()) {
-            selectMailbox(getMailboxId(), false);
+            mThreePane.showLeftPane(); // Show mailbox list
         }
     }
 
