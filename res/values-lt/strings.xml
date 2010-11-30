@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Priedas išsaugotas SD kortelėje kaip <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Neįmanoma išsaugoti priedo SD kortelėje."</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Naujovinti paskyras"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Neįmanoma naujovinti paskyros"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Kai kurių „Yahoo!“ pašto paskyrų tipų pašto dėžučių prieiga nepalaikoma. Jei iškyla sunkumų prisijungiant, apsilankykite yahoo.com ir gaukite daugiau informacijos."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Prieš nustatydami šią el. pašto paskyrą, apsilankykite „Yahoo!“ svetainėje ir šiai paskyrai įgalinkite prieigą prie POP3 el. pašto."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Tik kai kuriose „Plus“ paskyrose yra POP prieiga, leidžianti prisijungti šiai programai. Jei negalite prisijungti su teisingu el. pašto adresu ir slaptažodžiu, galbūt neapmokėjote „Plus“ paskyros. Paleiskite žiniatinklio naršyklę, kad gautumėte prieigą prie šių pašto paskyrų."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Prieš nustatydami šią el. pašto paskyrą, apsilankykite „T-Online“ svetainėje ir sukurkite POP3 el. pašto prieigos slaptažodį."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Įmonės"</string>

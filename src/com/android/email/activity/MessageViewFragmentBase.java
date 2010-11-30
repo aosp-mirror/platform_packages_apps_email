@@ -245,14 +245,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         public void onLoadMessageFinished();
 
         /** Called when an error occurred during loading a message. */
-        public void onLoadMessageError();
+        public void onLoadMessageError(String errorMessage);
     }
 
     public static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
         @Override public void onMessageViewShown(int mailboxType) {}
         @Override public void onMessageViewGone() {}
-        @Override public void onLoadMessageError() {}
+        @Override public void onLoadMessageError(String errorMessage) {}
         @Override public void onLoadMessageFinished() {}
         @Override public void onLoadMessageStarted() {}
         @Override public void onMessageNotExists() {}
@@ -1361,8 +1361,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 }
             } else {
                 mWaitForLoadMessageId = -1;
-                mCallback.onLoadMessageError();
-                Utility.showToast(getActivity(), R.string.status_network_error);
+                String error = mContext.getString(R.string.status_network_error);
+                mCallback.onLoadMessageError(error);
                 loadBodyContent("file:///android_asset/empty.html");
             }
         }
@@ -1393,14 +1393,16 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                     attachment.cancelButton.setVisibility(View.GONE);
                     attachment.loadButton.setVisibility(View.VISIBLE);
                     attachment.progressView.setVisibility(View.INVISIBLE);
+
+                    final String error;
                     if (result.getCause() instanceof IOException) {
-                        Utility.showToast(getActivity(), R.string.status_network_error);
+                        error = mContext.getString(R.string.status_network_error);
                     } else {
-                        Utility.showToast(getActivity(), String.format(
-                                mContext.getString(
-                                        R.string.message_view_load_attachment_failed_toast),
-                                attachment.name));
+                        error = mContext.getString(
+                                R.string.message_view_load_attachment_failed_toast,
+                                attachment.name);
                     }
+                    mCallback.onLoadMessageError(error);
                 }
             }
         }

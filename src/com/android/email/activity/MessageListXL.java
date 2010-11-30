@@ -37,10 +37,16 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
+import android.widget.TextView;
 
 import java.security.InvalidParameterException;
 
@@ -50,7 +56,8 @@ import java.security.InvalidParameterException;
  * TODO Refine "move to".
  */
 public class MessageListXL extends Activity implements
-        MessageListXLFragmentManager.TargetActivity, MoveMessageToDialog.Callback {
+        MessageListXLFragmentManager.TargetActivity, MoveMessageToDialog.Callback,
+        View.OnClickListener {
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     private static final int LOADER_ID_ACCOUNT_LIST = 0;
@@ -75,6 +82,13 @@ public class MessageListXL extends Activity implements
             = new MessageOrderManagerCallback();
 
     private RefreshTask mRefreshTask;
+
+    private TextView mErrorMessageView;
+    /** True when {@link #mErrorMessageView} is fully shown, when it should be clickable. */
+    private boolean mErrorMessageFullyShown;
+
+    private Animation mErrorMessageShowAnimation;
+    private Animation mErrorMessageHideAnimation;
 
     /**
      * Launch and open account's inbox.
@@ -138,6 +152,14 @@ public class MessageListXL extends Activity implements
         }
         loadAccounts();
 
+        // Set up views
+        // TODO Probably better to extract mErrorMessageView related code into a separate class,
+        // so that it'll be easy to reuse for the phone activities.
+        mErrorMessageView = (TextView) findViewById(R.id.error_message);
+        mErrorMessageView.setOnClickListener(this);
+
+        initAnimation();
+
         // Halt the progress indicator (we'll display it later when needed)
         setProgressBarIndeterminate(true);
         setProgressBarIndeterminateVisibility(false);
@@ -154,6 +176,33 @@ public class MessageListXL extends Activity implements
         if (accountId != -1) {
             mFragmentManager.selectAccount(accountId, mailboxId, true);
         }
+    }
+
+    private void initAnimation() {
+        // Set up error message animations.
+        mErrorMessageShowAnimation = AnimationUtils.loadAnimation(this, R.anim.header_slide_in);
+        mErrorMessageShowAnimation.setAnimationListener(new AnimationListener() {
+            @Override public void onAnimationRepeat(Animation animation) { }
+            @Override public void onAnimationStart(Animation animation) { }
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mErrorMessageFullyShown = true;
+            }
+        });
+
+        mErrorMessageHideAnimation = AnimationUtils.loadAnimation(this, R.anim.header_slide_out);
+        mErrorMessageHideAnimation.setAnimationListener(new AnimationListener() {
+            @Override public void onAnimationRepeat(Animation animation) { }
+            @Override
+            public void onAnimationStart(Animation animation) {
+                mErrorMessageFullyShown = false;
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mErrorMessageView.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override
@@ -225,19 +274,28 @@ public class MessageListXL extends Activity implements
     /**
      * Performs the back action.
      *
-     * @param mayCloseActivity if true, the activity will close if it's already on top of the
-     * internal back state stack.
+     * @param isSystemBackKey set true if the system back key is pressed, rather than the home
+     * icon on action bar.
      */
-    private boolean onBackPressed(boolean mayCloseActivity) {
-        if (mFragmentManager.onBackPressed()) {
+    private boolean onBackPressed(boolean isSystemBackKey) {
+        if (mFragmentManager.onBackPressed(isSystemBackKey)) {
             return true;
         }
-        if (mayCloseActivity) {
+        if (isSystemBackKey) {
             // Perform the default behavior.
             super.onBackPressed();
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.error_message:
+                dismissErrorMessage();
+                break;
+        }
     }
 
     private void onCurrentMessageGone() {
@@ -421,20 +479,17 @@ public class MessageListXL extends Activity implements
 
         @Override
         public void onLoadMessageStarted() {
-            // We show indeterminate progress on one-pane.
             // TODO Any nice UI for this?
         }
 
         @Override
         public void onLoadMessageFinished() {
-            // We hide indeterminate progress on one-pane.
             // TODO Any nice UI for this?
         }
 
         @Override
-        public void onLoadMessageError() {
-            // We hide indeterminate progress on one-pane.
-            // TODO Any nice UI for this?
+        public void onLoadMessageError(String errorMessage) {
+            showErrorMessage(errorMessage);
         }
 
         @Override
@@ -491,6 +546,37 @@ public class MessageListXL extends Activity implements
     @Override
     public void onMailboxChanged(long accountId, long newMailboxId) {
         updateProgressIcon();
+    }
+
+    private void showErrorMessage(String message) {
+        /* Note: All error messages come from the Controller.Result callback to the UI,
+         * but this class doesn't use it directly.  Instead it uses the following callbacks.
+         *
+         * RefreshManager.Listener.onMessagingError for
+         * -updateMailboxListCallback
+         * -updateMailboxCallback
+         * -serviceCheckMailCallback
+         * -sendMailCallback
+         *
+         * MessageViewFragmentBase.Callback.onLoadMessageError for
+         * -loadMessageForViewCallback
+         * -loadAttachmentCallback
+         */
+
+        if (mErrorMessageView.getVisibility() == View.VISIBLE) {
+            // If an error is already shown, do nothing, not even changing the text, to avoid
+            // flicker.
+            return;
+        }
+        mErrorMessageView.setText(message);
+        mErrorMessageView.setVisibility(View.VISIBLE);
+        mErrorMessageView.startAnimation(mErrorMessageShowAnimation);
+    }
+
+    private void dismissErrorMessage() {
+        if (mErrorMessageFullyShown) {
+            mErrorMessageView.startAnimation(mErrorMessageHideAnimation);
+        }
     }
 
     /**
@@ -565,20 +651,7 @@ public class MessageListXL extends Activity implements
             implements RefreshManager.Listener {
         @Override
         public void onMessagingError(final long accountId, long mailboxId, final String message) {
-            // STOPSHIP temporary UI
-            Utility.runAsync(new Runnable() {
-               @Override
-                public void run() {
-                   String msg = message;
-                   if (accountId != -1) {
-                       Account account = Account.restoreAccountWithId(mContext, accountId);
-                       if (account != null) {
-                           msg = account.mDisplayName + ": " + msg;
-                       }
-                   }
-                   Utility.showToast(MessageListXL.this, msg);
-               }});
-            // END STOPSHIP
+            showErrorMessage(message);
             updateProgressIcon();
         }
 

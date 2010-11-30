@@ -30,4 +30,6 @@
     <dimen name="message_list_item_color_tip_height">8dip</dimen>
     <dimen name="message_list_item_color_tip_right_margin_on_narrow">32dip</dimen>
     <dimen name="message_list_item_color_tip_right_margin_on_wide">65dip</dimen>
+
+    <dimen name="error_message_height">48dip</dimen>
 </resources>

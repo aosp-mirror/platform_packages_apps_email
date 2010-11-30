@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"บันทึกไฟล์แนบลงการ์ด SD ในชื่อ <xliff:g id="FILENAME">%s</xliff:g>"</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"ไม่สามารถบันทึกไฟล์แนบในการ์ด SD"</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"อัปเกรดบัญชี"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"อัปเกรดบัญชีไม่ได้"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"ไม่สนับสนุนการเข้าถึงกล่องจดหมายสำหรับบัญชีจดหมาย Yahoo! บางประเภท หากคุณประสบปัญหาในการเชื่อมต่อ โปรดเข้าสู่ yahoo.com เพื่อดูข้อมูลเพิ่มเติม"</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"ก่อนที่จะตั้งค่าบัญชีอีเมลนี้ โปรดเข้าสู่เว็บไซต์ Yahoo! และเปิดใช้การเข้าถึงอีเมลแบบ POP3 สำหรับบัญชีนี้"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"มีเพียงบัญชีแบบ \"Plus\" บางประเภทเท่านั้นที่มีการเข้าถึงแบบ POP ที่โปรแกรมสามารถเชื่อมต่อได้ ถ้าคุณไม่สามารถลงชื่อเข้าใช้ด้วยที่อยู่อีเมลและรหัสผ่านที่ถูกต้อง อาจเป็นเพราะคุณไม่มีบัญชี \"Plus\" แบบมีค่าใช้จ่าย โปรดเปิดเว็บเบราว์เซอร์เพื่อเข้าถึงบัญชีอีเมลเหล่านี้"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"ก่อนที่จะตั้งค่าบัญชีอีเมลนี้ โปรดเข้าสู่เว็บไซต์ T-Online และสร้างรหัสผ่านสำหรับการเข้าถึงอีเมลแบบ POP3"</string>
     <string name="exchange_name" msgid="1190783774800310346">"องค์กร"</string>

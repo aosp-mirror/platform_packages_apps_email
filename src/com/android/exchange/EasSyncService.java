@@ -2357,8 +2357,7 @@ public class EasSyncService extends AbstractSyncService {
     public void run() {
         if (!setupService()) return;
 
-        if (mSyncReason == ExchangeService.SYNC_SERVICE_START_SYNC ||
-                mSyncReason == ExchangeService.SYNC_SERVICE_PART_REQUEST) {
+        if (mSyncReason >= ExchangeService.SYNC_UI_REQUEST) {
             try {
                 ExchangeService.callback().syncMailboxStatus(mMailboxId,
                         EmailServiceStatus.IN_PROGRESS, 0);
@@ -2441,8 +2440,7 @@ public class EasSyncService extends AbstractSyncService {
             }
 
             // Send a callback if this run was initiated by a service call
-            if (mSyncReason == ExchangeService.SYNC_SERVICE_START_SYNC ||
-                    mSyncReason == ExchangeService.SYNC_SERVICE_PART_REQUEST) {
+            if (mSyncReason >= ExchangeService.SYNC_UI_REQUEST) {
                 try {
                     ExchangeService.callback().syncMailboxStatus(mMailboxId, status, 0);
                 } catch (RemoteException e1) {

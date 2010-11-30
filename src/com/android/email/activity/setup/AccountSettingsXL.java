@@ -42,6 +42,8 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -65,7 +67,7 @@ import java.util.List;
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
-public class AccountSettingsXL extends PreferenceActivity implements OnClickListener {
+public class AccountSettingsXL extends PreferenceActivity {
 
     // Intent extras for our internal activity launch
     /* package */ static final String EXTRA_ACCOUNT_ID = "AccountSettingsXL.account_id";
@@ -100,7 +102,6 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
     /* package */ Fragment mCurrentFragment;
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
-    private Button mAddAccountButton;
     private List<Header> mGeneratedHeaders;
 
     // Async Tasks
@@ -162,17 +163,6 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
             }
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
-
-        // Add Account as header list footer
-        // TODO: This probably should be some sort of themed layout with a button in it
-        if (hasHeaders()) {
-            mAddAccountButton = new Button(this);
-            mAddAccountButton.setText(R.string.add_account_action);
-            mAddAccountButton.setOnClickListener(this);
-            mAddAccountButton.setEnabled(false);
-            setListFooter(mAddAccountButton);
-        }
-
     }
 
     @Override
@@ -181,8 +171,8 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
         updateAccounts();
 
         // When we're resuming, enable/disable the add account button
-        if (mAddAccountButton != null && hasHeaders()) {
-            mAddAccountButton.setEnabled(shouldShowNewAccount());
+        if (hasHeaders()) {
+            invalidateOptionsMenu();
         }
     }
 
@@ -213,10 +203,27 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
     }
 
     @Override
-    public void onClick(View v) {
-        if (v == mAddAccountButton) {
-            onAddNewAccount();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.account_settings_add_account_option, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return shouldShowNewAccount();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add_new_account:
+                onAddNewAccount();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
         }
+        return true;
     }
 
     /**
@@ -455,8 +462,8 @@ public class AccountSettingsXL extends PreferenceActivity implements OnClickList
         }
 
         // When we're changing fragments, enable/disable the add account button
-        if (mAddAccountButton != null && hasHeaders()) {
-            mAddAccountButton.setEnabled(shouldShowNewAccount());
+        if (hasHeaders()) {
+            invalidateOptionsMenu();
         }
     }
 

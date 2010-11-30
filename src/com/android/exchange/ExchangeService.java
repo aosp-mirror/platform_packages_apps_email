@@ -134,12 +134,15 @@ public class ExchangeService extends Service implements Runnable {
     public static final int SYNC_PUSH = 2;
     // A ping (EAS push signal) was received
     public static final int SYNC_PING = 3;
-    // startSync was requested of ExchangeService
-    public static final int SYNC_SERVICE_START_SYNC = 4;
-    // A part request (attachment load, for now) was sent to ExchangeService
-    public static final int SYNC_SERVICE_PART_REQUEST = 5;
     // Misc.
-    public static final int SYNC_KICK = 6;
+    public static final int SYNC_KICK = 4;
+
+    // Requests >= SYNC_UI_REQUEST generate callbacks to the UI
+    public static final int SYNC_UI_REQUEST = 5;
+    // startSync was requested of ExchangeService
+    public static final int SYNC_SERVICE_START_SYNC = SYNC_UI_REQUEST + 0;
+    // A part request (attachment load, for now) was sent to ExchangeService
+    public static final int SYNC_SERVICE_PART_REQUEST = SYNC_UI_REQUEST + 1;
 
     private static final String WHERE_PUSH_OR_PING_NOT_ACCOUNT_MAILBOX =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.TYPE + "!=" +
@@ -2273,7 +2276,7 @@ public class ExchangeService extends Service implements Runnable {
         AbstractSyncService service = exchangeService.mServiceMap.get(mailboxId);
 
         if (service == null) {
-            service = startManualSync(mailboxId, SYNC_SERVICE_PART_REQUEST, req);
+            startManualSync(mailboxId, SYNC_SERVICE_PART_REQUEST, req);
             kick("part request");
         } else {
             service.addRequest(req);
@@ -2306,20 +2309,25 @@ public class ExchangeService extends Service implements Runnable {
         return PING_STATUS_OK;
     }
 
-    static public AbstractSyncService startManualSync(long mailboxId, int reason, Request req) {
+    static public void startManualSync(long mailboxId, int reason, Request req) {
         ExchangeService exchangeService = INSTANCE;
-        if (exchangeService == null) return null;
+        if (exchangeService == null) return;
         synchronized (sSyncLock) {
-            if (exchangeService.mServiceMap.get(mailboxId) == null) {
+            AbstractSyncService svc = exchangeService.mServiceMap.get(mailboxId);
+            if (svc == null) {
                 exchangeService.mSyncErrorMap.remove(mailboxId);
                 Mailbox m = Mailbox.restoreMailboxWithId(exchangeService, mailboxId);
                 if (m != null) {
                     log("Starting sync for " + m.mDisplayName);
                     exchangeService.requestSync(m, reason, req);
                 }
+            } else {
+                // If this is a ui request, set the sync reason for the service
+                if (svc.mSyncReason >= SYNC_UI_REQUEST) {
+                    svc.mSyncReason = reason;
+                }
             }
         }
-        return exchangeService.mServiceMap.get(mailboxId);
     }
 
     // DO NOT CALL THIS IN A LOOP ON THE SERVICEMAP

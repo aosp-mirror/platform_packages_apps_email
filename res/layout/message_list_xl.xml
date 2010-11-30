@@ -19,8 +19,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
+
     <include
         android:id="@+id/three_pane"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         layout="@layout/three_pane"
+        />
+
+    <!-- Error message goes over the normal view -->
+    <!-- STOPSHIP not pixel perfect -->
+    <TextView
+        android:id="@+id/error_message"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/error_message_height"
+        android:paddingLeft="78dip"
+        android:paddingRight="78dip"
+        android:gravity="left|center_vertical"
+        android:textSize="16dip"
+        android:textColor="#000"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:background="#ffff66"
+        android:visibility="gone"
         />
 </FrameLayout>

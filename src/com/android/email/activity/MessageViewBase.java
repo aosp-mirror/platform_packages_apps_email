@@ -124,7 +124,7 @@ public abstract class MessageViewBase extends Activity implements MessageViewFra
     }
 
     @Override
-    public void onLoadMessageError() {
+    public void onLoadMessageError(String errorMessage) {
         onLoadMessageFinished();
     }
 
