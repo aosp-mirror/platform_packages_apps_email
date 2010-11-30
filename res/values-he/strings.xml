@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"הקובץ המצורף נשמר בכרטיס SD בשם <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"אין אפשרות לשמור קובץ מצורף בכרטיס SD."</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"שדרוג חשבונות"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"אין אפשרות לשדרג את החשבון"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"הגישה לתיבת הדואר אינה נתמכת עבור חלק מהסוגים של חשבונות דואר ב-Yahoo!‎. אם אתה נתקל בבעיות בהתחברות, בקר באתר yahoo.com לקבלת מידע נוסף."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"לפני הגדרת חשבון דוא\"ל זה, בקר באתר האינטרנט של Yahoo!‎ והפוך את גישת דוא\"ל מסוג POP3 לפעילה בחשבון זה."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"רק מספר חשבונות Plus כוללים גישה ל-POP המאפשרת לתוכנית זו להתחבר. אם אינך יכול להיכנס עם כתובת הדוא\"ל והסיסמה הנכונות שלך, ייתכן שאין לך חשבון Plus בתשלום. הפעל את דפדפן האינטרנט כדי לקבל גישה לחשבונות דואר אלה."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"לפני הגדרת חשבון דוא\"ל זה, בקר באתר האינטרנט T-Online וצור סיסמה לגישת דוא\"ל מסוג POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"תאגיד"</string>

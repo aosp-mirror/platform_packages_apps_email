@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="status_sending_messages" msgid="3971880826111264523">"正在傳送訊息..."</string>
-    <!-- outdated translation 9100624762133992435 -->     <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"傳送寄出訊息"</string>
+    <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"全部傳送"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"正在取得附件。"</string>
     <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"正在擷取附件 <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"讀取電子郵件附件"</string>
@@ -39,7 +39,7 @@
     <string name="forward_action" msgid="669174181042344116">"轉寄"</string>
     <string name="done_action" msgid="7497990549515580249">"完成"</string>
     <string name="discard_action" msgid="6532206074859505968">"捨棄"</string>
-    <!-- outdated translation 812855865552028622 -->     <string name="save_draft_action" msgid="6413714270991417223">"儲存為草稿"</string>
+    <string name="save_draft_action" msgid="6413714270991417223">"儲存草稿"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"設為讀取/未讀取"</string>
     <string name="read_action" msgid="4701484794504781686">"標示為已讀取"</string>
     <string name="unread_action" msgid="6280399049357552826">"標示為未讀取"</string>
@@ -60,7 +60,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"標示為未讀取"</string>
     <!-- no translation found for move_action (3059189775933985898) -->
     <skip />
-    <!-- outdated translation 5569074812077509737 -->     <string name="add_cc_bcc_action" msgid="413546910281713891">"新增副本/密件副本"</string>
+    <string name="add_cc_bcc_action" msgid="413546910281713891">"新增副本/密件副本"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"新增附件"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"傾印設定"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"選擇附件"</string>
@@ -182,7 +182,8 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> 封郵件已移至<xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"無法轉寄一或多個附件"</string>
-    <!-- outdated translation 3239753701377399676 -->     <string name="forward_download_failed_notification" msgid="3122309797954781752">"附件「<xliff:g id="FILENAME"> %s</xliff:g>」無法下載，因此無法使用您的外寄郵件傳送該附件。"</string>
+    <!-- no translation found for forward_download_failed_notification (3122309797954781752) -->
+    <skip />
     <string name="login_failed_ticker" msgid="7452091306512654139">"<xliff:g id="ACCOUNT_NAME">%s </xliff:g> 登入失敗"</string>
     <string name="login_failed_notification" msgid="2405086379065472222">"輕觸即可變更帳戶設定"</string>
   <plurals name="message_view_attachment_bytes">
@@ -348,10 +349,12 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"系統將從 [電子郵件] 中移除帳戶「<xliff:g id="ACCOUNT">%s</xliff:g>」。"</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"移除帳戶"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"移除帳戶"</string>
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"升級帳戶"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"無法升級帳戶"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"系統不支援某些類型的 Yahoo! 郵件帳戶信箱。如果您無法順利連線，請前往 yahoo.com 以瞭解詳情。"</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"在設定此電子郵件帳戶前，請先造訪 Yahoo! 網站，並啟用帳戶的 POP3 電子郵件收發功能。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"只有部分包含 POP 存取功能的「Plus」帳戶能與這個程式連線。如果您輸入的電子郵件地址和密碼無誤，卻仍無法登入，表示您可能尚未購買「Plus」帳戶。請啟動網頁瀏覽器，以存取這些電子郵件帳戶。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"在設定此電子郵件帳戶前，請先造訪 T-Online 網站，並設定 POP3 電子郵件收發功能的密碼。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"公司"</string>
@@ -384,25 +387,20 @@
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"較新的郵件"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"較舊的郵件"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"郵件清單"</string>
-    <!-- no translation found for general_preference_text_zoom_label (4021955890499565713) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_summary_array:0 (1728778773460367725) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:1 (8239633518447359057) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:2 (55959821477704302) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:3 (446236334663020508) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:4 (235926149071179467) -->
-    <!-- no translation found for general_preference_text_zoom_dialog_title (7446841758331151643) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_tiny (2948174583663330937) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_small (6618520238223144876) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_normal (1765540147950855479) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
-    <skip />
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"郵件文字大小"</string>
+  <string-array name="general_preference_text_zoom_summary_array">
+    <item msgid="1728778773460367725">"以最小字體顯示郵件內容"</item>
+    <item msgid="8239633518447359057">"以小字體顯示郵件內容"</item>
+    <item msgid="55959821477704302">"以適中字體顯示郵件內容"</item>
+    <item msgid="446236334663020508">"以大字體顯示郵件內容"</item>
+    <item msgid="235926149071179467">"以最大字體顯示郵件內容"</item>
+  </string-array>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"郵件文字大小"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"最小"</string>
+    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"小"</string>
+    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"適中"</string>
+    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
+    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"最大"</string>
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />
 </resources>

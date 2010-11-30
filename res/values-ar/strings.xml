@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"تمّ حفظ المرفق في بطاقة SD باسم <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"تعذر حفظ المرفق في بطاقة SD."</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"ترقية الحسابات"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"تتعذر ترقية الحساب"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"الوصول إلى صندوق البريد غير معتمد في أنواع معينة من حسابات بريد Yahoo!. إذا كنت تواجه مشكلة في الاتصال، فالرجاء زيارة الموقع yahoo.com للحصول على المزيد من المعلومات."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"قبل إعداد حساب البريد الإلكتروني هذا، يرجى زيارة موقع ويب !Yahoo وتمكين الوصول إلى البريد الإلكتروني عبر بروتوكول POP3 لهذا الحساب."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"تتضمن بعض حسابات \"Plus\" الوصول عبر بروتوكول POP والذي يسمح لهذا البرنامج بالاتصال. إذا تعذر عليك تسجيل الدخول باستخدام عنوان البريد الإلكتروني وكلمة المرور الصحيحين، فقد تكون غير ممتلك لحساب \"Plus\" مدفوع. يُرجى تشغيل متصفح الويب لتتمكن من الدخول إلى حسابات البريد هذه."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"قبل إعداد حساب البريد الإلكتروني هذا، يُرجى زيارة موقع ويب T-Online وإنشاء كلمة مرور للوصول إلى البريد الإلكتروني عبر بروتوكول POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"الشركة"</string>

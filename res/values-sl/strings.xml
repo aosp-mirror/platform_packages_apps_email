@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Priloga shranjena na kartico SD kot <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Priloge ni bilo mogoče shraniti na kartico SD."</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Nadgradi račune"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Računa ni mogoče nadgraditi"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Dostop do nabiralnika ni podprt za nekatere vrste e-poštnih računov Yahoo!. Če imate težave s povezavo, obiščite yahoo.com, kjer je na voljo več informacij."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Preden nastavite e-poštni račun, obiščite spletno mesto Yahoo! in omogočite e-poštni dostop POP3 za ta račun."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Samo nekateri računi »Plus« vsebujejo tudi dostop do strežnika POP, da se ta program lahko poveže. Če ste pravilno vnesli svoj e-poštni naslov in geslo in se ne morete prijaviti, morda nimate plačljivega računa »Plus«. Zaženite brskalnik, če želite dostopati do teh e-poštnih računov."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Preden nastavite ta e-poštni račun, obiščite spletno mesto T-Online in ustvarite geslo za e-poštni dostop POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Podjetje"</string>

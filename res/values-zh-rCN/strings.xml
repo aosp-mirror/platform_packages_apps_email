@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="status_sending_messages" msgid="3971880826111264523">"正在发送邮件..."</string>
-    <!-- outdated translation 9100624762133992435 -->     <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"外发邮件"</string>
+    <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"全部发送"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"正在提取附件。"</string>
     <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"正在获取附件<xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"查看电子邮件附件"</string>
@@ -39,7 +39,7 @@
     <string name="forward_action" msgid="669174181042344116">"转发"</string>
     <string name="done_action" msgid="7497990549515580249">"完成"</string>
     <string name="discard_action" msgid="6532206074859505968">"放弃"</string>
-    <!-- outdated translation 812855865552028622 -->     <string name="save_draft_action" msgid="6413714270991417223">"另存为草稿"</string>
+    <string name="save_draft_action" msgid="6413714270991417223">"保存草稿"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"已读/未读"</string>
     <string name="read_action" msgid="4701484794504781686">"标记为已读"</string>
     <string name="unread_action" msgid="6280399049357552826">"标记为未读"</string>
@@ -60,7 +60,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"标记为未读"</string>
     <!-- no translation found for move_action (3059189775933985898) -->
     <skip />
-    <!-- outdated translation 5569074812077509737 -->     <string name="add_cc_bcc_action" msgid="413546910281713891">"添加抄送/密送地址"</string>
+    <string name="add_cc_bcc_action" msgid="413546910281713891">"添加抄送/密送"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"添加附件"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"转储设置"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"选择附件"</string>
@@ -182,7 +182,8 @@
     <item quantity="other" msgid="2286739630865943494">"已将 <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> 封邮件移至<xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"一个或多个附件无法转发"</string>
-    <!-- outdated translation 3239753701377399676 -->     <string name="forward_download_failed_notification" msgid="3122309797954781752">"附件“<xliff:g id="FILENAME"> %s</xliff:g>”下载失败，无法随外发电子邮件发送。"</string>
+    <!-- no translation found for forward_download_failed_notification (3122309797954781752) -->
+    <skip />
     <string name="login_failed_ticker" msgid="7452091306512654139">"<xliff:g id="ACCOUNT_NAME">%s </xliff:g> 登录失败"</string>
     <string name="login_failed_notification" msgid="2405086379065472222">"触摸以更改帐户设置"</string>
   <plurals name="message_view_attachment_bytes">
@@ -348,10 +349,12 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"将会从电子邮件中删除“<xliff:g id="ACCOUNT">%s</xliff:g>”帐户。"</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"删除帐户"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"删除帐户"</string>
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"升级帐户"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"无法升级帐户"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"对于某些类型的 Yahoo! 邮件帐户，不支持邮箱访问。如果您遇到连接问题，请访问 yahoo.com 了解详细信息。"</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"在设置此电子邮件帐户之前，请访问 Yahoo! 网站并为此帐户启用 POP3 电子邮件访问。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"只有某些“Plus”帐户支持 POP 访问而允许此程序进行连接。如果您使用正确的电子邮件地址和密码无法登录，则可能还未开通付费的“Plus”帐户。请启动网络浏览器以获取对这些邮件帐户的访问权限。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"在设置此电子邮件帐户之前，请访问 T-Online 网站，为访问 POP3 电子邮件创建密码。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"公司"</string>
@@ -384,25 +387,20 @@
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"更晚的邮件"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"更早的邮件"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"邮件列表"</string>
-    <!-- no translation found for general_preference_text_zoom_label (4021955890499565713) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_summary_array:0 (1728778773460367725) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:1 (8239633518447359057) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:2 (55959821477704302) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:3 (446236334663020508) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:4 (235926149071179467) -->
-    <!-- no translation found for general_preference_text_zoom_dialog_title (7446841758331151643) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_tiny (2948174583663330937) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_small (6618520238223144876) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_normal (1765540147950855479) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
-    <skip />
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"邮件文字大小"</string>
+  <string-array name="general_preference_text_zoom_summary_array">
+    <item msgid="1728778773460367725">"以超小字体显示邮件内容"</item>
+    <item msgid="8239633518447359057">"以小字体显示邮件内容"</item>
+    <item msgid="55959821477704302">"以正常字体显示邮件内容"</item>
+    <item msgid="446236334663020508">"以大字体显示邮件内容"</item>
+    <item msgid="235926149071179467">"以超大字体显示邮件内容"</item>
+  </string-array>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"邮件文字大小"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"超小"</string>
+    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"小"</string>
+    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"正常"</string>
+    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
+    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"超大"</string>
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />
 </resources>

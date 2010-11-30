@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="status_sending_messages" msgid="3971880826111264523">"Αποστολή εικόνων..."</string>
-    <!-- outdated translation 9100624762133992435 -->     <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"Αποστολή εξερχόμενων μηνυμάτων"</string>
+    <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"Αποστολή όλων"</string>
     <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Ανάκτηση επισύναψης."</string>
     <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Ανάκτηση επισύναψης <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="read_attachment_label" msgid="1162255191991555285">"Ανάγνωση επισυνάψεων μηνύματος ηλεκτρονικού ταχυδρομείου"</string>
@@ -39,7 +39,7 @@
     <string name="forward_action" msgid="669174181042344116">"Προώθηση"</string>
     <string name="done_action" msgid="7497990549515580249">"Τέλος"</string>
     <string name="discard_action" msgid="6532206074859505968">"Απόρριψη"</string>
-    <!-- outdated translation 812855865552028622 -->     <string name="save_draft_action" msgid="6413714270991417223">"Αποθήκευση ως πρόχειρο"</string>
+    <string name="save_draft_action" msgid="6413714270991417223">"Αποθ. πρόχειρου"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"Αναγνωσμένες/Μη αναγνωσμένες"</string>
     <string name="read_action" msgid="4701484794504781686">"Επισήμανση ως αναγνωσμένων"</string>
     <string name="unread_action" msgid="6280399049357552826">"Επισήμανση ως μη αναγνωσμένα"</string>
@@ -60,7 +60,7 @@
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Επισήμανση ως μη αναγνωσμένα"</string>
     <!-- no translation found for move_action (3059189775933985898) -->
     <skip />
-    <!-- outdated translation 5569074812077509737 -->     <string name="add_cc_bcc_action" msgid="413546910281713891">"Προσθήκη Κοιν./Κρυφής κοιν."</string>
+    <string name="add_cc_bcc_action" msgid="413546910281713891">"Κοιν./Κρυφή κοιν."</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Προσθήκη επισύναψης"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Ρυθμίσεις αρχείου ένδειξης σφαλμάτων"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Επιλογή επισύναψης"</string>
@@ -182,7 +182,8 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> μηνύματα μετακινήθηκαν σε <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Δεν ήταν δυνατή η προώθηση μίας ή περισσότερων επισυνάψεων"</string>
-    <!-- outdated translation 3239753701377399676 -->     <string name="forward_download_failed_notification" msgid="3122309797954781752">"Δεν ήταν δυνατή η αποστολή της επισύναψης <xliff:g id="FILENAME"> %s</xliff:g> με την εξερχόμενη αλληλογραφία σας διότι δεν ήταν δυνατή η λήψη της."</string>
+    <!-- no translation found for forward_download_failed_notification (3122309797954781752) -->
+    <skip />
     <string name="login_failed_ticker" msgid="7452091306512654139">"Αποτ. σύνδεσης <xliff:g id="ACCOUNT_NAME">%s </xliff:g>"</string>
     <string name="login_failed_notification" msgid="2405086379065472222">"Αγγίξτε για να αλλάξετε τις ρυθμίσεις λογαριασμού"</string>
   <plurals name="message_view_attachment_bytes">
@@ -348,10 +349,12 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Ο λογαριασμός \"<xliff:g id="ACCOUNT">%s</xliff:g>\" θα καταργηθεί από το ηλεκτρονικό ταχυδρομείο."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Κατάργηση λογαριασμού"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Κατάργηση λογαριασμού"</string>
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Αναβάθμιση λογαριασμών"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Δεν είναι δυνατή η αναβάθμιση του λογαριασμού"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Η πρόσβαση στο γραμματοκιβώτιο δεν υποστηρίζεται από ορισμένους τύπους λογαριασμών ηλεκτρονικού ταχυδρομείου Yahoo. Εάν αντιμετωπίζετε προβλήματα σύνδεσης, επισκεφθείτε τη διεύθυνση yahoo.com για περισσότερες πληροφορίες."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Πριν ρυθμίσετε αυτόν τον λογαριασμό ηλεκτρονικού ταχυδρομείου, επισκεφθείτε τον ιστότοπο Yahoo! και ενεργοποιήστε την πρόσβαση ηλεκτρονικού ταχυδρομείου POP3 για αυτόν τον λογαριασμό."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Μόνο ορισμένοι λογαριασμοί \"Plus\" περιλαμβάνουν πρόσβαση POP και επιτρέπουν στο πρόγραμμα αυτό να συνδεθεί. Εάν δεν μπορείτε να συνδεθείτε με τη σωστή διεύθυνση ηλεκτρονικού ταχυδρομείου και τον κωδικό πρόσβασης, ενδέχεται να μην έχετε πληρωμένο λογαριασμό \"Plus\". Εκκινήστε το πρόγραμμα περιήγησης ιστού, για να αποκτήσετε πρόσβαση σε αυτούς τους λογαριασμούς ηλεκτρονικού ταχυδρομείου."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Πριν ρυθμίσετε αυτόν τον λογαριασμό ηλεκτρονικού ταχυδρομείου, επισκεφτείτε τον ιστότοπο T-Online και δημιουργήστε έναν κωδικό πρόσβασης για πρόσβαση σε ηλεκτρονικό ταχυδρομείο POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Εταιρικός"</string>
@@ -384,25 +387,20 @@
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Πιο πρόσφατο μήνυμα"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Παλαιότερο μήνυμα"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Λίστα μηνυμάτων"</string>
-    <!-- no translation found for general_preference_text_zoom_label (4021955890499565713) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_summary_array:0 (1728778773460367725) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:1 (8239633518447359057) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:2 (55959821477704302) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:3 (446236334663020508) -->
-    <!-- no translation found for general_preference_text_zoom_summary_array:4 (235926149071179467) -->
-    <!-- no translation found for general_preference_text_zoom_dialog_title (7446841758331151643) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_tiny (2948174583663330937) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_small (6618520238223144876) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_normal (1765540147950855479) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
-    <skip />
-    <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
-    <skip />
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Μέγεθος κειμένου μηνύματος"</string>
+  <string-array name="general_preference_text_zoom_summary_array">
+    <item msgid="1728778773460367725">"Εμφάνιση περιεχομένου μηνυμάτων σε κείμενο μικρού μεγέθους"</item>
+    <item msgid="8239633518447359057">"Εμφάνιση περιεχομένου μηνυμάτων σε κείμενο πολύ μικρού μεγέθους"</item>
+    <item msgid="55959821477704302">"Εμφάνιση του περιεχομένου μηνυμάτων σε κείμενο κανονικού μεγέθους"</item>
+    <item msgid="446236334663020508">"Εμφάνιση του περιεχομένου μηνυμάτων σε κείμενο μεγάλου μεγέθους"</item>
+    <item msgid="235926149071179467">"Εμφάνιση περιεχομένου μηνυμάτων σε κείμενο πολύ μεγάλου μεγέθους"</item>
+  </string-array>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Μέγεθος κειμένου μηνύματος"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Πολύ μικρό"</string>
+    <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Μικρό"</string>
+    <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Κανονικό"</string>
+    <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Μεγάλο"</string>
+    <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Πολύ μεγάλο"</string>
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />
 </resources>

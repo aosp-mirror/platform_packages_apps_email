@@ -143,7 +143,8 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Chargiar"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Memorisar"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Fermar"</string>
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Agiunta memorisada sin la carta SD sut il num <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Impussibel da memorisar l\'agiunta sin la carta SD."</string>
     <string name="message_view_attachment_background_load" msgid="756797444835526487">"Remartga: Ina u pliras agiuntas en Voss messadi renvià vegn(an) telechargiada(s) avant la spediziun."</string>
     <!-- no translation found for message_view_show_message_action (5134222901019191436) -->
@@ -178,7 +179,8 @@
     <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
     <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
     <!-- outdated translation 6654377128589312623 -->     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Ina agiunta n\'ha betg pudì vegnir renviada"</string>
-    <!-- outdated translation 3239753701377399676 -->     <string name="forward_download_failed_notification" msgid="3122309797954781752">"Impussibel da trametter l\'agiunta <xliff:g id="FILENAME"> %s</xliff:g> cun Voss e-mails sortints perquai ch\'ella n\'ha betg pudì vegnir telechargiada."</string>
+    <!-- no translation found for forward_download_failed_notification (3122309797954781752) -->
+    <skip />
     <!-- no translation found for login_failed_ticker (7452091306512654139) -->
     <skip />
     <!-- no translation found for login_failed_notification (2405086379065472222) -->
@@ -351,10 +353,12 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Il conto «<xliff:g id="ACCOUNT">%s</xliff:g>» vegn stizzà da Voss e-mail."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Stizzar il conto"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Stizzar il conto"</string>
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Actualisar ils contos"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Impussibel dad actualisar il conto"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"L\'access a la chascha da brevs da tscherts contos da Yahoo na vegn betg sustegnì. Visitai la pagina d\'internet da Yahoo en cas da problems da connexiun per ulteriuras infurmaziuns."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Per plaschair visitar la website Yahoo ed activar l\'access dad e-mail POP3 avant che configurar quest conto dad e-mail."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Mo tscherts contos «plus» includan l\'access POP e permettan uschia a quest program da stabilir ina connexiun. Sche Vus na pudais betg s\'annunziar cun Vossa adressa d\'e-mail ed il pled-clav correct n\'avais Vus eventualmain betg in conto «plus» (che custa). Aviai Voss navigatur da web per acceder quests contos dad e-mail."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Visitai per plaschair la pagina d\'internet da T-Online e creai in pled-clav per l\'access dad e-mail POP avant che configurar quest conto dad e-mail."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Da fatschenta"</string>

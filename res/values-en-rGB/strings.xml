@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Attachment saved to SD card as <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Unable to save attachment to SD card."</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Upgrade accounts"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Unable to upgrade account"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Mailbox access is not supported for some types of Yahoo! mail accounts. If you have trouble connecting, visit yahoo.co.uk for more information."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Before setting up this email account, please visit the Yahoo! website and enable POP3 email access for this account."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Only some \"Plus\" accounts include POP access allowing this programme to connect. If you are not able to sign in with your correct email address and password, you may not have a paid \"Plus\" account. Please launch the web browser to gain access to these mail accounts."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Before setting up this email account, please visit the T-Online website and create a password for POP3 email access."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>

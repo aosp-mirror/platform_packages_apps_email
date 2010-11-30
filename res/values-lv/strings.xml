@@ -146,7 +146,8 @@
     <skip />
     <!-- no translation found for message_view_attachment_cancel_action (316700885943712101) -->
     <skip />
-    <!-- outdated translation 2802843795251453632 -->     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Pielikums saglabāts SD kartē kā <xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
+    <skip />
     <!-- outdated translation 5039599647697750874 -->     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Nevar saglabāt pielikumu SD kartē."</string>
     <!-- no translation found for message_view_attachment_background_load (756797444835526487) -->
     <skip />
@@ -358,10 +359,12 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Kontu jaunināšana"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Nevar jaunināt kontu"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Dažos Yahoo! pasta kontos piekļuve pastkastei netiek atbalstīta. Ja nevarat izveidot savienojumu, apmeklējiet yahoo.com, lai iegūtu plašāku informāciju."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Pirms šī e-pasta konta iestatīšanas, lūdzu, apmeklējiet Yahoo! vietni un iespējojiet POP3 e-pasta piekļuvi šim kontam."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Tikai dažiem “Plus” kontiem ir POP piekļuve, kas ļauj šai programmai izveidot savienojumu. Ja nevarat pierakstīties, izmantojot pareizu e-pasta adresi un paroli, iespējams, jums nav apmaksāta “Plus” konta. Lūdzu, palaidiet tīmekļa pārlūkprogrammu, lai piekļūtu šiem pasta kontiem."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Pirms šī e-pasta konta iestatīšana, lūdzu, apmeklējiet T-Online vietni un izveidojiet POP3 e-pasta piekļuvei paredzētu paroli."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Korporatīvs"</string>
