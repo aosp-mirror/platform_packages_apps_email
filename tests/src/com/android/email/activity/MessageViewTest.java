@@ -21,7 +21,6 @@ import com.android.email.TestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
@@ -51,7 +50,7 @@ public class MessageViewTest extends ActivityInstrumentationTestCase2<MessageVie
     protected void setUp() throws Exception {
         super.setUp();
         mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
-                getInstrumentation().getTargetContext(), EmailProvider.class);
+                getInstrumentation().getTargetContext());
     }
 
     private void setUpIntent(long messageId, long mailboxId, boolean disableReply) {

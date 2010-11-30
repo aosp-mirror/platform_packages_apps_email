@@ -36,13 +36,11 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
@@ -108,11 +106,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         "com.android.email.activity.MessageCompose.draftId";
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
-
-    private static final String[] ATTACHMENT_META_NAME_PROJECTION = {
-        OpenableColumns.DISPLAY_NAME
-    };
-    private static final int ATTACHMENT_META_NAME_COLUMN_DISPLAY_NAME = 0;
 
     private static final String[] ATTACHMENT_META_SIZE_PROJECTION = {
         OpenableColumns.SIZE
@@ -1073,22 +1066,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private Attachment loadAttachmentInfo(Uri uri) {
         long size = -1;
-        String name = null;
         ContentResolver contentResolver = getContentResolver();
 
         // Load name & size independently, because not all providers support both
-        Cursor metadataCursor = contentResolver.query(uri, ATTACHMENT_META_NAME_PROJECTION,
-                null, null, null);
-        if (metadataCursor != null) {
-            try {
-                if (metadataCursor.moveToFirst()) {
-                    name = metadataCursor.getString(ATTACHMENT_META_NAME_COLUMN_DISPLAY_NAME);
-                }
-            } finally {
-                metadataCursor.close();
-            }
-        }
-        metadataCursor = contentResolver.query(uri, ATTACHMENT_META_SIZE_PROJECTION,
+        final String name = Utility.getContentFileName(this, uri);
+
+        Cursor metadataCursor = contentResolver.query(uri, ATTACHMENT_META_SIZE_PROJECTION,
                 null, null, null);
         if (metadataCursor != null) {
             try {
@@ -1100,10 +1083,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
 
-        // When the name or size are not provided, we need to generate them locally.
-        if (name == null) {
-            name = uri.getLastPathSegment();
-        }
+        // When the size is not provided, we need to determine it locally.
         if (size < 0) {
             // if the URI is a file: URI, ask file system for its size
             if ("file".equalsIgnoreCase(uri.getScheme())) {

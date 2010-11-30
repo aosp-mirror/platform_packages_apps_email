@@ -17,7 +17,6 @@
 package com.android.email;
 
 import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
@@ -42,7 +41,7 @@ public class UtilityLargeTest extends InstrumentationTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
-                getInstrumentation().getTargetContext(), EmailProvider.class);
+                getInstrumentation().getTargetContext());
     }
 
 

@@ -398,6 +398,11 @@ save attachment.</string>
     <!-- Toast shown following a meeting invite reply, declined -->
     <string name="message_view_invite_toast_no">You have declined this invitation</string>
     <!--Confirmation dialog title shown when user tries to delete messages.  [CHAR LIMIT=16] -->
+
+    <!-- Title of the EML viewer activity. [CHAR LIMIT=32] -->
+    <string name="eml_view_title">Viewing
+            <xliff:g id="filename" example="test.eml">%s</xliff:g></string>
+
     <string name="message_delete_dialog_title">Discard message</string>
     <!--Confirmation dialog text shown when user tries to delete messages.  [CHAR LIMIT=32] -->
     <plurals name="message_delete_confirm">
