@@ -76,7 +76,6 @@ public class Controller {
     /*package*/ final ConcurrentHashMap<Long, Boolean> mLegacyControllerMap =
         new ConcurrentHashMap<Long, Boolean>();
 
-
     // Note that 0 is a syntactically valid account key; however there can never be an account
     // with id = 0, so attempts to restore the account will return null.  Null values are
     // handled properly within the code, so this won't cause any issues.
@@ -98,11 +97,7 @@ public class Controller {
     private static final int BODY_SOURCE_KEY_COLUMN = 0;
     private static final String WHERE_MESSAGE_KEY = Body.MESSAGE_KEY + "=?";
 
-    private static final String[] MESSAGEID_TO_MAILBOXID_PROJECTION = new String[] {
-        EmailContent.RECORD_ID,
-        EmailContent.MessageColumns.MAILBOX_KEY
-    };
-    private static final int MESSAGEID_TO_MAILBOXID_COLUMN_MAILBOXID = 1;
+    private static final String MAILBOXES_FOR_ACCOUNT_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?";
 
     // Service callbacks as set up via setCallback
     private static RemoteCallbackList<IEmailServiceCallback> sCallbackList =
@@ -885,7 +880,7 @@ public class Controller {
         // Flag the attachment as needing download at the user's request
         ContentValues cv = new ContentValues();
         cv.put(Attachment.FLAGS, attachInfo.mFlags | Attachment.FLAG_DOWNLOAD_USER_REQUEST);
-        attachInfo.update(mContext, cv);
+        attachInfo.update(mProviderContext, cv);
     }
 
     /**
@@ -942,7 +937,7 @@ public class Controller {
     public void deleteAccount(final long accountId) {
         Utility.runAsync(new Runnable() {
             public void run() {
-                deleteAccountSync(accountId, mContext);
+                deleteAccountSync(accountId, mProviderContext);
             }
         });
     }
@@ -969,7 +964,7 @@ public class Controller {
 
             Uri uri = ContentUris.withAppendedId(
                     EmailContent.Account.CONTENT_URI, accountId);
-            mContext.getContentResolver().delete(uri, null, null);
+            context.getContentResolver().delete(uri, null, null);
 
             // Update the backup (side copy) of the accounts
             AccountBackupRestore.backupAccounts(context);
@@ -986,6 +981,32 @@ public class Controller {
                     l.deleteAccountCallback(accountId);
                 }
             }
+        }
+    }
+
+    /**
+     * Delete all synced data, but don't delete the actual account.  This is used when security
+     * policy requirements are not met, and we don't want to reveal any synced data, but we do
+     * wish to keep the account configured (e.g. to accept remote wipe commands).
+     *
+     * SYNCHRONOUS - do not call from UI thread.
+     *
+     * @param accountId The account to wipe.
+     */
+    public void deleteSyncedDataSync(long accountId) {
+        try {
+            // Delete synced attachments
+            AttachmentProvider.deleteAllAccountAttachmentFiles(mProviderContext, accountId);
+            // Delete synced email
+            mProviderContext.getContentResolver().delete(Mailbox.CONTENT_URI,
+                    MAILBOXES_FOR_ACCOUNT_SELECTION, new String[] { Long.toString(accountId) });
+            // Delete PIM data (contacts, calendar) if applicable
+            IEmailService service = getServiceForAccount(accountId);
+            if (service != null) {
+                service.deleteAccountPIMData(accountId);
+            }
+        } catch (Exception e) {
+            Log.w(Email.LOG_TAG, "Exception while deleting account synced data", e);
         }
     }
 

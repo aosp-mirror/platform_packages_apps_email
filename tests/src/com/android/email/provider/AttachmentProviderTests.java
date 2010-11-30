@@ -569,31 +569,9 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         Mailbox mailbox2 = ProviderTestUtils.setupMailbox("mbox2", account1Id, true, mMockContext);
         long mailbox2Id = mailbox2.mId;
 
-        // two messages per mailbox, one w/attachments, one w/o attachments
-        Message message1a = ProviderTestUtils.setupMessage("msg1a", account1Id, mailbox1Id, false,
-                true, mMockContext);
-        Message message1b = ProviderTestUtils.setupMessage("msg1b", account1Id, mailbox1Id, false,
-                true, mMockContext);
-        Message message2a = ProviderTestUtils.setupMessage("msg2a", account1Id, mailbox2Id, false,
-                true, mMockContext);
-        Message message2b = ProviderTestUtils.setupMessage("msg2b", account1Id, mailbox2Id, false,
-                true, mMockContext);
-
-        // attachments on each of the "a" messages (3 on 1a, 1 on 1b)
-        Attachment newAttachment1 = ProviderTestUtils.setupAttachment(message1a.mId, "file1", 100,
-                true, mMockContext);
-        Attachment newAttachment2 = ProviderTestUtils.setupAttachment(message1a.mId, "file2", 200,
-                true, mMockContext);
-        Attachment newAttachment3 = ProviderTestUtils.setupAttachment(message1a.mId, "file3", 100,
-                true, mMockContext);
-        Attachment newAttachment4 = ProviderTestUtils.setupAttachment(message2a.mId, "file4", 100,
-                true, mMockContext);
-
-        // Create test files
-        createAttachmentFile(account1, newAttachment1.mId);
-        createAttachmentFile(account1, newAttachment2.mId);
-        createAttachmentFile(account1, newAttachment3.mId);
-        createAttachmentFile(account1, newAttachment4.mId);
+        // Fill each mailbox with messages & attachments
+        populateAccountMailbox(account1, mailbox1Id, 3);
+        populateAccountMailbox(account1, mailbox2Id, 1);
 
         // Confirm four attachment files found
         File attachmentsDir = AttachmentProvider.getAttachmentDirectory(mMockContext, account1.mId);
@@ -608,6 +586,77 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         assertEquals(0, attachmentsDir.listFiles().length);
     }
 
+    /**
+     * Test the functionality of deleting an entire account's attachments.
+     */
+    public void testDeleteAccount() throws IOException {
+        Account account1 = ProviderTestUtils.setupAccount("attach-acct-del1", false, mMockContext);
+        account1.mCompatibilityUuid = "test-UUID";
+        account1.save(mMockContext);
+        long account1Id = account1.mId;
+        Mailbox mailbox1 = ProviderTestUtils.setupMailbox("mbox1", account1Id, true, mMockContext);
+        long mailbox1Id = mailbox1.mId;
+        Mailbox mailbox2 = ProviderTestUtils.setupMailbox("mbox2", account1Id, true, mMockContext);
+        long mailbox2Id = mailbox2.mId;
+
+        // Repeat for account #2
+        Account account2 = ProviderTestUtils.setupAccount("attach-acct-del2", false, mMockContext);
+        account2.mCompatibilityUuid = "test-UUID-2";
+        account2.save(mMockContext);
+        long account2Id = account2.mId;
+        Mailbox mailbox3 = ProviderTestUtils.setupMailbox("mbox3", account2Id, true, mMockContext);
+        long mailbox3Id = mailbox3.mId;
+        Mailbox mailbox4 = ProviderTestUtils.setupMailbox("mbox4", account2Id, true, mMockContext);
+        long mailbox4Id = mailbox4.mId;
+
+        // Fill each mailbox with messages & attachments
+        populateAccountMailbox(account1, mailbox1Id, 3);
+        populateAccountMailbox(account1, mailbox2Id, 1);
+        populateAccountMailbox(account2, mailbox3Id, 5);
+        populateAccountMailbox(account2, mailbox4Id, 2);
+
+        // Confirm eleven attachment files found
+        File directory1 = AttachmentProvider.getAttachmentDirectory(mMockContext, account1.mId);
+        assertEquals(4, directory1.listFiles().length);
+        File directory2 = AttachmentProvider.getAttachmentDirectory(mMockContext, account2.mId);
+        assertEquals(7, directory2.listFiles().length);
+
+        // Command the deletion of account 1 - we should lose 4 attachment files
+        AttachmentProvider.deleteAllAccountAttachmentFiles(mMockContext, account1Id);
+        assertEquals(0, directory1.listFiles().length);
+        assertEquals(7, directory2.listFiles().length);
+
+        // Command the deletion of account 2 - we should lose 7 attachment file
+        AttachmentProvider.deleteAllAccountAttachmentFiles(mMockContext, account2Id);
+        assertEquals(0, directory1.listFiles().length);
+        assertEquals(0, directory2.listFiles().length);
+    }
+
+    /**
+     * Create a set of attachments for a given test account and mailbox.  Creates the following:
+     *  Two messages per mailbox, one w/attachments, one w/o attachments
+     *  Any number of attachments (on the first message)
+     *  @param account the account to populate
+     *  @param mailboxId the mailbox to populate
+     *  @param numAttachments how many attachments to create
+     */
+    private void populateAccountMailbox(Account account, long mailboxId, int numAttachments)
+            throws IOException {
+        long accountId = account.mId;
+
+        // two messages per mailbox, one w/attachments, one w/o attachments
+        Message message1a = ProviderTestUtils.setupMessage(
+                "msg1a", accountId, mailboxId, false, true, mMockContext);
+        /* Message message1b = */ ProviderTestUtils.setupMessage(
+                "msg1b", accountId, mailboxId, false, true, mMockContext);
+
+        // Create attachment records & files
+        for (int count = 0; count < numAttachments; count++) {
+            Attachment newAttachment = ProviderTestUtils.setupAttachment(message1a.mId,
+                    "file" + count, 100 * count, true, mMockContext);
+            createAttachmentFile(account, newAttachment.mId);
+        }
+    }
 
     /**
      * Create an attachment by copying an image resource into a file.  Uses "real" resources

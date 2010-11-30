@@ -16,6 +16,7 @@
 
 package com.android.email;
 
+import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
@@ -59,6 +60,8 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         mProviderContext = getMockContext();
         mContext = getContext();
         mTestController = new TestController(mProviderContext, mContext);
+        // Invalidate all caches, since we reset the database for each test
+        ContentCache.invalidateAllCachesForTest();
     }
 
     @Override
@@ -372,6 +375,56 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         // Make sure they're gone
         assertEquals(0, EmailContent.count(mProviderContext, Message.CONTENT_URI,
                 Message.MAILBOX_KEY + "=?", new String[] {Long.toString(box.mId)}));
+    }
+
+    /**
+     * Test wiping an account's synced data (but not the account)
+     */
+    public void testWipeSyncedData() {
+        Account account1 = ProviderTestUtils.setupAccount("wipe-synced-1", true, mProviderContext);
+        long account1Id = account1.mId;
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mProviderContext);
+        long box1Id = box1.mId;
+        Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, true, mProviderContext);
+        long box2Id = box2.mId;
+
+        Account account2 = ProviderTestUtils.setupAccount("wipe-synced-2", true, mProviderContext);
+        long account2Id = account2.mId;
+        Mailbox box3 = ProviderTestUtils.setupMailbox("box3", account2Id, true, mProviderContext);
+        long box3Id = box3.mId;
+        Mailbox box4 = ProviderTestUtils.setupMailbox("box4", account2Id, true, mProviderContext);
+        long box4Id = box4.mId;
+
+        // Now populate all 4 with messages
+        Message message = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
+                true, mProviderContext);
+        long message1Id = message.mId;
+        message = ProviderTestUtils.setupMessage("message2", account1Id, box2Id, false,
+                true, mProviderContext);
+        long message2Id = message.mId;
+        message = ProviderTestUtils.setupMessage("message3", account2Id, box3Id, false,
+                true, mProviderContext);
+        long message3Id = message.mId;
+        message = ProviderTestUtils.setupMessage("message4", account2Id, box4Id, false,
+                true, mProviderContext);
+        long message4Id = message.mId;
+
+        // Now wipe account 1's data
+        mTestController.deleteSyncedDataSync(account1Id);
+
+        // Confirm:  Mailboxes gone, messages gone, account survives
+        assertNull(Mailbox.restoreMailboxWithId(mProviderContext, box1Id));
+        assertNull(Mailbox.restoreMailboxWithId(mProviderContext, box2Id));
+        assertNull(Message.restoreMessageWithId(mProviderContext, message1Id));
+        assertNull(Message.restoreMessageWithId(mProviderContext, message2Id));
+        assertNotNull(Account.restoreAccountWithId(mProviderContext, account1Id));
+
+        // Confirm:  Other account survived
+        assertNotNull(Mailbox.restoreMailboxWithId(mProviderContext, box3Id));
+        assertNotNull(Mailbox.restoreMailboxWithId(mProviderContext, box4Id));
+        assertNotNull(Message.restoreMessageWithId(mProviderContext, message3Id));
+        assertNotNull(Message.restoreMessageWithId(mProviderContext, message4Id));
+        assertNotNull(Account.restoreAccountWithId(mProviderContext, account2Id));
     }
 
     public void testLoadMessageFromUri() throws Exception {
