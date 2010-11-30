@@ -45,7 +45,7 @@
     <string name="deselect_all_action" msgid="253663239459688238">"Auswahl aufheben"</string>
     <string name="compose_action" msgid="4045702519637388045">"Schreiben"</string>
     <string name="search_action" msgid="6325101454876682308">"Suche"</string>
-    <string name="open_action" msgid="936766723989190816">"Offen"</string>
+    <string name="open_action" msgid="936766723989190816">"Öffnen"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Kontoeinstellungen"</string>
     <string name="remove_account_action" msgid="3789169090601376209">"Konto entfernen"</string>
     <string name="folders_action" msgid="7502431531355227666">"Ordner"</string>
@@ -101,7 +101,7 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> und <xliff:g id="NUMBER">%2$d</xliff:g> weitere"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"An:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
-    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Offen"</string>
+    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Öffnen"</string>
     <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Speichern"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Anhang als <xliff:g id="FILENAME">%s</xliff:g> gespeichert."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Anhang nicht gespeichert"</string>

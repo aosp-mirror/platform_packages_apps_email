@@ -20,7 +20,7 @@
     <string name="read_attachment_desc" msgid="7594746717616308643">"Permite que esta aplicación lea los archivos adjuntos del correo electrónico."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Acceder a los datos del proveedor de servicios de correo"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"Permite que la aplicación acceda a la base de datos de tu correo electrónico, incluidos los mensajes recibidos, los mensajes enviados, los nombre de usuario y las contraseñas."</string>
-    <string name="app_name" msgid="5815426892327290362">"Enviar correo electrónico"</string>
+    <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="compose_title" msgid="427986915662706899">"Redactar"</string>
     <string name="debug_title" msgid="5175710493691536719">"Depurar"</string>
     <string name="next_action" msgid="3931301986364184415">"Siguiente"</string>
