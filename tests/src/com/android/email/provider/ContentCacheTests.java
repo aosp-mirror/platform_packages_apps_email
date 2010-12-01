@@ -168,13 +168,7 @@ public class ContentCacheTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, cursor.getPosition());
         cursor.moveToPosition(0);
         assertEquals(0, cursor.getPosition());
-        // And something that should
-        try {
-            cursor.moveToPosition(1);
-            fail("Shouldn't be able to move to position > 0");
-        } catch (IllegalArgumentException e) {
-            // Correct
-        }
+        assertFalse(cursor.moveToPosition(1));
 
         cursor.close();
         // We've closed the cached cursor; make sure
