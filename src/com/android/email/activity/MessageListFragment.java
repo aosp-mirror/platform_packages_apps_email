@@ -545,7 +545,7 @@ public class MessageListFragment extends ListFragment
             }
             // Start dragging now
             listItem.setOnDragListener(this);
-            listItem.startDrag(data, new ThumbnailBuilder(listItem, size), false);
+            listItem.startDrag(data, new ThumbnailBuilder(listItem, size), false, null);
             return true;
         }
         return false;
