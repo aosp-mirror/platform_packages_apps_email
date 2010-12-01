@@ -124,14 +124,15 @@ public class UtilityUnitTests extends AndroidTestCase {
         // Make sure they're unique
         Set<Drawable> set = new HashSet<Drawable>();
         set.add(inbox);
-        set.add(mail);
         set.add(parent);
         set.add(drafts);
         set.add(outbox);
         set.add(sent);
         set.add(trash);
         set.add(junk);
-        assertEquals(8, set.size());
+        assertEquals(7, set.size());
+
+        assertNull(mail);
     }
 
     private static byte[] b(int... array) {
