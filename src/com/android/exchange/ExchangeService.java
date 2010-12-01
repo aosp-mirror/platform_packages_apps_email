@@ -2323,7 +2323,7 @@ public class ExchangeService extends Service implements Runnable {
                 }
             } else {
                 // If this is a ui request, set the sync reason for the service
-                if (svc.mSyncReason >= SYNC_UI_REQUEST) {
+                if (reason >= SYNC_UI_REQUEST) {
                     svc.mSyncReason = reason;
                 }
             }
