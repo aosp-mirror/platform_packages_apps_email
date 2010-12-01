@@ -30,8 +30,7 @@
     <string name="next_action" msgid="3931301986364184415">"Weiter"</string>
     <string name="okay_action" msgid="8365197396795675617">"OK"</string>
     <string name="cancel_action" msgid="6967435583794021865">"Abbrechen"</string>
-    <!-- no translation found for previous_action (5181616311579820981) -->
-    <skip />
+    <string name="previous_action" msgid="5181616311579820981">"Zurück"</string>
     <string name="send_action" msgid="1729766205562446418">"Senden"</string>
     <string name="reply_action" msgid="4262472229221507619">"Antworten"</string>
     <string name="reply_all_action" msgid="6192179825726332152">"Allen antworten"</string>
@@ -58,8 +57,7 @@
     <string name="accounts_action" msgid="901105887272231493">"Konten"</string>
     <string name="mark_as_read_action" msgid="5031651846998842419">"Als gelesen markieren"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Als ungelesen markieren"</string>
-    <!-- no translation found for move_action (3059189775933985898) -->
-    <skip />
+    <string name="move_action" msgid="3059189775933985898">"Verschieben"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Anhang hinzufügen"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Einstellungen für Speicherauszug"</string>
@@ -92,8 +90,10 @@
     <item quantity="one" msgid="958868322080140627">"<xliff:g id="NUM_NEW_MESSAGE">%1$d</xliff:g> neue<xliff:g id="SEPARATOR"> </xliff:g> <xliff:g id="ACCOUNT_NAME">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="3254100178329220009">"<xliff:g id="NUM_NEW_MESSAGE">%1$d</xliff:g> neue<xliff:g id="SEPARATOR"> </xliff:g> <xliff:g id="ACCOUNT_NAME">%2$s</xliff:g>"</item>
   </plurals>
-    <!-- no translation found for number_of_accounts:one (6343953132237244947) -->
-    <!-- no translation found for number_of_accounts:other (8548760449976444566) -->
+  <plurals name="number_of_accounts">
+    <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> Konto"</item>
+    <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> Konten"</item>
+  </plurals>
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Posteingang"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Postausgang"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Entwürfe"</string>
@@ -119,16 +119,11 @@
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Betreff"</string>
-    <!-- no translation found for message_compose_from_label (4084843296548498041) -->
-    <skip />
-    <!-- no translation found for message_compose_to_label (6806045787441348009) -->
-    <skip />
-    <!-- no translation found for message_compose_cc_label (5608567337432359209) -->
-    <skip />
-    <!-- no translation found for message_compose_bcc_label (8619598628773345338) -->
-    <skip />
-    <!-- no translation found for message_compose_subject_label (1592314202889683309) -->
-    <skip />
+    <string name="message_compose_from_label" msgid="4084843296548498041">"Von:"</string>
+    <string name="message_compose_to_label" msgid="6806045787441348009">"An:"</string>
+    <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
+    <string name="message_compose_bcc_label" msgid="8619598628773345338">"Bcc:"</string>
+    <string name="message_compose_subject_label" msgid="1592314202889683309">"Betreff:"</string>
     <string name="message_compose_body_hint" msgid="7575406246484103697">"E-Mail schreiben"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Originalnachricht --------"\n"Betreff: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Von: <xliff:g id="SENDER">%2$s</xliff:g>"\n"An: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> schrieb:"\n\n</string>
@@ -164,10 +159,13 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Sie haben die Einladung angenommen."</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Sie haben auf diese Einladung mit \"Vielleicht\" geantwortet."</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Sie haben die Einladung abgelehnt."</string>
-    <!-- no translation found for message_delete_dialog_title (7189172554183139772) -->
+    <!-- no translation found for eml_view_title (8827210108543430336) -->
     <skip />
-    <!-- no translation found for message_delete_confirm:one (8452608582303152000) -->
-    <!-- no translation found for message_delete_confirm:other (5071164417794016228) -->
+    <string name="message_delete_dialog_title" msgid="7189172554183139772">"Nachr. verwerfen"</string>
+  <plurals name="message_delete_confirm">
+    <item quantity="one" msgid="8452608582303152000">"Nachricht verwerfen?"</item>
+    <item quantity="other" msgid="5071164417794016228">"Diese Nachrichten verwerfen?"</item>
+  </plurals>
   <plurals name="message_deleted_toast">
     <item quantity="one" msgid="710742672464447084">"Nachricht gelöscht"</item>
     <item quantity="other" msgid="6574961322865652255">"Nachrichten gelöscht"</item>
@@ -204,14 +202,12 @@
   </plurals>
     <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
     <skip />
-    <!-- no translation found for message_view_move_to_older (4993043091356700890) -->
-    <skip />
+    <string name="message_view_move_to_older" msgid="4993043091356700890">"Älter"</string>
     <string name="message_list_snippet" msgid="6077583739966798162">"<xliff:g id="SUBJECT"> %1$s</xliff:g> - <xliff:g id="TEXT">%2$s</xliff:g>"</string>
     <!-- outdated translation 3969856368228940980 -->     <string name="account_setup_basics_title" msgid="3578333196594678422">"E-Mail einrichten"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Exchange-Konto hinzufügen"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Exchange ActiveSync-Konto hinzufügen"</string>
-    <!-- no translation found for account_setup_basics_headline (6726590205905464015) -->
-    <skip />
+    <string name="account_setup_basics_headline" msgid="6726590205905464015">"E-Mail-Konto"</string>
     <string name="accounts_welcome" msgid="5901437782383439370">"Bei den meisten Konten können Sie die E-Mail-Adresse in nur wenigen Schritten konfigurieren."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Sie können ein Exchange-Konto in nur wenigen Schritten konfigurieren."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Sie können ein Exchange ActiveSync-Konto in nur wenigen Schritten konfigurieren."</string>
@@ -228,13 +224,11 @@
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Einstellungen des Eingangsservers werden überprüft..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Einstellungen des Ausgangsservers werden überprüft..."</string>
     <!-- outdated translation 8875040521875381849 -->     <string name="account_setup_names_title" msgid="8483517350241119291">"E-Mail einrichten"</string>
-    <!-- no translation found for account_setup_names_headline (2413440250372658881) -->
-    <skip />
+    <string name="account_setup_names_headline" msgid="2413440250372658881">"Ihr Konto ist nun eingerichtet."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Konto benennen (optional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ihr Name (wird für ausgehende Nachrichten angezeigt)"</string>
     <!-- outdated translation 6645576356752495504 -->     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Neues E-Mail-Konto hinzufügen"</string>
-    <!-- no translation found for account_setup_account_type_headline (3574102329184831086) -->
-    <skip />
+    <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Kontotyp"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Um welchen Kontotyp handelt es sich hierbei?"</string>
     <!-- outdated translation 6862032674547580337 -->     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Einstellungen für Eingangsserver"</string>
     <!-- no translation found for account_setup_incoming_headline (6183711037633407184) -->
@@ -273,8 +267,7 @@
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Alle SSL-Zertifikate akzeptieren"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Mobilgerät-ID"</string>
     <!-- outdated translation 8995162193118880993 -->     <string name="account_setup_options_title" msgid="9016600767888846051">"Kontooptionen"</string>
-    <!-- no translation found for account_setup_options_headline (4181274232835368085) -->
-    <skip />
+    <string name="account_setup_options_headline" msgid="4181274232835368085">"Konto-Optionen"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Häufigkeit des E-Mail-Abrufs"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nie"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automatisch (Push)"</string>
@@ -316,6 +309,18 @@
     <string name="account_security_title" msgid="4441470647344315196">"Gerätesicherheit"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Der Server <xliff:g id="SERVER">%s</xliff:g> erfordert die Erlaubnis zur Remote-Steuerung einiger Sicherheitsfunktionen auf Ihrem Telefon."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bearbeiten"</string>
+    <!-- no translation found for password_expire_warning_ticker_fmt (950001176659814912) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_content_title (4602564325906174785) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_content_text_fmt (4302557343790365263) -->
+    <skip />
+    <!-- no translation found for password_expired_ticker (5698508544187945595) -->
+    <skip />
+    <!-- no translation found for password_expired_content_title (8417027276177867305) -->
+    <skip />
+    <!-- no translation found for password_expired_content_text (741999155767783375) -->
+    <skip />
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Nicht gespeicherte Änderungen verwerfen?"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Allgemeine Einstellungen"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
@@ -389,11 +394,11 @@
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Nachrichtenliste"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Nachrichtentextgröße"</string>
   <string-array name="general_preference_text_zoom_summary_array">
-    <item msgid="1728778773460367725">"Inhalt von Nachrichten als sehr kleinen Text anzeigen"</item>
-    <item msgid="8239633518447359057">"Inhalt von Nachrichten als kleinen Text anzeigen"</item>
-    <item msgid="55959821477704302">"Inhalt von Nachrichten als normal großen Text anzeigen"</item>
-    <item msgid="446236334663020508">"Inhalt von Nachrichten als großen Text anzeigen"</item>
-    <item msgid="235926149071179467">"Inhalt von Nachrichten als sehr großen Text anzeigen"</item>
+    <item msgid="1728778773460367725">"Inhalt von Nachrichten in sehr kleiner Schrift anzeigen"</item>
+    <item msgid="8239633518447359057">"Inhalt von Nachrichten in kleiner Schrift anzeigen"</item>
+    <item msgid="55959821477704302">"Inhalt von Nachrichten in normal großer Schrift anzeigen"</item>
+    <item msgid="446236334663020508">"Inhalt von Nachrichten in großer Schrift anzeigen"</item>
+    <item msgid="235926149071179467">"Inhalt von Nachrichten in sehr großer Schrift anzeigen"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Nachrichtentextgröße"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Sehr klein"</string>
@@ -401,6 +406,15 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Groß"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Sehr groß"</string>
-    <!-- no translation found for position_of_count (7989353140376877792) -->
+    <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> von <xliff:g id="ID_2">%2$s</xliff:g>"</string>
+    <!-- no translation found for widget_other_views (2924270018204427009) -->
+    <skip />
+    <!-- no translation found for widget_all_mail (6436796211067834315) -->
+    <skip />
+    <!-- no translation found for widget_unread (488582205091831168) -->
+    <skip />
+    <!-- no translation found for widget_starred (7855645697293191958) -->
+    <skip />
+    <!-- no translation found for widget_loading (2340962056927255554) -->
     <skip />
 </resources>
