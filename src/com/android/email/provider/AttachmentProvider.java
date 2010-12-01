@@ -482,13 +482,14 @@ public class AttachmentProvider extends ContentProvider {
     }
 
     /**
-     * In support of deleting an account, delete all related attachments.
+     * In support of deleting or wiping an account, delete all related attachments.
      *
      * @param context
-     * @param accountId the account for the mailbox
+     * @param accountId the account to scrub
      */
     public static void deleteAllAccountAttachmentFiles(Context context, long accountId) {
         File[] files = getAttachmentDirectory(context, accountId).listFiles();
+        if (files == null) return;
         for (File file : files) {
             boolean result = file.delete();
             if (!result) {

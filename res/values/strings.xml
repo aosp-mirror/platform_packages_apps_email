@@ -751,6 +751,27 @@ save attachment.</string>
     <!-- "Setup could not finish" dialog action button -->
     <string name="account_setup_failed_dlg_edit_details_action">Edit details</string>
 
+    <!-- Notification ticker when device password is getting ready to expire [CHAR_LIMIT=80] -->
+    <string name="password_expire_warning_ticker_fmt">
+            Account \"<xliff:g id="account">%s</xliff:g>\" requires you to update your screen
+            unlock code.</string>
+    <!-- Notification content title when device password is getting ready to expire
+            [CHAR_LIMIT=28] -->
+    <string name="password_expire_warning_content_title">New screen unlock required</string>
+    <!-- Notification content text when device password is getting ready to expire
+            [CHAR_LIMIT=2 lines] -->
+    <string name="password_expire_warning_content_text_fmt">
+            Account \"<xliff:g id="account">%s</xliff:g>\" requires you to update your screen
+            unlock code.  Touch here to update it.</string>
+
+    <!-- Notification ticker when device password has expired [CHAR_LIMIT=80] -->
+    <string name="password_expired_ticker">Your screen unlock code has expired.</string>
+    <!-- Notification content title when device password has expired [CHAR_LIMIT=28] -->
+    <string name="password_expired_content_title">New screen unlock required</string>
+    <!-- Notification content text when device password has expired [CHAR_LIMIT=2 lines] -->
+    <string name="password_expired_content_text">
+            Your screen unlock code has expired.  Touch here to update it.</string>
+
     <!-- On AccountSettingsXL, dialog text if you try to exit in/out/eas fragment (server settings)
          without checking/saving [CHAR LIMIT=none]-->
     <string name="account_settings_exit_server_settings">Discard unsaved changes?</string>

@@ -21,9 +21,6 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -32,8 +29,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -59,6 +54,7 @@ public class SecurityPolicy {
     private static final String[] ACCOUNT_SECURITY_PROJECTION = new String[] {
         AccountColumns.ID, AccountColumns.SECURITY_FLAGS
     };
+    private static final int ACCOUNT_SECURITY_COLUMN_ID = 0;
     private static final int ACCOUNT_SECURITY_COLUMN_FLAGS = 1;
 
     /**
@@ -98,7 +94,7 @@ public class SecurityPolicy {
      *  max screen lock time        take the min
      *  require remote wipe         take the max (logical or)
      *  password history            take the max (strongest mode)
-     *  password expiration         take the max (strongest mode)
+     *  password expiration         take the min (strongest mode)
      *  password complex chars      take the max (strongest mode)
      *
      * @return a policy representing the strongest aggregate.  If no policy sets are defined,
@@ -113,7 +109,7 @@ public class SecurityPolicy {
         int maxScreenLockTime = Integer.MAX_VALUE;
         boolean requireRemoteWipe = false;
         int passwordHistory = Integer.MIN_VALUE;
-        int passwordExpiration = Integer.MIN_VALUE;
+        int passwordExpirationDays = Integer.MAX_VALUE;
         int passwordComplexChars = Integer.MIN_VALUE;
 
         Cursor c = mContext.getContentResolver().query(Account.CONTENT_URI,
@@ -134,8 +130,9 @@ public class SecurityPolicy {
                     if (p.mPasswordHistory > 0) {
                         passwordHistory = Math.max(p.mPasswordHistory, passwordHistory);
                     }
-                    if (p.mPasswordExpiration > 0) {
-                        passwordExpiration = Math.max(p.mPasswordExpiration, passwordExpiration);
+                    if (p.mPasswordExpirationDays > 0) {
+                        passwordExpirationDays =
+                                Math.min(p.mPasswordExpirationDays, passwordExpirationDays);
                     }
                     if (p.mPasswordComplexChars > 0) {
                         passwordComplexChars = Math.max(p.mPasswordComplexChars,
@@ -155,11 +152,11 @@ public class SecurityPolicy {
             if (maxPasswordFails == Integer.MAX_VALUE) maxPasswordFails = 0;
             if (maxScreenLockTime == Integer.MAX_VALUE) maxScreenLockTime = 0;
             if (passwordHistory == Integer.MIN_VALUE) passwordHistory = 0;
-            if (passwordExpiration == Integer.MIN_VALUE) passwordExpiration = 0;
+            if (passwordExpirationDays == Integer.MAX_VALUE) passwordExpirationDays = 0;
             if (passwordComplexChars == Integer.MIN_VALUE) passwordComplexChars = 0;
 
             return new PolicySet(minPasswordLength, passwordMode, maxPasswordFails,
-                    maxScreenLockTime, requireRemoteWipe, passwordExpiration, passwordHistory,
+                    maxScreenLockTime, requireRemoteWipe, passwordExpirationDays, passwordHistory,
                     passwordComplexChars);
         } else {
             return NO_POLICY_SET;
@@ -215,6 +212,12 @@ public class SecurityPolicy {
      *
      * This method is for queries only, and does not trigger any change in device state.
      *
+     * NOTE:  If there are multiple accounts with password expiration policies, the device
+     * password will be set to expire in the shortest required interval (most secure).  This method
+     * will return 'false' as soon as the password expires - irrespective of which account caused
+     * the expiration.  In other words, all accounts (that require expiration) will run/stop
+     * based on the requirements of the account with the shortest interval.
+     *
      * @param policies the policies requested, or null to check aggregate stored policies
      * @return true if the policies are active, false if not active
      */
@@ -249,8 +252,20 @@ public class SecurityPolicy {
                     return false;
                 }
             }
-            if (policies.mPasswordExpiration > 0) {
-                // TODO Complete when DPM supports this
+            if (policies.mPasswordExpirationDays > 0) {
+                // confirm that expirations are currently set
+                long currentTimeout = dpm.getPasswordExpirationTimeout(mAdminName);
+                if (currentTimeout == 0
+                        || currentTimeout > policies.getDPManagerPasswordExpirationTimeout()) {
+                    return false;
+                }
+                // confirm that the current password hasn't expired
+                long expirationDate = dpm.getPasswordExpiration(mAdminName);
+                long timeUntilExpiration = expirationDate - System.currentTimeMillis();
+                boolean expired = timeUntilExpiration < 0;
+                if (expired) {
+                    return false;
+                }
             }
             if (policies.mPasswordHistory > 0) {
                 if (dpm.getPasswordHistoryLength(mAdminName) < policies.mPasswordHistory) {
@@ -293,8 +308,9 @@ public class SecurityPolicy {
             dpm.setMaximumTimeToLock(mAdminName, policies.mMaxScreenLockTime * 1000);
             // local wipe (failed passwords limit)
             dpm.setMaximumFailedPasswordsForWipe(mAdminName, policies.mMaxPasswordFails);
-            // password expiration (days until a password expires)
-            // TODO set this when DPM allows it
+            // password expiration (days until a password expires).  API takes mSec.
+            dpm.setPasswordExpirationTimeout(mAdminName,
+                    policies.getDPManagerPasswordExpirationTimeout());
             // password history length (number of previous passwords that may not be reused)
             dpm.setPasswordHistoryLength(mAdminName, policies.mPasswordHistory);
             // password minimum complex characters
@@ -306,8 +322,11 @@ public class SecurityPolicy {
      * API: Set/Clear the "hold" flag in any account.  This flag serves a dual purpose:
      * Setting it gives us an indication that it was blocked, and clearing it gives EAS a
      * signal to try syncing again.
+     * @param context
+     * @param account The account to update
+     * @param newState true = security hold, false = free to sync
      */
-    public void setAccountHoldFlag(Account account, boolean newState) {
+    public static void setAccountHoldFlag(Context context, Account account, boolean newState) {
         if (newState) {
             account.mFlags |= Account.FLAGS_SECURITY_HOLD;
         } else {
@@ -315,7 +334,7 @@ public class SecurityPolicy {
         }
         ContentValues cv = new ContentValues();
         cv.put(AccountColumns.FLAGS, account.mFlags);
-        account.update(mContext, cv);
+        account.update(context, cv);
     }
 
     /**
@@ -328,43 +347,19 @@ public class SecurityPolicy {
      */
     public void policiesRequired(long accountId) {
         Account account = EmailContent.Account.restoreAccountWithId(mContext, accountId);
+
         // Mark the account as "on hold".
-        setAccountHoldFlag(account, true);
-        // Otherwise, put up a notification
+        setAccountHoldFlag(mContext, account, true);
+
+        // Put up a notification
         String tickerText = mContext.getString(R.string.security_notification_ticker_fmt,
                 account.getDisplayName());
         String contentTitle = mContext.getString(R.string.security_notification_content_title);
         String contentText = account.getDisplayName();
-        String ringtoneString = account.getRingtone();
-        Uri ringTone = (ringtoneString == null) ? null : Uri.parse(ringtoneString);
-        boolean vibrate = 0 != (account.mFlags & Account.FLAGS_VIBRATE_ALWAYS);
-        boolean vibrateWhenSilent = 0 != (account.mFlags & Account.FLAGS_VIBRATE_WHEN_SILENT);
-
         Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, accountId);
-        PendingIntent pending =
-            PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Notification notification = new Notification(R.drawable.stat_notify_email_generic,
-                tickerText, System.currentTimeMillis());
-        notification.setLatestEventInfo(mContext, contentTitle, contentText, pending);
-
-        // Use the account's notification rules for sound & vibrate (but always notify)
-        AudioManager audioManager =
-            (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        boolean nowSilent =
-            audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
-        notification.sound = ringTone;
-
-        if (vibrate || (vibrateWhenSilent && nowSilent)) {
-            notification.defaults |= Notification.DEFAULT_VIBRATE;
-        }
-        notification.flags |= Notification.FLAG_SHOW_LIGHTS;
-        notification.defaults |= Notification.DEFAULT_LIGHTS;
-
-        NotificationManager notificationManager =
-            (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NotificationController.NOTIFICATION_ID_SECURITY_NEEDED,
-                notification);
+        NotificationController.getInstance(mContext).postAccountNotification(
+                account, tickerText, contentTitle, contentText, intent,
+                NotificationController.NOTIFICATION_ID_SECURITY_NEEDED);
     }
 
     /**
@@ -372,9 +367,8 @@ public class SecurityPolicy {
      * cleared now.
      */
     public void clearNotification(long accountId) {
-        NotificationManager notificationManager =
-            (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NotificationController.NOTIFICATION_ID_SECURITY_NEEDED);
+        NotificationController.getInstance(mContext).cancelNotification(
+                NotificationController.NOTIFICATION_ID_SECURITY_NEEDED);
     }
 
     /**
@@ -429,12 +423,17 @@ public class SecurityPolicy {
         private static final long PASSWORD_COMPLEX_CHARS_MASK = 31L << PASSWORD_COMPLEX_CHARS_SHIFT;
         public static final int PASSWORD_COMPLEX_CHARS_MAX = 31;
 
+        /* Convert days to mSec (used for password expiration) */
+        private static final long DAYS_TO_MSEC = 24 * 60 * 60 * 1000;
+        /* Small offset (2 minutes) added to policy expiration to make user testing easier. */
+        private static final long EXPIRATION_OFFSET_MSEC = 2 * 60 * 1000;
+
         /*package*/ final int mMinPasswordLength;
         /*package*/ final int mPasswordMode;
         /*package*/ final int mMaxPasswordFails;
         /*package*/ final int mMaxScreenLockTime;
         /*package*/ final boolean mRequireRemoteWipe;
-        /*package*/ final int mPasswordExpiration;
+        /*package*/ final int mPasswordExpirationDays;
         /*package*/ final int mPasswordHistory;
         /*package*/ final int mPasswordComplexChars;
 
@@ -465,10 +464,13 @@ public class SecurityPolicy {
          * @param maxPasswordFails (0=not enforced)
          * @param maxScreenLockTime in seconds (0=not enforced)
          * @param requireRemoteWipe
+         * @param passwordExpirationDays in days (0=not enforced)
+         * @param passwordHistory (0=not enforced)
+         * @param passwordComplexChars (0=not enforced)
          * @throws IllegalArgumentException for illegal arguments.
          */
         public PolicySet(int minPasswordLength, int passwordMode, int maxPasswordFails,
-                int maxScreenLockTime, boolean requireRemoteWipe, int passwordExpiration,
+                int maxScreenLockTime, boolean requireRemoteWipe, int passwordExpirationDays,
                 int passwordHistory, int passwordComplexChars) throws IllegalArgumentException {
             // If we're not enforcing passwords, make sure we clean up related values, since EAS
             // can send non-zero values for any or all of these
@@ -478,7 +480,7 @@ public class SecurityPolicy {
                 minPasswordLength = 0;
                 passwordComplexChars = 0;
                 passwordHistory = 0;
-                passwordExpiration = 0;
+                passwordExpirationDays = 0;
             } else {
                 if ((passwordMode != PASSWORD_MODE_SIMPLE) &&
                         (passwordMode != PASSWORD_MODE_STRONG)) {
@@ -493,7 +495,7 @@ public class SecurityPolicy {
                 if (minPasswordLength > PASSWORD_LENGTH_MAX) {
                     throw new IllegalArgumentException("password length");
                 }
-                if (passwordExpiration > PASSWORD_EXPIRATION_MAX) {
+                if (passwordExpirationDays > PASSWORD_EXPIRATION_MAX) {
                     throw new IllegalArgumentException("password expiration");
                 }
                 if (passwordHistory > PASSWORD_HISTORY_MAX) {
@@ -516,7 +518,7 @@ public class SecurityPolicy {
             mMaxPasswordFails = maxPasswordFails;
             mMaxScreenLockTime = maxScreenLockTime;
             mRequireRemoteWipe = requireRemoteWipe;
-            mPasswordExpiration = passwordExpiration;
+            mPasswordExpirationDays = passwordExpirationDays;
             mPasswordHistory = passwordHistory;
             mPasswordComplexChars = passwordComplexChars;
         }
@@ -542,7 +544,7 @@ public class SecurityPolicy {
             mMaxScreenLockTime =
                 (int) ((flags & SCREEN_LOCK_TIME_MASK) >> SCREEN_LOCK_TIME_SHIFT);
             mRequireRemoteWipe = 0 != (flags & REQUIRE_REMOTE_WIPE);
-            mPasswordExpiration =
+            mPasswordExpirationDays =
                 (int) ((flags & PASSWORD_EXPIRATION_MASK) >> PASSWORD_EXPIRATION_SHIFT);
             mPasswordHistory =
                 (int) ((flags & PASSWORD_HISTORY_MASK) >> PASSWORD_HISTORY_SHIFT);
@@ -562,6 +564,20 @@ public class SecurityPolicy {
                 default:
                     return DevicePolicyManager .PASSWORD_QUALITY_UNSPECIFIED;
             }
+        }
+
+        /**
+         * Helper to map expiration times to the millisecond values used by DevicePolicyManager.
+         */
+        public long getDPManagerPasswordExpirationTimeout() {
+            long result = mPasswordExpirationDays * DAYS_TO_MSEC;
+            // Add a small offset to the password expiration.  This makes it easier to test
+            // by changing (for example) 1 day to 1 day + 5 minutes.  If you set an expiration
+            // that is within the warning period, you should get a warning fairly quickly.
+            if (result > 0) {
+                result += EXPIRATION_OFFSET_MSEC;
+            }
+            return result;
         }
 
         /**
@@ -634,7 +650,7 @@ public class SecurityPolicy {
             dest.writeInt(mMaxPasswordFails);
             dest.writeInt(mMaxScreenLockTime);
             dest.writeInt(mRequireRemoteWipe ? 1 : 0);
-            dest.writeInt(mPasswordExpiration);
+            dest.writeInt(mPasswordExpirationDays);
             dest.writeInt(mPasswordHistory);
             dest.writeInt(mPasswordComplexChars);
         }
@@ -648,7 +664,7 @@ public class SecurityPolicy {
             mMaxPasswordFails = in.readInt();
             mMaxScreenLockTime = in.readInt();
             mRequireRemoteWipe = in.readInt() == 1;
-            mPasswordExpiration = in.readInt();
+            mPasswordExpirationDays = in.readInt();
             mPasswordHistory = in.readInt();
             mPasswordComplexChars = in.readInt();
         }
@@ -669,7 +685,7 @@ public class SecurityPolicy {
                 flags |= REQUIRE_REMOTE_WIPE;
             }
             flags |= (long)mPasswordHistory << PASSWORD_HISTORY_SHIFT;
-            flags |= (long)mPasswordExpiration << PASSWORD_EXPIRATION_SHIFT;
+            flags |= (long)mPasswordExpirationDays << PASSWORD_EXPIRATION_SHIFT;
             flags |= (long)mPasswordComplexChars << PASSWORD_COMPLEX_CHARS_SHIFT;
             return flags;
         }
@@ -679,7 +695,7 @@ public class SecurityPolicy {
             return "{ " + "pw-len-min=" + mMinPasswordLength + " pw-mode=" + mPasswordMode
                     + " pw-fails-max=" + mMaxPasswordFails + " screenlock-max="
                     + mMaxScreenLockTime + " remote-wipe-req=" + mRequireRemoteWipe
-                    + " pw-expiration=" + mPasswordExpiration
+                    + " pw-expiration=" + mPasswordExpirationDays
                     + " pw-history=" + mPasswordHistory
                     + " pw-complex-chars=" + mPasswordComplexChars + "}";
         }
@@ -741,6 +757,139 @@ public class SecurityPolicy {
     }
 
     /**
+     * Internal handler for device password expirations.
+     */
+    private void onPasswordExpiring() {
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                onPasswordExpiringSync(mContext);
+            }});
+    }
+
+    /**
+     * Handle password expiration - if any accounts appear to have triggered this, put up
+     * warnings, or even shut them down.
+     *
+     * NOTE:  If there are multiple accounts with password expiration policies, the device
+     * password will be set to expire in the shortest required interval (most secure).  The logic
+     * in this method operates based on the aggregate setting - irrespective of which account caused
+     * the expiration.  In other words, all accounts (that require expiration) will run/stop
+     * based on the requirements of the account with the shortest interval.
+     */
+    /* package */ void onPasswordExpiringSync(Context context) {
+        // 1.  Do we have any accounts that matter here?
+        long nextExpiringAccountId = findShortestExpiration(context);
+
+        // 2.  If not, exit immediately
+        if (nextExpiringAccountId == -1) {
+            return;
+        }
+
+        // 3.  If yes, are we warning or expired?
+        long expirationDate = getDPM().getPasswordExpiration(mAdminName);
+        long timeUntilExpiration = expirationDate - System.currentTimeMillis();
+        boolean expired = timeUntilExpiration < 0;
+        if (!expired) {
+            // 4.  If warning, simply put up a generic notification and report that it came from
+            // the shortest-expiring account.
+            Account account = Account.restoreAccountWithId(context, nextExpiringAccountId);
+            if (account == null) return;
+            Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
+            String ticker = context.getString(
+                    R.string.password_expire_warning_ticker_fmt, account.getDisplayName());
+            String contentTitle = context.getString(
+                    R.string.password_expire_warning_content_title);
+            String contentText = context.getString(
+                    R.string.password_expire_warning_content_text_fmt, account.getDisplayName());
+            NotificationController nc = NotificationController.getInstance(mContext);
+            nc.postAccountNotification(account, ticker, contentTitle, contentText, intent,
+                    NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRING);
+        } else {
+            // 5.  Actually expired - find all accounts that expire passwords, and wipe them
+            boolean wiped = wipeExpiredAccounts(context, Controller.getInstance(context));
+            if (wiped) {
+                // Post notification
+                Account account = Account.restoreAccountWithId(context, nextExpiringAccountId);
+                if (account == null) return;
+                Intent intent =
+                    new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
+                String ticker = context.getString(R.string.password_expired_ticker);
+                String contentTitle = context.getString(R.string.password_expired_content_title);
+                String contentText = context.getString(R.string.password_expired_content_text);
+                NotificationController nc = NotificationController.getInstance(mContext);
+                nc.postAccountNotification(account, ticker, contentTitle,
+                        contentText, intent,
+                        NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRED);
+            }
+        }
+    }
+
+    /**
+     * Find the account with the shortest expiration time.  This is always assumed to be
+     * the account that forces the password to be refreshed.
+     * @return -1 if no expirations, or accountId if one is found
+     */
+    /* package */ static long findShortestExpiration(Context context) {
+        long nextExpiringAccountId = -1;
+        long shortestExpiration = Long.MAX_VALUE;
+        Cursor c = context.getContentResolver().query(Account.CONTENT_URI,
+                ACCOUNT_SECURITY_PROJECTION, Account.SECURITY_NONZERO_SELECTION, null, null);
+        try {
+            while (c.moveToNext()) {
+                long flags = c.getLong(ACCOUNT_SECURITY_COLUMN_FLAGS);
+                if (flags != 0) {
+                    PolicySet p = new PolicySet(flags);
+                    if (p.mPasswordExpirationDays > 0 &&
+                            p.mPasswordExpirationDays < shortestExpiration) {
+                        nextExpiringAccountId = c.getLong(ACCOUNT_SECURITY_COLUMN_ID);
+                        shortestExpiration = p.mPasswordExpirationDays;
+                    }
+                }
+            }
+        } finally {
+            c.close();
+        }
+        return nextExpiringAccountId;
+    }
+
+    /**
+     * For all accounts that require password expiration, put them in security hold and wipe
+     * their data.
+     * @param context
+     * @param controller
+     * @return true if one or more accounts were wiped
+     */
+    /* package */ static boolean wipeExpiredAccounts(Context context, Controller controller) {
+        boolean result = false;
+        Cursor c = context.getContentResolver().query(Account.CONTENT_URI,
+                ACCOUNT_SECURITY_PROJECTION, Account.SECURITY_NONZERO_SELECTION, null, null);
+        try {
+            while (c.moveToNext()) {
+                long flags = c.getLong(ACCOUNT_SECURITY_COLUMN_FLAGS);
+                if (flags != 0) {
+                    PolicySet p = new PolicySet(flags);
+                    if (p.mPasswordExpirationDays > 0) {
+                        long accountId = c.getLong(ACCOUNT_SECURITY_COLUMN_ID);
+                        Account account = Account.restoreAccountWithId(context, accountId);
+                        if (account != null) {
+                            // Mark the account as "on hold".
+                            setAccountHoldFlag(context, account, true);
+                            // Erase data
+                            controller.deleteSyncedDataSync(accountId);
+                            // Report one or more were found
+                            result = true;
+                        }
+                    }
+                }
+            }
+        } finally {
+            c.close();
+        }
+        return result;
+    }
+
+    /**
      * Device Policy administrator.  This is primarily a listener for device state changes.
      * Note:  This is instantiated by incoming messages.
      * Note:  We do not implement onPasswordFailed() because the default behavior of the
@@ -778,7 +927,20 @@ public class SecurityPolicy {
          */
         @Override
         public void onPasswordChanged(Context context, Intent intent) {
+            // Clear security holds (if any)
             Account.clearSecurityHoldOnAllAccounts(context);
+            // Cancel any active notifications (if any are posted)
+            NotificationController nc = NotificationController.getInstance(context);
+            nc.cancelNotification(NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRING);
+            nc.cancelNotification(NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRED);
+        }
+
+        /**
+         * Called when device password is expiring
+         */
+        @Override
+        public void onPasswordExpiring(Context context, Intent intent) {
+            SecurityPolicy.getInstance(context).onPasswordExpiring();
         }
     }
 }
