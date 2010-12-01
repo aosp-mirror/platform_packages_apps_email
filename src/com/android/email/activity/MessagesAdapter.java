@@ -159,6 +159,9 @@ import java.util.Set;
                 text = context.getString(R.string.message_list_snippet, text, snippet);
             }
         }
+        if (text == null) {
+            text = "";
+        }
         itemView.mSnippet = text;
     }
 
