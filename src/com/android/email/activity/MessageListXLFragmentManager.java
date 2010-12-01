@@ -503,6 +503,7 @@ class MessageListXLFragmentManager {
                 // Message view just got hidden
                 onMessageViewClosed();
             }
+            mMessageListFragment.setVisibility((visiblePanes & ThreePaneLayout.PANE_MIDDLE) != 0);
         }
     }
 }

@@ -133,6 +133,14 @@ public class MessageListFragment extends ListFragment
 
     private boolean mOpenRequested;
 
+    /**
+     * Visibility.  On XL, message list is normally visible, except when message view is shown
+     * in full-screen on portrait.
+     *
+     * When not visible, the contextual action bar will be gone.
+     */
+    private boolean mIsVisible = true;
+
     /** true between {@link #onResume} and {@link #onPause}. */
     private boolean mResumed;
 
@@ -140,6 +148,7 @@ public class MessageListFragment extends ListFragment
      * {@link ActionMode} shown when 1 or more message is selected.
      */
     private ActionMode mSelectionMode;
+    private SelectionModeCallback mLastSelectionModeCallback;
 
     /** Whether "Send all messages" should be shown. */
     private boolean mShowSendCommand;
@@ -340,6 +349,14 @@ public class MessageListFragment extends ListFragment
         mCallback = (callback != null) ? callback : EmptyCallback.INSTANCE;
     }
 
+    public void setVisibility(boolean isVisible) {
+        if (isVisible == mIsVisible) {
+            return;
+        }
+        mIsVisible = isVisible;
+        updateSelectionMode();
+    }
+
     /**
      * Clear all the content, stop the loaders, etc -- should be called when the fragment is hidden.
      */
@@ -488,7 +505,7 @@ public class MessageListFragment extends ListFragment
         switch(event.getAction()) {
             case DragEvent.ACTION_DRAG_ENDED:
                 if (event.getResult()) {
-                    finishSelectionMode();
+                    onDeselectAll(); // Clear the selection
                 }
                 break;
         }
@@ -636,7 +653,9 @@ public class MessageListFragment extends ListFragment
         }
         mListAdapter.getSelectedSet().clear();
         getListView().invalidateViews();
-        finishSelectionMode();
+        if (isInSelectionMode()) {
+            finishSelectionMode();
+        }
     }
 
     /**
@@ -1139,27 +1158,35 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
-     * Show/hide the "selection" action mode, according to the number of selected messages,
-     * and update the content (title and menus) if necessary.
+     * Show/hide the "selection" action mode, according to the number of selected messages and
+     * the visibility of the fragment.
+     * Also update the content (title and menus) if necessary.
      */
     public void updateSelectionMode() {
         final int numSelected = getSelectedCount();
-        if (numSelected == 0) {
+        if ((numSelected == 0) || !mIsVisible) {
             finishSelectionMode();
             return;
         }
         if (isInSelectionMode()) {
             updateSelectionModeView();
         } else {
-            getActivity().startActionMode(new SelectionModeCallback());
+            mLastSelectionModeCallback = new SelectionModeCallback();
+            getActivity().startActionMode(mLastSelectionModeCallback);
         }
     }
 
-    /** Finish the "selection" action mode */
+
+    /**
+     * Finish the "selection" action mode.
+     *
+     * Note this method finishes the contextual mode, but does *not* clear the selection.
+     * If you want to do so use {@link #onDeselectAll()} instead.
+     */
     private void finishSelectionMode() {
         if (isInSelectionMode()) {
+            mLastSelectionModeCallback.mClosedByUser = false;
             mSelectionMode.finish();
-            mSelectionMode = null;
         }
     }
 
@@ -1173,6 +1200,8 @@ public class MessageListFragment extends ListFragment
         private MenuItem mMarkUnread;
         private MenuItem mAddStar;
         private MenuItem mRemoveStar;
+
+        /* package */ boolean mClosedByUser = true;
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -1230,8 +1259,17 @@ public class MessageListFragment extends ListFragment
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mCallback.onEnterSelectionMode(false);
-            onDeselectAll();
+
+            // Clear this before onDeselectAll() to prevent onDeselectAll() from trying to close the
+            // contextual mode again.
             mSelectionMode = null;
+            if (mClosedByUser) {
+                // Clear selection, only when the contextual mode is explicitly closed by the user.
+                //
+                // We close the contextual mode when the fragment becomes temporary invisible
+                // (i.e. mIsVisible == false) too, in which case we want to keep the selection.
+                onDeselectAll();
+            }
         }
     }
 

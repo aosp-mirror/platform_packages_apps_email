@@ -16,11 +16,11 @@
 
 package com.android.email.service;
 
+import com.android.email.Controller.ControllerService;
 import com.android.email.Email;
+import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.NotificationController;
 import com.android.email.Utility;
-import com.android.email.Controller.ControllerService;
-import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -28,7 +28,10 @@ import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
 import com.android.exchange.ExchangeService;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -45,12 +48,17 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AttachmentDownloadService extends Service implements Runnable {
     public static final String TAG = "AttachmentService";
 
     // Our idle time, waiting for notifications; this is something of a failsafe
     private static final int PROCESS_QUEUE_WAIT_TIME = 30 * ((int)DateUtils.MINUTE_IN_MILLIS);
+    // How often our watchdog checks for callback timeouts
+    private static final int WATCHDOG_CHECK_INTERVAL = 15 * ((int)DateUtils.SECOND_IN_MILLIS);
+    // How long we'll wait for a callback before canceling a download and retrying
+    private static final int CALLBACK_TIMEOUT = 30 * ((int)DateUtils.SECOND_IN_MILLIS);
 
     private static final int PRIORITY_NONE = -1;
     @SuppressWarnings("unused")
@@ -71,11 +79,28 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
     /*package*/ Context mContext;
     /*package*/ final DownloadSet mDownloadSet = new DownloadSet(new DownloadComparator());
+
     private final HashMap<Long, Class<? extends Service>> mAccountServiceMap =
         new HashMap<Long, Class<? extends Service>>();
     private final ServiceCallback mServiceCallback = new ServiceCallback();
     private final Object mLock = new Object();
     private volatile boolean mStop = false;
+
+
+    /**
+     * Watchdog alarm receiver; responsible for making sure that downloads in progress are not
+     * stalled, as determined by the timing of the most recent service callback
+     */
+    public static class Watchdog extends BroadcastReceiver {
+        @Override
+        public void onReceive(final Context context, Intent intent) {
+            new Thread(new Runnable() {
+                public void run() {
+                    watchdogAlarm();
+                }
+            }, "AttachmentDownloadService Watchdog").start();
+        }
+    }
 
     public static class DownloadRequest {
         final int priority;
@@ -149,6 +174,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
      */
     /*package*/ class DownloadSet extends TreeSet<DownloadRequest> {
         private static final long serialVersionUID = 1L;
+        private PendingIntent mWatchdogPendingIntent;
+        private AlarmManager mAlarmManager;
 
         /*package*/ DownloadSet(Comparator<? super DownloadRequest> comparator) {
             super(comparator);
@@ -157,8 +184,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
         /**
          * Maps attachment id to DownloadRequest
          */
-        /*package*/ final HashMap<Long, DownloadRequest> mDownloadsInProgress =
-            new HashMap<Long, DownloadRequest>();
+        /*package*/ final ConcurrentHashMap<Long, DownloadRequest> mDownloadsInProgress =
+            new ConcurrentHashMap<Long, DownloadRequest>();
 
         /**
          * onChange is called by the AttachmentReceiver upon receipt of a valid notification from
@@ -260,6 +287,67 @@ public class AttachmentDownloadService extends Service implements Runnable {
             return count;
         }
 
+        private void onWatchdogAlarm() {
+            long now = System.currentTimeMillis();
+            for (DownloadRequest req: mDownloadsInProgress.values()) {
+                // Check how long it's been since receiving a callback
+                long timeSinceCallback = now - req.lastCallbackTime;
+                if (timeSinceCallback > CALLBACK_TIMEOUT) {
+                    if (Email.DEBUG) {
+                        Log.d(TAG, "== ,  Download of " + req.attachmentId +
+                                " timed out");
+                    }
+                    mDownloadsInProgress.remove(req);
+                // STOPSHIP Remove this before ship
+                } else if (Email.DEBUG) {
+                    Log.d(TAG, "== ,  Download of " + req.attachmentId +
+                    " last callback " + (timeSinceCallback/1000) + "  secs ago");
+                }
+            }
+            // If there are downloads in progress, reset alarm
+            if (mDownloadsInProgress.isEmpty()) {
+                if (mAlarmManager != null && mWatchdogPendingIntent != null) {
+                    mAlarmManager.cancel(mWatchdogPendingIntent);
+                }
+            }
+            // Check whether we can start new downloads...
+            processQueue();
+        }
+
+        /**
+         * Do the work of starting an attachment download using the EmailService interface, and
+         * set our watchdog alarm
+         *
+         * @param serviceClass the class that will attempt the download
+         * @param req the DownloadRequest
+         * @throws RemoteException
+         */
+        private void startDownload(Class<? extends Service> serviceClass, DownloadRequest req)
+                throws RemoteException {
+            File file = AttachmentProvider.getAttachmentFilename(mContext, req.accountId,
+                    req.attachmentId);
+            req.startTime = System.currentTimeMillis();
+            req.inProgress = true;
+            mDownloadsInProgress.put(req.attachmentId, req);
+            if (serviceClass.equals(NullEmailService.class)) return;
+            // Now, call the service
+            EmailServiceProxy proxy =
+                new EmailServiceProxy(mContext, serviceClass, mServiceCallback);
+            proxy.loadAttachment(req.attachmentId, file.getAbsolutePath(),
+                    AttachmentProvider.getAttachmentUri(req.accountId, req.attachmentId)
+                    .toString());
+            // Lazily initialize our (reusable) pending intent
+            if (mWatchdogPendingIntent == null) {
+                Intent alarmIntent = new Intent(mContext, Watchdog.class);
+                mWatchdogPendingIntent = PendingIntent.getBroadcast(mContext, 0, alarmIntent, 0);
+                mAlarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+            }
+            // Set the alarm
+            mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis() + WATCHDOG_CHECK_INTERVAL, WATCHDOG_CHECK_INTERVAL,
+                    mWatchdogPendingIntent);
+        }
+
         /**
          * Attempt to execute the DownloadRequest, enforcing the maximum downloads per account
          * parameter
@@ -277,23 +365,11 @@ public class AttachmentDownloadService extends Service implements Runnable {
             }
             Class<? extends Service> serviceClass = getServiceClassForAccount(req.accountId);
             if (serviceClass == null) return false;
-            EmailServiceProxy proxy =
-                new EmailServiceProxy(mContext, serviceClass, mServiceCallback);
             try {
-                File file = AttachmentProvider.getAttachmentFilename(mContext, req.accountId,
-                        req.attachmentId);
                 if (Email.DEBUG) {
                     Log.d(TAG, ">> Starting download for attachment #" + req.attachmentId);
                 }
-                // Don't actually run the load if this is the NullEmailService (used in unit tests)
-                if (!serviceClass.equals(NullEmailService.class)) {
-                    req.startTime = System.currentTimeMillis();
-                    proxy.loadAttachment(req.attachmentId, file.getAbsolutePath(),
-                            AttachmentProvider.getAttachmentUri(req.accountId, req.attachmentId)
-                            .toString());
-                }
-                mDownloadsInProgress.put(req.attachmentId, req);
-                req.inProgress = true;
+                startDownload(serviceClass, req);
             } catch (RemoteException e) {
                 // TODO: Consider whether we need to do more in this case...
                 // For now, fix up our data to reflect the failure
@@ -541,6 +617,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
             return sRunningService.dequeue(attachmentId);
         }
         return false;
+    }
+
+    public static void watchdogAlarm() {
+        if (sRunningService != null) {
+            sRunningService.mDownloadSet.onWatchdogAlarm();
+        }
     }
 
     /**

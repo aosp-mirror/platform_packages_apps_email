@@ -482,6 +482,22 @@ public class AttachmentProvider extends ContentProvider {
     }
 
     /**
+     * In support of deleting an account, delete all related attachments.
+     *
+     * @param context
+     * @param accountId the account for the mailbox
+     */
+    public static void deleteAllAccountAttachmentFiles(Context context, long accountId) {
+        File[] files = getAttachmentDirectory(context, accountId).listFiles();
+        for (File file : files) {
+            boolean result = file.delete();
+            if (!result) {
+                Log.e(Email.LOG_TAG, "Failed to delete attachment file " + file.getName());
+            }
+        }
+    }
+
+    /**
      * Need this to suppress warning in unit tests.
      */
     @Override
