@@ -638,7 +638,7 @@ public class MessageListXL extends Activity implements
         ab.setSelectedNavigationItem(defaultSelection);
     }
 
-    private class ActionBarNavigationCallback implements ActionBar.NavigationCallback {
+    private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {
         @Override
         public boolean onNavigationItemSelected(int itemPosition, long accountId) {
             if (Email.DEBUG) Log.d(Email.LOG_TAG, "Account selected: accountId=" + accountId);
