@@ -167,6 +167,8 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Jūs esat apstiprinājis ielūgumu."</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Jūs uz šo ielūgumu esat atbildējis \"Varbūt”"</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Jūs esat noraidījis šo ielūgumu."</string>
+    <!-- no translation found for eml_view_title (8827210108543430336) -->
+    <skip />
     <!-- no translation found for message_delete_dialog_title (7189172554183139772) -->
     <skip />
     <!-- no translation found for message_delete_confirm:one (8452608582303152000) -->
@@ -320,6 +322,18 @@
     <string name="account_security_title" msgid="4441470647344315196">"Ierīces drošība"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Serveris <xliff:g id="SERVER">%s</xliff:g> pieprasa, lai jūs tam atļautu attālināti vadīt dažas tālruņa drošības funkcijas."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Rediģēt datus"</string>
+    <!-- no translation found for password_expire_warning_ticker_fmt (950001176659814912) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_content_title (4602564325906174785) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_content_text_fmt (4302557343790365263) -->
+    <skip />
+    <!-- no translation found for password_expired_ticker (5698508544187945595) -->
+    <skip />
+    <!-- no translation found for password_expired_content_title (8417027276177867305) -->
+    <skip />
+    <!-- no translation found for password_expired_content_text (741999155767783375) -->
+    <skip />
     <!-- no translation found for account_settings_exit_server_settings (8006323251094711431) -->
     <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Vispārīgi iestatījumi"</string>
@@ -425,5 +439,15 @@
     <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
     <skip />
     <!-- no translation found for position_of_count (7989353140376877792) -->
+    <skip />
+    <!-- no translation found for widget_other_views (2924270018204427009) -->
+    <skip />
+    <!-- no translation found for widget_all_mail (6436796211067834315) -->
+    <skip />
+    <!-- no translation found for widget_unread (488582205091831168) -->
+    <skip />
+    <!-- no translation found for widget_starred (7855645697293191958) -->
+    <skip />
+    <!-- no translation found for widget_loading (2340962056927255554) -->
     <skip />
 </resources>
