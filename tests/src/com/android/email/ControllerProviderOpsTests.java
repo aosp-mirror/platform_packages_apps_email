@@ -378,19 +378,31 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
     }
 
     /**
-     * Test wiping an account's synced data (but not the account)
+     * Test wiping an account's synced data.  Everything should go, but account & empty inbox.
+     * Also ensures that the remaining account and the remaining inbox have cleared their
+     * server sync keys, to force refresh eventually.
      */
     public void testWipeSyncedData() {
-        Account account1 = ProviderTestUtils.setupAccount("wipe-synced-1", true, mProviderContext);
+        Account account1 = ProviderTestUtils.setupAccount("wipe-synced-1", false, mProviderContext);
+        account1.mSyncKey = "account-1-sync-key";
+        account1.save(mProviderContext);
         long account1Id = account1.mId;
-        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mProviderContext);
+        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, false, mProviderContext);
+        box1.mType = Mailbox.TYPE_INBOX;
+        box1.mSyncKey = "box-1-sync-key";
+        box1.save(mProviderContext);
         long box1Id = box1.mId;
         Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, true, mProviderContext);
         long box2Id = box2.mId;
 
-        Account account2 = ProviderTestUtils.setupAccount("wipe-synced-2", true, mProviderContext);
+        Account account2 = ProviderTestUtils.setupAccount("wipe-synced-2", false, mProviderContext);
+        account2.mSyncKey = "account-2-sync-key";
+        account2.save(mProviderContext);
         long account2Id = account2.mId;
-        Mailbox box3 = ProviderTestUtils.setupMailbox("box3", account2Id, true, mProviderContext);
+        Mailbox box3 = ProviderTestUtils.setupMailbox("box3", account2Id, false, mProviderContext);
+        box3.mSyncKey = "box-3-sync-key";
+        box3.mType = Mailbox.TYPE_INBOX;
+        box3.save(mProviderContext);
         long box3Id = box3.mId;
         Mailbox box4 = ProviderTestUtils.setupMailbox("box4", account2Id, true, mProviderContext);
         long box4Id = box4.mId;
@@ -412,12 +424,16 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         // Now wipe account 1's data
         mTestController.deleteSyncedDataSync(account1Id);
 
-        // Confirm:  Mailboxes gone, messages gone, account survives
-        assertNull(Mailbox.restoreMailboxWithId(mProviderContext, box1Id));
+        // Confirm:  Mailboxes gone (except Inbox), all messages gone, account survives
+        box1 = Mailbox.restoreMailboxWithId(mProviderContext, box1Id);
+        assertNotNull(box1);
+        assertNull(box1.mSyncKey);
         assertNull(Mailbox.restoreMailboxWithId(mProviderContext, box2Id));
         assertNull(Message.restoreMessageWithId(mProviderContext, message1Id));
         assertNull(Message.restoreMessageWithId(mProviderContext, message2Id));
-        assertNotNull(Account.restoreAccountWithId(mProviderContext, account1Id));
+        account1 = Account.restoreAccountWithId(mProviderContext, account1Id);
+        assertNotNull(account1);
+        assertNull(account1.mSyncKey);
 
         // Confirm:  Other account survived
         assertNotNull(Mailbox.restoreMailboxWithId(mProviderContext, box3Id));
