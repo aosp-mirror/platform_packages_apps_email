@@ -44,6 +44,8 @@ public class NotificationController {
     public static final int NOTIFICATION_ID_SECURITY_NEEDED = 1;
     public static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 2;
     public static final int NOTIFICATION_ID_ATTACHMENT_WARNING = 3;
+    public static final int NOTIFICATION_ID_PASSWORD_EXPIRING = 4;
+    public static final int NOTIFICATION_ID_PASSWORD_EXPIRED = 5;
 
     private static final int NOTIFICATION_ID_BASE_NEW_MESSAGES = 0x10000000;
     private static final int NOTIFICATION_ID_BASE_LOGIN_WARNING = 0x20000000;
@@ -67,6 +69,60 @@ public class NotificationController {
             sInstance = new NotificationController(context);
         }
         return sInstance;
+    }
+
+    /**
+     * Generic notifier for any account.  Uses notification rules from account.
+     *
+     * @param account The account for which the notification is posted
+     * @param ticker String for ticker
+     * @param contentTitle String for notification content title
+     * @param contentText String for notification content text
+     * @param intent The intent to launch from the notification
+     * @param notificationId The notification id
+     */
+    public void postAccountNotification(Account account, String ticker, String contentTitle,
+            String contentText, Intent intent, int notificationId) {
+
+        // Pending Intent
+        PendingIntent pending =
+            PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Ringtone & Vibration
+        String ringtoneString = account.getRingtone();
+        Uri ringTone = (ringtoneString == null) ? null : Uri.parse(ringtoneString);
+        boolean vibrate = 0 != (account.mFlags & Account.FLAGS_VIBRATE_ALWAYS);
+        boolean vibrateWhenSilent = 0 != (account.mFlags & Account.FLAGS_VIBRATE_WHEN_SILENT);
+
+        // Use the account's notification rules for sound & vibrate (but always notify)
+        boolean nowSilent =
+            mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
+
+        int defaults = Notification.DEFAULT_LIGHTS;
+        if (vibrate || (vibrateWhenSilent && nowSilent)) {
+            defaults |= Notification.DEFAULT_VIBRATE;
+        }
+
+        // Notification
+        Notification.Builder nb = new Notification.Builder(mContext);
+        nb.setSmallIcon(R.drawable.stat_notify_email_generic);
+        nb.setTicker(ticker);
+        nb.setContentTitle(contentTitle);
+        nb.setContentText(contentText);
+        nb.setContentIntent(pending);
+        nb.setSound(ringTone);
+        nb.setDefaults(defaults);
+        Notification notification = nb.getNotification();
+
+        mNotificationManager.notify(notificationId, notification);
+    }
+
+    /**
+     * Generic notification canceler.
+     * @param notificationId The notification id
+     */
+    public void cancelNotification(int notificationId) {
+        mNotificationManager.cancel(notificationId);
     }
 
     /**

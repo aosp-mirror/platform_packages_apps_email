@@ -398,6 +398,11 @@ save attachment.</string>
     <!-- Toast shown following a meeting invite reply, declined -->
     <string name="message_view_invite_toast_no">You have declined this invitation</string>
     <!--Confirmation dialog title shown when user tries to delete messages.  [CHAR LIMIT=16] -->
+
+    <!-- Title of the EML viewer activity. [CHAR LIMIT=32] -->
+    <string name="eml_view_title">Viewing
+            <xliff:g id="filename" example="test.eml">%s</xliff:g></string>
+
     <string name="message_delete_dialog_title">Discard message</string>
     <!--Confirmation dialog text shown when user tries to delete messages.  [CHAR LIMIT=32] -->
     <plurals name="message_delete_confirm">
@@ -746,6 +751,27 @@ save attachment.</string>
     <!-- "Setup could not finish" dialog action button -->
     <string name="account_setup_failed_dlg_edit_details_action">Edit details</string>
 
+    <!-- Notification ticker when device password is getting ready to expire [CHAR_LIMIT=80] -->
+    <string name="password_expire_warning_ticker_fmt">
+            Account \"<xliff:g id="account">%s</xliff:g>\" requires you to update your screen
+            unlock code.</string>
+    <!-- Notification content title when device password is getting ready to expire
+            [CHAR_LIMIT=28] -->
+    <string name="password_expire_warning_content_title">New screen unlock required</string>
+    <!-- Notification content text when device password is getting ready to expire
+            [CHAR_LIMIT=2 lines] -->
+    <string name="password_expire_warning_content_text_fmt">
+            Account \"<xliff:g id="account">%s</xliff:g>\" requires you to update your screen
+            unlock code.  Touch here to update it.</string>
+
+    <!-- Notification ticker when device password has expired [CHAR_LIMIT=80] -->
+    <string name="password_expired_ticker">Your screen unlock code has expired.</string>
+    <!-- Notification content title when device password has expired [CHAR_LIMIT=28] -->
+    <string name="password_expired_content_title">New screen unlock required</string>
+    <!-- Notification content text when device password has expired [CHAR_LIMIT=2 lines] -->
+    <string name="password_expired_content_text">
+            Your screen unlock code has expired.  Touch here to update it.</string>
+
     <!-- On AccountSettingsXL, dialog text if you try to exit in/out/eas fragment (server settings)
          without checking/saving [CHAR LIMIT=none]-->
     <string name="account_settings_exit_server_settings">Discard unsaved changes?</string>
@@ -986,6 +1012,19 @@ save attachment.</string>
     <!-- Generic string for "current position" / "total number" [CHAR LIMIT=12] -->
     <string name="position_of_count"><xliff:g example="1">%1$d</xliff:g> of <xliff:g
             example="12">%2$s</xliff:g></string>
+
+    <!-- Widget -->
+    <!-- Instruction for how to move to different widget views [CHAR LIMIT=50] -->
+    <string name="widget_other_views">Tap email icon for other views</string>
+    <!-- Header for the "All Mail" widget view (showing all of the user's mail) [CHAR LIMIT=20] -->
+    <string name="widget_all_mail">All Mail</string>
+    <!-- Header for the "Unread" widget view (showing all unread mail) [CHAR LIMIT=20] -->
+    <string name="widget_unread">All Unread</string>
+    <!-- Header for the "Starred" widget view (showing all starred mail) [CHAR LIMIT=20] -->
+    <string name="widget_starred">All Starred</string>
+    <!-- Shown when waiting for mail data to be loaded into the widget list view [CHAR LIMIT=20] -->
+    <string name="widget_loading">Loading\u2026</string>
+
     <!--
         Strings for temporary UI
         STOPSHIP Remove them or move them up and make translatable

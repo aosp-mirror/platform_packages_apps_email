@@ -63,13 +63,16 @@ import java.util.UUID;
  */
 public abstract class EmailContent {
     public static final String AUTHORITY = EmailProvider.EMAIL_AUTHORITY;
+    public static final String NOTIFIER_AUTHORITY = EmailProvider.EMAIL_NOTIFIER_AUTHORITY;
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
     public static final String PARAMETER_LIMIT = "limit";
+
+    public static final Uri CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
 
     // All classes share this
     public static final String RECORD_ID = "_id";
 
-    private static final String[] COUNT_COLUMNS = new String[]{"count(*)"};
+    public static final String[] COUNT_COLUMNS = new String[]{"count(*)"};
 
     /**
      * This projection can be used with any of the EmailContent classes, when all you need
@@ -448,7 +451,6 @@ public abstract class EmailContent {
         public static final String DELETED_TABLE_NAME = "Message_Deletes";
 
         // To refer to a specific message, use ContentUris.withAppendedId(CONTENT_URI, id)
-        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
         public static final Uri CONTENT_URI_LIMIT_1 = uriWithLimit(CONTENT_URI, 1);
         public static final Uri SYNCED_CONTENT_URI =
@@ -457,6 +459,8 @@ public abstract class EmailContent {
             Uri.parse(EmailContent.CONTENT_URI + "/deletedMessage");
         public static final Uri UPDATED_CONTENT_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/updatedMessage");
+        public static final Uri NOTIFIER_URI =
+            Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/message");
 
         public static final String KEY_TIMESTAMP_DESC = MessageColumns.TIMESTAMP + " desc";
 
@@ -925,7 +929,6 @@ public abstract class EmailContent {
 
     public static final class Account extends EmailContent implements AccountColumns, Parcelable {
         public static final String TABLE_NAME = "Account";
-        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
         public static final Uri ADD_TO_FIELD_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");

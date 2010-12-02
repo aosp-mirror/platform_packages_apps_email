@@ -18,7 +18,6 @@ package com.android.email.activity;
 
 import com.android.email.DBTestHelper;
 import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
@@ -37,8 +36,7 @@ public class AccountSelectorAdapterAccountsLoaderTest extends LoaderTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
-                mContext, EmailProvider.class);
+        mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(mContext);
     }
 
     /**

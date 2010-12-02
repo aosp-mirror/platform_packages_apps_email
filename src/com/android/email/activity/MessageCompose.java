@@ -36,13 +36,11 @@ import com.android.email.provider.EmailContent.MessageColumns;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
@@ -108,11 +106,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         "com.android.email.activity.MessageCompose.draftId";
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
-
-    private static final String[] ATTACHMENT_META_NAME_PROJECTION = {
-        OpenableColumns.DISPLAY_NAME
-    };
-    private static final int ATTACHMENT_META_NAME_COLUMN_DISPLAY_NAME = 0;
 
     private static final String[] ATTACHMENT_META_SIZE_PROJECTION = {
         OpenableColumns.SIZE
@@ -547,7 +540,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          * needed.
          */
         mQuotedTextBar.setVisibility(View.GONE);
-        setIncludeQuotedText(false);
+        setIncludeQuotedText(false, false);
 
         mIncludeQuotedTextCheckBox.setOnClickListener(this);
 
@@ -1073,22 +1066,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private Attachment loadAttachmentInfo(Uri uri) {
         long size = -1;
-        String name = null;
         ContentResolver contentResolver = getContentResolver();
 
         // Load name & size independently, because not all providers support both
-        Cursor metadataCursor = contentResolver.query(uri, ATTACHMENT_META_NAME_PROJECTION,
-                null, null, null);
-        if (metadataCursor != null) {
-            try {
-                if (metadataCursor.moveToFirst()) {
-                    name = metadataCursor.getString(ATTACHMENT_META_NAME_COLUMN_DISPLAY_NAME);
-                }
-            } finally {
-                metadataCursor.close();
-            }
-        }
-        metadataCursor = contentResolver.query(uri, ATTACHMENT_META_SIZE_PROJECTION,
+        final String name = Utility.getContentFileName(this, uri);
+
+        Cursor metadataCursor = contentResolver.query(uri, ATTACHMENT_META_SIZE_PROJECTION,
                 null, null, null);
         if (metadataCursor != null) {
             try {
@@ -1100,10 +1083,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
 
-        // When the name or size are not provided, we need to generate them locally.
-        if (name == null) {
-            name = uri.getLastPathSegment();
-        }
+        // When the size is not provided, we need to determine it locally.
         if (size < 0) {
             // if the URI is a file: URI, ask file system for its size
             if ("file".equalsIgnoreCase(uri.getScheme())) {
@@ -1186,15 +1166,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private void setIncludeQuotedText(boolean include) {
+    private void setIncludeQuotedText(boolean include, boolean updateNeedsSaving) {
         mIncludeQuotedTextCheckBox.setChecked(include);
-        onIncludeQuotedTextChanged();
-    }
-
-    private void onIncludeQuotedTextChanged() {
         mQuotedText.setVisibility(mIncludeQuotedTextCheckBox.isChecked()
                 ? View.VISIBLE : View.GONE);
-        setDraftNeedsSaving(true);
+        if (updateNeedsSaving) {
+            setDraftNeedsSaving(true);
+        }
     }
 
     private void onDeleteAttachment(View delButtonView) {
@@ -1244,7 +1222,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             onDiscard();
             return true;
         case R.id.include_quoted_text:
-            onIncludeQuotedTextChanged();
+            // The checkbox is already toggled at this point.
+            setIncludeQuotedText(mIncludeQuotedTextCheckBox.isChecked(), true);
             return true;
         case R.id.add_cc_bcc:
             showCcBccFields();
@@ -1535,7 +1514,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          */
         if (ACTION_EDIT_DRAFT.equals(mAction)) {
             displayQuotedText(message.mTextReply, message.mHtmlReply);
-            setIncludeQuotedText((mDraft.mFlags & Message.FLAG_NOT_INCLUDE_QUOTED_TEXT) == 0);
+            setIncludeQuotedText((mDraft.mFlags & Message.FLAG_NOT_INCLUDE_QUOTED_TEXT) == 0,
+                    false);
         }
     }
 
@@ -1557,13 +1537,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mSubjectView.setText(subject);
             }
             displayQuotedText(message.mText, message.mHtml);
-            setIncludeQuotedText(true);
+            setIncludeQuotedText(true, false);
             setInitialComposeText(null, (account != null) ? account.mSignature : null);
         } else if (ACTION_FORWARD.equals(mAction)) {
             mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
                     "Fwd: " + subject : subject);
             displayQuotedText(message.mText, message.mHtml);
-            setIncludeQuotedText(true);
+            setIncludeQuotedText(true, false);
             setInitialComposeText(null, (account != null) ? account.mSignature : null);
         } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
             mSubjectView.setText(subject);

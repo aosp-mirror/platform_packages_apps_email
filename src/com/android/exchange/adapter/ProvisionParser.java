@@ -65,7 +65,7 @@ public class ProvisionParser extends Parser {
         int passwordMode = PolicySet.PASSWORD_MODE_NONE;
         int maxPasswordFails = 0;
         int maxScreenLockTime = 0;
-        int passwordExpiration = 0;
+        int passwordExpirationDays = 0;
         int passwordHistory = 0;
         int passwordComplexChars = 0;
 
@@ -95,7 +95,7 @@ public class ProvisionParser extends Parser {
                     maxPasswordFails = getValueInt();
                     break;
                 case Tags.PROVISION_DEVICE_PASSWORD_EXPIRATION:
-                    passwordExpiration = getValueInt();
+                    passwordExpirationDays = getValueInt();
                     break;
                 case Tags.PROVISION_DEVICE_PASSWORD_HISTORY:
                     passwordHistory = getValueInt();
@@ -195,7 +195,7 @@ public class ProvisionParser extends Parser {
         }
 
         mPolicySet = new SecurityPolicy.PolicySet(minPasswordLength, passwordMode,
-                maxPasswordFails, maxScreenLockTime, true, passwordExpiration, passwordHistory,
+                maxPasswordFails, maxScreenLockTime, true, passwordExpirationDays, passwordHistory,
                 passwordComplexChars);
     }
 

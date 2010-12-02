@@ -24,7 +24,6 @@ import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
@@ -63,7 +62,7 @@ public class MailboxFinderTest extends InstrumentationTestCase {
         super.setUp();
 
         mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
-                getInstrumentation().getTargetContext(), EmailProvider.class);
+                getInstrumentation().getTargetContext());
         mCallback = new MockCallback();
         mMockController = new MockController(getContext());
         Controller.injectMockControllerForTest(mMockController);

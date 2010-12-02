@@ -19,7 +19,6 @@ package com.android.email.activity;
 import com.android.email.DBTestHelper;
 import com.android.email.TestUtils;
 import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
@@ -46,7 +45,7 @@ public class MessageFileViewTest extends ActivityInstrumentationTestCase2<Messag
     protected void setUp() throws Exception {
         super.setUp();
         mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
-                getInstrumentation().getTargetContext(), EmailProvider.class);
+                getInstrumentation().getTargetContext());
     }
 
     private void setUpIntent(Uri uri) {

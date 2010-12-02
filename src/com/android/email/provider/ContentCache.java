@@ -262,7 +262,9 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
     /**
      * The cached cursor is simply a CursorWrapper whose underlying cursor contains zero or one
      * rows.  We handle simple movement (moveToFirst(), moveToNext(), etc.), and override close()
-     * to keep the underlying cursor alive (unless it's no longer cached due to an invalidation)
+     * to keep the underlying cursor alive (unless it's no longer cached due to an invalidation).
+     * Multiple CachedCursor's can use the same underlying cursor, so we override the various
+     * moveX methods such that each CachedCursor can have its own position information
      */
     public static final class CachedCursor extends CursorWrapper {
         // The cursor we're wrapping
@@ -310,14 +312,11 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         }
 
         /**
-         * We'll be happy to move to position 0 or -1; others are illegal
+         * We'll be happy to move to position 0 or -1
          */
         @Override
         public boolean moveToPosition(int pos) {
-            if (pos > 0) {
-                throw new IllegalArgumentException();
-            }
-            if (pos >= getCount()) {
+            if (pos >= getCount() || pos < -1) {
                 return false;
             }
             mPosition = pos;
@@ -336,11 +335,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
 
         @Override
         public boolean moveToPrevious() {
-            if (mPosition == 0) {
-                mPosition--;
-                return true;
-            }
-            return false;
+            return moveToPosition(mPosition - 1);
         }
 
         @Override

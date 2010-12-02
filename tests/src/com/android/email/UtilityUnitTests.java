@@ -17,10 +17,15 @@
 package com.android.email;
 
 import com.android.email.Utility.NewFileCreator;
+import com.android.email.provider.AttachmentProvider;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcel;
@@ -124,14 +129,15 @@ public class UtilityUnitTests extends AndroidTestCase {
         // Make sure they're unique
         Set<Drawable> set = new HashSet<Drawable>();
         set.add(inbox);
-        set.add(mail);
         set.add(parent);
         set.add(drafts);
         set.add(outbox);
         set.add(sent);
         set.add(trash);
         set.add(junk);
-        assertEquals(8, set.size());
+        assertEquals(7, set.size());
+
+        assertNull(mail);
     }
 
     private static byte[] b(int... array) {
@@ -394,6 +400,31 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals(2, two.length);
         assertEquals(3, two[0]);
         assertEquals(4, two[1]);
+    }
+
+    public void testGetContentFileName() throws Exception {
+        Context providerContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
+                mContext);
+
+        final long ACCOUNT_ID = 1;
+        final long MESSAGE_ID = 10;
+
+        Account account = ProviderTestUtils.setupAccount("account", true, providerContext);
+        Mailbox mailbox = ProviderTestUtils.setupMailbox("box", account.mId, true, providerContext);
+
+        // Set up an attachment.
+        Attachment att = ProviderTestUtils.setupAttachment(mailbox.mId, "name", 123, true,
+                providerContext);
+        long attachmentId = att.mId;
+        Uri uri = AttachmentProvider.getAttachmentUri(account.mId, attachmentId);
+
+        // Case 1: exists in the provider.
+        assertEquals("name", Utility.getContentFileName(providerContext, uri));
+
+        // Case 2: doesn't exist in the provider
+        Uri notExistUri = AttachmentProvider.getAttachmentUri(account.mId, 123456789);
+        String lastPathSegment = notExistUri.getLastPathSegment();
+        assertEquals(lastPathSegment, Utility.getContentFileName(providerContext, notExistUri));
     }
 
     private static Collection<Long> createLongCollection(long... values) {

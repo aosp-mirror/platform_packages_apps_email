@@ -16,6 +16,7 @@
 
 package com.android.email;
 
+import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 
@@ -185,8 +186,7 @@ public final class DBTestHelper {
         }
 
         // Based on ProviderTestCase2.setUp().
-        public static <T extends ContentProvider> Context getProviderContext(
-                Context context, Class<T> providerClass) throws Exception {
+        public static Context getProviderContext(Context context) throws Exception {
             MockContentResolver resolver = new MockContentResolver();
             final String filenamePrefix = "test.";
             RenamingDelegatingContext targetContextWrapper = new RenamingDelegatingContext(
@@ -196,10 +196,14 @@ public final class DBTestHelper {
             final Context providerContext = new MyIsolatedContext(resolver, targetContextWrapper);
             providerContext.getContentResolver();
 
-            final T provider = providerClass.newInstance();
-            provider.attachInfo(providerContext, null);
-            Assert.assertNotNull(provider);
-            resolver.addProvider(EmailContent.AUTHORITY, provider);
+            // register EmailProvider and AttachmentProvider.
+            final EmailProvider ep = new EmailProvider();
+            ep.attachInfo(providerContext, null);
+            resolver.addProvider(EmailContent.AUTHORITY, ep);
+
+            final AttachmentProvider ap = new AttachmentProvider();
+            ap.attachInfo(providerContext, null);
+            resolver.addProvider(AttachmentProvider.AUTHORITY, ap);
             return providerContext;
         }
     }

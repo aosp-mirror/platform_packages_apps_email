@@ -98,6 +98,9 @@ public class Controller {
     private static final String WHERE_MESSAGE_KEY = Body.MESSAGE_KEY + "=?";
 
     private static final String MAILBOXES_FOR_ACCOUNT_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?";
+    private static final String MAILBOXES_FOR_ACCOUNT_NOT_INBOX_SELECTION =
+        MAILBOXES_FOR_ACCOUNT_SELECTION + " AND " + MailboxColumns.TYPE + "!=" + Mailbox.TYPE_INBOX;
+    private static final String MESSAGES_FOR_ACCOUNT_SELECTION = MessageColumns.ACCOUNT_KEY + "=?";
 
     // Service callbacks as set up via setCallback
     private static RemoteCallbackList<IEmailServiceCallback> sCallbackList =
@@ -989,6 +992,9 @@ public class Controller {
      * policy requirements are not met, and we don't want to reveal any synced data, but we do
      * wish to keep the account configured (e.g. to accept remote wipe commands).
      *
+     * Also, leave behind an empty inbox, which simplifies things for the UI.
+     * Also, clear the sync keys on the remaining account & mailbox, since the data is gone.
+     *
      * SYNCHRONOUS - do not call from UI thread.
      *
      * @param accountId The account to wipe.
@@ -997,9 +1003,25 @@ public class Controller {
         try {
             // Delete synced attachments
             AttachmentProvider.deleteAllAccountAttachmentFiles(mProviderContext, accountId);
-            // Delete synced email
-            mProviderContext.getContentResolver().delete(Mailbox.CONTENT_URI,
-                    MAILBOXES_FOR_ACCOUNT_SELECTION, new String[] { Long.toString(accountId) });
+
+            // Delete synced email, leaving only an empty inbox.  We do this in two phases:
+            // 1. Delete all non-inbox mailboxes (which will delete all of their messages)
+            // 2. Delete all remaining messages (which will be the inbox messages)
+            ContentResolver resolver = mProviderContext.getContentResolver();
+            String[] accountIdArgs = new String[] { Long.toString(accountId) };
+            resolver.delete(Mailbox.CONTENT_URI, MAILBOXES_FOR_ACCOUNT_NOT_INBOX_SELECTION,
+                    accountIdArgs);
+            resolver.delete(Message.CONTENT_URI, MESSAGES_FOR_ACCOUNT_SELECTION, accountIdArgs);
+
+            // Delete sync keys on remaining items
+            ContentValues cv = new ContentValues();
+            cv.putNull(Account.SYNC_KEY);
+            resolver.update(Account.CONTENT_URI, cv, Account.ID_SELECTION, accountIdArgs);
+            cv.clear();
+            cv.putNull(Mailbox.SYNC_KEY);
+            resolver.update(Mailbox.CONTENT_URI, cv,
+                    MAILBOXES_FOR_ACCOUNT_SELECTION, accountIdArgs);
+
             // Delete PIM data (contacts, calendar) if applicable
             IEmailService service = getServiceForAccount(accountId);
             if (service != null) {

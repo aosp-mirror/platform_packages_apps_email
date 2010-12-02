@@ -44,6 +44,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.OpenableColumns;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -1164,5 +1165,23 @@ public class Utility {
                 listView.smoothScrollToPosition(position);
             }
         });
+    }
+
+    private static final String[] ATTACHMENT_META_NAME_PROJECTION = {
+        OpenableColumns.DISPLAY_NAME
+    };
+    private static final int ATTACHMENT_META_NAME_COLUMN_DISPLAY_NAME = 0;
+
+    /**
+     * @return Filename of a content of {@code contentUri}.  If the provider doesn't provide the
+     * filename, returns the last path segment of the URI.
+     */
+    public static String getContentFileName(Context context, Uri contentUri) {
+        String name = getFirstRowString(context, contentUri, ATTACHMENT_META_NAME_PROJECTION, null,
+                null, null, ATTACHMENT_META_NAME_COLUMN_DISPLAY_NAME);
+        if (name == null) {
+            name = contentUri.getLastPathSegment();
+        }
+        return name;
     }
 }

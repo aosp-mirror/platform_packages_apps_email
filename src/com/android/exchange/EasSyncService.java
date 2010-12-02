@@ -1447,7 +1447,7 @@ public class EasSyncService extends AbstractSyncService {
                 // We've gotten a remote wipe command
                 ExchangeService.alwaysLog("!!! Remote wipe request received");
                 // Start by setting the account to security hold
-                sp.setAccountHoldFlag(mAccount, true);
+                sp.setAccountHoldFlag(mContext, mAccount, true);
                 // Force a stop to any running syncs for this account (except this one)
                 ExchangeService.stopNonAccountMailboxSyncsForAccount(mAccount.mId);
 

@@ -18,7 +18,6 @@ package com.android.email;
 
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
@@ -57,8 +56,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         mContext = getInstrumentation().getTargetContext();
         mController = new MockController(mContext);
         mListener = new RefreshListener();
-        mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
-                mContext, EmailProvider.class);
+        mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(mContext);
         mTarget = new RefreshManager(mProviderContext, mController, mClock, null);
         mTarget.registerListener(mListener);
     }

@@ -18,11 +18,15 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.Utility;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
 /**
  * Activity to show file-based messages.  (i.e. *.eml files, and possibly *.msg files).
@@ -37,12 +41,17 @@ import android.util.Log;
  * See {@link MessageViewBase} for the class relation diagram.
  */
 public class MessageFileView extends MessageViewBase {
+
+    private ActionBar mActionBar;
+
     /**
      * URI to the email (i.e. *.eml files, and possibly *.msg files) file that's being
      */
     private Uri mFileEmailUri;
 
     private MessageFileViewFragment mFragment;
+
+    private LoadFilenameTask mLoadFilenameTask;
 
     @Override
     protected int getLayoutId() {
@@ -52,6 +61,10 @@ public class MessageFileView extends MessageViewBase {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
+        mActionBar = getActionBar();
+        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_HOME_AS_UP
+                | ActionBar.DISPLAY_SHOW_TITLE);
 
         mFragment = (MessageFileViewFragment) getFragmentManager().findFragmentById(
                 R.id.message_file_view_fragment);
@@ -65,15 +78,34 @@ public class MessageFileView extends MessageViewBase {
             return;
         }
 
-        // TODO set title here: "Viewing XXX.eml".
-
         // Load message.
         getFragment().openMessage(mFileEmailUri);
+
+        // Set title.
+        mLoadFilenameTask = new LoadFilenameTask(mFileEmailUri);
+        mLoadFilenameTask.execute();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Utility.cancelTaskInterrupt(mLoadFilenameTask);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed(); // Treat as "back".
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     /** @return always -1, as no accounts are associated with EML files. */
@@ -86,5 +118,36 @@ public class MessageFileView extends MessageViewBase {
     @Override
     protected MessageFileViewFragment getFragment() {
         return mFragment;
+    }
+
+    /**
+     * Set the activity title.  ("Viewing FILENAME")
+     */
+    private void setTitle(String filename) {
+        mActionBar.setTitle(getString(R.string.eml_view_title, filename));
+    }
+
+    /**
+     * Load the filename of the EML, and update the activity title.
+     */
+    private class LoadFilenameTask extends AsyncTask<Void, Void, String> {
+        private final Uri mContentUri;
+
+        public LoadFilenameTask(Uri contentUri) {
+            mContentUri = contentUri;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            return Utility.getContentFileName(MessageFileView.this, mContentUri);
+        }
+
+        @Override
+        protected void onPostExecute(String filename) {
+            if (filename == null || isCancelled()) {
+                return;
+            }
+            setTitle(filename);
+        }
     }
 }
