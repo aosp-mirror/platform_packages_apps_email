@@ -1396,32 +1396,41 @@ public class EmailProvider extends ContentProvider {
             switch (match) {
                 case MAILBOX_ID_ADD_TO_FIELD:
                 case ACCOUNT_ID_ADD_TO_FIELD:
-                    db.beginTransaction();
                     id = uri.getPathSegments().get(1);
                     String field = values.getAsString(EmailContent.FIELD_COLUMN_NAME);
                     Long add = values.getAsLong(EmailContent.ADD_COLUMN_NAME);
                     if (field == null || add == null) {
                         throw new IllegalArgumentException("No field/add specified " + uri);
                     }
-                    Cursor c = db.query(tableName,
-                            new String[] {EmailContent.RECORD_ID, field},
-                            whereWithId(id, selection),
-                            selectionArgs, null, null, null);
-                    try {
-                        result = 0;
-                        ContentValues cv = new ContentValues();
-                        String[] bind = new String[1];
-                        while (c.moveToNext()) {
-                            bind[0] = c.getString(0);
-                            long value = c.getLong(1) + add;
-                            cv.put(field, value);
-                            result = db.update(tableName, cv, ID_EQUALS, bind);
-                        }
-                    } finally {
-                        c.close();
+                    if (cache != null) {
+                        cache.lock(id);
                     }
-                    db.setTransactionSuccessful();
-                    db.endTransaction();
+                    db.beginTransaction();
+                    ContentValues actualValues = new ContentValues();
+                    try {
+                        Cursor c = db.query(tableName,
+                                new String[] {EmailContent.RECORD_ID, field},
+                                whereWithId(id, selection),
+                                selectionArgs, null, null, null);
+                        try {
+                            result = 0;
+                            String[] bind = new String[1];
+                            if (c.moveToNext()) {
+                                bind[0] = c.getString(0); // _id
+                                long value = c.getLong(1) + add;
+                                actualValues.put(field, value);
+                                result = db.update(tableName, actualValues, ID_EQUALS, bind);
+                            }
+                        } finally {
+                            c.close();
+                        }
+                        db.setTransactionSuccessful();
+                        db.endTransaction();
+                    } finally {
+                        if (cache != null) {
+                            cache.unlock(id, actualValues);
+                        }
+                    }
                     break;
                 case SYNCED_MESSAGE_ID:
                     resolver.notifyChange(Message.NOTIFIER_URI, null);
@@ -1487,13 +1496,26 @@ public class EmailProvider extends ContentProvider {
                     break;
                 case ACCOUNT_RESET_NEW_COUNT_ID:
                     id = uri.getPathSegments().get(1);
-                    result = db.update(tableName, CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
-                            whereWithId(id, selection), selectionArgs);
+                    if (cache != null) {
+                        cache.lock(id);
+                    }
+                    try {
+                        result = db.update(tableName, CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
+                                whereWithId(id, selection), selectionArgs);
+                    } finally {
+                        if (cache != null) {
+                            cache.unlock(id, values);
+                        }
+                    }
                     notificationUri = Account.CONTENT_URI; // Only notify account cursors.
                     break;
                 case ACCOUNT_RESET_NEW_COUNT:
                     result = db.update(tableName, CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
                             selection, selectionArgs);
+                    // Affects all accounts.  Just invalidate all account cache.
+                    // This operation shouldn't be used anyway (at least not on the XL UI),
+                    // because we don't do this for ALL accounts at once.
+                    cache.invalidate("Reset all new counts", null, null);
                     notificationUri = Account.CONTENT_URI; // Only notify account cursors.
                     break;
                 default:
