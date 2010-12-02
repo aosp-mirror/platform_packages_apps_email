@@ -540,7 +540,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          * needed.
          */
         mQuotedTextBar.setVisibility(View.GONE);
-        setIncludeQuotedText(false);
+        setIncludeQuotedText(false, false);
 
         mIncludeQuotedTextCheckBox.setOnClickListener(this);
 
@@ -1166,15 +1166,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private void setIncludeQuotedText(boolean include) {
+    private void setIncludeQuotedText(boolean include, boolean updateNeedsSaving) {
         mIncludeQuotedTextCheckBox.setChecked(include);
-        onIncludeQuotedTextChanged();
-    }
-
-    private void onIncludeQuotedTextChanged() {
         mQuotedText.setVisibility(mIncludeQuotedTextCheckBox.isChecked()
                 ? View.VISIBLE : View.GONE);
-        setDraftNeedsSaving(true);
+        if (updateNeedsSaving) {
+            setDraftNeedsSaving(true);
+        }
     }
 
     private void onDeleteAttachment(View delButtonView) {
@@ -1224,7 +1222,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             onDiscard();
             return true;
         case R.id.include_quoted_text:
-            onIncludeQuotedTextChanged();
+            // The checkbox is already toggled at this point.
+            setIncludeQuotedText(mIncludeQuotedTextCheckBox.isChecked(), true);
             return true;
         case R.id.add_cc_bcc:
             showCcBccFields();
@@ -1515,7 +1514,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          */
         if (ACTION_EDIT_DRAFT.equals(mAction)) {
             displayQuotedText(message.mTextReply, message.mHtmlReply);
-            setIncludeQuotedText((mDraft.mFlags & Message.FLAG_NOT_INCLUDE_QUOTED_TEXT) == 0);
+            setIncludeQuotedText((mDraft.mFlags & Message.FLAG_NOT_INCLUDE_QUOTED_TEXT) == 0,
+                    false);
         }
     }
 
@@ -1537,13 +1537,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mSubjectView.setText(subject);
             }
             displayQuotedText(message.mText, message.mHtml);
-            setIncludeQuotedText(true);
+            setIncludeQuotedText(true, false);
             setInitialComposeText(null, (account != null) ? account.mSignature : null);
         } else if (ACTION_FORWARD.equals(mAction)) {
             mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
                     "Fwd: " + subject : subject);
             displayQuotedText(message.mText, message.mHtml);
-            setIncludeQuotedText(true);
+            setIncludeQuotedText(true, false);
             setInitialComposeText(null, (account != null) ? account.mSignature : null);
         } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
             mSubjectView.setText(subject);
