@@ -1309,7 +1309,12 @@ public class EasSyncService extends AbstractSyncService {
         HttpConnectionParams.setConnectionTimeout(params, CONNECTION_TIMEOUT);
         HttpConnectionParams.setSoTimeout(params, timeout);
         HttpConnectionParams.setSocketBufferSize(params, 8192);
-        HttpClient client = new DefaultHttpClient(getClientConnectionManager(), params);
+        //HttpClient client = new DefaultHttpClient(getClientConnectionManager(), params);
+        // STOPSHIP Replace this line with the previous, commented-out line
+        // The underlying problem (socket timeout is not being updated for reused, pooled
+        // connections) needs to be fixed prior to ship
+        HttpClient client = new DefaultHttpClient(
+                timeout == COMMAND_TIMEOUT ? getClientConnectionManager() : null, params);
         return client;
     }
 
