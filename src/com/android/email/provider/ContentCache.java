@@ -118,16 +118,20 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
             mMap = new HashMap<T, Integer>();
         }
 
-        /*package*/ synchronized void subtract(T object) {
+        /*package*/ synchronized int subtract(T object) {
             Integer refCount = mMap.get(object);
+            int newCount;
             if (refCount == null || refCount.intValue() == 0) {
                 throw new IllegalStateException();
             }
             if (refCount > 1) {
-                mMap.put(object, refCount - 1);
+                newCount = refCount - 1;
+                mMap.put(object, newCount);
             } else {
+                newCount = 0;
                 mMap.remove(object);
             }
+            return newCount;
         }
 
         /*package*/ synchronized void add(T object) {
@@ -286,15 +290,16 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         }
 
         /**
-         * Close this cursor; if the cursor's cache no longer contains the cursor, we'll close the
-         * underlying cursor.  In any event we'll remove the cursor from our set of active cursors
+         * Close this cursor; if the cursor's cache no longer contains the underlying cursor, and
+         * there are no other users of that cursor, we'll close it here. In any event,
+         * we'll remove the cursor from our set of active cursors.
          */
         @Override
         public void close() {
-            if (!mCache.containsValue(mCursor)) {
+            int count = sActiveCursors.subtract(mCursor);
+            if ((count == 0) && !mCache.containsValue(mCursor)) {
                 super.close();
             }
-            sActiveCursors.subtract(mCursor);
             isClosed = true;
         }
 
