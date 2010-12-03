@@ -25,6 +25,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.net.Uri;
 import android.test.IsolatedContext;
@@ -175,13 +176,29 @@ public final class DBTestHelper {
 
         /** {@link IsolatedContext} + getApplicationContext() */
         private static class MyIsolatedContext extends IsolatedContext {
-            public MyIsolatedContext(ContentResolver resolver, Context targetContext) {
+            private final Context mRealContext;
+
+            public MyIsolatedContext(ContentResolver resolver, Context targetContext,
+                    Context realContext) {
                 super(resolver, targetContext);
+                mRealContext = realContext;
             }
 
             @Override
             public Context getApplicationContext() {
                 return this;
+            }
+
+            // Following methods are not supported by the mock context.
+            // Redirect to the actual context.
+            @Override
+            public String getPackageName() {
+                return mRealContext.getPackageName();
+            }
+
+            @Override
+            public Theme getTheme() {
+                return mRealContext.getTheme();
             }
         }
 
@@ -193,7 +210,8 @@ public final class DBTestHelper {
                     new MockContext2(context), // The context that most methods are delegated to
                     context, // The context that file methods are delegated to
                     filenamePrefix);
-            final Context providerContext = new MyIsolatedContext(resolver, targetContextWrapper);
+            final Context providerContext = new MyIsolatedContext(resolver, targetContextWrapper,
+                    context);
             providerContext.getContentResolver();
 
             // register EmailProvider and AttachmentProvider.

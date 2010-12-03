@@ -31,9 +31,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.TextAppearanceSpan;
 
 /**
  * Class that manages notifications.
@@ -54,19 +57,23 @@ public class NotificationController {
     private final Context mContext;
     private final NotificationManager mNotificationManager;
     private final AudioManager mAudioManager;
+    private final Bitmap mAppIcon;
+    private final Clock mClock;
 
     /** Constructor */
-    private NotificationController(Context context) {
+    /* package */ NotificationController(Context context, Clock clock) {
         mContext = context.getApplicationContext();
         mNotificationManager = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        mAppIcon = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.icon);
+        mClock = clock;
     }
 
     /** Singleton access */
     public static synchronized NotificationController getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new NotificationController(context);
+            sInstance = new NotificationController(context, Clock.INSTANCE);
         }
         return sInstance;
     }
@@ -159,8 +166,7 @@ public class NotificationController {
         Utility.runAsync(new Runnable() {
             @Override
             public void run() {
-                Notification n = createNewMessageNotification(accountId, unseenMessageCount,
-                        justFetchedCount);
+                Notification n = createNewMessageNotification(accountId, unseenMessageCount);
                 if (n == null) {
                     return;
                 }
@@ -190,11 +196,9 @@ public class NotificationController {
      * Create a notification
      *
      * Don't call it on the UI thread.
-     *
-     * TODO Test it when the UI is settled.
      */
-    private Notification createNewMessageNotification(long accountId, int unseenMessageCount,
-            int justFetchedCount) {
+    /* package */ Notification createNewMessageNotification(long accountId,
+            int unseenMessageCount) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) {
             return null;
@@ -214,35 +218,16 @@ public class NotificationController {
                 Welcome.createOpenAccountInboxIntent(mContext, accountId),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        final String notificationTitle;
-        if (justFetchedCount == 1) {
-            notificationTitle = senderName;
-        } else {
-            notificationTitle = mContext.getResources().getQuantityString(
-                    R.plurals.notification_sender_name_multi_messages, justFetchedCount - 1,
-                    senderName, justFetchedCount - 1);
-        }
-        final String content = subject;
-        final String numNewMessages;
-        final int numAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
-        if (numAccounts == 1) {
-            numNewMessages = mContext.getResources().getQuantityString(
-                    R.plurals.notification_num_new_messages_single_account, unseenMessageCount,
-                    unseenMessageCount, account.mDisplayName);
-        } else {
-            numNewMessages = mContext.getResources().getQuantityString(
-                    R.plurals.notification_num_new_messages_multi_account, unseenMessageCount,
-                    unseenMessageCount, account.mDisplayName);
-        }
-
         Notification.Builder builder = new Notification.Builder(mContext)
                 .setSmallIcon(R.drawable.stat_notify_email_generic)
-                .setWhen(System.currentTimeMillis())
-                .setTicker(mContext.getString(R.string.notification_new_title))
-                .setLargeIcon(senderPhoto)
-                .setContentTitle(notificationTitle)
-                .setContentText(subject + "\n" + numNewMessages)
+                .setWhen(mClock.getTime())
+                .setLargeIcon(senderPhoto != null ? senderPhoto : mAppIcon)
+                .setContentTitle(getNotificationTitle(senderName, account.mDisplayName))
+                .setContentText(subject)
                 .setContentIntent(contentIntent);
+        if (unseenMessageCount > 1) {
+            builder.setNumber(unseenMessageCount);
+        }
 
         Notification notification = builder.getNotification();
 
@@ -250,11 +235,44 @@ public class NotificationController {
         return notification;
     }
 
-    private boolean isRingerModeSilent() {
-        return mAudioManager.getRingerMode() != AudioManager.RINGER_MODE_NORMAL;
+    /**
+     * Creates the notification title.
+     *
+     * If only 1 account, just show the sender name.
+     * If 2+ accounts, make it "SENDER_NAME to RECEIVER_NAME", and gray out the "to RECEIVER_NAME"
+     * part.
+     */
+    /* package */ SpannableString getNotificationTitle(String sender, String receiverDisplayName) {
+        final int numAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
+        if (numAccounts == 1) {
+            return new SpannableString(sender);
+        } else {
+            // "to [account name]"
+            String toAcccount = mContext.getResources().getString(R.string.notification_to_account,
+                    receiverDisplayName);
+            // "[Sender] to [account name]"
+            SpannableString senderToAccount = new SpannableString(sender + " " + toAcccount);
+
+            // "[Sender] to [account name]"
+            //           ^^^^^^^^^^^^^^^^^ <- Make this part gray
+            TextAppearanceSpan secondarySpan = new TextAppearanceSpan(
+                    mContext, R.style.notification_secondary_text);
+            senderToAccount.setSpan(secondarySpan, sender.length() + 1, senderToAccount.length(),
+                    0);
+            return senderToAccount;
+        }
     }
 
-    private void setupNotificationSoundAndVibrationFromAccount(Notification notification,
+    // Overridden for testing (AudioManager can't be mocked out.)
+    /* package */ int getRingerMode() {
+        return mAudioManager.getRingerMode();
+    }
+
+    /* package */ boolean isRingerModeSilent() {
+        return getRingerMode() != AudioManager.RINGER_MODE_NORMAL;
+    }
+
+    /* package */ void setupNotificationSoundAndVibrationFromAccount(Notification notification,
             Account account) {
         final int flags = account.mFlags;
         final String ringtoneUri = account.mRingtoneUri;
@@ -283,7 +301,7 @@ public class NotificationController {
                     PendingIntent.FLAG_UPDATE_CURRENT);
         }
         Notification n = new Notification(android.R.drawable.stat_notify_error, tickerText,
-                System.currentTimeMillis());
+                mClock.getTime());
         n.setLatestEventInfo(mContext, tickerText, notificationText, pendingIntent);
         n.flags = Notification.FLAG_AUTO_CANCEL;
         mNotificationManager.notify(id, n);

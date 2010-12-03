@@ -72,4 +72,8 @@
         <item name="android:layout_height">1dip</item>
         <item name="android:background">@color/divider_color</item>
     </style>
+
+    <style name="notification_secondary_text">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
 </resources>
