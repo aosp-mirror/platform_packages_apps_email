@@ -531,9 +531,9 @@ public class AccountSettingsXL extends PreferenceActivity {
                     SetupData.init(SetupData.FLOW_MODE_EDIT, account);
                     Fragment f = null;
                     if (setting.equals(AccountSetupIncoming.class)) {
-                        f = new AccountSetupIncomingFragment();
+                        f = AccountSetupIncomingFragment.newInstance(true);
                     } else if (setting.equals(AccountSetupExchange.class)) {
-                        f = new AccountSetupExchangeFragment();
+                        f = AccountSetupExchangeFragment.newInstance(true);
                     }
                     startPreferenceFragment(f, true);
                 }
@@ -561,7 +561,7 @@ public class AccountSettingsXL extends PreferenceActivity {
                     SetupData.init(SetupData.FLOW_MODE_EDIT, account);
                     Fragment f = null;
                     if (setting.equals(AccountSetupOutgoing.class)) {
-                        f = new AccountSetupOutgoingFragment();
+                        f = AccountSetupOutgoingFragment.newInstance(true);
                     }
                     startPreferenceFragment(f, true);
                 }

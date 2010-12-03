@@ -69,11 +69,11 @@
     <!-- Actions will be used as buttons and in menu items -->
     <skip />
 
-    <!-- Used as part of a multi-step process -->
+    <!-- Button name used as part of a multi-step process -->
     <string name="next_action">Next</string>
-    <!--  Button name used to confirm acceptance of dialog boxes, warnings, errors, etc. -->
+    <!-- Button name used to confirm acceptance of dialog boxes, warnings, errors, etc. -->
     <string name="okay_action">OK</string>
-    <!--  Button name used to cancel out of dialog boxes -->
+    <!-- Button name used to cancel out of dialog boxes -->
     <string name="cancel_action">Cancel</string>
     <!-- Button name used to move to previous step during setup sequence [CHAR_LIMIT=16] -->
     <string name="previous_action">Previous</string>

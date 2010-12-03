@@ -34,6 +34,12 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <!-- The headline at the top of every account settings fragments (in preferences) -->
+    <!-- STOPSHIP copied from xlarge - do something for phone UX -->
+    <style name="accountSettingsHeadline">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+    </style>
+
     <!-- The large headline at the top of every account setup screen -->
     <!-- STOPSHIP copied from xlarge - do something for phone UX -->
     <style name="accountSetupHeadline">
@@ -42,8 +48,16 @@
     </style>
 
     <!-- Wizard buttons on the account setup screens -->
-    <!-- TODO these are estimates based on TBD phone UX -->
+    <!-- STOPSHIP these are estimates based on TBD phone UX -->
     <style name="accountSetupButton">
+        <item name="android:layout_width">160sp</item>
+        <item name="android:layout_height">40sp</item>
+        <item name="android:textAppearance">?android:attr/textColorPrimary</item>
+    </style>
+
+    <!-- Cancel/Done buttons on the account settings (server settings) fragments -->
+    <!-- STOPSHIP these are estimates - do something for phone UX -->
+    <style name="accountSettingsButton">
         <item name="android:layout_width">160sp</item>
         <item name="android:layout_height">40sp</item>
         <item name="android:textAppearance">?android:attr/textColorPrimary</item>

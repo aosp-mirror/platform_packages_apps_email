@@ -15,6 +15,8 @@
 -->
 
 <!-- Incoming server settings - xlarge - see layout/ for phone UX variant -->
+<!-- This is used directly by the account setup activity, but during settings it is
+     wrapped in an outer layout (account_settings_incoming_fragment) -->
 <!-- TODO add back styles for final appearance -->
 <TableLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
