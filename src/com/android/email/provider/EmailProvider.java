@@ -1402,30 +1402,33 @@ public class EmailProvider extends ContentProvider {
                     if (field == null || add == null) {
                         throw new IllegalArgumentException("No field/add specified " + uri);
                     }
+                    ContentValues actualValues = new ContentValues();
                     if (cache != null) {
                         cache.lock(id);
                     }
-                    db.beginTransaction();
-                    ContentValues actualValues = new ContentValues();
                     try {
-                        Cursor c = db.query(tableName,
-                                new String[] {EmailContent.RECORD_ID, field},
-                                whereWithId(id, selection),
-                                selectionArgs, null, null, null);
+                        db.beginTransaction();
                         try {
-                            result = 0;
-                            String[] bind = new String[1];
-                            if (c.moveToNext()) {
-                                bind[0] = c.getString(0); // _id
-                                long value = c.getLong(1) + add;
-                                actualValues.put(field, value);
-                                result = db.update(tableName, actualValues, ID_EQUALS, bind);
+                            Cursor c = db.query(tableName,
+                                    new String[] {EmailContent.RECORD_ID, field},
+                                    whereWithId(id, selection),
+                                    selectionArgs, null, null, null);
+                            try {
+                                result = 0;
+                                String[] bind = new String[1];
+                                if (c.moveToNext()) {
+                                    bind[0] = c.getString(0); // _id
+                                    long value = c.getLong(1) + add;
+                                    actualValues.put(field, value);
+                                    result = db.update(tableName, actualValues, ID_EQUALS, bind);
+                                }
+                                db.setTransactionSuccessful();
+                            } finally {
+                                c.close();
                             }
                         } finally {
-                            c.close();
+                            db.endTransaction();
                         }
-                        db.setTransactionSuccessful();
-                        db.endTransaction();
                     } finally {
                         if (cache != null) {
                             cache.unlock(id, actualValues);
@@ -1513,8 +1516,6 @@ public class EmailProvider extends ContentProvider {
                     result = db.update(tableName, CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
                             selection, selectionArgs);
                     // Affects all accounts.  Just invalidate all account cache.
-                    // This operation shouldn't be used anyway (at least not on the XL UI),
-                    // because we don't do this for ALL accounts at once.
                     cache.invalidate("Reset all new counts", null, null);
                     notificationUri = Account.CONTENT_URI; // Only notify account cursors.
                     break;

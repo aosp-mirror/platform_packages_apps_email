@@ -62,8 +62,8 @@ import java.util.ArrayList;
  */
 public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
-    EmailProvider mProvider;
-    Context mMockContext;
+    private EmailProvider mProvider;
+    private Context mMockContext;
 
     public ProviderTests() {
         super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
@@ -73,6 +73,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     public void setUp() throws Exception {
         super.setUp();
         mMockContext = getMockContext();
+        mProvider = getProvider();
         // Invalidate all caches, since we reset the database for each test
         ContentCache.invalidateAllCachesForTest();
     }
@@ -2260,5 +2261,81 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // No such account
         assertEquals(null, Message.getLatestIncomingMessage(c, 9999999L));
+    }
+
+    /**
+     * Check if update on ACCOUNT_ID_ADD_TO_FIELD updates the cache properly.
+     */
+    public void testUpdateCacheAccountIdAddToField() {
+        final Context c = mMockContext;
+        Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
+
+        int start = Account.restoreAccountWithId(c, a1.mId).mNewMessageCount;
+
+        // +1 to NEW_MESSAGE_COUNT
+        ContentValues cv = new ContentValues();
+        cv.put(EmailContent.FIELD_COLUMN_NAME, AccountColumns.NEW_MESSAGE_COUNT);
+        cv.put(EmailContent.ADD_COLUMN_NAME, 1);
+        mProvider.update(ContentUris.withAppendedId(Account.ADD_TO_FIELD_URI, a1.mId), cv,
+                null, null);
+
+        // Check
+        assertEquals(start + 1, Account.restoreAccountWithId(c, a1.mId).mNewMessageCount);
+    }
+
+    /**
+     * Check if update on ACCOUNT_RESET_NEW_COUNT updates the cache properly.
+     */
+    public void testUpdateCacheAccountResetNewCount() {
+        final Context c = mMockContext;
+        Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
+
+        // precondition
+        assertTrue(Account.restoreAccountWithId(c, a1.mId).mNewMessageCount > 0);
+
+        // Reset
+        mProvider.update(Account.RESET_NEW_MESSAGE_COUNT_URI, null, null, null);
+
+        // Check
+        assertEquals(0, Account.restoreAccountWithId(c, a1.mId).mNewMessageCount);
+    }
+
+    /**
+     * Check if update on ACCOUNT_RESET_NEW_COUNT_ID updates the cache properly.
+     */
+    public void testUpdateCacheAccountResetNewCountId() {
+        final Context c = mMockContext;
+        Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
+
+        // precondition
+        assertTrue(Account.restoreAccountWithId(c, a1.mId).mNewMessageCount > 0);
+
+        // Reset
+        mProvider.update(ContentUris.withAppendedId(Account.RESET_NEW_MESSAGE_COUNT_URI, a1.mId),
+                null, null, null);
+
+        // Check
+        assertEquals(0, Account.restoreAccountWithId(c, a1.mId).mNewMessageCount);
+    }
+
+    /**
+     * Check if update on MAILBOX_ID_ADD_TO_FIELD updates the cache properly.
+     */
+    public void testUpdateCacheMailboxIdAddToField() {
+        final Context c = mMockContext;
+        Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
+        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a1.mId, true, c, Mailbox.TYPE_INBOX);
+
+        int start = Mailbox.restoreMailboxWithId(c, b1.mId).mSyncInterval;
+
+        // +1 to SYNC_INTERVAL
+        ContentValues cv = new ContentValues();
+        cv.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.SYNC_INTERVAL);
+        cv.put(EmailContent.ADD_COLUMN_NAME, 1);
+        mProvider.update(ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, a1.mId), cv,
+                null, null);
+
+        // Check
+        assertEquals(start + 1, Mailbox.restoreMailboxWithId(c, b1.mId).mSyncInterval);
     }
 }
