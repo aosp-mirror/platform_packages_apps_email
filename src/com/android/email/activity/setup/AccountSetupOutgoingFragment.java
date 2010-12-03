@@ -77,6 +77,16 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     private boolean mLoaded;
 
     /**
+     * Create the fragment with parameters - used mainly to force into settings mode (with buttons)
+     * @param settingsMode if true, alters appearance for use in settings (default is "setup")
+     */
+    public static AccountSetupOutgoingFragment newInstance(boolean settingsMode) {
+        AccountSetupOutgoingFragment f = new AccountSetupOutgoingFragment();
+        f.setSetupArguments(settingsMode);
+        return f;
+    }
+
+    /**
      * Called to do initial creation of a fragment.  This is called after
      * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.
      */
@@ -98,7 +108,11 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "AccountSetupOutgoingFragment onCreateView");
         }
-        View view = inflater.inflate(R.layout.account_setup_outgoing_fragment, container, false);
+        int layoutId = mSettingsMode
+                ? R.layout.account_settings_outgoing_fragment
+                : R.layout.account_setup_outgoing_fragment;
+
+        View view = inflater.inflate(layoutId, container, false);
         Context context = getActivity();
 
         mUsernameView = (EditText) view.findViewById(R.id.account_username);
@@ -154,10 +168,12 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         mServerView.addTextChangedListener(validationTextWatcher);
         mPortView.addTextChangedListener(validationTextWatcher);
 
-        /*
-         * Only allow digits in the port field.
-         */
+        // Only allow digits in the port field.
         mPortView.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
+
+        // Additional setup only used while in "settings" mode
+        onCreateViewSettingsMode(view);
+
         return view;
     }
 

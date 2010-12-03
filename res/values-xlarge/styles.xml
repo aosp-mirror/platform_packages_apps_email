@@ -17,6 +17,11 @@
 <!-- STOPSHIP need final styles for all of account_setup_* -->
 <!-- Specializations for xlarge screens - most colors are in values/colors.xml -->
 <resources>
+    <!-- The headline at the top of every account settings fragments (in preferences) -->
+    <style name="accountSettingsHeadline">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+    </style>
+
     <!-- The large headline at the top of every account setup screen -->
     <style name="accountSetupHeadline">
         <item name="android:textSize">28sp</item>
@@ -24,10 +29,19 @@
     </style>
 
     <!-- Wizard buttons on the account setup screens -->
+    <!-- STOPSHIP these are estimates -->
     <style name="accountSetupButton">
         <item name="android:layout_width">240sp</item>
         <item name="android:layout_height">70sp</item>
         <item name="android:textSize">24sp</item>
+    </style>
+
+    <!-- Cancel/Done buttons on the account settings (server settings) fragments -->
+    <!-- STOPSHIP these are estimates -->
+    <style name="accountSettingsButton">
+        <item name="android:layout_width">200sp</item>
+        <item name="android:layout_height">60sp</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
     <!-- Message compose STOPSHIP not final -->
