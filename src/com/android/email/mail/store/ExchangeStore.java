@@ -21,6 +21,8 @@ import com.android.email.mail.Folder;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
+import com.android.email.service.EmailServiceProxy;
+import com.android.email.service.IEmailService;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -200,8 +202,13 @@ public class ExchangeStore extends Store {
             boolean tssl = uri.getScheme().contains("+trustallcerts");
             try {
                 int port = ssl ? 443 : 80;
-                return ExchangeUtils.getExchangeService(mContext, null)
-                    .validate("eas", mHost, mUsername, mPassword, port, ssl, tssl);
+                IEmailService svc = ExchangeUtils.getExchangeService(mContext, null);
+                // Use a longer timeout for the validate command.  Note that the instanceof check
+                // shouldn't be necessary; we'll do it anyway, just to be safe
+                if (svc instanceof EmailServiceProxy) {
+                    ((EmailServiceProxy)svc).setTimeout(90);
+                }
+                return svc.validate("eas", mHost, mUsername, mPassword, port, ssl, tssl);
             } catch (RemoteException e) {
                 throw new MessagingException("Call to validate generated an exception", e);
             }
