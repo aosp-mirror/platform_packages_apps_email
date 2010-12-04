@@ -1794,9 +1794,12 @@ public class EasSyncService extends AbstractSyncService {
             // A folder sync failed callback will get sent from run()
             try {
                 if (!mStop) {
+                    // NOTE: The correct status is CONNECTION_ERROR, but the UI displays this, and
+                    // it's not really appropriate for EAS as this is not unexpected for a ping and
+                    // connection errors are retried in any case
                     ExchangeService.callback()
                         .syncMailboxListStatus(mAccount.mId,
-                                EmailServiceStatus.CONNECTION_ERROR, 0);
+                                EmailServiceStatus.SUCCESS, 0);
                 }
             } catch (RemoteException e1) {
                 // Don't care if this fails
