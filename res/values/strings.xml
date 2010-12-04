@@ -443,9 +443,9 @@ save attachment.</string>
     <!-- The label of the previous button on the message view screen. -->
     <string name="message_view_move_to_older">Older</string>
 
-    <!-- The message snippet, of the form subject + separator + start of text  -->
-    <string name="message_list_snippet"><xliff:g id="subject" example="Re: Foo">
-        %1$s</xliff:g> - <xliff:g id="text" example="Hi, John. Blah...">%2$s</xliff:g></string>
+    <!-- A simple divider between subject and message snippet in the message list view
+        [CHAR LIMIT=4]-->
+    <string name="message_list_subject_snippet_divider">\u0020\u2014\u0020</string>
 
     <!-- Title of screen when setting up new email account [CHAR LIMIT=45] -->
     <string name="account_setup_basics_title">Account setup</string>

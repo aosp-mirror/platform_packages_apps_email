@@ -17,7 +17,6 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
-import com.android.email.R;
 import com.android.email.ResourceHelper;
 import com.android.email.Utility;
 import com.android.email.data.ThrottlingCursorLoader;
@@ -29,7 +28,6 @@ import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -146,23 +144,10 @@ import java.util.Set;
         itemView.mTimestamp = cursor.getLong(COLUMN_DATE);
         itemView.mSender = cursor.getString(COLUMN_DISPLAY_NAME);
         itemView.mSnippet = cursor.getString(COLUMN_SNIPPET);
+        itemView.mSubject = cursor.getString(COLUMN_SUBJECT);
         itemView.mSnippetLineCount = MessageListItem.NEEDS_LAYOUT;
         itemView.mColorChipPaint =
-                mShowColorChips ? mResourceHelper.getAccountColorPaint(accountId) : null;
-
-        String text = cursor.getString(COLUMN_SUBJECT);
-        String snippet = cursor.getString(COLUMN_SNIPPET);
-        if (!TextUtils.isEmpty(snippet)) {
-            if (TextUtils.isEmpty(text)) {
-                text = snippet;
-            } else {
-                text = context.getString(R.string.message_list_snippet, text, snippet);
-            }
-        }
-        if (text == null) {
-            text = "";
-        }
-        itemView.mSnippet = text;
+            mShowColorChips ? mResourceHelper.getAccountColorPaint(accountId) : null;
     }
 
     @Override
