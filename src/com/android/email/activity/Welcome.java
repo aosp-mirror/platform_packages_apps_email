@@ -62,14 +62,18 @@ public class Welcome extends Activity {
             -n com.google.android.email/com.android.email.activity.Welcome \
             -e DEBUG_PANE_MODE 2 --el ACCOUNT_ID 2
 
-     *  Open Combined Inbox (ID=-2) in 2 pane
+     *  Open a message (account id=1, mailbox id=2, message id=3)
         adb shell am start -a android.intent.action.MAIN \
             -n com.google.android.email/com.android.email.activity.Welcome \
-            -e DEBUG_PANE_MODE 2 --el MAILBOX_ID -2
+            -e DEBUG_PANE_MODE 2 \
+            --el ACCOUNT_ID 1 \
+            --el MAILBOX_ID 2 \
+            --el MESSAGE_ID 3
 
      */
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
+    private static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
 
     /**
      * Extra for debugging.  Set 1 to force one-pane.  Set 2 to force two-pane.
@@ -106,6 +110,21 @@ public class Welcome extends Activity {
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        }
+        return i;
+    }
+
+    /**
+     * Create an Intent to open a message.
+     */
+    public static Intent createOpenMessageIntent(Context context, long accountId,
+            long mailboxId, long messageId) {
+        Intent i = new Intent(context, Welcome.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        if (accountId != -1) {
+            i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+            i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
+            i.putExtra(EXTRA_MESSAGE_ID, messageId);
         }
         return i;
     }
@@ -172,8 +191,9 @@ public class Welcome extends Activity {
 
         final long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
         final long mailboxId = getIntent().getLongExtra(EXTRA_MAILBOX_ID, -1);
+        final long messageId = getIntent().getLongExtra(EXTRA_MESSAGE_ID, -1);
         final int debugPaneMode = getDebugPaneMode(getIntent());
-        new MainActivityLauncher(this, accountId, mailboxId, debugPaneMode).execute();
+        new MainActivityLauncher(this, accountId, mailboxId, messageId, debugPaneMode).execute();
     }
 
     @Override
@@ -208,17 +228,23 @@ public class Welcome extends Activity {
         private final int mDebugPaneMode;
         private final long mAccountId;
         private final long mMailboxId;
+        private final long mMessageId;
 
         public MainActivityLauncher(Activity fromActivity, long accountId, long mailboxId,
-                int debugPaneMode) {
+                long messageId, int debugPaneMode) {
             mFromActivity = fromActivity;
             mAccountId = accountId;
             mMailboxId = mailboxId;
+            mMessageId = messageId;
             mDebugPaneMode = debugPaneMode;
         }
 
         private boolean isMailboxSelected() {
             return mMailboxId != -1;
+        }
+
+        private boolean isMessageSelected() {
+            return mMessageId != -1;
         }
 
         @Override
@@ -237,13 +263,18 @@ public class Welcome extends Activity {
                         || (useTwoPane(mFromActivity) && mDebugPaneMode == 0);
 
                 if (useTwoPane) {
-                    if (isMailboxSelected()) {
+                    if (isMessageSelected()) {
+                        MessageListXL.actionOpenMessage(mFromActivity, accountId, mMailboxId,
+                                mMessageId);
+                    } else if (isMailboxSelected()) {
                         MessageListXL.actionOpenMailbox(mFromActivity, accountId, mMailboxId);
                     } else {
                         MessageListXL.actionOpenAccount(mFromActivity, accountId);
                     }
                 } else {
-                    if (isMailboxSelected()) {
+                    if (isMessageSelected()) {
+                        MessageView.actionView(mFromActivity, mMessageId, mMailboxId);
+                    } else if (isMailboxSelected()) {
                         MessageList.actionHandleMailbox(mFromActivity, mMailboxId);
                     } else {
                         MessageList.actionHandleAccount(

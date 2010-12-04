@@ -261,12 +261,8 @@ class MessageListXLFragmentManager {
         if (accountId == -1) {
             return;
         }
-        // selectAccount() calls selectMailbox() if necessary
-        selectAccount(accountId, mailboxId, false);
-        if (messageId == -1) {
-            return;
-        }
-        selectMessage(messageId);
+        // selectAccount() calls selectMailbox/Message() if necessary.
+        selectAccount(accountId, mailboxId, messageId, false);
     }
 
     private void saveMessageListFragmentState() {
@@ -308,10 +304,12 @@ class MessageListXLFragmentManager {
      *
      * @param accountId account ID.  Must not be -1.
      * @param mailboxId mailbox ID.  Pass -1 to open account's inbox.
+     * @param messageId message ID.  Pass -1 to not open a message.
      * @param byExplicitUserAction set true if the user is explicitly opening the mailbox,
      *     in which case we perform "auto-refresh".
      */
-    public void selectAccount(long accountId, long mailboxId, boolean byExplicitUserAction) {
+    public void selectAccount(long accountId, long mailboxId, long messageId,
+            boolean byExplicitUserAction) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "selectAccount mAccountId=" + accountId);
         }
@@ -337,11 +335,11 @@ class MessageListXLFragmentManager {
 
         if ((accountId == Account.ACCOUNT_ID_COMBINED_VIEW) && (mailboxId == -1)) {
             // When opening the Combined view, the right pane will be "combined inbox".
-            selectMailbox(Mailbox.QUERY_ALL_INBOXES, false);
+            selectMailbox(Mailbox.QUERY_ALL_INBOXES, -1, false);
         } else if (mailboxId == -1) {
             startInboxLookup();
         } else {
-            selectMailbox(mailboxId, byExplicitUserAction);
+            selectMailbox(mailboxId, messageId, byExplicitUserAction);
         }
     }
 
@@ -371,10 +369,11 @@ class MessageListXLFragmentManager {
      * {@link #selectAccount}.
      *
      * @param mailboxId ID of mailbox
+     * @param messageId message ID.  Pass -1 to not open a message.
      * @param byExplicitUserAction set true if the user is explicitly opening the mailbox,
      *     in which case we perform "auto-refresh".
      */
-    public void selectMailbox(long mailboxId, boolean byExplicitUserAction) {
+    public void selectMailbox(long mailboxId, long messageId, boolean byExplicitUserAction) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "selectMailbox mMailboxId=" + mailboxId);
         }
@@ -399,7 +398,11 @@ class MessageListXLFragmentManager {
 
         mMailboxListFragment.setSelectedMailbox(mMailboxId);
         mTargetActivity.onMailboxChanged(mAccountId, mMailboxId);
-        mThreePane.showLeftPane(); // Show mailbox list
+        if (messageId == -1) {
+            mThreePane.showLeftPane(); // Show mailbox list
+        } else {
+            selectMessage(messageId);
+        }
     }
 
     /**
@@ -481,7 +484,7 @@ class MessageListXLFragmentManager {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "  Found inbox");
             }
-            selectMailbox(mailboxId, true);
+            selectMailbox(mailboxId, -1, true);
         }
 
         @Override
