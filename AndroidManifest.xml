@@ -107,11 +107,18 @@
             >
         </activity>
         <!-- Must be exported in order for the AccountManager to launch it -->
+        <!-- Also available for continuous test systems to force account creation -->
         <activity
             android:name=".activity.setup.AccountSetupBasics"
             android:label="@string/account_setup_basics_title"
             android:exported="true"
             >
+            <intent-filter>
+                <action
+                    android:name="com.android.email.CREATE_ACCOUNT" />
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".activity.setup.AccountSetupAccountType"

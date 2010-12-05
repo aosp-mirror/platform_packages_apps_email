@@ -136,7 +136,9 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             findViewById(R.id.account_sync_calendar_divider).setVisibility(View.VISIBLE);
         }
 
-        if (SetupData.isAutoSetup()) {
+        // If we are just visiting here to fill in details, exit immediately
+        if (SetupData.isAutoSetup() ||
+                SetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
             onDone();
         }
     }
