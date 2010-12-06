@@ -70,6 +70,16 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     private String mCacheLoginCredential;
 
     /**
+     * Create the fragment with parameters - used mainly to force into settings mode (with buttons)
+     * @param settingsMode if true, alters appearance for use in settings (default is "setup")
+     */
+    public static AccountSetupExchangeFragment newInstance(boolean settingsMode) {
+        AccountSetupExchangeFragment f = new AccountSetupExchangeFragment();
+        f.setSetupArguments(settingsMode);
+        return f;
+    }
+
+    /**
      * Called to do initial creation of a fragment.  This is called after
      * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.
      */
@@ -92,7 +102,11 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "AccountSetupExchangeFragment onCreateView");
         }
-        View view = inflater.inflate(R.layout.account_setup_exchange_fragment, container, false);
+        int layoutId = mSettingsMode
+                ? R.layout.account_settings_exchange_fragment
+                : R.layout.account_setup_exchange_fragment;
+
+        View view = inflater.inflate(layoutId, container, false);
         Context context = getActivity();
 
         mUsernameView = (EditText) view.findViewById(R.id.account_username);
@@ -126,6 +140,9 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             // There's nothing we can do here...
         }
         //EXCHANGE-REMOVE-SECTION-END
+
+        // Additional setup only used while in "settings" mode
+        onCreateViewSettingsMode(view);
 
         return view;
     }

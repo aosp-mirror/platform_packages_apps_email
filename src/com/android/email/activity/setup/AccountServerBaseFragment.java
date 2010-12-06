@@ -23,9 +23,9 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 /**
  * Common base class for server settings fragments, so they can be more easily manipulated by
@@ -36,13 +36,15 @@ import android.view.MenuItem;
  * Present "Next" button and respond to its clicks
  */
 public abstract class AccountServerBaseFragment extends Fragment
-        implements AccountCheckSettingsFragment.Callbacks {
+        implements AccountCheckSettingsFragment.Callbacks, OnClickListener {
+
+    private final static String BUNDLE_KEY_SETTINGS = "AccountServerBaseFragment.settings";
 
     protected Context mContext;
     protected Callback mCallback = EmptyCallback.INSTANCE;
-    protected boolean mNextButtonEnabled;
-    // STOPSHIP - this is a temp UI for "next" in AccountSettings.  Disabled during Account Setup.
-    public boolean mNextButtonDisplayed = true;
+    protected boolean mSettingsMode;
+    // This is null in the setup wizard screens, and non-null in AccountSettings mode
+    public Button mProceedButton;
 
     /**
      * Callback interface that owning activities must provide
@@ -78,6 +80,41 @@ public abstract class AccountServerBaseFragment extends Fragment
     }
 
     /**
+     * At constructor time, set the fragment arguments
+     */
+    protected void setSetupArguments(boolean settingsMode) {
+        Bundle b = new Bundle();
+        b.putBoolean(BUNDLE_KEY_SETTINGS, true);
+        setArguments(b);
+    }
+
+    /**
+     * At onCreate time, read the fragment arguments
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Get arguments, which modally switch us into "settings" mode (different appearance)
+        mSettingsMode = false;
+        if (getArguments() != null) {
+            mSettingsMode = getArguments().getBoolean(BUNDLE_KEY_SETTINGS);
+        }
+    }
+
+    /**
+     * Called from onCreateView, to do settings mode configuration
+     */
+    protected void onCreateViewSettingsMode(View view) {
+        if (mSettingsMode) {
+            view.findViewById(R.id.cancel).setOnClickListener(this);
+            mProceedButton = (Button) view.findViewById(R.id.done);
+            mProceedButton.setOnClickListener(this);
+            mProceedButton.setEnabled(false);
+        }
+    }
+
+    /**
      * Called when a fragment is first attached to its activity.
      * {@link #onCreate(Bundle)} will be called after this.
      */
@@ -93,51 +130,18 @@ public abstract class AccountServerBaseFragment extends Fragment
     }
 
     /**
-     * Called to do initial creation of a fragment.  This is called after
-     * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.
+     * Implements OnClickListener
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setHasOptionsMenu(true);
-        mNextButtonEnabled = false;
-    }
-
-    // Add a "Next" button when this fragment is displayed
-    // TODO remove this and replace with a button during Account Settings
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        if (mNextButtonDisplayed) {
-            inflater.inflate(R.menu.account_setup_next_option, menu);
-        }
-    }
-
-    /**
-     * Enable/disable "next" button
-     * TODO remove this and replace with a button during Account Settings
-     */
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        if (mNextButtonDisplayed) {
-            MenuItem item = menu.findItem(R.id.next);
-            item.setEnabled(mNextButtonEnabled);
-        }
-    }
-
-    /**
-     * Respond to clicks in the "Next" button
-     * TODO remove this and replace with a button during Account Settings
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.next:
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.cancel:
+                getActivity().onBackPressed();
+                break;
+            case R.id.done:
                 onNext();
-                return true;
+                break;
         }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -152,16 +156,13 @@ public abstract class AccountServerBaseFragment extends Fragment
      * Enable/disable the "next" button
      */
     public void enableNextButton(boolean enable) {
-        // We have to set mNextButtonEnabled first, because invalidateOptionsMenu calls
-        // onPrepareOptionsMenu immediately
-        boolean wasEnabled = mNextButtonEnabled;
-        mNextButtonEnabled = enable;
-
-        if (enable != wasEnabled) {
-            getActivity().invalidateOptionsMenu();
+        // If we are in settings "mode" we may be showing our own next button, and we'll
+        // enable it directly, here
+        if (mProceedButton != null) {
+            mProceedButton.setEnabled(enable);
         }
 
-        // TODO: This supports the legacy activities and will be removed
+        // TODO: This supports the phone UX activities and will be removed
         mCallback.onEnableProceedButtons(enable);
     }
 

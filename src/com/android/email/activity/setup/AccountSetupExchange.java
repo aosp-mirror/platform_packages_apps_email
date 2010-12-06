@@ -90,9 +90,6 @@ public class AccountSetupExchange extends AccountSetupActivity
         mFragment = (AccountSetupExchangeFragment)
                 getFragmentManager().findFragmentById(R.id.setup_fragment);
         mFragment.setCallback(this);
-        // TODO temp code to inhibit the options menu - still needed for AccountSettings
-        mFragment.mNextButtonDisplayed = false;
-        invalidateOptionsMenu();
 
         mNextButton = (Button) findViewById(R.id.next);
         mNextButton.setOnClickListener(this);
