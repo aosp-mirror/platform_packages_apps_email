@@ -16,6 +16,7 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
@@ -27,10 +28,13 @@ import com.android.email.provider.EmailContent.HostAuth;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -44,10 +48,38 @@ import android.widget.Button;
  *
  * If the domain is not known, or the user selects Manual setup, we invoke the
  * AccountSetupAccountType activity where the user can begin to manually configure the account.
+ *
+ * === Support for automated testing ==
+ * This activity can also be launched directly via ACTION_CREATE_ACCOUNT.  This is intended
+ * only for use by continuous test systems, and is currently only available when "ro.monkey"
+ * is set.  To use this mode, you must construct an intent which contains all necessary information
+ * to create the account.  No connection checking is done, so the account may or may not actually
+ * work.  Here is a sample command, for a gmail account "test_account" with a password of
+ * "test_password".
+ *
+ *      $ adb shell am start -a com.android.email.CREATE_ACCOUNT \
+ *          -e EMAIL test_account@gmail.com \
+ *          -e USER "Test Account Name" \
+ *          -e INCOMING imap+ssl+://test_account:test_password@imap.gmail.com \
+ *          -e OUTGOING smtp+ssl+://test_account:test_password@smtp.gmail.com
+ *
+ * Note: For accounts that require the full email address in the login, encode the @ as %40.
+ * Note: Exchange accounts that require device security policies cannot be created automatically.
  */
 public class AccountSetupBasics extends AccountSetupActivity
         implements AccountSetupBasicsFragment.Callback, AccountCheckSettingsFragment.Callbacks,
         OnClickListener {
+
+    /**
+     * Direct access for forcing account creation
+     * For use by continuous automated test system (e.g. in conjunction with monkey tests)
+     */
+    private final String ACTION_CREATE_ACCOUNT = "com.android.email.CREATE_ACCOUNT";
+    private final String EXTRA_CREATE_ACCOUNT_EMAIL = "EMAIL";
+    private final String EXTRA_CREATE_ACCOUNT_USER = "USER";
+    private final String EXTRA_CREATE_ACCOUNT_INCOMING = "INCOMING";
+    private final String EXTRA_CREATE_ACCOUNT_OUTGOING = "OUTGOING";
+    private final Boolean DEBUG_ALLOW_NON_MONKEY_CREATION = false;  // DO NOT CHECK IN "TRUE"
 
     private AccountSetupBasicsFragment mFragment;
     private boolean mManualButtonDisplayed;
@@ -80,7 +112,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      * for pop/imap accounts.
      */
     public static Intent actionSetupPopImapIntent(Context context) {
-        SetupData.init(SetupData.FLOW_MODE_ACCOUNT_MAANGER_POP_IMAP);
+        SetupData.init(SetupData.FLOW_MODE_ACCOUNT_MANAGER_POP_IMAP);
         return new Intent(context, AccountSetupBasics.class);
     }
 
@@ -111,6 +143,13 @@ public class AccountSetupBasics extends AccountSetupActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
+
+        // Check for forced account creation first, as it comes from an externally-generated
+        // intent and won't have any SetupData prepared.
+        String action = getIntent().getAction();
+        if (ACTION_CREATE_ACCOUNT.equals(action)) {
+            SetupData.init(SetupData.FLOW_MODE_FORCE_CREATE);
+        }
 
         int flowMode = SetupData.getFlowMode();
         if (flowMode == SetupData.FLOW_MODE_RETURN_TO_CALLER) {
@@ -162,6 +201,31 @@ public class AccountSetupBasics extends AccountSetupActivity
         if (mAccountAuthenticatorResponse != null) {
             mAccountAuthenticatorResponse.onRequestContinued();
         }
+
+        // Handle force account creation immediately (now that fragment is set up)
+        // This is never allowed in a normal user build and will exit immediately.
+        if (SetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
+            if (!DEBUG_ALLOW_NON_MONKEY_CREATION && !ActivityManager.isUserAMonkey()) {
+                Log.e(Email.LOG_TAG, "ERROR: Force account create only allowed for monkeys");
+                finish();
+                return;
+            }
+            Intent intent = getIntent();
+            String email = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_EMAIL);
+            String user = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_USER);
+            String incoming = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_INCOMING);
+            String outgoing = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_OUTGOING);
+            if (TextUtils.isEmpty(email) || TextUtils.isEmpty(user) ||
+                    TextUtils.isEmpty(incoming) || TextUtils.isEmpty(outgoing)) {
+                Log.e(Email.LOG_TAG, "ERROR: Force account create requires extras EMAIL, USER, " +
+                        "INCOMING, OUTGOING");
+                finish();
+                return;
+            }
+            mFragment.forceCreateAccount(email, user, incoming, outgoing);
+            onCheckSettingsComplete(AccountCheckSettingsFragment.CHECK_SETTINGS_OK); // calls finish
+            return;
+        }
     }
 
     @Override
@@ -182,11 +246,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     /**
      * Implements AccountCheckSettingsFragment.Callbacks
      *
-     * This is used in automatic setup mode to jump directly down to the names screen.
-     *
-     * NOTE:  With this organization, it is *not* possible to auto-create an exchange account,
-     * because certain necessary actions happen during AccountSetupOptions (which we are
-     * skipping here).
+     * This is used in automatic setup mode to jump directly down to the options screen.
      */
     @Override
     public void onCheckSettingsComplete(int result) {

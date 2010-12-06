@@ -108,6 +108,11 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
 
         // Make sure the "done" button is in the proper state
         validateFields();
+
+        // Proceed immediately if in account creation mode
+        if (SetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
+            onNext();
+        }
     }
 
     @Override

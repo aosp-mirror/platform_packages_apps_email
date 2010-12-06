@@ -31,15 +31,17 @@ public class SetupData implements Parcelable {
     // Settings -> Accounts
     public static final int FLOW_MODE_NORMAL = 0;
     public static final int FLOW_MODE_ACCOUNT_MANAGER_EAS = 1;
-    public static final int FLOW_MODE_ACCOUNT_MAANGER_POP_IMAP = 2;
+    public static final int FLOW_MODE_ACCOUNT_MANAGER_POP_IMAP = 2;
     public static final int FLOW_MODE_EDIT = 3;
+    public static final int FLOW_MODE_FORCE_CREATE = 4;
     // The following two modes are used to "pop the stack" and return from the setup flow.  We
     // either return to the caller (if we're in an account type flow) or go to the message list
-    public static final int FLOW_MODE_RETURN_TO_CALLER = 4;
-    public static final int FLOW_MODE_RETURN_TO_MESSAGE_LIST = 5;
+    public static final int FLOW_MODE_RETURN_TO_CALLER = 5;
+    public static final int FLOW_MODE_RETURN_TO_MESSAGE_LIST = 6;
 
     // For debug logging
-    private static final String[] FLOW_MODES = {"normal", "eas", "pop/imap", "edit", "rtc", "rtl"};
+    private static final String[] FLOW_MODES = {"normal", "eas", "pop/imap", "edit", "force",
+            "rtc", "rtl"};
 
     // Mode bits for AccountSetupCheckSettings, indicating the type of check requested
     public static final int CHECK_INCOMING = 1;
