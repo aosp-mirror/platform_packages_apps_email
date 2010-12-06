@@ -524,11 +524,7 @@ public class WidgetProvider extends AppWidgetProvider {
             int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
             if (widgetId == -1) return null;
             // Find the existing widget or create it
-            EmailWidget widget = sWidgetMap.get(widgetId);
-            if (widget == null) {
-                throw new IllegalStateException("onGetViewFactory, widget does not exist");
-            }
-            return widget;
+            return getOrCreateWidget(widgetId);
         }
 
         @Override
