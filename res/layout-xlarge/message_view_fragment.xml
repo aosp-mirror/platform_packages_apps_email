@@ -15,363 +15,385 @@
 -->
 
 <!-- xlarge -->
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffffff"
+    android:orientation="vertical"
     >
-    <!-- Subject -->
-    <TextView
-        android:id="@+id/subject"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="30dip"
-        android:layout_marginLeft="30dip"
-        android:layout_marginRight="30dip"
-        android:singleLine="false"
-        android:ellipsize="none"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="?android:attr/textColorPrimary"
-        />
-
-    <!-- Horizontal line below subject -->
-    <View
-        android:id="@+id/top_divider"
-        android:layout_width="0dip"
-        android:layout_below="@id/subject"
-        android:layout_alignLeft="@id/subject"
-        android:layout_alignRight="@id/subject"
-        android:layout_marginTop="8dip"
-        android:layout_marginBottom="16dip"
-        style="@style/horizontalDivider"
-        />
-
-    <!-- Badge -->
-    <ImageView
-        android:id="@+id/badge"
-        android:layout_width="60dip"
-        android:layout_height="60dip"
-        android:layout_gravity="center_vertical"
-        android:layout_alignTop="@id/top_divider"
-        android:layout_alignLeft="@id/subject"
-        />
-
-    <!-- Presence icon -->
-    <ImageView
-        android:id="@+id/presence"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/top_divider"
-        android:layout_toRightOf="@id/badge"
-        android:layout_marginLeft="16dip"
-        android:layout_marginRight="12dip"
-        android:src="@drawable/presence_inactive"
-        android:background="@drawable/quickcontact_presence_bg"
-        />
-    <!--
-        reply, reply-all, forward, Star
-        They can all be gone; don't refer to them from other views.  Instead refer to this outer
-        layout.
-    -->
-    <LinearLayout
-        android:id="@+id/forward_reply_buttons"
-        android:layout_width="wrap_content"
-        android:layout_height="24dip"
-        android:layout_alignRight="@id/subject"
-        android:layout_below="@id/top_divider"
-        android:orientation="horizontal"
-        >
-        <ImageView
-            android:id="@+id/reply"
-            android:layout_width="32dip"
-            android:layout_height="match_parent"
-            android:layout_marginRight="16dip"
-            android:layout_marginLeft="16dip"
-            android:src="@drawable/reply"
-            android:visibility="gone"
-            />
-        <ImageView
-            android:id="@+id/reply_all"
-            android:layout_width="32dip"
-            android:layout_height="match_parent"
-            android:layout_marginRight="16dip"
-            android:layout_marginLeft="16dip"
-            android:src="@drawable/reply_all"
-            android:visibility="gone"
-            />
-        <ImageView
-            android:id="@+id/forward"
-            android:layout_width="32dip"
-            android:layout_height="match_parent"
-            android:layout_marginRight="16dip"
-            android:layout_marginLeft="16dip"
-            android:src="@drawable/forward"
-            android:visibility="gone"
-            />
-        <ImageView
-            android:id="@+id/favorite"
-            android:layout_width="32dip"
-            android:layout_height="match_parent"
-            android:layout_marginRight="16dip"
-            android:layout_marginLeft="16dip"
-            android:src="@drawable/btn_star_big_buttonless_off"
-            android:visibility="gone"
-            />
-     </LinearLayout>
-
-    <!-- Sender display name -->
-    <TextView
-        android:id="@+id/from_name"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/top_divider"
-        android:layout_toRightOf="@id/presence"
-        android:layout_toLeftOf="@id/forward_reply_buttons"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
-        android:singleLine="true"
-        android:ellipsize="end"
-        />
-
-    <!-- From address -->
-    <TextView
-        android:id="@+id/from_address"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/presence"
-        android:layout_below="@id/presence"
-        android:layout_toLeftOf="@id/forward_reply_buttons"
-        android:layout_marginTop="2dip"
-        android:layout_marginBottom="8dip"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorSecondary"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:paddingRight="6dip"
-        />
-
-    <!-- To: and timestamp  -->
-    <TextView
-        android:id="@+id/datetime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/from_address"
-        android:layout_alignRight="@id/subject"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorSecondary"
-        android:singleLine="true"
-        />
-
-    <TextView
-        android:id="@+id/to_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/datetime"
-        android:layout_alignLeft="@id/from_address"
-        android:layout_marginRight="4dip"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorSecondary"
-        android:singleLine="true"
-        android:text="@string/message_compose_to_label"
-        />
-
-    <TextView
-        android:id="@+id/to"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/datetime"
-        android:layout_toRightOf="@id/to_label"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorSecondary"
-        android:singleLine="true"
-        />
-
-    <!-- Cc -->
-    <LinearLayout
-        android:id="@+id/cc_container"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/to_label"
-        android:layout_alignLeft="@id/to_label"
-        android:layout_alignRight="@id/subject"
-        android:visibility="gone"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="4dip"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondary"
-            android:singleLine="true"
-            android:text="@string/message_compose_cc_label"
-            />
-        <TextView
-            android:id="@+id/cc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondary"
-            android:singleLine="true"
-            android:ellipsize="end"
-            />
-    </LinearLayout>
-
-    <!-- Bcc -->
-    <LinearLayout
-        android:id="@+id/bcc_container"
-        android:layout_width="0dip"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/cc_container"
-        android:layout_alignLeft="@id/to_label"
-        android:layout_alignRight="@id/subject"
-        android:visibility="gone"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="4dip"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondary"
-            android:singleLine="true"
-            android:text="@string/message_compose_bcc_label"
-            />
-        <TextView
-            android:id="@+id/bcc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondary"
-            android:singleLine="true"
-            android:ellipsize="end"
-            />
-    </LinearLayout>
-
-    <View
-        android:id="@+id/below_header_divider"
-        android:layout_width="0dip"
-        android:layout_below="@id/bcc_container"
-        android:layout_alignLeft="@id/bcc_container"
-        android:layout_alignRight="@id/subject"
-        android:layout_marginTop="8dip"
-        android:layout_marginBottom="2dip"
-        style="@style/horizontalDivider"
-        />
-
-    <!--
-        The rest: tab + body + command buttons.  Use LinearLayout to easily hide part of them.
-    -->
-    <LinearLayout
-        android:layout_width="0dip"
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_below="@id/below_header_divider"
-        android:layout_alignLeft="@id/below_header_divider"
-        android:layout_alignRight="@id/below_header_divider"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical"
+        android:layout_weight="1"
         >
-        <!-- Tabs -->
-        <LinearLayout
-            android:id="@+id/message_tabs_section"
-            android:layout_width="match_parent"
+        <ProgressBar
+            android:id="@+id/loading_progress"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="6dip"
-            android:paddingRight="6dip"
-            android:divider="@drawable/divider"
-            android:showDividers="beginning|middle|end"
-            android:dividerPadding="8dip"
+            android:layout_gravity="center"
+            style="?android:attr/progressBarStyleLarge"
+            />
+        <RelativeLayout
+            android:id="@+id/main_panel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             >
-            <Button
-                android:id="@+id/show_message"
-                android:layout_width="wrap_content"
+            <!-- Subject -->
+            <TextView
+                android:id="@+id/subject"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/message_view_show_message_action"
-                style="@android:style/Widget.Holo.Light.Tab"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="30dip"
+                android:layout_marginLeft="30dip"
+                android:layout_marginRight="30dip"
+                android:singleLine="false"
+                android:ellipsize="none"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="?android:attr/textColorPrimary"
                 />
-            <Button
-                android:id="@+id/show_invite"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/message_view_show_invite_action"
-                style="@android:style/Widget.Holo.Light.Tab"
-                />
-            <Button
-                android:id="@+id/show_attachments"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                style="@android:style/Widget.Holo.Light.Tab"
-                />
-            <!-- filler -->
+
+            <!-- Horizontal line below subject -->
             <View
+                android:id="@+id/top_divider"
+                android:layout_width="0dip"
+                android:layout_below="@id/subject"
+                android:layout_alignLeft="@id/subject"
+                android:layout_alignRight="@id/subject"
+                android:layout_marginTop="8dip"
+                android:layout_marginBottom="16dip"
+                style="@style/horizontalDivider"
+                />
+
+            <!-- Badge -->
+            <ImageView
+                android:id="@+id/badge"
+                android:layout_width="60dip"
+                android:layout_height="60dip"
+                android:layout_gravity="center_vertical"
+                android:layout_alignTop="@id/top_divider"
+                android:layout_alignLeft="@id/subject"
+                />
+
+            <!-- Presence icon -->
+            <ImageView
+                android:id="@+id/presence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/top_divider"
+                android:layout_toRightOf="@id/badge"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="12dip"
+                android:src="@drawable/presence_inactive"
+                android:background="@drawable/quickcontact_presence_bg"
+                />
+            <!--
+                reply, reply-all, forward, Star
+                They can all be gone; don't refer to them from other views.
+                Instead refer to this outer layout.
+            -->
+            <LinearLayout
+                android:id="@+id/forward_reply_buttons"
+                android:layout_width="wrap_content"
+                android:layout_height="24dip"
+                android:layout_alignRight="@id/subject"
+                android:layout_below="@id/top_divider"
+                android:orientation="horizontal"
+                >
+                <ImageView
+                    android:id="@+id/reply"
+                    android:layout_width="32dip"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="16dip"
+                    android:layout_marginLeft="16dip"
+                    android:src="@drawable/reply"
+                    android:visibility="gone"
+                    />
+                <ImageView
+                    android:id="@+id/reply_all"
+                    android:layout_width="32dip"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="16dip"
+                    android:layout_marginLeft="16dip"
+                    android:src="@drawable/reply_all"
+                    android:visibility="gone"
+                    />
+                <ImageView
+                    android:id="@+id/forward"
+                    android:layout_width="32dip"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="16dip"
+                    android:layout_marginLeft="16dip"
+                    android:src="@drawable/forward"
+                    android:visibility="gone"
+                    />
+                <ImageView
+                    android:id="@+id/favorite"
+                    android:layout_width="32dip"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="16dip"
+                    android:layout_marginLeft="16dip"
+                    android:src="@drawable/btn_star_big_buttonless_off"
+                    android:visibility="gone"
+                    />
+             </LinearLayout>
+
+            <!-- Sender display name -->
+            <TextView
+                android:id="@+id/from_name"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/top_divider"
+                android:layout_toRightOf="@id/presence"
+                android:layout_toLeftOf="@id/forward_reply_buttons"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:singleLine="true"
+                android:ellipsize="end"
+                />
+
+            <!-- From address -->
+            <TextView
+                android:id="@+id/from_address"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@id/presence"
+                android:layout_below="@id/presence"
+                android:layout_toLeftOf="@id/forward_reply_buttons"
+                android:layout_marginTop="2dip"
+                android:layout_marginBottom="8dip"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondary"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:paddingRight="6dip"
+                />
+
+            <!-- To: and timestamp  -->
+            <TextView
+                android:id="@+id/datetime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/from_address"
+                android:layout_alignRight="@id/subject"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondary"
+                android:singleLine="true"
+                />
+
+            <TextView
+                android:id="@+id/to_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/datetime"
+                android:layout_alignLeft="@id/from_address"
+                android:layout_marginRight="4dip"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondary"
+                android:singleLine="true"
+                android:text="@string/message_compose_to_label"
+                />
+
+            <TextView
+                android:id="@+id/to"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/datetime"
+                android:layout_toRightOf="@id/to_label"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondary"
+                android:singleLine="true"
+                />
+
+            <!-- Cc -->
+            <LinearLayout
+                android:id="@+id/cc_container"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/to_label"
+                android:layout_alignLeft="@id/to_label"
+                android:layout_alignRight="@id/subject"
+                android:visibility="gone"
+                >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="4dip"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:singleLine="true"
+                    android:text="@string/message_compose_cc_label"
+                    />
+                <TextView
+                    android:id="@+id/cc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    />
+            </LinearLayout>
+
+            <!-- Bcc -->
+            <LinearLayout
+                android:id="@+id/bcc_container"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/cc_container"
+                android:layout_alignLeft="@id/to_label"
+                android:layout_alignRight="@id/subject"
+                android:visibility="gone"
+                >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="4dip"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:singleLine="true"
+                    android:text="@string/message_compose_bcc_label"
+                    />
+                <TextView
+                    android:id="@+id/bcc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/below_header_divider"
+                android:layout_width="0dip"
+                android:layout_below="@id/bcc_container"
+                android:layout_alignLeft="@id/bcc_container"
+                android:layout_alignRight="@id/subject"
+                android:layout_marginTop="8dip"
+                android:layout_marginBottom="2dip"
+                style="@style/horizontalDivider"
+                />
+
+            <!--
+                The rest: tab + body + command buttons.  Use LinearLayout to easily hide part of
+                them.
+            -->
+            <LinearLayout
                 android:layout_width="0dip"
                 android:layout_height="0dip"
-                android:layout_weight="1"
-                />
-            <Button
-                android:id="@+id/show_pictures"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/message_view_show_pictures_action"
-                style="@android:style/Widget.Holo.Light.Tab"
-                />
-        </LinearLayout>
-
-        <!-- content area - only one of them is visible at a time -->
-        <!-- Message body -->
-        <WebView
-            android:id="@+id/message_content"
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1"
-            android:background="#ffffffff"
-            android:visibility="gone"
-            />
-
-        <!-- Invite: Even though this section is only for MessageViewFragment,
-             Its visibility is controlled by MessageViewFragmentBase for simplicity.
-             MessageFileViewFragment shouldn't touch this. -->
-        <ScrollView
-            android:id="@+id/invite_scroll"
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1"
-            android:visibility="gone"
-            >
-            <include layout="@layout/message_view_invitation" />
-        </ScrollView>
-
-        <!-- Attachments -->
-        <ScrollView
-            android:id="@+id/attachments_scroll"
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1"
-            android:visibility="gone"
-            >
-            <LinearLayout
-                android:id="@+id/attachments"
+                android:layout_below="@id/below_header_divider"
+                android:layout_alignLeft="@id/below_header_divider"
+                android:layout_alignRight="@id/below_header_divider"
+                android:layout_alignParentBottom="true"
                 android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="4dip"
-                android:background="#ffffff"
-                />
-        </ScrollView>
+                >
+                <!-- Tabs -->
+                <LinearLayout
+                    android:id="@+id/message_tabs_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingLeft="6dip"
+                    android:paddingRight="6dip"
+                    android:divider="@drawable/divider"
+                    android:showDividers="beginning|middle|end"
+                    android:dividerPadding="8dip"
+                    >
+                    <Button
+                        android:id="@+id/show_message"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/message_view_show_message_action"
+                        style="@android:style/Widget.Holo.Light.Tab"
+                        />
+                    <Button
+                        android:id="@+id/show_invite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/message_view_show_invite_action"
+                        style="@android:style/Widget.Holo.Light.Tab"
+                        />
+                    <Button
+                        android:id="@+id/show_attachments"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        style="@android:style/Widget.Holo.Light.Tab"
+                        />
+                    <!-- filler -->
+                    <View
+                        android:layout_width="0dip"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
+                        />
+                    <Button
+                        android:id="@+id/show_pictures"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/message_view_show_pictures_action"
+                        style="@android:style/Widget.Holo.Light.Tab"
+                        />
+                </LinearLayout>
 
-        <!-- Buttons at the bottom.
-             Only MessageViewFragment uses these. MessageFileViewFragment doesn't. -->
-        <include
-            layout="@layout/message_command_button_view"
-            android:id="@+id/message_command_buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            />
-    </LinearLayout>
-</RelativeLayout>
+                <!-- content area - only one of them is visible at a time -->
+                <!-- Message body -->
+                <WebView
+                    android:id="@+id/message_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dip"
+                    android:layout_weight="1"
+                    android:background="#ffffffff"
+                    android:visibility="gone"
+                    />
+
+                <!-- Invite: Even though this section is only for MessageViewFragment,
+                     Its visibility is controlled by MessageViewFragmentBase for simplicity.
+                     MessageFileViewFragment shouldn't touch this. -->
+                <ScrollView
+                    android:id="@+id/invite_scroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dip"
+                    android:layout_weight="1"
+                    android:visibility="gone"
+                    >
+                    <include layout="@layout/message_view_invitation" />
+                </ScrollView>
+
+                <!-- Attachments -->
+                <ScrollView
+                    android:id="@+id/attachments_scroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dip"
+                    android:layout_weight="1"
+                    android:visibility="gone"
+                    >
+                    <LinearLayout
+                        android:id="@+id/attachments"
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="4dip"
+                        android:background="#ffffff"
+                        />
+                </ScrollView>
+
+            </LinearLayout>
+        </RelativeLayout>
+    </FrameLayout>
+
+    <!-- Buttons at the bottom.
+         Only MessageViewFragment uses these. MessageFileViewFragment doesn't. -->
+    <include
+        layout="@layout/message_command_button_view"
+        android:id="@+id/message_command_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        />
+</LinearLayout>
