@@ -44,8 +44,6 @@ import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
 import java.security.InvalidParameterException;
@@ -60,6 +58,7 @@ public class MessageListXL extends Activity implements
         View.OnClickListener {
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
+    private static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
     private static final int LOADER_ID_ACCOUNT_LIST = 0;
     /* package */ static final int MAILBOX_REFRESH_MIN_INTERVAL = 30 * 1000; // in milliseconds
     /* package */ static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
@@ -122,6 +121,27 @@ public class MessageListXL extends Activity implements
         fromActivity.startActivity(i);
     }
 
+    /**
+     * Launch and open a message.
+     *
+     * @param accountId must not be -1.
+     * @param mailboxId must not be -1.  Magic mailboxes IDs (such as
+     * {@link Mailbox#QUERY_ALL_INBOXES}) don't work.
+     * @param messageId must not be -1.
+     */
+    public static void actionOpenMessage(Activity fromActivity, long accountId, long mailboxId,
+            long messageId) {
+        Intent i = new Intent(fromActivity, MessageListXL.class);
+        if (accountId == -1 || mailboxId == -1 || messageId == -1) {
+            throw new InvalidParameterException();
+        }
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
+        i.putExtra(EXTRA_MESSAGE_ID, messageId);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        fromActivity.startActivity(i);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onCreate");
@@ -169,12 +189,13 @@ public class MessageListXL extends Activity implements
         final Intent i = getIntent();
         final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
         final long mailboxId = i.getLongExtra(EXTRA_MAILBOX_ID, -1);
+        final long messageId = i.getLongExtra(EXTRA_MESSAGE_ID, -1);
         if (Email.DEBUG) {
             Log.d(Email.LOG_TAG, String.format("initFromIntent: %d %d", accountId, mailboxId));
         }
 
         if (accountId != -1) {
-            mFragmentManager.selectAccount(accountId, mailboxId, true);
+            mFragmentManager.selectAccount(accountId, mailboxId, messageId, true);
         }
     }
 
@@ -413,12 +434,12 @@ public class MessageListXL extends Activity implements
     private class MailboxListFragmentCallback implements MailboxListFragment.Callback {
         @Override
         public void onMailboxSelected(long accountId, long mailboxId) {
-            mFragmentManager.selectMailbox(mailboxId, true);
+            mFragmentManager.selectMailbox(mailboxId, -1, true);
         }
 
         @Override
         public void onAccountSelected(long accountId) {
-            mFragmentManager.selectAccount(accountId, -1, true);
+            mFragmentManager.selectAccount(accountId, -1, -1, true);
             loadAccounts(); // This will update the account spinner, and select the account.
         }
 
@@ -642,7 +663,7 @@ public class MessageListXL extends Activity implements
         @Override
         public boolean onNavigationItemSelected(int itemPosition, long accountId) {
             if (Email.DEBUG) Log.d(Email.LOG_TAG, "Account selected: accountId=" + accountId);
-            mFragmentManager.selectAccount(accountId, -1, true);
+            mFragmentManager.selectAccount(accountId, -1, -1, true);
             return true;
         }
     }

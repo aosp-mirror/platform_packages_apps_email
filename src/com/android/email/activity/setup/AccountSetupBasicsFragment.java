@@ -374,26 +374,9 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
             return;
         }
 
-        Account account = SetupData.getAccount();
-        account.setSenderName(getOwnerName());
-        account.setEmailAddress(email);
-        account.setDisplayName(email);
-        boolean isDefault = mDefaultView.isChecked();
-        account.setDefaultAccount(isDefault);
-        SetupData.setDefault(isDefault);        // TODO - why duplicated, if already set in account
-        account.setStoreUri(mContext, incomingUri.toString());
-        account.setSenderUri(mContext, outgoingUri.toString());
-        String incomingUriString = incomingUri.toString();
-        if (incomingUriString.startsWith("imap")) {
-            // Delete policy must be set explicitly, because IMAP does not provide a UI selection
-            // for it. This logic needs to be followed in the auto setup flow as well.
-            account.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
-        }
-        if (incomingUriString.startsWith("eas")) {
-            account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
-        } else {
-            account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
-        }
+        populateSetupData(getOwnerName(), email, mDefaultView.isChecked(),
+                incomingUri.toString(), outgoingUri.toString());
+
         mCallback.onProceedAutomatic();
     }
 
@@ -446,27 +429,63 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
             return;
         }
 
-        Account account = SetupData.getAccount();
-        account.setSenderName(getOwnerName());
-        account.setEmailAddress(email);
-        account.setDisplayName(email);
-        boolean isDefault = mDefaultView.isChecked();
-        account.setDefaultAccount(isDefault);
-        SetupData.setDefault(isDefault);        // TODO - why duplicated, if already set in account
+        String uriString = null;
         try {
             URI uri = new URI("placeholder", user + ":" + password, domain, -1, null, null, null);
-            account.setStoreUri(mContext, uri.toString());
-            account.setSenderUri(mContext, uri.toString());
+            uriString = uri.toString();
         } catch (URISyntaxException use) {
             // If we can't set up the URL, don't continue - account setup pages will fail too
             Toast.makeText(mContext, R.string.account_setup_username_password_toast,
                     Toast.LENGTH_LONG).show();
-            account = null;
             return;
         }
-        account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
+
+        populateSetupData(getOwnerName(), email, mDefaultView.isChecked(), uriString, uriString);
 
         mCallback.onProceedManual(allowAutoDiscover);
+    }
+
+    /**
+     * To support continuous testing, we allow the forced creation of accounts.
+     * This works in a manner fairly similar to automatic setup, in which the complete server
+     * Uri's are available, except that we will also skip checking (as if both checks were true)
+     * and all other UI.
+     *
+     * @param email The email address for the new account
+     * @param user The user name for the new account
+     * @param incoming The URI-style string defining the incoming account
+     * @param outgoing The URI-style string defining the outgoing account
+     */
+    public void forceCreateAccount(String email, String user, String incoming, String outgoing) {
+        populateSetupData(user, email, false, incoming, outgoing);
+    }
+
+    /**
+     * Populate SetupData's account with complete setup info.
+     */
+    private void populateSetupData(String senderName, String senderEmail, boolean isDefault,
+            String incoming, String outgoing) {
+        Account account = SetupData.getAccount();
+        account.setSenderName(senderName);
+        account.setEmailAddress(senderEmail);
+        account.setDisplayName(senderEmail);
+        account.setDefaultAccount(isDefault);
+        SetupData.setDefault(isDefault);        // TODO - why duplicated, if already set in account
+        account.setStoreUri(mContext, incoming);
+        account.setSenderUri(mContext, outgoing);
+
+        // Set sync and delete policies for specific account types
+        if (incoming.startsWith("imap")) {
+            // Delete policy must be set explicitly, because IMAP does not provide a UI selection
+            // for it. This logic needs to be followed in the auto setup flow as well.
+            account.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
+        }
+
+        if (incoming.startsWith("eas")) {
+            account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
+        } else {
+            account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
+        }
     }
 
     /**
@@ -516,5 +535,4 @@ public class AccountSetupBasicsFragment extends Fragment implements TextWatcher 
                 .create();
         }
     }
-
 }

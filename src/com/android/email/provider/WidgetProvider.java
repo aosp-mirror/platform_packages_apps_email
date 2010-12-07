@@ -18,9 +18,11 @@ package com.android.email.provider;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.activity.MessageCompose;
-import com.android.email.activity.MessageView;
+import com.android.email.activity.Welcome;
 import com.android.email.data.ThrottlingCursorLoader;
+import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 
@@ -553,9 +555,14 @@ public class WidgetProvider extends AppWidgetProvider {
                 long arg1 = Long.parseLong(pathSegments.get(1));
                 if (COMMAND_NAME_VIEW_MESSAGE.equals(command)) {
                     // "view", <message id>, <mailbox id>
-                    Intent i = MessageView.getActionViewIntent(this, arg1,
-                            Long.parseLong(pathSegments.get(2)));
-                    startActivity(i);
+                    final long mailboxId = Long.parseLong(pathSegments.get(2));
+                    final long messageId = arg1;
+                    Utility.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            openMessage(mailboxId, messageId);
+                        }
+                    });
                 } else if (COMMAND_NAME_SWITCH_LIST_VIEW.equals(command)) {
                     // "next_view", <widget id>
                     EmailWidget widget = sWidgetMap.get((int)arg1);
@@ -569,5 +576,14 @@ public class WidgetProvider extends AppWidgetProvider {
             return Service.START_NOT_STICKY;
         }
 
+        private void openMessage(long mailboxId, long messageId) {
+            // TODO Use narrower projection.
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
+            if (mailbox == null) {
+                return;
+            }
+            startActivity(Welcome.createOpenMessageIntent(this, mailbox.mAccountKey, mailboxId,
+                    messageId));
+        }
     }
 }
