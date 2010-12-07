@@ -17,6 +17,8 @@
 package com.android.email.activity;
 
 import com.android.email.Clock;
+import com.android.email.Controller;
+import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
@@ -24,8 +26,10 @@ import com.android.email.RefreshManager;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
+import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -36,14 +40,12 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import java.security.InvalidParameterException;
@@ -64,9 +66,11 @@ public class MessageListXL extends Activity implements
     /* package */ static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
 
     private Context mContext;
+    private Controller mController;
     private RefreshManager mRefreshManager;
     private final RefreshListener mMailRefreshManagerListener
             = new RefreshListener();
+    private Controller.Result mControllerResult;
 
     private AccountSelectorAdapter mAccountsSelectorAdapter;
     private final ActionBarNavigationCallback mActionBarNavigationCallback
@@ -82,12 +86,12 @@ public class MessageListXL extends Activity implements
 
     private RefreshTask mRefreshTask;
 
+    private BannerController mBannerController;
     private TextView mErrorMessageView;
-    /** True when {@link #mErrorMessageView} is fully shown, when it should be clickable. */
-    private boolean mErrorMessageFullyShown;
-
-    private Animation mErrorMessageShowAnimation;
-    private Animation mErrorMessageHideAnimation;
+    /**
+     * Id of the account that had a messaging exception most recently.
+     */
+    private long mLastErrorAccountId;
 
     /**
      * Launch and open account's inbox.
@@ -156,6 +160,7 @@ public class MessageListXL extends Activity implements
         mFragmentManager.onActivityViewReady();
 
         mContext = getApplicationContext();
+        mController = Controller.getInstance(this);
         mRefreshManager = RefreshManager.getInstance(this);
         mRefreshManager.registerListener(mMailRefreshManagerListener);
 
@@ -177,12 +182,16 @@ public class MessageListXL extends Activity implements
         // so that it'll be easy to reuse for the phone activities.
         mErrorMessageView = (TextView) findViewById(R.id.error_message);
         mErrorMessageView.setOnClickListener(this);
-
-        initAnimation();
+        mBannerController = new BannerController(this, mErrorMessageView,
+                getResources().getDimensionPixelSize(R.dimen.error_message_height));
 
         // Halt the progress indicator (we'll display it later when needed)
         setProgressBarIndeterminate(true);
         setProgressBarIndeterminateVisibility(false);
+
+        mControllerResult = new ControllerResultUiThreadWrapper<ControllerResult>(new Handler(),
+                new ControllerResult());
+        mController.addResultCallback(mControllerResult);
     }
 
     private void initFromIntent() {
@@ -197,33 +206,6 @@ public class MessageListXL extends Activity implements
         if (accountId != -1) {
             mFragmentManager.selectAccount(accountId, mailboxId, messageId, true);
         }
-    }
-
-    private void initAnimation() {
-        // Set up error message animations.
-        mErrorMessageShowAnimation = AnimationUtils.loadAnimation(this, R.anim.header_slide_in);
-        mErrorMessageShowAnimation.setAnimationListener(new AnimationListener() {
-            @Override public void onAnimationRepeat(Animation animation) { }
-            @Override public void onAnimationStart(Animation animation) { }
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                mErrorMessageFullyShown = true;
-            }
-        });
-
-        mErrorMessageHideAnimation = AnimationUtils.loadAnimation(this, R.anim.header_slide_out);
-        mErrorMessageHideAnimation.setAnimationListener(new AnimationListener() {
-            @Override public void onAnimationRepeat(Animation animation) { }
-            @Override
-            public void onAnimationStart(Animation animation) {
-                mErrorMessageFullyShown = false;
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                mErrorMessageView.setVisibility(View.GONE);
-            }
-        });
     }
 
     @Override
@@ -278,6 +260,7 @@ public class MessageListXL extends Activity implements
     @Override
     protected void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onDestroy");
+        mController.removeResultCallback(mControllerResult);
         Utility.cancelTaskInterrupt(mRefreshTask);
         mRefreshManager.unregisterListener(mMailRefreshManagerListener);
         mFragmentManager.onDestroy();
@@ -510,7 +493,6 @@ public class MessageListXL extends Activity implements
 
         @Override
         public void onLoadMessageError(String errorMessage) {
-            showErrorMessage(errorMessage);
         }
 
         @Override
@@ -569,35 +551,29 @@ public class MessageListXL extends Activity implements
         updateProgressIcon();
     }
 
-    private void showErrorMessage(String message) {
-        /* Note: All error messages come from the Controller.Result callback to the UI,
-         * but this class doesn't use it directly.  Instead it uses the following callbacks.
-         *
-         * RefreshManager.Listener.onMessagingError for
-         * -updateMailboxListCallback
-         * -updateMailboxCallback
-         * -serviceCheckMailCallback
-         * -sendMailCallback
-         *
-         * MessageViewFragmentBase.Callback.onLoadMessageError for
-         * -loadMessageForViewCallback
-         * -loadAttachmentCallback
-         */
-
-        if (mErrorMessageView.getVisibility() == View.VISIBLE) {
-            // If an error is already shown, do nothing, not even changing the text, to avoid
-            // flicker.
-            return;
+    /**
+     * Call this when getting a connection error.
+     */
+    private void showErrorMessage(String message, long accountId) {
+        if (mBannerController.show(message)) {
+            mLastErrorAccountId = accountId;
         }
-        mErrorMessageView.setText(message);
-        mErrorMessageView.setVisibility(View.VISIBLE);
-        mErrorMessageView.startAnimation(mErrorMessageShowAnimation);
     }
 
-    private void dismissErrorMessage() {
-        if (mErrorMessageFullyShown) {
-            mErrorMessageView.startAnimation(mErrorMessageHideAnimation);
+    /**
+     * Call this when the connection for an account is considered working.
+     */
+    private void clearErrorMessage(long accountId) {
+        if (mLastErrorAccountId == accountId) {
+            dismissErrorMessage();
         }
+    }
+
+    /**
+     * Force dismiss the error banner.
+     */
+    private void dismissErrorMessage() {
+        mBannerController.dismiss();
     }
 
     /**
@@ -672,7 +648,6 @@ public class MessageListXL extends Activity implements
             implements RefreshManager.Listener {
         @Override
         public void onMessagingError(final long accountId, long mailboxId, final String message) {
-            showErrorMessage(message);
             updateProgressIcon();
         }
 
@@ -840,6 +815,100 @@ public class MessageListXL extends Activity implements
                 return false;
             }
             return true;
+        }
+    }
+
+    /**
+     * A {@link Controller.Result} to detect connection status.
+     */
+    private class ControllerResult extends Controller.Result {
+        @Override
+        public void sendMailCallback(
+                MessagingException result, long accountId, long messageId, int progress) {
+            handleError(result, accountId, progress);
+        }
+
+        @Override
+        public void serviceCheckMailCallback(
+                MessagingException result, long accountId, long mailboxId, int progress, long tag) {
+            handleError(result, accountId, progress);
+        }
+
+        @Override
+        public void updateMailboxCallback(MessagingException result, long accountId, long mailboxId,
+                int progress, int numNewMessages) {
+            handleError(result, accountId, progress);
+        }
+
+        @Override
+        public void updateMailboxListCallback(
+                MessagingException result, long accountId, int progress) {
+            handleError(result, accountId, progress);
+        }
+
+        @Override
+        public void loadAttachmentCallback(
+                MessagingException result, long messageId, long attachmentId, int progress) {
+            new AccountFinder(result, messageId, progress).execute();
+        }
+
+        @Override
+        public void loadMessageForViewCallback(
+                MessagingException result, long messageId, int progress) {
+            new AccountFinder(result, messageId, progress).execute();
+        }
+
+        /**
+         * AsyncTask to determine the account id from a message id.  Used for
+         * {@link #loadAttachmentCallback} and {@link #loadMessageForViewCallback}, which don't
+         * report the underlying account ID.
+         */
+        private class AccountFinder extends AsyncTask<Void, Void, Long> {
+            private final MessagingException mException;
+            private final long mMessageId;
+            private final int mProgress;
+
+            public AccountFinder(MessagingException exception, long messageId, int progress) {
+                mException = exception;
+                mMessageId = messageId;
+                mProgress = progress;
+            }
+
+            @Override
+            protected Long doInBackground(Void... params) {
+                if (mMessageId == -1) {
+                    return null; // Message ID unknown
+                }
+                Message m = Message.restoreMessageWithId(MessageListXL.this, mMessageId);
+                return m != null ? m.mAccountKey : null;
+            }
+
+            @Override
+            protected void onPostExecute(Long accountId) {
+                if ((accountId == null) || isCancelled()) {
+                    return;
+                }
+                handleError(mException, accountId, mProgress);
+            }
+        }
+
+        private void handleError(MessagingException result, long accountId, int progress) {
+            if (!isRegistered()) {
+                // This ControllerResult may be already unregistered, because of the asynctask.
+                return;
+            }
+            if (accountId == -1) {
+                return;
+            }
+            if (result == null) {
+                if (progress > 0) {
+                    // Connection now working.
+                    clearErrorMessage(accountId);
+                }
+            } else {
+                // Connection error.
+                showErrorMessage(result.getUiErrorMessage(MessageListXL.this), accountId);
+            }
         }
     }
 }

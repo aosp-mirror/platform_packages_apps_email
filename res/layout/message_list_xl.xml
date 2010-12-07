@@ -14,18 +14,12 @@
      limitations under the License.
 -->
 
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     >
-
-    <include
-        android:id="@+id/three_pane"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/three_pane"
-        />
 
     <!-- Error message goes over the normal view -->
     <!-- STOPSHIP not pixel perfect -->
@@ -41,6 +35,12 @@
         android:singleLine="true"
         android:ellipsize="end"
         android:background="#ffff66"
-        android:visibility="gone"
         />
-</FrameLayout>
+
+    <include
+        android:id="@+id/three_pane"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/three_pane"
+        />
+</LinearLayout>
