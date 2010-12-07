@@ -157,7 +157,7 @@
     <!-- Dialog text when we are unable to load the message for display -->
     <string name="error_loading_message_body">Unexpected error while loading message text.  Message
         may be too large to view.</string>
-    <!-- Text shown with dragged messages to indicate how many are being dragged -->
+    <!-- Text shown with dragged messages to indicate how many are being dragged [CHAR LIMIT=40]-->
     <plurals name="move_messages">
         <item quantity="one">Move <xliff:g id="num_message" example="1">%1$d</xliff:g> message
         </item>
@@ -408,7 +408,7 @@ save attachment.</string>
     </plurals>
     <!-- Notification ticker when a forwarded attachment couldn't be sent [CHAR LIMIT=none] -->
     <string name="forward_download_failed_ticker">Could not forward one or more attachments</string>
-    <!-- Notification text when a forwarded attachment couldn't be sent -->
+    <!-- Notification text when a forwarded attachment couldn't be sent [CHAR LIMIT=30]-->
     <string name="forward_download_failed_notification">Could not forward <xliff:g id="filename">
         %s</xliff:g></string>
     <!-- Notification ticker when email account authentication fails [CHAR LIMIT=20] -->
