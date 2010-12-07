@@ -279,8 +279,9 @@
             android:orientation="horizontal"
             android:paddingLeft="6dip"
             android:paddingRight="6dip"
-            android:paddingTop="6dip"
-            android:paddingBottom="6dip"
+            android:divider="@drawable/divider"
+            android:showDividers="beginning|middle|end"
+            android:dividerPadding="8dip"
             >
             <Button
                 android:id="@+id/show_message"
@@ -288,6 +289,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/message_view_show_message_action"
+                style="@android:style/Widget.Holo.Light.Tab"
                 />
             <Button
                 android:id="@+id/show_invite"
@@ -295,12 +297,14 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/message_view_show_invite_action"
+                style="@android:style/Widget.Holo.Light.Tab"
                 />
             <Button
                 android:id="@+id/show_attachments"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                style="@android:style/Widget.Holo.Light.Tab"
                 />
             <!-- filler -->
             <View
@@ -314,6 +318,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/message_view_show_pictures_action"
+                style="@android:style/Widget.Holo.Light.Tab"
                 />
         </LinearLayout>
 

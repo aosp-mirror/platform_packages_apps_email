@@ -566,10 +566,13 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private void setCurrentTab(int tab) {
         mCurrentTab = tab;
         makeVisible(mMessageContentView, tab == TAB_MESSAGE);
-        makeVisible(mAttachmentsScroll, tab == TAB_ATTACHMENT);
-        makeVisible(mInviteScroll, tab == TAB_INVITE);
+        mMessageTab.setSelected(tab == TAB_MESSAGE);
 
-        // TODO Make the current tab prominent
+        makeVisible(mAttachmentsScroll, tab == TAB_ATTACHMENT);
+        mAttachmentTab.setSelected(tab == TAB_ATTACHMENT);
+
+        makeVisible(mInviteScroll, tab == TAB_INVITE);
+        mInviteTab.setSelected(tab == TAB_INVITE);
     }
 
     /**
