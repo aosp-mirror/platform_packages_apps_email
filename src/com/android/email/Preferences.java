@@ -39,6 +39,7 @@ public class Preferences {
     private static final String ONE_TIME_INITIALIZATION_PROGRESS = "oneTimeInitializationProgress";
     private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
     private static final String TEXT_ZOOM = "textZoom";
+    private static final String BACKGROUND_ATTACHMENTS = "backgroundAttachments";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;
@@ -217,6 +218,14 @@ public class Preferences {
 
     public void setTextZoom(int zoom) {
         mSharedPreferences.edit().putInt(TEXT_ZOOM, zoom).apply();
+    }
+
+    public boolean getBackgroundAttachments() {
+        return mSharedPreferences.getBoolean(BACKGROUND_ATTACHMENTS, false);
+    }
+
+    public void setBackgroundAttachments(boolean allowed) {
+        mSharedPreferences.edit().putBoolean(BACKGROUND_ATTACHMENTS, allowed).apply();
     }
 
     public void save() {

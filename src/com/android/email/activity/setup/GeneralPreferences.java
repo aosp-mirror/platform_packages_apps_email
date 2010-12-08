@@ -20,6 +20,7 @@ import com.android.email.Preferences;
 import com.android.email.R;
 
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -29,10 +30,12 @@ public class GeneralPreferences extends PreferenceFragment implements OnPreferen
 
     private static final String PREFERENCE_KEY_AUTO_ADVANCE = "auto_advance";
     private static final String PREFERENCE_KEY_TEXT_ZOOM = "text_zoom";
+    private static final String PREFERENCE_KEY_BACKGROUND_ATTACHMENTS = "background_attachments";
 
     private Preferences mPreferences;
     private ListPreference mAutoAdvance;
     private ListPreference mTextZoom;
+    private CheckBoxPreference mBackgroundAttachments;
 
     CharSequence[] mSizeSummaries;
 
@@ -61,6 +64,9 @@ public class GeneralPreferences extends PreferenceFragment implements OnPreferen
             mPreferences.setTextZoom(mTextZoom.findIndexOfValue((String) newValue));
             reloadDynamicSummaries();
             return true;
+        } else if (PREFERENCE_KEY_BACKGROUND_ATTACHMENTS.equals(key)) {
+            mPreferences.setBackgroundAttachments((Boolean) newValue);
+            return true;
         }
         return false;
     }
@@ -75,6 +81,10 @@ public class GeneralPreferences extends PreferenceFragment implements OnPreferen
         mTextZoom.setValueIndex(mPreferences.getTextZoom());
         mTextZoom.setOnPreferenceChangeListener(this);
 
+        mBackgroundAttachments = (CheckBoxPreference)
+                findPreference(PREFERENCE_KEY_BACKGROUND_ATTACHMENTS);
+        mBackgroundAttachments.setChecked(mPreferences.getBackgroundAttachments());
+        mBackgroundAttachments.setOnPreferenceChangeListener(this);
         reloadDynamicSummaries();
     }
 
