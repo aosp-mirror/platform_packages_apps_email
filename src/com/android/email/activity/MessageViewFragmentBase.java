@@ -63,6 +63,8 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -116,6 +118,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private View mTabSection;
     private ImageView mFromBadge;
     private ImageView mSenderPresenceView;
+    private View mMainView;
+    private View mLoadingProgress;
 
     private TextView mMessageTab;
     private TextView mAttachmentTab;
@@ -125,6 +129,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     private View mAttachmentsScroll;
     private View mInviteScroll;
+
+    private Animation mFadeInAnimation;
+    private Animation mFadeOutAnimation;
 
     private long mAccountId = -1;
     private long mMessageId = -1;
@@ -281,6 +288,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         mController = Controller.getInstance(mContext);
         mMessageObserver = new MessageObserver(new Handler(), mContext);
+
+        mFadeInAnimation = AnimationUtils.loadAnimation(mContext, android.R.anim.fade_in);
+        mFadeOutAnimation = AnimationUtils.loadAnimation(mContext, android.R.anim.fade_out);
     }
 
     @Override
@@ -305,6 +315,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mTabSection = view.findViewById(R.id.message_tabs_section);
         mFromBadge = (ImageView) view.findViewById(R.id.badge);
         mSenderPresenceView = (ImageView) view.findViewById(R.id.presence);
+        mMainView = view.findViewById(R.id.main_panel);
+        mLoadingProgress = view.findViewById(R.id.loading_progress);
 
         mFromNameView.setOnClickListener(this);
         mFromAddressView.setOnClickListener(this);
@@ -474,7 +486,31 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mLoadMessageTask.execute();
     }
 
+    /**
+     * Show/hide the content.  We hide all the content (except for the bottom buttons) when loading,
+     * to avoid flicker.
+     */
+    private void showContent(boolean show) {
+        if (mLoadingProgress == null) {
+            // Phone UI doesn't have it yet.
+            // TODO Add loading_progress and main_panel to the phone layout too.
+        } else {
+            mMainView.clearAnimation();
+            mLoadingProgress.clearAnimation();
+            makeVisible(mMainView, show);
+            makeVisible(mLoadingProgress, !show);
+            if (show) {
+                // When showing, fade it in.  I'll look much smoother.
+                mMainView.startAnimation(mFadeInAnimation);
+                mLoadingProgress.startAnimation(mFadeOutAnimation);
+            } else {
+                // When hiding, don't fade it out, to hide flicker.
+            }
+        }
+    }
+
     protected void resetView() {
+        showContent(false);
         setCurrentTab(TAB_MESSAGE);
         updateTabFlags(0);
         if (mMessageContentView != null) {
@@ -566,10 +602,13 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private void setCurrentTab(int tab) {
         mCurrentTab = tab;
         makeVisible(mMessageContentView, tab == TAB_MESSAGE);
-        makeVisible(mAttachmentsScroll, tab == TAB_ATTACHMENT);
-        makeVisible(mInviteScroll, tab == TAB_INVITE);
+        mMessageTab.setSelected(tab == TAB_MESSAGE);
 
-        // TODO Make the current tab prominent
+        makeVisible(mAttachmentsScroll, tab == TAB_ATTACHMENT);
+        mAttachmentTab.setSelected(tab == TAB_ATTACHMENT);
+
+        makeVisible(mInviteScroll, tab == TAB_INVITE);
+        mInviteTab.setSelected(tab == TAB_INVITE);
     }
 
     /**
@@ -1291,6 +1330,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mLoadAttachmentsTask.execute(mMessage.mId);
 
         mIsMessageLoadedForTest = true;
+        showContent(true);
     }
 
     /**
