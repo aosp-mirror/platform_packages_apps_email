@@ -1040,7 +1040,7 @@ public class Controller {
     public static abstract class Result {
         private volatile boolean mRegistered;
 
-        private void setRegistered(boolean registered) {
+        protected void setRegistered(boolean registered) {
             mRegistered = registered;
         }
 
