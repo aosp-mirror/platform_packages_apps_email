@@ -982,6 +982,15 @@ save attachment.</string>
     <!-- General preference:  Text zoom.  Value is "huge" (+2) [CHAR LIMIT=32] -->
     <string name="general_preference_text_zoom_huge">Huge</string>
 
+    <!-- General preference:  Allow downloading of attachments in background -->
+    <!-- Title of general preference for downloading attachments in background [CHAR LIMIT=32] -->
+    <string name="general_preference_background_attachments_label">
+        Automatically fetch attachments</string>
+    <!-- Summary of general preference for downloading attachments in background [CHAR LIMIT=64] -->
+    <string name="general_preference_background_attachments_summary">
+        Download attachments for Inbox messages.  (Not available for POP3 accounts.)
+    </string>
+
     <!-- Generic string for "current position" / "total number" [CHAR LIMIT=12] -->
     <string name="position_of_count"><xliff:g example="1">%1$d</xliff:g> of <xliff:g
             example="12">%2$s</xliff:g></string>
