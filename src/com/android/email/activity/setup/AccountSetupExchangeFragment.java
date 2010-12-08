@@ -66,7 +66,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
 
     // Support for lifecycle
     private boolean mStarted;
-    private boolean mLoaded;
+    /* package */ boolean mLoaded;
     private String mCacheLoginCredential;
 
     /**
