@@ -17,11 +17,14 @@
 package com.android.email.activity.setup;
 
 import com.android.email.Email;
+import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.Welcome;
+import com.android.email.activity.setup.AccountSettingsUtils.Provider;
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
 
@@ -29,15 +32,29 @@ import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Prompts the user for the email address and password. Also prompts for "Use this account as
@@ -67,8 +84,9 @@ import android.widget.Button;
  * Note: Exchange accounts that require device security policies cannot be created automatically.
  */
 public class AccountSetupBasics extends AccountSetupActivity
-        implements AccountSetupBasicsFragment.Callback, AccountCheckSettingsFragment.Callbacks,
-        OnClickListener {
+        implements OnClickListener, TextWatcher, AccountCheckSettingsFragment.Callbacks {
+
+    private final static boolean ENTER_DEBUG_SCREEN = true;
 
     /**
      * Direct access for forcing account creation
@@ -81,9 +99,18 @@ public class AccountSetupBasics extends AccountSetupActivity
     private final String EXTRA_CREATE_ACCOUNT_OUTGOING = "OUTGOING";
     private final Boolean DEBUG_ALLOW_NON_MONKEY_CREATION = true;  // STOPSHIP - must be FALSE
 
-    private AccountSetupBasicsFragment mFragment;
-    private boolean mManualButtonDisplayed;
-    private boolean mNextButtonEnabled;
+    private final static String STATE_KEY_PROVIDER = "AccountSetupBasics.provider";
+
+    // NOTE: If you change this value, confirm that the new interval exists in arrays.xml
+    private final static int DEFAULT_ACCOUNT_CHECK_INTERVAL = 15;
+
+    // Support for UI
+    private TextView mWelcomeView;
+    private EditText mEmailView;
+    private EditText mPasswordView;
+    private CheckBox mDefaultView;
+    private EmailAddressValidator mEmailValidator = new EmailAddressValidator();
+    private Provider mProvider;
     private Button mManualButton;
     private Button mNextButton;
 
@@ -168,38 +195,59 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         setContentView(R.layout.account_setup_basics);
 
-        mFragment = (AccountSetupBasicsFragment)
-                getFragmentManager().findFragmentById(R.id.setup_basics_fragment);
-        mManualButtonDisplayed = true;
+        mWelcomeView = (TextView) findViewById(R.id.instructions);
+        mEmailView = (EditText) findViewById(R.id.account_email);
+        mPasswordView = (EditText) findViewById(R.id.account_password);
+        mDefaultView = (CheckBox) findViewById(R.id.account_default);
+
+        mEmailView.addTextChangedListener(this);
+        mPasswordView.addTextChangedListener(this);
+
+        // If there are one or more accounts already in existence, then display
+        // the "use as default" checkbox (it defaults to hidden).
+        new DisplayCheckboxTask().execute();
+
+        boolean manualButtonDisplayed = true;
         boolean alternateStrings = false;
         if (flowMode == SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
             // No need for manual button -> next is appropriate
-            mManualButtonDisplayed = false;
+            manualButtonDisplayed = false;
             // Swap welcome text for EAS-specific text
             alternateStrings = VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings();
             setTitle(alternateStrings
                     ? R.string.account_setup_basics_exchange_title_alternate
-                            : R.string.account_setup_basics_exchange_title);
+                    : R.string.account_setup_basics_exchange_title);
+            mWelcomeView.setText(alternateStrings
+                    ? R.string.accounts_welcome_exchange_alternate
+                    : R.string.accounts_welcome_exchange);
         }
-
-        // Configure fragment
-        mFragment.setCallback(this, alternateStrings);
 
         // Configure buttons
         mManualButton = (Button) findViewById(R.id.manual_setup);
         mNextButton = (Button) findViewById(R.id.next);
-        mManualButton.setVisibility(mManualButtonDisplayed ? View.VISIBLE : View.INVISIBLE);
+        mManualButton.setVisibility(manualButtonDisplayed ? View.VISIBLE : View.INVISIBLE);
         mManualButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
-        // Force disabled until fragment notifies otherwise
-        mNextButtonEnabled = true;
-        this.onEnableProceedButtons(false);
+        // Force disabled until validator notifies otherwise
+        onEnableProceedButtons(false);
 
         mAccountAuthenticatorResponse =
             getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
 
         if (mAccountAuthenticatorResponse != null) {
             mAccountAuthenticatorResponse.onRequestContinued();
+        }
+
+        // Load fields, but only once
+        String userName = SetupData.getUsername();
+        if (userName != null) {
+            mEmailView.setText(userName);
+            SetupData.setUsername(null);
+        }
+        String password = SetupData.getPassword();
+        if (userName != null) {
+            mPasswordView.setText(password);
+            SetupData.setPassword(null);
         }
 
         // Handle force account creation immediately (now that fragment is set up)
@@ -222,9 +270,13 @@ public class AccountSetupBasics extends AccountSetupActivity
                 finish();
                 return;
             }
-            mFragment.forceCreateAccount(email, user, incoming, outgoing);
+            forceCreateAccount(email, user, incoming, outgoing);
             onCheckSettingsComplete(AccountCheckSettingsFragment.CHECK_SETTINGS_OK); // calls finish
             return;
+        }
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_KEY_PROVIDER)) {
+            mProvider = (Provider) savedInstanceState.getSerializable(STATE_KEY_PROVIDER);
         }
     }
 
@@ -241,6 +293,249 @@ public class AccountSetupBasics extends AccountSetupActivity
             mAccountAuthenticatorResponse = null;
         }
         super.finish();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mProvider != null) {
+            outState.putSerializable(STATE_KEY_PROVIDER, mProvider);
+        }
+    }
+
+    /**
+     * Implements OnClickListener
+     */
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.next:
+                onNext();
+                break;
+            case R.id.manual_setup:
+                onManualSetup(false);
+                break;
+        }
+    }
+
+    /**
+     * Implements TextWatcher
+     */
+    public void afterTextChanged(Editable s) {
+        validateFields();
+    }
+
+    /**
+     * Implements TextWatcher
+     */
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    /**
+     * Implements TextWatcher
+     */
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    private void validateFields() {
+        boolean valid = Utility.isTextViewNotEmpty(mEmailView)
+                && Utility.isTextViewNotEmpty(mPasswordView)
+                && mEmailValidator.isValid(mEmailView.getText().toString().trim());
+        onEnableProceedButtons(valid);
+    }
+
+    /**
+     * TODO this should also be in AsyncTask
+     * TODO figure out another way to get the owner name
+     */
+    private String getOwnerName() {
+        String name = null;
+        long defaultId = Account.getDefaultAccountId(this);
+        if (defaultId != -1) {
+            Account account = Account.restoreAccountWithId(this, defaultId);
+            if (account != null) {
+                name = account.getSenderName();
+            }
+        }
+        return name;
+    }
+
+    /**
+     * Finish the auto setup process, in some cases after showing a warning dialog.
+     */
+    private void finishAutoSetup() {
+        String email = mEmailView.getText().toString().trim();
+        String password = mPasswordView.getText().toString().trim();
+        String[] emailParts = email.split("@");
+        String user = emailParts[0];
+        String domain = emailParts[1];
+        URI incomingUri = null;
+        URI outgoingUri = null;
+        try {
+            String incomingUsername = mProvider.incomingUsernameTemplate;
+            incomingUsername = incomingUsername.replaceAll("\\$email", email);
+            incomingUsername = incomingUsername.replaceAll("\\$user", user);
+            incomingUsername = incomingUsername.replaceAll("\\$domain", domain);
+
+            URI incomingUriTemplate = mProvider.incomingUriTemplate;
+            incomingUri = new URI(incomingUriTemplate.getScheme(), incomingUsername + ":"
+                    + password, incomingUriTemplate.getHost(), incomingUriTemplate.getPort(),
+                    incomingUriTemplate.getPath(), null, null);
+
+            String outgoingUsername = mProvider.outgoingUsernameTemplate;
+            outgoingUsername = outgoingUsername.replaceAll("\\$email", email);
+            outgoingUsername = outgoingUsername.replaceAll("\\$user", user);
+            outgoingUsername = outgoingUsername.replaceAll("\\$domain", domain);
+
+            URI outgoingUriTemplate = mProvider.outgoingUriTemplate;
+            outgoingUri = new URI(outgoingUriTemplate.getScheme(), outgoingUsername + ":"
+                    + password, outgoingUriTemplate.getHost(), outgoingUriTemplate.getPort(),
+                    outgoingUriTemplate.getPath(), null, null);
+
+            // Stop here if the login credentials duplicate an existing account
+            // TODO this shouldn't be in UI thread
+            Account account = Utility.findExistingAccount(this, -1,
+                    incomingUri.getHost(), incomingUsername);
+            if (account != null) {
+                DuplicateAccountDialogFragment dialogFragment =
+                    DuplicateAccountDialogFragment.newInstance(account.mDisplayName);
+                dialogFragment.show(getFragmentManager(), DuplicateAccountDialogFragment.TAG);
+                return;
+            }
+
+        } catch (URISyntaxException use) {
+            /*
+             * If there is some problem with the URI we give up and go on to
+             * manual setup.  Technically speaking, AutoDiscover is OK here, since user clicked
+             * "Next" to get here.  This would never happen in practice because we don't expect
+             * to find any EAS accounts in the providers list.
+             */
+            onManualSetup(true);
+            return;
+        }
+
+        populateSetupData(getOwnerName(), email, mDefaultView.isChecked(),
+                incomingUri.toString(), outgoingUri.toString());
+
+        /**
+         * Start the account checker fragment
+         * TODO how to link directly from activity<-->fragment
+         */
+        AccountCheckSettingsFragment checkerFragment = AccountCheckSettingsFragment.newInstance(
+                SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING, null);
+        FragmentTransaction transaction = getFragmentManager().openTransaction();
+        transaction.add(checkerFragment, AccountCheckSettingsFragment.TAG);
+        transaction.addToBackStack("back");
+        transaction.commit();
+    }
+
+    /**
+     * When "next" button is clicked
+     */
+    private void onNext() {
+        // Try auto-configuration from XML providers (unless in EAS mode, we can skip it)
+        if (SetupData.getFlowMode() != SetupData.FLOW_MODE_ACCOUNT_MANAGER_EAS) {
+            String email = mEmailView.getText().toString().trim();
+            String[] emailParts = email.split("@");
+            String domain = emailParts[1].trim();
+            mProvider = AccountSettingsUtils.findProviderForDomain(this, domain);
+            if (mProvider != null) {
+                if (mProvider.note != null) {
+                    NoteDialogFragment dialogFragment =
+                            NoteDialogFragment.newInstance(mProvider.note);
+                    dialogFragment.show(getFragmentManager(), NoteDialogFragment.TAG);
+                } else {
+                    finishAutoSetup();
+                }
+                return;
+            }
+        }
+        // Can't use auto setup (although EAS accounts may still be able to AutoDiscover)
+        onManualSetup(true);
+    }
+
+    /**
+     * When "manual setup" button is clicked
+     *
+     * @param allowAutoDiscover - true if the user clicked 'next' and (if the account is EAS)
+     * it's OK to use autodiscover.  false to prevent autodiscover and go straight to manual setup.
+     * Ignored for IMAP & POP accounts.
+     */
+    private void onManualSetup(boolean allowAutoDiscover) {
+        String email = mEmailView.getText().toString().trim();
+        String password = mPasswordView.getText().toString();
+        String[] emailParts = email.split("@");
+        String user = emailParts[0].trim();
+        String domain = emailParts[1].trim();
+
+        // Alternate entry to the debug options screen (for devices without a physical keyboard:
+        //  Username: d@d.d
+        //  Password: debug
+        if (ENTER_DEBUG_SCREEN && "d@d.d".equals(email) && "debug".equals(password)) {
+            mEmailView.setText("");
+            mPasswordView.setText("");
+            AccountSettingsXL.actionSettingsWithDebug(this);
+            return;
+        }
+
+        String uriString = null;
+        try {
+            URI uri = new URI("placeholder", user + ":" + password, domain, -1, null, null, null);
+            uriString = uri.toString();
+        } catch (URISyntaxException use) {
+            // If we can't set up the URL, don't continue - account setup pages will fail too
+            Toast.makeText(this, R.string.account_setup_username_password_toast,
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        populateSetupData(getOwnerName(), email, mDefaultView.isChecked(), uriString, uriString);
+
+        SetupData.setAllowAutodiscover(allowAutoDiscover);
+        AccountSetupAccountType.actionSelectAccountType(this);
+    }
+
+    /**
+     * To support continuous testing, we allow the forced creation of accounts.
+     * This works in a manner fairly similar to automatic setup, in which the complete server
+     * Uri's are available, except that we will also skip checking (as if both checks were true)
+     * and all other UI.
+     *
+     * @param email The email address for the new account
+     * @param user The user name for the new account
+     * @param incoming The URI-style string defining the incoming account
+     * @param outgoing The URI-style string defining the outgoing account
+     */
+    private void forceCreateAccount(String email, String user, String incoming, String outgoing) {
+        populateSetupData(user, email, false, incoming, outgoing);
+    }
+
+    /**
+     * Populate SetupData's account with complete setup info.
+     */
+    private void populateSetupData(String senderName, String senderEmail, boolean isDefault,
+            String incoming, String outgoing) {
+        Account account = SetupData.getAccount();
+        account.setSenderName(senderName);
+        account.setEmailAddress(senderEmail);
+        account.setDisplayName(senderEmail);
+        account.setDefaultAccount(isDefault);
+        SetupData.setDefault(isDefault);        // TODO - why duplicated, if already set in account
+        account.setStoreUri(this, incoming);
+        account.setSenderUri(this, outgoing);
+
+        // Set sync and delete policies for specific account types
+        if (incoming.startsWith("imap")) {
+            // Delete policy must be set explicitly, because IMAP does not provide a UI selection
+            // for it. This logic needs to be followed in the auto setup flow as well.
+            account.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
+        }
+
+        if (incoming.startsWith("eas")) {
+            account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
+        } else {
+            account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
+        }
     }
 
     /**
@@ -266,67 +561,76 @@ public class AccountSetupBasics extends AccountSetupActivity
     }
 
     /**
-     * Implements OnClickListener
+     * AsyncTask checks count of accounts and displays "use this account as default" checkbox
+     * if there are more than one.
      */
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.next:
-                mFragment.onNext();
-                break;
-            case R.id.manual_setup:
-                // no AutoDiscover - user clicked "manual"
-                mFragment.onManualSetup(false);
-                break;
+    private class DisplayCheckboxTask extends AsyncTask<Void, Void, Integer> {
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            return EmailContent.count(AccountSetupBasics.this, EmailContent.Account.CONTENT_URI);
+        }
+
+        @Override
+        protected void onPostExecute(Integer numAccounts) {
+            if (numAccounts > 0) {
+                Activity activity = AccountSetupBasics.this;
+                activity.findViewById(R.id.account_default_divider_1).setVisibility(View.VISIBLE);
+                mDefaultView.setVisibility(View.VISIBLE);
+                activity.findViewById(R.id.account_default_divider_2).setVisibility(View.VISIBLE);
+            }
         }
     }
 
-    /**
-     * Implements AccountSetupBasicsFragment.Callback
-     */
-    @Override
-    public void onEnableProceedButtons(boolean enabled) {
-        boolean wasEnabled = mNextButtonEnabled;
-        mNextButtonEnabled = enabled;
+    private void onEnableProceedButtons(boolean enabled) {
+        mManualButton.setEnabled(enabled);
+        mNextButton.setEnabled(enabled);
+    }
 
-        if (enabled != wasEnabled) {
-            mManualButton.setEnabled(enabled);
-            mNextButton.setEnabled(enabled);
+    /**
+     * Dialog fragment to show "setup note" dialog
+     */
+    public static class NoteDialogFragment extends DialogFragment {
+        private final static String TAG = "NoteDialogFragment";
+
+        // Argument bundle keys
+        private final static String BUNDLE_KEY_NOTE = "NoteDialogFragment.Note";
+
+        /**
+         * Create the dialog with parameters
+         */
+        public static NoteDialogFragment newInstance(String note) {
+            NoteDialogFragment f = new NoteDialogFragment();
+            Bundle b = new Bundle();
+            b.putString(BUNDLE_KEY_NOTE, note);
+            f.setArguments(b);
+            return f;
         }
-    }
 
-    /**
-     * Implements AccountSetupBasicsFragment.Callback
-     *
-     * This is called when auto-setup (from hardcoded server info) is attempted.
-     * Replace the name/password fragment with the account checker, which will begin to
-     * check incoming/outgoing.
-     */
-    @Override
-    public void onProceedAutomatic() {
-        AccountCheckSettingsFragment checkerFragment =
-            AccountCheckSettingsFragment.newInstance(
-                    SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING, null);
-        FragmentTransaction transaction = getFragmentManager().openTransaction();
-        transaction.replace(R.id.setup_basics_fragment, checkerFragment);
-        transaction.addToBackStack("back");
-        transaction.commit();
-    }
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            Context context = getActivity();
+            final String note = getArguments().getString(BUNDLE_KEY_NOTE);
 
-    /**
-     * Implements AccountSetupBasicsFragment.Callback
-     */
-    @Override
-    public void onProceedDebugSettings() {
-        AccountSettingsXL.actionSettingsWithDebug(this);
-    }
-
-    /**
-     * Implements AccountSetupBasicsFragment.Callback
-     */
-    @Override
-    public void onProceedManual(boolean allowAutoDiscover) {
-        SetupData.setAllowAutodiscover(allowAutoDiscover);
-        AccountSetupAccountType.actionSelectAccountType(this);
+            return new AlertDialog.Builder(context)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle(android.R.string.dialog_alert_title)
+                .setMessage(note)
+                .setPositiveButton(
+                        R.string.okay_action,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Activity a = getActivity();
+                                if (a instanceof AccountSetupBasics) {
+                                    ((AccountSetupBasics)a).finishAutoSetup();
+                                }
+                                dismiss();
+                            }
+                        })
+                .setNegativeButton(
+                        context.getString(R.string.cancel_action),
+                        null)
+                .create();
+        }
     }
 }
