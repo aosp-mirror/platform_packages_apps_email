@@ -297,7 +297,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         Log.d(TAG, "== ,  Download of " + req.attachmentId +
                                 " timed out");
                     }
-                    mDownloadsInProgress.remove(req);
+                   cancelDownload(req);
                 // STOPSHIP Remove this before ship
                 } else if (Email.DEBUG) {
                     Log.d(TAG, "== ,  Download of " + req.attachmentId +
@@ -373,10 +373,14 @@ public class AttachmentDownloadService extends Service implements Runnable {
             } catch (RemoteException e) {
                 // TODO: Consider whether we need to do more in this case...
                 // For now, fix up our data to reflect the failure
-                mDownloadsInProgress.remove(req.attachmentId);
-                req.inProgress = false;
+                cancelDownload(req);
             }
             return true;
+        }
+
+        private void cancelDownload(DownloadRequest req) {
+            mDownloadsInProgress.remove(req.attachmentId);
+            req.inProgress = false;
         }
 
         /**

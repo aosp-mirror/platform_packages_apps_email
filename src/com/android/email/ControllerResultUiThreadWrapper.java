@@ -41,6 +41,12 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
         return mWrappee;
     }
 
+    @Override
+    protected void setRegistered(boolean registered) {
+        super.setRegistered(registered);
+        mWrappee.setRegistered(registered);
+    }
+
     private void run(Runnable runnable) {
         if (mHandler == null) {
             runnable.run();

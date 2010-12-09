@@ -188,6 +188,7 @@ public class AccountSetupExchangeTests extends
                 "eas", "hostauth", 1, false, mActivity.getBaseContext());
         account.mHostAuthRecv.mFlags |= HostAuth.FLAG_SSL;
         account.mHostAuthRecv.mFlags &= ~HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+        mActivity.mFragment.mLoaded = false;
         boolean loadResult = mActivity.mFragment.loadSettings(account);
         assertTrue(loadResult);
         assertTrue(mSslRequiredCheckbox.isChecked());
@@ -197,6 +198,7 @@ public class AccountSetupExchangeTests extends
         // Setup host auth with variants of SSL enabled and check.  This also enables the
         // "trust certificates" checkbox (not checked, but visible now).
         account.mHostAuthRecv.mFlags |= HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+        mActivity.mFragment.mLoaded = false;
         loadResult = mActivity.mFragment.loadSettings(account);
         assertTrue(loadResult);
         assertTrue(mSslRequiredCheckbox.isChecked());
@@ -205,6 +207,7 @@ public class AccountSetupExchangeTests extends
 
         // A simple test of an incomplete account, which will fail validation
         account.mHostAuthRecv.mPassword = "";
+        mActivity.mFragment.mLoaded = false;
         loadResult = mActivity.mFragment.loadSettings(account);
         assertFalse(loadResult);
     }

@@ -37,8 +37,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.graphics.Paint.Align;
 import android.graphics.Typeface;
+import android.graphics.Paint.Align;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
@@ -446,14 +446,19 @@ public class WidgetProvider extends AppWidgetProvider {
         }
     }
 
-    private static synchronized void update(Context context, AppWidgetManager widgetManager,
-            int[] appWidgetIds) {
+    private static synchronized void update(Context context, int[] appWidgetIds) {
         for (int widgetId: appWidgetIds) {
-            getOrCreateWidget(widgetId).updateHeader();
+            getOrCreateWidget(context, widgetId).updateHeader();
         }
     }
 
-    private static EmailWidget getOrCreateWidget(int widgetId) {
+    private static EmailWidget getOrCreateWidget(Context context, int widgetId) {
+        // Lazily initialize these
+        if (sContext == null) {
+            sContext = context.getApplicationContext();
+            sWidgetManager = AppWidgetManager.getInstance(context);
+            sResolver = context.getContentResolver();
+        }
         EmailWidget widget = sWidgetMap.get(widgetId);
         if (widget == null) {
             if (Email.DEBUG) {
@@ -491,13 +496,8 @@ public class WidgetProvider extends AppWidgetProvider {
             if (extras != null) {
                 final int[] appWidgetIds = extras.getIntArray(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                 if (appWidgetIds != null && appWidgetIds.length > 0) {
-                    if (sWidgetManager == null) {
-                        sWidgetManager = AppWidgetManager.getInstance(context);
-                        sContext = context.getApplicationContext();
-                        sResolver = sContext.getContentResolver();
-                    }
                     context.startService(new Intent(context, WidgetService.class));
-                    update(sContext, sWidgetManager, appWidgetIds);
+                    update(context, appWidgetIds);
                 }
             }
         } else if (AppWidgetManager.ACTION_APPWIDGET_DELETED.equals(action)) {
@@ -526,7 +526,7 @@ public class WidgetProvider extends AppWidgetProvider {
             int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
             if (widgetId == -1) return null;
             // Find the existing widget or create it
-            return getOrCreateWidget(widgetId);
+            return getOrCreateWidget(this, widgetId);
         }
 
         @Override
