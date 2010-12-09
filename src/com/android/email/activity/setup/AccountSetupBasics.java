@@ -79,7 +79,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     private final String EXTRA_CREATE_ACCOUNT_USER = "USER";
     private final String EXTRA_CREATE_ACCOUNT_INCOMING = "INCOMING";
     private final String EXTRA_CREATE_ACCOUNT_OUTGOING = "OUTGOING";
-    private final Boolean DEBUG_ALLOW_NON_MONKEY_CREATION = false;  // DO NOT CHECK IN "TRUE"
+    private final Boolean DEBUG_ALLOW_NON_MONKEY_CREATION = true;  // STOPSHIP - must be FALSE
 
     private AccountSetupBasicsFragment mFragment;
     private boolean mManualButtonDisplayed;
