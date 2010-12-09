@@ -303,6 +303,9 @@ public abstract class AbstractSyncService implements Runnable {
 
     public boolean hasPendingRequests() {
         return !mRequestQueue.isEmpty();
-}
+    }
 
+    public void clearRequests() {
+        mRequestQueue.clear();
+    }
 }
