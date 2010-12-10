@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GroupMessagingListener extends MessagingListener {
     /* The synchronization of the methods in this class
        is not needed because we use ConcurrentHashMap.
-       
+
        Nevertheless, let's keep the "synchronized" for a while in the case
        we may want to change the implementation to use something else
        than ConcurrentHashMap.
@@ -168,14 +168,6 @@ public class GroupMessagingListener extends MessagingListener {
             boolean requiresDownload) {
         for (MessagingListener l : mListeners) {
             l.loadAttachmentStarted(accountId, messageId, attachmentId, requiresDownload);
-        }
-    }
-
-    @Override
-    synchronized public void loadAttachmentProgress(
-            int progress) {
-        for (MessagingListener l : mListeners) {
-            l.loadAttachmentProgress(progress);
         }
     }
 

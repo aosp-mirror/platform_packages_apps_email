@@ -1508,14 +1508,24 @@ public abstract class EmailContent {
         }
 
         /**
+         * Return the account ID for a message with a given id
+         *
+         * @param context the caller's context
+         * @param messageId the id of the message
+         * @return the account ID, or -1 if the account doesn't exist
+         */
+        public static long getAccountIdForMessageId(Context context, long messageId) {
+            return Message.getKeyColumnLong(context, messageId, MessageColumns.ACCOUNT_KEY);
+        }
+
+        /**
          * Return the account for a message with a given id
          * @param context the caller's context
          * @param messageId the id of the message
          * @return the account, or null if the account doesn't exist
          */
         public static Account getAccountForMessageId(Context context, long messageId) {
-            long accountId = Message.getKeyColumnLong(context, messageId,
-                    MessageColumns.ACCOUNT_KEY);
+            long accountId = getAccountIdForMessageId(context, messageId);
             if (accountId != -1) {
                 return Account.restoreAccountWithId(context, accountId);
             }

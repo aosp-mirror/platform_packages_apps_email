@@ -28,14 +28,6 @@ import android.content.Context;
  * changes in this class.
  */
 public class MessagingListener {
-    long messageId = -1;
-    long attachmentId = -1;
-
-    public MessagingListener(long _messageId, long _attachmentId) {
-        messageId = _messageId;
-        attachmentId = _attachmentId;
-    }
-
     public MessagingListener() {
     }
 
@@ -93,8 +85,6 @@ public class MessagingListener {
             long attachmentId,
             boolean requiresDownload) {
     }
-
-    public void loadAttachmentProgress(int progress) {}
 
     public void loadAttachmentFinished(
             long accountId,
