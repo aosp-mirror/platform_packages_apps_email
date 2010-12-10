@@ -81,12 +81,8 @@
     <item quantity="few" msgid="1991747245324120305">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> contos"</item>
     <item quantity="other" msgid="2723797835410343458">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> contos"</item>
   </plurals>
-    <!-- no translation found for notification_sender_name_multi_messages:one (3212542153806717105) -->
-    <!-- no translation found for notification_sender_name_multi_messages:other (4440886271354944083) -->
-    <!-- no translation found for notification_num_new_messages_single_account:one (1186049567068059726) -->
-    <!-- no translation found for notification_num_new_messages_single_account:other (5620484088786656170) -->
-    <!-- no translation found for notification_num_new_messages_multi_account:one (958868322080140627) -->
-    <!-- no translation found for notification_num_new_messages_multi_account:other (3254100178329220009) -->
+    <!-- no translation found for notification_to_account (2078557719010667913) -->
+    <skip />
     <!-- no translation found for number_of_accounts:one (6343953132237244947) -->
     <!-- no translation found for number_of_accounts:other (8548760449976444566) -->
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Posta entrada"</string>
@@ -429,6 +425,10 @@
     <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
     <skip />
     <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
+    <skip />
+    <!-- no translation found for general_preference_background_attachments_label (5740568133528931495) -->
+    <skip />
+    <!-- no translation found for general_preference_background_attachments_summary (2745557569280394897) -->
     <skip />
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />
