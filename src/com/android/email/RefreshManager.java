@@ -303,16 +303,12 @@ public class RefreshManager {
         return mMessageListStatus.get(mailboxId).isRefreshing();
     }
 
-    public boolean isRefreshingAnyMailboxList() {
+    public boolean isRefreshingAnyMailboxListForTest() {
         return mMailboxListStatus.isRefreshingAny();
     }
 
-    public boolean isRefreshingAnyMessageList() {
+    public boolean isRefreshingAnyMessageListForTest() {
         return mMessageListStatus.isRefreshingAny();
-    }
-
-    public boolean isRefreshingAny() {
-        return isRefreshingAnyMailboxList() || isRefreshingAnyMessageList();
     }
 
     public String getErrorMessage() {

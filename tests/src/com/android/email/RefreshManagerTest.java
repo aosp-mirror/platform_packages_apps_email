@@ -134,7 +134,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertEquals(-1, mController.mMailboxId);
         mController.reset();
         assertTrue(mTarget.isMailboxListRefreshing(ACCOUNT_1));
-        assertTrue(mTarget.isRefreshingAnyMailboxList());
+        assertTrue(mTarget.isRefreshingAnyMailboxListForTest());
 
         // Request again -- shouldn't be accepted.
         assertFalse(mTarget.refreshMailboxList(ACCOUNT_1));
@@ -158,7 +158,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertEquals(-1, mController.mMailboxId);
         mController.reset();
         assertTrue(mTarget.isMailboxListRefreshing(ACCOUNT_2));
-        assertTrue(mTarget.isRefreshingAnyMailboxList());
+        assertTrue(mTarget.isRefreshingAnyMailboxListForTest());
 
         // Refreshing for account 1...
         mController.mListener.updateMailboxListCallback(null, ACCOUNT_1, 0);
@@ -185,7 +185,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
                 .getLastRefreshTime());
 
         // Check "any" method.
-        assertTrue(mTarget.isRefreshingAnyMailboxList()); // still refreshing account 2
+        assertTrue(mTarget.isRefreshingAnyMailboxListForTest()); // still refreshing account 2
 
         // Refreshing for account 2...
         mClock.advance();
@@ -214,7 +214,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
                 .getLastRefreshTime());
 
         // Check "any" method.
-        assertFalse(mTarget.isRefreshingAnyMailboxList());
+        assertFalse(mTarget.isRefreshingAnyMailboxListForTest());
     }
 
     public void testRefreshMessageList() {
@@ -231,7 +231,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertEquals(MAILBOX_1, mController.mMailboxId);
         mController.reset();
         assertTrue(mTarget.isMessageListRefreshing(MAILBOX_1));
-        assertTrue(mTarget.isRefreshingAnyMessageList());
+        assertTrue(mTarget.isRefreshingAnyMessageListForTest());
 
         // Request again -- shouldn't be accepted.
         assertFalse(mTarget.refreshMessageList(ACCOUNT_1, MAILBOX_1));
@@ -255,7 +255,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertEquals(MAILBOX_2, mController.mMailboxId);
         mController.reset();
         assertTrue(mTarget.isMessageListRefreshing(MAILBOX_2));
-        assertTrue(mTarget.isRefreshingAnyMessageList());
+        assertTrue(mTarget.isRefreshingAnyMessageListForTest());
 
         // Refreshing mailbox 1...
         mController.mListener.updateMailboxCallback(null, ACCOUNT_1, MAILBOX_1, 0, 0);
@@ -282,7 +282,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
                 .getLastRefreshTime());
 
         // Check "any" method.
-        assertTrue(mTarget.isRefreshingAnyMessageList()); // still refreshing mailbox 2
+        assertTrue(mTarget.isRefreshingAnyMessageListForTest()); // still refreshing mailbox 2
 
         // Refreshing mailbox 2...
         mClock.advance();
@@ -311,7 +311,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
                 .getLastRefreshTime());
 
         // Check "any" method.
-        assertFalse(mTarget.isRefreshingAnyMessageList());
+        assertFalse(mTarget.isRefreshingAnyMessageListForTest());
     }
 
     public void testSendPendingMessages() {

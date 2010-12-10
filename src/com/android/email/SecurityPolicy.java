@@ -21,6 +21,7 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 
+import android.app.admin.DeviceAdminInfo;
 import android.app.admin.DeviceAdminReceiver;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -231,7 +232,7 @@ public class SecurityPolicy {
             return true;
         }
         DevicePolicyManager dpm = getDPM();
-        if (dpm.isAdminActive(mAdminName)) {
+        if (isActiveAdmin()) {
             // check each policy explicitly
             if (policies.mMinPasswordLength > 0) {
                 if (dpm.getPasswordMinimumLength(mAdminName) < policies.mMinPasswordLength) {
@@ -299,7 +300,7 @@ public class SecurityPolicy {
         // if empty set, detach from policy manager
         if (policies == NO_POLICY_SET) {
             dpm.removeActiveAdmin(mAdminName);
-        } else if (dpm.isAdminActive(mAdminName)) {
+        } else if (isActiveAdmin()) {
             // set each policy in the policy manager
             // password mode & length
             dpm.setPasswordQuality(mAdminName, policies.getDPManagerPasswordQuality());
@@ -704,11 +705,16 @@ public class SecurityPolicy {
     /**
      * If we are not the active device admin, try to become so.
      *
+     * Also checks for any policies that we have added during the lifetime of this app.
+     * This catches the case where the user granted an earlier (smaller) set of policies
+     * but an app upgrade requires that new policies be granted.
+     *
      * @return true if we are already active, false if we are not
      */
     public boolean isActiveAdmin() {
         DevicePolicyManager dpm = getDPM();
-        return dpm.isAdminActive(mAdminName);
+        return dpm.isAdminActive(mAdminName) &&
+                dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_POLICY_EXPIRE_PASSWORD);
     }
 
     /**
