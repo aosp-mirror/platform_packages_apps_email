@@ -56,7 +56,8 @@
             android:textSize="18sp"
             android:textColor="#F000"
             android:textStyle="bold"
-            android:text="@string/widget_unread" />
+            android:text="@string/widget_unread"
+            android:freezesText="true" />
     </RelativeLayout>
     <ListView
         android:id="@+id/message_list"
