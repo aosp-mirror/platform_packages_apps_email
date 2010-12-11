@@ -15,58 +15,77 @@
 -->
 
 <!-- Incoming setup - XL - portrait - see layout/ for small-screen version -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="16dip"
-    android:paddingLeft="96dip"
-    android:paddingRight="96dip"
+    android:fillViewport="true"
     >
 
-    <!-- Headline and hairline divider -->
-    <TextView
-        android:id="@+id/headline"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="16dip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/account_setup_incoming_headline"
-        android:textAppearance="@style/accountSetupHeadline" />
-
-    <View
-        android:id="@+id/top_divider"
-        android:layout_below="@+id/headline"
-        android:layout_marginBottom="16dip"
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="@color/account_setup_divider_color" />
-
-    <!-- Fragment on the top containing the setup info -->
-    <fragment
-        android:id="@+id/setup_fragment"
-        class="com.android.email.activity.setup.AccountSetupIncomingFragment"
-        android:layout_below="@+id/top_divider"
-        android:layout_marginLeft="16dip"
-        android:layout_marginRight="96dip"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-    />
+        android:orientation="vertical"
+        android:paddingLeft="96dip"
+        android:paddingRight="96dip"
+        >
 
-    <!-- Buttons below -->
-    <Button
-        android:id="@+id/previous"
-        android:layout_below="@+id/setup_fragment"
-        android:layout_marginTop="48dip"
-        android:layout_alignParentLeft="true"
-        style="@style/accountSetupButton"
-        android:text="@string/previous_action" />
-    <Button
-        android:id="@+id/next"
-        android:layout_below="@+id/setup_fragment"
-        android:layout_marginTop="48dip"
-        android:layout_alignParentRight="true"
-        style="@style/accountSetupButton"
-        android:text="@string/next_action" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingTop="16dip"
+            >
 
-</RelativeLayout>
+            <!-- Headline and hairline divider -->
+            <TextView
+                android:id="@+id/headline"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="16dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/account_setup_incoming_headline"
+                android:textAppearance="@style/accountSetupHeadline" />
+
+            <View
+                android:id="@+id/top_divider"
+                android:layout_below="@+id/headline"
+                android:layout_marginBottom="16dip"
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/account_setup_divider_color" />
+
+            <!-- Fragment on the top containing the setup info -->
+            <fragment
+                android:id="@+id/setup_fragment"
+                class="com.android.email.activity.setup.AccountSetupIncomingFragment"
+                android:layout_below="@+id/top_divider"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="96dip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+            />
+        </RelativeLayout>
+
+        <!-- Buttons below -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="48dip"
+            >
+            <!-- Buttons below -->
+            <Button
+                android:id="@+id/previous"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                style="@style/accountSetupButton"
+                android:text="@string/previous_action" />
+            <Button
+                android:id="@+id/next"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                style="@style/accountSetupButton"
+                android:text="@string/next_action" />
+        </RelativeLayout>
+    </LinearLayout>
+</ScrollView>
