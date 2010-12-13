@@ -159,8 +159,15 @@ public class AccountCheckSettingsFragment extends Fragment {
                     new AccountCheckTask(checkMode, checkAccount)
                     .execute();
         }
+    }
 
-        // if reattaching, update progress/error UI by re-reporting the previous values
+    /**
+     * When resuming, restart the progress/error UI if necessary by re-reporting previous values
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+
         if (mState != STATE_START) {
             reportProgress(mState, mErrorStringId, mErrorMessage, mAutoDiscoverResult);
         }
@@ -220,23 +227,27 @@ public class AccountCheckSettingsFragment extends Fragment {
                 case STATE_CHECK_SHOW_SECURITY:
                     // 1. get rid of progress dialog (if any)
                     recoverAndDismissCheckingDialog();
-                    // 2. launch the error dialog
-                    SecurityRequiredDialog securityRequiredDialog =
-                            SecurityRequiredDialog.newInstance(this, mErrorMessage);
-                    fm.openTransaction()
-                            .add(securityRequiredDialog, SecurityRequiredDialog.TAG)
-                            .commit();
+                    // 2. launch the error dialog, if needed
+                    if (fm.findFragmentByTag(SecurityRequiredDialog.TAG) == null) {
+                        SecurityRequiredDialog securityRequiredDialog =
+                                SecurityRequiredDialog.newInstance(this, mErrorMessage);
+                        fm.openTransaction()
+                                .add(securityRequiredDialog, SecurityRequiredDialog.TAG)
+                                .commit();
+                    }
                     break;
                 case STATE_CHECK_ERROR:
                 case STATE_AUTODISCOVER_AUTH_DIALOG:
                     // 1. get rid of progress dialog (if any)
                     recoverAndDismissCheckingDialog();
-                    // 2. launch the error dialog
-                    ErrorDialog errorDialog =
-                            ErrorDialog.newInstance(this, mErrorStringId, mErrorMessage);
-                    fm.openTransaction()
-                            .add(errorDialog, ErrorDialog.TAG)
-                            .commit();
+                    // 2. launch the error dialog, if needed
+                    if (fm.findFragmentByTag(ErrorDialog.TAG) == null) {
+                        ErrorDialog errorDialog =
+                                ErrorDialog.newInstance(this, mErrorStringId, mErrorMessage);
+                        fm.openTransaction()
+                                .add(errorDialog, ErrorDialog.TAG)
+                                .commit();
+                    }
                     break;
                 case STATE_AUTODISCOVER_RESULT:
                     // 1. get rid of progress dialog (if any)
