@@ -17,6 +17,7 @@
 package com.android.email.data;
 
 import com.android.email.DBTestHelper;
+import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.ProviderTestUtils;
@@ -36,8 +37,9 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
     private long createAccount(boolean isEas) {
         Account acct = ProviderTestUtils.setupAccount("acct1", false, mProviderContext);
         String proto = isEas ? "eas" : "non-eas";
-        acct.mHostAuthRecv = ProviderTestUtils.setupHostAuth(proto, "hostauth", -1, false,
+        acct.mHostAuthRecv = ProviderTestUtils.setupHostAuth(proto, "hostauth", -1, true,
                 mProviderContext);
+        acct.mHostAuthKeyRecv = acct.mHostAuthRecv.mId;
         acct.save(mProviderContext);
         return acct.mId;
     }
@@ -66,7 +68,7 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
     }
 
     /**
-     * Load - isEas = true
+     * Load -- isEas = true
      */
     public void testLoadEas() {
         final long accountId = createAccount(true);

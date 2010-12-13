@@ -17,6 +17,7 @@
 package com.android.email;
 
 import com.android.email.provider.AttachmentProvider;
+import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 
@@ -202,7 +203,10 @@ public final class DBTestHelper {
             }
         }
 
-        // Based on ProviderTestCase2.setUp().
+        /**
+         * Return {@link Context} with isolated EmailProvider and AttachmentProvider.  This method
+         * also invalidates the DB cache.
+         */
         public static Context getProviderContext(Context context) throws Exception {
             MockContentResolver resolver = new MockContentResolver();
             final String filenamePrefix = "test.";
@@ -222,6 +226,9 @@ public final class DBTestHelper {
             final AttachmentProvider ap = new AttachmentProvider();
             ap.attachInfo(providerContext, null);
             resolver.addProvider(AttachmentProvider.AUTHORITY, ap);
+
+            ContentCache.invalidateAllCachesForTest();
+
             return providerContext;
         }
     }
