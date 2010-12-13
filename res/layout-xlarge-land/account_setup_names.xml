@@ -15,81 +15,86 @@
 -->
 
 <!-- Account Names - XL - landscape - see layout/ for small-screen version -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="16dip"
-    android:paddingLeft="96dip"
-    android:paddingRight="96dip"
-    >
+    android:layout_height="match_parent">
 
-    <!-- Headline and hairline divider -->
-    <TextView
-        android:id="@+id/headline"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="16dip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/account_setup_names_headline"
-        android:textAppearance="@style/accountSetupHeadline" />
-
-    <View
-        android:id="@+id/top_divider"
-        android:layout_below="@+id/headline"
-        android:layout_marginBottom="16dip"
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="@color/account_setup_divider_color" />
-
-    <!-- Button on the right -->
-    <Button
-        android:id="@+id/next"
-        android:layout_below="@+id/top_divider"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="96dip"
-        android:layout_marginRight="16dip"
-        style="@style/accountSetupButton"
-        android:text="@string/next_action" />
-
-    <!-- Entry fields arrayed below divider -->
     <RelativeLayout
-        android:layout_below="@+id/top_divider"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/next"
-        android:layout_marginLeft="16dip"
-        android:layout_marginRight="64dip"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingTop="16dip"
+        android:paddingLeft="96dip"
+        android:paddingRight="96dip"
         >
+
+        <!-- Headline and hairline divider -->
         <TextView
-            android:id="@+id/account_description_label"
+            android:id="@+id/headline"
             android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="16dip"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/account_setup_names_headline"
+            android:textAppearance="@style/accountSetupHeadline" />
+
+        <View
+            android:id="@+id/top_divider"
+            android:layout_below="@+id/headline"
+            android:layout_marginBottom="16dip"
             android:layout_width="match_parent"
-            android:text="@string/account_setup_names_account_name_label"
-            android:textColor="?android:attr/textColorPrimary" />
-        <EditText
-            android:id="@+id/account_description"
-            android:layout_below="@+id/account_description_label"
+            android:layout_height="1px"
+            android:background="@color/account_setup_divider_color" />
+
+        <!-- Button on the right -->
+        <Button
+            android:id="@+id/next"
+            android:layout_below="@+id/top_divider"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="96dip"
+            android:layout_marginRight="16dip"
+            style="@style/accountSetupButton"
+            android:text="@string/next_action" />
+
+        <!-- Entry fields arrayed below divider -->
+        <RelativeLayout
+            android:layout_below="@+id/top_divider"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/next"
+            android:layout_marginLeft="16dip"
+            android:layout_marginRight="64dip"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:inputType="textCapWords"
-            android:imeOptions="actionDone" />
-        <TextView
-            android:id="@+id/account_name_label"
-            android:layout_below="@+id/account_description"
-            android:layout_marginTop="32dip"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:text="@string/account_setup_names_user_name_label"
-            android:textColor="?android:attr/textColorPrimary" />
-        <EditText
-            android:id="@+id/account_name"
-            android:layout_below="@+id/account_name_label"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:inputType="textPersonName"
-            android:imeOptions="actionDone" />
+            >
+            <TextView
+                android:id="@+id/account_description_label"
+                android:layout_alignParentTop="true"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="@string/account_setup_names_account_name_label"
+                android:textColor="?android:attr/textColorPrimary" />
+            <EditText
+                android:id="@+id/account_description"
+                android:layout_below="@+id/account_description_label"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="textCapWords"
+                android:imeOptions="actionDone" />
+            <TextView
+                android:id="@+id/account_name_label"
+                android:layout_below="@+id/account_description"
+                android:layout_marginTop="32dip"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="@string/account_setup_names_user_name_label"
+                android:textColor="?android:attr/textColorPrimary" />
+            <EditText
+                android:id="@+id/account_name"
+                android:layout_below="@+id/account_name_label"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="textPersonName"
+                android:imeOptions="actionDone" />
+        </RelativeLayout>
     </RelativeLayout>
-</RelativeLayout>
+</ScrollView>
