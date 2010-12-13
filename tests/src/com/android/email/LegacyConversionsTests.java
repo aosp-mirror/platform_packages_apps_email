@@ -21,14 +21,14 @@ import com.android.email.mail.Body;
 import com.android.email.mail.BodyPart;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Folder;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessageTestUtils;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Part;
 import com.android.email.mail.Folder.OpenMode;
+import com.android.email.mail.Message;
 import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.MessageTestUtils;
 import com.android.email.mail.MessageTestUtils.MessageBuilder;
 import com.android.email.mail.MessageTestUtils.MultipartBuilder;
+import com.android.email.mail.MessagingException;
+import com.android.email.mail.Part;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
@@ -37,10 +37,10 @@ import com.android.email.mail.internet.TextBody;
 import com.android.email.mail.store.LocalStore;
 import com.android.email.mail.store.LocalStoreUnitTests;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -243,9 +243,11 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
             while (c.moveToNext()) {
                 Attachment attachment = Attachment.getContent(c, Attachment.class);
                 if ("101".equals(attachment.mLocation)) {
-                    checkAttachment("attachment1Part", attachments.get(0), attachment);
+                    checkAttachment("attachment1Part", attachments.get(0), attachment,
+                            localMessage.mAccountKey);
                 } else if ("102".equals(attachment.mLocation)) {
-                    checkAttachment("attachment2Part", attachments.get(1), attachment);
+                    checkAttachment("attachment2Part", attachments.get(1), attachment,
+                            localMessage.mAccountKey);
                 } else {
                     fail("Unexpected attachment with location " + attachment.mLocation);
                 }
@@ -332,7 +334,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
                 }
                 assertTrue(fromPart != null);
                 // 2. Check values
-                checkAttachment(attachment.mFileName, fromPart, attachment);
+                checkAttachment(attachment.mFileName, fromPart, attachment, accountId);
             }
         } finally {
             c.close();
@@ -421,8 +423,8 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
      * TODO content URI should only be set if we also saved a file
      * TODO other data encodings
      */
-    private void checkAttachment(String tag, Part expected, EmailContent.Attachment actual)
-            throws MessagingException {
+    private void checkAttachment(String tag, Part expected, EmailContent.Attachment actual,
+            long accountKey) throws MessagingException {
         String contentType = MimeUtility.unfoldAndDecode(expected.getContentType());
         String contentTypeName = MimeUtility.getHeaderParameter(contentType, "name");
         assertEquals(tag, expected.getMimeType(), actual.mMimeType);
@@ -459,6 +461,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         }
         assertEquals(tag, expectedPartId, actual.mLocation);
         assertEquals(tag, "B", actual.mEncoding);
+        assertEquals(tag, accountKey, actual.mAccountKey);
     }
 
     /**

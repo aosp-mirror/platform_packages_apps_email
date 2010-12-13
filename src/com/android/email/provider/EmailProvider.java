@@ -106,7 +106,8 @@ public class EmailProvider extends ContentProvider {
     // Version 13: Add messageCount to Mailbox table.
     // Version 14: Add snippet to Message table
     // Version 15: Fix upgrade problem in version 14.
-    public static final int DATABASE_VERSION = 15;
+    // Version 16: Add accountKey to Attachment table
+    public static final int DATABASE_VERSION = 16;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -574,7 +575,8 @@ public class EmailProvider extends ContentProvider {
             + AttachmentColumns.ENCODING + " text, "
             + AttachmentColumns.CONTENT + " text, "
             + AttachmentColumns.FLAGS + " integer, "
-            + AttachmentColumns.CONTENT_BYTES + " blob"
+            + AttachmentColumns.CONTENT_BYTES + " blob, "
+            + AttachmentColumns.ACCOUNT_KEY + " integer"
             + ");";
         db.execSQL("create table " + Attachment.TABLE_NAME + s);
         db.execSQL(createIndex(Attachment.TABLE_NAME, AttachmentColumns.MESSAGE_KEY));
@@ -896,6 +898,22 @@ public class EmailProvider extends ContentProvider {
                 }
                 oldVersion = 15;
             }
+            if (oldVersion == 15) {
+                try {
+                    db.execSQL("alter table " + Attachment.TABLE_NAME
+                            + " add column " + Attachment.ACCOUNT_KEY +" integer" + ";");
+                    // Update all existing attachments to add the accountKey data
+                    db.execSQL("update " + Attachment.TABLE_NAME + " set " +
+                            Attachment.ACCOUNT_KEY + "= (SELECT " + Message.TABLE_NAME + "." +
+                            Message.ACCOUNT_KEY + " from " + Message.TABLE_NAME + " where " +
+                            Message.TABLE_NAME + "." + Message.RECORD_ID + " = " +
+                            Attachment.TABLE_NAME + "." + Attachment.MESSAGE_KEY + ")");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 15 to 16 " + e);
+                }
+                oldVersion = 16;
+            }
         }
 
         @Override
@@ -1150,10 +1168,12 @@ public class EmailProvider extends ContentProvider {
                         throw new IllegalArgumentException("Unknown URL " + uri);
                     }
                     if (match == ATTACHMENT) {
+                        int flags = 0;
                         if (values.containsKey(Attachment.FLAGS)) {
-                            int flags = values.getAsInteger(Attachment.FLAGS);
-                            AttachmentDownloadService.attachmentChanged(id, flags);
+                            flags = values.getAsInteger(Attachment.FLAGS);
                         }
+                        // Report all new attachments to the download service
+                        AttachmentDownloadService.attachmentChanged(id, flags);
                     }
                     break;
                 case MAILBOX_ID:

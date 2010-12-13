@@ -1871,6 +1871,8 @@ public abstract class EmailContent {
         public static final String FLAGS = "flags";
         // Content that is actually contained in the Attachment row
         public static final String CONTENT_BYTES = "content_bytes";
+        // A foreign key into the Account table (for the message owning this attachment)
+        public static final String ACCOUNT_KEY = "accountKey";
     }
 
     public static final class Attachment extends EmailContent implements AttachmentColumns {
@@ -1892,6 +1894,7 @@ public abstract class EmailContent {
         public String mContent; // Not currently used
         public int mFlags;
         public byte[] mContentBytes;
+        public long mAccountKey;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_FILENAME_COLUMN = 1;
@@ -1905,11 +1908,13 @@ public abstract class EmailContent {
         public static final int CONTENT_CONTENT_COLUMN = 9; // Not currently used
         public static final int CONTENT_FLAGS_COLUMN = 10;
         public static final int CONTENT_CONTENT_BYTES_COLUMN = 11;
+        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 12;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AttachmentColumns.FILENAME, AttachmentColumns.MIME_TYPE,
             AttachmentColumns.SIZE, AttachmentColumns.CONTENT_ID, AttachmentColumns.CONTENT_URI,
             AttachmentColumns.MESSAGE_KEY, AttachmentColumns.LOCATION, AttachmentColumns.ENCODING,
-            AttachmentColumns.CONTENT, AttachmentColumns.FLAGS, AttachmentColumns.CONTENT_BYTES
+            AttachmentColumns.CONTENT, AttachmentColumns.FLAGS, AttachmentColumns.CONTENT_BYTES,
+            AttachmentColumns.ACCOUNT_KEY
         };
 
         // Bits used in mFlags
@@ -2025,6 +2030,7 @@ public abstract class EmailContent {
             mContent = cursor.getString(CONTENT_CONTENT_COLUMN);
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mContentBytes = cursor.getBlob(CONTENT_CONTENT_BYTES_COLUMN);
+            mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
             return this;
         }
 
@@ -2042,6 +2048,7 @@ public abstract class EmailContent {
             values.put(AttachmentColumns.CONTENT, mContent);
             values.put(AttachmentColumns.FLAGS, mFlags);
             values.put(AttachmentColumns.CONTENT_BYTES, mContentBytes);
+            values.put(AttachmentColumns.ACCOUNT_KEY, mAccountKey);
             return values;
         }
 
@@ -2062,6 +2069,7 @@ public abstract class EmailContent {
             dest.writeString(mEncoding);
             dest.writeString(mContent);
             dest.writeInt(mFlags);
+            dest.writeLong(mAccountKey);
             if (mContentBytes == null) {
                 dest.writeInt(-1);
             } else {
@@ -2083,6 +2091,7 @@ public abstract class EmailContent {
             mEncoding = in.readString();
             mContent = in.readString();
             mFlags = in.readInt();
+            mAccountKey = in.readLong();
             final int contentBytesLen = in.readInt();
             if (contentBytesLen == -1) {
                 mContentBytes = null;
@@ -2107,7 +2116,7 @@ public abstract class EmailContent {
         public String toString() {
             return "[" + mFileName + ", " + mMimeType + ", " + mSize + ", " + mContentId + ", "
                     + mContentUri + ", " + mMessageKey + ", " + mLocation + ", " + mEncoding  + ", "
-                    + mFlags + ", " + mContentBytes + "]";
+                    + mFlags + ", " + mContentBytes + ", " + mAccountKey + "]";
         }
     }
 

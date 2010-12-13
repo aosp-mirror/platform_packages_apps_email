@@ -239,6 +239,7 @@ public class ProviderTestUtils extends Assert {
         att.mContent = "content " + fileName;
         att.mFlags = flags;
         att.mContentBytes = Utility.toUtf8("content " + fileName);
+        att.mAccountKey = messageId + 0x1000;
         if (saveIt) {
             att.save(context);
         }
@@ -420,6 +421,7 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mFlags", expect.mFlags, actual.mFlags);
         MoreAsserts.assertEquals(caller + " mContentBytes",
                 expect.mContentBytes, actual.mContentBytes);
+        assertEquals(caller + " mAccountKey", expect.mAccountKey, actual.mAccountKey);
     }
 
     /**

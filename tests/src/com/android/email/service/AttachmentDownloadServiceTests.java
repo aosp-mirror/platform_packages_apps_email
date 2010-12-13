@@ -18,16 +18,17 @@ package com.android.email.service;
 
 import com.android.email.AccountTestCase;
 import com.android.email.ExchangeUtils.NullEmailService;
-import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.ProviderTestUtils;
 import com.android.email.service.AttachmentDownloadService.DownloadRequest;
 import com.android.email.service.AttachmentDownloadService.DownloadSet;
 
 import android.content.Context;
 
+import java.io.File;
 import java.util.Iterator;
 
 /**
@@ -43,6 +44,9 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
     private Mailbox mMailbox;
     private long mAccountId;
     private long mMailboxId;
+    private AttachmentDownloadService.AccountManagerStub mAccountManagerStub;
+    private MockDirectory mMockDirectory;
+
     private DownloadSet mDownloadSet;
 
     @Override
@@ -62,7 +66,11 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         mService = new AttachmentDownloadService();
         mService.mContext = mMockContext;
         mService.addServiceClass(mAccountId, NullEmailService.class);
+        mAccountManagerStub = new AttachmentDownloadService.AccountManagerStub(null);
+        mService.mAccountManagerStub = mAccountManagerStub;
         mDownloadSet = mService.mDownloadSet;
+        mMockDirectory =
+            new MockDirectory(mService.mContext.getCacheDir().getAbsolutePath());
     }
 
     @Override
@@ -142,5 +150,90 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         assertNotNull(req);
         assertTrue(req.inProgress);
         assertTrue(mDownloadSet.mDownloadsInProgress.containsKey(att4.mId));
+    }
+
+    /**
+     * A mock file directory containing a single (Mock)File.  The total space, usable space, and
+     * length of the single file can be set
+     */
+    static class MockDirectory extends File {
+        private static final long serialVersionUID = 1L;
+        private long mTotalSpace;
+        private long mUsableSpace;
+        private MockFile[] mFiles;
+        private final MockFile mMockFile = new MockFile();
+
+
+        public MockDirectory(String path) {
+            super(path);
+            mFiles = new MockFile[1];
+            mFiles[0] = mMockFile;
+        }
+
+        private void setTotalAndUsableSpace(long total, long usable) {
+            mTotalSpace = total;
+            mUsableSpace = usable;
+        }
+
+        public long getTotalSpace() {
+            return mTotalSpace;
+        }
+
+        public long getUsableSpace() {
+            return mUsableSpace;
+        }
+
+        public void setFileLength(long length) {
+            mMockFile.mLength = length;
+        }
+
+        public File[] listFiles() {
+            return mFiles;
+        }
+    }
+
+    /**
+     * A mock file that reports back a pre-set length
+     */
+    static class MockFile extends File {
+        private static final long serialVersionUID = 1L;
+        private long mLength = 0;
+
+        public MockFile() {
+            super("_mock");
+        }
+
+        public long length() {
+            return mLength;
+        }
+    }
+
+    public void testCanPrefetchForAccount() {
+        // First, test our "global" limits (based on free storage)
+        // Mock storage @ 100 total and 26 available
+        // Note that all file lengths in this test are in arbitrary units
+        mMockDirectory.setTotalAndUsableSpace(100L, 26L);
+        // Mock 2 accounts in total
+        mAccountManagerStub.setNumberOfAccounts(2);
+        // With 26% available, we should be ok to prefetch
+        assertTrue(mService.canPrefetchForAccount(1, mMockDirectory));
+        // Now change to 24 available
+        mMockDirectory.setTotalAndUsableSpace(100L, 24L);
+        // With 24% available, we should NOT be ok to prefetch
+        assertFalse(mService.canPrefetchForAccount(1, mMockDirectory));
+
+        // Now, test per-account storage
+        // Mock storage @ 100 total and 50 available
+        mMockDirectory.setTotalAndUsableSpace(100L, 50L);
+        // Mock a file of length 24, but need to uncache previous amount first
+        mService.mAttachmentStorageMap.remove(1L);
+        mMockDirectory.setFileLength(24);
+        // We can prefetch since 24 < half of 50
+        assertTrue(mService.canPrefetchForAccount(1, mMockDirectory));
+        // Mock a file of length 26, but need to uncache previous amount first
+        mService.mAttachmentStorageMap.remove(1L);
+        mMockDirectory.setFileLength(26);
+        // We can't prefetch since 26 > half of 50
+        assertFalse(mService.canPrefetchForAccount(1, mMockDirectory));
     }
 }
