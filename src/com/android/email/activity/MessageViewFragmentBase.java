@@ -1374,8 +1374,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
 
         @Override
-        public void loadMessageForViewCallback(MessagingException result, long messageId,
-                int progress) {
+        public void loadMessageForViewCallback(MessagingException result, long accountId,
+                long messageId, int progress) {
             if (messageId != mWaitForLoadMessageId) {
                 // We are not waiting for this message to load, so exit quickly
                 return;
@@ -1414,8 +1414,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
 
         @Override
-        public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress) {
+        public void loadAttachmentCallback(MessagingException result, long accountId,
+                long messageId, long attachmentId, int progress) {
             if (messageId == mMessageId) {
                 if (result == null) {
                     showAttachmentProgress(attachmentId, progress);

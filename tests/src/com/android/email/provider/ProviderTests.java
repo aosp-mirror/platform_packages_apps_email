@@ -2069,6 +2069,22 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(b2.mId, Message.getKeyColumnLong(c, m2.mId, MessageColumns.MAILBOX_KEY));
     }
 
+    public void testGetAccountIdForMessageId() {
+        final Context c = mMockContext;
+        Account a1 = ProviderTestUtils.setupAccount("acct1", true, c);
+        Account a2 = ProviderTestUtils.setupAccount("acct2", true, c);
+        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a1.mId, true, c, Mailbox.TYPE_MAIL);
+        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", a2.mId, true, c, Mailbox.TYPE_MAIL);
+        Message m1 = createMessage(c, b1, false, false);
+        Message m2 = createMessage(c, b2, false, false);
+
+        assertEquals(a1.mId, Account.getAccountIdForMessageId(c, m1.mId));
+        assertEquals(a2.mId, Account.getAccountIdForMessageId(c, m2.mId));
+
+        // message desn't exist
+        assertEquals(-1, Account.getAccountIdForMessageId(c, 12345));
+    }
+
     public void testGetAccountMailboxFromMessageId() {
         final Context c = mMockContext;
         Account a = ProviderTestUtils.setupAccount("acct", true, c);

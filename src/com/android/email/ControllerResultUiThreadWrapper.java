@@ -57,7 +57,7 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
 
     @Override
     public void loadAttachmentCallback(final MessagingException result, final long messageId,
-            final long attachmentId, final int progress) {
+            final long accountId, final long attachmentId, final int progress) {
         run(new Runnable() {
             public void run() {
                 /* It's possible this callback is unregistered after this Runnable was posted and
@@ -65,18 +65,19 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
                  * on the UI thread.
                  */
                 if (!isRegistered()) return;
-                mWrappee.loadAttachmentCallback(result, messageId, attachmentId, progress);
+                mWrappee.loadAttachmentCallback(result, accountId, messageId, attachmentId,
+                        progress);
             }
         });
     }
 
     @Override
-    public void loadMessageForViewCallback(final MessagingException result,
+    public void loadMessageForViewCallback(final MessagingException result, final long accountId,
             final long messageId, final int progress) {
         run(new Runnable() {
             public void run() {
                 if (!isRegistered()) return;
-                mWrappee.loadMessageForViewCallback(result, messageId, progress);
+                mWrappee.loadMessageForViewCallback(result, accountId, messageId, progress);
             }
         });
     }
