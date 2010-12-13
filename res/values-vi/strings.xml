@@ -82,12 +82,8 @@
     <item quantity="few" msgid="1991747245324120305">"trong <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> tài khoản"</item>
     <item quantity="other" msgid="2723797835410343458">"trong <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> tài khoản"</item>
   </plurals>
-    <!-- no translation found for notification_sender_name_multi_messages:one (3212542153806717105) -->
-    <!-- no translation found for notification_sender_name_multi_messages:other (4440886271354944083) -->
-    <!-- no translation found for notification_num_new_messages_single_account:one (1186049567068059726) -->
-    <!-- no translation found for notification_num_new_messages_single_account:other (5620484088786656170) -->
-    <!-- no translation found for notification_num_new_messages_multi_account:one (958868322080140627) -->
-    <!-- no translation found for notification_num_new_messages_multi_account:other (3254100178329220009) -->
+    <!-- no translation found for notification_to_account (2078557719010667913) -->
+    <skip />
     <!-- no translation found for number_of_accounts:one (6343953132237244947) -->
     <!-- no translation found for number_of_accounts:other (8548760449976444566) -->
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Hộp thư đến"</string>
@@ -208,7 +204,7 @@
     <skip />
     <!-- no translation found for message_list_snippet (6077583739966798162) -->
     <skip />
-    <!-- outdated translation 3969856368228940980 -->     <string name="account_setup_basics_title" msgid="3578333196594678422">"Thiết lập email"</string>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"Thiết lập tài khoản"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Thêm tài khoản Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Thêm tài khoản Exchange ActiveSync"</string>
     <!-- no translation found for account_setup_basics_headline (6726590205905464015) -->
@@ -228,18 +224,17 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Đang truy xuất thông tin tài khoản…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Đang kiểm tra cài đặt máy chủ thư đến..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Đang kiểm tra cài đặt máy chủ thư đi..."</string>
-    <!-- outdated translation 8875040521875381849 -->     <string name="account_setup_names_title" msgid="8483517350241119291">"Thiết lập email"</string>
+    <string name="account_setup_names_title" msgid="8483517350241119291">"Thiết lập tài khoản"</string>
     <!-- no translation found for account_setup_names_headline (2413440250372658881) -->
     <skip />
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Đặt tên cho tài khoản này (tuỳ chọn)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tên bạn (được hiển thị trong tin nhắn đi)"</string>
-    <!-- outdated translation 6645576356752495504 -->     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Thêm tài khoản email mới"</string>
+    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Thiết lập tài khoản"</string>
     <!-- no translation found for account_setup_account_type_headline (3574102329184831086) -->
     <skip />
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Đây loại tài khoản gì?"</string>
-    <!-- outdated translation 6862032674547580337 -->     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Cài đặt máy chủ thư đến"</string>
-    <!-- no translation found for account_setup_incoming_headline (6183711037633407184) -->
-    <skip />
+    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Thiết lập tài khoản"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Cài đặt máy chủ thư đến"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Tên người dùng"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Mật khẩu"</string>
     <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Máy chủ POP3"</string>
@@ -256,25 +251,23 @@
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Khi tôi xoá khỏi Hộp thư đến"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Tiền tố đường dẫn IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Tuỳ chọn"</string>
-    <!-- outdated translation 7437215562885986394 -->     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Cài đặt máy chủ thư đi"</string>
-    <!-- no translation found for account_setup_outgoing_headline (2025001060935366394) -->
-    <skip />
+    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Thiết lập tài khoản"</string>
+    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Cài đặt máy chủ thư đi"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Máy chủ SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Cổng"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Loại bảo mật"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Yêu cầu đăng nhập."</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Tên người dùng"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Mật khẩu"</string>
-    <!-- outdated translation 2492853474738063453 -->     <string name="account_setup_exchange_title" msgid="396004732514751781">"Cài đặt máy chủ"</string>
-    <!-- no translation found for account_setup_exchange_headline (6099049671599242131) -->
-    <skip />
+    <string name="account_setup_exchange_title" msgid="396004732514751781">"Thiết lập tài khoản"</string>
+    <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Cài đặt máy chủ"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Máy chủ"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Tên miền\\Tên người dùng"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Sử dụng kết nối bảo mật (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Chấp nhận tất cả chứng chỉ SSL"</string>
     <!-- no translation found for account_setup_exchange_device_id_label (1646827333223157658) -->
     <skip />
-    <!-- outdated translation 8995162193118880993 -->     <string name="account_setup_options_title" msgid="9016600767888846051">"Tuỳ chọn tài khoản"</string>
+    <string name="account_setup_options_title" msgid="9016600767888846051">"Cài đặt tài khoản"</string>
     <!-- no translation found for account_setup_options_headline (4181274232835368085) -->
     <skip />
     <!-- outdated translation 4598023962234986194 -->     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Tần suất kiểm tra email"</string>
@@ -373,10 +366,8 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
-    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
-    <skip />
-    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
-    <skip />
+    <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Tài khoản email"</string>
+    <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Chọn tài khoản"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Nâng cấp tài khoản"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Không thể nâng cấp tài khoản"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Chỉ một số tài khoản \"Plus\" mới có quyền truy cập POP nhằm cho phép chương trình này kết nối. Nếu bạn không thể đăng nhập bằng địa chỉ email và mật khẩu chính xác của mình, bạn có thể không có tài khoản \"Plus\" trả tiền. Vui lòng khởi chạy trình duyệt Web để yêu cầu quyền truy cập vào các tài khoản thư này."</string>
@@ -437,6 +428,10 @@
     <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
     <skip />
     <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
+    <skip />
+    <!-- no translation found for general_preference_background_attachments_label (5740568133528931495) -->
+    <skip />
+    <!-- no translation found for general_preference_background_attachments_summary (2745557569280394897) -->
     <skip />
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />

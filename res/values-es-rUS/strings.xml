@@ -78,18 +78,8 @@
     <item quantity="few" msgid="1991747245324120305">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</item>
     <item quantity="other" msgid="2723797835410343458">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</item>
   </plurals>
-  <plurals name="notification_sender_name_multi_messages">
-    <item quantity="one" msgid="3212542153806717105">"<xliff:g id="SENDER_NAME">%1$s</xliff:g> + <xliff:g id="NUM_MORE_MAILS">%2$d</xliff:g> más"</item>
-    <item quantity="other" msgid="4440886271354944083">"<xliff:g id="SENDER_NAME">%1$s</xliff:g> + <xliff:g id="NUM_MORE_MAILS">%2$d</xliff:g> más"</item>
-  </plurals>
-  <plurals name="notification_num_new_messages_single_account">
-    <item quantity="one" msgid="1186049567068059726">"<xliff:g id="NUM_NEW_MESSAGE">%1$d</xliff:g> nuevo"</item>
-    <item quantity="other" msgid="5620484088786656170">"<xliff:g id="NUM_NEW_MESSAGE">%1$d</xliff:g> nuevo"</item>
-  </plurals>
-  <plurals name="notification_num_new_messages_multi_account">
-    <item quantity="one" msgid="958868322080140627">"<xliff:g id="NUM_NEW_MESSAGE">%1$d</xliff:g> nuevo<xliff:g id="SEPARATOR"> </xliff:g> <xliff:g id="ACCOUNT_NAME">%2$s</xliff:g>"</item>
-    <item quantity="other" msgid="3254100178329220009">"<xliff:g id="NUM_NEW_MESSAGE">%1$d</xliff:g> nuevo<xliff:g id="SEPARATOR"> </xliff:g> <xliff:g id="ACCOUNT_NAME">%2$s</xliff:g>"</item>
-  </plurals>
+    <!-- no translation found for notification_to_account (2078557719010667913) -->
+    <skip />
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"Cuenta <xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g>"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> cuentas"</item>
@@ -204,7 +194,7 @@
     <skip />
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Antiguos"</string>
     <string name="message_list_snippet" msgid="6077583739966798162">"<xliff:g id="SUBJECT"> %1$s</xliff:g> - <xliff:g id="TEXT">%2$s</xliff:g>"</string>
-    <!-- outdated translation 3969856368228940980 -->     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configurar correo electrónico"</string>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuración de la cuenta"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Agregar una cuenta de Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Agregar una cuenta de Exchange ActiveSync"</string>
     <string name="account_setup_basics_headline" msgid="6726590205905464015">"Cuenta de correo electrónico"</string>
@@ -223,16 +213,15 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recuperando información de la cuenta..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Comprobando configuración entrante de servidor…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Comprobando configuración saliente de servidor…"</string>
-    <!-- outdated translation 8875040521875381849 -->     <string name="account_setup_names_title" msgid="8483517350241119291">"Configurar correo electrónico"</string>
+    <string name="account_setup_names_title" msgid="8483517350241119291">"Configuración de la cuenta"</string>
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Se ha configurado tu cuenta, ¡y el correo electrónico está en camino!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Coloca un nombre a esta cuenta (opcional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tu nombre (mostrado en mensajes salientes)"</string>
-    <!-- outdated translation 6645576356752495504 -->     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Agregar nueva cuenta de correo electrónico"</string>
+    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Configuración de la cuenta"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Tipo de cuenta"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"¿Qué tipo de cuenta es?"</string>
-    <!-- outdated translation 6862032674547580337 -->     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Configuración entrante de servidor"</string>
-    <!-- no translation found for account_setup_incoming_headline (6183711037633407184) -->
-    <skip />
+    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Configuración de la cuenta"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Configuración del servidor de entrada"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Nombre de usuario"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Contraseña"</string>
     <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Servidor POP3"</string>
@@ -249,24 +238,22 @@
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Cuándo suprimo desde la bandeja de entrada"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"prefijo de ruta IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opcional"</string>
-    <!-- outdated translation 7437215562885986394 -->     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Configuración saliente de servidor"</string>
-    <!-- no translation found for account_setup_outgoing_headline (2025001060935366394) -->
-    <skip />
+    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Configuración de la cuenta"</string>
+    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Configuración del servidor de salida"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Servidor SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Puerto"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Tipo de seguridad"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Requiere inicio de sesión."</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nombre de usuario"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Contraseña"</string>
-    <!-- outdated translation 2492853474738063453 -->     <string name="account_setup_exchange_title" msgid="396004732514751781">"Configuración del servidor"</string>
-    <!-- no translation found for account_setup_exchange_headline (6099049671599242131) -->
-    <skip />
+    <string name="account_setup_exchange_title" msgid="396004732514751781">"Configuración de la cuenta"</string>
+    <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Configuración del servidor"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Servidor"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Dominio\\Nombre de usuario"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilizar conexión segura (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Aceptar todos los certificados SSL"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID de dispositivo móvil"</string>
-    <!-- outdated translation 8995162193118880993 -->     <string name="account_setup_options_title" msgid="9016600767888846051">"Opciones de cuenta"</string>
+    <string name="account_setup_options_title" msgid="9016600767888846051">"Configuración de la cuenta"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Opciones de cuenta"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Frecuencia de verificación de la bandeja de entrada"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Nunca"</string>
@@ -354,10 +341,8 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"La cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" se eliminará de correo electrónico."</string>
     <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Eliminar cuenta"</string>
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Eliminar cuenta"</string>
-    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
-    <skip />
-    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
-    <skip />
+    <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Cuenta de correo electrónico"</string>
+    <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Seleccionar una cuenta"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Actualizar cuentas"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"No es posible actualizar la cuenta."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Sólo algunas cuentas \"Plus\" incluyen el acceso POP, que permite que este programa se conecte. Si no puedes acceder con tu dirección de correo electrónico y contraseña correcta, es posible que no tengas una cuenta \"Plus\" paga. Inicia el navegador web para acceder a estas cuentas de correo."</string>
@@ -406,6 +391,10 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Grande"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Enorme"</string>
+    <!-- no translation found for general_preference_background_attachments_label (5740568133528931495) -->
+    <skip />
+    <!-- no translation found for general_preference_background_attachments_summary (2745557569280394897) -->
+    <skip />
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> de <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <!-- no translation found for widget_other_views (2924270018204427009) -->
     <skip />

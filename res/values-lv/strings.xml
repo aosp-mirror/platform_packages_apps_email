@@ -82,12 +82,8 @@
     <item quantity="few" msgid="1991747245324120305">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontā(-os)"</item>
     <item quantity="other" msgid="2723797835410343458">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontā(-os)"</item>
   </plurals>
-    <!-- no translation found for notification_sender_name_multi_messages:one (3212542153806717105) -->
-    <!-- no translation found for notification_sender_name_multi_messages:other (4440886271354944083) -->
-    <!-- no translation found for notification_num_new_messages_single_account:one (1186049567068059726) -->
-    <!-- no translation found for notification_num_new_messages_single_account:other (5620484088786656170) -->
-    <!-- no translation found for notification_num_new_messages_multi_account:one (958868322080140627) -->
-    <!-- no translation found for notification_num_new_messages_multi_account:other (3254100178329220009) -->
+    <!-- no translation found for notification_to_account (2078557719010667913) -->
+    <skip />
     <!-- no translation found for number_of_accounts:one (6343953132237244947) -->
     <!-- no translation found for number_of_accounts:other (8548760449976444566) -->
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Iesūtne"</string>
@@ -208,7 +204,7 @@
     <skip />
     <!-- no translation found for message_list_snippet (6077583739966798162) -->
     <skip />
-    <!-- outdated translation 3969856368228940980 -->     <string name="account_setup_basics_title" msgid="3578333196594678422">"E-pasta iestatīšana"</string>
+    <string name="account_setup_basics_title" msgid="3578333196594678422">"Konta iestatīšana"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Exchange konta pievienošana"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Pievienot Exchange ActiveSync kontu"</string>
     <!-- no translation found for account_setup_basics_headline (6726590205905464015) -->
@@ -228,18 +224,17 @@
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Notiek konta informācijas izgūšana..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Notiek servera ienākošo datu iestatījumu pārbaude..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Notiek servera izejošo datu iestatījumu pārbaude…"</string>
-    <!-- outdated translation 8875040521875381849 -->     <string name="account_setup_names_title" msgid="8483517350241119291">"E-pasta iestatīšana"</string>
+    <string name="account_setup_names_title" msgid="8483517350241119291">"Konta iestatīšana"</string>
     <!-- no translation found for account_setup_names_headline (2413440250372658881) -->
     <skip />
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Ievadiet konta nosaukumu (neobligāti)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Jūsu vārds (attēlots izejošajos ziņojumos)"</string>
-    <!-- outdated translation 6645576356752495504 -->     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Jauna e-pasta konta pievienošana"</string>
+    <string name="account_setup_account_type_title" msgid="7156551693961182124">"Konta iestatīšana"</string>
     <!-- no translation found for account_setup_account_type_headline (3574102329184831086) -->
     <skip />
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Kāds ir šī konta veids?"</string>
-    <!-- outdated translation 6862032674547580337 -->     <string name="account_setup_incoming_title" msgid="6796626791039136005">"Servera ienākošo datu iestatījumi"</string>
-    <!-- no translation found for account_setup_incoming_headline (6183711037633407184) -->
-    <skip />
+    <string name="account_setup_incoming_title" msgid="6796626791039136005">"Konta iestatīšana"</string>
+    <string name="account_setup_incoming_headline" msgid="6183711037633407184">"Ienākošā servera iestatījumi"</string>
     <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Lietotājvārds"</string>
     <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Parole"</string>
     <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"POP3 serveris"</string>
@@ -256,25 +251,23 @@
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Kad es dzēšu no iesūtnes"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"IMAP ceļa prefikss"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Neobligāti"</string>
-    <!-- outdated translation 7437215562885986394 -->     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Servera izejošo datu iestatījumi"</string>
-    <!-- no translation found for account_setup_outgoing_headline (2025001060935366394) -->
-    <skip />
+    <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Konta iestatīšana"</string>
+    <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Izejošā servera iestatījumi"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP serveris"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Ports"</string>
     <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Drošības veids"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Pieprasīt pierakstīšanos."</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Lietotājvārds"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Parole"</string>
-    <!-- outdated translation 2492853474738063453 -->     <string name="account_setup_exchange_title" msgid="396004732514751781">"Servera iestatījumi"</string>
-    <!-- no translation found for account_setup_exchange_headline (6099049671599242131) -->
-    <skip />
+    <string name="account_setup_exchange_title" msgid="396004732514751781">"Konta iestatīšana"</string>
+    <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Servera iestatījumi"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Serveris"</string>
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domēns\\lietotājvārds"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Lietot drošu savienojumu (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Pieņemt visus SSL sertifikātus"</string>
     <!-- no translation found for account_setup_exchange_device_id_label (1646827333223157658) -->
     <skip />
-    <!-- outdated translation 8995162193118880993 -->     <string name="account_setup_options_title" msgid="9016600767888846051">"Konta opcijas"</string>
+    <string name="account_setup_options_title" msgid="9016600767888846051">"Konta iestatījumi"</string>
     <!-- no translation found for account_setup_options_headline (4181274232835368085) -->
     <skip />
     <!-- outdated translation 4598023962234986194 -->     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"E-pasta pārbaudes biežums"</string>
@@ -373,10 +366,8 @@
     <skip />
     <!-- no translation found for account_settings_delete_account_label (4889158717472601718) -->
     <skip />
-    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
-    <skip />
-    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
-    <skip />
+    <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-pasta k."</string>
+    <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Atlasīt kontu"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Kontu jaunināšana"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Nevar jaunināt kontu"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Tikai dažiem “Plus” kontiem ir POP piekļuve, kas ļauj šai programmai izveidot savienojumu. Ja nevarat pierakstīties, izmantojot pareizu e-pasta adresi un paroli, iespējams, jums nav apmaksāta “Plus” konta. Lūdzu, palaidiet tīmekļa pārlūkprogrammu, lai piekļūtu šiem pasta kontiem."</string>
@@ -437,6 +428,10 @@
     <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
     <skip />
     <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
+    <skip />
+    <!-- no translation found for general_preference_background_attachments_label (5740568133528931495) -->
+    <skip />
+    <!-- no translation found for general_preference_background_attachments_summary (2745557569280394897) -->
     <skip />
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />
