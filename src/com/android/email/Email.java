@@ -54,8 +54,9 @@ public class Email extends Application {
 
     /**
      * If true, logging regarding activity/fragment lifecycle will be enabled.
+     * Do not check in as "true".
      */
-    public static final boolean DEBUG_LIFECYCLE = true; // STOPSHIP Turn this off.
+    public static final boolean DEBUG_LIFECYCLE = false;
 
     /**
      * If this is enabled then logging that normally hides sensitive information

@@ -25,9 +25,11 @@ import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
+import com.android.email.provider.EmailContent.AttachmentColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.exchange.ExchangeService;
 
+import android.accounts.AccountManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -36,6 +38,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.format.DateUtils;
@@ -69,11 +72,19 @@ public class AttachmentDownloadService extends Service implements Runnable {
     // High priority is for user requests
     private static final int PRIORITY_HIGH = 2;
 
+    // Minimum free storage in order to perform prefetch (25% of total memory)
+    private static final float PREFETCH_MINIMUM_STORAGE_AVAILABLE = 0.25F;
+    // Maximum prefetch storage (also 25% of total memory)
+    private static final float PREFETCH_MAXIMUM_ATTACHMENT_STORAGE = 0.25F;
+
     // We can try various values here; I think 2 is completely reasonable as a first pass
     private static final int MAX_SIMULTANEOUS_DOWNLOADS = 2;
     // Limit on the number of simultaneous downloads per account
     // Note that a limit of 1 is currently enforced by both Services (MailService and Controller)
     private static final int MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT = 1;
+
+    private static final Uri SINGLE_ATTACHMENT_URI =
+        EmailContent.uriWithLimit(Attachment.CONTENT_URI, 1);
 
     /*package*/ static AttachmentDownloadService sRunningService = null;
 
@@ -82,10 +93,46 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
     private final HashMap<Long, Class<? extends Service>> mAccountServiceMap =
         new HashMap<Long, Class<? extends Service>>();
+    // A map of attachment storage used per account
+    // NOTE: This map is not kept current in terms of deletions (i.e. it stores the last calculated
+    // amount plus the size of any new attachments laoded).  If and when we reach the per-account
+    // limit, we recalculate the actual usage
+    /*package*/ final HashMap<Long, Long> mAttachmentStorageMap = new HashMap<Long, Long>();
     private final ServiceCallback mServiceCallback = new ServiceCallback();
+
     private final Object mLock = new Object();
     private volatile boolean mStop = false;
 
+    /*package*/ AccountManagerStub mAccountManagerStub;
+
+    /**
+     * We only use the getAccounts() call from AccountManager, so this class wraps that call and
+     * allows us to build a mock account manager stub in the unit tests
+     */
+    /*package*/ static class AccountManagerStub {
+        private int mNumberOfAccounts;
+        private final AccountManager mAccountManager;
+
+        AccountManagerStub(Context context) {
+            if (context != null) {
+                mAccountManager = AccountManager.get(context);
+            } else {
+                mAccountManager = null;
+            }
+        }
+
+        /*package*/ int getNumberOfAccounts() {
+            if (mAccountManager != null) {
+                return mAccountManager.getAccounts().length;
+            } else {
+                return mNumberOfAccounts;
+            }
+        }
+
+        /*package*/ void setNumberOfAccounts(int numberOfAccounts) {
+            mNumberOfAccounts = numberOfAccounts;
+        }
+    }
 
     /**
      * Watchdog alarm receiver; responsible for making sure that downloads in progress are not
@@ -160,7 +207,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     res = (req1.time > req2.time) ? -1 : 1;
                 }
             }
-            //Log.d(TAG, "Compare " + req1.attachmentId + " to " + req2.attachmentId + " = " + res);
             return res;
         }
     }
@@ -257,17 +303,44 @@ public class AttachmentDownloadService extends Service implements Runnable {
             while (iterator.hasNext() &&
                     (mDownloadsInProgress.size() < MAX_SIMULTANEOUS_DOWNLOADS)) {
                 DownloadRequest req = iterator.next();
+                 // Enforce per-account limit here
+                if (downloadsForAccount(req.accountId) >= MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT) {
+                    if (Email.DEBUG) {
+                        Log.d(TAG, "== Skip #" + req.attachmentId + "; maxed for acct #" +
+                                req.accountId);
+                    }
+                    continue;
+                }
+
                 if (!req.inProgress) {
                     mDownloadSet.tryStartDownload(req);
                 }
             }
             // Then, try opportunistic download of appropriate attachments
             int backgroundDownloads = MAX_SIMULTANEOUS_DOWNLOADS - mDownloadsInProgress.size();
-            if (backgroundDownloads > 0) {
-                // TODO Code for background downloads here
-                if (Email.DEBUG) {
-                    Log.d(TAG, "== We'd look for up to " + backgroundDownloads +
-                            " background download(s) now...");
+            // Always leave one slot for user requested download
+            if (backgroundDownloads > (MAX_SIMULTANEOUS_DOWNLOADS - 1)) {
+                // We'll take the most recent unloaded attachment
+                // TODO It would be more correct to look at other attachments if we are prevented
+                // from preloading due to per-account storage constraints, but this would be a
+                // very unusual case.
+                Long prefetchId = Utility.getFirstRowLong(mContext,
+                        SINGLE_ATTACHMENT_URI,
+                        Attachment.ID_PROJECTION,
+                        AttachmentColumns.CONTENT_URI + " isnull AND " + Attachment.FLAGS + "=0",
+                        null,
+                        Attachment.RECORD_ID + " DESC",
+                        Attachment.ID_PROJECTION_COLUMN);
+                if (prefetchId != null) {
+                    if (Email.DEBUG) {
+                        Log.d(TAG, ">> Prefetch attachment " + prefetchId);
+                    }
+                    Attachment att = Attachment.restoreAttachmentWithId(mContext, prefetchId);
+                    if (att != null && canPrefetchForAccount(att.mAccountKey,
+                            AttachmentProvider.getAttachmentDirectory(mContext, att.mAccountKey))) {
+                        DownloadRequest req = new DownloadRequest(mContext, att);
+                        mDownloadSet.tryStartDownload(req);
+                    }
                 }
             }
         }
@@ -294,8 +367,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 long timeSinceCallback = now - req.lastCallbackTime;
                 if (timeSinceCallback > CALLBACK_TIMEOUT) {
                     if (Email.DEBUG) {
-                        Log.d(TAG, "== ,  Download of " + req.attachmentId +
-                                " timed out");
+                        Log.d(TAG, "== Download of " + req.attachmentId + " timed out");
                     }
                    cancelDownload(req);
                 // STOPSHIP Remove this before ship
@@ -348,6 +420,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     mWatchdogPendingIntent);
         }
 
+        private synchronized DownloadRequest getDownloadInProgress(long attachmentId) {
+            return mDownloadsInProgress.get(attachmentId);
+        }
+
         /**
          * Attempt to execute the DownloadRequest, enforcing the maximum downloads per account
          * parameter
@@ -355,14 +431,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * @return whether or not the download was started
          */
         /*package*/ synchronized boolean tryStartDownload(DownloadRequest req) {
-            // Enforce per-account limit
-            if (downloadsForAccount(req.accountId) >= MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT) {
-                if (Email.DEBUG) {
-                    Log.d(TAG, "== Skip #" + req.attachmentId + "; maxed for acct #" +
-                            req.accountId);
-                }
-                return false;
-            }
             Class<? extends Service> serviceClass = getServiceClassForAccount(req.accountId);
             if (serviceClass == null) return false;
             try {
@@ -420,6 +488,13 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
             Attachment attachment = Attachment.restoreAttachmentWithId(mContext, attachmentId);
             if (attachment != null) {
+                long accountId = attachment.mAccountKey;
+                // Update our attachment storage for this account
+                Long currentStorage = mAttachmentStorageMap.get(accountId);
+                if (currentStorage == null) {
+                    currentStorage = 0L;
+                }
+                mAttachmentStorageMap.put(accountId, currentStorage + attachment.mSize);
                 boolean deleted = false;
                 if ((attachment.mFlags & Attachment.FLAG_DOWNLOAD_FORWARD) != 0) {
                     if (statusCode == EmailServiceStatus.ATTACHMENT_NOT_FOUND) {
@@ -491,24 +566,22 @@ public class AttachmentDownloadService extends Service implements Runnable {
     private class ServiceCallback extends IEmailServiceCallback.Stub {
         public void loadAttachmentStatus(long messageId, long attachmentId, int statusCode,
                 int progress) {
-            if (Email.DEBUG) {
-                String code;
-                switch(statusCode) {
-                    case EmailServiceStatus.SUCCESS:
-                        code = "Success";
-                        break;
-                    case EmailServiceStatus.IN_PROGRESS:
-                        code = "In progress";
-                        break;
-                    default:
-                        code = Integer.toString(statusCode);
-                }
-                Log.d(TAG, "loadAttachmentStatus, id = " + attachmentId + " code = "+ code +
-                        ", " + progress + "%");
-            }
             // Record status and progress
-            DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
+            DownloadRequest req = mDownloadSet.getDownloadInProgress(attachmentId);
             if (req != null) {
+                if (Email.DEBUG) {
+                    String code;
+                    switch(statusCode) {
+                        case EmailServiceStatus.SUCCESS: code = "Success"; break;
+                        case EmailServiceStatus.IN_PROGRESS: code = "In progress"; break;
+                        default: code = Integer.toString(statusCode); break;
+                    }
+                    if (statusCode != EmailServiceStatus.IN_PROGRESS) {
+                        Log.d(TAG, ">> Attachment " + attachmentId + ": " + code);
+                    } else if (progress >= (req.lastProgress + 15)) {
+                        Log.d(TAG, ">> Attachment " + attachmentId + ": " + progress + "%");
+                    }
+                }
                 req.lastStatusCode = statusCode;
                 req.lastProgress = progress;
                 req.lastCallbackTime = System.currentTimeMillis();
@@ -650,8 +723,56 @@ public class AttachmentDownloadService extends Service implements Runnable {
             }});
     }
 
+    /**
+     * Determine whether an attachment can be prefetched for the given account
+     * @return true if download is allowed, false otherwise
+     */
+    /*package*/ boolean canPrefetchForAccount(long accountId, File dir) {
+        long totalStorage = dir.getTotalSpace();
+        long usableStorage = dir.getUsableSpace();
+        long minAvailable = (long)(totalStorage * PREFETCH_MINIMUM_STORAGE_AVAILABLE);
+
+        // If there's not enough overall storage available, stop now
+        if (usableStorage < minAvailable) {
+            return false;
+        }
+
+        int numberOfAccounts = mAccountManagerStub.getNumberOfAccounts();
+        long perAccountMaxStorage =
+            (long)(totalStorage * PREFETCH_MAXIMUM_ATTACHMENT_STORAGE / numberOfAccounts);
+
+        // Retrieve our idea of currently used attachment storage; since we don't track deletions,
+        // this number is the "worst case".  If the number is greater than what's allowed per
+        // account, we walk the directory to determine the actual number
+        Long accountStorage = mAttachmentStorageMap.get(accountId);
+        if (accountStorage == null || (accountStorage > perAccountMaxStorage)) {
+            // Calculate the exact figure for attachment storage for this account
+            accountStorage = 0L;
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    accountStorage += file.length();
+                }
+            }
+            // Cache the value
+            mAttachmentStorageMap.put(accountId, accountStorage);
+        }
+
+        // Return true if we're using less than the maximum per account
+        if (accountStorage < perAccountMaxStorage) {
+            return true;
+        } else {
+            if (Email.DEBUG) {
+                Log.d(TAG, ">> Prefetch not allowed for account " + accountId + "; used " +
+                        accountStorage + ", limit " + perAccountMaxStorage);
+            }
+            return false;
+        }
+    }
+
     public void run() {
         mContext = this;
+        mAccountManagerStub = new AccountManagerStub(this);
         // Run through all attachments in the database that require download and add them to
         // the queue
         int mask = Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;

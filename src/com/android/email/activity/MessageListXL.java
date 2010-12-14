@@ -29,7 +29,6 @@ import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.Message;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -199,7 +198,7 @@ public class MessageListXL extends Activity implements
         final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
         final long mailboxId = i.getLongExtra(EXTRA_MAILBOX_ID, -1);
         final long messageId = i.getLongExtra(EXTRA_MESSAGE_ID, -1);
-        if (Email.DEBUG) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, String.format("initFromIntent: %d %d", accountId, mailboxId));
         }
 
@@ -638,7 +637,9 @@ public class MessageListXL extends Activity implements
     private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {
         @Override
         public boolean onNavigationItemSelected(int itemPosition, long accountId) {
-            if (Email.DEBUG) Log.d(Email.LOG_TAG, "Account selected: accountId=" + accountId);
+            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "Account selected: accountId=" + accountId);
+            }
             mFragmentManager.selectAccount(accountId, -1, -1, true);
             return true;
         }
@@ -847,56 +848,18 @@ public class MessageListXL extends Activity implements
         }
 
         @Override
-        public void loadAttachmentCallback(
-                MessagingException result, long messageId, long attachmentId, int progress) {
-            new AccountFinder(result, messageId, progress).execute();
+        public void loadAttachmentCallback(MessagingException result, long accountId,
+                long messageId, long attachmentId, int progress) {
+            handleError(result, accountId, progress);
         }
 
         @Override
-        public void loadMessageForViewCallback(
-                MessagingException result, long messageId, int progress) {
-            new AccountFinder(result, messageId, progress).execute();
-        }
-
-        /**
-         * AsyncTask to determine the account id from a message id.  Used for
-         * {@link #loadAttachmentCallback} and {@link #loadMessageForViewCallback}, which don't
-         * report the underlying account ID.
-         */
-        private class AccountFinder extends AsyncTask<Void, Void, Long> {
-            private final MessagingException mException;
-            private final long mMessageId;
-            private final int mProgress;
-
-            public AccountFinder(MessagingException exception, long messageId, int progress) {
-                mException = exception;
-                mMessageId = messageId;
-                mProgress = progress;
-            }
-
-            @Override
-            protected Long doInBackground(Void... params) {
-                if (mMessageId == -1) {
-                    return null; // Message ID unknown
-                }
-                Message m = Message.restoreMessageWithId(MessageListXL.this, mMessageId);
-                return m != null ? m.mAccountKey : null;
-            }
-
-            @Override
-            protected void onPostExecute(Long accountId) {
-                if ((accountId == null) || isCancelled()) {
-                    return;
-                }
-                handleError(mException, accountId, mProgress);
-            }
+        public void loadMessageForViewCallback(MessagingException result, long accountId,
+                long messageId, int progress) {
+            handleError(result, accountId, progress);
         }
 
         private void handleError(MessagingException result, long accountId, int progress) {
-            if (!isRegistered()) {
-                // This ControllerResult may be already unregistered, because of the asynctask.
-                return;
-            }
             if (accountId == -1) {
                 return;
             }

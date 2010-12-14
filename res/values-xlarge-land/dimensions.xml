@@ -23,7 +23,7 @@
     <!-- XL activity dimensions -->
 
     <!-- width of mailbox list -->
-    <dimen name="mailbox_list_width">312dip</dimen>
+    <dimen name="mailbox_list_width">304dip</dimen>
     <!-- width of the message list, on the message list + message view mode. -->
     <dimen name="message_list_width">466dip</dimen>
 </resources>

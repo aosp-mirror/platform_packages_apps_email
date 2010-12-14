@@ -183,7 +183,7 @@ public class AccountSetupExchange extends AccountSetupActivity
         AccountCheckSettingsFragment checkerFragment =
             AccountCheckSettingsFragment.newInstance(checkMode, target);
         FragmentTransaction transaction = getFragmentManager().openTransaction();
-        transaction.replace(R.id.setup_fragment, checkerFragment);
+        transaction.add(checkerFragment, AccountCheckSettingsFragment.TAG);
         transaction.addToBackStack("back");
         transaction.commit();
     }

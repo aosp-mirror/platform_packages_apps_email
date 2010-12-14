@@ -16,18 +16,19 @@
 
 package com.android.email.mail.transport;
 
+import com.android.email.DBTestHelper;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Transport;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailProvider;
 
 import org.apache.commons.io.IOUtils;
 
 import android.content.Context;
-import android.test.ProviderTestCase2;
+import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import java.io.ByteArrayInputStream;
@@ -48,7 +49,7 @@ import java.util.regex.Pattern;
  *   runtest -c com.android.email.mail.transport.SmtpSenderUnitTests email
  */
 @SmallTest
-public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
+public class SmtpSenderUnitTests extends AndroidTestCase {
 
     EmailProvider mProvider;
     Context mProviderContext;
@@ -62,19 +63,16 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
     private final static String TEST_STRING = "Hello, world";
     private final static String TEST_STRING_BASE64 = "SGVsbG8sIHdvcmxk";
 
-    public SmtpSenderUnitTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
-    }
-
     /**
      * Setup code.  We generate a lightweight SmtpSender for testing.
      */
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mProviderContext = getMockContext();
+        mProviderContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
+                getContext());
         mContext = getContext();
-        
+
         // These are needed so we can get at the inner classes
         mSender = (SmtpSender) SmtpSender.newInstance(mProviderContext,
                 "smtp://user:password@server:999");
@@ -84,14 +82,14 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
      * Confirms simple non-SSL non-TLS login
      */
     public void testSimpleLogin() throws Exception {
-        
+
         MockTransport mockTransport = openAndInjectMockTransport();
-        
+
         // try to open it
         setupOpen(mockTransport, null);
         mSender.open();
     }
-    
+
     /**
      * TODO: Test with SSL negotiation (faked)
      * TODO: Test with SSL required but not supported
@@ -100,7 +98,7 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
      * TODO: Test other capabilities.
      * TODO: Test AUTH LOGIN
      */
-    
+
     /**
      * Test:  Open and send a single message (sunny day)
      */
@@ -285,7 +283,7 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
      * Prepare to receive a simple message (see setupSimpleMessage)
      */
     private void expectSimpleMessage(MockTransport mockTransport) {
-        mockTransport.expect("MAIL FROM: <Jones@Registry.Org>", 
+        mockTransport.expect("MAIL FROM: <Jones@Registry.Org>",
                 "250 2.1.0 <Jones@Registry.Org> sender ok");
         mockTransport.expect("RCPT TO: <Smith@Registry.Org>",
                 "250 2.1.5 <Smith@Registry.Org> recipient ok");
@@ -347,14 +345,14 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
      */
     public void testEmptyLineResponse() throws Exception {
         MockTransport mockTransport = openAndInjectMockTransport();
-        
+
         // Since SmtpSender.sendMessage() does a close then open, we need to preset for the open
         mockTransport.expectClose();
-        
+
         // Load up just the bare minimum to expose the error
         mockTransport.expect(null, "220 MockTransport 2000 Ready To Assist You Peewee");
         mockTransport.expect("EHLO " + Pattern.quote(LOCAL_ADDRESS), "");
-        
+
         // Now trigger the transmission
         // Note, a null message is sufficient here, as we won't even get past open()
         try {
@@ -365,7 +363,7 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
             // TODO maybe expect a particular exception?
         }
     }
-    
+
     /**
      * Set up a basic MockTransport. open it, and inject it into mStore
      */
@@ -377,10 +375,10 @@ public class SmtpSenderUnitTests extends ProviderTestCase2<EmailProvider> {
         mockTransport.setMockLocalAddress(InetAddress.getByName(LOCAL_ADDRESS));
         return mockTransport;
     }
-    
+
     /**
      * Helper which stuffs the mock with enough strings to satisfy a call to SmtpSender.open()
-     * 
+     *
      * @param mockTransport the mock transport we're using
      * @param capabilities if non-null, comma-separated list of capabilities
      */

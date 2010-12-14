@@ -1936,7 +1936,8 @@ public class MessagingController implements Runnable {
                     FetchProfile fp = new FetchProfile();
                     fp.add(storePart);
                     remoteFolder.fetch(new Message[] { storeMessage }, fp,
-                            mController.new LegacyListener(messageId, attachmentId));
+                            mController.new MessageRetrievalListenerBridge(
+                                    messageId, attachmentId));
 
                     // If we failed to load the attachment, throw an Exception here, so that
                     // AttachmentDownloadService knows that we failed

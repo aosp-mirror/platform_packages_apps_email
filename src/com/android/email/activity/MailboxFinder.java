@@ -41,6 +41,10 @@ import android.util.Log;
 public class MailboxFinder {
     private final Context mContext;
     private final Controller mController;
+
+    // Actual Controller.Result that will wrapped by ControllerResultUiThreadWrapper.
+    // Unit tests directly use it to avoid asynchronicity caused by ControllerResultUiThreadWrapper.
+    private final ControllerResults mInnerControllerResults;
     private Controller.Result mControllerResults; // Not final, we null it out when done.
 
     private final long mAccountId;
@@ -75,8 +79,9 @@ public class MailboxFinder {
         mAccountId = accountId;
         mMailboxType = mailboxType;
         mCallback = callback;
+        mInnerControllerResults = new ControllerResults();
         mControllerResults = new ControllerResultUiThreadWrapper<ControllerResults>(
-                new Handler(), new ControllerResults());
+                new Handler(), mInnerControllerResults);
         mController.addResultCallback(mControllerResults);
     }
 
@@ -255,6 +260,6 @@ public class MailboxFinder {
     }
 
     /* package */ Controller.Result getControllerResultsForTest() {
-        return mControllerResults;
+        return mInnerControllerResults;
     }
 }

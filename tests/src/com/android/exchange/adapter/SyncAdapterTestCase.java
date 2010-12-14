@@ -16,9 +16,9 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailProvider;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.adapter.EmailSyncAdapter.EasEmailSyncParser;
 import com.android.exchange.provider.MockProvider;
@@ -90,8 +90,8 @@ public class SyncAdapterTestCase<T extends AbstractSyncAdapter>
         EasSyncService service = getTestService();
         Constructor<T> c;
         try {
-            c = klass.getDeclaredConstructor(new Class[] {Mailbox.class, EasSyncService.class});
-            return c.newInstance(service.mMailbox, service);
+            c = klass.getDeclaredConstructor(new Class[] {EasSyncService.class});
+            return c.newInstance(service);
         } catch (SecurityException e) {
         } catch (NoSuchMethodException e) {
         } catch (IllegalArgumentException e) {

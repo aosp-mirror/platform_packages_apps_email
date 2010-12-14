@@ -374,6 +374,7 @@ public class LegacyConversions {
         localAttachment.mMessageKey = localMessage.mId;
         localAttachment.mLocation = partId;
         localAttachment.mEncoding = "B";        // TODO - convert other known encodings
+        localAttachment.mAccountKey = localMessage.mAccountKey;
 
         if (DEBUG_ATTACHMENTS) {
             Log.d(Email.LOG_TAG, "Add attachment " + localAttachment);

@@ -395,9 +395,10 @@ public class Controller {
             cv.put(MessageColumns.FLAG_LOADED, Message.FLAG_LOADED_COMPLETE);
             mProviderContext.getContentResolver().update(uri, cv, null, null);
             Log.d(Email.LOG_TAG, "Unexpected loadMessageForView() for service-based message.");
+            final long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
-                    listener.loadMessageForViewCallback(null, messageId, 100);
+                    listener.loadMessageForViewCallback(null, accountId, messageId, 100);
                 }
             }
         } else {
@@ -871,10 +872,10 @@ public class Controller {
             // This presumably is for POP3 messages
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
-                    listener.loadAttachmentCallback(null, messageId, attachmentId, 0);
+                    listener.loadAttachmentCallback(null, accountId, messageId, attachmentId, 0);
                 }
                 for (Result listener : mListeners) {
-                    listener.loadAttachmentCallback(null, messageId, attachmentId, 100);
+                    listener.loadAttachmentCallback(null, accountId, messageId, attachmentId, 100);
                 }
             }
             return;
@@ -1080,8 +1081,8 @@ public class Controller {
          * @param messageId the message which contains the attachment
          * @param progress 0 for "starting", 1..99 for updates (if needed in UI), 100 for complete
          */
-        public void loadMessageForViewCallback(MessagingException result, long messageId,
-                int progress) {
+        public void loadMessageForViewCallback(MessagingException result, long accountId,
+                long messageId, int progress) {
         }
 
         /**
@@ -1092,8 +1093,8 @@ public class Controller {
          * @param attachmentId the attachment being loaded
          * @param progress 0 for "starting", 1..99 for updates (if needed in UI), 100 for complete
          */
-        public void loadAttachmentCallback(MessagingException result, long messageId,
-                long attachmentId, int progress) {
+        public void loadAttachmentCallback(MessagingException result, long accountId,
+                long messageId, long attachmentId, int progress) {
         }
 
         /**
@@ -1152,14 +1153,40 @@ public class Controller {
     }
 
     /**
+     * Bridge to intercept {@link MessageRetrievalListener#loadAttachmentProgress} and
+     * pass down to {@link Result}.
+     */
+    public class MessageRetrievalListenerBridge implements MessageRetrievalListener {
+        private final long mMessageId;
+        private final long mAttachmentId;
+        private final long mAccountId;
+
+        public MessageRetrievalListenerBridge(long messageId, long attachmentId) {
+            mMessageId = messageId;
+            mAttachmentId = attachmentId;
+            mAccountId = Account.getAccountIdForMessageId(mProviderContext, mMessageId);
+        }
+
+        @Override
+        public void loadAttachmentProgress(int progress) {
+              synchronized (mListeners) {
+                  for (Result listener : mListeners) {
+                      listener.loadAttachmentCallback(null, mAccountId, mMessageId, mAttachmentId,
+                              progress);
+                 }
+              }
+        }
+
+        @Override
+        public void messageRetrieved(com.android.email.mail.Message message) {
+        }
+    }
+
+    /**
      * Support for receiving callbacks from MessagingController and dealing with UI going
      * out of scope.
      */
-    public class LegacyListener extends MessagingListener implements MessageRetrievalListener {
-        public LegacyListener(long messageId, long attachmentId) {
-            super(messageId, attachmentId);
-        }
-
+    public class LegacyListener extends MessagingListener {
         public LegacyListener() {
         }
 
@@ -1244,28 +1271,31 @@ public class Controller {
 
         @Override
         public void loadMessageForViewStarted(long messageId) {
+            final long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
-                    listener.loadMessageForViewCallback(null, messageId, 0);
+                    listener.loadMessageForViewCallback(null, accountId, messageId, 0);
                 }
             }
         }
 
         @Override
         public void loadMessageForViewFinished(long messageId) {
+            final long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
-                    listener.loadMessageForViewCallback(null, messageId, 100);
+                    listener.loadMessageForViewCallback(null, accountId, messageId, 100);
                 }
             }
         }
 
         @Override
         public void loadMessageForViewFailed(long messageId, String message) {
+            final long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
                     listener.loadMessageForViewCallback(new MessagingException(message),
-                            messageId, 0);
+                            accountId, messageId, 0);
                 }
             }
         }
@@ -1280,7 +1310,7 @@ public class Controller {
             }
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
-                    listener.loadAttachmentCallback(null, messageId, attachmentId, 0);
+                    listener.loadAttachmentCallback(null, accountId, messageId, attachmentId, 0);
                 }
             }
         }
@@ -1294,17 +1324,8 @@ public class Controller {
             }
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
-                    listener.loadAttachmentCallback(null, messageId, attachmentId, 100);
+                    listener.loadAttachmentCallback(null, accountId, messageId, attachmentId, 100);
                 }
-            }
-        }
-
-        @Override
-        public void loadAttachmentProgress(int progress) {
-            synchronized (mListeners) {
-                for (Result listener : mListeners) {
-                    listener.loadAttachmentCallback(null, messageId, attachmentId, progress);
-               }
             }
         }
 
@@ -1324,7 +1345,7 @@ public class Controller {
             }
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
-                    listener.loadAttachmentCallback(me, messageId, attachmentId, 0);
+                    listener.loadAttachmentCallback(me, accountId, messageId, attachmentId, 0);
                 }
             }
         }
@@ -1362,10 +1383,6 @@ public class Controller {
                 }
             }
         }
-
-        @Override
-        public void messageRetrieved(com.android.email.mail.Message message) {
-        }
     }
 
     /**
@@ -1393,9 +1410,11 @@ public class Controller {
                     }
                     break;
             }
+            final long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
-                    listener.loadAttachmentCallback(result, messageId, attachmentId, progress);
+                    listener.loadAttachmentCallback(result, accountId, messageId, attachmentId,
+                            progress);
                 }
             }
         }
