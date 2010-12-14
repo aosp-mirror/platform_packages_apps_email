@@ -254,7 +254,7 @@ class MessageListXLFragmentManager {
         long mailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, -1);
         long messageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, -1);
         mMessageListFragmentState = savedInstanceState.getParcelable(BUNDLE_KEY_MESSAGE_LIST_STATE);
-        if (Email.DEBUG) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "MessageListXLFragmentManager: Restoring "
                     + accountId + "," + mailboxId + "," + messageId);
         }

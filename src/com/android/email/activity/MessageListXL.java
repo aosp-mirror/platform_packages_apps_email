@@ -29,7 +29,6 @@ import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.Message;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -199,7 +198,7 @@ public class MessageListXL extends Activity implements
         final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
         final long mailboxId = i.getLongExtra(EXTRA_MAILBOX_ID, -1);
         final long messageId = i.getLongExtra(EXTRA_MESSAGE_ID, -1);
-        if (Email.DEBUG) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Email.LOG_TAG, String.format("initFromIntent: %d %d", accountId, mailboxId));
         }
 
@@ -638,7 +637,9 @@ public class MessageListXL extends Activity implements
     private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {
         @Override
         public boolean onNavigationItemSelected(int itemPosition, long accountId) {
-            if (Email.DEBUG) Log.d(Email.LOG_TAG, "Account selected: accountId=" + accountId);
+            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Email.LOG_TAG, "Account selected: accountId=" + accountId);
+            }
             mFragmentManager.selectAccount(accountId, -1, -1, true);
             return true;
         }
