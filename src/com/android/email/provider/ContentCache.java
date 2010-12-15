@@ -68,8 +68,9 @@ import java.util.Set;
 public final class ContentCache extends LinkedHashMap<String, Cursor> {
     private static final long serialVersionUID = 1L;
 
-    private static final boolean DEBUG_CACHE = false;  // DO NOT CHECK IN TRUE
-    private static final boolean DEBUG_TOKENS = false;  // DO NOT CHECK IN TRUE
+    // STOPSHIP Revert values to false
+    private static final boolean DEBUG_CACHE = true;  // DO NOT CHECK IN TRUE
+    private static final boolean DEBUG_TOKENS = true;  // DO NOT CHECK IN TRUE
     private static final boolean DEBUG_NOT_CACHEABLE = false;  // DO NOT CHECK IN TRUE
 
     // If false, reads will not use the cache; this is intended for debugging only
@@ -176,7 +177,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         }
 
         /*package*/ int invalidateTokens(String id) {
-            if (DEBUG_TOKENS) {
+            if (Email.DEBUG && DEBUG_TOKENS) {
                 Log.d(mLogTag, "============ Invalidate tokens for: " + id);
             }
             ArrayList<CacheToken> removeList = new ArrayList<CacheToken>();
@@ -195,7 +196,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         }
 
         /*package*/ void invalidate() {
-            if (DEBUG_TOKENS) {
+            if (Email.DEBUG && DEBUG_TOKENS) {
                 Log.d(mLogTag, "============ List invalidated");
             }
             for (CacheToken token: this) {
@@ -206,7 +207,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
 
         /*package*/ boolean remove(CacheToken token) {
             boolean result = super.remove(token);
-            if (DEBUG_TOKENS) {
+            if (Email.DEBUG && DEBUG_TOKENS) {
                 if (result) {
                     Log.d(mLogTag, "============ Removing token for: " + token.mId);
                 } else {
@@ -219,7 +220,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         public CacheToken add(String id) {
             CacheToken token = new CacheToken(id);
             super.add(token);
-            if (DEBUG_TOKENS) {
+            if (Email.DEBUG && DEBUG_TOKENS) {
                 Log.d(mLogTag, "============ Taking token for: " + token.mId);
             }
             return token;
@@ -455,14 +456,14 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
             CacheToken token) {
         try {
             if (!token.isValid()) {
-                if (DEBUG_CACHE) {
+                if (Email.DEBUG && DEBUG_CACHE) {
                     Log.d(mLogTag, "============ Stale token for " + id);
                 }
                 mStats.mStaleCount++;
                 return c;
             }
             if (c != null && projection == mBaseProjection) {
-                if (DEBUG_CACHE) {
+                if (Email.DEBUG && DEBUG_CACHE) {
                     Log.d(mLogTag, "============ Caching cursor for: " + id);
                 }
                 // If we've already cached this cursor, invalidate the older one
@@ -564,7 +565,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         mLockMap.add(id);
         // Invalidate current tokens
         int count = mTokenList.invalidateTokens(id);
-        if (DEBUG_TOKENS) {
+        if (Email.DEBUG && DEBUG_TOKENS) {
             Log.d(mTokenList.mLogTag, "============ Lock invalidated " + count +
                     " tokens for: " + id);
         }
@@ -601,13 +602,13 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
     public void unlockImpl(String id, ContentValues values, boolean wasLocked) {
         Cursor c = get(id);
         if (c != null) {
-            if (DEBUG_CACHE) {
+            if (Email.DEBUG && DEBUG_CACHE) {
                 Log.d(mLogTag, "=========== Unlocking cache for: " + id);
             }
             if (values != null) {
                 MatrixCursor cursor = getMatrixCursor(id, mBaseProjection, values);
                 if (cursor != null) {
-                    if (DEBUG_CACHE) {
+                    if (Email.DEBUG && DEBUG_CACHE) {
                         Log.d(mLogTag, "=========== Recaching with new values: " + id);
                     }
                     cursor.moveToFirst();
