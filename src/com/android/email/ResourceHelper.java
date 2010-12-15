@@ -32,7 +32,7 @@ public class ResourceHelper {
     private final Paint[] mAccountColorPaints;
 
     private ResourceHelper(Context context) {
-        mContext = context;
+        mContext = context.getApplicationContext();
         mResources = mContext.getResources();
 
         mAccountColors = mResources.getIntArray(R.array.combined_view_account_colors);

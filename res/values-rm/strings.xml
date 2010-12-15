@@ -203,7 +203,7 @@
     <skip />
     <!-- no translation found for message_view_move_to_older (4993043091356700890) -->
     <skip />
-    <!-- no translation found for message_list_snippet (6077583739966798162) -->
+    <!-- no translation found for message_list_subject_snippet_divider (1783589062530679520) -->
     <skip />
     <!-- outdated translation 3969856368228940980 -->     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configurar l\'e-mail"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Agiuntar in conto Exchange"</string>

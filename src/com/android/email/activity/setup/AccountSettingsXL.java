@@ -103,6 +103,7 @@ public class AccountSettingsXL extends PreferenceActivity {
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
     private List<Header> mGeneratedHeaders;
+    private boolean mResumed;
 
     // Async Tasks
     private LoadAccountListTask mLoadAccountListTask;
@@ -169,11 +170,18 @@ public class AccountSettingsXL extends PreferenceActivity {
     public void onResume() {
         super.onResume();
         updateAccounts();
+        mResumed = true;
 
         // When we're resuming, enable/disable the add account button
         if (hasHeaders()) {
             invalidateOptionsMenu();
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mResumed = false;
     }
 
     @Override
@@ -462,7 +470,7 @@ public class AccountSettingsXL extends PreferenceActivity {
         }
 
         // When we're changing fragments, enable/disable the add account button
-        if (hasHeaders()) {
+        if (mResumed && hasHeaders()) {
             invalidateOptionsMenu();
         }
     }

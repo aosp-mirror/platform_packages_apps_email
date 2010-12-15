@@ -1041,7 +1041,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 return;
             }
             boolean htmlChanged = false;
-            setAttachmentCount(attachments.length);
+            int numDisplayedAttachments = 0;
             for (Attachment attachment : attachments) {
                 if (mHtmlTextRaw != null && attachment.mContentId != null
                         && attachment.mContentUri != null) {
@@ -1054,8 +1054,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                     htmlChanged = true;
                 } else {
                     addAttachment(attachment);
+                    numDisplayedAttachments++;
                 }
             }
+            setAttachmentCount(numDisplayedAttachments);
             mHtmlTextWebView = mHtmlTextRaw;
             mHtmlTextRaw = null;
             if (htmlChanged && mMessageContentView != null) {
