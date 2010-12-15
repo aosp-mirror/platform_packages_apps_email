@@ -57,7 +57,7 @@ public class NotificationController {
     private final Context mContext;
     private final NotificationManager mNotificationManager;
     private final AudioManager mAudioManager;
-    private final Bitmap mAppIcon;
+    private final Bitmap mGenericSenderIcon;
     private final Clock mClock;
 
     /** Constructor */
@@ -66,7 +66,8 @@ public class NotificationController {
         mNotificationManager = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mAppIcon = BitmapFactory.decodeResource(mContext.getResources(), R.mipmap.icon);
+        mGenericSenderIcon = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.ic_contact_picture);
         mClock = clock;
     }
 
@@ -221,7 +222,7 @@ public class NotificationController {
         Notification.Builder builder = new Notification.Builder(mContext)
                 .setSmallIcon(R.drawable.stat_notify_email_generic)
                 .setWhen(mClock.getTime())
-                .setLargeIcon(senderPhoto != null ? senderPhoto : mAppIcon)
+                .setLargeIcon(senderPhoto != null ? senderPhoto : mGenericSenderIcon)
                 .setContentTitle(getNotificationTitle(senderName, account.mDisplayName))
                 .setContentText(subject)
                 .setContentIntent(contentIntent);
