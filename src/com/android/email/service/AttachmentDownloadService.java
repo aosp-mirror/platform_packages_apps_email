@@ -320,24 +320,30 @@ public class AttachmentDownloadService extends Service implements Runnable {
             int backgroundDownloads = MAX_SIMULTANEOUS_DOWNLOADS - mDownloadsInProgress.size();
             // Always leave one slot for user requested download
             if (backgroundDownloads > (MAX_SIMULTANEOUS_DOWNLOADS - 1)) {
-                // We'll take the most recent unloaded attachment
-                // TODO It would be more correct to look at other attachments if we are prevented
-                // from preloading due to per-account storage constraints, but this would be a
-                // very unusual case.
-                Long prefetchId = Utility.getFirstRowLong(mContext,
-                        SINGLE_ATTACHMENT_URI,
-                        Attachment.ID_PROJECTION,
-                        AttachmentColumns.CONTENT_URI + " isnull AND " + Attachment.FLAGS + "=0",
-                        null,
-                        Attachment.RECORD_ID + " DESC",
-                        Attachment.ID_PROJECTION_COLUMN);
-                if (prefetchId != null) {
+                boolean repeat = true;
+                while (repeat) {
+                    // We'll take the most recent unloaded attachment
+                    Long prefetchId = Utility.getFirstRowLong(mContext, SINGLE_ATTACHMENT_URI,
+                            Attachment.ID_PROJECTION, AttachmentColumns.CONTENT_URI
+                            + " isnull AND " + Attachment.FLAGS + "=0", null,
+                            Attachment.RECORD_ID + " DESC", Attachment.ID_PROJECTION_COLUMN);
+                    if (prefetchId == null) break;
                     if (Email.DEBUG) {
                         Log.d(TAG, ">> Prefetch attachment " + prefetchId);
                     }
                     Attachment att = Attachment.restoreAttachmentWithId(mContext, prefetchId);
-                    if (att != null && canPrefetchForAccount(att.mAccountKey,
-                            AttachmentProvider.getAttachmentDirectory(mContext, att.mAccountKey))) {
+                    // If att is null, the attachment must have been deleted out from under us
+                    if (att == null) continue;
+                    if (getServiceClassForAccount(att.mAccountKey) == null) {
+                        // Clean up this orphaned attachment; there's no point in keeping it
+                        // around; then try to find another one
+                        EmailContent.delete(mContext, Attachment.CONTENT_URI, prefetchId);
+                        continue;
+                    }
+                    repeat = false;
+                    // TODO It's possible that we're just over limit for this particular account
+                    // Handle this so that attachments from other accounts (if any) can be tried
+                    if (canPrefetchForAccount(att.mAccountKey, mContext.getCacheDir())) {
                         DownloadRequest req = new DownloadRequest(mContext, att);
                         mDownloadSet.tryStartDownload(req);
                     }
@@ -615,7 +621,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * Return the class of the service used by the account type of the provided account id.  We
      * cache the results to avoid repeated database access
      * @param accountId the id of the account
-     * @return the service class for the account
+     * @return the service class for the account or null (if the account no longer exists)
      */
     private synchronized Class<? extends Service> getServiceClassForAccount(long accountId) {
         // TODO: We should have some more data-driven way of determining the service class. I'd
@@ -623,6 +629,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         Class<? extends Service> serviceClass = mAccountServiceMap.get(accountId);
         if (serviceClass == null) {
             String protocol = Account.getProtocol(mContext, accountId);
+            if (protocol == null) return null;
             if (protocol.equals("eas")) {
                 serviceClass = ExchangeService.class;
             } else {
