@@ -385,13 +385,14 @@ public class MimeUtility {
     }
 
     /**
-     * An unfortunately named method that makes decisions about a Part (usually a Message)
-     * as to which of it's children will be "viewable" and which will be attachments.
-     * The method recursively sorts the viewables and attachments into seperate
-     * lists for further processing.
-     * @param part
-     * @param viewables
-     * @param attachments
+     * Recursively scan a Part (usually a Message) and sort out which of its children will be
+     * "viewable" and which will be attachments.
+     *
+     * @param part The part to be broken down
+     * @param viewables This arraylist will be populated with all parts that appear to be 
+     * the "message" (e.g. text/plain & text/html)
+     * @param attachments This arraylist will be populated with all parts that appear to be
+     * attachments (including inlines)
      * @throws MessagingException
      */
     public static void collectParts(Part part, ArrayList<Part> viewables,
@@ -403,51 +404,40 @@ public class MimeUtility {
             dispositionType = MimeUtility.getHeaderParameter(disposition, null);
             dispositionFilename = MimeUtility.getHeaderParameter(disposition, "filename");
         }
+        boolean attachmentDisposition = "attachment".equalsIgnoreCase(dispositionType);
+        boolean inlineDisposition = "inline".equalsIgnoreCase(dispositionType);
 
-        /*
-         * A best guess that this part is intended to be an attachment and not inline.
-         */
-        boolean attachment = ("attachment".equalsIgnoreCase(dispositionType))
-                || (dispositionFilename != null)
-                && (!"inline".equalsIgnoreCase(dispositionType));
+        // A guess that this part is intended to be an attachment
+        boolean attachment = attachmentDisposition
+                || (dispositionFilename != null && !inlineDisposition);
 
-        /*
-         * If the part is Multipart but not alternative it's either mixed or
-         * something we don't know about, which means we treat it as mixed
-         * per the spec. We just process it's pieces recursively.
-         */
+        // A guess that this part is intended to be an inline.
+        boolean inline = inlineDisposition && (dispositionFilename != null);
+
+        // One or the other
+        boolean attachmentOrInline = attachment || inline;
+
         if (part.getBody() instanceof Multipart) {
+            // If the part is Multipart but not alternative it's either mixed or
+            // something we don't know about, which means we treat it as mixed
+            // per the spec. We just process its pieces recursively.
             Multipart mp = (Multipart)part.getBody();
             for (int i = 0; i < mp.getCount(); i++) {
                 collectParts(mp.getBodyPart(i), viewables, attachments);
             }
-        }
-        /*
-         * If the part is an embedded message we just continue to process
-         * it, pulling any viewables or attachments into the running list.
-         */
-        else if (part.getBody() instanceof Message) {
+        } else if (part.getBody() instanceof Message) {
+            // If the part is an embedded message we just continue to process
+            // it, pulling any viewables or attachments into the running list.
             Message message = (Message)part.getBody();
             collectParts(message, viewables, attachments);
-        }
-        /*
-         * If the part is HTML and it got this far it's part of a mixed (et
-         * al) and should be rendered inline.
-         */
-        else if ((!attachment) && (part.getMimeType().equalsIgnoreCase("text/html"))) {
+        } else if ((!attachmentOrInline) && ("text/html".equalsIgnoreCase(part.getMimeType()))) {
+            // If the part is HTML and we got this far, it's a viewable part of a mixed
             viewables.add(part);
-        }
-        /*
-         * If the part is plain text and it got this far it's part of a
-         * mixed (et al) and should be rendered inline.
-         */
-        else if ((!attachment) && (part.getMimeType().equalsIgnoreCase("text/plain"))) {
+        } else if ((!attachmentOrInline) && ("text/plain".equalsIgnoreCase(part.getMimeType()))) {
+            // If the part is text and we got this far, it's a viewable part of a mixed
             viewables.add(part);
-        }
-        /*
-         * Finally, if it's nothing else we will include it as an attachment.
-         */
-        else {
+        } else if (attachmentOrInline) {
+            // Finally, if it's an attachment or an inline we will include it as an attachment.
             attachments.add(part);
         }
     }
