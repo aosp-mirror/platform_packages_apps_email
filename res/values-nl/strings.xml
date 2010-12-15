@@ -67,8 +67,10 @@
     <string name="status_network_error" msgid="6045933332005067021">"Verbindingsfout"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Nieuwe e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Onverwachte fout bij laden van berichttekst. Bericht is mogelijk te groot om weer te geven."</string>
-    <!-- no translation found for move_messages:one (1891601902988083907) -->
-    <!-- no translation found for move_messages:other (8792313600381332865) -->
+  <plurals name="move_messages">
+    <item quantity="one" msgid="1891601902988083907">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> berichten verplaatsen"</item>
+    <item quantity="other" msgid="8792313600381332865">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> berichten verplaatsen"</item>
+  </plurals>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ongelezen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ongelezen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -78,8 +80,7 @@
     <item quantity="few" msgid="1991747245324120305">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> accounts"</item>
     <item quantity="other" msgid="2723797835410343458">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> accounts"</item>
   </plurals>
-    <!-- no translation found for notification_to_account (2078557719010667913) -->
-    <skip />
+    <string name="notification_to_account" msgid="2078557719010667913">"naar <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> account"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> accounts"</item>
@@ -149,8 +150,7 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"U heeft deze uitnodiging geaccepteerd"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"U heeft \'misschien\' geantwoord op deze uitnodiging"</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"U heeft deze uitnodiging afgewezen"</string>
-    <!-- no translation found for eml_view_title (8827210108543430336) -->
-    <skip />
+    <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g> is geopend"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Ber. weggooien"</string>
   <plurals name="message_delete_confirm">
     <item quantity="one" msgid="8452608582303152000">"Dit bericht weggooien?"</item>
@@ -170,8 +170,7 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> berichten verplaatst naar <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Kan een of meer bijlagen niet doorsturen"</string>
-    <!-- no translation found for forward_download_failed_notification (3122309797954781752) -->
-    <skip />
+    <string name="forward_download_failed_notification" msgid="3122309797954781752">"Kan <xliff:g id="FILENAME"> %s</xliff:g> niet doorsturen"</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"<xliff:g id="ACCOUNT_NAME">%s </xliff:g>: aanmelden misl."</string>
     <string name="login_failed_notification" msgid="2405086379065472222">"Raak aan om accountinstellingen te wijzigen"</string>
   <plurals name="message_view_attachment_bytes">
@@ -193,7 +192,8 @@
     <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
     <skip />
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Ouder"</string>
-    <string name="message_list_snippet" msgid="6077583739966798162">"<xliff:g id="SUBJECT"> %1$s</xliff:g> - <xliff:g id="TEXT">%2$s</xliff:g>"</string>
+    <!-- no translation found for message_list_subject_snippet_divider (1783589062530679520) -->
+    <skip />
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Accountinstellingen"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Een Exchange-account toevoegen"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Een Exchange ActiveSync-account toevoegen"</string>
@@ -296,18 +296,12 @@
     <string name="account_security_title" msgid="4441470647344315196">"Apparaatbeveiliging"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"De server <xliff:g id="SERVER">%s</xliff:g> vereist dat u de server toestemming geeft bepaalde beveiligingsfuncties van uw telefoon extern te bedienen."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bewerken"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (950001176659814912) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_content_title (4602564325906174785) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_content_text_fmt (4302557343790365263) -->
-    <skip />
-    <!-- no translation found for password_expired_ticker (5698508544187945595) -->
-    <skip />
-    <!-- no translation found for password_expired_content_title (8417027276177867305) -->
-    <skip />
-    <!-- no translation found for password_expired_content_text (741999155767783375) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Werk de code voor het ontgrendelen van uw scherm bij voor account \'<xliff:g id="ACCOUNT">%s</xliff:g>\'."</string>
+    <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Nieuwe ontgrendeling nodig"</string>
+    <string name="password_expire_warning_content_text_fmt" msgid="4302557343790365263">"U moet de code voor het ontgrendelen van uw scherm bijwerken voor het account \'<xliff:g id="ACCOUNT">%s</xliff:g>\'. Raak dit aan om de code bij te werken."</string>
+    <string name="password_expired_ticker" msgid="5698508544187945595">"De code voor het ontgrendelen van uw scherm is verlopen."</string>
+    <string name="password_expired_content_title" msgid="8417027276177867305">"Nieuwe ontgrendeling nodig"</string>
+    <string name="password_expired_content_text" msgid="741999155767783375">"De code voor het ontgrendelen van uw scherm is verlopen. Raak dit aan om deze bij te werken."</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Niet-opgeslagen wijzigingen annuleren?"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Algemene instellingen"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standaardaccount"</string>
@@ -396,14 +390,9 @@
     <!-- no translation found for general_preference_background_attachments_summary (2745557569280394897) -->
     <skip />
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> van <xliff:g id="ID_2">%2$s</xliff:g>"</string>
-    <!-- no translation found for widget_other_views (2924270018204427009) -->
-    <skip />
-    <!-- no translation found for widget_all_mail (6436796211067834315) -->
-    <skip />
-    <!-- no translation found for widget_unread (488582205091831168) -->
-    <skip />
-    <!-- no translation found for widget_starred (7855645697293191958) -->
-    <skip />
-    <!-- no translation found for widget_loading (2340962056927255554) -->
-    <skip />
+    <string name="widget_other_views" msgid="2924270018204427009">"Tik op het e-mailpictogram voor andere weergaven"</string>
+    <string name="widget_all_mail" msgid="6436796211067834315">"Alle berichten"</string>
+    <string name="widget_unread" msgid="488582205091831168">"Alle ongelezen ber."</string>
+    <string name="widget_starred" msgid="7855645697293191958">"Alle met ster"</string>
+    <string name="widget_loading" msgid="2340962056927255554">"Laden..."</string>
 </resources>

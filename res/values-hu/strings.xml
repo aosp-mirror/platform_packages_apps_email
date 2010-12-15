@@ -71,8 +71,10 @@
     <string name="status_network_error" msgid="6045933332005067021">"Kapcsolathiba"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Új e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Nem várt hiba történt az üzenet szövegének betöltése során. Lehet, hogy az üzenet túl nagy ahhoz, hogy meg lehessen nézni."</string>
-    <!-- no translation found for move_messages:one (1891601902988083907) -->
-    <!-- no translation found for move_messages:other (8792313600381332865) -->
+  <plurals name="move_messages">
+    <item quantity="one" msgid="1891601902988083907">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> üzenet áthelyezése"</item>
+    <item quantity="other" msgid="8792313600381332865">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> üzenet áthelyezése"</item>
+  </plurals>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> olvasatlan (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> olvasatlan (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -82,8 +84,7 @@
     <item quantity="few" msgid="1991747245324120305">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> fiókban"</item>
     <item quantity="other" msgid="2723797835410343458">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> fiókban"</item>
   </plurals>
-    <!-- no translation found for notification_to_account (2078557719010667913) -->
-    <skip />
+    <string name="notification_to_account" msgid="2078557719010667913">"címzett: <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
     <!-- no translation found for number_of_accounts:one (6343953132237244947) -->
     <!-- no translation found for number_of_accounts:other (8548760449976444566) -->
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Beérkezett üzenetek"</string>
@@ -163,8 +164,7 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Ön elfogadta ezt a meghívást"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"\"Lehet\" választ adott erre a meghívásra"</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Ön elutasította ezt a meghívást"</string>
-    <!-- no translation found for eml_view_title (8827210108543430336) -->
-    <skip />
+    <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g> megtekintése"</string>
     <!-- no translation found for message_delete_dialog_title (7189172554183139772) -->
     <skip />
     <!-- no translation found for message_delete_confirm:one (8452608582303152000) -->
@@ -184,8 +184,7 @@
     <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
     <!-- no translation found for forward_download_failed_ticker (328380505427633405) -->
     <skip />
-    <!-- no translation found for forward_download_failed_notification (3122309797954781752) -->
-    <skip />
+    <string name="forward_download_failed_notification" msgid="3122309797954781752">"<xliff:g id="FILENAME"> %s</xliff:g> nem továbbítható"</string>
     <!-- no translation found for login_failed_ticker (7452091306512654139) -->
     <skip />
     <!-- no translation found for login_failed_notification (2405086379065472222) -->
@@ -202,7 +201,7 @@
     <skip />
     <!-- no translation found for message_view_move_to_older (4993043091356700890) -->
     <skip />
-    <!-- no translation found for message_list_snippet (6077583739966798162) -->
+    <!-- no translation found for message_list_subject_snippet_divider (1783589062530679520) -->
     <skip />
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Fiók beállítása"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Exchange-fiók hozzáadása"</string>
@@ -315,18 +314,12 @@
     <string name="account_security_title" msgid="4441470647344315196">"Eszközbiztonság"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"A(z) <xliff:g id="SERVER">%s</xliff:g> szerver engedélyt kér arra, hogy távolról vezérelhesse a telefon egyes biztonsági funkcióit."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Részletek szerkesztése"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (950001176659814912) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_content_title (4602564325906174785) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_content_text_fmt (4302557343790365263) -->
-    <skip />
-    <!-- no translation found for password_expired_ticker (5698508544187945595) -->
-    <skip />
-    <!-- no translation found for password_expired_content_title (8417027276177867305) -->
-    <skip />
-    <!-- no translation found for password_expired_content_text (741999155767783375) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"A(z) \" <xliff:g id="ACCOUNT">%s</xliff:g> \" fiók megköveteli, hogy frissítse a képernyő kioldó kódját. Itt érintse meg a frissítéshez."</string>
+    <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Új képernyőkioldás szükséges"</string>
+    <string name="password_expire_warning_content_text_fmt" msgid="4302557343790365263">"A(z) \" <xliff:g id="ACCOUNT">%s</xliff:g> \" fiók megköveteli, hogy frissítse a képernyő kioldó kódját. Itt érintse meg a frissítéshez."</string>
+    <string name="password_expired_ticker" msgid="5698508544187945595">"Képernyőkioldó kódja lejárt."</string>
+    <string name="password_expired_content_title" msgid="8417027276177867305">"Új képernyőkioldás szükséges"</string>
+    <string name="password_expired_content_text" msgid="741999155767783375">"A képernyőkioldó kódja lejárt. Itt érintse meg a frissítéshez."</string>
     <!-- no translation found for account_settings_exit_server_settings (8006323251094711431) -->
     <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Általános beállítások"</string>
@@ -435,14 +428,9 @@
     <skip />
     <!-- no translation found for position_of_count (7989353140376877792) -->
     <skip />
-    <!-- no translation found for widget_other_views (2924270018204427009) -->
-    <skip />
-    <!-- no translation found for widget_all_mail (6436796211067834315) -->
-    <skip />
-    <!-- no translation found for widget_unread (488582205091831168) -->
-    <skip />
-    <!-- no translation found for widget_starred (7855645697293191958) -->
-    <skip />
-    <!-- no translation found for widget_loading (2340962056927255554) -->
-    <skip />
+    <string name="widget_other_views" msgid="2924270018204427009">"Más nézetekhez érintse meg az e-mail ikont"</string>
+    <string name="widget_all_mail" msgid="6436796211067834315">"Összes levél"</string>
+    <string name="widget_unread" msgid="488582205091831168">"Minden olvasatlan"</string>
+    <string name="widget_starred" msgid="7855645697293191958">"Minden csillagozott"</string>
+    <string name="widget_loading" msgid="2340962056927255554">"Betöltés…"</string>
 </resources>
