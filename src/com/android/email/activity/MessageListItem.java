@@ -413,9 +413,9 @@ public class MessageListItem extends View {
         int left = mViewWidth - datePaddingRight - (int)sDefaultPaint.measureText(mFormattedDate,
                 0, mFormattedDate.length()) - sPaddingMedium;
 
+        int iconTop;
         if (mHasAttachment) {
             left -= sAttachmentIcon.getWidth() + sPaddingSmall;
-            int iconTop;
             if (mMode == MODE_WIDE) {
                 iconTop = (mViewHeight - sAttachmentIcon.getHeight()) / 2;
             } else {
@@ -425,7 +425,11 @@ public class MessageListItem extends View {
         }
         if (mHasInvite) {
             left -= sInviteIcon.getWidth() + sPaddingSmall;
-            int iconTop = (mViewHeight - sInviteIcon.getHeight()) / 2;
+            if (mMode == MODE_WIDE) {
+                iconTop = (mViewHeight - sInviteIcon.getHeight()) / 2;
+            } else {
+                iconTop = senderY - sInviteIcon.getHeight();
+            }
             canvas.drawBitmap(sInviteIcon, left, iconTop, sDefaultPaint);
         }
 
