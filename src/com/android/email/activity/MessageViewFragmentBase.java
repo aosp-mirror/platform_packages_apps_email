@@ -544,11 +544,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         showDefaultQuickContactBadgeImage();
     }
 
-    private static final Drawable sEmptyBadgeDrawable = new ColorDrawable(0xFF808080);
-
     private void showDefaultQuickContactBadgeImage() {
-        // STOPSHIP Show the default 'Andy' icon.
-        mFromBadge.setImageDrawable(sEmptyBadgeDrawable);
+        mFromBadge.setImageResource(R.drawable.ic_contact_picture);
     }
 
     protected final void addTabFlags(int tabFlags) {
