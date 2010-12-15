@@ -455,7 +455,13 @@ public class WidgetProvider extends AppWidgetProvider {
     private static EmailWidget getOrCreateWidget(Context context, int widgetId) {
         // Lazily initialize these
         if (sContext == null) {
+            if (context == null) { // STOPSHIP remove this check
+                throw new RuntimeException("context == null!");
+            }
             sContext = context.getApplicationContext();
+            if (sContext == null) { // STOPSHIP remove this check
+                throw new RuntimeException("getApplicationContext() returned null!");
+            }
             sWidgetManager = AppWidgetManager.getInstance(context);
             sResolver = context.getContentResolver();
         }
