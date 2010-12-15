@@ -24,6 +24,12 @@ package com.android.email;
 
 import android.test.AndroidTestCase;
 
+/**
+ * Tests of Snippet
+ *
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.SnippetTests email
+ */
 public class SnippetTests extends AndroidTestCase {
 
     public void testPlainSnippet() {
@@ -107,5 +113,47 @@ public class SnippetTests extends AndroidTestCase {
         c = Snippet.stripHtmlEntity("&#x19G", 0, skipCount);
         assertEquals(c, '&');
         assertEquals(0, skipCount[0]);
+    }
+
+    public void testStripContent() {
+        assertEquals("Visible", Snippet.fromHtmlText(
+            "<html><style foo=\"bar\">Not</style>Visible</html>"));
+        assertEquals("IsVisible", Snippet.fromHtmlText(
+            "<html><nostrip foo=\"bar\">Is</nostrip>Visible</html>"));
+        assertEquals("Visible", Snippet.fromHtmlText(
+            "<html>Visible<style foo=\"bar\">Not"));
+        assertEquals("VisibleAgainVisible", Snippet.fromHtmlText(
+            "<html>Visible<style foo=\"bar\">Not</style>AgainVisible"));
+        assertEquals("VisibleAgainVisible", Snippet.fromHtmlText(
+            "<html>Visible<style foo=\"bar\"/>AgainVisible"));
+    }
+
+    /**
+     * We pass in HTML text in which an ampersand (@) is two chars ahead of the correct end position
+     * for the tag named 'tag' and then check whether the calculated end position matches the known
+     * correct position.  HTML text not containing an ampersand should generate a calculated end of
+     * -1
+     * @param text the HTML text to test
+     */
+    private void findTagEnd(String text, String tag) {
+        int calculatedEnd = Snippet.findTagEnd(text , tag, 0);
+        int knownEnd = text.indexOf('@') + 2;
+        if (knownEnd == 1) {
+            // indexOf will return -1, so we'll get 1 as knownEnd
+            assertEquals(-1, calculatedEnd);
+        } else {
+            assertEquals(calculatedEnd, knownEnd);
+        }
+    }
+
+    public void testFindTagEnd() {
+        // Test with <tag ... />
+        findTagEnd("<tag foo=\"bar\"@ /> <blah blah>", "tag");
+        // Test with <tag ...> ... </tag>
+        findTagEnd("<tag foo=\"bar\">some text@</tag>some more text", "tag");
+        // Test with incomplete tag
+        findTagEnd("<tag foo=\"bar\">some more text but no end tag", "tag");
+        // Test with space at end of tag
+        findTagEnd("<tag foo=\"bar\">some more text but no end tag", "tag ");
     }
  }
