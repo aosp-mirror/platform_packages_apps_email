@@ -593,6 +593,9 @@ public class MessageListXL extends Activity implements
             public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
                 updateAccountList(data);
             }
+
+            public void onLoaderReset(Loader<Cursor> loader) {
+            }
         });
     }
 

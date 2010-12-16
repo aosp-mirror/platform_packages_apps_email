@@ -151,7 +151,10 @@ public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Res
         cancelLoad();
     }
 
-    @Override
+    public void reset() {
+        stopLoading();
+    }
+
     public void destroy() {
         stopLoading();
     }

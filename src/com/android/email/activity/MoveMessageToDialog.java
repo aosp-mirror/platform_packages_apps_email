@@ -182,6 +182,9 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
                     ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER,
                     null, new MailboxesLoaderCallbacks());
         }
+
+        public void onLoaderReset(Loader<Long> loader) {
+        }
     }
 
     /**
@@ -200,6 +203,9 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
                 return;
             }
             mAdapter.changeCursor(data);
+        }
+
+        public void onLoaderReset(Loader<Cursor> loader) {
         }
     }
 
@@ -269,7 +275,10 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
             cancelLoad();
         }
 
-        @Override
+        public void reset() {
+            stopLoading();
+        }
+
         public void destroy() {
             stopLoading();
         }
