@@ -64,6 +64,11 @@ import java.util.Set;
  * 1. Lock the row in the cache: cache.lock(id);
  * 2. Update the row: db.update(...);
  * 3. Unlock the row in the cache, passing in the new values: cache.unlock(id, values);
+ *
+ * Synchronization note: All of the public methods in ContentCache are synchronized (i.e. on the
+ * cache itself) except for methods that are solely used for debugging and do not modify the cache.
+ * All references to ContentCache that are external to the ContentCache class MUST synchronize on
+ * the ContentCache instance (e.g. CachedCursor.close())
  */
 public final class ContentCache extends LinkedHashMap<String, Cursor> {
     private static final long serialVersionUID = 1L;
@@ -298,8 +303,10 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         @Override
         public void close() {
             int count = sActiveCursors.subtract(mCursor);
-            if ((count == 0) && !mCache.containsValue(mCursor)) {
-                super.close();
+            synchronized(mCache) {
+                if ((count == 0) && !mCache.containsValue(mCursor)) {
+                    super.close();
+                }
             }
             isClosed = true;
         }
@@ -599,7 +606,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
      * @param values new ContentValues for the row (or null if row should simply be removed)
      * @param wasLocked whether or not the row was locked; if so, the lock will be removed
      */
-    public void unlockImpl(String id, ContentValues values, boolean wasLocked) {
+    private void unlockImpl(String id, ContentValues values, boolean wasLocked) {
         Cursor c = get(id);
         if (c != null) {
             if (Email.DEBUG && DEBUG_CACHE) {
@@ -707,7 +714,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         }
     }
 
-    public static void dumpNotCacheableQueries() {
+    private static void dumpNotCacheableQueries() {
         int size = sNotCacheableMap.size();
         CacheCounter[] array = new CacheCounter[size];
 
