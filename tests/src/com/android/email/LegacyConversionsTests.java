@@ -242,10 +242,10 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
             assertEquals(2, c.getCount());
             while (c.moveToNext()) {
                 Attachment attachment = Attachment.getContent(c, Attachment.class);
-                if ("101".equals(attachment.mLocation)) {
+                if ("100".equals(attachment.mLocation)) {
                     checkAttachment("attachment1Part", attachments.get(0), attachment,
                             localMessage.mAccountKey);
-                } else if ("102".equals(attachment.mLocation)) {
+                } else if ("101".equals(attachment.mLocation)) {
                     checkAttachment("attachment2Part", attachments.get(1), attachment,
                             localMessage.mAccountKey);
                 } else {
@@ -255,6 +255,57 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         } finally {
             c.close();
         }
+    }
+
+    /**
+     * Test that only "attachment" or "inline" attachments are captured and added.
+     * @throws MessagingException
+     * @throws IOException
+     */
+    public void testAttachmentDispositions() throws MessagingException, IOException {
+        // Prepare a local message to add the attachments to
+        final long accountId = 1;
+        final long mailboxId = 1;
+
+        // Prepare the three attachments we want to test
+        BodyPart[] sourceAttachments = new BodyPart[3];
+        BodyPart attachmentPart;
+
+        // 1. Standard attachment
+        attachmentPart = MessageTestUtils.bodyPart("image/jpg", null);
+        attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "image/jpg");
+        attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
+        attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
+                "attachment;\n filename=\"file-1\";\n size=100");
+        attachmentPart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "100");
+        sourceAttachments[0] = attachmentPart;
+
+        // 2. Inline attachment
+        attachmentPart = MessageTestUtils.bodyPart("image/gif", null);
+        attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "image/gif");
+        attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
+        attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
+                "inline;\n filename=\"file-2\";\n size=200");
+        attachmentPart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "101");
+        sourceAttachments[1] = attachmentPart;
+
+        // 3. Neither (use VCALENDAR)
+        attachmentPart = MessageTestUtils.bodyPart("text/calendar", null);
+        attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TYPE,
+                "text/calendar; charset=UTF-8; method=REQUEST");
+        attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "7bit");
+        attachmentPart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "102");
+        sourceAttachments[2] = attachmentPart;
+
+        // Prepare local message (destination) and legacy message w/attachments (source)
+        final EmailContent.Message localMessage = ProviderTestUtils.setupMessage(
+                "local-message", accountId, mailboxId, false, true, mProviderContext);
+        final Message legacyMessage = prepareLegacyMessageWithAttachments(sourceAttachments);
+        convertAndCheckcheckAddedAttachments(localMessage, legacyMessage);
+
+        // Run the conversion and check for the converted attachments - this test asserts
+        // that there are two attachments numbered 100 & 101 (so will fail if it finds 102)
+        convertAndCheckcheckAddedAttachments(localMessage, legacyMessage);
     }
 
     /**
@@ -350,9 +401,8 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
      */
     private Message prepareLegacyMessageWithAttachments(int numAttachments, boolean localData,
             boolean filenameInDisposition) throws MessagingException {
-        // First, build one or more attachment parts
-        MultipartBuilder mpBuilder = new MultipartBuilder("multipart/mixed");
-        for (int i = 1; i <= numAttachments; ++i) {
+        BodyPart[] attachmentParts = new BodyPart[numAttachments];
+        for (int i = 0; i < numAttachments; ++i) {
             // construct parameter parts for content-type:name or content-disposition:filename.
             String name = "";
             String filename = "";
@@ -372,7 +422,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
                 bp.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "image/jpg" + name);
                 bp.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
                 bp.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION, "attachment" + filename);
-                mpBuilder.addBodyPart(bp);
+                attachmentParts[i] = bp;
             } else {
                 // generate an attachment that came from a server
                 BodyPart attachmentPart = MessageTestUtils.bodyPart("image/jpg", null);
@@ -381,11 +431,26 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
                 attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "image/jpg" + name);
                 attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
                 attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
-                        "attachment" + filename +  ";\n size=" + i + "00");
+                        "attachment" + filename +  ";\n size=" + (i+1) + "00");
                 attachmentPart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "10" + i);
 
-                mpBuilder.addBodyPart(attachmentPart);
+                attachmentParts[i] = attachmentPart;
             }
+        }
+
+        return prepareLegacyMessageWithAttachments(attachmentParts);
+    }
+
+    /**
+     * Prepare a legacy message with 1+ attachments
+     * @param attachments array containing one or more attachments
+     */
+    private Message prepareLegacyMessageWithAttachments(BodyPart[] attachments)
+            throws MessagingException {
+        // Build the multipart that holds the attachments
+        MultipartBuilder mpBuilder = new MultipartBuilder("multipart/mixed");
+        for (int i = 0; i < attachments.length; ++i) {
+            mpBuilder.addBodyPart(attachments[i]);
         }
 
         // Now build a message with them
