@@ -18,5 +18,6 @@
     android:minWidth="220dp"
     android:minHeight="220dp"
     android:updatePeriodMillis="0"
-    android:initialLayout="@layout/widget" >
-</appwidget-provider>
+    android:initialLayout="@layout/widget"
+    android:previewImage="@drawable/email_widget_preview"
+    />
