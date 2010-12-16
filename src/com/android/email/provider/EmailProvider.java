@@ -308,6 +308,22 @@ public class EmailProvider extends ContentProvider {
         CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT.put(Account.NEW_MESSAGE_COUNT, 0);
     }
 
+
+    /**
+     * Wrap the UriMatcher call so we can throw a runtime exception if an unknown Uri is passed in
+     * @param uri the Uri to match
+     * @return the match value
+     */
+    private static int findMatch(Uri uri, String methodName) {
+        int match = sURIMatcher.match(uri);
+        if (match < 0) {
+            throw new IllegalArgumentException("Unknown uri: uri");
+        } else if (Email.LOGD) {
+            Log.v(TAG, methodName + ": uri=" + uri + ", match is " + match);
+        }
+        return match;
+    }
+
     /*
      * Internal helper method for index creation.
      * Example:
@@ -923,8 +939,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
-        final int match = sURIMatcher.match(uri);
+        final int match = findMatch(uri, "delete");
         Context context = getContext();
         // Pick the correct database for this operation
         // If we're in a transaction already (which would happen during applyBatch), then the
@@ -935,10 +950,6 @@ public class EmailProvider extends ContentProvider {
         String id = "0";
         boolean messageDeletion = false;
         ContentResolver resolver = context.getContentResolver();
-
-        if (Email.LOGD) {
-            Log.v(TAG, "EmailProvider.delete: uri=" + uri + ", match is " + match);
-        }
 
         ContentCache cache = CONTENT_CACHES[table];
         String tableName = TABLE_NAMES[table];
@@ -1077,7 +1088,7 @@ public class EmailProvider extends ContentProvider {
     @Override
     // Use the email- prefix because message, mailbox, and account are so generic (e.g. SMS, IM)
     public String getType(Uri uri) {
-        int match = sURIMatcher.match(uri);
+        int match = findMatch(uri, "getType");
         switch (match) {
             case BODY_ID:
                 return "vnd.android.cursor.item/email-body";
@@ -1123,8 +1134,7 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
-        int match = sURIMatcher.match(uri);
+        int match = findMatch(uri, "insert");
         Context context = getContext();
         ContentResolver resolver = context.getContentResolver();
 
@@ -1132,10 +1142,6 @@ public class EmailProvider extends ContentProvider {
         SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
         long id;
-
-        if (Email.LOGD) {
-            Log.v(TAG, "EmailProvider.insert: uri=" + uri + ", match is " + match);
-        }
 
         // We do NOT allow setting of unreadCount/messageCount via the provider
         // These columns are maintained via triggers
@@ -1251,19 +1257,14 @@ public class EmailProvider extends ContentProvider {
         if (Email.DEBUG) {
             time = System.nanoTime();
         }
-        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
         Cursor c = null;
-        int match = sURIMatcher.match(uri);
+        int match = findMatch(uri, "query");
         Context context = getContext();
         // See the comment at delete(), above
         SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
         String limit = uri.getQueryParameter(EmailContent.PARAMETER_LIMIT);
         String id;
-
-        if (Email.LOGD) {
-            Log.v(TAG, "EmailProvider.query: uri=" + uri + ", match is " + match);
-        }
 
         // Find the cache for this query's table (if any)
         ContentCache cache = null;
@@ -1378,8 +1379,6 @@ public class EmailProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        if (Email.DEBUG_THREAD_CHECK) Email.warnIfUiThread();
-
         // Handle this special case the fastest possible way
         if (uri == INTEGRITY_CHECK_URI) {
             checkDatabases();
@@ -1389,17 +1388,13 @@ public class EmailProvider extends ContentProvider {
         // Notify all existing cursors, except for ACCOUNT_RESET_NEW_COUNT(_ID)
         Uri notificationUri = EmailContent.CONTENT_URI;
 
-        int match = sURIMatcher.match(uri);
+        int match = findMatch(uri, "update");
         Context context = getContext();
         ContentResolver resolver = context.getContentResolver();
         // See the comment at delete(), above
         SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
         int result;
-
-        if (Email.LOGD) {
-            Log.v(TAG, "EmailProvider.update: uri=" + uri + ", match is " + match);
-        }
 
         // We do NOT allow setting of unreadCount/messageCount via the provider
         // These columns are maintained via triggers
