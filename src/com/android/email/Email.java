@@ -71,11 +71,6 @@ public class Email extends Application {
     public static final boolean LOGD = false;
 
     /**
-     * If true, enable the UI thread check when accessing the filesystem.
-     */
-    public static final boolean DEBUG_THREAD_CHECK = false; // DON'T SUBMIT WITH TRUE
-
-    /**
      * If true, inhibit hardware graphics acceleration in UI (for a/b testing)
      */
     public static boolean sDebugInhibitGraphicsAcceleration = false;
