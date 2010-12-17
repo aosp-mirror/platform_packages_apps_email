@@ -685,6 +685,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 mFragment.onClickSender();
             }
         }
+
+        public void onLoaderReset(Loader<ContactStatusLoader.Result> loader) {
+        }
     }
 
     private void onSaveAttachment(AttachmentInfo info) {

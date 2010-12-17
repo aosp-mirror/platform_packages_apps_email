@@ -62,6 +62,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
+ * *** Account upgrade has been disabled for the tablet release ***
+ *
+ * TODO Remove it and related code, when we no longer have to support upgrade from donut.
+ *
  * This activity will be used whenever we have a large/slow bulk upgrade operation.
  *
  * The general strategy is to iterate through the legacy accounts, convert them one-by-one, and
@@ -95,11 +99,11 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     // These are used to hold off restart of this activity while worker is still busy
     private static final Object sConversionInProgress = new Object();
     private static boolean sConversionHasRun = false;
-    
+
     /** This projection is for looking up accounts by their legacy UUID */
     private static final String WHERE_ACCOUNT_UUID_IS = AccountColumns.COMPATIBILITY_UUID + "=?";
 
-    public static void actionStart(Context context) {
+    private static void actionStart(Context context) {
         Intent i = new Intent(context, UpgradeAccounts.class);
         context.startActivity(i);
     }
@@ -131,7 +135,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
     protected void onResume() {
         super.onResume();
         updateList();
-        
+
         // Start the big conversion engine
         mConversionTask = new ConversionTask(mLegacyAccounts);
         mConversionTask.execute();
@@ -205,7 +209,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
 
     class AccountsAdapter extends BaseAdapter {
         final LayoutInflater mInflater;
-        
+
         AccountsAdapter() {
             mInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
@@ -214,7 +218,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         public boolean hasStableIds() {
             return true;
         }
-        
+
         public int getCount() {
             return mLegacyAccounts.length;
         }
@@ -237,7 +241,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             bindView(v, position);
             return v;
         }
-        
+
         public View newView(ViewGroup parent) {
             View v = mInflater.inflate(R.layout.upgrade_accounts_item, parent, false);
             ViewHolder h = new ViewHolder();
@@ -247,7 +251,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             v.setTag(h);
             return v;
         }
-        
+
         public void bindView(View view, int position) {
             ViewHolder vh = (ViewHolder) view.getTag();
             AccountInfo ai = mLegacyAccounts[position];
@@ -309,7 +313,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
             msg.arg2 = max;
             sendMessage(msg);
         }
-            
+
         public void setProgress(int accountNum, int progress) {
             android.os.Message msg = android.os.Message.obtain();
             msg.what = MSG_SET_PROGRESS;
@@ -569,7 +573,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
         if (handler != null) {
             handler.incProgress(accountNum);
         }
-        
+
         // copy the folders, making a set of them as we go, and recording a few that we
         // need to process first (highest priority for saving the messages)
         HashSet<FolderConversion> conversions = new HashSet<FolderConversion>();
@@ -831,10 +835,10 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
      * @return true if bulk upgrade has started.  false otherwise.
      */
     /* package */ static boolean doBulkUpgradeIfNecessary(Context context) {
-        if (bulkUpgradesRequired(context, Preferences.getPreferences(context))) {
-            UpgradeAccounts.actionStart(context);
-            return true;
-        }
+//        if (bulkUpgradesRequired(context, Preferences.getPreferences(context))) {
+//            UpgradeAccounts.actionStart(context);
+//            return true;
+//        }
         return false;
     }
 

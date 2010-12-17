@@ -593,6 +593,9 @@ public class MessageListXL extends Activity implements
             public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
                 updateAccountList(data);
             }
+
+            public void onLoaderReset(Loader<Cursor> loader) {
+            }
         });
     }
 
@@ -607,6 +610,9 @@ public class MessageListXL extends Activity implements
         final ActionBar ab = getActionBar();
         if (count == 1) {
             accountsCursor.moveToFirst();
+
+            // Show the account name as the title.
+            ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
             ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
             ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(accountsCursor));
             return;
@@ -629,6 +635,9 @@ public class MessageListXL extends Activity implements
 
         // Update the dropdown list.
         mAccountsSelectorAdapter.changeCursor(accountsCursor);
+
+        // Don't show the title.
+        ab.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
         ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         ab.setListNavigationCallbacks(mAccountsSelectorAdapter, mActionBarNavigationCallback);
         ab.setSelectedNavigationItem(defaultSelection);

@@ -1060,6 +1060,9 @@ public class MessageListFragment extends ListFragment
             // Clear this for next reload triggered by content changed events.
             mMailboxChanging = false;
         }
+
+        public void onLoaderReset(Loader<MailboxAccountLoader.Result> loader) {
+        }
     }
 
     /**
@@ -1136,6 +1139,9 @@ public class MessageListFragment extends ListFragment
 
             // Clear this for next reload triggered by content changed events.
             mMailboxChanging = false;
+        }
+
+        public void onLoaderReset(Loader<Cursor> loader) {
         }
     }
 

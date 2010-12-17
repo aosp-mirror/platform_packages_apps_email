@@ -374,6 +374,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             // Clear this for next reload triggered by content changed events.
             mAccountChanging = false;
         }
+
+        public void onLoaderReset(Loader<Cursor> loader) {
+        }
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position,

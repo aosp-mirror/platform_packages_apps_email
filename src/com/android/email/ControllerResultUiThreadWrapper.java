@@ -56,8 +56,8 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
     }
 
     @Override
-    public void loadAttachmentCallback(final MessagingException result, final long messageId,
-            final long accountId, final long attachmentId, final int progress) {
+    public void loadAttachmentCallback(final MessagingException result, final long accountId,
+                final long messageId, final long attachmentId, final int progress) {
         run(new Runnable() {
             public void run() {
                 /* It's possible this callback is unregistered after this Runnable was posted and
