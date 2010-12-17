@@ -14,43 +14,46 @@
      limitations under the License.
 -->
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_message"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-    <TextView
-        android:id="@+id/widget_date"
-        android:layout_width="64dip"
+    android:layout_height="64sp"
+    android:paddingLeft="16dip"
+    android:paddingRight="8dip"
+    android:orientation="vertical"
+    android:background="@drawable/widget_conversation_selector"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:textColor="#F000"
-        android:textSize="14sp"
-        android:paddingLeft="10dip"
-        android:drawablePadding="4dip"
-    />
-<TextView
-    android:id="@+id/widget_from"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignParentLeft="true"
-    android:layout_toLeftOf="@id/widget_date"
-    android:textColor="#F000"
-    android:ellipsize="end"
-    android:singleLine="true"
-    android:textSize="16sp"
-    android:paddingLeft="10dip"
-    android:drawablePadding="4dip"
-    />
-<TextView
-    android:id="@+id/widget_subject"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@id/widget_from"
-    android:minLines="2"
-    android:textSize="14sp"
-    android:textColor="#F000"
-    android:paddingLeft="10dip"
-    />
-</RelativeLayout>
+        android:layout_marginTop="8sp"
+        android:orientation="horizontal"
+        >
+        <TextView
+            android:id="@+id/widget_from"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingRight="16dip"
+            android:singleLine="true" />
+        <!-- Use negative margins to align attachment icon with text -->
+        <ImageView
+            android:id="@+id/widget_attachment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-10sp"
+            android:layout_marginRight="-4dip"
+            android:src="@drawable/ic_attachment_holo_light" />
+        <TextView
+            android:id="@+id/widget_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/widget_subject"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="-4sp"
+        android:maxLines="2"/>
+ </LinearLayout>

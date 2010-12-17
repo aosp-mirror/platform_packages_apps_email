@@ -26,4 +26,8 @@
     <dimen name="mailbox_list_width">304dip</dimen>
     <!-- width of the message list, on the message list + message view mode. -->
     <dimen name="message_list_width">466dip</dimen>
+
+    <dimen name="widget_senders_font_size">14sp</dimen>
+    <dimen name="widget_subject_font_size">14sp</dimen>
+    <dimen name="widget_date_font_size">14sp</dimen>
 </resources>

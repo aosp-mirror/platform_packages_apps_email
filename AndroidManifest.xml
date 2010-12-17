@@ -477,7 +477,7 @@
              it exposes user passwords and other confidential information. -->
         <provider
             android:name=".provider.EmailProvider"
-            android:authorities="com.android.email.provider; com.android.email.notifier"
+            android:authorities="com.android.email.provider;com.android.email.notifier"
             android:multiprocess="true"
             android:permission="com.android.email.permission.ACCESS_PROVIDER"
             android:label="@string/app_name"

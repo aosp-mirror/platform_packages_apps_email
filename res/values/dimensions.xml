@@ -37,4 +37,8 @@
     <dimen name="message_list_item_color_tip_right_margin_on_wide">65dip</dimen>
 
     <dimen name="error_message_height">48dip</dimen>
+
+    <dimen name="widget_senders_font_size">14sp</dimen>
+    <dimen name="widget_subject_font_size">14sp</dimen>
+    <dimen name="widget_date_font_size">14sp</dimen>
 </resources>

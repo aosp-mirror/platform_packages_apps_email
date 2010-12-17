@@ -36,20 +36,22 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.graphics.Paint.Align;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.TextPaint;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.TextUtils.TruncateAt;
 import android.text.format.DateUtils;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -98,7 +100,14 @@ public class WidgetProvider extends AppWidgetProvider {
     private static AppWidgetManager sWidgetManager;
     private static Context sContext;
     private static ContentResolver sResolver;
-    private static TextPaint sDatePaint = new TextPaint();
+
+    private static int sSenderFontSize;
+    private static int sSubjectFontSize;
+    private static int sDateFontSize;
+    private static int sDefaultTextColor;
+    private static int sLightTextColor;
+    private static String sSubjectSnippetDivider;
+    private static String sConfigureText;
 
     /**
      * Types of views that we're prepared to show in the widget - all mail, unread mail, and starred
@@ -169,12 +178,19 @@ public class WidgetProvider extends AppWidgetProvider {
             }
             mWidgetId = _widgetId;
             mLoader = new WidgetLoader();
-            if (sDatePaint == null) {
-                sDatePaint = new TextPaint();
-                sDatePaint.setTypeface(Typeface.DEFAULT);
-                sDatePaint.setTextSize(14);
-                sDatePaint.setAntiAlias(true);
-                sDatePaint.setTextAlign(Align.RIGHT);
+            if (sSubjectSnippetDivider == null) {
+                // Initialize string, color, dimension resources
+                Resources res = sContext.getResources();
+                sSubjectSnippetDivider =
+                    res.getString(R.string.message_list_subject_snippet_divider);
+                sSenderFontSize = res.getDimensionPixelSize(R.dimen.widget_senders_font_size);
+                sSubjectFontSize = res.getDimensionPixelSize(R.dimen.widget_subject_font_size);
+                sDateFontSize = res.getDimensionPixelSize(R.dimen.widget_date_font_size);
+                sDefaultTextColor = res.getColor(R.color.widget_default_text_color);
+                sDefaultTextColor = res.getColor(R.color.widget_default_text_color);
+                sLightTextColor = res.getColor(R.color.widget_light_text_color);
+                sConfigureText =  res.getString(R.string.widget_other_views);
+
             }
         }
 
@@ -203,8 +219,7 @@ public class WidgetProvider extends AppWidgetProvider {
                         }
                         RemoteViews views =
                             new RemoteViews(sContext.getPackageName(), R.layout.widget);
-                        views.setTextViewText(R.id.widget_title,
-                                mViewType.getTitle(sContext) + " ("  + mCursorCount + ")");
+                        setupTitleAndCount(views);
                         sWidgetManager.partiallyUpdateAppWidget(mWidgetId, views);
                         sWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
                     }
@@ -219,7 +234,7 @@ public class WidgetProvider extends AppWidgetProvider {
              * @param selection a valid query selection argument
              */
             void startLoadingWithSelection(String selection) {
-                stopLoading();
+                reset();
                 setSelection(selection);
                 startLoading();
             }
@@ -255,25 +270,6 @@ public class WidgetProvider extends AppWidgetProvider {
             mCursor = null;
             sWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
         }
-
-        private void setStyleSpan(SpannableString str, int typeface) {
-            int length = str.length();
-            str.setSpan(new StyleSpan(typeface), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-
-        private CharSequence formattedText(String str, int typeface) {
-            if (str == null) {
-                return "";
-            }
-            SpannableString ss = new SpannableString(str);
-            setStyleSpan(ss, typeface);
-            return ss;
-        }
-
-        private CharSequence formattedTextFromCursor(Cursor c, int column, int typeface) {
-            return formattedText(mCursor.getString(column), typeface);
-        }
-
 
         /**
          * Convenience method for creating an onClickPendingIntent that executes a command via
@@ -327,6 +323,16 @@ public class WidgetProvider extends AppWidgetProvider {
             views.setOnClickFillInIntent(viewId, intent);
         }
 
+        private void setupTitleAndCount(RemoteViews views) {
+            // Set up the title (view type + count of messages)
+            views.setTextViewText(R.id.widget_title, mViewType.getTitle(sContext));
+            views.setTextViewText(R.id.widget_tap, sConfigureText);
+            String count = "";
+            if (mCursorCount != TOTAL_COUNT_UNKNOWN) {
+                count = Integer.toString(mCursor.getCount());
+            }
+            views.setTextViewText(R.id.widget_count, count);
+        }
         /**
          * Update the "header" of the widget (i.e. everything that doesn't include the scrolling
          * message list)
@@ -341,13 +347,11 @@ public class WidgetProvider extends AppWidgetProvider {
 
             // Set up the list with an adapter
             Intent intent = new Intent(sContext, WidgetService.class);
-            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mWidgetId);
+            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
             views.setRemoteAdapter(R.id.message_list, intent);
 
-            // Set up the title (view type + count of messages)
-            views.setTextViewText(R.id.widget_title,
-                    mViewType.getTitle(sContext) + " ("  + mCursorCount + ")");
+            setupTitleAndCount(views);
 
              // Set up "new" button (compose new message) and "next view" button
             setActivityIntent(views, R.id.widget_compose, MessageCompose.class);
@@ -356,11 +360,64 @@ public class WidgetProvider extends AppWidgetProvider {
             // Use a bare intent for our template; we need to fill everything in
             intent = new Intent(sContext, WidgetService.class);
             PendingIntent pendingIntent =
-                PendingIntent.getService(sContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                PendingIntent.getService(sContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             views.setPendingIntentTemplate(R.id.message_list, pendingIntent);
 
             // And finally update the widget
             sWidgetManager.updateAppWidget(mWidgetId, views);
+        }
+
+        /**
+         * Add size and color styling to text
+         *
+         * @param text the text to style
+         * @param size the font size for this text
+         * @param color the color for this text
+         * @return a CharSequence quitable for use in RemoteViews.setTextViewText()
+         */
+        private CharSequence addStyle(CharSequence text, int size, int color) {
+            SpannableStringBuilder builder = new SpannableStringBuilder(text);
+            builder.setSpan(
+                    new AbsoluteSizeSpan(size), 0, text.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if (color != 0) {
+                builder.setSpan(new ForegroundColorSpan(color), 0, text.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            return builder;
+        }
+
+        /**
+         * Create styled text for our combination subject and snippet
+         *
+         * @param subject the message's subject (or null)
+         * @param snippet the message's snippet (or null)
+         * @param read whether or not the message is read
+         * @return a CharSequence suitable for use in RemoteViews.setTextViewText()
+         */
+        private CharSequence getStyledSubjectSnippet (String subject, String snippet,
+                boolean read) {
+            SpannableStringBuilder ssb = new SpannableStringBuilder();
+            boolean hasSubject = false;
+            if (!TextUtils.isEmpty(subject)) {
+                SpannableString ss = new SpannableString(subject);
+                ss.setSpan(new StyleSpan(read ? Typeface.NORMAL : Typeface.BOLD), 0, ss.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ss.setSpan(new ForegroundColorSpan(sDefaultTextColor), 0, ss.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ssb.append(ss);
+                hasSubject = true;
+            }
+            if (!TextUtils.isEmpty(snippet)) {
+                if (hasSubject) {
+                    ssb.append(sSubjectSnippetDivider);
+                }
+                SpannableString ss = new SpannableString(snippet);
+                ss.setSpan(new ForegroundColorSpan(sLightTextColor), 0, snippet.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ssb.append(ss);
+            }
+            return addStyle(ssb, sSubjectFontSize, 0);
         }
 
         /* (non-Javadoc)
@@ -369,26 +426,41 @@ public class WidgetProvider extends AppWidgetProvider {
         public RemoteViews getViewAt(int position) {
             // Use the cursor to set up the widget
             synchronized (mCursorLock) {
-                if (mCursor == null || !mCursor.moveToPosition(position)) {
+                if (mCursor == null || mCursor.isClosed() || !mCursor.moveToPosition(position)) {
                     return getLoadingView();
                 }
                 RemoteViews views =
                     new RemoteViews(sContext.getPackageName(), R.layout.widget_list_item);
+                boolean isUnread = mCursor.getInt(WIDGET_COLUMN_FLAG_READ) != 1;
 
-                // Typeface for from, subject, and date (normal/bold) depends on whether the message
-                // is read/unread
-                int typeface = (mCursor.getInt(WIDGET_COLUMN_FLAG_READ) == 0) ? Typeface.BOLD
-                        : Typeface.NORMAL;
-                views.setTextViewText(R.id.widget_from,
-                        formattedTextFromCursor(mCursor, WIDGET_COLUMN_DISPLAY_NAME, typeface));
-                views.setTextViewText(R.id.widget_subject,
-                        formattedTextFromCursor(mCursor, WIDGET_COLUMN_SUBJECT, typeface));
+                // Add style to sender
+                SpannableStringBuilder from =
+                    new SpannableStringBuilder(mCursor.getString(WIDGET_COLUMN_DISPLAY_NAME));
+                from.setSpan(
+                        isUnread ? new StyleSpan(Typeface.BOLD) : new StyleSpan(Typeface.NORMAL), 0,
+                        from.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                CharSequence styledFrom = addStyle(from, sSenderFontSize, sDefaultTextColor);
+                views.setTextViewText(R.id.widget_from, styledFrom);
 
                 long timestamp = mCursor.getLong(WIDGET_COLUMN_TIMESTAMP);
                 // Get a nicely formatted date string (relative to today)
                 String date = DateUtils.getRelativeTimeSpanString(sContext, timestamp).toString();
-                views.setTextViewText(R.id.widget_date, TextUtils.ellipsize(date, sDatePaint, 64,
-                        TruncateAt.END));
+                // Add style to date
+                CharSequence styledDate = addStyle(date, sDateFontSize, sDefaultTextColor);
+                views.setTextViewText(R.id.widget_date, styledDate);
+
+                // Add style to subject/snippet
+                String subject = mCursor.getString(WIDGET_COLUMN_SUBJECT);
+                String snippet = mCursor.getString(WIDGET_COLUMN_SNIPPET);
+                CharSequence subjectAndSnippet =
+                    getStyledSubjectSnippet(subject, snippet, !isUnread);
+                views.setTextViewText(R.id.widget_subject, subjectAndSnippet);
+
+                if (mCursor.getInt(WIDGET_COLUMN_FLAG_ATTACHMENT) != 0) {
+                    views.setViewVisibility(R.id.widget_attachment, View.VISIBLE);
+                } else {
+                    views.setViewVisibility(R.id.widget_attachment, View.GONE);
+                }
 
                 // Set button intents for view, reply, and delete
                 String messageId = mCursor.getString(WIDGET_COLUMN_ID);
@@ -431,6 +503,13 @@ public class WidgetProvider extends AppWidgetProvider {
 
         @Override
         public void onDataSetChanged() {
+        }
+
+        private void onDeleted() {
+            if (mLoader != null) {
+                mLoader.stopLoading();
+            }
+            sWidgetMap.remove(mWidgetId);
         }
 
         @Override
@@ -514,7 +593,7 @@ public class WidgetProvider extends AppWidgetProvider {
                 EmailWidget widget = sWidgetMap.get(widgetId);
                 if (widget != null) {
                     // Stop loading and remove the widget from the map
-                    widget.onDestroy();
+                    widget.onDeleted();
                 }
             }
         }
@@ -545,9 +624,6 @@ public class WidgetProvider extends AppWidgetProvider {
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
             Uri data = intent.getData();
-            if (Email.DEBUG) {
-                Log.d(TAG, "Executing: " + data);
-            }
             if (data == null) return Service.START_NOT_STICKY;
             List<String> pathSegments = data.getPathSegments();
             // Our path segments are <command>, <arg1> [, <arg2>]
@@ -583,11 +659,8 @@ public class WidgetProvider extends AppWidgetProvider {
         }
 
         private void openMessage(long mailboxId, long messageId) {
-            // TODO Use narrower projection.
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
-            if (mailbox == null) {
-                return;
-            }
+            if (mailbox == null) return;
             startActivity(Welcome.createOpenMessageIntent(this, mailbox.mAccountKey, mailboxId,
                     messageId));
         }

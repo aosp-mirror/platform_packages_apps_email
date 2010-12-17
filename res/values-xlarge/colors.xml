@@ -22,4 +22,11 @@
     <color name="account_setup_divider_color">#b6d650</color>
 
     <color name="message_view_fogged_glass_color">#00000000</color>
+
+    <!--  Widget colors -->
+    <color name="widget_label_shadow_color">#0d0d0d</color>
+    <color name="widget_account_color">#666666</color>
+    <color name="widget_unread_count_color">#4d4d4d</color>
+    <color name="widget_default_text_color">#000000</color>
+    <color name="widget_light_text_color">#666666</color>
 </resources>

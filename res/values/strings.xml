@@ -997,7 +997,7 @@ save attachment.</string>
 
     <!-- Widget -->
     <!-- Instruction for how to move to different widget views [CHAR LIMIT=50] -->
-    <string name="widget_other_views">Tap email icon for other views</string>
+    <string name="widget_other_views">Tap icon to configure</string>
     <!-- Header for the "All Mail" widget view (showing all of the user's mail) [CHAR LIMIT=20] -->
     <string name="widget_all_mail">All Mail</string>
     <!-- Header for the "Unread" widget view (showing all unread mail) [CHAR LIMIT=20] -->

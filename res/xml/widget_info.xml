@@ -15,9 +15,9 @@
 -->
 
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="220dp"
-    android:minHeight="220dp"
+    android:minWidth="258dip"
+    android:minHeight="258dip"
     android:updatePeriodMillis="0"
-    android:initialLayout="@layout/widget"
     android:previewImage="@drawable/email_widget_preview"
+    android:initialLayout="@layout/widget"
     />
