@@ -353,11 +353,11 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             if (cursor.getCount() == 0) {
                 // If there's no row, don't set it to the ListView.
                 // Instead use setListShown(false) to make ListFragment show progress icon.
-                mListAdapter.changeCursor(null);
+                mListAdapter.swapCursor(null);
                 setListShown(false);
             } else {
                 // Set the adapter.
-                mListAdapter.changeCursor(cursor);
+                mListAdapter.swapCursor(cursor);
                 setListAdapter(mListAdapter);
                 setListShown(true);
 
@@ -375,7 +375,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             mAccountChanging = false;
         }
 
+        @Override
         public void onLoaderReset(Loader<Cursor> loader) {
+            mListAdapter.swapCursor(null);
         }
     }
 

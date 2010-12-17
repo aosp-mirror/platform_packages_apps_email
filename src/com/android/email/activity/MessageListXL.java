@@ -594,7 +594,9 @@ public class MessageListXL extends Activity implements
                 updateAccountList(data);
             }
 
+            @Override
             public void onLoaderReset(Loader<Cursor> loader) {
+                mAccountsSelectorAdapter.swapCursor(null);
             }
         });
     }
@@ -634,7 +636,7 @@ public class MessageListXL extends Activity implements
         }
 
         // Update the dropdown list.
-        mAccountsSelectorAdapter.changeCursor(accountsCursor);
+        mAccountsSelectorAdapter.swapCursor(accountsCursor);
 
         // Don't show the title.
         ab.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);

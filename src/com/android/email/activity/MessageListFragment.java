@@ -1061,6 +1061,7 @@ public class MessageListFragment extends ListFragment
             mMailboxChanging = false;
         }
 
+        @Override
         public void onLoaderReset(Loader<MailboxAccountLoader.Result> loader) {
         }
     }
@@ -1112,7 +1113,7 @@ public class MessageListFragment extends ListFragment
             }
 
             // Update the list
-            mListAdapter.changeCursor(cursor);
+            mListAdapter.swapCursor(cursor);
             // Show chips if combined view.
             mListAdapter.setShowColorChips(mMailboxId < 0 && mCountTotalAccounts > 1);
             setListAdapter(mListAdapter);
@@ -1141,7 +1142,9 @@ public class MessageListFragment extends ListFragment
             mMailboxChanging = false;
         }
 
+        @Override
         public void onLoaderReset(Loader<Cursor> loader) {
+            mListAdapter.swapCursor(null);
         }
     }
 
