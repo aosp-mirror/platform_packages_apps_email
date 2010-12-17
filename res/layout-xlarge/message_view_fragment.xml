@@ -67,13 +67,14 @@
                 />
 
             <!-- Badge -->
-            <ImageView
+            <ImageButton
                 android:id="@+id/badge"
                 android:layout_width="60dip"
                 android:layout_height="60dip"
                 android:layout_gravity="center_vertical"
                 android:layout_alignTop="@id/top_divider"
                 android:layout_alignLeft="@id/subject"
+                android:scaleType="fitCenter"
                 />
 
             <!-- Presence icon -->
@@ -101,7 +102,7 @@
                 android:layout_below="@id/top_divider"
                 android:orientation="horizontal"
                 >
-                <ImageView
+                <ImageButton
                     android:id="@+id/reply"
                     android:layout_width="32dip"
                     android:layout_height="match_parent"
@@ -109,8 +110,9 @@
                     android:layout_marginLeft="16dip"
                     android:src="@drawable/reply"
                     android:visibility="gone"
+                    style="@android:style/Widget.Holo.Button.Borderless"
                     />
-                <ImageView
+                <ImageButton
                     android:id="@+id/reply_all"
                     android:layout_width="32dip"
                     android:layout_height="match_parent"
@@ -118,8 +120,9 @@
                     android:layout_marginLeft="16dip"
                     android:src="@drawable/reply_all"
                     android:visibility="gone"
+                    style="@android:style/Widget.Holo.Button.Borderless"
                     />
-                <ImageView
+                <ImageButton
                     android:id="@+id/forward"
                     android:layout_width="32dip"
                     android:layout_height="match_parent"
@@ -127,8 +130,9 @@
                     android:layout_marginLeft="16dip"
                     android:src="@drawable/forward"
                     android:visibility="gone"
+                    style="@android:style/Widget.Holo.Button.Borderless"
                     />
-                <ImageView
+                <ImageButton
                     android:id="@+id/favorite"
                     android:layout_width="32dip"
                     android:layout_height="match_parent"
@@ -136,6 +140,7 @@
                     android:layout_marginLeft="16dip"
                     android:src="@drawable/btn_star_big_buttonless_off"
                     android:visibility="gone"
+                    style="@android:style/Widget.Holo.Button.Borderless"
                     />
              </LinearLayout>
 
