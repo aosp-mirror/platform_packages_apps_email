@@ -980,11 +980,7 @@ public class Utility {
         } else if (attachment.mContentBytes != null) {
             return true;
         } else if (TextUtils.isEmpty(attachment.mContentUri)) {
-            Log.w(Email.LOG_TAG, "attachmentExists ContentUri null.");
             return false;
-        }
-        if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "attachmentExists URI=" + attachment.mContentUri);
         }
         try {
             Uri fileUri = Uri.parse(attachment.mContentUri);
