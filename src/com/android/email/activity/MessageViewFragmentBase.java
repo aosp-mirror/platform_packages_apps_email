@@ -686,6 +686,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             }
         }
 
+        @Override
         public void onLoaderReset(Loader<ContactStatusLoader.Result> loader) {
         }
     }
