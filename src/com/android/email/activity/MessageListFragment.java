@@ -1012,8 +1012,8 @@ public class MessageListFragment extends ListFragment
 
     private void stopLoaders() {
         final LoaderManager lm = getLoaderManager();
-        lm.stopLoader(LOADER_ID_MAILBOX_LOADER);
-        lm.stopLoader(LOADER_ID_MESSAGES_LOADER);
+        lm.destroyLoader(LOADER_ID_MAILBOX_LOADER);
+        lm.destroyLoader(LOADER_ID_MESSAGES_LOADER);
     }
 
     /**

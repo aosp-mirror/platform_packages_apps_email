@@ -97,8 +97,8 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     @Override
     public void onDestroy() {
         LoaderManager lm = getActivity().getLoaderManager();
-        lm.stopLoader(ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER);
-        lm.stopLoader(ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER);
+        lm.destroyLoader(ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER);
+        lm.destroyLoader(ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER);
         mDestroyed = true;
         super.onDestroy();
     }
@@ -280,10 +280,6 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
 
         @Override
         public void reset() {
-            stopLoading();
-        }
-
-        public void destroy() {
             stopLoading();
         }
     }

@@ -306,7 +306,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         boolean accountChanging = false;
         if ((mLastLoadedAccountId != -1) && (mLastLoadedAccountId != mAccountId)) {
             accountChanging = true;
-            getLoaderManager().stopLoader(LOADER_ID_MAILBOX_LIST);
+            getLoaderManager().destroyLoader(LOADER_ID_MAILBOX_LIST);
 
             // Also, when we're changing account, update the mailbox list if stale.
             refreshMailboxListIfStale();
