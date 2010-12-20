@@ -102,6 +102,7 @@ public class MailboxAccountLoader extends AsyncTaskLoader<MailboxAccountLoader.R
         cancelLoad();
     }
 
+    @Override
     public void reset() {
         stopLoading();
     }

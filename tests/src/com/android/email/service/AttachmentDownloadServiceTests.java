@@ -225,15 +225,15 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         // Now, test per-account storage
         // Mock storage @ 100 total and 50 available
         mMockDirectory.setTotalAndUsableSpace(100L, 50L);
-        // Mock a file of length 24, but need to uncache previous amount first
+        // Mock a file of length 12, but need to uncache previous amount first
         mService.mAttachmentStorageMap.remove(1L);
-        mMockDirectory.setFileLength(24);
-        // We can prefetch since 24 < half of 50
+        mMockDirectory.setFileLength(11);
+        // We can prefetch since 11 < 50/4
         assertTrue(mService.canPrefetchForAccount(1, mMockDirectory));
-        // Mock a file of length 26, but need to uncache previous amount first
+        // Mock a file of length 13, but need to uncache previous amount first
         mService.mAttachmentStorageMap.remove(1L);
-        mMockDirectory.setFileLength(26);
-        // We can't prefetch since 26 > half of 50
+        mMockDirectory.setFileLength(13);
+        // We can't prefetch since 13 > 50/4
         assertFalse(mService.canPrefetchForAccount(1, mMockDirectory));
     }
 }
