@@ -525,6 +525,9 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         if (c != null) {
             // Make a new MatrixCursor with the requested columns
             MatrixCursor mc = new MatrixCursor(projection, 1);
+            if (c.getCount() == 0) {
+                return mc;
+            }
             Object[] row = new Object[projection.length];
             if (values != null) {
                 // Make a copy; we don't want to change the original
