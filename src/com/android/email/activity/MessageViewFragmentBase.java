@@ -48,8 +48,6 @@ import android.content.Loader;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -1151,6 +1149,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             attachmentView.setVisibility(View.VISIBLE);
             attachmentLoad.setVisibility(View.INVISIBLE);
             attachmentCancel.setVisibility(View.GONE);
+
+            Bitmap previewIcon = getPreviewIcon(attachmentInfo);
+            if (previewIcon != null) {
+                attachmentIcon.setImageBitmap(previewIcon);
+            }
         } else {
             // Show "Load"; hide "View" and "Save"
             attachmentSave.setVisibility(View.INVISIBLE);
@@ -1185,11 +1188,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         attachmentName.setText(attachmentInfo.name);
         attachmentInfoView.setText(Utility.formatSize(mContext, attachmentInfo.size));
-
-        Bitmap previewIcon = getPreviewIcon(attachmentInfo);
-        if (previewIcon != null) {
-            attachmentIcon.setImageBitmap(previewIcon);
-        }
 
         mAttachments.addView(view);
         mAttachments.setVisibility(View.VISIBLE);
