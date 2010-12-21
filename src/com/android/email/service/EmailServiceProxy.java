@@ -180,12 +180,12 @@ public class EmailServiceProxy implements IEmailService {
         });
     }
 
-    public void startSync(final long mailboxId) throws RemoteException {
+    public void startSync(final long mailboxId, final boolean userRequest) throws RemoteException {
         setTask(new Runnable () {
             public void run() {
                 try {
                     if (mCallback != null) mService.setCallback(mCallback);
-                    mService.startSync(mailboxId);
+                    mService.startSync(mailboxId, userRequest);
                 } catch (RemoteException e) {
                 }
             }

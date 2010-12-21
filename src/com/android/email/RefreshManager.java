@@ -231,8 +231,8 @@ public class RefreshManager {
     /**
      * Refresh messages in a mailbox.
      */
-    public boolean refreshMessageList(long accountId, long mailboxId) {
-        return refreshMessageList(accountId, mailboxId, false);
+    public boolean refreshMessageList(long accountId, long mailboxId, boolean userRequest) {
+        return refreshMessageList(accountId, mailboxId, false, userRequest);
     }
 
     /**
@@ -242,7 +242,8 @@ public class RefreshManager {
         return refreshMessageList(accountId, mailboxId, true);
     }
 
-    private boolean refreshMessageList(long accountId, long mailboxId, boolean loadMoreMessages) {
+    private boolean refreshMessageList(long accountId, long mailboxId, boolean loadMoreMessages,
+            boolean userRequest) {
         final Status status = mMessageListStatus.get(mailboxId);
         if (!status.canRefresh()) return false;
 
@@ -253,7 +254,7 @@ public class RefreshManager {
         if (loadMoreMessages) {
             mController.loadMoreMessages(mailboxId);
         } else {
-            mController.updateMailbox(accountId, mailboxId);
+            mController.updateMailbox(accountId, mailboxId, userRequest);
         }
         return true;
     }

@@ -219,7 +219,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
 
     public void testRefreshMessageList() {
         // request refresh mailbox 1
-        assertTrue(mTarget.refreshMessageList(ACCOUNT_1, MAILBOX_1));
+        assertTrue(mTarget.refreshMessageList(ACCOUNT_1, MAILBOX_1, false));
 
         assertTrue(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
@@ -234,7 +234,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertTrue(mTarget.isRefreshingAnyMessageListForTest());
 
         // Request again -- shouldn't be accepted.
-        assertFalse(mTarget.refreshMessageList(ACCOUNT_1, MAILBOX_1));
+        assertFalse(mTarget.refreshMessageList(ACCOUNT_1, MAILBOX_1, false));
 
         assertFalse(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
@@ -243,7 +243,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         mController.reset();
 
         // request refresh mailbox 2
-        assertTrue(mTarget.refreshMessageList(ACCOUNT_2, MAILBOX_2));
+        assertTrue(mTarget.refreshMessageList(ACCOUNT_2, MAILBOX_2, false));
 
         assertTrue(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
@@ -431,7 +431,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         }
 
         @Override
-        public void updateMailbox(long accountId, long mailboxId) {
+        public void updateMailbox(long accountId, long mailboxId, boolean userRequest) {
             mCalledUpdateMailbox = true;
             mAccountId = accountId;
             mMailboxId = mailboxId;

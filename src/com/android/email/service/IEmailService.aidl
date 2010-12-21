@@ -23,7 +23,7 @@ interface IEmailService {
     Bundle validate(in String protocol, in String host, in String userName, in String password,
         int port, boolean ssl, boolean trustCertificates) ;
 
-    void startSync(long mailboxId);
+    void startSync(long mailboxId, boolean userRequest);
     void stopSync(long mailboxId);
 
     void loadMore(long messageId);

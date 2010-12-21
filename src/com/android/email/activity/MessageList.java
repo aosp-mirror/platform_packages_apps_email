@@ -349,7 +349,7 @@ public class MessageList extends Activity implements OnClickListener,
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh:
-                mListFragment.onRefresh();
+                mListFragment.onRefresh(true);
                 return true;
             case R.id.folders:
                 onFolders();

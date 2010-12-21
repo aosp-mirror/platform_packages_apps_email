@@ -780,7 +780,7 @@ public class MessageListXL extends Activity implements
                 return;
             }
             if (isCurrentMailboxRefreshable) {
-                mRefreshManager.refreshMessageList(mAccountId, mMailboxId);
+                mRefreshManager.refreshMessageList(mAccountId, mMailboxId, false);
             }
             // Refresh mailbox list
             if (mAccountId != -1) {
@@ -790,7 +790,7 @@ public class MessageListXL extends Activity implements
             }
             // Refresh inbox
             if (shouldAutoRefreshInbox()) {
-                mRefreshManager.refreshMessageList(mAccountId, mInboxId);
+                mRefreshManager.refreshMessageList(mAccountId, mInboxId, false);
             }
         }
 

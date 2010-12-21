@@ -24,10 +24,10 @@ import com.android.email.Utility;
 import com.android.email.Utility.ListStateSaver;
 import com.android.email.data.MailboxAccountLoader;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailProvider;
 import com.android.email.service.MailService;
 
 import android.app.Activity;
@@ -56,15 +56,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.DragThumbnailBuilder;
 import android.view.View.OnDragListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 import java.security.InvalidParameterException;
 import java.util.HashSet;
@@ -637,13 +637,13 @@ public class MessageListFragment extends ListFragment
      *
      * Note: Manual refresh is enabled even for push accounts.
      */
-    public void onRefresh() {
+    public void onRefresh(boolean userRequest) {
         if (!mIsRefreshable) {
             return;
         }
         long accountId = getAccountId();
         if (accountId != -1) {
-            mRefreshManager.refreshMessageList(accountId, mMailboxId);
+            mRefreshManager.refreshMessageList(accountId, mMailboxId, userRequest);
         }
     }
 
@@ -888,7 +888,7 @@ public class MessageListFragment extends ListFragment
         if (!mRefreshManager.isMailboxStale(mMailboxId)) {
             return;
         }
-        onRefresh();
+        onRefresh(false);
     }
 
     /** Implements {@link MessagesAdapter.Callback} */

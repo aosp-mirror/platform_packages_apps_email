@@ -118,7 +118,7 @@ public class ExchangeUtils {
         public void setLogging(int on) throws RemoteException {
         }
 
-        public void startSync(long mailboxId) throws RemoteException {
+        public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
         }
 
         public void stopSync(long mailboxId) throws RemoteException {

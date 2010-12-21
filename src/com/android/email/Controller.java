@@ -343,13 +343,13 @@ public class Controller {
      * a simple message list.  We should also at this point queue up a background task of
      * downloading some/all of the messages in this mailbox, but that should be interruptable.
      */
-    public void updateMailbox(final long accountId, final long mailboxId) {
+    public void updateMailbox(final long accountId, final long mailboxId, boolean userRequest) {
 
         IEmailService service = getServiceForAccount(accountId);
         if (service != null) {
             // Service implementation
             try {
-                service.startSync(mailboxId);
+                service.startSync(mailboxId, userRequest);
             } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method
                 // is implemented for other protocols
@@ -558,7 +558,7 @@ public class Controller {
         if (service != null) {
             // Service implementation
             try {
-                service.startSync(outboxId);
+                service.startSync(outboxId, false);
             } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method
                 // is implemented for other protocols
@@ -1580,7 +1580,7 @@ public class Controller {
                 return null;
             }
 
-            public void startSync(long mailboxId) throws RemoteException {
+            public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
             }
 
             public void stopSync(long mailboxId) throws RemoteException {

@@ -137,12 +137,14 @@ public class ExchangeService extends Service implements Runnable {
     // Misc.
     public static final int SYNC_KICK = 4;
 
-    // Requests >= SYNC_UI_REQUEST generate callbacks to the UI
-    public static final int SYNC_UI_REQUEST = 5;
-    // startSync was requested of ExchangeService
-    public static final int SYNC_SERVICE_START_SYNC = SYNC_UI_REQUEST + 0;
+    // Requests >= SYNC_CALLBACK_START generate callbacks to the UI
+    public static final int SYNC_CALLBACK_START = 5;
+    // startSync was requested of ExchangeService (other than due to user request)
+    public static final int SYNC_SERVICE_START_SYNC = SYNC_CALLBACK_START + 0;
+    // startSync was requested of ExchangeService (due to user request)
+    public static final int SYNC_UI_REQUEST = SYNC_CALLBACK_START + 1;
     // A part request (attachment load, for now) was sent to ExchangeService
-    public static final int SYNC_SERVICE_PART_REQUEST = SYNC_UI_REQUEST + 1;
+    public static final int SYNC_SERVICE_PART_REQUEST = SYNC_CALLBACK_START + 2;
 
     private static final String WHERE_PUSH_OR_PING_NOT_ACCOUNT_MAILBOX =
         MailboxColumns.ACCOUNT_KEY + "=? and " + MailboxColumns.TYPE + "!=" +
@@ -340,7 +342,7 @@ public class ExchangeService extends Service implements Runnable {
             return new EasSyncService().tryAutodiscover(userName, password);
         }
 
-        public void startSync(long mailboxId) throws RemoteException {
+        public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
             ExchangeService exchangeService = INSTANCE;
             if (exchangeService == null) return;
             checkExchangeServiceServiceRunning();
@@ -369,7 +371,8 @@ public class ExchangeService extends Service implements Runnable {
                 }
                 return;
             }
-            startManualSync(mailboxId, ExchangeService.SYNC_SERVICE_START_SYNC, null);
+            startManualSync(mailboxId, userRequest ? ExchangeService.SYNC_UI_REQUEST :
+                ExchangeService.SYNC_SERVICE_START_SYNC, null);
         }
 
         public void stopSync(long mailboxId) throws RemoteException {
@@ -2328,7 +2331,7 @@ public class ExchangeService extends Service implements Runnable {
                 }
             } else {
                 // If this is a ui request, set the sync reason for the service
-                if (reason >= SYNC_UI_REQUEST) {
+                if (reason >= SYNC_CALLBACK_START) {
                     svc.mSyncReason = reason;
                 }
             }
