@@ -32,7 +32,7 @@
         android:layout_marginRight="5dip"
         android:orientation="horizontal"
         android:paddingTop="4dip"
-        android:paddingLeft="16dip"
+        android:paddingLeft="8dip"
         android:paddingRight="8dip"
         android:background="@drawable/header_bg_email_widget_holo">
         <ImageView
