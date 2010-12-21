@@ -59,24 +59,24 @@ public class ThrottlingCursorLoader extends CursorLoader {
     }
 
     @Override
-    public void startLoading() {
+    protected void onStartLoading() {
         if (Throttle.DEBUG) debugLog("startLoading");
         mThrottle.cancelScheduledCallback();
-        super.startLoading();
+        super.onStartLoading();
     }
 
     @Override
-    public void forceLoad() {
+    protected void onForceLoad() {
         if (Throttle.DEBUG) debugLog("forceLoad");
         mThrottle.cancelScheduledCallback();
-        super.forceLoad();
+        super.onForceLoad();
     }
 
     @Override
-    public void stopLoading() {
+    protected void onStopLoading() {
         if (Throttle.DEBUG) debugLog("stopLoading");
         mThrottle.cancelScheduledCallback();
-        super.stopLoading();
+        super.onStopLoading();
     }
 
     @Override
