@@ -268,18 +268,18 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
         }
 
         @Override
-        public void startLoading() {
+        protected void onStartLoading() {
             cancelLoad();
             forceLoad();
         }
 
         @Override
-        public void stopLoading() {
+        protected void onStopLoading() {
             cancelLoad();
         }
 
         @Override
-        public void reset() {
+        protected void onReset() {
             stopLoading();
         }
     }
