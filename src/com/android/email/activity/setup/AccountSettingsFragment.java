@@ -33,6 +33,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -54,13 +55,9 @@ import android.util.Log;
  * Fragment containing the main logic for account settings.  This also calls out to other
  * fragments for server settings.
  *
- * TODO: Move all "Restore" ops & other queries out of lifecycle methods and out of UI thread
+ * TODO: Remove or make async the mAccountDirty reload logic.  Probably no longer needed.
  * TODO: Can we defer calling addPreferencesFromResource() until after we load the account?  This
  *       could reduce flicker.
- *
- * STOPSHIP: Find a permanent home for delete account
- *
- * STOPSHIP: Remove fragment lifecycle logging
  */
 public class AccountSettingsFragment extends PreferenceFragment {
 
@@ -106,6 +103,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private Context mContext;
     private Account mAccount;
     private boolean mAccountDirty;
+    private long mDefaultAccountId;
     private Callback mCallback = EmptyCallback.INSTANCE;
     private boolean mStarted;
     private boolean mLoaded;
@@ -129,7 +127,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         @Override public void onIncomingSettings(Account account) { }
         @Override public void onOutgoingSettings(Account account) { }
         @Override public void abandonEdit() { }
-        @Override public void deleteAccount(Account account) { };
+        @Override public void deleteAccount(Account account) { }
     }
 
     /**
@@ -212,6 +210,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
     /**
      * Called when the fragment is visible to the user and actively running.
+     * TODO: Don't read account data on UI thread.  This should be fixed by removing the need
+     * to do this, not by spinning up yet another thread.
      */
     @Override
     public void onResume() {
@@ -248,6 +248,9 @@ public class AccountSettingsFragment extends PreferenceFragment {
             Log.d(Email.LOG_TAG, "AccountSettingsFragment onPause");
         }
         super.onPause();
+        if (mSaveOnExit) {
+            saveSettings();
+        }
     }
 
     /**
@@ -274,12 +277,6 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
         Utility.cancelTaskInterrupt(mLoadAccountTask);
         mLoadAccountTask = null;
-
-        // If there is good account data and we have not abandoned it, save it now
-        if (mSaveOnExit) {
-            saveSettings();
-            mSaveOnExit = false;
-        }
     }
 
     @Override
@@ -308,9 +305,9 @@ public class AccountSettingsFragment extends PreferenceFragment {
     /**
      * Async task to load account in order to view/edit it
      */
-    private class LoadAccountTask extends AsyncTask<Long, Void, Account> {
+    private class LoadAccountTask extends AsyncTask<Long, Void, Object[]> {
         @Override
-        protected Account doInBackground(Long... params) {
+        protected Object[] doInBackground(Long... params) {
             long accountId = params[0];
             Account account = Account.restoreAccountWithId(mContext, accountId);
             if (account != null) {
@@ -322,17 +319,20 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     account = null;
                 }
             }
-            return account;
+            long defaultAccountId = Account.getDefaultAccountId(mContext);
+            return new Object[] { account, Long.valueOf(defaultAccountId) };
         }
 
         @Override
-        protected void onPostExecute(Account account) {
-            if (!isCancelled()) {
+        protected void onPostExecute(Object[] results) {
+            if (results != null && !isCancelled()) {
+                Account account = (Account) results[0];
                 if (account == null) {
                     mSaveOnExit = false;
                     mCallback.abandonEdit();
                 } else {
                     mAccount = account;
+                    mDefaultAccountId = (Long) results[1];
                     if (mStarted && !mLoaded) {
                         loadSettings();
                     }
@@ -348,7 +348,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         // We can only do this once, so prevent repeat
         mLoaded = true;
         // Once loaded the data is ready to be saved, as well
-        mSaveOnExit = true;
+        mSaveOnExit = false;
 
         PreferenceCategory topCategory =
             (PreferenceCategory) findPreference(PREFERENCE_CATEGORY_TOP);
@@ -363,6 +363,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     final String summary = newValue.toString();
                     mAccountDescription.setSummary(summary);
                     mAccountDescription.setText(summary);
+                    onPreferenceChanged();
                     return false;
                 }
             }
@@ -376,6 +377,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                 final String summary = newValue.toString();
                 mAccountName.setSummary(summary);
                 mAccountName.setText(summary);
+                onPreferenceChanged();
                 return false;
             }
         });
@@ -393,6 +395,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                             mAccountSignature.setSummary(summary);
                         }
                         mAccountSignature.setText(summary);
+                        onPreferenceChanged();
                         return false;
                     }
                 });
@@ -415,6 +418,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                 int index = mCheckFrequency.findIndexOfValue(summary);
                 mCheckFrequency.setSummary(mCheckFrequency.getEntries()[index]);
                 mCheckFrequency.setValue(summary);
+                onPreferenceChanged();
                 return false;
             }
         });
@@ -435,6 +439,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     int index = mSyncWindow.findIndexOfValue(summary);
                     mSyncWindow.setSummary(mSyncWindow.getEntries()[index]);
                     mSyncWindow.setValue(summary);
+                    onPreferenceChanged();
                     return false;
                 }
             });
@@ -442,12 +447,15 @@ public class AccountSettingsFragment extends PreferenceFragment {
         }
 
         mAccountDefault = (CheckBoxPreference) findPreference(PREFERENCE_DEFAULT);
-        mAccountDefault.setChecked(mAccount.mId == Account.getDefaultAccountId(mContext));
+        mAccountDefault.setChecked(mAccount.mId == mDefaultAccountId);
+        mAccountDefault.setOnPreferenceChangeListener(mPreferenceChangeListener);
 
         mAccountNotify = (CheckBoxPreference) findPreference(PREFERENCE_NOTIFY);
         mAccountNotify.setChecked(0 != (mAccount.getFlags() & Account.FLAGS_NOTIFY_NEW_MAIL));
+        mAccountNotify.setOnPreferenceChangeListener(mPreferenceChangeListener);
 
         mAccountRingtone = (RingtonePreference) findPreference(PREFERENCE_RINGTONE);
+        mAccountRingtone.setOnPreferenceChangeListener(mPreferenceChangeListener);
 
         // The following two lines act as a workaround for the RingtonePreference
         // which does not let us set/get the value programmatically
@@ -465,6 +473,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     flagsVibrate ? PREFERENCE_VALUE_VIBRATE_WHEN_ALWAYS :
                     flagsVibrateSilent ? PREFERENCE_VALUE_VIBRATE_WHEN_SILENT :
                         PREFERENCE_VALUE_VIBRATE_WHEN_NEVER);
+            mAccountVibrateWhen.setOnPreferenceChangeListener(mPreferenceChangeListener);
         } else {
             PreferenceCategory notificationsCategory = (PreferenceCategory)
                     findPreference(PREFERENCE_CATEGORY_NOTIFICATIONS);
@@ -515,10 +524,13 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
             mSyncContacts.setChecked(ContentResolver
                     .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
+            mSyncContacts.setOnPreferenceChangeListener(mPreferenceChangeListener);
             mSyncCalendar.setChecked(ContentResolver
                     .getSyncAutomatically(acct, Calendar.AUTHORITY));
+            mSyncCalendar.setOnPreferenceChangeListener(mPreferenceChangeListener);
             mSyncEmail.setChecked(ContentResolver
                     .getSyncAutomatically(acct, EmailContent.AUTHORITY));
+            mSyncEmail.setOnPreferenceChangeListener(mPreferenceChangeListener);
         } else {
             PreferenceCategory serverCategory = (PreferenceCategory) findPreference(
                     PREFERENCE_CATEGORY_SERVER);
@@ -542,11 +554,30 @@ public class AccountSettingsFragment extends PreferenceFragment {
                 });
     }
 
-    /*
-     * TODO: Should collect the data in the UI thread, but should spin out a thread to write
-     * to sync settings, provider, and service enabler.
+    /**
+     * Generic onPreferenceChanged listener for the preferences (above) that just need
+     * to be written, without extra tweaks
      */
-    public void saveSettings() {
+    private Preference.OnPreferenceChangeListener mPreferenceChangeListener =
+        new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                onPreferenceChanged();
+                return true;
+            }
+    };
+
+    /**
+     * Called any time a preference is changed.
+     */
+    private void onPreferenceChanged() {
+        mSaveOnExit = true;
+    }
+
+    /*
+     * Note: This writes the settings on the UI thread.  This has to be done so the settings are
+     * committed before we might be killed.
+     */
+    private void saveSettings() {
         int newFlags = mAccount.getFlags() &
                 ~(Account.FLAGS_NOTIFY_NEW_MAIL |
                         Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_VIBRATE_WHEN_SILENT);
@@ -579,8 +610,22 @@ public class AccountSettingsFragment extends PreferenceFragment {
             ContentResolver.setSyncAutomatically(acct, EmailContent.AUTHORITY,
                     mSyncEmail.isChecked());
         }
-        AccountSettingsUtils.commitSettings(mContext, mAccount);
-        Email.setServicesEnabled(mContext);
+
+        // Commit the changes
+        // Note, this is done in the UI thread because at this point, we must commit
+        // all changes - any time after onPause completes, we could be killed.  This is analogous
+        // to the way that SharedPreferences tries to work off-thread in apply(), but will pause
+        // until completion in onPause().
+        ContentValues cv = AccountSettingsUtils.getAccountContentValues(mAccount);
+        mAccount.update(mContext, cv);
+
+        // Run the remaining changes off-thread
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                Email.setServicesEnabled(mContext);
+            }
+        });
     }
 
     /**

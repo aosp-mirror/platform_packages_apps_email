@@ -44,21 +44,30 @@ public class AccountSettingsUtils {
         if (!account.isSaved()) {
             account.save(context);
         } else {
-            ContentValues cv = new ContentValues();
-            cv.put(AccountColumns.IS_DEFAULT, account.mIsDefault);
-            cv.put(AccountColumns.DISPLAY_NAME, account.getDisplayName());
-            cv.put(AccountColumns.SENDER_NAME, account.getSenderName());
-            cv.put(AccountColumns.SIGNATURE, account.getSignature());
-            cv.put(AccountColumns.SYNC_INTERVAL, account.mSyncInterval);
-            cv.put(AccountColumns.RINGTONE_URI, account.mRingtoneUri);
-            cv.put(AccountColumns.FLAGS, account.mFlags);
-            cv.put(AccountColumns.SYNC_LOOKBACK, account.mSyncLookback);
-            cv.put(AccountColumns.SECURITY_FLAGS, account.mSecurityFlags);
-            cv.put(AccountColumns.SECURITY_SYNC_KEY, account.mSecuritySyncKey);
+            ContentValues cv = getAccountContentValues(account);
             account.update(context, cv);
         }
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backupAccounts(context);
+    }
+
+    /**
+     * Returns a set of content values to commit account changes (not including HostAuth) to
+     * the database.  Does not actually commit anything.
+     */
+    public static ContentValues getAccountContentValues(EmailContent.Account account) {
+        ContentValues cv = new ContentValues();
+        cv.put(AccountColumns.IS_DEFAULT, account.mIsDefault);
+        cv.put(AccountColumns.DISPLAY_NAME, account.getDisplayName());
+        cv.put(AccountColumns.SENDER_NAME, account.getSenderName());
+        cv.put(AccountColumns.SIGNATURE, account.getSignature());
+        cv.put(AccountColumns.SYNC_INTERVAL, account.mSyncInterval);
+        cv.put(AccountColumns.RINGTONE_URI, account.mRingtoneUri);
+        cv.put(AccountColumns.FLAGS, account.mFlags);
+        cv.put(AccountColumns.SYNC_LOOKBACK, account.mSyncLookback);
+        cv.put(AccountColumns.SECURITY_FLAGS, account.mSecurityFlags);
+        cv.put(AccountColumns.SECURITY_SYNC_KEY, account.mSecuritySyncKey);
+        return cv;
     }
 
     /**

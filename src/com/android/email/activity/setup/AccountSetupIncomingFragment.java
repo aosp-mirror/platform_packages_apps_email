@@ -403,6 +403,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
     /**
      * Entry point from Activity after editing settings and verifying them.  Must be FLOW_MODE_EDIT.
+     * TODO should not write DB in UI thread
      */
     @Override
     public void saveSettingsAfterEdit() {
@@ -419,6 +420,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
     /**
      * Entry point from Activity after entering new settings and verifying them.  For setup mode.
+     * TODO should not write DB in UI thread
      */
     @Override
     public void saveSettingsAfterSetup() {
