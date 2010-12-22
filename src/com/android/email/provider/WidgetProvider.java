@@ -22,6 +22,8 @@ import com.android.email.Utility;
 import com.android.email.activity.MessageCompose;
 import com.android.email.activity.Welcome;
 import com.android.email.data.ThrottlingCursorLoader;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
@@ -41,6 +43,7 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.net.Uri.Builder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -93,7 +96,13 @@ public class WidgetProvider extends AppWidgetProvider {
     private static final int TOTAL_COUNT_UNKNOWN = -1;
     private static final int MAX_MESSAGE_LIST_COUNT = 25;
 
-    private static final String SORT_DESCENDING = MessageColumns.TIMESTAMP + " DESC";
+    private static final String[] NO_ARGUMENTS = new String[0];
+    private static final String SORT_TIMESTAMP_DESCENDING = MessageColumns.TIMESTAMP + " DESC";
+    private static final String SORT_ID_ASCENDING = AccountColumns.ID + " ASC";
+    private static final String[] ID_NAME_PROJECTION = {Account.RECORD_ID, Account.DISPLAY_NAME};
+    private static final int ID_NAME_COLUMN_ID = 0;
+    private static final int ID_NAME_COLUMN_NAME = 1;
+
 
     // Map holding our instantiated widgets, accessed by widget id
     private static HashMap<Integer, EmailWidget> sWidgetMap = new HashMap<Integer, EmailWidget>();
@@ -114,21 +123,24 @@ public class WidgetProvider extends AppWidgetProvider {
      * mail; we rotate between them.  Each ViewType is composed of a selection string and a title.
      */
     public enum ViewType {
-        ALL_MAIL(null, R.string.widget_all_mail),
-        UNREAD(MessageColumns.FLAG_READ + "=0", R.string.widget_unread),
-        STARRED(MessageColumns.FLAG_FAVORITE + "=1", R.string.widget_starred);
+        ALL_MAIL(null, NO_ARGUMENTS, R.string.widget_all_mail),
+        UNREAD(MessageColumns.FLAG_READ + "=0", NO_ARGUMENTS, R.string.widget_unread),
+        STARRED(MessageColumns.FLAG_FAVORITE + "=1", NO_ARGUMENTS, R.string.widget_starred),
+        ACCOUNT(MessageColumns.ACCOUNT_KEY + "=?", new String[1], 0);
 
         private final String selection;
+        private final String[] selectionArgs;
         private final int titleResource;
         private String title;
 
-        ViewType(String _selection, int _titleResource) {
+        ViewType(String _selection, String[] _selectionArgs, int _titleResource) {
             selection = _selection;
+            selectionArgs = _selectionArgs;
             titleResource = _titleResource;
         }
 
         public String getTitle(Context context) {
-            if (title == null) {
+            if (title == null && titleResource != 0) {
                 title = context.getString(titleResource);
             }
             return title;
@@ -151,7 +163,7 @@ public class WidgetProvider extends AppWidgetProvider {
         private WidgetLoader mLoader;
 
         // The current view type (all mail, unread, or starred for now)
-        private ViewType mViewType = ViewType.ALL_MAIL;
+        private ViewType mViewType = ViewType.STARRED;
 
         // The projection to be used by the WidgetLoader
         public static final String[] WIDGET_PROJECTION = new String[] {
@@ -190,7 +202,6 @@ public class WidgetProvider extends AppWidgetProvider {
                 sDefaultTextColor = res.getColor(R.color.widget_default_text_color);
                 sLightTextColor = res.getColor(R.color.widget_light_text_color);
                 sConfigureText =  res.getString(R.string.widget_other_views);
-
             }
         }
 
@@ -201,8 +212,8 @@ public class WidgetProvider extends AppWidgetProvider {
          */
         final class WidgetLoader extends ThrottlingCursorLoader {
             protected WidgetLoader() {
-                super(sContext, Message.CONTENT_URI, WIDGET_PROJECTION, mViewType.selection, null,
-                        SORT_DESCENDING);
+                super(sContext, Message.CONTENT_URI, WIDGET_PROJECTION, mViewType.selection,
+                        mViewType.selectionArgs, SORT_TIMESTAMP_DESCENDING);
                 registerListener(0, new OnLoadCompleteListener<Cursor>() {
                     @Override
                     public void onLoadComplete(Loader<Cursor> loader, Cursor cursor) {
@@ -224,51 +235,74 @@ public class WidgetProvider extends AppWidgetProvider {
                         sWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
                     }
                 });
-                startLoading();
+
+                new WidgetViewSwitcher(EmailWidget.this).execute();
             }
 
             /**
-             * Convenience method that stops existing loading (if any), sets a (possibly new)
-             * selection criterion, and starts loading
-             *
-             * @param selection a valid query selection argument
+             * Stop any pending load, reset selection parameters, and start loading
+             * Must be called from the UI thread
+             * @param viewType the current ViewType
              */
-            void startLoadingWithSelection(String selection) {
+            private void load(ViewType viewType) {
                 reset();
-                setSelection(selection);
+                setSelection(viewType.selection);
+                setSelectionArgs(viewType.selectionArgs);
                 startLoading();
             }
         }
 
         /**
-         * Switch to the next widget view (cycles all -> unread -> starred)
+         * Reset cursor and cursor count, notify widget that list data is invalid, and start loading
+         * with our current ViewType
          */
-        public void switchToNextView() {
+        private void loadView() {
+            synchronized(mCursorLock) {
+                mCursorCount = TOTAL_COUNT_UNKNOWN;
+                mCursor = null;
+                sWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
+                mLoader.load(mViewType);
+            }
+        }
+
+        /**
+         * Switch to the next widget view (all -> account1 -> ... -> account n -> unread -> starred)
+         * This must be called on a background thread
+         */
+        public synchronized void switchToNextView() {
             switch(mViewType) {
+                // If we're in starred and there is more than one account, go to "all mail"
+                // Otherwise, fall through to the accounts themselves
+                case STARRED:
+                    if (EmailContent.count(sContext, Account.CONTENT_URI) > 1) {
+                        mViewType = ViewType.ALL_MAIL;
+                        break;
+                    }
+                    //$FALL-THROUGH$
                 case ALL_MAIL:
-                    mViewType = ViewType.UNREAD;
+                    ViewType.ACCOUNT.selectionArgs[0] = "0";
+                    //$FALL-THROUGH$
+                case ACCOUNT:
+                    // Find the next account (or, if none, default to UNREAD)
+                    String idString = ViewType.ACCOUNT.selectionArgs[0];
+                    Cursor c = sResolver.query(Account.CONTENT_URI, ID_NAME_PROJECTION, "_id>?",
+                            new String[] {idString}, SORT_ID_ASCENDING);
+                    try {
+                        if (c.moveToFirst()) {
+                            mViewType = ViewType.ACCOUNT;
+                            mViewType.selectionArgs[0] = c.getString(ID_NAME_COLUMN_ID);
+                            mViewType.title = c.getString(ID_NAME_COLUMN_NAME);
+                        } else {
+                            mViewType = ViewType.UNREAD;
+                        }
+                    } finally {
+                        c.close();
+                    }
                     break;
                 case UNREAD:
                     mViewType = ViewType.STARRED;
                     break;
-                case STARRED:
-                    mViewType = ViewType.ALL_MAIL;
-                    break;
             }
-            synchronized(mCursorLock) {
-                mCursorCount = TOTAL_COUNT_UNKNOWN;
-                invalidateCursorLocked();
-                mLoader.startLoadingWithSelection(mViewType.selection);
-            }
-        }
-
-        /**
-         * Invalidates the current cursor and tells the UI that the underlying data has changed.
-         * This method must be called while holding mCursorLock
-         */
-        private void invalidateCursorLocked() {
-            mCursor = null;
-            sWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
         }
 
         /**
@@ -600,6 +634,36 @@ public class WidgetProvider extends AppWidgetProvider {
     }
 
     /**
+     * Utility class to handle switching widget views; in the background, we access the database
+     * to determine account status, etc.  In the foreground, we start up the Loader with new
+     * parameters
+     */
+    public static class WidgetViewSwitcher extends AsyncTask<Void, Void, Void> {
+        private final EmailWidget mWidget;
+
+        public WidgetViewSwitcher(EmailWidget widget) {
+            mWidget = widget;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            // Don't use the "all mail" view if we've got 0 or 1 account
+            if (EmailContent.count(sContext, Account.CONTENT_URI) < 2) {
+                mWidget.switchToNextView();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void param) {
+            if (isCancelled()) {
+                return;
+            }
+            mWidget.loadView();
+        }
+    }
+
+    /**
      * We use the WidgetService for two purposes:
      *  1) To provide a widget factory for RemoteViews, and
      *  2) To process our command Uri's (i.e. take actions on user clicks)
@@ -634,7 +698,7 @@ public class WidgetProvider extends AppWidgetProvider {
             String command = pathSegments.get(0);
             // Ignore unknown action names
             try {
-                long arg1 = Long.parseLong(pathSegments.get(1));
+                final long arg1 = Long.parseLong(pathSegments.get(1));
                 if (COMMAND_NAME_VIEW_MESSAGE.equals(command)) {
                     // "view", <message id>, <mailbox id>
                     final long mailboxId = Long.parseLong(pathSegments.get(2));
@@ -649,7 +713,8 @@ public class WidgetProvider extends AppWidgetProvider {
                     // "next_view", <widget id>
                     EmailWidget widget = sWidgetMap.get((int)arg1);
                     if (widget != null) {
-                        widget.switchToNextView();
+                        WidgetViewSwitcher switcher = new WidgetViewSwitcher(widget);
+                        switcher.execute();
                     }
                 }
             } catch (NumberFormatException e) {
