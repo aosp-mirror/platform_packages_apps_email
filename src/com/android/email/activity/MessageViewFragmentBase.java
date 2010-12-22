@@ -986,7 +986,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             } catch (RuntimeException re) {
                 // This catches SQLiteException as well as other RTE's we've seen from the
                 // database calls, such as IllegalStateException
-                Log.d(Email.LOG_TAG, "Exception while loading message body: " + re.toString());
+                Log.d(Email.LOG_TAG, "Exception while loading message body", re);
                 mErrorLoadingMessageBody = true;
                 return null;
             }
