@@ -61,8 +61,6 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -127,9 +125,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     private View mAttachmentsScroll;
     private View mInviteScroll;
-
-    private Animation mFadeInAnimation;
-    private Animation mFadeOutAnimation;
 
     private long mAccountId = -1;
     private long mMessageId = -1;
@@ -286,9 +281,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         mController = Controller.getInstance(mContext);
         mMessageObserver = new MessageObserver(new Handler(), mContext);
-
-        mFadeInAnimation = AnimationUtils.loadAnimation(mContext, android.R.anim.fade_in);
-        mFadeOutAnimation = AnimationUtils.loadAnimation(mContext, android.R.anim.fade_out);
     }
 
     @Override
@@ -335,7 +327,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mAttachmentsScroll = view.findViewById(R.id.attachments_scroll);
         mInviteScroll = view.findViewById(R.id.invite_scroll);
 
-        mMessageContentView.setVerticalScrollBarEnabled(false);
         WebSettings webSettings = mMessageContentView.getSettings();
         webSettings.setBlockNetworkLoads(true);
         webSettings.setSupportZoom(true);
@@ -488,33 +479,24 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * Show/hide the content.  We hide all the content (except for the bottom buttons) when loading,
      * to avoid flicker.
      */
-    private void showContent(boolean show) {
+    private void showContent(boolean showContent, boolean showProgressWhenHidden) {
         if (mLoadingProgress == null) {
             // Phone UI doesn't have it yet.
             // TODO Add loading_progress and main_panel to the phone layout too.
         } else {
-            mMainView.clearAnimation();
-            mLoadingProgress.clearAnimation();
-            makeVisible(mMainView, show);
-            makeVisible(mLoadingProgress, !show);
-            if (show) {
-                // When showing, fade it in.  I'll look much smoother.
-                mMainView.startAnimation(mFadeInAnimation);
-                mLoadingProgress.startAnimation(mFadeOutAnimation);
-            } else {
-                // When hiding, don't fade it out, to hide flicker.
-            }
+            makeVisible(mMainView, showContent);
+            makeVisible(mLoadingProgress, !showContent && showProgressWhenHidden);
         }
     }
 
     protected void resetView() {
-        showContent(false);
+        showContent(false, false);
         setCurrentTab(TAB_MESSAGE);
         updateTabFlags(0);
         if (mMessageContentView != null) {
             mMessageContentView.getSettings().setBlockNetworkLoads(true);
             mMessageContentView.scrollTo(0, 0);
-            mMessageContentView.loadUrl("file:///android_asset/empty.html");
+            mMessageContentView.clearView();
 
             // Dynamic configuration of WebView
             WebSettings.TextSize textZoom;
@@ -526,7 +508,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 case Preferences.TEXT_ZOOM_HUGE:    textZoom = WebSettings.TextSize.LARGEST; break;
                 default:                            textZoom = WebSettings.TextSize.NORMAL; break;
             }
-            mMessageContentView.getSettings().setTextSize(textZoom);
+            final WebSettings settings = mMessageContentView.getSettings();
+            settings.setTextSize(textZoom);
+            settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
         }
         mAttachmentsScroll.scrollTo(0, 0);
         mInviteScroll.scrollTo(0, 0);
@@ -918,6 +902,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 return;
             }
             if (message == null) {
+                resetView();
                 mCallback.onMessageNotExists();
                 return;
             }
@@ -1013,6 +998,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 if (mErrorLoadingMessageBody) {
                     Utility.showToast(getActivity(), R.string.error_loading_message_body);
                 }
+                resetView();
                 return;
             }
             reloadUiFromBody(results[0], results[1]);    // text, html
@@ -1036,32 +1022,36 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected void onPostExecute(Attachment[] attachments) {
-            if (isCancelled() || attachments == null) {
-                return;
-            }
-            boolean htmlChanged = false;
-            int numDisplayedAttachments = 0;
-            for (Attachment attachment : attachments) {
-                if (mHtmlTextRaw != null && attachment.mContentId != null
-                        && attachment.mContentUri != null) {
-                    // for html body, replace CID for inline images
-                    // Regexp which matches ' src="cid:contentId"'.
-                    String contentIdRe =
-                        "\\s+(?i)src=\"cid(?-i):\\Q" + attachment.mContentId + "\\E\"";
-                    String srcContentUri = " src=\"" + attachment.mContentUri + "\"";
-                    mHtmlTextRaw = mHtmlTextRaw.replaceAll(contentIdRe, srcContentUri);
-                    htmlChanged = true;
-                } else {
-                    addAttachment(attachment);
-                    numDisplayedAttachments++;
+            try {
+                if (isCancelled() || attachments == null) {
+                    return;
                 }
-            }
-            setAttachmentCount(numDisplayedAttachments);
-            mHtmlTextWebView = mHtmlTextRaw;
-            mHtmlTextRaw = null;
-            if (htmlChanged && mMessageContentView != null) {
-                mMessageContentView.loadDataWithBaseURL("email://", mHtmlTextWebView,
-                                                        "text/html", "utf-8", null);
+                boolean htmlChanged = false;
+                int numDisplayedAttachments = 0;
+                for (Attachment attachment : attachments) {
+                    if (mHtmlTextRaw != null && attachment.mContentId != null
+                            && attachment.mContentUri != null) {
+                        // for html body, replace CID for inline images
+                        // Regexp which matches ' src="cid:contentId"'.
+                        String contentIdRe =
+                            "\\s+(?i)src=\"cid(?-i):\\Q" + attachment.mContentId + "\\E\"";
+                        String srcContentUri = " src=\"" + attachment.mContentUri + "\"";
+                        mHtmlTextRaw = mHtmlTextRaw.replaceAll(contentIdRe, srcContentUri);
+                        htmlChanged = true;
+                    } else {
+                        addAttachment(attachment);
+                        numDisplayedAttachments++;
+                    }
+                }
+                setAttachmentCount(numDisplayedAttachments);
+                mHtmlTextWebView = mHtmlTextRaw;
+                mHtmlTextRaw = null;
+                if (htmlChanged && mMessageContentView != null) {
+                    mMessageContentView.loadDataWithBaseURL("email://", mHtmlTextWebView,
+                                                            "text/html", "utf-8", null);
+                }
+            } finally {
+                showContent(true, false);
             }
         }
     }
@@ -1331,7 +1321,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mLoadAttachmentsTask.execute(mMessage.mId);
 
         mIsMessageLoadedForTest = true;
-        showContent(true);
     }
 
     /**
@@ -1385,7 +1374,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 switch (progress) {
                     case 0:
                         mCallback.onLoadMessageStarted();
-                        loadBodyContent("file:///android_asset/loading.html");
+                        // Loading from network -- show the progress icon.
+                        showContent(false, true);
                         break;
                     case 100:
                         mWaitForLoadMessageId = -1;
@@ -1404,13 +1394,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 mWaitForLoadMessageId = -1;
                 String error = mContext.getString(R.string.status_network_error);
                 mCallback.onLoadMessageError(error);
-                loadBodyContent("file:///android_asset/empty.html");
-            }
-        }
-
-        private void loadBodyContent(String uri) {
-            if (mMessageContentView != null) {
-                mMessageContentView.loadUrl(uri);
+                resetView();
             }
         }
 
