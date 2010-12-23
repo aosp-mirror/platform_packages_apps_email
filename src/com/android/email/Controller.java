@@ -963,7 +963,7 @@ public class Controller {
             // Release or relax device administration, if relevant
             SecurityPolicy.getInstance(context).reducePolicies();
 
-            Email.setServicesEnabled(context);
+            Email.setServicesEnabledSync(context);
         } catch (Exception e) {
             Log.w(Email.LOG_TAG, "Exception while deleting account", e);
         } finally {

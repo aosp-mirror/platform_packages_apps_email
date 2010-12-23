@@ -620,12 +620,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         mAccount.update(mContext, cv);
 
         // Run the remaining changes off-thread
-        Utility.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                Email.setServicesEnabled(mContext);
-            }
-        });
+        Email.setServicesEnabledAsync(mContext);
     }
 
     /**

@@ -72,7 +72,7 @@ public class AccountBackupRestore {
             // update security profile
             SecurityPolicy.getInstance(context).updatePolicies(-1);
             // enable/disable other email services as necessary
-            Email.setServicesEnabled(context);
+            Email.setServicesEnabledSync(context);
             ExchangeUtils.startExchangeService(context);
         }
         sBackupsChecked = true;

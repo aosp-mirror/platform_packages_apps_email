@@ -410,7 +410,7 @@ public class UpgradeAccounts extends ListActivity implements OnClickListener {
                 }
 
                 // Step 4:  Enable app-wide features such as composer, and start mail service(s)
-                Email.setServicesEnabled(mContext);
+                Email.setServicesEnabledSync(mContext);
             }
 
             return null;

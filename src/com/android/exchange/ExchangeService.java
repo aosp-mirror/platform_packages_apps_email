@@ -1046,36 +1046,34 @@ public class ExchangeService extends Service implements Runnable {
      */
     public class EasAccountsUpdatedListener implements OnAccountsUpdateListener {
         public void onAccountsUpdated(android.accounts.Account[] accounts) {
-            ExchangeService exchangeService = INSTANCE;
+            final ExchangeService exchangeService = INSTANCE;
             if (exchangeService != null) {
-                exchangeService.runAccountReconciler();
+                Utility.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        exchangeService.runAccountReconcilerSync(exchangeService);
+                    }
+                });
             }
         }
     }
 
     /**
-     * Non-blocking call to run the account reconciler.
-     * Launches a worker thread, so it may be called from UI thread.
+     * Blocking call to the account reconciler
      */
-    private void runAccountReconciler() {
-        final ExchangeService exchangeService = this;
-        new Thread() {
-            @Override
-            public void run() {
-                android.accounts.Account[] accountMgrList = AccountManager.get(exchangeService)
-                        .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                synchronized (mAccountList) {
-                    // Make sure we have an up-to-date sAccountList.  If not (for example, if the
-                    // service has been destroyed), we would be reconciling against an empty account
-                    // list, which would cause the deletion of all of our accounts
-                    if (mAccountObserver != null) {
-                        mAccountObserver.onAccountChanged();
-                        MailService.reconcileAccountsWithAccountManager(exchangeService,
-                                mAccountList, accountMgrList, false, mResolver);
-                    }
-                }
+    private void runAccountReconcilerSync(Context context) {
+        android.accounts.Account[] accountMgrList = AccountManager.get(context)
+                .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+        synchronized (mAccountList) {
+            // Make sure we have an up-to-date sAccountList.  If not (for example, if the
+            // service has been destroyed), we would be reconciling against an empty account
+            // list, which would cause the deletion of all of our accounts
+            if (mAccountObserver != null) {
+                mAccountObserver.onAccountChanged();
+                MailService.reconcileAccountsWithAccountManager(context,
+                        mAccountList, accountMgrList, false, mResolver);
             }
-        }.start();
+        }
     }
 
     public static void log(String str) {
@@ -1752,7 +1750,6 @@ public class ExchangeService extends Service implements Runnable {
     @Override
     public void onCreate() {
         synchronized (sSyncLock) {
-            Email.setServicesEnabled(this);
             alwaysLog("!!! EAS ExchangeService, onCreate");
             if (sStop) {
                 return;
@@ -1765,9 +1762,17 @@ public class ExchangeService extends Service implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
-            // Run the reconciler and clean up any mismatched accounts - if we weren't running when
-            // accounts were deleted, it won't have been called.
-            runAccountReconciler();
+            // Finally, run some setup activities off the UI thread
+            Utility.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    // Run the reconciler and clean up any mismatched accounts - if we weren't
+                    // running when accounts were deleted, it won't have been called.
+                    runAccountReconcilerSync(ExchangeService.this);
+                    // Update other services depending on final account configuration
+                    Email.setServicesEnabledSync(ExchangeService.this);
+                }
+            });
         }
     }
 

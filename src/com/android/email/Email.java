@@ -176,11 +176,31 @@ public class Email extends Application {
     }
 
     /**
+     * Asynchronous version of {@link #setServicesEnabledSync(Context)}.  Use when calling from
+     * UI thread (or lifecycle entry points.)
+     *
+     * @param context
+     */
+    public static void setServicesEnabledAsync(final Context context) {
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                setServicesEnabledSync(context);
+            }
+        });
+    }
+
+    /**
      * Called throughout the application when the number of accounts has changed. This method
      * enables or disables the Compose activity, the boot receiver and the service based on
-     * whether any accounts are configured.   Returns true if there are any accounts configured.
+     * whether any accounts are configured.
+     *
+     * Blocking call - do not call from UI/lifecycle threads.
+     *
+     * @param context
+     * @return true if there are any accounts configured.
      */
-    public static boolean setServicesEnabled(Context context) {
+    public static boolean setServicesEnabledSync(Context context) {
         Cursor c = null;
         try {
             c = context.getContentResolver().query(
@@ -197,7 +217,7 @@ public class Email extends Application {
         }
     }
 
-    public static void setServicesEnabled(Context context, boolean enabled) {
+    private static void setServicesEnabled(Context context, boolean enabled) {
         PackageManager pm = context.getPackageManager();
         if (!enabled && pm.getComponentEnabledSetting(
                 new ComponentName(context, MailService.class)) ==

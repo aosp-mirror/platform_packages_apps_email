@@ -87,7 +87,7 @@ public class EmailBroadcastProcessorService extends IntentService {
     }
 
     private void enableComponentsIfNecessary() {
-        if (Email.setServicesEnabled(this)) {
+        if (Email.setServicesEnabledSync(this)) {
             // At least one account exists.
             // TODO probably we should check if it's a POP/IMAP account.
             MailService.actionReschedule(this);

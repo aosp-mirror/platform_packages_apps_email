@@ -223,12 +223,15 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         saveAccountAndFinish();
     }
 
+    /**
+     * STOPSHIP most of this work needs to be async
+     */
     private void saveAccountAndFinish() {
         // Clear the incomplete/security hold flag now
         Account account = SetupData.getAccount();
         account.mFlags &= ~(Account.FLAGS_INCOMPLETE | Account.FLAGS_SECURITY_HOLD);
         AccountSettingsUtils.commitSettings(this, account);
-        Email.setServicesEnabled(this);
+        Email.setServicesEnabledSync(this);
         AccountSetupNames.actionSetNames(this);
         // Start up ExchangeService (if it isn't already running)
         ExchangeUtils.startExchangeService(this);

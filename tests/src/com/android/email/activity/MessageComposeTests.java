@@ -137,7 +137,7 @@ public class MessageComposeTests
         }
         Account account = Account.restoreAccountWithId(mContext, accountId);
         mSignature = account.getSignature();
-        Email.setServicesEnabled(mContext);
+        Email.setServicesEnabledSync(mContext);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
         setActivityIntent(intent);
