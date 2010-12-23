@@ -192,8 +192,7 @@
     <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
     <skip />
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Antiguos"</string>
-    <!-- no translation found for message_list_subject_snippet_divider (1783589062530679520) -->
-    <skip />
+    <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuración de la cuenta"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Agregar una cuenta de Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Agregar una cuenta de Exchange ActiveSync"</string>
@@ -385,14 +384,12 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Grande"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Enorme"</string>
-    <!-- no translation found for general_preference_background_attachments_label (5740568133528931495) -->
-    <skip />
-    <!-- no translation found for general_preference_background_attachments_summary (2745557569280394897) -->
-    <skip />
+    <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"Recuperar adjuntos automáticamente"</string>
+    <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"Descargar adjuntos de Recibidos (no disponible en cuentas POP3)"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> de <xliff:g id="ID_2">%2$s</xliff:g>"</string>
-    <string name="widget_other_views" msgid="2924270018204427009">"Toca el icono de Email para obtener otras vistas."</string>
-    <string name="widget_all_mail" msgid="6436796211067834315">"Todos"</string>
-    <string name="widget_unread" msgid="488582205091831168">"No leídos"</string>
-    <string name="widget_starred" msgid="7855645697293191958">"Todos los destacados"</string>
+    <!-- outdated translation 2924270018204427009 -->     <string name="widget_other_views" msgid="2265335608760083337">"Toca el icono de Email para obtener otras vistas."</string>
+    <!-- outdated translation 6436796211067834315 -->     <string name="widget_all_mail" msgid="4352573990283094963">"Todos"</string>
+    <!-- outdated translation 488582205091831168 -->     <string name="widget_unread" msgid="4404711399009077833">"No leídos"</string>
+    <!-- outdated translation 7855645697293191958 -->     <string name="widget_starred" msgid="8290352707134011791">"Todos los destacados"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Cargando…"</string>
 </resources>

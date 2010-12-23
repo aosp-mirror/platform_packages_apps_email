@@ -192,8 +192,7 @@
     <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
     <skip />
     <string name="message_view_move_to_older" msgid="4993043091356700890">"更早"</string>
-    <!-- no translation found for message_list_subject_snippet_divider (1783589062530679520) -->
-    <skip />
+    <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" - "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"帐户设置"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"添加 Exchange 帐户"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"添加 Exchange ActiveSync 帐户"</string>
@@ -385,14 +384,12 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"正常"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"超大"</string>
-    <!-- no translation found for general_preference_background_attachments_label (5740568133528931495) -->
-    <skip />
-    <!-- no translation found for general_preference_background_attachments_summary (2745557569280394897) -->
-    <skip />
+    <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"自动抓取附件"</string>
+    <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"下载收件箱中邮件的附件（POP3 帐户不可用）。"</string>
     <string name="position_of_count" msgid="7989353140376877792">"第 <xliff:g id="ID_1">%1$d</xliff:g> 封，共 <xliff:g id="ID_2">%2$s</xliff:g> 封"</string>
-    <string name="widget_other_views" msgid="2924270018204427009">"点按电子邮件图标查看其他视图"</string>
-    <string name="widget_all_mail" msgid="6436796211067834315">"所有邮件"</string>
-    <string name="widget_unread" msgid="488582205091831168">"所有未读邮件"</string>
-    <string name="widget_starred" msgid="7855645697293191958">"所有已加星标的邮件"</string>
+    <!-- outdated translation 2924270018204427009 -->     <string name="widget_other_views" msgid="2265335608760083337">"点按电子邮件图标查看其他视图"</string>
+    <!-- outdated translation 6436796211067834315 -->     <string name="widget_all_mail" msgid="4352573990283094963">"所有邮件"</string>
+    <!-- outdated translation 488582205091831168 -->     <string name="widget_unread" msgid="4404711399009077833">"所有未读邮件"</string>
+    <!-- outdated translation 7855645697293191958 -->     <string name="widget_starred" msgid="8290352707134011791">"所有已加星标的邮件"</string>
     <string name="widget_loading" msgid="2340962056927255554">"正在载入..."</string>
 </resources>

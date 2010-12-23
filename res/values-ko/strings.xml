@@ -192,8 +192,7 @@
     <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
     <skip />
     <string name="message_view_move_to_older" msgid="4993043091356700890">"이전"</string>
-    <!-- no translation found for message_list_subject_snippet_divider (1783589062530679520) -->
-    <skip />
+    <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"계정 설정"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Exchange 계정 추가"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Exchange ActiveSync 계정 추가"</string>
@@ -385,14 +384,12 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"보통"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"크게"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"아주 크게"</string>
-    <!-- no translation found for general_preference_background_attachments_label (5740568133528931495) -->
-    <skip />
-    <!-- no translation found for general_preference_background_attachments_summary (2745557569280394897) -->
-    <skip />
+    <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"자동으로 첨부 파일 가져오기"</string>
+    <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"받은편지함 메일의 첨부파일을 다운로드합니다(POP3 계정에서는 사용할 수 없음)."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$s</xliff:g>"</string>
-    <string name="widget_other_views" msgid="2924270018204427009">"다른 뷰로 이동하려면 이메일 아이콘을 누르세요."</string>
-    <string name="widget_all_mail" msgid="6436796211067834315">"전체보관함"</string>
-    <string name="widget_unread" msgid="488582205091831168">"읽지 않은 모든 메일"</string>
-    <string name="widget_starred" msgid="7855645697293191958">"모든 별표편지함"</string>
+    <!-- outdated translation 2924270018204427009 -->     <string name="widget_other_views" msgid="2265335608760083337">"다른 뷰로 이동하려면 이메일 아이콘을 누르세요."</string>
+    <!-- outdated translation 6436796211067834315 -->     <string name="widget_all_mail" msgid="4352573990283094963">"전체보관함"</string>
+    <!-- outdated translation 488582205091831168 -->     <string name="widget_unread" msgid="4404711399009077833">"읽지 않은 모든 메일"</string>
+    <!-- outdated translation 7855645697293191958 -->     <string name="widget_starred" msgid="8290352707134011791">"모든 별표편지"</string>
     <string name="widget_loading" msgid="2340962056927255554">"로드 중..."</string>
 </resources>
