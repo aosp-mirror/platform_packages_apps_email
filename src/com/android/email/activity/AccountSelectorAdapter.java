@@ -16,7 +16,9 @@
 
 package com.android.email.activity;
 
+import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.Utility;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -203,7 +205,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
                         countAccounts, countAccounts));
                 rb.add(totalUnread);
             }
-            return resultCursor;
+            return Utility.CloseTraceCursorWrapper.get(resultCursor);
         }
     }
 
@@ -223,6 +225,20 @@ public class AccountSelectorAdapter extends CursorAdapter {
         public void close() {
             mInnerCursor.close();
             super.close();
+        }
+    }
+
+    // STOPSHIP delete this
+    @Override
+    public long getItemId(int position) {
+        try {
+            return super.getItemId(position);
+        } catch (RuntimeException re) {
+            final Cursor c = getCursor();
+            android.util.Log.w(Email.LOG_TAG, "Crash in getItemId, this=" + this
+                    + "  cursor=" + Utility.dumpCursor(c), re);
+            Utility.CloseTraceCursorWrapper.log(c);
+            throw re;
         }
     }
 }

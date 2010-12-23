@@ -37,6 +37,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -1179,5 +1180,79 @@ public class Utility {
             name = contentUri.getLastPathSegment();
         }
         return name;
+    }
+
+    /**
+     * Stringify a cursor for logging purpose.
+     */
+    public static String dumpCursor(Cursor c) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        while (c != null) {
+            sb.append(c.getClass()); // Class name may not be available if toString() is overridden
+            sb.append("/");
+            sb.append(c.toString());
+            if (c.isClosed()) {
+                sb.append(" (closed)");
+            }
+            if (c instanceof CursorWrapper) {
+                c = ((CursorWrapper) c).getWrappedCursor();
+                sb.append(", ");
+            } else {
+                break;
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    /**
+     * Cursor wrapper that remembers where it was closed.
+     *
+     * Use {@link #get} to create a wrapped cursor.
+     * USe {@link #getTraceIfAvailable} to get the stack trace.
+     * Use {@link #log} to log if/where it was closed.
+     */
+    public static class CloseTraceCursorWrapper extends CursorWrapper {
+        private static final boolean TRACE_ENABLED = true; // STOPSHIP make it false
+
+        private Exception mTrace;
+
+        private CloseTraceCursorWrapper(Cursor cursor) {
+            super(cursor);
+        }
+
+        @Override
+        public void close() {
+            mTrace = new Exception("STACK TRACE");
+            super.close();
+        }
+
+        public static Exception getTraceIfAvailable(Cursor c) {
+            if (c instanceof CloseTraceCursorWrapper) {
+                return ((CloseTraceCursorWrapper) c).mTrace;
+            } else {
+                return null;
+            }
+        }
+
+        public static void log(Cursor c) {
+            if (c == null) {
+                return;
+            }
+            if (c.isClosed()) {
+                Log.w(Email.LOG_TAG, "Cursor was closed here: Cursor=" + c, getTraceIfAvailable(c));
+            } else {
+                Log.w(Email.LOG_TAG, "Cursor not closed.  Cursor=" + c);
+            }
+        }
+
+        public static Cursor get(Cursor original) {
+            return TRACE_ENABLED ? new CloseTraceCursorWrapper(original) : original;
+        }
+
+        /* package */ static CloseTraceCursorWrapper alwaysCreateForTest(Cursor original) {
+            return new CloseTraceCursorWrapper(original);
+        }
     }
 }
