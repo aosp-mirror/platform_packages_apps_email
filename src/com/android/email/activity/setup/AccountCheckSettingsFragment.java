@@ -346,8 +346,11 @@ public class AccountCheckSettingsFragment extends Fragment {
         callbackTarget.onCheckSettingsComplete(
                 okPressed ? CHECK_SETTINGS_OK : CHECK_SETTINGS_SECURITY_USER_DENY);
 
-        // 2. kill self
-        getFragmentManager().popBackStack();
+        // 2. kill self if not already killed by callback
+        FragmentManager fm = getFragmentManager();
+        if (fm != null) {
+            fm.popBackStack();
+        }
     }
 
     /**
