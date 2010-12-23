@@ -479,20 +479,17 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     @Override
     public void onNext() {
         EmailContent.Account setupAccount = SetupData.getAccount();
+
+        setupAccount.setDeletePolicy(
+                (Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value);
+
         try {
             URI uri = getUri();
             setupAccount.setStoreUri(mContext, uri.toString());
 
-            // Stop here if the login credentials duplicate an existing account
-            // (unless they duplicate the existing account, as they of course will)
-            EmailContent.Account account = Utility.findExistingAccount(mContext, setupAccount.mId,
-                    uri.getHost(), mCacheLoginCredential);
-            if (account != null) {
-                DuplicateAccountDialogFragment dialogFragment =
-                    DuplicateAccountDialogFragment.newInstance(account.mDisplayName);
-                dialogFragment.show(getActivity(), DuplicateAccountDialogFragment.TAG);
-                return;
-            }
+            // Check for a duplicate account (requires async DB work) and if OK, proceed with check
+            startDuplicateTaskCheck(setupAccount.mId, uri.getHost(), mCacheLoginCredential,
+                    SetupData.CHECK_INCOMING);
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that
@@ -500,10 +497,5 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
              */
             throw new Error(use);
         }
-
-        setupAccount.setDeletePolicy(
-                (Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value);
-
-        mCallback.onProceedNext(SetupData.CHECK_INCOMING, this);
     }
 }

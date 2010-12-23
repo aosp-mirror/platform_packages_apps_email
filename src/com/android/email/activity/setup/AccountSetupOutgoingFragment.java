@@ -415,15 +415,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             throw new Error(use);
         }
 
-        // STOPSHIP - use new checker fragment only during account settings (TODO: account setup)
-        Activity activity = getActivity();
-        if (activity instanceof PreferenceActivity) {
-            AccountCheckSettingsFragment checkerFragment =
-                AccountCheckSettingsFragment.newInstance(SetupData.CHECK_OUTGOING, this);
-            ((PreferenceActivity)activity).startPreferenceFragment(checkerFragment, true);
-        } else {
-            // STOPSHIP remove this old code
-            mCallback.onProceedNext(SetupData.CHECK_OUTGOING, this);
-        }
+        mCallback.onProceedNext(SetupData.CHECK_OUTGOING, this);
     }
 }

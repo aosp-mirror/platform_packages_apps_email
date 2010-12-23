@@ -418,16 +418,9 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             setupAccount.setStoreUri(mContext, uri.toString());
             setupAccount.setSenderUri(mContext, uri.toString());
 
-            // Stop here if the login credentials duplicate an existing account
-            // (unless they duplicate the existing account, as they of course will)
-            Account account = Utility.findExistingAccount(mContext, setupAccount.mId,
-                    uri.getHost(), mCacheLoginCredential);
-            if (account != null) {
-                DuplicateAccountDialogFragment dialogFragment =
-                    DuplicateAccountDialogFragment.newInstance(account.mDisplayName);
-                dialogFragment.show(getActivity(), DuplicateAccountDialogFragment.TAG);
-                return;
-            }
+            // Check for a duplicate account (requires async DB work) and if OK, proceed with check
+            startDuplicateTaskCheck(setupAccount.mId, uri.getHost(), mCacheLoginCredential,
+                    SetupData.CHECK_INCOMING);
         } catch (URISyntaxException use) {
             /*
              * It's unrecoverable if we cannot create a URI from components that
@@ -435,7 +428,5 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
              */
             throw new Error(use);
         }
-
-        mCallback.onProceedNext(SetupData.CHECK_INCOMING, this);
     }
 }

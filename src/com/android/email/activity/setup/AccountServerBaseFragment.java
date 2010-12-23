@@ -17,11 +17,15 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
+import com.android.email.Utility;
+import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,6 +49,8 @@ public abstract class AccountServerBaseFragment extends Fragment
     protected boolean mSettingsMode;
     // This is null in the setup wizard screens, and non-null in AccountSettings mode
     public Button mProceedButton;
+    // This is used to debounce multiple clicks on the proceed button (which does async work)
+    public boolean mProceedButtonPressed;
 
     /**
      * Callback interface that owning activities must provide
@@ -100,6 +106,8 @@ public abstract class AccountServerBaseFragment extends Fragment
         if (getArguments() != null) {
             mSettingsMode = getArguments().getBoolean(BUNDLE_KEY_SETTINGS);
         }
+
+        mProceedButtonPressed = false;
     }
 
     /**
@@ -139,6 +147,11 @@ public abstract class AccountServerBaseFragment extends Fragment
                 getActivity().onBackPressed();
                 break;
             case R.id.done:
+                // Simple debounce - just ignore while checks are underway
+                if (mProceedButtonPressed) {
+                    return;
+                }
+                mProceedButtonPressed = true;
                 onNext();
                 break;
         }
@@ -164,6 +177,56 @@ public abstract class AccountServerBaseFragment extends Fragment
 
         // TODO: This supports the phone UX activities and will be removed
         mCallback.onEnableProceedButtons(enable);
+    }
+
+    /**
+     * Performs async operations as part of saving changes to the settings.
+     *      Check for duplicate account
+     *      Display dialog if necessary
+     *      Else, proceed via mCallback.onProceedNext
+     */
+    protected void startDuplicateTaskCheck(long accountId, String checkHost, String checkLogin,
+            int checkSettingsMode) {
+        new DuplicateCheckTask(accountId, checkHost, checkLogin, checkSettingsMode).execute();
+    }
+
+    private class DuplicateCheckTask extends AsyncTask<Void, Void, Account> {
+
+        private final long mAccountId;
+        private final String mCheckHost;
+        private final String mCheckLogin;
+        private final int mCheckSettingsMode;
+
+        public DuplicateCheckTask(long accountId, String checkHost, String checkLogin,
+                int checkSettingsMode) {
+            mAccountId = accountId;
+            mCheckHost = checkHost;
+            mCheckLogin = checkLogin;
+            mCheckSettingsMode = checkSettingsMode;
+        }
+
+        @Override
+        protected Account doInBackground(Void... params) {
+            EmailContent.Account account = Utility.findExistingAccount(mContext, mAccountId,
+                    mCheckHost, mCheckLogin);
+            return account;
+        }
+
+        @Override
+        protected void onPostExecute(Account duplicateAccount) {
+            AccountServerBaseFragment fragment = AccountServerBaseFragment.this;
+            if (duplicateAccount != null) {
+                // Show duplicate account warning
+                DuplicateAccountDialogFragment dialogFragment =
+                    DuplicateAccountDialogFragment.newInstance(duplicateAccount.mDisplayName);
+                dialogFragment.show(fragment.getFragmentManager(),
+                        DuplicateAccountDialogFragment.TAG);
+            } else {
+                // Otherwise, proceed with the save/check
+                mCallback.onProceedNext(mCheckSettingsMode, fragment);
+            }
+            mProceedButtonPressed = false;
+        }
     }
 
     /**
