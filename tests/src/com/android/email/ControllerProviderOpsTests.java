@@ -161,9 +161,6 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
 
     /**
      * Test the "move message" function.
-     *
-     * @throws ExecutionException
-     * @throws InterruptedException
      */
     public void testMoveMessage() throws InterruptedException, ExecutionException {
         Account account1 = ProviderTestUtils.setupAccount("message-move", true, mProviderContext);
@@ -196,8 +193,6 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
      * Test the "delete message" function.  Sunny day:
      *    - message/mailbox/account all exist
      *    - trash mailbox exists
-     * @throws ExecutionException
-     * @throws InterruptedException
      */
     public void testDeleteMessage() throws InterruptedException, ExecutionException {
         Account account1 = ProviderTestUtils.setupAccount("message-delete", true, mProviderContext);
@@ -272,8 +267,6 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
 
     /**
      * Test deleting message when there is no trash mailbox
-     * @throws ExecutionException
-     * @throws InterruptedException
      */
     public void testDeleteMessageNoTrash() throws InterruptedException, ExecutionException {
         Account account1 =
@@ -304,7 +297,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
     /**
      * Test read/unread flag
      */
-    public void testReadUnread() {
+    public void testReadUnread() throws InterruptedException, ExecutionException {
         Account account1 = ProviderTestUtils.setupAccount("read-unread", false, mProviderContext);
         account1.mHostAuthRecv
                 = ProviderTestUtils.setupHostAuth("read-unread", 0, false, mProviderContext);
@@ -318,20 +311,25 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         long message1Id = message1.mId;
 
         // test setting to "read"
-        mTestController.setMessageRead(message1Id, true);
+        mTestController.setMessageRead(message1Id, true).get();
         Message message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
         assertTrue(message1get.mFlagRead);
 
         // test setting to "unread"
-        mTestController.setMessageRead(message1Id, false);
+        mTestController.setMessageRead(message1Id, false).get();
         message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
         assertFalse(message1get.mFlagRead);
+
+        // test setting to "read"
+        mTestController.setMessageRead(message1Id, true).get();
+        message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
+        assertTrue(message1get.mFlagRead);
     }
 
     /**
      * Test favorites flag
      */
-    public void testFavorites() {
+    public void testFavorites() throws InterruptedException, ExecutionException {
         Account account1 = ProviderTestUtils.setupAccount("favorites", false, mProviderContext);
         account1.mHostAuthRecv
                 = ProviderTestUtils.setupHostAuth("favorites", 0, false, mProviderContext);
@@ -345,14 +343,19 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         long message1Id = message1.mId;
 
         // test setting to "favorite"
-        mTestController.setMessageFavorite(message1Id, true);
+        mTestController.setMessageFavorite(message1Id, true).get();
         Message message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
         assertTrue(message1get.mFlagFavorite);
 
         // test setting to "not favorite"
-        mTestController.setMessageFavorite(message1Id, false);
+        mTestController.setMessageFavorite(message1Id, false).get();
         message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
         assertFalse(message1get.mFlagFavorite);
+
+        // test setting to "favorite"
+        mTestController.setMessageFavorite(message1Id, true).get();
+        message1get = Message.restoreMessageWithId(mProviderContext, message1Id);
+        assertTrue(message1get.mFlagFavorite);
     }
 
     public void testGetAndDeleteAttachmentMailbox() {

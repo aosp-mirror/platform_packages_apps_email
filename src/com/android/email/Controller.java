@@ -741,7 +741,7 @@ public class Controller {
      *
      * @param messageIds The IDs of the messages to move
      * @param newMailboxId The id of the folder we're supposed to move the folder to
-     * @return the AsyncTask that will execute the move
+     * @return the AsyncTask that will execute the move (for testing only)
      */
     public AsyncTask<Void, Void, Void> moveMessage(final long[] messageIds,
             final long newMailboxId) {
@@ -771,67 +771,54 @@ public class Controller {
     /**
      * Set/clear the unread status of a message
      *
-     * TODO db ops should not be in this thread. queue it up.
-     *
      * @param messageId the message to update
      * @param isRead the new value for the isRead flag
+     * @return the AsyncTask that will execute the changes (for testing only)
      */
-    public void setMessageRead(final long messageId, boolean isRead) {
-        ContentValues cv = new ContentValues();
-        cv.put(EmailContent.MessageColumns.FLAG_READ, isRead);
-        Uri uri = ContentUris.withAppendedId(
-                EmailContent.Message.SYNCED_CONTENT_URI, messageId);
-        mProviderContext.getContentResolver().update(uri, cv, null, null);
-
-        // Service runs automatically, MessagingController needs a kick
-        final Message message = Message.restoreMessageWithId(mProviderContext, messageId);
-        if (message == null) {
-            return;
-        }
-        Account account = Account.restoreAccountWithId(mProviderContext, message.mAccountKey);
-        if (account == null) {
-            return; // isMessagingController returns false for null, but let's make it clear.
-        }
-        if (isMessagingController(account)) {
-            Utility.runAsync(new Runnable() {
-                public void run() {
-                    mLegacyController.processPendingActions(message.mAccountKey);
-                }
-            });
-        }
+    public AsyncTask<Void, Void, Void> setMessageRead(final long messageId, final boolean isRead) {
+        return setMessageBoolean(messageId, EmailContent.MessageColumns.FLAG_READ, isRead);
     }
 
     /**
      * Set/clear the favorite status of a message
      *
-     * TODO db ops should not be in this thread. queue it up.
-     *
      * @param messageId the message to update
      * @param isFavorite the new value for the isFavorite flag
+     * @return the AsyncTask that will execute the changes (for testing only)
      */
-    public void setMessageFavorite(final long messageId, boolean isFavorite) {
-        ContentValues cv = new ContentValues();
-        cv.put(EmailContent.MessageColumns.FLAG_FAVORITE, isFavorite);
-        Uri uri = ContentUris.withAppendedId(
-                EmailContent.Message.SYNCED_CONTENT_URI, messageId);
-        mProviderContext.getContentResolver().update(uri, cv, null, null);
+    public AsyncTask<Void, Void, Void> setMessageFavorite(final long messageId,
+            final boolean isFavorite) {
+        return setMessageBoolean(messageId, EmailContent.MessageColumns.FLAG_FAVORITE, isFavorite);
+    }
 
-        // Service runs automatically, MessagingController needs a kick
-        final Message message = Message.restoreMessageWithId(mProviderContext, messageId);
-        if (message == null) {
-            return;
-        }
-        Account account = Account.restoreAccountWithId(mProviderContext, message.mAccountKey);
-        if (account == null) {
-            return; // isMessagingController returns false for null, but let's make it clear.
-        }
-        if (isMessagingController(account)) {
-            Utility.runAsync(new Runnable() {
-                public void run() {
-                    mLegacyController.processPendingActions(message.mAccountKey);
+    /**
+     * Set/clear boolean columns of a message
+     *
+     * @param messageId the message to update
+     * @param columnName the column to update
+     * @param columnValue the new value for the column
+     * @return the AsyncTask that will execute the changes (for testing only)
+     */
+    private AsyncTask<Void, Void, Void> setMessageBoolean(final long messageId,
+            final String columnName, final boolean columnValue) {
+        return Utility.runAsync(new Runnable() {
+            public void run() {
+                ContentValues cv = new ContentValues();
+                cv.put(columnName, columnValue);
+                Uri uri = ContentUris.withAppendedId(
+                        EmailContent.Message.SYNCED_CONTENT_URI, messageId);
+                mProviderContext.getContentResolver().update(uri, cv, null, null);
+
+                // Service runs automatically, MessagingController needs a kick
+                long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
+                if (accountId == -1) {
+                    return;
                 }
-            });
-        }
+                if (isMessagingController(accountId)) {
+                    mLegacyController.processPendingActions(accountId);
+                }
+            }
+        });
     }
 
     /**
@@ -1579,8 +1566,8 @@ public class Controller {
 
     public static class ControllerService extends Service {
         /**
-         * Create our EmailService implementation here.  For now, only loadAttachment is supported; the
-         * intention, however, is to move more functionality to the service interface
+         * Create our EmailService implementation here.  For now, only loadAttachment is supported;
+         * the intention, however, is to move more functionality to the service interface
          */
         private final IEmailService.Stub mBinder = new IEmailService.Stub() {
 
@@ -1621,7 +1608,7 @@ public class Controller {
                                 msg = Message.restoreMessageWithId(ControllerService.this,
                                         Long.parseLong(cols[BODY_SOURCE_KEY_COLUMN]));
                                 if (msg == null) {
-                                    // TODO: We can try restoring from the deleted table at this point...
+                                    // TODO: We can try restoring from the deleted table here...
                                     return;
                                 }
                             }
