@@ -365,7 +365,7 @@ public class MessageListFragment extends ListFragment
         stopLoaders();
         onDeselectAll();
         if (mListAdapter != null) {
-            mListAdapter.changeCursor(null);
+            mListAdapter.swapCursor(null);
         }
         setListShownNoAnimation(false);
     }
