@@ -1803,6 +1803,22 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
                 Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_CONTACTS));
         assertEquals(acct2Contacts.mId,
                 Mailbox.findMailboxOfType(context, acct2.mId, Mailbox.TYPE_CONTACTS));
+
+        // Check that nonexistent mailboxes are not returned
+        assertEquals(Mailbox.NO_MAILBOX,
+                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_DRAFTS));
+        assertEquals(Mailbox.NO_MAILBOX,
+                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_OUTBOX));
+
+        // delete account 1 and confirm no mailboxes are returned
+        context.getContentResolver().delete(
+                ContentUris.withAppendedId(Account.CONTENT_URI, acct1.mId), null, null);
+        assertEquals(Mailbox.NO_MAILBOX,
+                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_INBOX));
+        assertEquals(Mailbox.NO_MAILBOX,
+                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_CALENDAR));
+        assertEquals(Mailbox.NO_MAILBOX,
+                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_CONTACTS));
     }
 
     public void testRestoreMailboxOfType() {

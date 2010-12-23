@@ -36,6 +36,10 @@ import android.util.Log;
  */
 public class AccountBackupRestore {
 
+    // This reduces the need for expensive checks to just the first time only/
+    // synchronize on AccountBackupRestore.class
+    private static boolean sBackupsChecked = false;
+
     /**
      * Backup accounts.  Can be called from UI thread (does work in a new thread)
      */
@@ -56,7 +60,10 @@ public class AccountBackupRestore {
      * Restore accounts if needed.  This is blocking, and should only be called in specific
      * startup/entry points.
      */
-    public static void restoreAccountsIfNeeded(final Context context) {
+    public static synchronized void restoreAccountsIfNeeded(final Context context) {
+        // Quick exit if possible
+        if (sBackupsChecked) return;
+
         // Don't log here;  This is called often.
         boolean restored = doRestoreAccounts(context, Preferences.getPreferences(context), false);
         if (restored) {
@@ -68,6 +75,7 @@ public class AccountBackupRestore {
             Email.setServicesEnabled(context);
             ExchangeUtils.startExchangeService(context);
         }
+        sBackupsChecked = true;
     }
 
     /**
