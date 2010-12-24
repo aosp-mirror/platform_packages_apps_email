@@ -24,6 +24,9 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.CursorWrapper;
+import android.database.MatrixCursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,6 +37,7 @@ import android.telephony.TelephonyManager;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -433,6 +437,46 @@ public class UtilityUnitTests extends AndroidTestCase {
             ret.add(value);
         }
         return ret;
+    }
+
+    public void testDumpCursor() {
+        // Just make sure the method won't crash and returns non-empty string.
+        final Cursor c1 = new MatrixCursor(new String[] {"col"});
+        final Cursor c2 = new CursorWrapper(c1);
+
+        // Note it's a subclass of CursorWrapper.
+        final Cursor c3 = new CursorWrapper(c2) {
+        };
+
+        assertFalse(TextUtils.isEmpty(Utility.dumpCursor(c1)));
+        assertFalse(TextUtils.isEmpty(Utility.dumpCursor(c2)));
+        assertFalse(TextUtils.isEmpty(Utility.dumpCursor(c3)));
+        assertFalse(TextUtils.isEmpty(Utility.dumpCursor(null)));
+
+        // Test again with closed cursor.
+        c1.close();
+        assertFalse(TextUtils.isEmpty(Utility.dumpCursor(c1)));
+        assertFalse(TextUtils.isEmpty(Utility.dumpCursor(c2)));
+        assertFalse(TextUtils.isEmpty(Utility.dumpCursor(c3)));
+        assertFalse(TextUtils.isEmpty(Utility.dumpCursor(null)));
+    }
+
+    public void testCloseTraceCursorWrapper() {
+        final Cursor org = new MatrixCursor(new String[] {"col"});
+        final Utility.CloseTraceCursorWrapper c =
+                Utility.CloseTraceCursorWrapper.alwaysCreateForTest(org);
+
+        // Not closed -- no stack trace
+        assertNull(Utility.CloseTraceCursorWrapper.getTraceIfAvailable(c));
+        Utility.CloseTraceCursorWrapper.log(c); // shouldn't crash
+
+        // Close, now stack trace should be available
+        c.close();
+        assertNotNull(Utility.CloseTraceCursorWrapper.getTraceIfAvailable(c));
+        Utility.CloseTraceCursorWrapper.log(c);
+
+        // shouldn't crash
+        Utility.CloseTraceCursorWrapper.log(null);
     }
 
     /**

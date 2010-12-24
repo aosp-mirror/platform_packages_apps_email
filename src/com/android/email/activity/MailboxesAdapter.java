@@ -378,7 +378,7 @@ import android.widget.TextView;
         public Cursor loadInBackground() {
             final Cursor mailboxesCursor = super.loadInBackground();
             if (mMode == MODE_MOVE_TO_TARGET) {
-                return mailboxesCursor;
+                return Utility.CloseTraceCursorWrapper.get(mailboxesCursor);
             }
 
             // Add "Starred".
@@ -386,7 +386,7 @@ import android.widget.TextView;
             // starred.
             final int starredCount = Message.getFavoriteMessageCount(mContext);
             if (starredCount == 0) {
-                return mailboxesCursor; // no starred message
+                return Utility.CloseTraceCursorWrapper.get(mailboxesCursor); // no starred message
             }
 
             final MatrixCursor starredCursor = new MatrixCursor(getProjection());
@@ -394,7 +394,8 @@ import android.widget.TextView;
             addSummaryMailboxRow(mContext, starredCursor,
                     Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL, starredCount, true);
 
-            return new MergeCursor(new Cursor[] {starredCursor, mailboxesCursor});
+            return Utility.CloseTraceCursorWrapper.get(
+                    new MergeCursor(new Cursor[] {starredCursor, mailboxesCursor}));
         }
     }
 
@@ -440,7 +441,7 @@ import android.widget.TextView;
                 accounts.close();
             }
 
-            return combinedWithAccounts;
+            return Utility.CloseTraceCursorWrapper.get(combinedWithAccounts);
         }
     }
 
@@ -500,5 +501,19 @@ import android.widget.TextView;
 
     /* package */ static int getUnreadCountForTest(Cursor cursor) {
         return cursor.getInt(COLUMN_UNREAD_COUNT);
+    }
+
+    // STOPSHIP delete this
+    @Override
+    public long getItemId(int position) {
+        try {
+            return super.getItemId(position);
+        } catch (RuntimeException re) {
+            final Cursor c = getCursor();
+            android.util.Log.w(Email.LOG_TAG, "Crash in getItemId, this=" + this
+                    + "  cursor=" + Utility.dumpCursor(c), re);
+            Utility.CloseTraceCursorWrapper.log(c);
+            throw re;
+        }
     }
 }
