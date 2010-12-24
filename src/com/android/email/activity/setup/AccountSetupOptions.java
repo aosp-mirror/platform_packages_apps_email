@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.SecurityPolicy.PolicySet;
+import com.android.email.Utility;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
@@ -32,10 +33,10 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,6 +46,9 @@ import android.widget.Spinner;
 
 import java.io.IOException;
 
+/**
+ * TODO: Cleanup the manipulation of Account.FLAGS_INCOMPLETE and make sure it's never left set. 
+ */
 public class AccountSetupOptions extends AccountSetupActivity implements OnClickListener {
 
     private Spinner mCheckFrequencyView;
@@ -54,7 +58,6 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     private CheckBox mSyncContactsView;
     private CheckBox mSyncCalendarView;
     private CheckBox mSyncEmailView;
-    private Handler mHandler = new Handler();
     private boolean mDonePressed = false;
 
     public static final int REQUEST_CODE_ACCEPT_POLICIES = 1;
@@ -164,12 +167,80 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         }
     }
 
+    /**
+     * Ths is called when the user clicks the "done" button.
+     * It collects the data from the UI, updates the setup account record, and commits
+     * the account to the database (making it real for the first time.)
+     * Finally, we call setupAccountManagerAccount(), which will eventually complete via callback.
+     */
+    private void onDone() {
+        final Account account = SetupData.getAccount();
+        account.setDisplayName(account.getEmailAddress());
+        int newFlags = account.getFlags() & ~(EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL);
+        if (mNotifyView.isChecked()) {
+            newFlags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
+        }
+        account.setFlags(newFlags);
+        account.setSyncInterval((Integer)((SpinnerOption)mCheckFrequencyView
+                .getSelectedItem()).value);
+        if (findViewById(R.id.account_sync_window_row).getVisibility() == View.VISIBLE) {
+            int window = (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value;
+            account.setSyncLookback(window);
+        }
+        account.setDefaultAccount(mDefaultView.isChecked());
+
+        if (account.isSaved()) {
+            throw new IllegalStateException("in AccountSetupOptions with already-saved account");
+        }
+        if (account.mHostAuthRecv == null) {
+            throw new IllegalStateException("in AccountSetupOptions with null mHostAuthRecv");
+        }
+
+        // Finish setting up the account, and commit it to the database
+        // Set the incomplete flag here to avoid reconciliation issues in ExchangeService
+        account.mFlags |= Account.FLAGS_INCOMPLETE;
+        boolean calendar = false;
+        boolean contacts = false;
+        boolean email = mSyncEmailView.isChecked();
+        if (account.mHostAuthRecv.mProtocol.equals("eas")) {
+            // Set security hold if necessary to prevent sync until policies are accepted
+            PolicySet policySet = SetupData.getPolicySet();
+            if (policySet != null && policySet.getSecurityCode() != 0) {
+                account.mSecurityFlags = policySet.getSecurityCode();
+                account.mFlags |= Account.FLAGS_SECURITY_HOLD;
+            }
+            // Get flags for contacts/calendar sync
+            contacts = mSyncContactsView.isChecked();
+            calendar = mSyncCalendarView.isChecked();
+        }
+
+        // Finally, write the completed account (for the first time) and then
+        // install it into the Account manager as well.  These are done off-thread.
+        // The account manager will report back via the callback, which will take us to
+        // the next operations.
+        final boolean email2 = email;
+        final boolean calendar2 = calendar;
+        final boolean contacts2 = contacts;
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                Context context = AccountSetupOptions.this;
+                AccountSettingsUtils.commitSettings(context, account);
+                MailService.setupAccountManagerAccount(context, account,
+                        email2, calendar2, contacts2, mAccountManagerCallback);
+            }
+        });
+    }
+
+    /**
+     * This is called at the completion of MailService.setupAccountManagerAccount()
+     */
     AccountManagerCallback<Bundle> mAccountManagerCallback = new AccountManagerCallback<Bundle>() {
         public void run(AccountManagerFuture<Bundle> future) {
             try {
                 Bundle bundle = future.getResult();
                 bundle.keySet();
-                mHandler.post(new Runnable() {
+                AccountSetupOptions.this.runOnUiThread(new Runnable() {
                     public void run() {
                         optionsComplete();
                     }
@@ -187,8 +258,11 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         }
     };
 
+    /**
+     * This is called if MailService.setupAccountManagerAccount() fails for some reason
+     */
     private void showErrorDialog(final int msgResId, final Object... args) {
-        mHandler.post(new Runnable() {
+        runOnUiThread(new Runnable() {
             public void run() {
                 new AlertDialog.Builder(AccountSetupOptions.this)
                         .setIcon(android.R.drawable.ic_dialog_alert)
@@ -207,11 +281,9 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         });
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        saveAccountAndFinish();
-    }
-
+    /**
+     * This is called after the account manager creates the new account.
+     */
     private void optionsComplete() {
         // If we've got policies for this account, ask the user to accept.
         Account account = SetupData.getAccount();
@@ -224,60 +296,38 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     }
 
     /**
-     * STOPSHIP most of this work needs to be async
+     * This is called after the AccountSecurity activity completes.
      */
-    private void saveAccountAndFinish() {
-        // Clear the incomplete/security hold flag now
-        Account account = SetupData.getAccount();
-        account.mFlags &= ~(Account.FLAGS_INCOMPLETE | Account.FLAGS_SECURITY_HOLD);
-        AccountSettingsUtils.commitSettings(this, account);
-        Email.setServicesEnabledSync(this);
-        AccountSetupNames.actionSetNames(this);
-        // Start up ExchangeService (if it isn't already running)
-        ExchangeUtils.startExchangeService(this);
-        finish();
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        saveAccountAndFinish();
     }
 
-    private void onDone() {
-        Account account = SetupData.getAccount();
-        account.setDisplayName(account.getEmailAddress());
-        int newFlags = account.getFlags() & ~(EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL);
-        if (mNotifyView.isChecked()) {
-            newFlags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
-        }
-        account.setFlags(newFlags);
-        account.setSyncInterval((Integer)((SpinnerOption)mCheckFrequencyView
-                .getSelectedItem()).value);
-        if (findViewById(R.id.account_sync_window_row).getVisibility() == View.VISIBLE) {
-            int window = (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value;
-            account.setSyncLookback(window);
-        }
-        account.setDefaultAccount(mDefaultView.isChecked());
-
-        // Setup up the AccountManager account
-        if (!account.isSaved() && account.mHostAuthRecv != null) {
-            // Set the incomplete flag here to avoid reconciliation issues in ExchangeService
-            account.mFlags |= Account.FLAGS_INCOMPLETE;
-            boolean calendar = false;
-            boolean contacts = false;
-            boolean email = mSyncEmailView.isChecked();
-            if (account.mHostAuthRecv.mProtocol.equals("eas")) {
-                // Set security hold if necessary to prevent sync until policies are accepted
-                PolicySet policySet = SetupData.getPolicySet();
-                if (policySet != null && policySet.getSecurityCode() != 0) {
-                    account.mSecurityFlags = policySet.getSecurityCode();
-                    account.mFlags |= Account.FLAGS_SECURITY_HOLD;
-                }
-                // Get flags for contacts/calendar sync
-                contacts = mSyncContactsView.isChecked();
-                calendar = mSyncCalendarView.isChecked();
+    /**
+     * These are the final cleanup steps when creating an account:
+     *  Clear incomplete & security hold flags
+     *  Update account in DB
+     *  Enable email services
+     *  Enable exchange services
+     *  Move to final setup screen
+     */
+    private void saveAccountAndFinish() {
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                AccountSetupOptions context = AccountSetupOptions.this;
+                // Clear the incomplete/security hold flag now
+                Account account = SetupData.getAccount();
+                account.mFlags &= ~(Account.FLAGS_INCOMPLETE | Account.FLAGS_SECURITY_HOLD);
+                AccountSettingsUtils.commitSettings(context, account);
+                // Start up services based on new account(s)
+                Email.setServicesEnabledSync(context);
+                ExchangeUtils.startExchangeService(context);
+                // Move to final setup screen
+                AccountSetupNames.actionSetNames(context);
+                finish();
             }
-            AccountSettingsUtils.commitSettings(this, account);
-            MailService.setupAccountManagerAccount(this, account, email, calendar, contacts,
-                    mAccountManagerCallback);
-        } else {
-            optionsComplete();
-        }
+        });
     }
 
     /**
