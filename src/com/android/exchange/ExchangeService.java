@@ -1901,7 +1901,7 @@ public class ExchangeService extends Service implements Runnable {
             while (!sStop) {
                 runAwake(EXTRA_MAILBOX_ID);
                 waitForConnectivity();
-                mNextWaitReason = "Heartbeat";
+                mNextWaitReason = null;
                 long nextWait = checkMailboxes();
                 try {
                     synchronized (this) {
