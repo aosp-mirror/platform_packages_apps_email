@@ -20,6 +20,7 @@ import com.android.email.Controller.ControllerService;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.NotificationController;
+import com.android.email.Preferences;
 import com.android.email.Utility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
@@ -89,6 +90,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
     /*package*/ static AttachmentDownloadService sRunningService = null;
 
     /*package*/ Context mContext;
+    Preferences mPreferences;
     /*package*/ final DownloadSet mDownloadSet = new DownloadSet(new DownloadComparator());
 
     private final HashMap<Long, Class<? extends Service>> mAccountServiceMap =
@@ -316,6 +318,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     mDownloadSet.tryStartDownload(req);
                 }
             }
+
+            // Respect the user's preference for background downloads
+            if (!mPreferences.getBackgroundAttachments()) {
+                return;
+            }
+
             // Then, try opportunistic download of appropriate attachments
             int backgroundDownloads = MAX_SIMULTANEOUS_DOWNLOADS - mDownloadsInProgress.size();
             // Always leave one slot for user requested download
@@ -780,6 +788,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
     public void run() {
         mContext = this;
         mAccountManagerStub = new AccountManagerStub(this);
+        mPreferences = Preferences.getPreferences(this);
+
         // Run through all attachments in the database that require download and add them to
         // the queue
         int mask = Attachment.FLAG_DOWNLOAD_FORWARD | Attachment.FLAG_DOWNLOAD_USER_REQUEST;
