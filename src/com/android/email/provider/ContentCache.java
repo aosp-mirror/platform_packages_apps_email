@@ -73,9 +73,8 @@ import java.util.Set;
 public final class ContentCache extends LinkedHashMap<String, Cursor> {
     private static final long serialVersionUID = 1L;
 
-    // STOPSHIP Revert values to false
-    private static final boolean DEBUG_CACHE = true;  // DO NOT CHECK IN TRUE
-    private static final boolean DEBUG_TOKENS = true;  // DO NOT CHECK IN TRUE
+    private static final boolean DEBUG_CACHE = false;  // DO NOT CHECK IN TRUE
+    private static final boolean DEBUG_TOKENS = false;  // DO NOT CHECK IN TRUE
     private static final boolean DEBUG_NOT_CACHEABLE = false;  // DO NOT CHECK IN TRUE
 
     // If false, reads will not use the cache; this is intended for debugging only
@@ -302,8 +301,8 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
          */
         @Override
         public void close() {
-            int count = sActiveCursors.subtract(mCursor);
             synchronized(mCache) {
+                int count = sActiveCursors.subtract(mCursor);
                 if ((count == 0) && !mCache.containsValue(mCursor)) {
                     super.close();
                 }
