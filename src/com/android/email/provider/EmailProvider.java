@@ -44,6 +44,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -1258,7 +1259,30 @@ public class EmailProvider extends ContentProvider {
             time = System.nanoTime();
         }
         Cursor c = null;
-        int match = findMatch(uri, "query");
+        int match;
+        try {
+            match = findMatch(uri, "query");
+        } catch (IllegalArgumentException e) {
+            String uriString = uri.toString();
+            // If we were passed an illegal uri, see if it ends in /-1
+            // if so, and if substituting 0 for -1 results in a valid uri, return an empty cursor
+            if (uriString != null && uriString.endsWith("/-1")) {
+                uri = Uri.parse(uriString.substring(0, uriString.length() - 2) + "0");
+                match = findMatch(uri, "query");
+                switch (match) {
+                    case BODY_ID:
+                    case MESSAGE_ID:
+                    case DELETED_MESSAGE_ID:
+                    case UPDATED_MESSAGE_ID:
+                    case ATTACHMENT_ID:
+                    case MAILBOX_ID:
+                    case ACCOUNT_ID:
+                    case HOSTAUTH_ID:
+                        return new MatrixCursor(projection, 0);
+                }
+            }
+            throw e;
+        }
         Context context = getContext();
         // See the comment at delete(), above
         SQLiteDatabase db = getDatabase(context);
