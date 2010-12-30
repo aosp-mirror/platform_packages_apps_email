@@ -266,7 +266,7 @@ public class MessageListItem extends View {
         for (int i = 0; i < MAX_SUBJECT_SNIPPET_LINES; i++) {
             int start = layout.getLineStart(i);
             if (i == MAX_SUBJECT_SNIPPET_LINES - 1) {
-                int end = mText.length() - 1;
+                int end = mText.length();
                 if (start > end) continue;
                 // For the final line, ellipsize the text to our width
                 mSnippetLines[i] = TextUtils.ellipsize(mText.subSequence(start, end), sDefaultPaint,
@@ -381,7 +381,7 @@ public class MessageListItem extends View {
         int subjectEnd = (mSubject == null) ? 0 : mSubject.length();
         int lineStart = 0;
         TextPaint subjectPaint = mRead ? sDefaultPaint : sBoldPaint;
-        for (int i = 0; i < MAX_SUBJECT_SNIPPET_LINES; i++) {
+        for (int i = 0; i < MAX_SUBJECT_SNIPPET_LINES && i < mSnippetLineCount; i++) {
             CharSequence line = mSnippetLines[i];
             int drawX = snippetX;
             if (line != null) {
