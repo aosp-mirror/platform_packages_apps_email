@@ -317,7 +317,7 @@ public class EmailProvider extends ContentProvider {
     private static int findMatch(Uri uri, String methodName) {
         int match = sURIMatcher.match(uri);
         if (match < 0) {
-            throw new IllegalArgumentException("Unknown uri: uri");
+            throw new IllegalArgumentException("Unknown uri: " + uri);
         } else if (Email.LOGD) {
             Log.v(TAG, methodName + ": uri=" + uri + ", match is " + match);
         }
