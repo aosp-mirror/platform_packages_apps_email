@@ -19,8 +19,8 @@ package com.android.email.service;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.Preferences;
+import com.android.email.SecurityPolicy;
 import com.android.email.VendorPolicyLoader;
-import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.setup.AccountSettingsXL;
 
 import android.app.IntentService;
@@ -28,7 +28,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.util.Config;
 import android.util.Log;
 
 /**
@@ -40,11 +39,21 @@ import android.util.Log;
  *   <li>Even if it does, the Intent that have started it will be re-delivered by the system,
  *   and we can start the process again.  (Using {@link #setIntentRedelivery}).
  * </ul>
+ *
+ * This also handles the DeviceAdminReceiver in SecurityPolicy, because it is also
+ * a BroadcastReceiver and requires the same processing semantics.
  */
 public class EmailBroadcastProcessorService extends IntentService {
+    // Action used for BroadcastReceiver entry point
+    private static final String ACTION_BROADCAST = "broadcast_receiver";
+
     // Dialing "*#*#36245#*#*" to open the debug screen.   "36245" = "email"
-    private static final String SECRET_CODE_ACTION = "android.provider.Telephony.SECRET_CODE";
+    private static final String ACTION_SECRET_CODE = "android.provider.Telephony.SECRET_CODE";
     private static final String SECRET_CODE_HOST_DEBUG_SCREEN = "36245";
+
+    // This is a helper used to process DeviceAdminReceiver messages
+    private static final String ACTION_DEVICE_POLICY_ADMIN = "com.android.email.devicepolicy";
+    private static final String EXTRA_DEVICE_POLICY_ADMIN = "message_code";
 
     public EmailBroadcastProcessorService() {
         // Class name will be the thread name.
@@ -59,7 +68,20 @@ public class EmailBroadcastProcessorService extends IntentService {
      */
     public static void processBroadcastIntent(Context context, Intent broadcastIntent) {
         Intent i = new Intent(context, EmailBroadcastProcessorService.class);
+        i.setAction(ACTION_BROADCAST);
         i.putExtra(Intent.EXTRA_INTENT, broadcastIntent);
+        context.startService(i);
+    }
+
+    /**
+     * Entry point for {@link com.android.email.SecurityPolicy.PolicyAdmin}.  These will
+     * simply callback to {@link
+     * com.android.email.SecurityPolicy#onDeviceAdminReceiverMessage(Context, int)}.
+     */
+    public static void processDevicePolicyMessage(Context context, int message) {
+        Intent i = new Intent(context, EmailBroadcastProcessorService.class);
+        i.setAction(ACTION_DEVICE_POLICY_ADMIN);
+        i.putExtra(EXTRA_DEVICE_POLICY_ADMIN, message);
         context.startService(i);
     }
 
@@ -67,22 +89,29 @@ public class EmailBroadcastProcessorService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         // This method is called on a worker thread.
 
-        final Intent original = intent.getParcelableExtra(Intent.EXTRA_INTENT);
-        final String action = original.getAction();
+        // Dispatch from entry point
+        final String action = intent.getAction();
+        if (ACTION_BROADCAST.equals(action)) {
+            final Intent broadcastIntent = intent.getParcelableExtra(Intent.EXTRA_INTENT);
+            final String broadcastAction = broadcastIntent.getAction();
 
-        if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
-            onBootCompleted();
+            if (Intent.ACTION_BOOT_COMPLETED.equals(broadcastAction)) {
+                onBootCompleted();
 
-        // TODO: Do a better job when we get ACTION_DEVICE_STORAGE_LOW.
-        //       The code below came from very old code....
-        } else if (Intent.ACTION_DEVICE_STORAGE_LOW.equals(action)) {
-            // Stop IMAP/POP3 poll.
-            MailService.actionCancel(this);
-        } else if (Intent.ACTION_DEVICE_STORAGE_OK.equals(action)) {
-            enableComponentsIfNecessary();
-        } else if (SECRET_CODE_ACTION.equals(action)
-                && SECRET_CODE_HOST_DEBUG_SCREEN.equals(original.getData().getHost())) {
-            AccountSettingsXL.actionSettingsWithDebug(this);
+            // TODO: Do a better job when we get ACTION_DEVICE_STORAGE_LOW.
+            //       The code below came from very old code....
+            } else if (Intent.ACTION_DEVICE_STORAGE_LOW.equals(broadcastAction)) {
+                // Stop IMAP/POP3 poll.
+                MailService.actionCancel(this);
+            } else if (Intent.ACTION_DEVICE_STORAGE_OK.equals(broadcastAction)) {
+                enableComponentsIfNecessary();
+            } else if (ACTION_SECRET_CODE.equals(broadcastAction)
+                    && SECRET_CODE_HOST_DEBUG_SCREEN.equals(broadcastIntent.getData().getHost())) {
+                AccountSettingsXL.actionSettingsWithDebug(this);
+            }
+        } else if (ACTION_DEVICE_POLICY_ADMIN.equals(action)) {
+            int message = intent.getIntExtra(EXTRA_DEVICE_POLICY_ADMIN, -1);
+            SecurityPolicy.onDeviceAdminReceiverMessage(this, message);
         }
     }
 

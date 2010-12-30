@@ -20,6 +20,7 @@ import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
+import com.android.email.service.EmailBroadcastProcessorService;
 
 import android.app.admin.DeviceAdminInfo;
 import android.app.admin.DeviceAdminReceiver;
@@ -58,12 +59,18 @@ public class SecurityPolicy {
     private static final int ACCOUNT_SECURITY_COLUMN_ID = 0;
     private static final int ACCOUNT_SECURITY_COLUMN_FLAGS = 1;
 
+    // Messages used for DevicePolicyManager callbacks
+    private static final int DEVICE_ADMIN_MESSAGE_ENABLED = 1;
+    private static final int DEVICE_ADMIN_MESSAGE_DISABLED = 2;
+    private static final int DEVICE_ADMIN_MESSAGE_PASSWORD_CHANGED = 3;
+    private static final int DEVICE_ADMIN_MESSAGE_PASSWORD_EXPIRING = 4;
+
     /**
      * Get the security policy instance
      */
     public synchronized static SecurityPolicy getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new SecurityPolicy(context);
+            sInstance = new SecurityPolicy(context.getApplicationContext());
         }
         return sInstance;
     }
@@ -751,26 +758,12 @@ public class SecurityPolicy {
 
     /**
      * Internal handler for enabled->disabled transitions.  Deletes all secured accounts.
+     * Must call from worker thread, not on UI thread.
      */
     /*package*/ void onAdminEnabled(boolean isEnabled) {
         if (!isEnabled) {
-            Utility.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    deleteSecuredAccounts(mContext);
-                }});
+            deleteSecuredAccounts(mContext);
         }
-    }
-
-    /**
-     * Internal handler for device password expirations.
-     */
-    private void onPasswordExpiring() {
-        Utility.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                onPasswordExpiringSync(mContext);
-            }});
     }
 
     /**
@@ -783,7 +776,7 @@ public class SecurityPolicy {
      * the expiration.  In other words, all accounts (that require expiration) will run/stop
      * based on the requirements of the account with the shortest interval.
      */
-    /* package */ void onPasswordExpiringSync(Context context) {
+    private void onPasswordExpiring(Context context) {
         // 1.  Do we have any accounts that matter here?
         long nextExpiringAccountId = findShortestExpiration(context);
 
@@ -896,8 +889,39 @@ public class SecurityPolicy {
     }
 
     /**
+     * Callback from EmailBroadcastProcessorService.  This provides the workers for the
+     * DeviceAdminReceiver calls.  These should perform the work directly and not use async
+     * threads for completion.
+     */
+    public static void onDeviceAdminReceiverMessage(Context context, int message) {
+        SecurityPolicy instance = SecurityPolicy.getInstance(context);
+        switch (message) {
+            case DEVICE_ADMIN_MESSAGE_ENABLED:
+                instance.onAdminEnabled(true);
+                break;
+            case DEVICE_ADMIN_MESSAGE_DISABLED:
+                instance.onAdminEnabled(false);
+                break;
+            case DEVICE_ADMIN_MESSAGE_PASSWORD_CHANGED:
+                // TODO make a small helper for this
+                // Clear security holds (if any)
+                Account.clearSecurityHoldOnAllAccounts(context);
+                // Cancel any active notifications (if any are posted)
+                NotificationController nc = NotificationController.getInstance(context);
+                nc.cancelNotification(NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRING);
+                nc.cancelNotification(NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRED);
+                break;
+            case DEVICE_ADMIN_MESSAGE_PASSWORD_EXPIRING:
+                instance.onPasswordExpiring(instance.mContext);
+                break;
+        }
+    }
+
+    /**
      * Device Policy administrator.  This is primarily a listener for device state changes.
      * Note:  This is instantiated by incoming messages.
+     * Note:  This is actually a BroadcastReceiver and must remain within the guidelines required
+     *        for proper behavior, including avoidance of ANRs.
      * Note:  We do not implement onPasswordFailed() because the default behavior of the
      *        DevicePolicyManager - complete local wipe after 'n' failures - is sufficient.
      */
@@ -908,7 +932,8 @@ public class SecurityPolicy {
          */
         @Override
         public void onEnabled(Context context, Intent intent) {
-            SecurityPolicy.getInstance(context).onAdminEnabled(true);
+            EmailBroadcastProcessorService.processDevicePolicyMessage(context,
+                    DEVICE_ADMIN_MESSAGE_ENABLED);
         }
 
         /**
@@ -916,7 +941,8 @@ public class SecurityPolicy {
          */
         @Override
         public void onDisabled(Context context, Intent intent) {
-            SecurityPolicy.getInstance(context).onAdminEnabled(false);
+            EmailBroadcastProcessorService.processDevicePolicyMessage(context,
+                    DEVICE_ADMIN_MESSAGE_DISABLED);
         }
 
         /**
@@ -933,12 +959,8 @@ public class SecurityPolicy {
          */
         @Override
         public void onPasswordChanged(Context context, Intent intent) {
-            // Clear security holds (if any)
-            Account.clearSecurityHoldOnAllAccounts(context);
-            // Cancel any active notifications (if any are posted)
-            NotificationController nc = NotificationController.getInstance(context);
-            nc.cancelNotification(NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRING);
-            nc.cancelNotification(NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRED);
+            EmailBroadcastProcessorService.processDevicePolicyMessage(context,
+                    DEVICE_ADMIN_MESSAGE_PASSWORD_CHANGED);
         }
 
         /**
@@ -946,7 +968,8 @@ public class SecurityPolicy {
          */
         @Override
         public void onPasswordExpiring(Context context, Intent intent) {
-            SecurityPolicy.getInstance(context).onPasswordExpiring();
+            EmailBroadcastProcessorService.processDevicePolicyMessage(context,
+                    DEVICE_ADMIN_MESSAGE_PASSWORD_EXPIRING);
         }
     }
 }
