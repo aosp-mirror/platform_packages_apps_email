@@ -2364,8 +2364,7 @@ public class EasSyncService extends AbstractSyncService {
      */
     public void run() {
         if (!setupService()) return;
-        final boolean callbackRequired = (mSyncReason >= ExchangeService.SYNC_CALLBACK_START);
-        if (callbackRequired) {
+        if (mSyncReason >= ExchangeService.SYNC_CALLBACK_START) {
             try {
                 ExchangeService.callback().syncMailboxStatus(mMailboxId,
                         EmailServiceStatus.IN_PROGRESS, 0);
@@ -2448,14 +2447,14 @@ public class EasSyncService extends AbstractSyncService {
             }
 
             // Send a callback if this run was initiated by a service call
-            if (callbackRequired) {
+            if (mSyncReason >= ExchangeService.SYNC_CALLBACK_START) {
                 try {
                     // Unless the user specifically asked for a sync, we really don't want to report
                     // connection issues, as they are likely to be transient.  In this case, we
                     // simply report success, so that the progress indicator terminates without
                     // putting up an error banner
                     if (mSyncReason != ExchangeService.SYNC_UI_REQUEST &&
-                            status == EXIT_IO_ERROR) {
+                            status == EmailServiceStatus.CONNECTION_ERROR) {
                         status = EmailServiceStatus.SUCCESS;
                     }
                     ExchangeService.callback().syncMailboxStatus(mMailboxId, status, 0);

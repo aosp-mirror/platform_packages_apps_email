@@ -65,7 +65,7 @@ public abstract class AbstractSyncService implements Runnable {
     public Account mAccount;
     public Context mContext;
     public int mChangeCount = 0;
-    public int mSyncReason = 0;
+    public volatile int mSyncReason = 0;
     protected volatile boolean mStop = false;
     protected Object mSynchronizer = new Object();
 
