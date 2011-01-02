@@ -823,7 +823,7 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
 
             long accountId = cursor.getLong(Account.CONTENT_ID_COLUMN);
             View chipView = view.findViewById(R.id.chip);
-            chipView.setBackgroundResource(Email.getAccountColorResourceId(accountId));
+            chipView.setBackgroundColor(cursor.getInt(Account.CONTENT_COLOR_COLUMN));
             chipView.setVisibility(View.VISIBLE);
 
             String text = cursor.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);

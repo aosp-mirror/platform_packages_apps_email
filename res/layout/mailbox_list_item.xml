@@ -21,12 +21,17 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:paddingRight="8dip">
-    <View
+    <RelativeLayout
         android:id="@+id/chip"
-        android:background="@drawable/appointment_indicator_leftside_1"
-        android:layout_width="4dip"
         android:layout_height="match_parent"
-        android:layout_centerVertical="true" />
+        android:layout_width="4dip" >
+        <View
+            android:background="@drawable/chip_mask"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
     <ImageView
         android:id="@+id/folder_icon"
         android:layout_width="wrap_content"
@@ -66,4 +71,3 @@
         android:layout_marginLeft="4dip"
         android:background="@drawable/ind_sum"
         style="@style/unreadCount"/>
-</LinearLayout>

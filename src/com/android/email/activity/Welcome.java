@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
+//import com.android.email.R;
 import com.android.email.ExchangeUtils;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent;
@@ -27,6 +28,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.widget.Toast;
 
 /**
  * The Welcome activity initializes the application and decides what Activity
@@ -85,6 +87,28 @@ public class Welcome extends Activity {
                     EmailContent.Account.CONTENT_URI,
                     EmailContent.Account.ID_PROJECTION,
                     null, null, null);
+            
+            if (Email.getAccountColorsUpgraded())
+            {
+            	final Toast note = Toast.makeText(this, R.string.color_upgrade_note, Toast.LENGTH_SHORT);
+
+            	Thread toaster = new Thread () {
+            		public void run () {
+            			final int MAX = 6;
+            			final long NAP_LENGTH = 1850;
+
+            			for (int i = 0; i < MAX; i++)
+            			{
+            				note.show();
+            				try { sleep(NAP_LENGTH); } catch (InterruptedException e) {}
+            			}
+            		}
+            	};
+
+            	toaster.start();
+            	Email.setAccountColorsUpgraded(false);
+            }
+            
             switch (c.getCount()) {
                 case 0:
                     AccountSetupBasics.actionNewAccount(this);

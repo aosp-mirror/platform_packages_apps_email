@@ -636,8 +636,12 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
             } else {
                 statusView.setVisibility(View.GONE);
             }
+            
+            long boxId = cursor.getLong(COLUMN_ID);
+            
             View chipView = view.findViewById(R.id.chip);
-            chipView.setBackgroundResource(Email.getAccountColorResourceId(mAccountId));
+            chipView.setBackgroundColor(Account.restoreAccountWithId(mContext, Mailbox.restoreMailboxWithId(mContext, boxId).mAccountKey).getAccountColor());
+
             // TODO do we use a different count for special mailboxes (total count vs. unread)
             int count = -1;
             switch (type) {

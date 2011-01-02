@@ -1194,7 +1194,7 @@ public class CalendarUtilities {
 
         // TODO Coordinate account colors w/ Calendar, if possible
         // Make Email account color opaque
-        cv.put(Calendars.COLOR, 0xFF000000 | Email.getAccountColor(account.mId));
+        cv.put(Calendars.COLOR, 0xFF000000 | account.getAccountColor());
         cv.put(Calendars.TIMEZONE, Time.getCurrentTimezone());
         cv.put(Calendars.ACCESS_LEVEL, Calendars.OWNER_ACCESS);
         cv.put(Calendars.OWNER_ACCOUNT, account.mEmailAddress);
@@ -1209,6 +1209,24 @@ public class CalendarUtilities {
         return -1;
     }
 
+    /**
+     * Update calendar object customizable settings - display name and account color
+     * @param calendar the exchange calendar we're updating
+     * @param service the sync service requesting Calendar creation
+     * @param account the account being synced
+     * @param mailbox the Exchange mailbox for the calendar
+     * @hide
+     */
+    static public void updateCalendar(long calendarId, EasSyncService service, Account account) {
+	    // Update Calendar object
+	    ContentValues cv = new ContentValues();
+	    Uri uri = ContentUris.withAppendedId(Calendars.CONTENT_URI, calendarId);
+	    cv.put(Calendars.DISPLAY_NAME, account.mDisplayName);
+	    cv.put(Calendars.COLOR, 0xFF000000 | account.getAccountColor());
+	    service.mContentResolver.update(uri, cv, null, null);
+	    service.mContentResolver.notifyChange(uri, null, true);
+    }
+    
     /**
      * Return the uid for an event based on its globalObjId
      * @param globalObjId the base64 encoded String provided by EAS

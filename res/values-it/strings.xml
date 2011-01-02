@@ -178,6 +178,7 @@
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilizza connessione sicura (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Accetta tutti i certificati SSL"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"Opzioni account"</string>
+    <string name="account_setup_color_title">Colore account</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Frequenza di controllo Posta in arrivo"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Mai"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Automatico (push)"</string>
@@ -271,4 +272,5 @@
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> risultati da <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
     <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Primi <xliff:g id="RESULTS">%1$d</xliff:g> risultati da <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
+    <string name="sample_account_name" >Modello Nome Account</string>
 </resources>

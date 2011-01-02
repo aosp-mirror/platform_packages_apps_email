@@ -62,6 +62,7 @@ public class Account {
     String mDescription;
     String mName;
     String mEmail;
+    int mAccountColor;
     int mAutomaticCheckIntervalMinutes;
     long mLastAutomaticCheckTime;
     boolean mNotifyNewMail;
@@ -91,12 +92,31 @@ public class Account {
     /**
      * All new fields should have named keys
      */
-    private static final String KEY_SYNC_WINDOW = ".syncWindow";
-    private static final String KEY_BACKUP_FLAGS = ".backupFlags";
-    private static final String KEY_PROTOCOL_VERSION = ".protocolVersion";
-    private static final String KEY_SECURITY_FLAGS = ".securityFlags";
-    private static final String KEY_SIGNATURE = ".signature";
-    private static final String KEY_VIBRATE_WHEN_SILENT = ".vibrateWhenSilent";
+    private final String KEY_STORE_URI = ".storeUri";
+    private final String KEY_LOCALSTORE_URI = ".localStoreUri";
+    private final String KEY_SENDER_URI = ".senderUri";
+    private final String KEY_OLD_TRANSPORT_URI = ".transportUri";
+    private final String KEY_DESCRIPTION = ".description";
+    private final String KEY_NAME = ".name";
+    private final String KEY_EMAIL = ".email";
+    private final String KEY_ACCOUNT_COLOR = ".accountColor";
+    private final String KEY_AUTO_CHECK_INTERVAL_MINS = ".automaticCheckIntervalMinutes";
+    private final String KEY_LAST_AUTO_CHECK_TIME = ".lastAutomaticCheckTime";
+    private final String KEY_NOTIFY_NEW_MAIL = ".notifyNewMail";
+    private final String KEY_DELETE_POLICY = ".deletePolicy";
+    private final String KEY_DRAFTS_FOLDER_NAME = ".draftsFolderName";
+    private final String KEY_SENT_FOLDER_NAME = ".sentFolderName";
+    private final String KEY_TRASH_FOLDER_NAME = ".trashFolderName";
+    private final String KEY_OUTBOX_FOLDER_NAME = ".outboxFolderName";
+    private final String KEY_ACCOUNT_NUMBER = ".accountNumber";
+    private final String KEY_VIBRATE = ".vibrate";
+    private final String KEY_VIBRATE_WHEN_SILENT = ".vibrateWhenSilent";
+    private final String KEY_RINGTONE = ".ringtone";
+    private final String KEY_SYNC_WINDOW = ".syncWindow";
+    private final String KEY_BACKUP_FLAGS = ".backupFlags";
+    private final String KEY_PROTOCOL_VERSION = ".protocolVersion";
+    private final String KEY_SECURITY_FLAGS = ".securityFlags";
+    private final String KEY_SIGNATURE = ".signature";
 
     public Account(Context context) {
         // TODO Change local store path to something readable / recognizable
@@ -127,48 +147,51 @@ public class Account {
         mPreferences = preferences;
 
         mStoreUri = Utility.base64Decode(preferences.mSharedPreferences.getString(mUuid
-                + ".storeUri", null));
-        mLocalStoreUri = preferences.mSharedPreferences.getString(mUuid + ".localStoreUri", null);
+                + KEY_STORE_URI, null));
+        mLocalStoreUri = preferences.mSharedPreferences.getString(mUuid + KEY_LOCALSTORE_URI, null);
         
-        String senderText = preferences.mSharedPreferences.getString(mUuid + ".senderUri", null);
+        String senderText = preferences.mSharedPreferences.getString(mUuid + KEY_SENDER_URI, null);
         if (senderText == null) {
             // Preference ".senderUri" was called ".transportUri" in earlier versions, so we'll
             // do a simple upgrade here when necessary.
-            senderText = preferences.mSharedPreferences.getString(mUuid + ".transportUri", null);
+            senderText = preferences.mSharedPreferences.getString(mUuid + KEY_OLD_TRANSPORT_URI, null);
         }
         mSenderUri = Utility.base64Decode(senderText);
         
-        mDescription = preferences.mSharedPreferences.getString(mUuid + ".description", null);
-        mName = preferences.mSharedPreferences.getString(mUuid + ".name", mName);
-        mEmail = preferences.mSharedPreferences.getString(mUuid + ".email", mEmail);
+        mDescription = preferences.mSharedPreferences.getString(mUuid + KEY_DESCRIPTION, null);
+        mName = preferences.mSharedPreferences.getString(mUuid + KEY_NAME, mName);
+        mEmail = preferences.mSharedPreferences.getString(mUuid + KEY_EMAIL, mEmail);
+        
+        mAccountColor = preferences.mSharedPreferences.getInt(mUuid + KEY_ACCOUNT_COLOR, 0xffffffff);
+        
         mAutomaticCheckIntervalMinutes = preferences.mSharedPreferences.getInt(mUuid
-                + ".automaticCheckIntervalMinutes", -1);
+                + KEY_AUTO_CHECK_INTERVAL_MINS, -1);
         mLastAutomaticCheckTime = preferences.mSharedPreferences.getLong(mUuid
-                + ".lastAutomaticCheckTime", 0);
-        mNotifyNewMail = preferences.mSharedPreferences.getBoolean(mUuid + ".notifyNewMail", 
+                + KEY_LAST_AUTO_CHECK_TIME, 0);
+        mNotifyNewMail = preferences.mSharedPreferences.getBoolean(mUuid + KEY_NOTIFY_NEW_MAIL, 
                 false);
         
         // delete policy was incorrectly set on earlier versions, so we'll upgrade it here.
         // rule:  if IMAP account and policy = 0 ("never"), change policy to 2 ("on delete")
-        mDeletePolicy = preferences.mSharedPreferences.getInt(mUuid + ".deletePolicy", 0);
+        mDeletePolicy = preferences.mSharedPreferences.getInt(mUuid + KEY_DELETE_POLICY, 0);
         if (mDeletePolicy == DELETE_POLICY_NEVER && 
                 mStoreUri != null && mStoreUri.toString().startsWith(Store.STORE_SCHEME_IMAP)) {
             mDeletePolicy = DELETE_POLICY_ON_DELETE;
         }
         
-        mDraftsFolderName = preferences.mSharedPreferences.getString(mUuid  + ".draftsFolderName", 
+        mDraftsFolderName = preferences.mSharedPreferences.getString(mUuid  + KEY_DRAFTS_FOLDER_NAME, 
                 "Drafts");
-        mSentFolderName = preferences.mSharedPreferences.getString(mUuid  + ".sentFolderName", 
+        mSentFolderName = preferences.mSharedPreferences.getString(mUuid  + KEY_SENT_FOLDER_NAME, 
                 "Sent");
-        mTrashFolderName = preferences.mSharedPreferences.getString(mUuid  + ".trashFolderName", 
+        mTrashFolderName = preferences.mSharedPreferences.getString(mUuid  + KEY_TRASH_FOLDER_NAME, 
                 "Trash");
-        mOutboxFolderName = preferences.mSharedPreferences.getString(mUuid  + ".outboxFolderName", 
+        mOutboxFolderName = preferences.mSharedPreferences.getString(mUuid  + KEY_OUTBOX_FOLDER_NAME, 
                 "Outbox");
-        mAccountNumber = preferences.mSharedPreferences.getInt(mUuid + ".accountNumber", 0);
-        mVibrate = preferences.mSharedPreferences.getBoolean(mUuid + ".vibrate", false);
+        mAccountNumber = preferences.mSharedPreferences.getInt(mUuid + KEY_ACCOUNT_NUMBER, 0);
+        mVibrate = preferences.mSharedPreferences.getBoolean(mUuid + KEY_VIBRATE, false);
         mVibrateWhenSilent = preferences.mSharedPreferences.getBoolean(mUuid +
                 KEY_VIBRATE_WHEN_SILENT, false);
-        mRingtoneUri = preferences.mSharedPreferences.getString(mUuid  + ".ringtone", 
+        mRingtoneUri = preferences.mSharedPreferences.getString(mUuid  + KEY_RINGTONE, 
                 "content://settings/system/notification_sound");
         
         mSyncWindow = preferences.mSharedPreferences.getInt(mUuid + KEY_SYNC_WINDOW, 
@@ -225,6 +248,14 @@ public class Account {
         this.mEmail = email;
     }
 
+    public int getAccountColor () {
+    	return mAccountColor;
+    }
+
+    public void setAccountColor (int color) {
+    	mAccountColor = color;
+    }
+    
     public boolean isVibrate() {
         return mVibrate;
     }
@@ -264,24 +295,25 @@ public class Account {
         SharedPreferences.Editor editor = preferences.mSharedPreferences.edit();
         editor.putString("accountUuids", accountUuids);
 
-        editor.remove(mUuid + ".storeUri");
-        editor.remove(mUuid + ".localStoreUri");
-        editor.remove(mUuid + ".senderUri");
-        editor.remove(mUuid + ".description");
-        editor.remove(mUuid + ".name");
-        editor.remove(mUuid + ".email");
-        editor.remove(mUuid + ".automaticCheckIntervalMinutes");
-        editor.remove(mUuid + ".lastAutomaticCheckTime");
-        editor.remove(mUuid + ".notifyNewMail");
-        editor.remove(mUuid + ".deletePolicy");
-        editor.remove(mUuid + ".draftsFolderName");
-        editor.remove(mUuid + ".sentFolderName");
-        editor.remove(mUuid + ".trashFolderName");
-        editor.remove(mUuid + ".outboxFolderName");
-        editor.remove(mUuid + ".accountNumber");
-        editor.remove(mUuid + ".vibrate");
+        editor.remove(mUuid + KEY_STORE_URI);
+        editor.remove(mUuid + KEY_LOCALSTORE_URI);
+        editor.remove(mUuid + KEY_SENDER_URI);
+        editor.remove(mUuid + KEY_DESCRIPTION);
+        editor.remove(mUuid + KEY_NAME);
+        editor.remove(mUuid + KEY_EMAIL);
+        editor.remove(mUuid + KEY_ACCOUNT_COLOR);
+        editor.remove(mUuid + KEY_AUTO_CHECK_INTERVAL_MINS);
+        editor.remove(mUuid + KEY_LAST_AUTO_CHECK_TIME);
+        editor.remove(mUuid + KEY_NOTIFY_NEW_MAIL);
+        editor.remove(mUuid + KEY_DELETE_POLICY);
+        editor.remove(mUuid + KEY_DRAFTS_FOLDER_NAME);
+        editor.remove(mUuid + KEY_SENT_FOLDER_NAME);
+        editor.remove(mUuid + KEY_TRASH_FOLDER_NAME);
+        editor.remove(mUuid + KEY_OUTBOX_FOLDER_NAME);
+        editor.remove(mUuid + KEY_ACCOUNT_NUMBER);
+        editor.remove(mUuid + KEY_VIBRATE);
         editor.remove(mUuid + KEY_VIBRATE_WHEN_SILENT);
-        editor.remove(mUuid + ".ringtone");
+        editor.remove(mUuid + KEY_RINGTONE);
         editor.remove(mUuid + KEY_SYNC_WINDOW);
         editor.remove(mUuid + KEY_BACKUP_FLAGS);
         editor.remove(mUuid + KEY_PROTOCOL_VERSION);
@@ -289,7 +321,7 @@ public class Account {
         editor.remove(mUuid + KEY_SIGNATURE);
 
         // also delete any deprecated fields
-        editor.remove(mUuid + ".transportUri");
+        editor.remove(mUuid + KEY_OLD_TRANSPORT_URI);
         
         editor.commit();
     }
@@ -332,24 +364,25 @@ public class Account {
 
         SharedPreferences.Editor editor = preferences.mSharedPreferences.edit();
 
-        editor.putString(mUuid + ".storeUri", Utility.base64Encode(mStoreUri));
-        editor.putString(mUuid + ".localStoreUri", mLocalStoreUri);
-        editor.putString(mUuid + ".senderUri", Utility.base64Encode(mSenderUri));
-        editor.putString(mUuid + ".description", mDescription);
-        editor.putString(mUuid + ".name", mName);
-        editor.putString(mUuid + ".email", mEmail);
-        editor.putInt(mUuid + ".automaticCheckIntervalMinutes", mAutomaticCheckIntervalMinutes);
-        editor.putLong(mUuid + ".lastAutomaticCheckTime", mLastAutomaticCheckTime);
-        editor.putBoolean(mUuid + ".notifyNewMail", mNotifyNewMail);
-        editor.putInt(mUuid + ".deletePolicy", mDeletePolicy);
-        editor.putString(mUuid + ".draftsFolderName", mDraftsFolderName);
-        editor.putString(mUuid + ".sentFolderName", mSentFolderName);
-        editor.putString(mUuid + ".trashFolderName", mTrashFolderName);
-        editor.putString(mUuid + ".outboxFolderName", mOutboxFolderName);
-        editor.putInt(mUuid + ".accountNumber", mAccountNumber);
-        editor.putBoolean(mUuid + ".vibrate", mVibrate);
+        editor.putString(mUuid + KEY_STORE_URI, Utility.base64Encode(mStoreUri));
+        editor.putString(mUuid + KEY_LOCALSTORE_URI, mLocalStoreUri);
+        editor.putString(mUuid + KEY_SENDER_URI, Utility.base64Encode(mSenderUri));
+        editor.putString(mUuid + KEY_DESCRIPTION, mDescription);
+        editor.putString(mUuid + KEY_NAME, mName);
+        editor.putString(mUuid + KEY_EMAIL, mEmail);
+        editor.putInt(mUuid + KEY_ACCOUNT_COLOR, mAccountColor);
+        editor.putInt(mUuid + KEY_AUTO_CHECK_INTERVAL_MINS, mAutomaticCheckIntervalMinutes);
+        editor.putLong(mUuid + KEY_LAST_AUTO_CHECK_TIME, mLastAutomaticCheckTime);
+        editor.putBoolean(mUuid + KEY_NOTIFY_NEW_MAIL, mNotifyNewMail);
+        editor.putInt(mUuid + KEY_DELETE_POLICY, mDeletePolicy);
+        editor.putString(mUuid + KEY_DRAFTS_FOLDER_NAME, mDraftsFolderName);
+        editor.putString(mUuid + KEY_SENT_FOLDER_NAME, mSentFolderName);
+        editor.putString(mUuid + KEY_TRASH_FOLDER_NAME, mTrashFolderName);
+        editor.putString(mUuid + KEY_OUTBOX_FOLDER_NAME, mOutboxFolderName);
+        editor.putInt(mUuid + KEY_ACCOUNT_NUMBER, mAccountNumber);
+        editor.putBoolean(mUuid + KEY_VIBRATE, mVibrate);
         editor.putBoolean(mUuid + KEY_VIBRATE_WHEN_SILENT, mVibrateWhenSilent);
-        editor.putString(mUuid + ".ringtone", mRingtoneUri);
+        editor.putString(mUuid + KEY_RINGTONE, mRingtoneUri);
         editor.putInt(mUuid + KEY_SYNC_WINDOW, mSyncWindow);
         editor.putInt(mUuid + KEY_BACKUP_FLAGS, mBackupFlags);
         editor.putString(mUuid + KEY_PROTOCOL_VERSION, mProtocolVersion);
@@ -361,7 +394,7 @@ public class Account {
         // editor.putString(mUuid + PREF_TAG_STORE_PERSISTENT, mStorePersistent);
 
         // also delete any deprecated fields
-        editor.remove(mUuid + ".transportUri");
+        editor.remove(mUuid + KEY_OLD_TRANSPORT_URI);
 
         editor.commit();
     }

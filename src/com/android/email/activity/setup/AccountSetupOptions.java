@@ -185,13 +185,8 @@ public class AccountSetupOptions extends Activity implements OnClickListener {
     }
 
     private void finishOnDone() {
-        // Clear the incomplete flag now
-        mAccount.mFlags &= ~Account.FLAGS_INCOMPLETE;
-        AccountSettingsUtils.commitSettings(this, mAccount);
-        Email.setServicesEnabled(this);
-        AccountSetupNames.actionSetNames(this, mAccount.mId, mEasFlowMode);
-        // Start up SyncManager (if it isn't already running)
-        ExchangeUtils.startExchangeService(this);
+    	// Let's get the account color too
+        AccountSetupColor.actionSetColor(this, mAccount, mEasFlowMode);
         finish();
     }
 

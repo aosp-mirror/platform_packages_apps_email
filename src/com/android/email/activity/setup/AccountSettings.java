@@ -48,6 +48,7 @@ public class AccountSettings extends PreferenceActivity {
     private static final String PREFERENCE_TOP_CATEGORY = "account_settings";
     private static final String PREFERENCE_DESCRIPTION = "account_description";
     private static final String PREFERENCE_NAME = "account_name";
+    private static final String PREFERENCE_COLOR = "color";
     private static final String PREFERENCE_SIGNATURE = "account_signature";
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
     private static final String PREFERENCE_DEFAULT = "account_default";
@@ -88,6 +89,7 @@ public class AccountSettings extends PreferenceActivity {
     private RingtonePreference mAccountRingtone;
     private CheckBoxPreference mSyncContacts;
     private CheckBoxPreference mSyncCalendar;
+    private ColorPreference mColor;
 
     /**
      * Display (and edit) settings for a specific account
@@ -160,6 +162,18 @@ public class AccountSettings extends PreferenceActivity {
                 return false;
             }
         });
+        
+        mColor = (ColorPreference)findPreference(PREFERENCE_COLOR);
+        int color = mAccount.getAccountColor();
+        mColor.setSummary("0x" + Integer.toHexString(color).toUpperCase());
+        mColor.setChipColor(color);
+        mColor.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference preference) {
+                    	onColorSettings();
+                        return true;
+                    }
+                });
 
         mAccountSignature = (EditTextPreference) findPreference(PREFERENCE_SIGNATURE);
         mAccountSignature.setSummary(mAccount.getSignature());
@@ -339,6 +353,11 @@ public class AccountSettings extends PreferenceActivity {
                 return;
             }
             mAccount.setDeletePolicy(refreshedAccount.getDeletePolicy());
+            
+            int newcol = refreshedAccount.getAccountColor();
+            mColor.setChipColor(newcol);
+            mColor.setSummary("0x" + Integer.toHexString(newcol).toUpperCase());
+            
             mAccountDirty = false;
         }
     }
@@ -387,6 +406,17 @@ public class AccountSettings extends PreferenceActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    private void onColorSettings () {
+    	try {
+    		java.lang.reflect.Method m = AccountSetupColor.class.getMethod("actionEditColorSettings",
+                    android.app.Activity.class, Account.class);
+            m.invoke(null, this, mAccount);
+            mAccountDirty = true;            
+        } catch (Exception e) {
+            Log.d(Email.LOG_TAG, "Error while trying to invoke store settings for account Color.", e);
+        }
+    }
+    
     private void onIncomingSettings() {
         try {
             Store store = Store.getInstance(mAccount.getStoreUri(this), getApplication(), null);

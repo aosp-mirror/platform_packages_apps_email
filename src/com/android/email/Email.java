@@ -145,6 +145,11 @@ public class Email extends Application {
      */
     private static boolean sAccountsChangedNotification = false;
 
+    /** 
+     * This is used to denote that the accout colors have been upgraded
+     */
+    private static boolean sAccountColorsUpgraded = false;
+    
     public static final String EXCHANGE_ACCOUNT_MANAGER_TYPE = "com.android.exchange";
 
     // The color chip resources and the RGB color values in the array below must be kept in sync
@@ -180,14 +185,24 @@ public class Email extends Application {
         return Math.abs((int) (accountId - 1) % ACCOUNT_COLOR_CHIP_RES_IDS.length);
     }
 
-    public static int getAccountColorResourceId(long accountId) {
+    public static int getOldAccountColorResourceId(long accountId) {
         return ACCOUNT_COLOR_CHIP_RES_IDS[getColorIndexFromAccountId(accountId)];
     }
 
-    public static int getAccountColor(long accountId) {
+    public static int getOldAccountColor(long accountId) {
+    	
         return ACCOUNT_COLOR_CHIP_RGBS[getColorIndexFromAccountId(accountId)];
     }
 
+    public static int getAccountColorResourceId(long accountId) {
+    	return R.drawable.chip_mask;
+    }
+    
+    @Deprecated
+    public static int getAccountColor(long accountId) {
+        return 0x00ffffff;
+    }
+    
     public static void setTempDirectory(Context context) {
         sTempDirectory = context.getCacheDir();
     }
@@ -320,5 +335,22 @@ public class Email extends Application {
      */
     public static synchronized boolean getNotifyUiAccountsChanged() {
         return sAccountsChangedNotification;
+    }
+    
+    /**
+     * Called by EmailProvider to notify that account colors have been upgraded, or by "Welcome"
+     * to clear the flag
+     * @param setFlag true to set the notification flag, false to clear it
+     */
+    public static synchronized void setAccountColorsUpgraded(boolean setFlag) {
+    	sAccountColorsUpgraded = setFlag;
+    }
+    
+    /**
+     * Called from the Welcome activity to detect whether a message should be displayed to the user
+     * stating that the account colors have been upgraded
+     */
+    public static synchronized boolean getAccountColorsUpgraded() {
+        return sAccountColorsUpgraded;
     }
 }

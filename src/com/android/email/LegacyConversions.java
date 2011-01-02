@@ -624,7 +624,8 @@ public class LegacyConversions {
         // int fromAccount.mNewMessageCount = will be reset on next sync
         result.mSecurityFlags = fromAccount.mSecurityFlags;
         result.mSignature = fromAccount.mSignature;
-
+        result.mAccountColor = fromAccount.mAccountColor;
+        
         // Use the existing conversions from HostAuth <-> Uri
         result.setStoreUri(fromAccount.getStoreUri(context));
         result.setSenderUri(fromAccount.getSenderUri(context));
@@ -668,6 +669,7 @@ public class LegacyConversions {
         result.mSecurityFlags = fromAccount.mSecurityFlags;
         result.mSecuritySyncKey = null;
         result.mSignature = fromAccount.mSignature;
+        result.mAccountColor = Email.getOldAccountColor(fromAccount.mAccountNumber);
 
         result.setStoreUri(context, fromAccount.getStoreUri());
         result.setSenderUri(context, fromAccount.getSenderUri());

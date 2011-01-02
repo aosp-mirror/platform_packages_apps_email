@@ -1711,7 +1711,7 @@ public class MessageList extends ListActivity implements OnItemClickListener, On
 
             // Load the UI
             View chipView = view.findViewById(R.id.chip);
-            chipView.setBackgroundResource(Email.getAccountColorResourceId(itemView.mAccountId));
+            chipView.setBackgroundColor(EmailContent.Account.restoreAccountWithId(mContext, itemView.mAccountId).getAccountColor());
 
             TextView fromView = (TextView) view.findViewById(R.id.from);
             String text = cursor.getString(COLUMN_DISPLAY_NAME);
