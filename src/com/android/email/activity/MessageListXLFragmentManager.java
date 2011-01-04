@@ -95,6 +95,11 @@ class MessageListXLFragmentManager {
         public void onAccountSecurityHold(long accountId);
 
         /**
+         * Called when the current account has changed.
+         */
+        public void onAccountChanged(long accountId);
+
+        /**
          * Called when the current mailbox has changed.
          */
         public void onMailboxChanged(long accountId, long newMailboxId);
@@ -341,6 +346,7 @@ class MessageListXLFragmentManager {
         } else {
             selectMailbox(mailboxId, messageId, byExplicitUserAction);
         }
+        mTargetActivity.onAccountChanged(mAccountId);
     }
 
     /**
