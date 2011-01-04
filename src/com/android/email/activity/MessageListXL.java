@@ -546,6 +546,11 @@ public class MessageListXL extends Activity implements
     }
 
     @Override
+    public void onAccountChanged(long accountId) {
+        invalidateOptionsMenu(); // Update the refresh button
+    }
+
+    @Override
     public void onMailboxChanged(long accountId, long newMailboxId) {
         updateProgressIcon();
     }
@@ -686,6 +691,20 @@ public class MessageListXL extends Activity implements
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_list_xl_option, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.refresh);
+        if (item != null) {
+            item.setVisible(shouldShowRefreshButton());
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private boolean shouldShowRefreshButton() {
+        final long accountId = mFragmentManager.getAccountId();
+        return (accountId != -1) && (accountId != Account.ACCOUNT_ID_COMBINED_VIEW);
     }
 
     @Override
