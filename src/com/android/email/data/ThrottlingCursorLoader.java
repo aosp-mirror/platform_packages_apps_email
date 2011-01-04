@@ -21,6 +21,7 @@ import com.android.email.Throttle;
 
 import android.content.Context;
 import android.content.CursorLoader;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
@@ -47,7 +48,7 @@ public class ThrottlingCursorLoader extends CursorLoader {
         Runnable forceLoadRunnable = new Runnable() {
             @Override
             public void run() {
-                forceLoad();
+                callSuperOnContentChanged();
             }
         };
         mThrottle = new Throttle(uri.toString(), forceLoadRunnable, new Handler(),
@@ -80,9 +81,28 @@ public class ThrottlingCursorLoader extends CursorLoader {
     }
 
     @Override
+    public void onCancelled(Cursor cursor) {
+        if (Throttle.DEBUG) debugLog("onCancelled");
+        mThrottle.cancelScheduledCallback();
+        super.onCancelled(cursor);
+    }
+
+    @Override
+    protected void onReset() {
+        if (Throttle.DEBUG) debugLog("onReset");
+        mThrottle.cancelScheduledCallback();
+        super.onReset();
+    }
+
+    @Override
     public void onContentChanged() {
         if (Throttle.DEBUG) debugLog("onContentChanged");
 
         mThrottle.onEvent();
+    }
+
+    private void callSuperOnContentChanged() {
+        if (Throttle.DEBUG) debugLog("callSuperOnContentChanged");
+        super.onContentChanged();
     }
 }
