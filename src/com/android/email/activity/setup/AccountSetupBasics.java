@@ -55,6 +55,9 @@ import android.widget.Toast;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 /**
  * Prompts the user for the email address and password. Also prompts for "Use this account as
@@ -113,12 +116,16 @@ public class AccountSetupBasics extends AccountSetupActivity
     private Provider mProvider;
     private Button mManualButton;
     private Button mNextButton;
+    private boolean mNextButtonInhibit;
 
     // Used when this Activity is called as part of account authentification flow,
     // which requires to do extra work before and after the account creation.
     // See also AccountAuthenticatorActivity.
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle mResultBundle = null;
+
+    // FutureTask to look up the owner
+    FutureTask<String> mOwnerLookupTask;
 
     public static void actionNewAccount(Activity fromActivity) {
         SetupData.init(SetupData.FLOW_MODE_NORMAL);
@@ -230,6 +237,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         mNextButton.setOnClickListener(this);
         // Force disabled until validator notifies otherwise
         onEnableProceedButtons(false);
+        // Lightweight debounce while Async tasks underway
+        mNextButtonInhibit = false;
 
         mAccountAuthenticatorResponse =
             getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
@@ -278,6 +287,11 @@ public class AccountSetupBasics extends AccountSetupActivity
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_KEY_PROVIDER)) {
             mProvider = (Provider) savedInstanceState.getSerializable(STATE_KEY_PROVIDER);
         }
+
+        // Launch a worker to look up the owner name.  It should be ready well in advance of
+        // the time the user clicks next or manual.
+        mOwnerLookupTask = new FutureTask<String>(mOwnerLookupCallable);
+        Utility.runAsync(mOwnerLookupTask);
     }
 
     @Override
@@ -310,6 +324,10 @@ public class AccountSetupBasics extends AccountSetupActivity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.next:
+                // Simple debounce - just ignore while async checks are underway
+                if (mNextButtonInhibit) {
+                    return;
+                }
                 onNext();
                 break;
             case R.id.manual_setup:
@@ -345,20 +363,35 @@ public class AccountSetupBasics extends AccountSetupActivity
     }
 
     /**
-     * TODO this should also be in AsyncTask
-     * TODO figure out another way to get the owner name
+     * Return an existing username if found, or null.  This is the result of the Callable (below).
      */
     private String getOwnerName() {
-        String name = null;
-        long defaultId = Account.getDefaultAccountId(this);
-        if (defaultId != -1) {
-            Account account = Account.restoreAccountWithId(this, defaultId);
-            if (account != null) {
-                name = account.getSenderName();
-            }
+        String result = null;
+        try {
+            result = mOwnerLookupTask.get();
+        } catch (InterruptedException e) {
+        } catch (ExecutionException e) {
         }
-        return name;
+        return result;
     }
+
+    /**
+     * Callable that returns the username (based on other accounts) or null.
+     */
+    private Callable<String> mOwnerLookupCallable = new Callable<String>() {
+        public String call() {
+            Context context = AccountSetupBasics.this;
+            String name = null;
+            long defaultId = Account.getDefaultAccountId(context);
+            if (defaultId != -1) {
+                Account account = Account.restoreAccountWithId(context, defaultId);
+                if (account != null) {
+                    name = account.getSenderName();
+                }
+            }
+            return name;
+        }
+    };
 
     /**
      * Finish the auto setup process, in some cases after showing a warning dialog.
@@ -371,8 +404,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         String domain = emailParts[1];
         URI incomingUri = null;
         URI outgoingUri = null;
+        String incomingUsername = mProvider.incomingUsernameTemplate;
         try {
-            String incomingUsername = mProvider.incomingUsernameTemplate;
             incomingUsername = incomingUsername.replaceAll("\\$email", email);
             incomingUsername = incomingUsername.replaceAll("\\$user", user);
             incomingUsername = incomingUsername.replaceAll("\\$domain", domain);
@@ -392,17 +425,6 @@ public class AccountSetupBasics extends AccountSetupActivity
                     + password, outgoingUriTemplate.getHost(), outgoingUriTemplate.getPort(),
                     outgoingUriTemplate.getPath(), null, null);
 
-            // Stop here if the login credentials duplicate an existing account
-            // TODO this shouldn't be in UI thread
-            Account account = Utility.findExistingAccount(this, -1,
-                    incomingUri.getHost(), incomingUsername);
-            if (account != null) {
-                DuplicateAccountDialogFragment dialogFragment =
-                    DuplicateAccountDialogFragment.newInstance(account.mDisplayName);
-                dialogFragment.show(getFragmentManager(), DuplicateAccountDialogFragment.TAG);
-                return;
-            }
-
         } catch (URISyntaxException use) {
             /*
              * If there is some problem with the URI we give up and go on to
@@ -414,20 +436,60 @@ public class AccountSetupBasics extends AccountSetupActivity
             return;
         }
 
+        // Populate the setup data, assuming that the duplicate account check will succeed
         populateSetupData(getOwnerName(), email, mDefaultView.isChecked(),
                 incomingUri.toString(), outgoingUri.toString());
 
-        /**
-         * Start the account checker fragment
-         * TODO how to link directly from activity<-->fragment
-         */
-        AccountCheckSettingsFragment checkerFragment = AccountCheckSettingsFragment.newInstance(
-                SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING, null);
-        FragmentTransaction transaction = getFragmentManager().openTransaction();
-        transaction.add(checkerFragment, AccountCheckSettingsFragment.TAG);
-        transaction.addToBackStack("back");
-        transaction.commit();
+        // Stop here if the login credentials duplicate an existing account
+        // Launch an Async task to do the work
+        new DuplicateCheckTask(this, incomingUri.getHost(), incomingUsername).execute();
     }
+
+    /**
+     * Async task that continues the work of finishAutoSetup().  Checks for a duplicate
+     * account and then either alerts the user, or continues.
+     */
+    private class DuplicateCheckTask extends AsyncTask<Void, Void, Account> {
+        private final Context mContext;
+        private final String mCheckHost;
+        private final String mCheckLogin;
+
+        public DuplicateCheckTask(Context context, String checkHost, String checkLogin) {
+            mContext = context;
+            mCheckHost = checkHost;
+            mCheckLogin = checkLogin;
+            // Prevent additional clicks on the next button during Async lookup
+            mNextButtonInhibit = true;
+        }
+
+        @Override
+        protected Account doInBackground(Void... params) {
+            EmailContent.Account account = Utility.findExistingAccount(mContext, -1,
+                    mCheckHost, mCheckLogin);
+            return account;
+        }
+
+        @Override
+        protected void onPostExecute(Account duplicateAccount) {
+            mNextButtonInhibit = false;
+            // Show duplicate account warning, or proceed
+            if (duplicateAccount != null) {
+                DuplicateAccountDialogFragment dialogFragment =
+                    DuplicateAccountDialogFragment.newInstance(duplicateAccount.mDisplayName);
+                dialogFragment.show(getFragmentManager(), DuplicateAccountDialogFragment.TAG);
+                return;
+            } else {
+                AccountCheckSettingsFragment checkerFragment =
+                    AccountCheckSettingsFragment.newInstance(
+                        SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING, null);
+                FragmentTransaction transaction = getFragmentManager().openTransaction();
+                transaction.add(checkerFragment, AccountCheckSettingsFragment.TAG);
+                transaction.addToBackStack("back");
+                transaction.commit();
+            }
+        }
+    }
+
 
     /**
      * When "next" button is clicked
