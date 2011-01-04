@@ -71,3 +71,4 @@
         android:layout_marginLeft="4dip"
         android:background="@drawable/ind_sum"
         style="@style/unreadCount"/>
+</LinearLayout>
