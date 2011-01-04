@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true" >
+    
+      <!-- Main container -->
+      <RelativeLayout 
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        >
+        
+        <!-- sample --> 
+	    <LinearLayout
+	        android:id="@+id/sample_item"
+		    xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:layout_width="fill_parent"
+		    android:layout_height="?android:attr/listPreferredItemHeight"
+		    android:orientation="horizontal"
+		    android:gravity="center_vertical"
+		    android:paddingRight="4dip"
+		    android:layout_alignParentTop="true"
+		    >
+			<RelativeLayout
+			    android:id="@+id/sample_chip"
+			    android:background="#ffffffff"
+			    android:layout_alignParentLeft="true"
+			    android:layout_centerVertical="true"
+			    android:layout_height="fill_parent"
+			    android:layout_width="4dip" >
+			    <View
+			        android:background="@drawable/chip_mask"
+			        android:layout_height="fill_parent"
+			        android:layout_width="fill_parent"
+			        android:layout_alignParentLeft="true"
+			        android:layout_centerVertical="true" />
+			</RelativeLayout>		    
+		    <ImageView
+		        android:layout_width="30dip"
+		        android:layout_height="30dip"
+		        android:layout_alignParentRight="true"
+		        android:layout_marginLeft="4dip"
+		        android:layout_marginRight="4dip"
+		        android:minWidth="30dip"
+		        android:src="@drawable/ic_list_folder" />
+		    <LinearLayout
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal"
+		        android:gravity="center_vertical"
+		        android:layout_weight="1">
+		        <LinearLayout
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_marginLeft="8dip"
+		            android:gravity="center_vertical"
+		            android:orientation="vertical">
+		            <TextView
+		                android:text="@string/sample_account_name"
+		                android:textAppearance="?android:attr/textAppearanceMedium"
+		                android:textColor="?android:attr/textColorPrimary"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content" />
+		        </LinearLayout>
+		    </LinearLayout>
+		</LinearLayout>
+		<!-- sample -->
+		
+		<!-- NEXT Button -->
+        <RelativeLayout
+          android:id="@+id/nav_bar"
+          android:layout_alignParentBottom="true"
+          android:layout_width="fill_parent"
+          android:layout_height="54dip"
+          android:background="@android:drawable/bottom_bar">
+          <Button
+              android:id="@+id/next"
+              android:text="@string/next_action"
+              android:layout_height="wrap_content"
+              android:layout_width="wrap_content"
+              android:minWidth="@dimen/button_minWidth"
+              android:drawableRight="@drawable/button_indicator_next"
+              android:layout_alignParentRight="true"
+              android:layout_centerVertical="true" />
+        </RelativeLayout>
+		<!-- NEXT Button -->
+		
+		<!-- Current --> 
+		<RelativeLayout 
+		  android:layout_below="@id/sample_item"
+		  android:id="@+id/current_selection"
+		  android:layout_width="fill_parent"
+		  android:layout_height="50dip"
+
+		  >
+		  <View
+                android:id="@+id/color_sample"
+                android:background="#ffffffff"
+                android:layout_width="30dip"
+                android:layout_height="30dip"
+                android:layout_marginLeft="15dip"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true" />
+         <TextView 
+            android:id="@+id/color_html_code"
+            android:text="@string/default_html_color_code"
+            android:layout_toRightOf="@id/color_sample"
+            android:layout_marginRight="5dip"
+            android:layout_marginLeft="15dip"
+            android:layout_marginTop="2dip"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:textColor="#ffffff"
+            android:layout_centerVertical="true"
+            >
+            </TextView>
+		</RelativeLayout>
+		<!-- Current -->
+		
+		<!--  Chooser -->
+		<LinearLayout 
+		  android:id="@+id/color_chooser"
+		  android:layout_below="@id/current_selection"
+		  android:layout_above="@id/nav_bar"
+          android:orientation="vertical"
+          android:layout_width="fill_parent"
+          android:layout_height="100dip"
+          >
+			<!--  RED -->
+			<RelativeLayout 
+			  android:layout_width="fill_parent"
+			  android:layout_height="wrap_content" >
+			    <TextView
+			      android:layout_alignParentRight="true" 
+			      android:id="@+id/color_R_val"
+			      android:textColor="#ff0000"
+			      android:layout_marginRight="5dip"
+			      android:text="@string/default_rgb_value"
+			      android:layout_width="25dip"
+			      android:layout_height="wrap_content" 
+			      android:layout_centerVertical="true"/>
+				 <SeekBar
+				   android:id="@+id/color_R"
+				   android:layout_centerVertical="true"
+				   android:layout_toLeftOf="@id/color_R_val"
+				   android:layout_height="wrap_content"
+				   android:layout_width="fill_parent"
+				   android:layout_marginLeft="5dip" 
+				   android:layout_marginRight="5dip"  
+				   android:max="255"/>
+			  </RelativeLayout>
+			  <!--  RED -->
+			  
+			<!-- GREEN -->
+			 <RelativeLayout 
+			   android:layout_width="fill_parent"
+			   android:layout_height="wrap_content"
+			   android:layout_marginTop="15dip" >
+			     <TextView 
+			           android:id="@+id/color_G_val"
+			           android:textColor="#00ff00"
+			           android:layout_width="25dip"
+                       android:layout_height="wrap_content" 
+                       android:layout_marginRight="5dip"
+			           android:text="@string/default_rgb_value"
+			           android:layout_alignParentRight="true"
+			           android:layout_centerVertical="true"/>
+			  <SeekBar
+			    android:id="@+id/color_G"
+			    android:layout_toLeftOf="@id/color_G_val"
+			    android:layout_height="wrap_content"
+			    android:layout_width="fill_parent"
+			    android:layout_marginLeft="5dip" 
+			    android:layout_marginRight="5dip" 
+			    android:max="255" 
+			    android:layout_centerVertical="true"/>
+			</RelativeLayout> 
+			<!-- GREEN -->
+			
+			<!-- BLUE -->
+			<RelativeLayout 
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="15dip"  >
+	              <TextView 
+	                    android:id="@+id/color_B_val"
+	                    android:text="@string/default_rgb_value"
+	                    android:textColor="#0000ff"
+	                    android:layout_alignParentRight="true"
+	                    android:layout_marginRight="5dip"
+	                    android:layout_width="25dip"
+	                    android:layout_height="wrap_content" 
+	                    android:layout_centerVertical="true"/>
+		          <SeekBar
+		            android:id="@+id/color_B"
+		            android:layout_toLeftOf="@id/color_B_val"
+		            android:layout_height="wrap_content"
+		            android:layout_width="fill_parent"
+		            android:layout_marginLeft="5dip" 
+		            android:layout_marginRight="5dip"  
+		            android:max="255"
+		            android:layout_centerVertical="true"/>
+            </RelativeLayout> 
+            <!-- BLUE -->
+            
+        </LinearLayout>
+        <!--  Chooser -->
+        
+	</RelativeLayout>
+	<!-- Main container -->
+</ScrollView>

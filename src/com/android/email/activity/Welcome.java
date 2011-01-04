@@ -18,7 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
-//import com.android.email.R;
+import com.android.email.R;
 import com.android.email.ExchangeUtils;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent;
