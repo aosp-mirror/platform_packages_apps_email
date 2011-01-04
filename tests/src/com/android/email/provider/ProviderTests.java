@@ -2370,4 +2370,46 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         // Check
         assertEquals(start + 1, Mailbox.restoreMailboxWithId(c, b1.mId).mSyncInterval);
     }
+
+    /**
+     * Check that we're handling illegal uri's properly (by throwing an exception unless it's a
+     * query for an id of -1, in which case we return a zero-length cursor)
+     */
+    public void testIllegalUri() {
+        final ContentResolver cr = mMockContext.getContentResolver();
+
+        ContentValues cv = new ContentValues();
+        Uri uri = Uri.parse("content://" + EmailContent.AUTHORITY + "/fooble");
+        try {
+            cr.insert(uri, cv);
+            fail("Insert should have thrown exception");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            cr.update(uri, cv, null, null);
+            fail("Update should have thrown exception");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            cr.delete(uri, null, null);
+            fail("Delete should have thrown exception");
+        } catch (IllegalArgumentException e) {
+        }
+        try {
+            cr.query(uri, EmailContent.ID_PROJECTION, null, null, null);
+            fail("Query should have thrown exception");
+        } catch (IllegalArgumentException e) {
+        }
+        uri = Uri.parse("content://" + EmailContent.AUTHORITY + "/mailbox/fred");
+        try {
+            cr.query(uri, EmailContent.ID_PROJECTION, null, null, null);
+            fail("Query should have thrown exception");
+        } catch (IllegalArgumentException e) {
+        }
+        uri = Uri.parse("content://" + EmailContent.AUTHORITY + "/mailbox/-1");
+        Cursor c = cr.query(uri, EmailContent.ID_PROJECTION, null, null, null);
+        assertNotNull(c);
+        assertEquals(0, c.getCount());
+        c.close();
+    }
 }
