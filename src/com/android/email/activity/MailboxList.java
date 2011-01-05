@@ -360,6 +360,10 @@ public class MailboxList extends ListActivity implements OnItemClickListener, On
                     break;
                 }
             }
+            if (isCancelled()) {
+                c.close();
+                c = null;
+            }
             return c;
         }
 

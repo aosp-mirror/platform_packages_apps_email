@@ -44,13 +44,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.database.MergeCursor;
 import android.database.MatrixCursor.RowBuilder;
+import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -58,8 +59,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -67,7 +68,6 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
 
@@ -341,20 +341,46 @@ public class AccountFolderList extends ListActivity implements OnItemClickListen
     private class LoadAccountsTask extends AsyncTask<Void, Void, Object[]> {
         @Override
         protected Object[] doInBackground(Void... params) {
-            // Create the summaries cursor
-            Cursor c1 = getSummaryChildCursor();
+            Cursor c1 = null;
+            Cursor c2 = null;
+            Long defaultAccount = null;
+            if (!isCancelled()) {
+                // Create the summaries cursor
+                c1 = getSummaryChildCursor();
+            }
 
-            // TODO use a custom projection and don't have to sample all of these columns
-            Cursor c2 = getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI,
-                    EmailContent.Account.CONTENT_PROJECTION, null, null, null);
-            Long defaultAccount = Account.getDefaultAccountId(AccountFolderList.this);
+            if (!isCancelled()) {
+                // TODO use a custom projection and don't have to sample all of these columns
+                c2 = getContentResolver().query(
+                        EmailContent.Account.CONTENT_URI,
+                        EmailContent.Account.CONTENT_PROJECTION, null, null, null);
+            }
+
+            if (!isCancelled()) {
+                defaultAccount = Account.getDefaultAccountId(AccountFolderList.this);
+            }
+
+            if (isCancelled()) {
+                if (c1 != null) c1.close();
+                if (c2 != null) c2.close();
+                return null;
+            }
             return new Object[] { c1, c2 , defaultAccount};
         }
 
         @Override
         protected void onPostExecute(Object[] params) {
-            if (isCancelled() || params == null || ((Cursor)params[1]).isClosed()) {
+            if (isCancelled() || params == null) {
+                if (params != null) {
+                    Cursor c1 = (Cursor)params[0];
+                    if (c1 != null) {
+                        c1.close();
+                    }
+                    Cursor c2 = (Cursor)params[1];
+                    if (c2 != null) {
+                        c2.close();
+                    }
+                }
                 return;
             }
             // Before writing a new list adapter into the listview, we need to
