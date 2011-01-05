@@ -48,17 +48,16 @@
     <style name="message_compose_header_field_container_no_tray" parent="PlainEditText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">16dip</item>
-        <item name="android:layout_marginLeft">16dip</item>
-        <item name="android:layout_marginRight">4dip</item>
+        <item name="android:layout_gravity">center_vertical</item>
         <item name="android:orientation">horizontal</item>
     </style>
-    <style name="message_compose_header_field_container" parent="android:Widget.EditText">
+    <style name="message_compose_header_field_container" parent="android:Widget.Holo.Light.EditText">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">16dip</item>
-        <item name="android:layout_marginLeft">16dip</item>
-        <item name="android:layout_marginRight">4dip</item>
+        <item name="android:layout_height">48dip</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:paddingTop">0dip</item>
+        <item name="android:paddingBottom">0dip</item>
+        <item name="android:paddingLeft">0dip</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:addStatesFromChildren">true</item>
         <item name="android:focusable">false</item>
@@ -66,30 +65,29 @@
     </style>
     <style name="message_compose_header_field_label">
         <item name="android:layout_width">@dimen/message_compose_field_label_width</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">48dip</item>
         <item name="android:layout_weight">0</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">0dip</item>
+        <item name="android:paddingBottom">0dip</item>
+        <item name="android:paddingLeft">16dip</item>
+        <item name="android:paddingRight">16dip</item>
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textSize">18dip</item>
+        <item name="android:textColor">@color/text_secondary_color</item>
     </style>
     <style name="message_compose_header_field_value" parent="PlainEditText">
         <item name="android:layout_width">0dip</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">48dip</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">0dip</item>
+        <item name="android:paddingBottom">0dip</item>
+        <item name="android:paddingLeft">0dip</item>
+        <item name="android:paddingRight">0dip</item>
+        <item name="android:textSize">18dip</item>
+        <item name="android:textColor">@color/text_primary_color</item>
         <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="message_compose_message_content" parent="PlainEditText">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">16dip</item>
-        <item name="android:layout_marginBottom">16dip</item>
-        <item name="android:layout_marginLeft">16dip</item>
-        <item name="android:layout_marginRight">16dip</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 </resources>

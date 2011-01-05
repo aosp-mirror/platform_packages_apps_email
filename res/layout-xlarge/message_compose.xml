@@ -15,150 +15,214 @@
 -->
 
 <!-- xlarge -->
-<!-- STOPSHIP Finish it -->
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:background="#ff8080ff"
     >
     <ScrollView
         android:layout_width="@dimen/message_compose_paper_width"
         android:layout_height="fill_parent"
         android:layout_gravity="center_horizontal"
+        android:paddingTop="16dip"
+        android:paddingBottom="16dip"
+        android:paddingLeft="32dip"
+        android:paddingRight="32dip"
         android:background="#ffffffff"
         >
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="16dip"
-            android:paddingBottom="16dip"
-            android:paddingLeft="16dip"
-            android:paddingRight="16dip"
             >
-            <!-- header: from/to/cc/bcc/subject + buttons -->
-            <!-- from: -->
+            <!-- headers + buttons -->
             <LinearLayout
-                style="@style/message_compose_header_field_container_no_tray"
-                >
-                <TextView
-                    style="@style/message_compose_header_field_label"
-                    android:text="@string/message_compose_from_label"
-                    />
-                <TextView
-                    android:id="@+id/from"
-                    style="@style/message_compose_header_field_value"
-                    />
-            </LinearLayout>
-
-            <!-- to: -->
-            <LinearLayout
-                style="@style/message_compose_header_field_container"
-                >
-                <TextView
-                    style="@style/message_compose_header_field_label"
-                    android:text="@string/message_compose_to_label"
-                    />
-                <com.android.email.activity.AddressTextView
-                    android:id="@+id/to"
-                    style="@style/message_compose_header_field_value"
-                    android:inputType="textEmailAddress|textMultiLine"
-                    android:imeOptions="actionNext"
-                    />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/cc_bcc_container"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                >
+                <!-- headers: from/to/cc/bcc/subject -->
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    >
+                    <!-- from: -->
+                    <LinearLayout
+                        style="@style/message_compose_header_field_container_no_tray"
+                        >
+                        <TextView
+                            style="@style/message_compose_header_field_label"
+                            android:text="@string/message_compose_from_label"
+                            />
+                        <TextView
+                            android:id="@+id/from"
+                            style="@style/message_compose_header_field_value"
+                            />
+                    </LinearLayout>
+
+                    <!-- to: -->
+                    <LinearLayout
+                        style="@style/message_compose_header_field_container"
+                        >
+                        <TextView
+                            style="@style/message_compose_header_field_label"
+                            android:text="@string/message_compose_to_label"
+                            />
+                        <com.android.email.activity.AddressTextView
+                            android:id="@+id/to"
+                            style="@style/message_compose_header_field_value"
+                            android:inputType="textEmailAddress"
+                            android:imeOptions="actionNext"
+                            />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/cc_bcc_container"
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        >
+                        <!-- cc: -->
+                        <LinearLayout
+                            style="@style/message_compose_header_field_container"
+                            >
+                            <TextView
+                                style="@style/message_compose_header_field_label"
+                                android:text="@string/message_compose_cc_label"
+                                />
+                            <com.android.email.activity.AddressTextView
+                                android:id="@+id/cc"
+                                style="@style/message_compose_header_field_value"
+                                android:inputType="textEmailAddress"
+                                android:imeOptions="actionNext"
+                                />
+                        </LinearLayout>
+
+                        <!-- bcc: -->
+                        <LinearLayout
+                            style="@style/message_compose_header_field_container"
+                            >
+                            <TextView
+                                style="@style/message_compose_header_field_label"
+                                android:text="@string/message_compose_bcc_label"
+                                />
+                            <com.android.email.activity.AddressTextView
+                                android:id="@+id/bcc"
+                                style="@style/message_compose_header_field_value"
+                                android:inputType="textEmailAddress"
+                                android:imeOptions="actionNext"
+                                />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- subject -->
+                    <LinearLayout
+                        style="@style/message_compose_header_field_container"
+                        >
+                        <TextView
+                            style="@style/message_compose_header_field_label"
+                            android:text="@string/message_compose_subject_label"
+                            />
+                        <EditText
+                            android:id="@+id/subject"
+                            style="@style/message_compose_header_field_value"
+                            android:inputType
+                                ="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine"
+                            android:imeOptions="actionNext"
+                            />
+                    </LinearLayout>
+                </LinearLayout> <!-- end of header -->
+
+                <!-- Buttons: +cc/bcc, add attachment -->
+                <RelativeLayout
+                    android:layout_width="@dimen/message_compose_header_button_area_width"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0"
+                    android:paddingLeft="16dip"
+                    android:layout_gravity="bottom"
+                    >
+                    <Button
+                        android:id="@+id/add_cc_bcc"
+                        android:layout_height="48dip"
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="48dip"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true"
+                        style="@android:style/Widget.Holo.Button.Borderless"
+                        android:paddingTop="0dip"
+                        android:paddingBottom="0dip"
+                        android:paddingLeft="0dip"
+                        android:paddingRight="0dip"
+                        android:textSize="18dip"
+                        android:textColor="@color/text_primary_color"
+                        android:text="@string/add_cc_bcc_action"
+                        android:gravity="left|center_vertical"
+                        />
+                    <ImageButton
+                        android:id="@+id/add_attachment"
+                        android:layout_height="48dip"
+                        android:layout_width="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentBottom="true"
+                        style="@android:style/Widget.Holo.Button.Borderless"
+                        android:paddingTop="0dip"
+                        android:paddingBottom="0dip"
+                        android:paddingLeft="0dip"
+                        android:paddingRight="0dip"
+                        android:gravity="left|center_vertical"
+                        android:src="@drawable/ic_add_attachment_holo_light"
+                        />
+                </RelativeLayout> <!-- end of buttons -->
+            </LinearLayout> <!-- end of headers+buttons -->
+
+            <LinearLayout android:id="@+id/attachment_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dip"
+                android:orientation="vertical"
                 android:visibility="gone"
                 >
-                <!-- cc: -->
-                <LinearLayout
-                    style="@style/message_compose_header_field_container"
-                    >
-                    <TextView
-                        style="@style/message_compose_header_field_label"
-                        android:text="@string/message_compose_cc_label"
-                        />
-                    <com.android.email.activity.AddressTextView
-                        android:id="@+id/cc"
-                        style="@style/message_compose_header_field_value"
-                        android:inputType="textEmailAddress|textMultiLine"
-                        android:imeOptions="actionNext"
-                        />
-                </LinearLayout>
-
-                <!-- bcc: -->
-                <LinearLayout
-                    style="@style/message_compose_header_field_container"
-                    >
-                    <TextView
-                        style="@style/message_compose_header_field_label"
-                        android:text="@string/message_compose_bcc_label"
-                        />
-                    <com.android.email.activity.AddressTextView
-                        android:id="@+id/bcc"
-                        style="@style/message_compose_header_field_value"
-                        android:inputType="textEmailAddress|textMultiLine"
-                        android:imeOptions="actionNext"
-                        />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- subject -->
-            <LinearLayout
-                style="@style/message_compose_header_field_container"
-                >
-                <TextView
-                    style="@style/message_compose_header_field_label"
-                    android:text="@string/message_compose_subject_label"
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_marginRight="@dimen/message_compose_header_button_area_width"
+                    style="@style/horizontalDivider"
                     />
-                <EditText
-                    android:id="@+id/subject"
-                    style="@style/message_compose_header_field_value"
-                    android:inputType
-                        ="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine"
-                    android:imeOptions="actionNext"
+                <!--
+                    Empty container for storing attachments. We'll stick
+                    instances of message_compose_attachment.xml in here.
+                -->
+                <LinearLayout android:id="@+id/attachments"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="112dip"
+                    android:orientation="vertical"
+                    />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_marginRight="@dimen/message_compose_header_button_area_width"
+                    style="@style/horizontalDivider"
                     />
             </LinearLayout>
-
-            <Button
-                android:id="@+id/add_cc_bcc"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:text="@string/add_cc_bcc_action"
-                />
-            <ImageButton
-                android:id="@+id/add_attachment"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:text="@string/add_attachment_action"
-                android:src="@drawable/ic_add_attachment_holo_light"
-                />
-
-            <!--
-                Empty container for storing attachments. We'll stick
-                instances of message_compose_attachment.xml in here.
-            -->
-            <LinearLayout android:id="@+id/attachments"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                />
 
             <!--  message body -->
             <EditText
                 android:id="@+id/message_content"
-                style="@style/message_compose_message_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dip"
+                android:layout_marginBottom="32dip"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="16dip"
                 android:gravity="left|top"
                 android:minLines="3"
                 android:hint="@string/message_compose_body_hint"
                 android:inputType="textLongMessage|textMultiLine|textAutoCorrect|textCapSentences"
                 android:imeOptions="actionDone|flagNoEnterAction"
+                style="@style/PlainEditText"
                 />
 
             <!--  quoted text bar -->
@@ -167,49 +231,45 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingTop="4dip"
-                android:paddingBottom="4dip"
                 >
                 <View
                     android:layout_width="match_parent"
-                    android:layout_alignParentTop="true"
                     style="@style/horizontalDivider"
                     />
                 <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="46dip"
                     >
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="0"
-                        android:layout_gravity="left|center_vertical"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textColor="?android:attr/textColorSecondaryInverse"
+                        android:layout_marginLeft="16dip"
+                        android:gravity="left|center_vertical"
+                        android:textSize="18dip"
+                        android:textColor="@color/text_secondary_color"
                         android:text="@string/message_compose_quoted_text_label"
                         />
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:layout_gravity="right|center_vertical"
                         android:gravity="right|center_vertical"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textColor="?android:attr/textColorSecondaryInverse"
+                        android:textSize="18dip"
+                        android:textColor="@color/text_primary_color"
                         android:text="@string/message_compose_include_quoted_text_checkbox_label"
                         />
                     <CheckBox
                         android:id="@+id/include_quoted_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="48dip"
+                        android:layout_height="match_parent"
                         android:layout_weight="0"
-                        android:layout_gravity="center"
+                        android:gravity="center"
                         />
                 </LinearLayout>
                 <View
                     android:layout_width="match_parent"
-                    android:layout_alignParentBottom="true"
                     style="@style/horizontalDivider"
                     />
             </LinearLayout>
@@ -220,6 +280,7 @@
             <WebView android:id="@+id/quoted_text"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
+                android:layout_marginTop="16dip"
                 />
         </LinearLayout>
     </ScrollView>

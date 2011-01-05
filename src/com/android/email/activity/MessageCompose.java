@@ -146,6 +146,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private View mCcBccContainer;
     private EditText mSubjectView;
     private EditText mMessageContentView;
+    private View mAttachmentContainer;
     private LinearLayout mAttachments;
     private View mQuotedTextBar;
     private CheckBox mIncludeQuotedTextCheckBox;
@@ -455,6 +456,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mSubjectView = (EditText)findViewById(R.id.subject);
         mMessageContentView = (EditText)findViewById(R.id.message_content);
         mAttachments = (LinearLayout)findViewById(R.id.attachments);
+        mAttachmentContainer = (LinearLayout)findViewById(R.id.attachment_container);
         mQuotedTextBar = findViewById(R.id.quoted_text_bar);
         mIncludeQuotedTextCheckBox = (CheckBox) findViewById(R.id.include_quoted_text);
         mQuotedText = (WebView)findViewById(R.id.quoted_text);
@@ -564,6 +566,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         mSubjectView.setOnFocusChangeListener(this);
         mMessageContentView.setOnFocusChangeListener(this);
+
+        updateAttachmentContainer();
     }
 
     /**
@@ -1049,7 +1053,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private void showCcBccFields() {
         mCcBccContainer.setVisibility(View.VISIBLE);
-        findViewById(R.id.add_cc_bcc).setVisibility(View.GONE);
+        findViewById(R.id.add_cc_bcc).setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -1127,7 +1131,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mAttachments, false);
         TextView nameView = (TextView)view.findViewById(R.id.attachment_name);
         ImageButton delete = (ImageButton)view.findViewById(R.id.attachment_delete);
+        TextView sizeView = (TextView)view.findViewById(R.id.attachment_size);
+
         nameView.setText(attachment.mFileName);
+        sizeView.setText(Utility.formatSize(this, attachment.mSize));
         if (allowDelete) {
             delete.setOnClickListener(this);
             delete.setTag(view);
@@ -1136,6 +1143,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
         view.setTag(attachment);
         mAttachments.addView(view);
+        updateAttachmentContainer();
+    }
+
+    private void updateAttachmentContainer() {
+        mAttachmentContainer.setVisibility(mAttachments.getChildCount() == 0
+                ? View.GONE : View.VISIBLE);
     }
 
     private void addAttachment(Uri uri) {
@@ -1184,6 +1197,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         View attachmentView = (View) delButtonView.getTag();
         Attachment attachment = (Attachment) attachmentView.getTag();
         mAttachments.removeView(attachmentView);
+        updateAttachmentContainer();
         if (attachment.isSaved()) {
             // The following async task for deleting attachments:
             // - can be started multiple times in parallel (to delete multiple attachments).

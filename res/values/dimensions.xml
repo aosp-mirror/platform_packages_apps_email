@@ -43,4 +43,7 @@
     <dimen name="widget_senders_font_size">14sp</dimen>
     <dimen name="widget_subject_font_size">14sp</dimen>
     <dimen name="widget_date_font_size">14sp</dimen>
+
+    <dimen name="message_compose_header_button_area_width">120dip</dimen>
+
 </resources>

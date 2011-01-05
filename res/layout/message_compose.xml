@@ -96,6 +96,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />
+                <!-- Dummy view to keep it compatible with the xlarge counterpart -->
+                <View
+                    android:id="@+id/attachment_container"
+                    android:layout_width="0dip"
+                    android:layout_height="0dip"
+                    android:visibility="gone"
+                    />
                 <View android:layout_width="match_parent"
                     android:layout_height="1dip"
                     android:background="@drawable/divider_horizontal_email" />

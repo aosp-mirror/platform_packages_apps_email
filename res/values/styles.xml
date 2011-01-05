@@ -64,8 +64,8 @@
     </style>
 
     <!-- EditText style without the "tray" -->
-    <style name="PlainEditText" parent="android:Widget.EditText">
-        <item name="android:background">#ffffff</item>
+    <style name="PlainEditText" parent="android:Widget.Holo.Light.EditText">
+        <item name="android:background">@null</item>
     </style>
 
     <style name="horizontalDivider">
