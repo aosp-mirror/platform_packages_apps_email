@@ -239,7 +239,7 @@ public class ImapStore extends Store {
      *
      * @param userName the username of the account
      * @param host the host (server) of the account
-     * @param capability the capabilities string from the server
+     * @param capabilityResponse the capabilities list from the server
      * @return a String for use in an IMAP ID message.
      */
     /* package */ static String getImapId(Context context, String userName, String host,
@@ -1455,17 +1455,9 @@ public class ImapStore extends Store {
                 mParser.readResponse();
 
                 // CAPABILITY
-                ImapResponse capabilityResponse = null;
-                for (ImapResponse r : executeSimpleCommand(ImapConstants.CAPABILITY)) {
-                    if (r.is(0, ImapConstants.CAPABILITY)) {
-                        capabilityResponse = r;
-                        break;
-                    }
-                }
-                if (capabilityResponse == null) {
-                    throw new MessagingException("Invalid CAPABILITY response received");
-                }
+                ImapResponse capabilityResponse = queryCapabilities();
 
+                // TLS
                 if (mTransport.canTryTlsSecurity()) {
                     if (capabilityResponse.contains(ImapConstants.STARTTLS)) {
                         // STARTTLS
@@ -1474,6 +1466,8 @@ public class ImapStore extends Store {
                         mTransport.reopenTls();
                         mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
                         createParser();
+                        // Per RFC requirement (3501-6.2.1) gather new capabilities
+                        capabilityResponse = queryCapabilities();
                     } else {
                         if (Config.LOGD && Email.DEBUG) {
                             Log.d(Email.LOG_TAG, "TLS not supported but required");
@@ -1482,6 +1476,7 @@ public class ImapStore extends Store {
                     }
                 }
 
+                // ID
                 // Assign user-agent string (for RFC2971 ID command)
                 String mUserAgent = getImapId(mContext, mUsername, mRootTransport.getHost(),
                         capabilityResponse);
@@ -1508,6 +1503,7 @@ public class ImapStore extends Store {
                     }
                 }
 
+                // LOGIN
                 try {
                     // TODO eventually we need to add additional authentication
                     // options such as SASL
@@ -1611,6 +1607,23 @@ public class ImapStore extends Store {
                 throw new ImapException(toString, alert);
             }
             return responses;
+        }
+
+        /**
+         * Query server for capabilities.
+         */
+        private ImapResponse queryCapabilities() throws IOException, MessagingException {
+            ImapResponse capabilityResponse = null;
+            for (ImapResponse r : executeSimpleCommand(ImapConstants.CAPABILITY)) {
+                if (r.is(0, ImapConstants.CAPABILITY)) {
+                    capabilityResponse = r;
+                    break;
+                }
+            }
+            if (capabilityResponse == null) {
+                throw new MessagingException("Invalid CAPABILITY response received");
+            }
+            return capabilityResponse;
         }
 
         /** @see ImapResponseParser#logLastDiscourse() */

@@ -44,8 +44,7 @@ public class MockTransport implements Transport {
 
     private static final String SPECIAL_RESPONSE_IOEXCEPTION = "!!!IOEXCEPTION!!!";
 
-    private boolean mSslAllowed = false;
-    private boolean mTlsAllowed = false;
+    private boolean mTlsStarted = false;
 
     private boolean mOpen;
     private boolean mInputOpen;
@@ -60,6 +59,7 @@ public class MockTransport implements Transport {
         public static final int ACTION_INJECT_TEXT = 0;
         public static final int ACTION_CLIENT_CLOSE = 1;
         public static final int ACTION_IO_EXCEPTION = 2;
+        public static final int ACTION_START_TLS = 3;
 
         int mAction;
         String mPattern;
@@ -86,6 +86,8 @@ public class MockTransport implements Transport {
                     return "Expect the client to close";
                 case ACTION_IO_EXCEPTION:
                     return "Expect IOException";
+                case ACTION_START_TLS:
+                    return "Expect StartTls";
                 default:
                     return "(Hmm.  Unknown action.)";
             }
@@ -142,6 +144,10 @@ public class MockTransport implements Transport {
         mPairs.add(new Transaction(Transaction.ACTION_IO_EXCEPTION));
     }
 
+    public void expectStartTls() {
+        mPairs.add(new Transaction(Transaction.ACTION_START_TLS));
+    }
+
     private void sendResponse(Transaction pair) {
         switch (pair.mAction) {
             case Transaction.ACTION_INJECT_TEXT:
@@ -167,6 +173,13 @@ public class MockTransport implements Transport {
 
     public boolean canTrustAllCertificates() {
         return mTrustCertificates;
+    }
+
+    /**
+     * Check that TLS was started
+     */
+    public boolean isTlsStarted() {
+        return mTlsStarted;
     }
 
     /**
@@ -289,8 +302,9 @@ public class MockTransport implements Transport {
 
     public void reopenTls() /* throws MessagingException */ {
         SmtpSenderUnitTests.assertTrue(mOpen);
-        SmtpSenderUnitTests.assertTrue(mTlsAllowed);
-        SmtpSenderUnitTests.fail("reopenTls() not implemented");
+        Transaction expect = mPairs.remove(0);
+        SmtpSenderUnitTests.assertTrue(expect.mAction == Transaction.ACTION_START_TLS);
+        mTlsStarted = true;
     }
 
     public void setSecurity(int connectionSecurity, boolean trustAllCertificates) {
