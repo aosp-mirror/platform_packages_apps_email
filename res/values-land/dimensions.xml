@@ -14,8 +14,9 @@
      limitations under the License.
 -->
 
-<!-- landscape -->
+<!-- non-xlarge, landscape -->
 <resources>
-    <dimen name="mailbox_list_padding_left">8dip</dimen>
-    <dimen name="mailbox_list_padding_right">32dip</dimen>
+    <dimen name="mailbox_list_padding_left">16dip</dimen>
+    <dimen name="mailbox_list_padding_right">24dip</dimen>
+    <dimen name="mailbox_list_count_margin_left">16dip</dimen>
 </resources>

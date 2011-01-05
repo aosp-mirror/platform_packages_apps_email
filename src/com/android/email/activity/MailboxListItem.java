@@ -20,6 +20,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.internal.util.ArrayUtils;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
@@ -34,6 +35,8 @@ public class MailboxListItem extends RelativeLayout {
     public Integer mMailboxType;
     public MailboxesAdapter mAdapter;
 
+    private Drawable mBackground;
+
     public MailboxListItem(Context context) {
         super(context);
     }
@@ -46,6 +49,12 @@ public class MailboxListItem extends RelativeLayout {
         super(context, attrs, defStyle);
     }
 
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        mBackground = getBackground();
+    }
+
     public boolean isDropTarget(long itemMailbox) {
         if ((mMailboxId < 0) || (itemMailbox == mMailboxId)) {
             return false;
@@ -54,11 +63,16 @@ public class MailboxListItem extends RelativeLayout {
     }
 
     public boolean setDropTargetBackground(boolean dragInProgress, long itemMailbox) {
-        if (dragInProgress && isDropTarget(itemMailbox)) {
-            setBackgroundColor(DROP_AVAILABLE);
-            return true;
+        if (dragInProgress) {
+            if (isDropTarget(itemMailbox)) {
+                setBackgroundColor(DROP_AVAILABLE);
+                return true;
+            } else {
+                setBackgroundColor(DROP_UNAVAILABLE);
+                return false;
+            }
         } else {
-            setBackgroundColor(DROP_UNAVAILABLE);
+            setBackgroundDrawable(mBackground);
             return false;
         }
     }
