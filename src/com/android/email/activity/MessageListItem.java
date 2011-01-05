@@ -27,6 +27,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.FontMetricsInt;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.Layout.Alignment;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -136,6 +137,10 @@ public class MessageListItem extends View {
     private static int sColorTipHeight;
     private static int sColorTipRightMarginOnNarrow;
     private static int sColorTipRightMarginOnWide;
+    private static Drawable sReadSelector;
+    private static Drawable sUnreadSelector;
+    private static Drawable sWideReadSelector;
+    private static Drawable sWideUnreadSelector;
 
     public int mSnippetLineCount = NEEDS_LAYOUT;
     private final CharSequence[] mSnippetLines = new CharSequence[MAX_SUBJECT_SNIPPET_LINES];
@@ -205,6 +210,10 @@ public class MessageListItem extends View {
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_off_normal_holo_light);
             sSelectedIconOn =
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_on_normal_holo_light);
+            sReadSelector = r.getDrawable(R.drawable.message_list_read_selector);
+            sUnreadSelector = r.getDrawable(R.drawable.message_list_unread_selector);
+            sWideReadSelector = r.getDrawable(R.drawable.message_list_wide_read_selector);
+            sWideUnreadSelector = r.getDrawable(R.drawable.message_list_wide_unread_selector);
 
             sFavoriteIconWidth = sFavoriteIconOff.getWidth();
             sInit = true;
@@ -226,6 +235,20 @@ public class MessageListItem extends View {
     }
 
     private void calculateDrawingData() {
+        if (mRead) {
+            if (mMode == MODE_WIDE) {
+                setBackgroundDrawable(sWideReadSelector);
+            } else {
+                setBackgroundDrawable(sReadSelector);
+            }
+        } else {
+            if (mMode == MODE_WIDE) {
+                setBackgroundDrawable(sWideUnreadSelector);
+            } else {
+                setBackgroundDrawable(sUnreadSelector);
+            }
+        }
+
         SpannableStringBuilder ssb = new SpannableStringBuilder();
         boolean hasSubject = false;
         if (!TextUtils.isEmpty(mSubject)) {
