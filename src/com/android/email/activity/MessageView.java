@@ -1151,18 +1151,19 @@ public class MessageView extends Activity implements OnClickListener {
                     EmailContent.ID_PROJECTION,
                     selection, null,
                     EmailContent.MessageColumns.TIMESTAMP + " DESC");
+            if (isCancelled()) {
+                c.close();
+                c = null;
+            }
             return c;
         }
 
         @Override
         protected void onPostExecute(Cursor cursor) {
-            if (cursor == null) {
-                return;
-            }
             // remove the reference to ourselves so another one can be launched
             MessageView.this.mLoadMessageListTask = null;
 
-            if (cursor.isClosed()) {
+            if (cursor == null || cursor.isClosed()) {
                 return;
             }
             // replace the older cursor if there is one
