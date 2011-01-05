@@ -427,13 +427,18 @@ public class Controller {
     }
 
     /**
+     * Look for a specific mailbox, creating it if necessary, and return the mailbox id.
+     * This is a blocking operation and should not be called from the UI thread.
+     *
+     * Synchronized so multiple threads can call it (and not risk creating duplicate boxes).
+     *
      * @param accountId the account id
      * @param mailboxType the mailbox type (e.g.  EmailContent.Mailbox.TYPE_TRASH)
      * @return the id of the mailbox. The mailbox is created if not existing.
      * Returns Mailbox.NO_MAILBOX if the accountId or mailboxType are negative.
      * Does not validate the input in other ways (e.g. does not verify the existence of account).
      */
-    public long findOrCreateMailboxOfType(long accountId, int mailboxType) {
+    public synchronized long findOrCreateMailboxOfType(long accountId, int mailboxType) {
         if (accountId < 0 || mailboxType < 0) {
             return Mailbox.NO_MAILBOX;
         }
