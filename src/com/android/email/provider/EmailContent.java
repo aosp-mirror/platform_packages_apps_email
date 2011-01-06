@@ -1648,7 +1648,7 @@ public abstract class EmailContent {
             }
             if (mHostAuthSend != null) {
                 sendIndex = index++;
-                ops.add(ContentProviderOperation.newInsert(mHostAuthRecv.mBaseUri)
+                ops.add(ContentProviderOperation.newInsert(mHostAuthSend.mBaseUri)
                         .withValues(mHostAuthSend.toContentValues())
                         .build());
             }

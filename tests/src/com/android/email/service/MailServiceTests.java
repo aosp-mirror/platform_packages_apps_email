@@ -105,7 +105,8 @@ public class MailServiceTests extends AccountTestCase {
      * from the UI thread); it shouldn't crash
      */
     public void testThrashOnAccountsUpdated() {
-        final MailService mailService = MailService.getMailServiceForTest();
+        final MailService mailService = new MailService();
+        mailService.mController = new TestController(mMockContext, getContext());
         assertNotNull(mailService);
         final android.accounts.Account[] accounts = getExchangeAccounts();
         Utility.runAsync(new Runnable() {
@@ -203,14 +204,17 @@ public class MailServiceTests extends AccountTestCase {
         // Setup accounts of each type, all with manual sync at different intervals
         Account easAccount = ProviderTestUtils.setupAccount("account1", false, mMockContext);
         easAccount.mHostAuthRecv = setupSimpleHostAuth("eas");
+        easAccount.mHostAuthSend = easAccount.mHostAuthRecv;
         easAccount.mSyncInterval = 30;
         easAccount.save(mMockContext);
         Account imapAccount = ProviderTestUtils.setupAccount("account2", false, mMockContext);
         imapAccount.mHostAuthRecv = setupSimpleHostAuth("imap");
+        imapAccount.mHostAuthSend = setupSimpleHostAuth("smtp");
         imapAccount.mSyncInterval = 60;
         imapAccount.save(mMockContext);
         Account pop3Account = ProviderTestUtils.setupAccount("account3", false, mMockContext);
         pop3Account.mHostAuthRecv = setupSimpleHostAuth("pop3");
+        pop3Account.mHostAuthSend = setupSimpleHostAuth("smtp");
         pop3Account.mSyncInterval = 90;
         pop3Account.save(mMockContext);
 
@@ -248,5 +252,45 @@ public class MailServiceTests extends AccountTestCase {
         } finally {
             mailService.mController.cleanupForTest();
         }
+    }
+
+    /**
+     * Test that setupSyncReports will skip over poorly-formed accounts which can be left
+     * over after unit tests.
+     */
+    public void testSetupSyncReportsWithBadAccounts() {
+        // Setup accounts that trigger each skip-over case
+        // 1: no email address
+        Account account1 = ProviderTestUtils.setupAccount("account1", false, mMockContext);
+        account1.mHostAuthRecv = setupSimpleHostAuth("imap");
+        account1.mHostAuthSend = setupSimpleHostAuth("smtp");
+        account1.mSyncInterval = 30;
+        account1.mEmailAddress = null;
+        account1.save(mMockContext);
+        // 2: no receiver hostauth
+        Account account2 = ProviderTestUtils.setupAccount("account2", false, mMockContext);
+        account2.mHostAuthRecv = null;
+        account2.mHostAuthSend = setupSimpleHostAuth("smtp");
+        account2.mSyncInterval = 30;
+        account2.save(mMockContext);
+        // 3: no sender hostauth
+        Account account3 = ProviderTestUtils.setupAccount("account3", false, mMockContext);
+        account3.mHostAuthRecv = setupSimpleHostAuth("imap");
+        account3.mHostAuthSend = null;
+        account3.mSyncInterval = 30;
+        account3.save(mMockContext);
+
+        // Setup the SyncReport's for these Accounts
+        MailService mailService = new MailService();
+        mailService.mController = new TestController(mMockContext, getContext());
+        try {
+            mailService.setupSyncReportsLocked(MailService.SYNC_REPORTS_RESET, mMockContext);
+            // Get back the map created by MailService - it should be empty
+            HashMap<Long, AccountSyncReport> syncReportMap = MailService.mSyncReports;
+            assertEquals(0, syncReportMap.size());
+        } finally {
+            mailService.mController.cleanupForTest();
+        }
+
     }
 }

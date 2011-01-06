@@ -52,6 +52,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -596,8 +597,18 @@ public class MailService extends Service {
         Cursor c = resolver.query(uri, Account.CONTENT_PROJECTION, null, null, null);
         try {
             while (c.moveToNext()) {
-                AccountSyncReport report = new AccountSyncReport();
                 Account account = Account.getContent(c, Account.class);
+                // The following sanity checks are primarily for the sake of ignoring non-user
+                // accounts that may have been left behind e.g. by failed unit tests.
+                // Properly-formed accounts will always pass these simple checks.
+                if (TextUtils.isEmpty(account.mEmailAddress)
+                        || account.mHostAuthKeyRecv <= 0
+                        || account.mHostAuthKeySend <= 0) {
+                    continue;
+                }
+
+                // The account is OK, so proceed
+                AccountSyncReport report = new AccountSyncReport();
                 int syncInterval = account.mSyncInterval;
 
                 // If we're not using MessagingController (EAS at this point), don't schedule syncs
