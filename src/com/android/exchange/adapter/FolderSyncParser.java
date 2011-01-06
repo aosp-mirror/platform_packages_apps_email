@@ -20,6 +20,7 @@ package com.android.exchange.adapter;
 import com.android.email.Utility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
@@ -429,7 +430,7 @@ public class FolderSyncParser extends AbstractSyncParser {
         ContentValues cv = new ContentValues();
         cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
         mOperations.add(ContentProviderOperation.newUpdate(
-                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mAccount.mId))
+                ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId))
                 .withValues(cv)
                 .build());
 
