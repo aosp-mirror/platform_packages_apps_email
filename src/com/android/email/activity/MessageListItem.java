@@ -137,10 +137,12 @@ public class MessageListItem extends View {
     private static int sColorTipHeight;
     private static int sColorTipRightMarginOnNarrow;
     private static int sColorTipRightMarginOnWide;
-    private static Drawable sReadSelector;
-    private static Drawable sUnreadSelector;
-    private static Drawable sWideReadSelector;
-    private static Drawable sWideUnreadSelector;
+
+    // Note: these cannot be shared Drawables because they are selectors which have state.
+    private Drawable mReadSelector;
+    private Drawable mUnreadSelector;
+    private Drawable mWideReadSelector;
+    private Drawable mWideUnreadSelector;
 
     public int mSnippetLineCount = NEEDS_LAYOUT;
     private final CharSequence[] mSnippetLines = new CharSequence[MAX_SUBJECT_SNIPPET_LINES];
@@ -210,10 +212,6 @@ public class MessageListItem extends View {
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_off_normal_holo_light);
             sSelectedIconOn =
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_on_normal_holo_light);
-            sReadSelector = r.getDrawable(R.drawable.message_list_read_selector);
-            sUnreadSelector = r.getDrawable(R.drawable.message_list_unread_selector);
-            sWideReadSelector = r.getDrawable(R.drawable.message_list_wide_read_selector);
-            sWideUnreadSelector = r.getDrawable(R.drawable.message_list_wide_unread_selector);
 
             sFavoriteIconWidth = sFavoriteIconOff.getWidth();
             sInit = true;
@@ -234,21 +232,47 @@ public class MessageListItem extends View {
         return mode;
     }
 
-    private void calculateDrawingData() {
+    private Drawable mCurentBackground = null; // Only used by updateBackground()
+
+    /* package */ void updateBackground() {
+        final Drawable newBackground;
         if (mRead) {
             if (mMode == MODE_WIDE) {
-                setBackgroundDrawable(sWideReadSelector);
+                if (mWideReadSelector == null) {
+                    mWideReadSelector = getContext().getResources()
+                            .getDrawable(R.drawable.message_list_wide_read_selector);
+                }
+                newBackground = mWideReadSelector;
             } else {
-                setBackgroundDrawable(sReadSelector);
+                if (mReadSelector == null) {
+                    mReadSelector = getContext().getResources()
+                            .getDrawable(R.drawable.message_list_read_selector);
+                }
+                newBackground = mReadSelector;
             }
         } else {
             if (mMode == MODE_WIDE) {
-                setBackgroundDrawable(sWideUnreadSelector);
+                if (mWideUnreadSelector == null) {
+                    mWideUnreadSelector = getContext().getResources()
+                            .getDrawable(R.drawable.message_list_wide_unread_selector);
+                }
+                newBackground = mWideUnreadSelector;
             } else {
-                setBackgroundDrawable(sUnreadSelector);
+                if (mUnreadSelector == null) {
+                    mUnreadSelector = getContext().getResources()
+                            .getDrawable(R.drawable.message_list_unread_selector);
+                }
+                newBackground = mUnreadSelector;
             }
         }
+        if (newBackground != mCurentBackground) {
+            // setBackgroundDrawable is a heavy operation.  Only call it when really needed.
+            setBackgroundDrawable(newBackground);
+            mCurentBackground = newBackground;
+        }
+    }
 
+    private void calculateDrawingData() {
         SpannableStringBuilder ssb = new SpannableStringBuilder();
         boolean hasSubject = false;
         if (!TextUtils.isEmpty(mSubject)) {
@@ -355,6 +379,13 @@ public class MessageListItem extends View {
             }
         }
         return result;
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        // Update the background, before View.draw() draws it.
+        updateBackground();
+        super.draw(canvas);
     }
 
     @Override
