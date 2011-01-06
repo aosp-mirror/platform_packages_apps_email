@@ -23,7 +23,7 @@
 	android:paddingBottom="6dip">
 	<ImageButton
 		android:id="@+id/attachment_delete"
-		android:src="@android:drawable/ic_delete"
+		android:src="@drawable/ic_remove_attachment_holo_light"
 		android:layout_alignParentRight="true"
 		android:layout_height="42dip"
 		android:layout_width="42dip" />
@@ -45,7 +45,7 @@
 	<ImageView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:src="@drawable/ic_email_attachment"
+		android:src="@drawable/ic_attachment_holo_light"
 		android:layout_marginLeft="1dip"
 		android:layout_centerVertical="true" />
 </RelativeLayout>

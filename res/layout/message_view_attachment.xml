@@ -125,6 +125,6 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/ic_email_attachment" />
+            android:src="@drawable/ic_attachment_holo_light" />
     </LinearLayout>
 </FrameLayout>

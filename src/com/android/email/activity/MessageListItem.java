@@ -202,10 +202,10 @@ public class MessageListItem extends View {
             sBoldPaint.setTypeface(Typeface.DEFAULT_BOLD);
             sBoldPaint.setTextSize(sTextSize);
             sBoldPaint.setAntiAlias(true);
-            sAttachmentIcon = BitmapFactory.decodeResource(r, R.drawable.ic_mms_attachment_small);
-            sInviteIcon = BitmapFactory.decodeResource(r, R.drawable.ic_calendar_event_small);
+            sAttachmentIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_attachment);
+            sInviteIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_invite);
             sFavoriteIconOff =
-                BitmapFactory.decodeResource(r, R.drawable.btn_star_big_buttonless_dark_off);
+                BitmapFactory.decodeResource(r, R.drawable.ic_star_none_holo_light);
             sFavoriteIconOn =
                 BitmapFactory.decodeResource(r, R.drawable.btn_star_big_buttonless_dark_on);
             sSelectedIconOff =

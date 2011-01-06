@@ -150,7 +150,7 @@ public class MessageViewFragment extends MessageViewFragmentBase {
 
         final Resources res = getActivity().getResources();
         mFavoriteIconOn = res.getDrawable(R.drawable.btn_star_big_buttonless_on);
-        mFavoriteIconOff = res.getDrawable(R.drawable.btn_star_big_buttonless_off);
+        mFavoriteIconOff = res.getDrawable(R.drawable.ic_star_none_holo_light);
     }
 
     @Override

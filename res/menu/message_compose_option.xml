@@ -19,7 +19,8 @@
     <item
         android:id="@+id/send"
         android:title="@string/send_action"
-        android:showAsAction="always"
+        android:showAsAction="always|withText"
+        android:icon="@drawable/ic_menu_send_holo_light"
         android:alphabeticShortcut="s"
     />
     <item
@@ -33,6 +34,7 @@
         android:id="@+id/discard"
         android:title="@string/discard_action"
         android:showAsAction="always"
+        android:icon="@drawable/ic_menu_trash_holo_light"
         android:alphabeticShortcut="q"
     />
 </menu>

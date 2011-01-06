@@ -383,7 +383,7 @@ public class Utility {
             mSpecialMailboxDrawable =
                 context.getResources().obtainTypedArray(R.array.mailbox_display_icons);
             mSummaryStarredMailboxDrawable =
-                context.getResources().getDrawable(R.drawable.ic_list_starred);
+                context.getResources().getDrawable(R.drawable.ic_folder_star_holo_light);
             mSummaryCombinedInboxDrawable =
                 context.getResources().getDrawable(R.drawable.ic_list_combined_inbox);
         }
