@@ -1197,7 +1197,7 @@ public class ExchangeService extends Service implements Runnable {
 
     static private synchronized void shutdownConnectionManager() {
         if (sClientConnectionManager != null) {
-            alwaysLog("Shutting down ClientConnectionManager");
+            log("Shutting down ClientConnectionManager");
             sClientConnectionManager.shutdown();
             sClientConnectionManagerShutdownCount++;
             sClientConnectionManager = null;
@@ -1753,7 +1753,7 @@ public class ExchangeService extends Service implements Runnable {
     @Override
     public void onCreate() {
         synchronized (sSyncLock) {
-            alwaysLog("!!! EAS ExchangeService, onCreate");
+            log("!!! EAS ExchangeService, onCreate");
             if (sStop) {
                 return;
             }
@@ -1765,49 +1765,44 @@ public class ExchangeService extends Service implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
-            // Finally, run some setup activities off the UI thread
-            Utility.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    // Run the reconciler and clean up any mismatched accounts - if we weren't
-                    // running when accounts were deleted, it won't have been called.
-                    runAccountReconcilerSync(ExchangeService.this);
-                    // Update other services depending on final account configuration
-                    Email.setServicesEnabledSync(ExchangeService.this);
-                }
-            });
         }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        synchronized (sSyncLock) {
-            alwaysLog("!!! EAS ExchangeService, onStartCommand");
-            // Restore accounts, if it has not happened already
-            AccountBackupRestore.restoreAccountsIfNeeded(this);
-            maybeStartExchangeServiceThread();
-            if (sServiceThread == null) {
-                alwaysLog("!!! EAS ExchangeService, stopping self");
-                stopSelf();
-            } else if (sStop) {
-                // If we were in the middle of trying to stop, attempt a restart in 5 seconds
-                setAlarm(EXCHANGE_SERVICE_MAILBOX_ID, 5*SECONDS);
-            }
-            // If we're running, we want the download service running
-            return Service.START_STICKY;
-        }
+        log("!!! EAS ExchangeService, onStartCommand");
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (sSyncLock) {
+                    // Restore accounts, if it has not happened already
+                    AccountBackupRestore.restoreAccountsIfNeeded(ExchangeService.this);
+                    // Run the reconciler and clean up any mismatched accounts - if we weren't
+                    // running when accounts were deleted, it won't have been called.
+                    runAccountReconcilerSync(ExchangeService.this);
+                    // Update other services depending on final account configuration
+                    Email.setServicesEnabledSync(ExchangeService.this);
+                    maybeStartExchangeServiceThread();
+                    if (sServiceThread == null) {
+                        log("!!! EAS ExchangeService, stopping self");
+                        stopSelf();
+                    } else if (sStop) {
+                        // If we were in the middle of trying to stop, attempt a restart in 5 secs
+                        setAlarm(EXCHANGE_SERVICE_MAILBOX_ID, 5*SECONDS);
+                    }
+                }
+            }});
+        return Service.START_STICKY;
     }
 
     @Override
     public void onDestroy() {
+        log("!!! EAS ExchangeService, onDestroy");
         synchronized(sSyncLock) {
-            alwaysLog("!!! EAS ExchangeService, onDestroy");
             // Stop the sync manager thread and return
-            synchronized (sSyncLock) {
-                if (sServiceThread != null) {
-                    sStop = true;
-                    sServiceThread.interrupt();
-                }
+            if (sServiceThread != null) {
+                sStop = true;
+                sServiceThread.interrupt();
             }
         }
     }
@@ -1834,14 +1829,14 @@ public class ExchangeService extends Service implements Runnable {
         ExchangeService exchangeService = INSTANCE;
         if (exchangeService == null) return;
         if (sServiceThread == null) {
-            alwaysLog("!!! checkExchangeServiceServiceRunning; starting service...");
+            log("!!! checkExchangeServiceServiceRunning; starting service...");
             exchangeService.startService(new Intent(exchangeService, ExchangeService.class));
         }
     }
 
     public void run() {
         sStop = false;
-        alwaysLog("!!! ExchangeService thread running");
+        alwaysLog("ExchangeService thread running");
         // If we're really debugging, turn on all logging
         if (Eas.DEBUG) {
             Eas.USER_LOG = true;
