@@ -20,12 +20,14 @@
         android:id="@+id/move"
         android:orderInCategory="1000"
         android:title="@string/move_action"
+        android:icon="@drawable/ic_menu_move_to_holo_light"
         android:showAsAction="ifRoom"
     />
     <item
         android:id="@+id/delete"
         android:orderInCategory="1100"
         android:title="@string/delete_action"
+        android:icon="@drawable/ic_menu_trash_holo_light"
         android:showAsAction="ifRoom"
     />
     <item
@@ -33,5 +35,6 @@
         android:orderInCategory="1200"
         android:title="@string/mark_as_unread_action"
         android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_menu_mark"
     />
 </menu>

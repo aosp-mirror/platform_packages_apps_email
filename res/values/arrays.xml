@@ -161,19 +161,19 @@
          of the types of mailboxes defined in EmailContent -->
     <array name="mailbox_display_icons" translatable="false">
         <!-- TYPE_INBOX = 0 -->
-        <item>@drawable/ic_list_inbox</item>
+        <item>@drawable/ic_folder_inbox_holo_light</item>
         <!-- TYPE_MAIL = 1 -->
         <item></item>
         <!-- TYPE_PARENT = 2 -->
         <item></item>
         <!-- TYPE_DRAFTS = 3 -->
-        <item>@drawable/ic_list_drafts</item>
+        <item>@drawable/ic_folder_drafts_holo_light</item>
         <!-- TYPE_OUTBOX = 4 -->
-        <item>@drawable/ic_list_outbox</item>
+        <item>@drawable/ic_folder_outbox_holo_light</item>
         <!-- TYPE_SENT = 5 -->
-        <item>@drawable/ic_list_sent</item>
+        <item>@drawable/ic_folder_sent_holo_light</item>
         <!-- TYPE_TRASH = 6 -->
-        <item>@drawable/ic_list_trash</item>
+        <item>@drawable/ic_folder_trash_holo_light</item>
         <!-- TYPE_JUNK = 7 -->
         <item>@drawable/ic_list_spam</item>
     </array>

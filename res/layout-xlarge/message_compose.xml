@@ -132,11 +132,12 @@
                 android:layout_width="wrap_content"
                 android:text="@string/add_cc_bcc_action"
                 />
-            <Button
+            <ImageButton
                 android:id="@+id/add_attachment"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:text="@string/add_attachment_action"
+                android:src="@drawable/ic_add_attachment_holo_light"
                 />
 
             <!--

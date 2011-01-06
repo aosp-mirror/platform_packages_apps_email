@@ -20,6 +20,7 @@
         android:id="@+id/send"
         android:orderInCategory="50"
         android:title="@string/message_list_send_pending_messages_action"
-        android:showAsAction="ifRoom"
+        android:showAsAction="ifRoom|withText"
+        android:icon="@drawable/ic_menu_send_holo_light"
     />
 </menu>
