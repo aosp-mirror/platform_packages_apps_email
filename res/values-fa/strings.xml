@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="read_attachment_label" msgid="1162255191991555285">"خواندن پیوست های ایمیل"</string>
+    <string name="read_attachment_desc" msgid="7594746717616308643">"به این برنامه کاربردی اجازه می دهد پیوست های ایمیل شما را بخواند."</string>
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"دسترسی به داده های ارائه دهنده ایمیل"</string>
+    <string name="permission_access_provider_desc" msgid="1513898266889541617">"به این برنامه کاربردی اجازه می دهد به پایگاه داده ایمیل شما از جمله پیام های دریافتی، ارسالی و رمزهای ورود و نام های کاربری دسترسی پیدا کند."</string>
+    <string name="app_name" msgid="5815426892327290362">"ایمیل"</string>
+    <string name="compose_title" msgid="427986915662706899">"نگاشتن"</string>
+    <string name="debug_title" msgid="5175710493691536719">"رفع خطا"</string>
+    <string name="next_action" msgid="3931301986364184415">"بعدی"</string>
+    <string name="okay_action" msgid="8365197396795675617">"تأیید"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"لغو"</string>
+    <string name="send_action" msgid="1729766205562446418">"ارسال"</string>
+    <string name="reply_action" msgid="4262472229221507619">"پاسخ"</string>
+    <string name="reply_all_action" msgid="6192179825726332152">"پاسخ به همه"</string>
+    <string name="delete_action" msgid="8421026208288857155">"حذف"</string>
+    <string name="forward_action" msgid="669174181042344116">"هدایت"</string>
+    <string name="done_action" msgid="7497990549515580249">"انجام شد"</string>
+    <string name="discard_action" msgid="6532206074859505968">"صرفنظر"</string>
+    <string name="save_draft_action" msgid="812855865552028622">"ذخیره بعنوان پیش نویس"</string>
+    <string name="read_unread_action" msgid="4721446664849165077">"خوانده شده/خوانده نشده"</string>
+    <string name="read_action" msgid="4701484794504781686">"علامت گذاری بعنوان خوانده شده"</string>
+    <string name="unread_action" msgid="6280399049357552826">"علامت گذاری بعنوان خوانده نشده"</string>
+    <string name="favorite_action" msgid="2911296685862420689">"مورد دلخواه"</string>
+    <string name="set_star_action" msgid="4660317166196258160">"افزودن ستاره"</string>
+    <string name="remove_star_action" msgid="6689770999647007163">"حذف ستاره"</string>
+    <string name="refresh_action" msgid="5951383001436708175">"تازه کردن"</string>
+    <string name="add_account_action" msgid="8835736309476033727">"افزودن حساب"</string>
+    <string name="deselect_all_action" msgid="253663239459688238">"لغو انتخاب همه"</string>
+    <string name="compose_action" msgid="4045702519637388045">"نگاشتن"</string>
+    <string name="search_action" msgid="6325101454876682308">"جستجو"</string>
+    <string name="open_action" msgid="936766723989190816">"باز کردن"</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"تنظیمات حساب"</string>
+    <string name="remove_account_action" msgid="3789169090601376209">"حذف حساب"</string>
+    <string name="folders_action" msgid="7502431531355227666">"پوشه ها"</string>
+    <string name="accounts_action" msgid="901105887272231493">"حساب ها"</string>
+    <string name="mark_as_read_action" msgid="5031651846998842419">"علامت گذاری بعنوان خوانده شده"</string>
+    <string name="mark_as_unread_action" msgid="3766298115778767554">"علامت گذاری بعنوان خوانده نشده"</string>
+    <string name="add_cc_bcc_action" msgid="5569074812077509737">"افزودن گیرنده کپی/گیرنده کپی مخفی"</string>
+    <string name="add_attachment_action" msgid="2696013743130573897">"افزودن پیوست"</string>
+    <string name="dump_settings_action" msgid="4478192525236169829">"تنظیمات نسخه برداری"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"انتخاب پیوست"</string>
+    <string name="status_loading_more" msgid="1580386959044617884">"در حال بارگیری پیام ها..."</string>
+    <string name="status_sending_messages" msgid="3971880826111264523">"در حال ارسال پیام ها..."</string>
+    <string name="status_network_error" msgid="6045933332005067021">"خطای اتصال"</string>
+    <string name="notification_new_title" msgid="2200257910380529139">"ایمیل جدید"</string>
+    <string name="error_loading_message_body" msgid="2265140604109272914">"خطای پیش بینی نشده در حین بارگیری متن پیام. پیام ممکن است خیلی بزرگ باشد و نشان داده نشود."</string>
+  <plurals name="notification_new_one_account_fmt">
+    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> خوانده نشده (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> خوانده نشده <xliff:g id="ACCOUNT">%2$s</xliff:g>"</item>
+    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> خوانده نشده <xliff:g id="ACCOUNT">%2$s</xliff:g>"</item>
+  </plurals>
+  <plurals name="notification_new_multi_account_fmt">
+    <item quantity="few" msgid="1991747245324120305">"در <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> حساب"</item>
+    <item quantity="other" msgid="2723797835410343458">"در <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> حساب"</item>
+  </plurals>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"صندوق ورودی"</string>
+    <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"صندوق خروجی"</string>
+    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"پیش نویس ها"</string>
+    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"سطل زباله"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"ارسال شد"</string>
+    <string name="mailbox_name_display_junk" msgid="9046762505977999288">"ناخواسته"</string>
+    <string name="debug_version_fmt" msgid="6160213145745376955">"نسخه: <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"حساب ها"</string>
+    <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"صندوق ورودی ترکیبی"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"ستاره دار"</string>
+    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"پیش نویس ها"</string>
+    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"صندوق خروجی"</string>
+    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"لطفاً یک حساب را برای تازه کردن به صورت طولانی فشار دهید."</string>
+    <string name="mailbox_list_title" msgid="8299608543467211089">"صندوق پستی"</string>
+    <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"بارگیری پیام های بیشتر"</string>
+    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"ارسال پیام های خروجی"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"گیرنده"</string>
+    <string name="message_compose_cc_hint" msgid="8481884461031434144">"گیرنده کپی"</string>
+    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"گیرنده کپی مخفی"</string>
+    <string name="message_compose_subject_hint" msgid="6993487234024160782">"موضوع"</string>
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"نگاشتن نامه"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- پیام اصلی --------"\n"موضوع: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"فرستنده: <xliff:g id="SENDER">%2$s</xliff:g>"\n"گیرنده: <xliff:g id="TO">%3$s</xliff:g>"\n"گیرنده کپی: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> نوشت:"\n\n</string>
+    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"متن نقل قول شده"</string>
+    <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"باید حداقل یک گیرنده اضافه کنید."</string>
+    <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"برخی از آدرس های ایمیل نامعتبر هستند."</string>
+    <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"برخی از پیوست ها هدایت نمی شوند زیرا دانلود نشده اند."</string>
+    <string name="message_compose_attachment_size" msgid="4401081828287333647">"فایل خیلی بزرگ است و پیوست نمی شود"</string>
+    <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> و <xliff:g id="NUMBER">%2$d</xliff:g> دیگر"</string>
+    <string name="message_view_to_label" msgid="6485191743265527381">"گیرنده:"</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"گیرنده کپی:"</string>
+    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"باز کردن"</string>
+    <string name="message_view_attachment_download_action" msgid="7552530274014544406">"ذخیره"</string>
+    <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"پیوست به عنوان <xliff:g id="FILENAME">%s</xliff:g> ذخیره شد."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"ذخیره پیوست ممکن نیست."</string>
+    <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"\"نمایش تصاویر\" را برای نمایش تصاویر درج شده انتخاب کنید."</string>
+    <string name="message_view_show_pictures_action" msgid="5059936981743072545">"نمایش تصاویر"</string>
+    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"واکشی پیوست."</string>
+    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"واکشی پیوست <xliff:g id="FILENAME">%s</xliff:g>"</string>
+    <string name="message_view_invite_view" msgid="6256018854688891069">"مشاهده در تقویم »"</string>
+    <string name="message_view_invite_title" msgid="5024473745902772299">"دعوت تقویم"</string>
+    <string name="message_view_invite_text" msgid="1212799906603873708">"می روید؟"</string>
+    <string name="message_view_invite_accept" msgid="744546668021679819">" بله"</string>
+    <string name="message_view_invite_maybe" msgid="7555189462441562318">" شاید"</string>
+    <string name="message_view_invite_decline" msgid="6119797303297149463">" خیر"</string>
+    <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"شما این دعوتنامه را پذیرفته اید"</string>
+    <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"شما پاسخ \"شاید\" به این دعوت نامه داده اید"</string>
+    <string name="message_view_invite_toast_no" msgid="7511491076936887064">"شما این دعوتنامه را رد کرده اید"</string>
+  <plurals name="message_deleted_toast">
+    <item quantity="one" msgid="710742672464447084">"پیام حذف شد."</item>
+    <item quantity="other" msgid="6574961322865652255">"پیام ها حذف شدند."</item>
+  </plurals>
+    <string name="message_discarded_toast" msgid="3891461729325584026">"پیام رد شد."</string>
+    <string name="message_saved_toast" msgid="8443125659172627665">"پیام به عنوان پیش نویس ذخیره شد."</string>
+    <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"این پیوست نمایش داده نمی شود."</string>
+    <string name="account_setup_basics_title" msgid="3969856368228940980">"تنظیم ایمیل"</string>
+    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"افزودن یک حساب Exchange"</string>
+    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"افزودن یک حساب Exchange ActiveSync"</string>
+    <string name="accounts_welcome" msgid="5901437782383439370">"شما می توانید ایمیل را برای اکثر حساب ها فقط در چند مرحله پیکربندی کنید."</string>
+    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"شما می توانید یک حساب Exchange را فقط در چند مرحله پیکربندی کنید."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"شما می توانید حساب Exchange ActiveSync را فقط در چند مرحله پیکربندی کنید."</string>
+    <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"آدرس ایمیل"</string>
+    <string name="account_setup_basics_password_hint" msgid="410210049040536870">"رمز ورود"</string>
+    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"ارسال ایمیل از این حساب به صورت پیش فرض."</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"تنظیم دستی"</string>
+    <string name="account_setup_username_password_toast" msgid="4441448542557889481">"یک آدرس ایمیل و رمز ورود معتبر تایپ کنید."</string>
+    <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"حساب تکراری"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"این ورود به سیستم در حال حاضر برای حساب \"<xliff:g id="DUPLICATE">%s</xliff:g>\" استفاده می شود."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"در حال بازیابی اطلاعات حساب..."</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"در حال بررسی تنظیمات سرور ورودی..."</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"در حال بررسی تنظیمات سرور خروجی..."</string>
+    <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"در حال لغو…"</string>
+    <string name="account_setup_names_title" msgid="8875040521875381849">"تنظیم ایمیل"</string>
+    <string name="account_setup_names_instructions" msgid="2880279273965835007">"حساب شما تنظیم شد و ایمیل در راه است!"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"نامی به این حساب اختصاص دهید (اختیاری)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"نام شما (در پیام های خروجی نمایش داده می شود)"</string>
+    <string name="account_setup_account_type_title" msgid="6645576356752495504">"افزودن حساب ایمیل جدید"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"این چه نوع حسابی است؟"</string>
+    <string name="account_setup_incoming_title" msgid="6862032674547580337">"تنظیمات سرور ورودی"</string>
+    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"نام کاربری"</string>
+    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"رمز ورود"</string>
+    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"سرور POP3"</string>
+    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"سرور IMAP"</string>
+    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"درگاه"</string>
+    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"نوع امنیت"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"هیچکدام"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (پذیرش همه گواهی ها)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (پذیرش همه گواهی ها)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"حذف ایمیل از سرور"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"هرگز"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"هنگامی که من از صندوق ورودی حذف می کنم"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"پیشوند مسیر IMAP"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"اختیاری"</string>
+    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"تنظیمات سرور خروجی"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"سرور SMTP"</string>
+    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"درگاه"</string>
+    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"نوع امنیت"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"باید به سیستم وارد شوید."</string>
+    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"نام کاربری"</string>
+    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"رمز ورود"</string>
+    <string name="account_setup_exchange_title" msgid="2492853474738063453">"تنظیمات سرور"</string>
+    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"سرور"</string>
+    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"دامنه/نام کاربری"</string>
+    <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"از اتصال امن (SSL) استفاده شود"</string>
+    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"پذیرش همه گواهی های SSL"</string>
+    <string name="account_setup_options_title" msgid="8995162193118880993">"گزینه های حساب"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"دفعات بررسی صندوق ورودی"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"هرگز"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"خودکار (پیام سرویس)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"هر 5 دقیقه"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"هر 10 دقیقه"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"هر 15 دقیقه"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"هر 30 دقیقه"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"هر ساعت"</string>
+    <string name="account_setup_options_default_label" msgid="8869166381331276697">"ارسال ایمیل از این حساب به صورت پیش فرض."</string>
+    <string name="account_setup_options_notify_label" msgid="1247525794828820038">"ورود ایمیل به من اعلان شود."</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"همگام سازی مخاطبین از این حساب."</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"همگام سازی تقویم از این حساب."</string>
+    <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"تنظیم پایان نیافت"</string>
+    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"مقدار همگام سازی"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"یک روز"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"سه روز"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"یک هفته"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"دو هفته"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"یک ماه"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"نام کاربری یا رمز ورود نادرست است."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"نام کاربری یا رمز ورود نادرست است. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"اتصال امن به سرور امکان پذیر نیست."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"اتصال امن به سرور امکان پذیر نیست. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"اتصال به سرور امکان پذیر نیست."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"اتصال به سرور امکان پذیر نیست. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS لازم است اما توسط سرور پشتیبانی نمی شود."</string>
+    <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"روش های تأیید اعتبار توسط سرور پشتیبانی نمی شوند."</string>
+    <string name="account_setup_failed_security" msgid="6142264248671379943">"به دلیل خطای امنیتی، اتصال به سرور باز نمی شود."</string>
+    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"اتصال به سرور باز نمی شود."</string>
+    <string name="account_setup_security_required_title" msgid="1850321535870447468">"مدیریت امنیت راه دور"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی گوشی شما را به صورت خودکار کنترل کند. آیا می خواهید تنظیم این حساب را به پایان برسانید؟"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"این سرور به ویژگی های امنیتی نیاز دارد که گوشی شما پشتیبانی نمی کند."</string>
+    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"تنظیمات امنیتی حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" باید به روزرسانی شود."</string>
+    <string name="security_notification_content_title" msgid="8096231937552848281">"به روزرسانی تنظیمات امنیتی"</string>
+    <string name="account_security_title" msgid="4441470647344315196">"امنیت دستگاه"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی گوشی شما را به صورت خودکار کنترل کند."</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"ویرایش جزئیات"</string>
+    <string name="account_settings_title_fmt" msgid="1702058877284382340">"تنظیمات عمومی"</string>
+    <string name="account_settings_default_label" msgid="3575963379680943640">"حساب پیش فرض"</string>
+    <string name="account_settings_default_summary" msgid="1531901438624688482">"ارسال ایمیل از این حساب به صورت پیش فرض"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"اعلان های ایمیل"</string>
+    <string name="account_settings_exchange_summary" msgid="8498451479029626317">"تکرار همگام سازی، اعلان ها، موارد دیگر"</string>
+    <string name="account_settings_notify_summary" msgid="6609224590300639887">"ورود ایمیل در نوار وضعیت اعلان شود"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"دفعات بررسی صندوق دریافت"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"تنظیمات ورودی"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"تنظیمات خروجی"</string>
+    <string name="account_settings_description_label" msgid="8894815221204511715">"نام حساب"</string>
+    <string name="account_settings_name_label" msgid="8186406122590008449">"نام شما"</string>
+    <string name="account_settings_signature_label" msgid="4091969938785803201">"امضا"</string>
+    <string name="account_settings_signature_hint" msgid="7262183168962779403">"افزودن متن به پیام هایی که ارسال می کنید"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"تنظیمات اعلان"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"همگام سازی مخاطبین"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"همچنین همگام سازی مخاطبین از این حساب"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"همگام سازی تقویم"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"همچنین همگام سازی تقویم از این حساب"</string>
+    <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"لرزش"</string>
+    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"همچنین لرزش هنگام دریافت ایمیل"</string>
+    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"همیشه"</string>
+    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"فقط هنگام ساکت بودن"</string>
+    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"هرگز"</string>
+    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"لرزش"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"انتخاب آهنگ زنگ"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"تنظیمات سرور"</string>
+    <string name="account_delete_dlg_title" msgid="6806087520856396608">"حذف حساب"</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" از ایمیل حذف می شود."</string>
+    <string name="upgrade_accounts_title" msgid="5444140226380754014">"ارتقا حساب ها"</string>
+    <string name="upgrade_accounts_error" msgid="7241661832029255715">"ارتقا حساب امکان پذیر نیست"</string>
+    <string name="provider_note_live" msgid="3584841823811425060">"فقط برخی از حساب های \"Plus\" از جمله دسترسی POP به این برنامه اجازه می دهند متصل شود. اگر شما نمی توانید با رمز ورود و آدرس ایمیل درست خود به سیستم وارد شوید، ممکن است فاقد یک حساب \"Plus\" پولی باشید. لطفاً مرورگر وب را برای دسترسی به این حساب های ایمیل راه اندازی کنید."</string>
+    <string name="provider_note_t_online" msgid="1973701903400232774">"قبل از تنظیم این حساب ایمیل، لطفاً از وب سایت T-Online بازدید کرده و یک رمز ورود برای دسترسی ایمیل POP3 ایجاد کنید."</string>
+    <string name="exchange_name" msgid="1190783774800310346">"شرکت"</string>
+    <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
+    <string name="meeting_accepted" msgid="8796609373330400268">"پذیرفته شده: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_declined" msgid="6707617183246608552">"پذیرفته نشد: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_tentative" msgid="8250995722130443785">"احتمالی: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_canceled" msgid="3949893881872084244">"لغو شد: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_updated" msgid="8529675857361702860">"به روزرسانی شد: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_when" msgid="2765696159697448656">"زمان: <xliff:g id="WHEN">%s</xliff:g>"</string>
+    <string name="meeting_where" msgid="5992367535856553079">"مکان: <xliff:g id="WHERE">%s</xliff:g>"</string>
+    <string name="meeting_recurring" msgid="3134262212606714023">"زمان: <xliff:g id="EVENTDATE">%s</xliff:g> (تکرار)"</string>
+    <string name="exception_cancel" msgid="6160117429428313805">"این رویداد لغو شده است به مدت: <xliff:g id="DATE">%s</xliff:g>"</string>
+    <string name="exception_updated" msgid="3397583105901142050">"جزئیات این رویداد تغییر کرده اند به مدت: <xliff:g id="DATE">%s</xliff:g>"</string>
+    <string name="system_account_create_failed" msgid="4917162302393971752">"AccountManager نتوانست حساب را ایجاد کند؛ لطفاً دوباره امتحان کنید."</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"ایمیل"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"خط مشی های امنیتی تعیین شده توسط سرور را فعال می کند"</string>
+    <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"تقویم Exchange اضافه شد"</string>
+    <string name="gal_searching_fmt" msgid="6140450617663543464">"در حال جستجو <xliff:g id="DOMAIN">%s</xliff:g>..."</string>
+  <plurals name="gal_completed_fmt">
+    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> نتیجه از <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
+    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> نتیجه از <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
+  </plurals>
+    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="RESULTS">%1$d</xliff:g> نتیجه اول از <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
+</resources>

@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Kontoen «<xliff:g id="ACCOUNT">%s</xliff:g>» vil bli fjernet fra e-postapplikasjonen."</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Oppgrader kontoer"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Får ikke oppgradert konto"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"E-posttilgang er ikke støttet for enkelte typer Yahoo!-e-postkontoer. Hvis du har problemer med å koble til, besøk yahoo.com for mer informasjon."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Før du setter opp denne e-postkontoen, må du gå til Yahoo!-nettstedet og slå på POP3-tilgang for den."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Bare noen «pluss-kontoer» tilbyr POP-tilgang som dette programmet trenger for å koble til. Hvis du ikke klarer å logge på med riktig e-postadresse og passord, kan det være du ikke har en betalt «pluss»-tilgang. Start nettleseren for å få tilgang til slike e-postkontoer."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Før du setter opp denne e-postkontoen, besøk T-Online-nettstedet og velg et passord for e-posttilgang via POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Exchange"</string>

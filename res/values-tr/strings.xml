@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" hesabı E-postadan kaldırılacak."</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Hesapların yeni sürümüne geç"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Hesabın yeni sürümüne geçilemiyor"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Posta kutusu erişimi bazı Yahoo! posta hesabı türlerinde desteklenmemektedir. Bağlanma sorunu yaşıyorsanız daha fazla bilgi için yahoo.com sitesini ziyaret edin."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Bu e-posta hesabını ayarlamadan önce lütfen Yahoo! web sitesini ziyaret edin ve bu hesap için POP3 e-posta erişimini etkinleştirin."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Yalnızca bazı \"Plus\" hesapları bu programın bağlanmasına izin veren POP erişimi içerir. Doğru e-posta adresinizle ve şifrenizle oturum açamıyorsanız, ödemeli bir \"Plus\" hesabına sahip olmayabilirsiniz. Lütfen bu posta hesaplarına erişmek için Web tarayıcıyı başlatın."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Bu e-posta hesabını ayarlamadan önce lütfen T-Online Web sitesini ziyaret edin ve POP3 e-posta erişimi için bir şifre oluşturun."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Kurumsal"</string>

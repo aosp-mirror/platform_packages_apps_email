@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> bude z aplikace Email odebrán."</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Upgradovat účty"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Účet nelze upgradovat"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Přístup do schránky není u některých poštovních účtů Yahoo! podporován. Pokud máte problémy s připojením, získáte další informace na webové stránce yahoo.com."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Před nastavením tohoto e-mailového účtu přejděte na web Yahoo! a povolte u tohoto účtu e-mailový přístup POP3."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Pouze některé účty typu Plus obsahují přístup POP umožňující připojení tohoto programu. Pokud se nemůžete přihlásit se správnou e-mailovou adresou a heslem, pravděpodobně nemáte placený účet Plus. Spusťte webový prohlížeč a vyhledejte přístup k těmto poštovním účtům."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Před nastavením tohoto e-mailového účtu navštivte web T-Online a vytvořte heslo pro e-mailový přístup POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Firemní"</string>

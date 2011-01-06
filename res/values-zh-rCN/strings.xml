@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"将会从电子邮件中删除“<xliff:g id="ACCOUNT">%s</xliff:g>”帐户。"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"升级帐户"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"无法升级帐户"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"对于某些类型的 Yahoo! 邮件帐户，不支持邮箱访问。如果您遇到连接问题，请访问 yahoo.com 了解详细信息。"</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"在设置此电子邮件帐户之前，请访问 Yahoo! 网站并为此帐户启用 POP3 电子邮件访问。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"只有某些“Plus”帐户支持 POP 访问而允许此程序进行连接。如果您使用正确的电子邮件地址和密码无法登录，则可能还未开通付费的“Plus”帐户。请启动网络浏览器以获取对这些邮件帐户的访问权限。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"在设置此电子邮件帐户之前，请访问 T-Online 网站，为访问 POP3 电子邮件创建密码。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"公司"</string>

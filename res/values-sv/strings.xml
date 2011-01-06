@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Kontot <xliff:g id="ACCOUNT">%s</xliff:g> tas bort från E-post."</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Uppgradera konton"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Det går inte att uppgradera kontot"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Vi stöder inte åtkomst till postlådan för visa typer av Yahoo!-konton. Om du har problem att ansluta besöker du yahoo.com. Där hittar du mer information."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Innan du skapar e-postkontot besöker du webbplatsen Yahoo! och aktiverar POP3-åtkomst för kontot."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"POP-åtkomst, som gör så att detta program kan ansluta, ingår bara i vissa pluskonton. Om det inte går att logga in med rätt e-postadress och lösenord kanske du inte har betalat för ett pluskonto. Öppna webbläsaren igen om du vill få åtkomst tills dessa e-postkonton."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Innan du skapar e-postkontot besöker du T-Onlines webbplats och skapar ett lösenord för POP3-åtkomst till e-post."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Företag"</string>

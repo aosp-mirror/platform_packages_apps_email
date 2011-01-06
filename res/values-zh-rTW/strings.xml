@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"系統將從 [電子郵件] 中移除帳戶「<xliff:g id="ACCOUNT">%s</xliff:g>」。"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"升級帳戶"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"無法升級帳戶"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"系統不支援某些類型的 Yahoo! 郵件帳戶信箱。如果您無法順利連線，請前往 yahoo.com 以瞭解詳情。"</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"在設定此電子郵件帳戶前，請先造訪 Yahoo! 網站，並啟用帳戶的 POP3 電子郵件收發功能。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"只有部分包含 POP 存取功能的「Plus」帳戶能與這個程式連線。如果您輸入的電子郵件地址和密碼無誤，卻仍無法登入，表示您可能尚未購買「Plus」帳戶。請啟動網頁瀏覽器，以存取這些電子郵件帳戶。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"在設定此電子郵件帳戶前，請先造訪 T-Online 網站，並設定 POP3 電子郵件收發功能的密碼。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"公司"</string>

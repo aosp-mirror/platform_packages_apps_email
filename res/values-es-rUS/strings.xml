@@ -33,7 +33,7 @@
     <string name="forward_action" msgid="669174181042344116">"Reenviar"</string>
     <string name="done_action" msgid="7497990549515580249">"Finalizado"</string>
     <string name="discard_action" msgid="6532206074859505968">"Descartar"</string>
-    <string name="save_draft_action" msgid="812855865552028622">"Guardar como borrador"</string>
+    <string name="save_draft_action" msgid="812855865552028622">"Guardar borrador"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"Leído/no leído"</string>
     <string name="read_action" msgid="4701484794504781686">"Marcar leída"</string>
     <string name="unread_action" msgid="6280399049357552826">"Marcar no leída"</string>
@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"La cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" se eliminará de correo electrónico."</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Actualizar cuentas"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"No es posible actualizar la cuenta."</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"No se admite el acceso al buzón en algunos tipos de cuentas de correo de Yahoo!. Si tienes problemas para conectarte, visita yahoo.com para obtener más información."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de Yahoo! y activa el acceso de correo electrónico POP3 para esta cuenta."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Sólo algunas cuentas \"Plus\" incluyen el acceso POP, que permite que este programa se conecte. Si no puedes acceder con tu dirección de correo electrónico y contraseña correcta, es posible que no tengas una cuenta \"Plus\" paga. Inicia el navegador web para acceder a estas cuentas de correo."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de T-Online y crea una contraseña para el acceso de correo electrónico POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporativo"</string>
