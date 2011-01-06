@@ -27,6 +27,10 @@
     <color name="account_folder_list_item_separator">#303030</color>
     <color name="connection_error_banner">#fffff1a8</color>
 
+    <!-- Standard text colors -->
+    <color name="text_primary_color">#ffffff</color>
+    <color name="text_secondary_color">#666666</color>
+
     <!-- STOPSHIP Use same color as EditText tray? -->
     <color name="divider_color">#ff808080</color>
 

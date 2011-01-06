@@ -15,14 +15,15 @@
 -->
 
 <!-- extends RelativeLayout  -->
-<!-- STOPSHIP text color pixelperfect. -->
+<!--
+  NOTE: Don't set padding for this.
+  Background of this view will be changed by code, which resets padding.
+-->
 <com.android.email.activity.MailboxListItem
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="48dip"
     android:background="?android:attr/activatedBackgroundIndicator"
-    android:paddingLeft="@dimen/mailbox_list_padding_left"
-    android:paddingRight="@dimen/mailbox_list_padding_right"
     >
     <ImageView
         android:id="@+id/folder_icon"
@@ -31,6 +32,7 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="8dip"
+        android:layout_marginLeft="@dimen/mailbox_list_padding_left"
         />
     <TextView
         android:id="@+id/message_count"
@@ -38,10 +40,12 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/mailbox_list_count_margin_left"
+        android:layout_marginRight="@dimen/mailbox_list_padding_right"
         android:ellipsize="end"
         android:singleLine="true"
         android:textSize="14dip"
-        android:textColor="#888"
+        android:textColor="@color/text_secondary_color"
         />
     <TextView
         android:id="@+id/mailbox_name"
@@ -53,7 +57,7 @@
         android:ellipsize="end"
         android:singleLine="true"
         android:textSize="18dip"
-        android:textColor="#000"
+        android:textColor="@color/text_primary_color"
         />
     <!-- Color chips are shown only for account rows on combined view. -->
     <!-- STOPSHIP dimensions not pixelperfect. -->

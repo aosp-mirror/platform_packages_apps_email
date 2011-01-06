@@ -14,8 +14,9 @@
      limitations under the License.
 -->
 
-<!-- portrait -->
+<!-- non-xlarge, portrait -->
 <resources>
     <dimen name="mailbox_list_padding_left">16dip</dimen>
-    <dimen name="mailbox_list_padding_right">32dip</dimen>
+    <dimen name="mailbox_list_padding_right">16dip</dimen>
+    <dimen name="mailbox_list_count_margin_left">8dip</dimen>
 </resources>
