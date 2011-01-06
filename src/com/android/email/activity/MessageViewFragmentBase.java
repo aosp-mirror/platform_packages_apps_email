@@ -1415,6 +1415,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                     }
                 } else {
                     AttachmentInfo attachment = findAttachmentInfo(attachmentId);
+                    if (attachment == null) {
+                        // Called before LoadAttachmentsTask finishes.
+                        // (Possible if you quickly close & re-open a message)
+                        return;
+                    }
                     attachment.cancelButton.setVisibility(View.GONE);
                     attachment.loadButton.setVisibility(View.VISIBLE);
                     attachment.progressView.setVisibility(View.INVISIBLE);
