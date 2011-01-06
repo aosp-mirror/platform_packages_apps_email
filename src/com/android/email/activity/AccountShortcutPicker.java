@@ -131,7 +131,7 @@ public class AccountShortcutPicker extends ListActivity
         @Override
         protected void onPostExecute(Cursor cursor) {
             // If canceled, get out immediately
-            if (cursor == null) {
+            if (cursor == null || cursor.isClosed()) {
                 return;
             }
             // If there are no accounts, we should never have been here - exit the activity

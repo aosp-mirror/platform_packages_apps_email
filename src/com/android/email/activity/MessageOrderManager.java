@@ -266,7 +266,12 @@ public class MessageOrderManager {
     private class LoadMessageListTask extends AsyncTask<Void, Void, Cursor> {
         @Override
         protected Cursor doInBackground(Void... params) {
-            return openNewCursor();
+            Cursor c = openNewCursor();
+            if (isCancelled()) {
+                c.close();
+                c = null;
+            }
+            return c;
         }
 
         @Override

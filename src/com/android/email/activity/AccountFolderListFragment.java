@@ -386,19 +386,46 @@ public class AccountFolderListFragment extends ListFragment
         @Override
         protected Object[] doInBackground(Void... params) {
             // Create the summaries cursor
-            Cursor c1 = getSummaryChildCursor();
+            Cursor c1 = null;
+            Cursor c2 = null;
+            Long defaultAccount = null;
+            if (!isCancelled()) {
+                // Create the summaries cursor
+                c1 = getSummaryChildCursor();
+            }
 
-            // TODO use a custom projection and don't have to sample all of these columns
-            Cursor c2 = mActivity.getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI,
-                    EmailContent.Account.CONTENT_PROJECTION, null, null, null);
-            Long defaultAccount = Account.getDefaultAccountId(mActivity);
+            if (!isCancelled()) {
+                // TODO use a custom projection and don't have to sample all of these columns
+                c2 = mActivity.getContentResolver().query(
+                        EmailContent.Account.CONTENT_URI,
+                        EmailContent.Account.CONTENT_PROJECTION, null, null, null);
+            }
+
+            if (!isCancelled()) {
+                defaultAccount = Account.getDefaultAccountId(mActivity);
+            }
+
+            if (isCancelled()) {
+                if (c1 != null) c1.close();
+                if (c2 != null) c2.close();
+                return null;
+            }
             return new Object[] { c1, c2 , defaultAccount};
         }
 
         @Override
         protected void onPostExecute(Object[] params) {
-            if (isCancelled() || params == null || ((Cursor)params[1]).isClosed()) {
+            if (isCancelled() || params == null) {
+                if (params != null) {
+                    Cursor c1 = (Cursor)params[0];
+                    if (c1 != null) {
+                        c1.close();
+                    }
+                    Cursor c2 = (Cursor)params[1];
+                    if (c2 != null) {
+                        c2.close();
+                    }
+                }
                 return;
             }
             // Before writing a new list adapter into the listview, we need to
