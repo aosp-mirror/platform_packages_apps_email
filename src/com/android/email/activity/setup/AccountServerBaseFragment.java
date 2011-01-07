@@ -232,19 +232,30 @@ public abstract class AccountServerBaseFragment extends Fragment
     /**
      * Implements AccountCheckSettingsFragment.Callbacks
      *
-     * Handle OK or error result from check settings.  Save settings, and exit to previous fragment.
+     * Handle OK or error result from check settings.  Save settings (async), and then
+     * exit to previous fragment.
      */
     @Override
-    public void onCheckSettingsComplete(int result) {
-        if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
-            if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
-                saveSettingsAfterEdit();
-            } else {
-                saveSettingsAfterSetup();
+    public void onCheckSettingsComplete(final int settingsResult) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                if (settingsResult == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
+                    if (SetupData.getFlowMode() == SetupData.FLOW_MODE_EDIT) {
+                        saveSettingsAfterEdit();
+                    } else {
+                        saveSettingsAfterSetup();
+                    }
+                }
+                return null;
             }
-        }
-        // Signal to owning activity that a settings check completed
-        mCallback.onCheckSettingsComplete(result, SetupData.getFlowMode());
+
+            @Override
+            protected void onPostExecute(Void result) {
+                // Signal to owning activity that a settings check completed
+                mCallback.onCheckSettingsComplete(settingsResult, SetupData.getFlowMode());
+            }
+        }.execute();
     }
 
     /**
@@ -258,11 +269,13 @@ public abstract class AccountServerBaseFragment extends Fragment
 
     /**
      * Save settings after "OK" result from checker.  Concrete classes must implement.
+     * This is called from a worker thread and is allowed to perform DB operations.
      */
     public abstract void saveSettingsAfterEdit();
 
     /**
      * Save settings after "OK" result from checker.  Concrete classes must implement.
+     * This is called from a worker thread and is allowed to perform DB operations.
      */
     public abstract void saveSettingsAfterSetup();
 

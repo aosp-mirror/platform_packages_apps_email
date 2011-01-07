@@ -403,24 +403,21 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
     /**
      * Entry point from Activity after editing settings and verifying them.  Must be FLOW_MODE_EDIT.
-     * TODO should not write DB in UI thread
+     * Note, we update account here (as well as the account.mHostAuthRecv) because we edit
+     * account's delete policy here.
+     * Blocking - do not call from UI Thread.
      */
     @Override
     public void saveSettingsAfterEdit() {
-        EmailContent.Account account = SetupData.getAccount();
-        if (account.isSaved()) {
-            account.update(mContext, account.toContentValues());
-            account.mHostAuthRecv.update(mContext, account.mHostAuthRecv.toContentValues());
-        } else {
-            account.save(mContext);
-        }
+        Account account = SetupData.getAccount();
+        account.update(mContext, account.toContentValues());
+        account.mHostAuthRecv.update(mContext, account.mHostAuthRecv.toContentValues());
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backupAccounts(mContext);
     }
 
     /**
      * Entry point from Activity after entering new settings and verifying them.  For setup mode.
-     * TODO should not write DB in UI thread
      */
     @Override
     public void saveSettingsAfterSetup() {
