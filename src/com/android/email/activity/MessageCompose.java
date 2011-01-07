@@ -268,13 +268,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void setAccount(Account account) {
-        mAccount = account;
-        if (account != null) {
-            mFromView.setText(account.mEmailAddress);
-            mAddressAdapterTo.setAccount(account);
-            mAddressAdapterCc.setAccount(account);
-            mAddressAdapterBcc.setAccount(account);
+        if (account == null) {
+            throw new IllegalArgumentException();
         }
+        mAccount = account;
+        mFromView.setText(account.mEmailAddress);
+        mAddressAdapterTo.setAccount(account);
+        mAddressAdapterCc.setAccount(account);
+        mAddressAdapterBcc.setAccount(account);
     }
 
     @Override
