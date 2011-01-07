@@ -19,7 +19,7 @@
         android:icon="@drawable/ic_menu_move_to_holo_light"
         android:showAsAction="always" />
     <item android:id="@+id/mark_read" android:title="@string/read_action"
-        android:icon="@drawable/ic_menu_mark"
+        android:icon="@drawable/ic_menu_mark_read_holo_light"
         android:showAsAction="always" />
     <item android:id="@+id/mark_unread" android:title="@string/unread_action"
         android:icon="@drawable/ic_menu_mark"
