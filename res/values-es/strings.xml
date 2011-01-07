@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Se va a eliminar la cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" de \"Correo electrónico\"."</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Actualizar cuentas"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"No se ha podido actualizar la cuenta."</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Algunos tipos de cuentas de correo de Yahoo! no permiten acceder al buzón de correo. Si tienes problemas de conexión, visita yahoo.com para obtener información adicional al respecto."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de Yahoo! y habilita el acceso al correo electrónico POP3 para esta cuenta."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Sólo algunas cuentas \"Plus\" incluyen el acceso POP, que permite que este programa se conecte. Si no puedes acceder con la dirección de correo electrónico y la contraseña adecuadas, es posible que no dispongas de una cuenta \"Plus\" de pago. Usa el navegador web para acceder a estas cuentas de correo."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de T-Online y crea una contraseña para el acceso al correo electrónico POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Cuenta de trabajo"</string>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="read_attachment_label" msgid="1162255191991555285">"Читање прилога из е-порука"</string>
+    <string name="read_attachment_desc" msgid="7594746717616308643">"Омогућава овој апликацији да чита ваше прилоге е-порукама."</string>
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"Приступ подацима о добављачу е-поште"</string>
+    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Омогућава овој апликацији да приступи бази података е-поште, укључујући примљене поруке и послате поруке, корисничка имена и лозинке."</string>
+    <string name="app_name" msgid="5815426892327290362">"Пошаљи е-поштом"</string>
+    <string name="compose_title" msgid="427986915662706899">"Нова порука"</string>
+    <string name="debug_title" msgid="5175710493691536719">"Отклањање грешака"</string>
+    <string name="next_action" msgid="3931301986364184415">"Следеће"</string>
+    <string name="okay_action" msgid="8365197396795675617">"Потврди"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"Откажи"</string>
+    <string name="send_action" msgid="1729766205562446418">"Пошаљи"</string>
+    <string name="reply_action" msgid="4262472229221507619">"Одговори"</string>
+    <string name="reply_all_action" msgid="6192179825726332152">"Одговори свима"</string>
+    <string name="delete_action" msgid="8421026208288857155">"Избриши"</string>
+    <string name="forward_action" msgid="669174181042344116">"Проследи"</string>
+    <string name="done_action" msgid="7497990549515580249">"Готово"</string>
+    <string name="discard_action" msgid="6532206074859505968">"Одбаци"</string>
+    <string name="save_draft_action" msgid="812855865552028622">"Сачувај као недовршену поруку"</string>
+    <string name="read_unread_action" msgid="4721446664849165077">"Прочитано/непрочитано"</string>
+    <string name="read_action" msgid="4701484794504781686">"Означи као прочитано"</string>
+    <string name="unread_action" msgid="6280399049357552826">"Означи као непрочитано"</string>
+    <string name="favorite_action" msgid="2911296685862420689">"Омиљено"</string>
+    <string name="set_star_action" msgid="4660317166196258160">"Додај звездицу"</string>
+    <string name="remove_star_action" msgid="6689770999647007163">"Уклони звездицу"</string>
+    <string name="refresh_action" msgid="5951383001436708175">"Освежи"</string>
+    <string name="add_account_action" msgid="8835736309476033727">"Додај налог"</string>
+    <string name="deselect_all_action" msgid="253663239459688238">"Опозови све изборе"</string>
+    <string name="compose_action" msgid="4045702519637388045">"Нова порука"</string>
+    <string name="search_action" msgid="6325101454876682308">"Претрага"</string>
+    <string name="open_action" msgid="936766723989190816">"Отвори"</string>
+    <string name="account_settings_action" msgid="4494079183315085171">"Подешавања налога"</string>
+    <string name="remove_account_action" msgid="3789169090601376209">"Уклони налог"</string>
+    <string name="folders_action" msgid="7502431531355227666">"Директоријуми"</string>
+    <string name="accounts_action" msgid="901105887272231493">"Налози"</string>
+    <string name="mark_as_read_action" msgid="5031651846998842419">"Означи као прочитано"</string>
+    <string name="mark_as_unread_action" msgid="3766298115778767554">"Означи као непрочитано"</string>
+    <string name="add_cc_bcc_action" msgid="5569074812077509737">"Додај Cc/Bcc"</string>
+    <string name="add_attachment_action" msgid="2696013743130573897">"Додај прилог"</string>
+    <string name="dump_settings_action" msgid="4478192525236169829">"Подешавања отклањања грешака"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Одаберите прилог"</string>
+    <string name="status_loading_more" msgid="1580386959044617884">"Учитавање порука…"</string>
+    <string name="status_sending_messages" msgid="3971880826111264523">"Слање порука је у току…"</string>
+    <string name="status_network_error" msgid="6045933332005067021">"Грешка при повезивању"</string>
+    <string name="notification_new_title" msgid="2200257910380529139">"Нова порука е-поште"</string>
+    <string name="error_loading_message_body" msgid="2265140604109272914">"Дошло је до неочекиване грешке при учитавању текста поруке. Порука је можда превелика да би могла да се прикаже."</string>
+  <plurals name="notification_new_one_account_fmt">
+    <item quantity="one" msgid="3422945912787702191">"Непрочитане поруке: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"Непрочитане поруке: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"Непрочитане поруке: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+  </plurals>
+  <plurals name="notification_new_multi_account_fmt">
+    <item quantity="few" msgid="1991747245324120305">"на <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> налога"</item>
+    <item quantity="other" msgid="2723797835410343458">"на <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> налога"</item>
+  </plurals>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Примљене"</string>
+    <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"За слање"</string>
+    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Недовршене"</string>
+    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Отпад"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Послате"</string>
+    <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Безвредне"</string>
+    <string name="debug_version_fmt" msgid="6160213145745376955">"Верзија: <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Налози"</string>
+    <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"Комбиновано пријемно сандуче"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Са звездицом"</string>
+    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Недовршене"</string>
+    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"За слање"</string>
+    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Притисните налог и сачекајте да се освежи"</string>
+    <string name="mailbox_list_title" msgid="8299608543467211089">"Поштанско сандуче"</string>
+    <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Учитај још порука"</string>
+    <string name="message_list_send_pending_messages_action" msgid="9100624762133992435">"Пошаљи одлазне поруке"</string>
+    <string name="message_compose_to_hint" msgid="2891895306418177013">"Коме"</string>
+    <string name="message_compose_cc_hint" msgid="8481884461031434144">"Копија"</string>
+    <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Скривена копија"</string>
+    <string name="message_compose_subject_hint" msgid="6993487234024160782">"Наслов"</string>
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"Нова порука е-поште"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Изворна порука --------"\n"Наслов: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Од: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Коме: <xliff:g id="TO">%3$s</xliff:g>"\n"Копија: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> је написао/ла:"\n\n</string>
+    <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Наведени текст"</string>
+    <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Потребно је да додате бар једног примаоца."</string>
+    <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Поједине адресе е-поште су неважеће."</string>
+    <string name="message_compose_attachments_skipped_toast" msgid="5611815773808423460">"Поједини прилози не могу да се проследе јер нису преузети."</string>
+    <string name="message_compose_attachment_size" msgid="4401081828287333647">"Датотека је превелика за прилог."</string>
+    <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> и још <xliff:g id="NUMBER">%2$d</xliff:g> других"</string>
+    <string name="message_view_to_label" msgid="6485191743265527381">"Коме:"</string>
+    <string name="message_view_cc_label" msgid="6322992216371163122">"Копија:"</string>
+    <string name="message_view_attachment_view_action" msgid="5353550848340829134">"Отвори"</string>
+    <string name="message_view_attachment_download_action" msgid="7552530274014544406">"Сачувај"</string>
+    <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Прилог је сачуван као <xliff:g id="FILENAME">%s</xliff:g>"</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Није могуће сачувати прилог."</string>
+    <string name="message_view_show_pictures_instructions" msgid="1156525837417031085">"Изаберите „Прикажи слике“ да би се приказале уграђене слике."</string>
+    <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Прикажи слике"</string>
+    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"У току је преузимање прилога."</string>
+    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"У току је преузимање прилога <xliff:g id="FILENAME">%s</xliff:g>"</string>
+    <string name="message_view_invite_view" msgid="6256018854688891069">"Прикажи у календару »"</string>
+    <string name="message_view_invite_title" msgid="5024473745902772299">"Позив у оквиру календара"</string>
+    <string name="message_view_invite_text" msgid="1212799906603873708">"Идете ли?"</string>
+    <string name="message_view_invite_accept" msgid="744546668021679819">" Да"</string>
+    <string name="message_view_invite_maybe" msgid="7555189462441562318">" Можда"</string>
+    <string name="message_view_invite_decline" msgid="6119797303297149463">" Не"</string>
+    <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Прихватили сте овај позив"</string>
+    <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"На ову позивницу сте одговорили са „можда“"</string>
+    <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Одбили сте овај позив"</string>
+  <plurals name="message_deleted_toast">
+    <item quantity="one" msgid="710742672464447084">"Порука је избрисана."</item>
+    <item quantity="other" msgid="6574961322865652255">"Поруке су избрисане."</item>
+  </plurals>
+    <string name="message_discarded_toast" msgid="3891461729325584026">"Порука је одбачена."</string>
+    <string name="message_saved_toast" msgid="8443125659172627665">"Порука је сачувана као недовршена."</string>
+    <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Није могуће приказати овај прилог."</string>
+    <string name="account_setup_basics_title" msgid="3969856368228940980">"Конфигурисање е-поште"</string>
+    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Додавање Exchange налога"</string>
+    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Додајте Exchange ActiveSync налог"</string>
+    <string name="accounts_welcome" msgid="5901437782383439370">"За већину налога е-пошту можете да конфигуришете у само неколико корака."</string>
+    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Exchange налог можете да конфигуришете у свега неколико корака."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Exchange ActiveSync налог можете да конфигуришете у свега неколико корака."</string>
+    <string name="account_setup_basics_email_hint" msgid="7414269319207261120">"Адреса е-поште"</string>
+    <string name="account_setup_basics_password_hint" msgid="410210049040536870">"Лозинка"</string>
+    <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Подразумевано шаљи поруке е-поште са овог налога."</string>
+    <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Ручно подешавање"</string>
+    <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Унесите важећу адресу е-поште и лозинку."</string>
+    <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Дуплирани налог"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Ови подаци за пријављивање се већ користе за налог „<xliff:g id="DUPLICATE">%s</xliff:g>“."</string>
+    <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Преузимање информација о налогу је у току…"</string>
+    <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"У току је провера подешавања сервера за долазну пошту…"</string>
+    <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"У току је провера подешавања одлазног сервера…"</string>
+    <string name="account_setup_check_settings_canceling_msg" msgid="5077315503721883906">"Отказивање је у току…"</string>
+    <string name="account_setup_names_title" msgid="8875040521875381849">"Конфигурисање е-поште"</string>
+    <string name="account_setup_names_instructions" msgid="2880279273965835007">"Налог је подешен и порука је на путу!"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Именујте овај налог (опционално)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ваше име (приказано у одлазним порукама)"</string>
+    <string name="account_setup_account_type_title" msgid="6645576356752495504">"Додај нови налог е-поште"</string>
+    <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Који је ово тип налога?"</string>
+    <string name="account_setup_incoming_title" msgid="6862032674547580337">"Подешавања сервера за долазну пошту"</string>
+    <string name="account_setup_incoming_username_label" msgid="5700581386104070302">"Корисничко име"</string>
+    <string name="account_setup_incoming_password_label" msgid="6365327603172559859">"Лозинка"</string>
+    <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"POP3 сервер"</string>
+    <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"IMAP сервер"</string>
+    <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Порт"</string>
+    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Тип безбедности"</string>
+    <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Ништа"</string>
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (прихвати све сертификате)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"TLS (прихвати све сертификате)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Бриши поруке е-поште са сервера"</string>
+    <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Никад"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Када избришем из пријемног сандучета"</string>
+    <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"префикс IMAP путање"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Опционално"</string>
+    <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Подешавања одлазног сервера"</string>
+    <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"SMTP сервер"</string>
+    <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Порт"</string>
+    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Тип безбедности"</string>
+    <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Захтева пријављивање."</string>
+    <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Корисничко име"</string>
+    <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Лозинка"</string>
+    <string name="account_setup_exchange_title" msgid="2492853474738063453">"Подешавања сервера"</string>
+    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Сервер"</string>
+    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Домен/корисничко име"</string>
+    <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Користите безбедну везу (SSL)"</string>
+    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Прихвати све SSL сертификате"</string>
+    <string name="account_setup_options_title" msgid="8995162193118880993">"Опције налога"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Учесталост провере пријемног сандучета"</string>
+    <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"Никад"</string>
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Аутоматски (Push)"</string>
+    <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"Сваких 5 минута"</string>
+    <string name="account_setup_options_mail_check_frequency_10min" msgid="5344463157247877480">"Сваких 10 минута"</string>
+    <string name="account_setup_options_mail_check_frequency_15min" msgid="5052776740089741793">"Сваких 15 минута"</string>
+    <string name="account_setup_options_mail_check_frequency_30min" msgid="1097088928685931864">"Сваких 30 минута"</string>
+    <string name="account_setup_options_mail_check_frequency_1hour" msgid="3767715356039692899">"На сваких сат времена"</string>
+    <string name="account_setup_options_default_label" msgid="8869166381331276697">"Подразумевано шаљи поруке е-поште са овог налога."</string>
+    <string name="account_setup_options_notify_label" msgid="1247525794828820038">"Обавести ме о пријему поруке е-поште."</string>
+    <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Синхронизуј контакте са овог налога."</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Синхронизуј календар са овог налога."</string>
+    <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Није било могуће довршити поступак подешавања"</string>
+    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Налог за синхронизацију"</string>
+    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Један дан"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Три дана"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Недељу дана"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Две недеље"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Месец дана"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Корисничко име или лозинка нису тачни."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Корисничко име или лозинка нису тачни."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Безбедно повезивање са сервером није могуће."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Безбедно повезивање са сервером није могуће."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Повезивање са сервером није могуће."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Повезивање са сервером није могуће."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS је захтеван, али га сервер не подржава."</string>
+    <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Сервер не подржава методе потврде идентитета."</string>
+    <string name="account_setup_failed_security" msgid="6142264248671379943">"Услед безбедносне грешке није могуће успоставити везу са сервером."</string>
+    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Није било могуће успоставити везу са сервером."</string>
+    <string name="account_setup_security_required_title" msgid="1850321535870447468">"Удаљено безбедносно администрирање"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Сервер <xliff:g id="SERVER">%s</xliff:g> захтева да му омогућите удаљену контролу појединих безбедносних функција телефона. Желите ли да завршите поступак конфигурације овог налога?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Овај сервер захтева безбедносне функције које ваш телефон не подржава."</string>
+    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Потребно је ажурирати безбедносна подешавања за налог „<xliff:g id="ACCOUNT">%s</xliff:g>“."</string>
+    <string name="security_notification_content_title" msgid="8096231937552848281">"Безбедносна подешавања ажурирања"</string>
+    <string name="account_security_title" msgid="4441470647344315196">"Безбедност уређаја"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Сервер <xliff:g id="SERVER">%s</xliff:g> захтева да му омогућите удаљену контролу појединих безбедносних функција телефона."</string>
+    <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Измени детаље"</string>
+    <string name="account_settings_title_fmt" msgid="1702058877284382340">"Општа подешавања"</string>
+    <string name="account_settings_default_label" msgid="3575963379680943640">"Подразумевани налог"</string>
+    <string name="account_settings_default_summary" msgid="1531901438624688482">"Подразумевано шаљи поруке е-поште са овог налога"</string>
+    <string name="account_settings_notify_label" msgid="1630001017303007974">"Обавештења е-поштом"</string>
+    <string name="account_settings_exchange_summary" msgid="8498451479029626317">"Учесталост синхронизације, обавештења итд."</string>
+    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Обавести ме у статусној траци када стигне порука е-поште"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Учесталост провере пријемног сандучета"</string>
+    <string name="account_settings_incoming_label" msgid="7858928031806297542">"Подешавања долазећих"</string>
+    <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Подешавања одлазних"</string>
+    <string name="account_settings_description_label" msgid="8894815221204511715">"Име налога"</string>
+    <string name="account_settings_name_label" msgid="8186406122590008449">"Ваше име"</string>
+    <string name="account_settings_signature_label" msgid="4091969938785803201">"Потпис"</string>
+    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Додајте текст порукама које шаљете"</string>
+    <string name="account_settings_notifications" msgid="1042620094281375043">"Подешавања обавештења"</string>
+    <string name="account_settings_sync_contacts_enable" msgid="1369272986009573218">"Синхронизација контаката"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="8901452720940015928">"Синхронизуј и контакте са овог налога"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="6855333393468628003">"Синхронизација календара"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"Синхронизуј и календар са овог налога"</string>
+    <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Вибрација"</string>
+    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Вибрирај и када стигне порука е-поште"</string>
+    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Увек"</string>
+    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Само у нечујном режиму"</string>
+    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Никад"</string>
+    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Вибрација"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Изабери звук звона"</string>
+    <string name="account_settings_servers" msgid="4925493817981624242">"Подешавања сервера"</string>
+    <string name="account_delete_dlg_title" msgid="6806087520856396608">"Уклони налог"</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Налог „<xliff:g id="ACCOUNT">%s</xliff:g>“ биће уклоњен из е-поште."</string>
+    <string name="upgrade_accounts_title" msgid="5444140226380754014">"Надоградња налога"</string>
+    <string name="upgrade_accounts_error" msgid="7241661832029255715">"Није могуће надоградити налог."</string>
+    <string name="provider_note_live" msgid="3584841823811425060">"Само неки „Плус“ налози подржавају приступ преко POP протокола, што омогућава повезивање овог програма. Ако не можете да се пријавите користећи тачну адресу е-поште и лозинку, можда немате плаћени „Плус“ налог. Покрените веб прегледач да бисте приступили овим налозима е-поште."</string>
+    <string name="provider_note_t_online" msgid="1973701903400232774">"Пре него што конфигуришете овај налог е-поште, посетите T-Online веб сајт и одредите лозинку за приступ е-пошти преко POP3 протокола."</string>
+    <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>
+    <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
+    <string name="meeting_accepted" msgid="8796609373330400268">"Прихваћено: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_declined" msgid="6707617183246608552">"Одбијен: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_tentative" msgid="8250995722130443785">"Проба: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_canceled" msgid="3949893881872084244">"Отказано: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_updated" msgid="8529675857361702860">"Ажурирано: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
+    <string name="meeting_when" msgid="2765696159697448656">"Када: <xliff:g id="WHEN">%s</xliff:g>"</string>
+    <string name="meeting_where" msgid="5992367535856553079">"Где: <xliff:g id="WHERE">%s</xliff:g>"</string>
+    <string name="meeting_recurring" msgid="3134262212606714023">"Када: <xliff:g id="EVENTDATE">%s</xliff:g> (редовно)"</string>
+    <string name="exception_cancel" msgid="6160117429428313805">"Овај догађај је отказан за: <xliff:g id="DATE">%s</xliff:g>"</string>
+    <string name="exception_updated" msgid="3397583105901142050">"Детаљи овог догађаја су промењени за: <xliff:g id="DATE">%s</xliff:g>"</string>
+    <string name="system_account_create_failed" msgid="4917162302393971752">"Менаџер налога није успео да направи налог; покушајте поново."</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"Пошаљи е-поштом"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"Омогућава безбедносне смернице за одређене сервере"</string>
+    <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Додат је Exchange календар"</string>
+    <string name="gal_searching_fmt" msgid="6140450617663543464">"Претражује се <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
+  <plurals name="gal_completed_fmt">
+    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> резултата од <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
+    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> резултата са домена <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
+  </plurals>
+    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Првих <xliff:g id="RESULTS">%1$d</xliff:g> резултата од <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
+</resources>

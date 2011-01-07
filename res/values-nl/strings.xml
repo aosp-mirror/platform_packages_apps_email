@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"De account <xliff:g id="ACCOUNT">%s</xliff:g> wordt verwijderd van E-mail"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Accounts upgraden"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Kan account niet upgraden"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Toegang tot postvakken wordt niet ondersteund door sommige typen Yahoo!-mailaccounts. Als er problemen ontstaan bij het verbinden, gaat u naar yahoo.com voor meer informatie."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Ga voordat u dit e-mailaccount instelt naar de website van Yahoo! en schakel toegang met POP3 in voor dit account."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Alleen sommige Plus-accounts hebben POP-toegang waarmee dit programma verbinding kan maken. Als u zich niet kunt aanmelden met het juiste e-mailadres en wachtwoord, heeft u mogelijk niet betaald voor uw Plus-account. Start de webbrowser voor toegang tot deze e-mailaccounts."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Voordat u dit e-mailaccount instelt, gaat u naar de website van T-Online en maakt u een wachtwoord voor toegang tot e-mail via POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Zakelijk"</string>

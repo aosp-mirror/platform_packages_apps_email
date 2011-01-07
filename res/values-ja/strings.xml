@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"アカウント\"<xliff:g id="ACCOUNT">%s</xliff:g>\"をEメールから削除しますか。"</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"アカウントをアップグレード"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"アカウントをアップグレードできません"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"一部のタイプのYahoo!メールアカウントでは、メールボックスへのアクセスがサポートされていません。接続できない場合はyahoo.comにアクセスして詳細をご確認ください。"</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"このメールアカウントを設定する前に、Yahoo!サイトでこのアカウントのPOP3メールアクセスを有効にしてください。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"このプログラムでPOPアクセスが許可されているのは一部の「Plus」アカウントだけです。有料の「Plus」アカウントがなければ、正しいメールアドレスとパスワードを入力してもログインできません。これらのアカウントにはブラウザからアクセスしてください。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"このメールアカウントを設定する前にT-Onlineサイトにアクセスして、POP3メールアクセス用のパスワードを作成してください。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"コーポレート"</string>

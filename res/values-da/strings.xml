@@ -245,8 +245,6 @@
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" fjernes fra E-mail."</string>
     <string name="upgrade_accounts_title" msgid="5444140226380754014">"Opgrader konti"</string>
     <string name="upgrade_accounts_error" msgid="7241661832029255715">"Kontoen kunne ikke opgraderes"</string>
-    <string name="provider_note_yahoo" msgid="8762024183024261236">"Adgang til postkasse er ikke understøttet for nogle typer af Yahoo!-mailkonti. Hvis du har problemer med at oprette forbindelse, skal du gå til yahoo.com for at få flere oplysninger."</string>
-    <string name="provider_note_yahoo_uk" msgid="2055976404478603298">"Inden du sætter denne e-mail-konto op, skal du gå til Yahoo!-webstedet og aktivere POP3-e-mail-adgang for denne konto."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Det er kun nogle \"Plus\"-konti, der indeholder POP-adgang, som tillader dette program at oprette forbindelse. Hvis du ikke er i stand til at logge ind med din rigtige e-mail-adresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Start webbrowseren igen for at få adgang til disse mail-konti."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Inden du opsætter denne e-mail-konto, skal du gå til T-Onlines websted og oprette en adgangskode for POP3-e-mail-adgang."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Virksomhed"</string>
