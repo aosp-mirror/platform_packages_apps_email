@@ -56,7 +56,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.DragThumbnailBuilder;
+import android.view.View.DragShadowBuilder;
 import android.view.View.OnDragListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -458,18 +458,18 @@ public class MessageListFragment extends ListFragment
 
     // This is tentative drag & drop UI
     // STOPSHIP this entire class needs to be rewritten based on the actual UI design
-    private static class ThumbnailBuilder extends DragThumbnailBuilder {
+    private static class ShadowBuilder extends DragShadowBuilder {
         private static Drawable sBackground;
         private static TextPaint sPaint;
 
-        // TODO Get actual dimention from UI
+        // TODO Get actual dimension from UI
         private static final int mWidth = 250;
         private final int mHeight;
         private String mDragDesc;
         private float mDragDescX;
         private float mDragDescY;
 
-        public ThumbnailBuilder(View view, int count) {
+        public ShadowBuilder(View view, int count) {
             super(view);
             Resources resources = view.getResources();
             // TODO Get actual dimension from UI
@@ -488,14 +488,14 @@ public class MessageListFragment extends ListFragment
         }
 
         @Override
-        public void onProvideThumbnailMetrics(Point thumbnailSize, Point thumbnailTouchPoint) {
-            thumbnailSize.set(mWidth, mHeight);
-            thumbnailTouchPoint.set(20, mHeight / 2);
+        public void onProvideShadowMetrics(Point shadowSize, Point shadowTouchPoint) {
+            shadowSize.set(mWidth, mHeight);
+            shadowTouchPoint.set(20, mHeight / 2);
         }
 
         @Override
-        public void onDrawThumbnail(Canvas canvas) {
-            super.onDrawThumbnail(canvas);
+        public void onDrawShadow(Canvas canvas) {
+            super.onDrawShadow(canvas);
             sBackground.draw(canvas);
             canvas.drawText(mDragDesc, mDragDescX, mDragDescY, sPaint);
         }
@@ -545,7 +545,7 @@ public class MessageListFragment extends ListFragment
             }
             // Start dragging now
             listItem.setOnDragListener(this);
-            listItem.startDrag(data, new ThumbnailBuilder(listItem, size), false, null);
+            listItem.startDrag(data, new ShadowBuilder(listItem, size), false, null);
             return true;
         }
         return false;
