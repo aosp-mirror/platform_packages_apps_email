@@ -467,7 +467,7 @@ public class MessageListXL extends Activity implements
         @Override
         public boolean onUrlInMessageClicked(String url) {
             return ActivityHelper.openUrlInMessage(MessageListXL.this, url,
-                    mFragmentManager.getAccountId());
+                    mFragmentManager.getActualAccountId());
         }
 
         @Override
@@ -632,7 +632,7 @@ public class MessageListXL extends Activity implements
             int i = 0;
             while (accountsCursor.moveToNext()) {
                 final long accountId = AccountSelectorAdapter.getAccountId(accountsCursor);
-                if (accountId == mFragmentManager.getAccountId()) {
+                if (accountId == mFragmentManager.getUIAccountId()) {
                     defaultSelection = i;
                     break;
                 }
@@ -703,8 +703,7 @@ public class MessageListXL extends Activity implements
     }
 
     private boolean shouldShowRefreshButton() {
-        final long accountId = mFragmentManager.getAccountId();
-        return (accountId != -1) && (accountId != Account.ACCOUNT_ID_COMBINED_VIEW);
+        return -1 != mFragmentManager.getActualAccountId();
     }
 
     @Override
@@ -729,19 +728,19 @@ public class MessageListXL extends Activity implements
         if (!mFragmentManager.isAccountSelected()) {
             return false; // this shouldn't really happen
         }
-        MessageCompose.actionCompose(this, mFragmentManager.getAccountId());
+        MessageCompose.actionCompose(this, mFragmentManager.getActualAccountId());
         return true;
     }
 
     private boolean onAccountSettings() {
-        AccountSettingsXL.actionSettings(this, mFragmentManager.getAccountId());
+        AccountSettingsXL.actionSettings(this, mFragmentManager.getActualAccountId());
         return true;
     }
 
     private void onRefresh() {
         // Cancel previously running instance if any.
         Utility.cancelTaskInterrupt(mRefreshTask);
-        mRefreshTask = new RefreshTask(this, mFragmentManager.getAccountId(),
+        mRefreshTask = new RefreshTask(this, mFragmentManager.getActualAccountId(),
                 mFragmentManager.getMailboxId());
         mRefreshTask.execute();
     }

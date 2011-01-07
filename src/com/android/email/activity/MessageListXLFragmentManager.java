@@ -167,8 +167,23 @@ class MessageListXLFragmentManager {
         mMessageViewFragment.setCallback(messageViewFragmentCallback);
     }
 
-    public long getAccountId() {
+    /**
+     * @return the currently selected account ID, *or* {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
+     *
+     * @see #getActualAccountId()
+     */
+    public long getUIAccountId() {
         return mAccountId;
+    }
+
+    /**
+     * @return the currently selected account ID.  If the current view is the combined view,
+     * it'll return -1.
+     *
+     * @see #getUIAccountId()
+     */
+    public long getActualAccountId() {
+        return mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW ? -1 : mAccountId;
     }
 
     public long getMailboxId() {
@@ -179,8 +194,11 @@ class MessageListXLFragmentManager {
         return mMessageId;
     }
 
+    /**
+     * @return true if an account is selected, or the current view is the combined view.
+     */
     public boolean isAccountSelected() {
-        return getAccountId() != -1;
+        return getUIAccountId() != -1;
     }
 
     public boolean isMailboxSelected() {
