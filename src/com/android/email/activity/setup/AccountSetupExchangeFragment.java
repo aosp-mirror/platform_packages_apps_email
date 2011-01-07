@@ -318,37 +318,25 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
 
     /**
      * Entry point from Activity after editing settings and verifying them.  Must be FLOW_MODE_EDIT.
-     *
-     * TODO: Was the !isSaved() logic ever actually used?
+     * Blocking - do not call from UI Thread.
      */
     @Override
     public void saveSettingsAfterEdit() {
         Account account = SetupData.getAccount();
-        if (account.isSaved()) {
-            // Account.update will NOT save the HostAuth's
-            account.update(mContext, account.toContentValues());
-            account.mHostAuthRecv.update(mContext, account.mHostAuthRecv.toContentValues());
-            account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
-            if (account.mHostAuthRecv.mProtocol.equals("eas")) {
-                // For EAS, notify ExchangeService that the password has changed
-                try {
-                    ExchangeUtils.getExchangeService(mContext, null).hostChanged(account.mId);
-                } catch (RemoteException e) {
-                    // Nothing to be done if this fails
-                }
-            }
-        } else {
-            // Account.save will save the HostAuth's
-            account.save(mContext);
+        account.mHostAuthRecv.update(mContext, account.mHostAuthRecv.toContentValues());
+        account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
+        // For EAS, notify ExchangeService that the password has changed
+        try {
+            ExchangeUtils.getExchangeService(mContext, null).hostChanged(account.mId);
+        } catch (RemoteException e) {
+            // Nothing to be done if this fails
         }
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backupAccounts(mContext);
     }
 
     /**
-     * This entry point is not used (unlike in AccountSetupIncomingFragment) because the data
-     * is already saved by onNext().
-     * TODO: Reconcile this, to make them more consistent.
+     * Entry point from Activity after entering new settings and verifying them.  For setup mode.
      */
     @Override
     public void saveSettingsAfterSetup() {

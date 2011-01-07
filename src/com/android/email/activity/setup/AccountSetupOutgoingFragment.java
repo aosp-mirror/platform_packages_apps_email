@@ -21,11 +21,11 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
@@ -356,16 +356,12 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
     /**
      * Entry point from Activity after editing settings and verifying them.  Must be FLOW_MODE_EDIT.
+     * Blocking - do not call from UI Thread.
      */
     @Override
     public void saveSettingsAfterEdit() {
-        EmailContent.Account account = SetupData.getAccount();
-        if (account.isSaved()) {
-            account.update(mContext, account.toContentValues());
-            account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
-        } else {
-            account.save(mContext);
-        }
+        Account account = SetupData.getAccount();
+        account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
         // Update the backup (side copy) of the accounts
         AccountBackupRestore.backupAccounts(mContext);
     }
