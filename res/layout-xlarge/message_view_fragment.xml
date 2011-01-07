@@ -50,8 +50,9 @@
                 android:layout_marginRight="30dip"
                 android:singleLine="false"
                 android:ellipsize="none"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="18dip"
+                android:textColor="@color/text_primary_color"
+                android:textStyle="bold"
                 />
 
             <!-- Horizontal line below subject -->
@@ -152,8 +153,9 @@
                 android:layout_below="@id/top_divider"
                 android:layout_toRightOf="@id/presence"
                 android:layout_toLeftOf="@id/forward_reply_buttons"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="18dip"
+                android:textColor="@color/text_primary_color"
+                android:textStyle="bold"
                 android:singleLine="true"
                 android:ellipsize="end"
                 />
@@ -168,8 +170,8 @@
                 android:layout_toLeftOf="@id/forward_reply_buttons"
                 android:layout_marginTop="2dip"
                 android:layout_marginBottom="8dip"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14dip"
+                android:textColor="@color/text_secondary_color"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:paddingRight="6dip"
@@ -182,8 +184,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/from_address"
                 android:layout_alignRight="@id/subject"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14dip"
+                android:textColor="@color/text_secondary_color"
                 android:singleLine="true"
                 />
 
@@ -194,8 +196,8 @@
                 android:layout_alignTop="@id/datetime"
                 android:layout_alignLeft="@id/from_address"
                 android:layout_marginRight="4dip"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14dip"
+                android:textColor="@color/text_secondary_color"
                 android:singleLine="true"
                 android:text="@string/message_compose_to_label"
                 />
@@ -206,8 +208,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignTop="@id/datetime"
                 android:layout_toRightOf="@id/to_label"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14dip"
+                android:textColor="@color/text_secondary_color"
                 android:singleLine="true"
                 />
 
@@ -225,8 +227,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="4dip"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="14dip"
+                    android:textColor="@color/text_secondary_color"
                     android:singleLine="true"
                     android:text="@string/message_compose_cc_label"
                     />
@@ -234,8 +236,8 @@
                     android:id="@+id/cc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="14dip"
+                    android:textColor="@color/text_secondary_color"
                     android:singleLine="true"
                     android:ellipsize="end"
                     />
@@ -255,8 +257,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="4dip"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="14dip"
+                    android:textColor="@color/text_secondary_color"
                     android:singleLine="true"
                     android:text="@string/message_compose_bcc_label"
                     />
@@ -264,8 +266,8 @@
                     android:id="@+id/bcc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="14dip"
+                    android:textColor="@color/text_secondary_color"
                     android:singleLine="true"
                     android:ellipsize="end"
                     />

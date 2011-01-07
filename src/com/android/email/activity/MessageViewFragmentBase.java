@@ -56,6 +56,7 @@ import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.QuickContact;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -75,7 +76,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Date;
+import java.util.Formatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -134,9 +135,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private ReloadMessageTask mReloadMessageTask;
     private LoadBodyTask mLoadBodyTask;
     private LoadAttachmentsTask mLoadAttachmentsTask;
-
-    private java.text.DateFormat mDateFormat;
-    private java.text.DateFormat mTimeFormat;
 
     private Controller mController;
     private ControllerResultUiThreadWrapper<ControllerResults> mControllerCallback;
@@ -275,9 +273,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
                 new Handler(), new ControllerResults());
-
-        mDateFormat = android.text.format.DateFormat.getDateFormat(mContext); // short format
-        mTimeFormat = android.text.format.DateFormat.getTimeFormat(mContext); // 12/24 date format
 
         mController = Controller.getInstance(mContext);
         mMessageObserver = new MessageObserver(new Handler(), mContext);
@@ -1232,9 +1227,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mFromNameView.setText(" ");
             mFromAddressView.setText(" ");
         }
-        Date date = new Date(message.mTimeStamp);
-        // STOPSHIP Use the same format as MessageListItem uses
-        mDateTimeView.setText(mTimeFormat.format(date));
+        mDateTimeView.setText(formatDate(message.mTimeStamp));
         mToView.setText(Address.toFriendly(Address.unpack(message.mTo)));
         String friendlyCc = Address.toFriendly(Address.unpack(message.mCc));
         mCcView.setText(friendlyCc);
@@ -1242,6 +1235,17 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         String friendlyBcc = Address.toFriendly(Address.unpack(message.mBcc));
         mBccView.setText(friendlyBcc);
         mBccContainerView.setVisibility((friendlyBcc != null) ? View.VISIBLE : View.GONE);
+    }
+
+    private String formatDate(long millis) {
+        StringBuilder sb = new StringBuilder();
+        Formatter formatter = new Formatter(sb);
+        DateUtils.formatDateRange(mContext, formatter, millis, millis,
+                DateUtils.FORMAT_SHOW_DATE
+                | DateUtils.FORMAT_ABBREV_ALL
+                | DateUtils.FORMAT_SHOW_TIME
+                | DateUtils.FORMAT_NO_YEAR);
+        return sb.toString();
     }
 
     /**
