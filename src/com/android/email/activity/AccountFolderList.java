@@ -77,7 +77,8 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
                 new Handler(), new ControllerResults());
         mListFragment =
-                (AccountFolderListFragment) findFragmentById(R.id.account_folder_list_fragment);
+                (AccountFolderListFragment) getFragmentManager()
+                .findFragmentById(R.id.account_folder_list_fragment);
         mListFragment.bindActivityInfo(this);
 
         if (icicle != null && icicle.containsKey(ICICLE_SELECTED_ACCOUNT)) {
