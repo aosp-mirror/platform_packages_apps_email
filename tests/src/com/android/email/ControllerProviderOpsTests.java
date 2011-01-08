@@ -18,13 +18,13 @@ package com.android.email;
 
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
 import android.net.Uri;
@@ -397,6 +397,10 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         long box1Id = box1.mId;
         Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, true, mProviderContext);
         long box2Id = box2.mId;
+        // An EAS account mailbox
+        Mailbox eas = ProviderTestUtils.setupMailbox("eas", account1Id, false, mProviderContext);
+        eas.mType = Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
+        eas.save(mProviderContext);
 
         Account account2 = ProviderTestUtils.setupAccount("wipe-synced-2", false, mProviderContext);
         account2.mSyncKey = "account-2-sync-key";
@@ -410,7 +414,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         Mailbox box4 = ProviderTestUtils.setupMailbox("box4", account2Id, true, mProviderContext);
         long box4Id = box4.mId;
 
-        // Now populate all 4 with messages
+        // Now populate the 4 non-account boxes with messages
         Message message = ProviderTestUtils.setupMessage("message1", account1Id, box1Id, false,
                 true, mProviderContext);
         long message1Id = message.mId;
@@ -427,11 +431,10 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         // Now wipe account 1's data
         mTestController.deleteSyncedDataSync(account1Id);
 
-        // Confirm:  Mailboxes gone (except Inbox), all messages gone, account survives
-        box1 = Mailbox.restoreMailboxWithId(mProviderContext, box1Id);
-        assertNotNull(box1);
-        assertNull(box1.mSyncKey);
+        // Confirm:  Mailboxes gone (except account box), all messages gone, account survives
+        assertNull(Mailbox.restoreMailboxWithId(mProviderContext, box1Id));
         assertNull(Mailbox.restoreMailboxWithId(mProviderContext, box2Id));
+        assertNotNull(Mailbox.restoreMailboxWithId(mProviderContext, eas.mId));
         assertNull(Message.restoreMessageWithId(mProviderContext, message1Id));
         assertNull(Message.restoreMessageWithId(mProviderContext, message2Id));
         account1 = Account.restoreAccountWithId(mProviderContext, account1Id);

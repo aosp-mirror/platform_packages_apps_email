@@ -464,6 +464,8 @@ public class ExchangeService extends Service implements Runnable {
         public void deleteAccountPIMData(long accountId) throws RemoteException {
             ExchangeService exchangeService = INSTANCE;
             if (exchangeService == null) return;
+            // Stop any running syncs
+            exchangeService.stopAccountSyncs(accountId, true);
             Mailbox mailbox =
                 Mailbox.restoreMailboxOfType(exchangeService, accountId, Mailbox.TYPE_CONTACTS);
             if (mailbox != null) {
