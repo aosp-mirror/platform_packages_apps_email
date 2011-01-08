@@ -163,7 +163,7 @@ public class WidgetProvider extends AppWidgetProvider {
         private WidgetLoader mLoader;
 
         // The current view type (all mail, unread, or starred for now)
-        private ViewType mViewType = ViewType.STARRED;
+        /*package*/ ViewType mViewType = ViewType.STARRED;
 
         // The projection to be used by the WidgetLoader
         public static final String[] WIDGET_PROJECTION = new String[] {
@@ -235,8 +235,6 @@ public class WidgetProvider extends AppWidgetProvider {
                         sWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
                     }
                 });
-
-                new WidgetViewSwitcher(EmailWidget.this).execute();
             }
 
             /**
@@ -250,6 +248,13 @@ public class WidgetProvider extends AppWidgetProvider {
                 setSelectionArgs(viewType.selectionArgs);
                 startLoading();
             }
+        }
+
+        /**
+         * Initialize to first appropriate view (depending on the number of accounts)
+         */
+        private void init() {
+            new WidgetViewSwitcher(this).execute();
         }
 
         /**
@@ -565,7 +570,17 @@ public class WidgetProvider extends AppWidgetProvider {
         }
     }
 
-    private static EmailWidget getOrCreateWidget(Context context, int widgetId) {
+    /**
+     * Force a context for widgets (used by unit tests)
+     * @param context the Context to set
+     */
+    /*package*/ static void setContextForTest(Context context) {
+        sContext = context;
+        sResolver = context.getContentResolver();
+        sWidgetManager = AppWidgetManager.getInstance(context);
+    }
+
+    /*package*/ static EmailWidget getOrCreateWidget(Context context, int widgetId) {
         // Lazily initialize these
         if (sContext == null) {
             if (context == null) { // STOPSHIP remove this check
@@ -584,6 +599,7 @@ public class WidgetProvider extends AppWidgetProvider {
                 Log.d(TAG, "Creating EmailWidget for id #" + widgetId);
             }
             widget = new EmailWidget(widgetId);
+            widget.init();
             sWidgetMap.put(widgetId, widget);
         }
         return widget;
@@ -638,19 +654,21 @@ public class WidgetProvider extends AppWidgetProvider {
      * to determine account status, etc.  In the foreground, we start up the Loader with new
      * parameters
      */
-    public static class WidgetViewSwitcher extends AsyncTask<Void, Void, Void> {
+    /*package*/ static class WidgetViewSwitcher extends AsyncTask<Void, Void, Void> {
         private final EmailWidget mWidget;
+        private boolean mLoadAfterSwitch;
 
         public WidgetViewSwitcher(EmailWidget widget) {
             mWidget = widget;
         }
 
+        /*package*/ void disableLoadAfterSwitchForTest() {
+            mLoadAfterSwitch = false;
+        }
+
         @Override
         protected Void doInBackground(Void... params) {
-            // Don't use the "all mail" view if we've got 0 or 1 account
-            if (EmailContent.count(sContext, Account.CONTENT_URI) < 2) {
-                mWidget.switchToNextView();
-            }
+            mWidget.switchToNextView();
             return null;
         }
 
@@ -659,7 +677,9 @@ public class WidgetProvider extends AppWidgetProvider {
             if (isCancelled()) {
                 return;
             }
-            mWidget.loadView();
+            if (mLoadAfterSwitch) {
+                mWidget.loadView();
+            }
         }
     }
 
