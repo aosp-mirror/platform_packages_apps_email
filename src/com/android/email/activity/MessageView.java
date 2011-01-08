@@ -84,7 +84,8 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
-        mFragment = (MessageViewFragment) findFragmentById(R.id.message_view_fragment);
+        mFragment = (MessageViewFragment) getFragmentManager()
+                .findFragmentById(R.id.message_view_fragment);
         mFragment.setCallback(this);
 
         // TODO Remove these bottom buttons, and make use of the ones in MessageViewFragments.

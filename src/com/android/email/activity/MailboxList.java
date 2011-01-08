@@ -89,7 +89,8 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
                 new Handler(), new ControllerResults());
         mActionBar = getActionBar();
         mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
-        mListFragment = (MailboxListFragment) findFragmentById(R.id.mailbox_list_fragment);
+        mListFragment = (MailboxListFragment) getFragmentManager()
+                .findFragmentById(R.id.mailbox_list_fragment);
 
         mActionBar.setTitle(R.string.mailbox_list_title);
         mListFragment.setCallback(this);
