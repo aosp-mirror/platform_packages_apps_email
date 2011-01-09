@@ -1077,16 +1077,6 @@ public class Utility {
     public static boolean isExternalStorageMounted() {
         return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
     }
-    /**
-     * STOPSHIP Remove this method
-     * Toggle between portrait and landscape.  Developement use only.
-     */
-    public static void changeOrientation(Activity activity) {
-        activity.setRequestedOrientation(
-                (activity.getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-                ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    }
 
     /**
      * Class that supports running any operation for each account.

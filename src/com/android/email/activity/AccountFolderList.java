@@ -40,6 +40,7 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -50,7 +51,6 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
     private EmailContent.Account mSelectedContextAccount;
 
     // UI Support
-    private boolean mProgressRunning;
     private AccountFolderListFragment mListFragment;
 
     private Controller.Result mControllerCallback;
@@ -70,8 +70,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
         super.onCreate(icicle);
         ActivityHelper.debugSetWindowFlags(this);
 
-        // STOPSHIP make progress work properly - temporarily missing from ActionBar
-        // requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); // this disables ActionBar
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.account_folder_list);
 
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
@@ -85,7 +84,9 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
             mSelectedContextAccount = (Account) icicle.getParcelable(ICICLE_SELECTED_ACCOUNT);
         }
 
-        mProgressRunning = false;
+        // Halt the progress indicator (we'll display it later when needed)
+        setProgressBarIndeterminate(true);
+        setProgressBarIndeterminateVisibility(false);
     }
 
     @Override
@@ -261,20 +262,6 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
         return true;
     }
 
-    // STOPSHIP - this is a placeholder if/until there's support for progress in actionbar
-    // Remove it, or replace with a better icon
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        MenuItem item = menu.findItem(R.id.check_mail);
-        if (mProgressRunning) {
-            item.setIcon(android.R.drawable.progress_indeterminate_horizontal);
-        } else {
-            item.setIcon(R.drawable.ic_menu_refresh);
-        }
-        return true;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -283,11 +270,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
     }
 
     private void showProgressIcon(boolean show) {
-        // STOPSHIP:  This doesn't work, pending fix is bug b/2802962
-        //setProgressBarIndeterminateVisibility(show);
-        // STOPSHIP:  This is a hack used to replace the refresh icon with a spinner
-        mProgressRunning = show;
-        invalidateOptionsMenu();
+        setProgressBarIndeterminateVisibility(show);
     }
 
     /**

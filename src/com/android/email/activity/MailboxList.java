@@ -39,6 +39,7 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
@@ -49,7 +50,6 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
 
     // UI support
     private ActionBar mActionBar;
-    private boolean mProgressRunning;
     private TextView mErrorBanner;
     private MailboxListFragment mListFragment;
 
@@ -83,6 +83,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
             return;
         }
 
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.mailbox_list);
 
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
@@ -95,6 +96,10 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
         mActionBar.setTitle(R.string.mailbox_list_title);
         mListFragment.setCallback(this);
         mListFragment.openMailboxes(mAccountId);
+
+        // Halt the progress indicator (we'll display it later when needed)
+        setProgressBarIndeterminate(true);
+        setProgressBarIndeterminateVisibility(false);
 
         // Go to the database for the account name
         mLoadAccountNameTask = new AsyncTask<Void, Void, String[]>() {
@@ -164,20 +169,6 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.mailbox_list_option, menu);
-        return true;
-    }
-
-    // STOPSHIP - this is a placeholder if/until there's support for progress in actionbar
-    // Remove it, or replace with a better icon
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        MenuItem item = menu.findItem(R.id.refresh);
-        if (mProgressRunning) {
-            item.setIcon(android.R.drawable.progress_indeterminate_horizontal);
-        } else {
-            item.setIcon(R.drawable.ic_menu_refresh);
-        }
         return true;
     }
 
@@ -251,11 +242,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     }
 
     private void showProgressIcon(boolean show) {
-        // STOPSHIP:  This doesn't work, pending fix is bug b/2802962
-        //setProgressBarIndeterminateVisibility(show);
-        // STOPSHIP:  This is a hack used to replace the refresh icon with a spinner
-        mProgressRunning = show;
-        invalidateOptionsMenu();
+        setProgressBarIndeterminateVisibility(show);
     }
 
     private void showErrorBanner(String message) {
