@@ -16,20 +16,21 @@
 
 package com.android.email.activity;
 
+import com.android.email.R;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.internal.util.ArrayUtils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
 public class MailboxListItem extends RelativeLayout {
-    // STOPSHIP Need final color/ui
-    // Color used for valid drop targets
-    private static final int DROP_AVAILABLE = 0xFFFFFF33;
-    private static final int DROP_UNAVAILABLE = 0xFFFFFFFF;
+    // Colors used for drop targets
+    private static Integer sDropAvailableColor;
+    private static Integer sDropUnavailableColor;
 
     public long mMailboxId;
     public Integer mMailboxType;
@@ -53,6 +54,11 @@ public class MailboxListItem extends RelativeLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         mBackground = getBackground();
+        if (sDropAvailableColor == null) {
+            Resources res = getResources();
+            sDropAvailableColor = res.getColor(R.color.mailbox_drop_available_color);
+            sDropUnavailableColor = res.getColor(R.color.mailbox_drop_unavailable_color);
+        }
     }
 
     public boolean isDropTarget(long itemMailbox) {
@@ -65,10 +71,10 @@ public class MailboxListItem extends RelativeLayout {
     public boolean setDropTargetBackground(boolean dragInProgress, long itemMailbox) {
         if (dragInProgress) {
             if (isDropTarget(itemMailbox)) {
-                setBackgroundColor(DROP_AVAILABLE);
+                setBackgroundColor(sDropAvailableColor);
                 return true;
             } else {
-                setBackgroundColor(DROP_UNAVAILABLE);
+                setBackgroundColor(sDropUnavailableColor);
                 return false;
             }
         } else {

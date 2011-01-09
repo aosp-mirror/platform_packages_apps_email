@@ -129,10 +129,8 @@
         may be too large to view.</string>
     <!-- Text shown with dragged messages to indicate how many are being dragged [CHAR LIMIT=40]-->
     <plurals name="move_messages">
-        <item quantity="one">Move <xliff:g id="num_message" example="1">%1$d</xliff:g> message
-        </item>
-        <item quantity="other">Move <xliff:g id="num_message" example="3">%1$d</xliff:g> messages
-        </item>
+        <item quantity="one">Move message</item>
+        <item quantity="other">Move messages</item>
     </plurals>
     <!-- Toast shown when a message(s) can't be moved because it's not supported by the POP3
         protocol. [CHAR LIMIT=none]-->

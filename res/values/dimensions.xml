@@ -44,6 +44,12 @@
     <dimen name="widget_subject_font_size">14sp</dimen>
     <dimen name="widget_date_font_size">14sp</dimen>
 
+    <dimen name="message_list_drag_offset">16dip</dimen>
+    <dimen name="message_list_drag_count_font_size">42sp</dimen>
+    <dimen name="message_list_drag_count_left_margin">16dip</dimen>
+    <dimen name="message_list_drag_message_font_size">18sp</dimen>
+    <dimen name="message_list_drag_message_right_margin">16dip</dimen>
+
     <dimen name="message_compose_header_button_area_width">120dip</dimen>
 
 </resources>

@@ -37,10 +37,14 @@ import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Loader;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -55,9 +59,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.DragShadowBuilder;
 import android.view.View.OnDragListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -88,7 +94,7 @@ import java.util.Set;
  */
 public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
-        MoveMessageToDialog.Callback, OnDragListener {
+        MoveMessageToDialog.Callback, OnDragListener, OnTouchListener {
     private static final String BUNDLE_LIST_STATE = "MessageListFragment.state.listState";
     private static final String BUNDLE_KEY_SELECTED_MESSAGE_ID
             = "messageListFragment.state.listState.selected_message_id";
@@ -240,6 +246,7 @@ public class MessageListFragment extends ListFragment
         mListView = getListView();
         mListView.setOnItemClickListener(this);
         mListView.setOnItemLongClickListener(this);
+        mListView.setOnTouchListener(this);
         mListView.setItemsCanFocus(false);
         mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
@@ -457,47 +464,94 @@ public class MessageListFragment extends ListFragment
     }
 
     // This is tentative drag & drop UI
-    // STOPSHIP this entire class needs to be rewritten based on the actual UI design
     private static class ShadowBuilder extends DragShadowBuilder {
         private static Drawable sBackground;
-        private static TextPaint sPaint;
+        /** Paint information for the move message text */
+        private static TextPaint sMessagePaint;
+        /** Paint information for the message count */
+        private static TextPaint sCountPaint;
+        /** The x location of any touch event; used to ensure the drag overlay is drawn correctly */
+        private static int sTouchX;
 
-        // TODO Get actual dimension from UI
-        private static final int mWidth = 250;
-        private final int mHeight;
-        private String mDragDesc;
-        private float mDragDescX;
-        private float mDragDescY;
+        /** Width of the draggable view */
+        private final int mDragWidth;
+        /** Height of the draggable view */
+        private final int mDragHeight;
+
+        private String mMessageText;
+        private PointF mMessagePoint;
+
+        private String mCountText;
+        private PointF mCountPoint;
+        private int mOldOrientation = Configuration.ORIENTATION_UNDEFINED;
+
+        /** Margin applied to the right of count text */
+        private static float sCountMargin;
+        /** Margin applied to left of the message text */
+        private static float sMessageMargin;
+        /** Vertical offset of the drag view */
+        private static int sDragOffset;
 
         public ShadowBuilder(View view, int count) {
             super(view);
-            Resources resources = view.getResources();
-            // TODO Get actual dimension from UI
-            mHeight = view.getHeight();
-            mDragDesc = resources.getQuantityString(R.plurals.move_messages, count, count);
-            mDragDescX = 60;
-            // Use height of this font??
-            mDragDescY = view.getHeight() / 2;
-            if (sBackground == null) {
-                sBackground = resources.getDrawable(R.drawable.drag_background_holo);
-                sBackground.setBounds(0, 0, mWidth, view.getHeight());
-                sPaint = new TextPaint();
-                sPaint.setTypeface(Typeface.DEFAULT_BOLD);
-                sPaint.setTextSize(18);
+            Resources res = view.getResources();
+            int newOrientation = res.getConfiguration().orientation;
+
+            mDragHeight = view.getHeight();
+            mDragWidth = view.getWidth();
+
+            // TODO: Can we define a layout for the contents of the drag area?
+            if (sBackground == null || mOldOrientation != newOrientation) {
+                mOldOrientation = newOrientation;
+
+                sBackground = res.getDrawable(R.drawable.drag_background_holo);
+                sBackground.setBounds(0, 0, mDragWidth, mDragHeight);
+
+                sDragOffset = (int)res.getDimension(R.dimen.message_list_drag_offset);
+
+                sMessagePaint = new TextPaint();
+                float messageTextSize;
+                messageTextSize = res.getDimension(R.dimen.message_list_drag_message_font_size);
+                sMessagePaint.setTextSize(messageTextSize);
+                sMessagePaint.setTypeface(Typeface.DEFAULT_BOLD);
+                sMessagePaint.setAntiAlias(true);
+                sMessageMargin = res.getDimension(R.dimen.message_list_drag_message_right_margin);
+
+                sCountPaint = new TextPaint();
+                float countTextSize;
+                countTextSize = res.getDimension(R.dimen.message_list_drag_count_font_size);
+                sCountPaint.setTextSize(countTextSize);
+                sCountPaint.setTypeface(Typeface.DEFAULT_BOLD);
+                sCountPaint.setAntiAlias(true);
+                sCountMargin = res.getDimension(R.dimen.message_list_drag_count_left_margin);
             }
+
+            // Calculate layout positions
+            Rect b = new Rect();
+
+            mMessageText = res.getQuantityString(R.plurals.move_messages, count, count);
+            sMessagePaint.getTextBounds(mMessageText, 0, mMessageText.length(), b);
+            mMessagePoint = new PointF(mDragWidth - b.right - sMessageMargin,
+                    (mDragHeight - b.top)/ 2);
+
+            mCountText = Integer.toString(count);
+            sCountPaint.getTextBounds(mCountText, 0, mCountText.length(), b);
+            mCountPoint = new PointF(sCountMargin,
+                    (mDragHeight - b.top) / 2);
         }
 
         @Override
         public void onProvideShadowMetrics(Point shadowSize, Point shadowTouchPoint) {
-            shadowSize.set(mWidth, mHeight);
-            shadowTouchPoint.set(20, mHeight / 2);
+            shadowSize.set(mDragWidth, mDragHeight);
+            shadowTouchPoint.set(sTouchX, (mDragHeight / 2) + sDragOffset);
         }
 
         @Override
         public void onDrawShadow(Canvas canvas) {
             super.onDrawShadow(canvas);
             sBackground.draw(canvas);
-            canvas.drawText(mDragDesc, mDragDescX, mDragDescY, sPaint);
+            canvas.drawText(mMessageText, mMessagePoint.x, mMessagePoint.y, sMessagePaint);
+            canvas.drawText(mCountText, mCountPoint.x, mCountPoint.y, sCountPaint);
         }
     }
 
@@ -509,6 +563,16 @@ public class MessageListFragment extends ListFragment
                 }
                 break;
         }
+        return false;
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            // Save the touch location to draw the drag overlay at the correct location
+            ShadowBuilder.sTouchX = (int)event.getX();
+        }
+        // don't do anything, let the system process the event
         return false;
     }
 

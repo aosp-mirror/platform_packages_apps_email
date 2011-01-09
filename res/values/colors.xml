@@ -44,6 +44,13 @@
     <color name="combined_view_account_color_4">#fff4fd04</color>
     <color name="combined_view_account_color_5">#ffe65020</color>
 
+    <!-- Drop target colors -->
+    <!-- STOPSHIP Replace with final colors -->
+    <color name="mailbox_drop_available_color">#ffd9e3bd</color>
+    <color name="mailbox_drop_unavailable_color">#ffffffff</color>
+    <color name="mailbox_drop_target_active_color">#ffbedc62</color>
+    <color name="mailbox_drop_target_destructive_color">#ffff0000</color>
+
     <!--  Widget colors -->
     <color name="widget_label_shadow_color">#0d0d0d</color>
     <color name="widget_account_color">#666666</color>
