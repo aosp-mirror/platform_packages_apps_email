@@ -33,11 +33,11 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.CursorWrapper;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -47,7 +47,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.OpenableColumns;
 import android.telephony.TelephonyManager;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.AbsListView;
@@ -1170,6 +1174,20 @@ public class Utility {
             name = contentUri.getLastPathSegment();
         }
         return name;
+    }
+
+    /**
+     * Append a bold span to a {@link SpannableStringBuilder}.
+     */
+    public static SpannableStringBuilder appendBold(SpannableStringBuilder ssb, String text) {
+        if (!TextUtils.isEmpty(text)) {
+            SpannableString ss = new SpannableString(text);
+            ss.setSpan(new StyleSpan(Typeface.BOLD), 0, ss.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ssb.append(ss);
+        }
+
+        return ssb;
     }
 
     /**

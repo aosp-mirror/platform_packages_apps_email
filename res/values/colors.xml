@@ -32,6 +32,7 @@
     <!-- Standard text colors -->
     <color name="text_primary_color">#ffffff</color>
     <color name="text_secondary_color">#666666</color>
+    <color name="text_ternary_color">#888888</color>
 
     <!-- STOPSHIP Use same color as EditText tray? -->
     <color name="divider_color">#ff808080</color>
@@ -57,4 +58,6 @@
     <color name="widget_unread_count_color">#4d4d4d</color>
     <color name="widget_default_text_color">#000000</color>
     <color name="widget_light_text_color">#666666</color>
+
+    <color name="message_view_info_back_color">#deecfa</color>
 </resources>

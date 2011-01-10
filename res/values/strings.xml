@@ -111,6 +111,8 @@
     <string name="add_cc_bcc_action">+ Cc/Bcc</string>
     <!-- Menu item -->
     <string name="add_attachment_action">Add attachment</string>
+    <!-- Generic button [CHAR LIMIT=16] -->
+    <string name="close_action">Close</string>
     <!-- Menu item (debug screen) -->
     <string name="dump_settings_action">Dump settings</string>
     <!-- Appears in choose attachment dialog title -->
@@ -300,6 +302,8 @@
     <!-- Label for CC field in read message view -->
     <string name="message_view_cc_label">Cc:</string>
     <string name="message_view_bcc_label">Bcc:</string>
+    <!-- Label for the date field. [CHAR LIMIT=20]-->
+    <string name="message_view_date_label">Date:</string>
     <!-- Button name to view an attachment (in another activity) [CHAR LIMIT=10]-->
     <string name="message_view_attachment_view_action">View</string>
     <!-- Button name, to load an attachment from the mail server [CHAR LIMIT=10]-->
@@ -351,6 +355,10 @@ save attachment.</string>
     <!-- Toast shown following a meeting invite reply, declined -->
     <string name="message_view_invite_toast_no">You have declined this invitation</string>
     <!--Confirmation dialog title shown when user tries to delete messages.  [CHAR LIMIT=16] -->
+    <!-- Link label to show to/cc/bcc of the curent message [CHAR LIMIT=32] -->
+    <string name="message_view_show_details">Show details</string>
+    <!-- Title of the dialog box to show to/cc/bcc of the message.  [CHAR LIMIT=32] -->
+    <string name="message_view_message_details_dialog_title">Message Details</string>
 
     <!-- Title of the EML viewer activity. [CHAR LIMIT=32] -->
     <string name="eml_view_title">Viewing

@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 
+<!-- Non-xlarge -->
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/invite_section"
@@ -84,7 +86,7 @@
              android:textColor="?android:attr/textColorPrimaryInverse"
              />
 
-        <TextView
+        <CheckBox
              android:id="@+id/accept"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
@@ -98,7 +100,7 @@
              android:focusable="true"
              />
 
-        <TextView
+        <CheckBox
              android:id="@+id/maybe"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
@@ -112,7 +114,7 @@
              android:focusable="true"
              />
 
-        <TextView
+        <CheckBox
              android:id="@+id/decline"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"

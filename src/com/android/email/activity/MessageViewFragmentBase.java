@@ -45,6 +45,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -55,6 +56,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.QuickContact;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -105,11 +107,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private TextView mFromNameView;
     private TextView mFromAddressView;
     private TextView mDateTimeView;
-    private TextView mToView;
-    private TextView mCcView;
-    private View mCcContainerView;
-    private TextView mBccView;
-    private View mBccContainerView;
+    private TextView mAddressesView;
     private WebView mMessageContentView;
     private LinearLayout mAttachments;
     private View mTabSection;
@@ -117,6 +115,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private ImageView mSenderPresenceView;
     private View mMainView;
     private View mLoadingProgress;
+    private Button mShowDetailsButton;
 
     private TextView mMessageTab;
     private TextView mAttachmentTab;
@@ -289,11 +288,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mSubjectView = (TextView) view.findViewById(R.id.subject);
         mFromNameView = (TextView) view.findViewById(R.id.from_name);
         mFromAddressView = (TextView) view.findViewById(R.id.from_address);
-        mToView = (TextView) view.findViewById(R.id.to);
-        mCcView = (TextView) view.findViewById(R.id.cc);
-        mCcContainerView = view.findViewById(R.id.cc_container);
-        mBccView = (TextView) view.findViewById(R.id.bcc);
-        mBccContainerView = view.findViewById(R.id.bcc_container);
+        mAddressesView = (TextView) view.findViewById(R.id.addresses);
         mDateTimeView = (TextView) view.findViewById(R.id.datetime);
         mMessageContentView = (WebView) view.findViewById(R.id.message_content);
         mAttachments = (LinearLayout) view.findViewById(R.id.attachments);
@@ -302,6 +297,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mSenderPresenceView = (ImageView) view.findViewById(R.id.presence);
         mMainView = view.findViewById(R.id.main_panel);
         mLoadingProgress = view.findViewById(R.id.loading_progress);
+        mShowDetailsButton = (Button) view.findViewById(R.id.show_details);
 
         mFromNameView.setOnClickListener(this);
         mFromAddressView.setOnClickListener(this);
@@ -318,6 +314,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mAttachmentTab.setOnClickListener(this);
         mShowPicturesTab.setOnClickListener(this);
         mInviteTab.setOnClickListener(this);
+        mShowDetailsButton.setOnClickListener(this);
 
         mAttachmentsScroll = view.findViewById(R.id.attachments_scroll);
         mInviteScroll = view.findViewById(R.id.invite_scroll);
@@ -560,8 +557,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         makeVisible(mMessageTab, messageTabVisible);
         makeVisible(mInviteTab, (tabFlags & TAB_FLAGS_HAS_INVITE) != 0);
         makeVisible(mAttachmentTab, (tabFlags & TAB_FLAGS_HAS_ATTACHMENT) != 0);
-        makeVisible(mShowPicturesTab, (tabFlags & TAB_FLAGS_HAS_PICTURES) != 0);
-        mShowPicturesTab.setEnabled((tabFlags & TAB_FLAGS_PICTURE_LOADED) == 0);
+
+        final boolean hasPictures = (tabFlags & TAB_FLAGS_HAS_PICTURES) != 0;
+        final boolean pictureLoaded = (tabFlags & TAB_FLAGS_PICTURE_LOADED) != 0;
+        makeVisible(mShowPicturesTab, hasPictures && !pictureLoaded);
 
         mAttachmentTab.setText(mContext.getResources().getQuantityString(
                 R.plurals.message_view_show_attachments_action,
@@ -725,7 +724,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (AttachmentDownloadService.getQueueSize() == 0) {
             // Set to invisible; if the button is still in this state one second from now, we'll
             // assume the download won't start right away, and we make the cancel button visible
-            attachment.cancelButton.setVisibility(View.INVISIBLE);
+            attachment.cancelButton.setVisibility(View.GONE);
             // Create the timed task that will change the button state
             new AsyncTask<Void, Void, Void>() {
                 @Override
@@ -737,7 +736,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 }
                 @Override
                 protected void onPostExecute(Void result) {
-                    if (attachment.cancelButton.getVisibility() == View.INVISIBLE) {
+                    if (attachment.cancelButton.getVisibility() != View.VISIBLE) {
                         attachment.cancelButton.setVisibility(View.VISIBLE);
                     }
                 }
@@ -757,23 +756,21 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             attachment.loadButton.setVisibility(View.VISIBLE);
             attachment.cancelButton.setVisibility(View.GONE);
             ProgressBar bar = attachment.progressView;
-            bar.setVisibility(View.GONE);
+            bar.setVisibility(View.INVISIBLE);
         }
     }
 
     /**
-     * Called by ControllerResults. Show the "View" and "Save" buttons; hide "Load"
+     * Called by ControllerResults. Show the "View" and "Save" buttons; hide "Load" and "Stop"
      *
      * @param attachmentId the attachment that was just downloaded
      */
     private void doFinishLoadAttachment(long attachmentId) {
         AttachmentInfo info = findAttachmentInfo(attachmentId);
         if (info != null) {
-            info.loadButton.setVisibility(View.INVISIBLE);
             info.loadButton.setVisibility(View.GONE);
-            if (!TextUtils.isEmpty(info.name)) {
-                info.saveButton.setVisibility(View.VISIBLE);
-            }
+            info.cancelButton.setVisibility(View.GONE);
+            info.saveButton.setVisibility(TextUtils.isEmpty(info.name) ? View.GONE : View.VISIBLE);
             info.viewButton.setVisibility(View.VISIBLE);
         }
     }
@@ -787,6 +784,19 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             }
             addTabFlags(TAB_FLAGS_PICTURE_LOADED);
         }
+    }
+
+    private void onShowDetails() {
+        if (mMessage == null) {
+            return; // shouldn't happen
+        }
+        String date = formatDate(mMessage.mTimeStamp, true);
+        String to = Address.toString(Address.unpack(mMessage.mTo));
+        String cc = Address.toString(Address.unpack(mMessage.mCc));
+        String bcc = Address.toString(Address.unpack(mMessage.mBcc));
+        MessageViewMessageDetailsDialog dialog = MessageViewMessageDetailsDialog.newInstance(
+                getActivity(), date, to, cc, bcc);
+        dialog.show(getActivity().getFragmentManager(), null);
     }
 
     @Override
@@ -824,6 +834,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 break;
             case R.id.show_pictures:
                 onShowPicturesInHtml();
+                break;
+            case R.id.show_details:
+                onShowDetails();
                 break;
         }
     }
@@ -1132,7 +1145,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             attachmentProgress.setProgress(100);
             attachmentSave.setVisibility(View.VISIBLE);
             attachmentView.setVisibility(View.VISIBLE);
-            attachmentLoad.setVisibility(View.INVISIBLE);
+            attachmentLoad.setVisibility(View.GONE);
             attachmentCancel.setVisibility(View.GONE);
 
             Bitmap previewIcon = getPreviewIcon(attachmentInfo);
@@ -1141,8 +1154,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             }
         } else {
             // Show "Load"; hide "View" and "Save"
-            attachmentSave.setVisibility(View.INVISIBLE);
-            attachmentView.setVisibility(View.INVISIBLE);
+            attachmentSave.setVisibility(View.GONE);
+            attachmentView.setVisibility(View.GONE);
+
             // If the attachment is queued, show the indeterminate progress bar.  From this point,.
             // any progress changes will cause this to be replaced by the normal progress bar
             if (AttachmentDownloadService.isAttachmentQueued(attachment.mId)){
@@ -1227,24 +1241,43 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mFromNameView.setText(" ");
             mFromAddressView.setText(" ");
         }
-        mDateTimeView.setText(formatDate(message.mTimeStamp));
-        mToView.setText(Address.toFriendly(Address.unpack(message.mTo)));
-        String friendlyCc = Address.toFriendly(Address.unpack(message.mCc));
-        mCcView.setText(friendlyCc);
-        mCcContainerView.setVisibility((friendlyCc != null) ? View.VISIBLE : View.GONE);
-        String friendlyBcc = Address.toFriendly(Address.unpack(message.mBcc));
-        mBccView.setText(friendlyBcc);
-        mBccContainerView.setVisibility((friendlyBcc != null) ? View.VISIBLE : View.GONE);
+        mDateTimeView.setText(formatDate(message.mTimeStamp, false));
+
+        // To/Cc/Bcc
+        final Resources res = mContext.getResources();
+        final SpannableStringBuilder ssb = new SpannableStringBuilder();
+        final String friendlyTo = Address.toFriendly(Address.unpack(message.mTo));
+        final String friendlyCc = Address.toFriendly(Address.unpack(message.mCc));
+        final String friendlyBcc = Address.toFriendly(Address.unpack(message.mBcc));
+
+        if (!TextUtils.isEmpty(friendlyTo)) {
+            Utility.appendBold(ssb, res.getString(R.string.message_view_to_label));
+            ssb.append(" ");
+            ssb.append(friendlyTo);
+        }
+        if (!TextUtils.isEmpty(friendlyCc)) {
+            ssb.append("  ");
+            Utility.appendBold(ssb, res.getString(R.string.message_view_cc_label));
+            ssb.append(" ");
+            ssb.append(friendlyCc);
+        }
+        if (!TextUtils.isEmpty(friendlyBcc)) {
+            ssb.append("  ");
+            Utility.appendBold(ssb, res.getString(R.string.message_view_bcc_label));
+            ssb.append(" ");
+            ssb.append(friendlyBcc);
+        }
+        mAddressesView.setText(ssb);
     }
 
-    private String formatDate(long millis) {
+    private String formatDate(long millis, boolean withYear) {
         StringBuilder sb = new StringBuilder();
         Formatter formatter = new Formatter(sb);
         DateUtils.formatDateRange(mContext, formatter, millis, millis,
                 DateUtils.FORMAT_SHOW_DATE
                 | DateUtils.FORMAT_ABBREV_ALL
                 | DateUtils.FORMAT_SHOW_TIME
-                | DateUtils.FORMAT_NO_YEAR);
+                | (withYear ? DateUtils.FORMAT_SHOW_YEAR : DateUtils.FORMAT_NO_YEAR));
         return sb.toString();
     }
 

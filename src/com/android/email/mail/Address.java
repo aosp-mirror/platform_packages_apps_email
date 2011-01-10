@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 /**
  * This class represent email address.
- * 
+ *
  * RFC822 email address may have following format.
  *   "name" <address> (comment)
  *   "name" <address>
@@ -85,7 +85,7 @@ public class Address {
 
     /**
      * Get name part as UTF-16 string. No surrounding double quote, and no MIME/base64 encoding.
-     * 
+     *
      * @return Name part of email address. Returns null if it is omitted.
      */
     public String getPersonal() {
@@ -95,7 +95,7 @@ public class Address {
     /**
      * Set name part from UTF-16 string. Optional surrounding double quote will be removed.
      * It will be also unquoted and MIME/base64 decoded.
-     * 
+     *
      * @param Personal name part of email address as UTF-16 string. Null is acceptable.
      */
     public void setPersonal(String personal) {
@@ -133,7 +133,7 @@ public class Address {
     /**
      * Parse a comma-delimited list of addresses in RFC822 format and return an
      * array of Address objects.
-     * 
+     *
      * @param addressList Address list in comma-delimited string.
      * @return An array of 0 or more Addresses.
      */
@@ -158,8 +158,8 @@ public class Address {
         }
         return addresses.toArray(new Address[] {});
     }
-    
-    /** 
+
+    /**
      * Checks whether a string email address is valid.
      * E.g. name@domain.com is valid.
      */
@@ -195,12 +195,12 @@ public class Address {
     /**
      * Get human readable address string.
      * Do not use this for email header.
-     * 
+     *
      * @return Human readable address string.  Not quoted and not encoded.
      */
     @Override
     public String toString() {
-        if (mPersonal != null) {
+        if (mPersonal != null && !mPersonal.equals(mAddress)) {
             if (mPersonal.matches(".*[\\(\\)<>@,;:\\\\\".\\[\\]].*")) {
                 return Utility.quoteString(mPersonal) + " <" + mAddress + ">";
             } else {
@@ -213,7 +213,7 @@ public class Address {
 
     /**
      * Get human readable comma-delimited address string.
-     * 
+     *
      * @param addresses Address array
      * @return Human readable comma-delimited address string.
      */
@@ -231,10 +231,10 @@ public class Address {
         }
         return sb.toString();
     }
-    
+
     /**
      * Get RFC822/MIME compatible address string.
-     * 
+     *
      * @return RFC822/MIME compatible address string.
      * It may be surrounded by double quote or quoted and MIME/base64 encoded if necessary.
      */
@@ -248,7 +248,7 @@ public class Address {
 
     /**
      * Get RFC822/MIME compatible comma-delimited address string.
-     * 
+     *
      * @param addresses Address array
      * @return RFC822/MIME compatible comma-delimited address string.
      * it may be surrounded by double quoted or quoted and MIME/base64 encoded if necessary.
@@ -268,11 +268,11 @@ public class Address {
         }
         return sb.toString();
     }
-    
+
     /**
      * Get Human friendly address string.
-     * 
-     * @return the personal part of this Address, or the address part if the 
+     *
+     * @return the personal part of this Address, or the address part if the
      * personal part is not available
      */
     public String toFriendly() {
@@ -282,11 +282,11 @@ public class Address {
             return mAddress;
         }
     }
-    
+
     /**
-     * Creates a comma-delimited list of addresses in the "friendly" format (see toFriendly() for 
+     * Creates a comma-delimited list of addresses in the "friendly" format (see toFriendly() for
      * details on the per-address conversion).
-     * 
+     *
      * @param addresses Array of Address[] values
      * @return A comma-delimited string listing all of the addresses supplied.  Null if source
      * was null or empty.
@@ -466,7 +466,7 @@ public class Address {
             else {
                 address =
                     Utility.fastUrlDecode(addressList.substring(pairStartIndex, addressEndIndex));
-                personal = 
+                personal =
                     Utility.fastUrlDecode(addressList.substring(addressEndIndex + 1, pairEndIndex));
             }
             addresses.add(new Address(address, personal));

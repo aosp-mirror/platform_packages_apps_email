@@ -27,6 +27,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.database.MatrixCursor;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import android.telephony.TelephonyManager;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
@@ -477,6 +479,16 @@ public class UtilityUnitTests extends AndroidTestCase {
 
         // shouldn't crash
         Utility.CloseTraceCursorWrapper.log(null);
+    }
+
+    public void testAppendBold() {
+        SpannableStringBuilder ssb = new SpannableStringBuilder();
+        ssb.append("no");
+
+        assertEquals(ssb, Utility.appendBold(ssb, "BO"));
+
+        assertEquals("noBO", ssb.toString());
+        // TODO check style -- but how?
     }
 
     /**

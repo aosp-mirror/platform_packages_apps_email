@@ -43,72 +43,71 @@
             <TextView
                 android:id="@+id/subject"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="40dip"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="30dip"
-                android:layout_marginLeft="30dip"
-                android:layout_marginRight="30dip"
-                android:singleLine="false"
-                android:ellipsize="none"
+                android:layout_marginTop="0dip"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="16dip"
+                android:singleLine="true"
+                android:ellipsize="end"
                 android:textSize="18dip"
                 android:textColor="@color/text_primary_color"
                 android:textStyle="bold"
-                />
-
-            <!-- Horizontal line below subject -->
-            <View
-                android:id="@+id/top_divider"
-                android:layout_width="0dip"
-                android:layout_below="@id/subject"
-                android:layout_alignLeft="@id/subject"
-                android:layout_alignRight="@id/subject"
-                android:layout_marginTop="8dip"
-                android:layout_marginBottom="16dip"
-                style="@style/message_view_horizontal_divider"
+                android:gravity="left|center_vertical"
                 />
 
             <!-- Badge -->
             <ImageButton
                 android:id="@+id/badge"
-                android:layout_width="60dip"
-                android:layout_height="60dip"
-                android:layout_gravity="center_vertical"
-                android:layout_alignTop="@id/top_divider"
+                android:layout_width="64dip"
+                android:layout_height="64dip"
+                android:layout_below="@id/subject"
                 android:layout_alignLeft="@id/subject"
+                android:padding="0dip"
                 android:scaleType="fitCenter"
                 />
-
-            <!-- Presence icon -->
-            <ImageView
-                android:id="@+id/presence"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/top_divider"
+            <!-- Background for sender name and buttons -->
+            <View
+                android:id="@+id/header_background"
+                android:layout_width="0dip"
+                android:layout_height="64dip"
+                android:layout_below="@id/subject"
                 android:layout_toRightOf="@id/badge"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="12dip"
-                android:src="@drawable/presence_inactive"
-                android:background="@drawable/quickcontact_presence_bg"
+                android:layout_alignRight="@id/subject"
+                android:background="@drawable/message_header_bg"
                 />
+            <!-- Fold -->
+            <ImageView
+                android:id="@+id/header_background_fold"
+                android:layout_width="32dip"
+                android:layout_height="20dip"
+                android:layout_below="@id/header_background"
+                android:layout_alignRight="@id/header_background"
+                android:src="@drawable/message_header_fold"
+                android:padding="0dip"
+                />
+
             <!--
                 reply, reply-all, forward, Star
-                They can all be gone; don't refer to them from other views.
-                Instead refer to this outer layout.
+                These buttons can all be gone at runtime, so don't refer to individual buttons from
+                other views.  Instead refer to this outer layout.
             -->
             <LinearLayout
                 android:id="@+id/forward_reply_buttons"
                 android:layout_width="wrap_content"
-                android:layout_height="24dip"
-                android:layout_alignRight="@id/subject"
-                android:layout_below="@id/top_divider"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dip"
+                android:layout_marginLeft="8dip"
+                android:layout_marginRight="32dip"
+                android:layout_alignTop="@id/header_background"
+                android:layout_alignRight="@id/header_background"
                 android:orientation="horizontal"
                 >
                 <ImageButton
                     android:id="@+id/reply"
                     android:layout_width="32dip"
-                    android:layout_height="match_parent"
-                    android:layout_marginRight="16dip"
-                    android:layout_marginLeft="16dip"
+                    android:layout_height="32dip"
+                    android:layout_marginRight="32dip"
                     android:src="@drawable/ic_reply"
                     android:visibility="gone"
                     style="@android:style/Widget.Holo.Button.Borderless"
@@ -116,9 +115,8 @@
                 <ImageButton
                     android:id="@+id/reply_all"
                     android:layout_width="32dip"
-                    android:layout_height="match_parent"
-                    android:layout_marginRight="16dip"
-                    android:layout_marginLeft="16dip"
+                    android:layout_height="32dip"
+                    android:layout_marginRight="32dip"
                     android:src="@drawable/ic_reply_all"
                     android:visibility="gone"
                     style="@android:style/Widget.Holo.Button.Borderless"
@@ -126,9 +124,8 @@
                 <ImageButton
                     android:id="@+id/forward"
                     android:layout_width="32dip"
-                    android:layout_height="match_parent"
-                    android:layout_marginRight="16dip"
-                    android:layout_marginLeft="16dip"
+                    android:layout_height="32dip"
+                    android:layout_marginRight="32dip"
                     android:src="@drawable/ic_forward"
                     android:visibility="gone"
                     style="@android:style/Widget.Holo.Button.Borderless"
@@ -136,151 +133,127 @@
                 <ImageButton
                     android:id="@+id/favorite"
                     android:layout_width="32dip"
-                    android:layout_height="match_parent"
-                    android:layout_marginRight="16dip"
-                    android:layout_marginLeft="16dip"
+                    android:layout_height="32dip"
                     android:src="@drawable/ic_star_none_holo_light"
                     android:visibility="gone"
                     style="@android:style/Widget.Holo.Button.Borderless"
                     />
-             </LinearLayout>
+            </LinearLayout>
 
-            <!-- Sender display name -->
-            <TextView
-                android:id="@+id/from_name"
+
+            <!-- presence, sender address, sender name: make them center_vertical -->
+            <LinearLayout
+                android:id="@+id/presence_from_name"
                 android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/top_divider"
-                android:layout_toRightOf="@id/presence"
+                android:layout_height="0dip"
+                android:layout_marginLeft="32dip"
+                android:layout_marginRight="16dip"
+                android:layout_alignTop="@id/header_background"
+                android:layout_alignBottom="@id/header_background"
+                android:layout_alignLeft="@id/header_background"
                 android:layout_toLeftOf="@id/forward_reply_buttons"
-                android:textSize="18dip"
-                android:textColor="@color/text_primary_color"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                >
+                <LinearLayout
+                    android:id="@+id/presence_from_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="left|center_vertical"
+                    >
+                    <!-- Presence icon -->
+                    <ImageView
+                        android:id="@+id/presence"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        android:src="@android:drawable/presence_offline"
+                        />
+
+                    <!-- Sender display name -->
+                    <TextView
+                        android:id="@+id/from_name"
+                        android:layout_width="0dip"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="4dip"
+                        android:textSize="18dip"
+                        android:textColor="@color/text_primary_color"
+                        android:textStyle="bold"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:gravity="left|center_vertical"
+                        />
+                </LinearLayout>
+
+                <!-- From address -->
+                <TextView
+                    android:id="@+id/from_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dip"
+                    android:textSize="14dip"
+                    android:textColor="@color/text_secondary_color"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:paddingRight="6dip"
+                    />
+            </LinearLayout>
+
+            <!-- Addresses, timestamp  -->
+            <Button
+                android:id="@+id/show_details"
+                android:layout_width="wrap_content"
+                android:layout_height="40dip"
+                android:layout_below="@id/header_background"
+                android:layout_toLeftOf="@id/header_background_fold"
+                android:layout_marginRight="16dip"
+                style="@android:style/Widget.Holo.Button.Borderless"
+                android:padding="0dip"
+                android:gravity="center_vertical"
+                android:text="@string/message_view_show_details"
+                android:textSize="14dip"
+                android:textColor="@color/text_ternary_color"
                 android:textStyle="bold"
                 android:singleLine="true"
-                android:ellipsize="end"
                 />
 
-            <!-- From address -->
             <TextView
-                android:id="@+id/from_address"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/presence"
-                android:layout_below="@id/presence"
-                android:layout_toLeftOf="@id/forward_reply_buttons"
-                android:layout_marginTop="2dip"
-                android:layout_marginBottom="8dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:paddingRight="6dip"
-                />
-
-            <!-- To: and timestamp  -->
-            <TextView
+                android:text="@string/message_view_show_details"
                 android:id="@+id/datetime"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/from_address"
-                android:layout_alignRight="@id/subject"
+                android:layout_height="40dip"
+                android:layout_below="@id/header_background"
+                android:layout_toLeftOf="@id/show_details"
+                android:layout_marginRight="48dip"
+                android:gravity="center_vertical"
                 android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
+                android:textColor="@color/text_ternary_color"
                 android:singleLine="true"
                 />
 
             <TextView
-                android:id="@+id/to_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/datetime"
-                android:layout_alignLeft="@id/from_address"
-                android:layout_marginRight="4dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
-                android:singleLine="true"
-                android:text="@string/message_compose_to_label"
-                />
-
-            <TextView
-                android:id="@+id/to"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/datetime"
-                android:layout_toRightOf="@id/to_label"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
-                android:singleLine="true"
-                />
-
-            <!-- Cc -->
-            <LinearLayout
-                android:id="@+id/cc_container"
+                android:id="@+id/addresses"
                 android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/to_label"
-                android:layout_alignLeft="@id/to_label"
-                android:layout_alignRight="@id/subject"
-                android:visibility="gone"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="4dip"
-                    android:textSize="14dip"
-                    android:textColor="@color/text_secondary_color"
-                    android:singleLine="true"
-                    android:text="@string/message_compose_cc_label"
-                    />
-                <TextView
-                    android:id="@+id/cc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14dip"
-                    android:textColor="@color/text_secondary_color"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    />
-            </LinearLayout>
-
-            <!-- Bcc -->
-            <LinearLayout
-                android:id="@+id/bcc_container"
-                android:layout_width="0dip"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/cc_container"
-                android:layout_alignLeft="@id/to_label"
-                android:layout_alignRight="@id/subject"
-                android:visibility="gone"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="4dip"
-                    android:textSize="14dip"
-                    android:textColor="@color/text_secondary_color"
-                    android:singleLine="true"
-                    android:text="@string/message_compose_bcc_label"
-                    />
-                <TextView
-                    android:id="@+id/bcc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14dip"
-                    android:textColor="@color/text_secondary_color"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    />
-            </LinearLayout>
+                android:layout_height="40dip"
+                android:layout_below="@id/header_background"
+                android:layout_alignLeft="@id/badge"
+                android:layout_toLeftOf="@id/datetime"
+                android:layout_marginRight="16dip"
+                android:gravity="center_vertical"
+                android:textSize="14dip"
+                android:textColor="@color/text_ternary_color"
+                android:singleLine="true"
+                android:ellipsize="end"
+                />
 
             <View
-                android:id="@+id/below_header_divider"
+                android:id="@+id/below_address_divider"
                 android:layout_width="0dip"
-                android:layout_below="@id/bcc_container"
-                android:layout_alignLeft="@id/bcc_container"
-                android:layout_alignRight="@id/subject"
-                android:layout_marginTop="8dip"
-                android:layout_marginBottom="2dip"
+                android:layout_below="@id/show_details"
+                android:layout_alignLeft="@id/addresses"
+                android:layout_alignRight="@id/show_details"
                 style="@style/message_view_horizontal_divider"
                 />
 
@@ -291,60 +264,87 @@
             <LinearLayout
                 android:layout_width="0dip"
                 android:layout_height="0dip"
-                android:layout_below="@id/below_header_divider"
-                android:layout_alignLeft="@id/below_header_divider"
-                android:layout_alignRight="@id/below_header_divider"
+                android:layout_below="@id/below_address_divider"
+                android:layout_alignLeft="@id/badge"
+                android:layout_alignRight="@id/header_background"
                 android:layout_alignParentBottom="true"
                 android:orientation="vertical"
                 >
-                <!-- Tabs -->
+                <!-- Tabs + divider -->
+                <!-- Can't use a RelativeLayout, because tabs can be GONE -->
                 <LinearLayout
                     android:id="@+id/message_tabs_section"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingLeft="6dip"
-                    android:paddingRight="6dip"
-                    android:divider="?android:attr/dividerHorizontal"
-                    android:showDividers="beginning|middle|end"
-                    android:dividerPadding="8dip"
+                    android:orientation="vertical"
                     >
-                    <Button
-                        android:id="@+id/show_message"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="@string/message_view_show_message_action"
-                        style="@android:style/Widget.Holo.Light.Tab"
-                        />
-                    <Button
-                        android:id="@+id/show_invite"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="@string/message_view_show_invite_action"
-                        style="@android:style/Widget.Holo.Light.Tab"
-                        />
-                    <Button
-                        android:id="@+id/show_attachments"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        style="@android:style/Widget.Holo.Light.Tab"
-                        />
-                    <!-- filler -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dip"
+                        android:orientation="horizontal"
+                        >
+                        <Button
+                            android:id="@+id/show_message"
+                            android:layout_width="128dip"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:text="@string/message_view_show_message_action"
+                            android:textSize="14dip"
+                            android:textColor="@color/text_primary_color"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            style="@android:style/Widget.Holo.Light.Tab"
+                            />
+                        <Button
+                            android:id="@+id/show_invite"
+                            android:layout_width="128dip"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:text="@string/message_view_show_invite_action"
+                            android:textSize="14dip"
+                            android:textColor="@color/text_primary_color"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            style="@android:style/Widget.Holo.Light.Tab"
+                            />
+                        <Button
+                            android:id="@+id/show_attachments"
+                            android:layout_width="128dip"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:textSize="14dip"
+                            android:textColor="@color/text_primary_color"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            style="@android:style/Widget.Holo.Light.Tab"
+                            />
+                        <!-- filler -->
+                        <View
+                            android:layout_width="0dip"
+                            android:layout_height="0dip"
+                            android:layout_weight="1"
+                            />
+                        <Button
+                            android:id="@+id/show_pictures"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            style="@android:style/Widget.Holo.Button.Borderless"
+                            android:padding="0dip"
+                            android:text="@string/message_view_show_pictures_action"
+                            android:textSize="14dip"
+                            android:textColor="@color/text_ternary_color"
+                            android:textStyle="bold"
+                            />
+                        <View
+                            android:layout_width="48dip"
+                            android:layout_height="0dip"
+                            />
+                    </LinearLayout>
                     <View
-                        android:layout_width="0dip"
-                        android:layout_height="0dip"
-                        android:layout_weight="1"
-                        />
-                    <Button
-                        android:id="@+id/show_pictures"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="@string/message_view_show_pictures_action"
-                        style="@android:style/Widget.Holo.Light.Tab"
+                        android:layout_width="match_parent"
+                        android:layout_marginBottom="16dip"
+                        style="@style/message_view_horizontal_divider"
                         />
                 </LinearLayout>
 
@@ -385,8 +385,9 @@
                         android:orientation="vertical"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="4dip"
-                        android:background="#ffffff"
+                        android:background="@color/message_view_info_back_color"
+                        android:divider="?android:attr/dividerHorizontal"
+                        android:showDividers="beginning|middle|end"
                         />
                 </ScrollView>
 

@@ -16,7 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
 import com.android.email.Utility;
 
 import android.content.AsyncTaskLoader;
@@ -37,7 +36,7 @@ import android.util.Log;
  * Loader to load presence statuses and the contact photoes.
  */
 public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Result> {
-    public static final int PRESENCE_UNKNOWN_RESOURCE_ID = R.drawable.presence_inactive;
+    public static final int PRESENCE_UNKNOWN_RESOURCE_ID = android.R.drawable.presence_offline;
 
     /** email address -> photo id, presence */
     /* package */ static final String[] PROJECTION_PHOTO_ID_PRESENCE = new String[] {

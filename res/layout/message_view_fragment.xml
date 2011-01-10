@@ -46,7 +46,7 @@
                 />
             <ImageView
                 android:id="@+id/presence"
-                android:src="@drawable/presence_inactive"
+                android:src="@android:drawable/presence_offline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dip"
@@ -116,71 +116,17 @@
                 android:layout_marginLeft="4dip"
                 android:singleLine="true" />
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-            <TextView
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/message_view_to_label" />
-            <TextView
-                android:id="@+id/to"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
-                android:layout_width="0dip"
-                android:layout_weight="1.0"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dip"
-                android:singleLine="false"
-                android:ellipsize="none" />
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/cc_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-            <TextView
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/message_view_cc_label" />
-            <TextView
-                android:id="@+id/cc"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
-                android:layout_width="0dip"
-                android:layout_weight="1.0"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dip"
-                android:singleLine="false"
-                android:ellipsize="none" />
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/bcc_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-            <TextView
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/message_view_bcc_label" />
-            <TextView
-                android:id="@+id/bcc"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorSecondary"
-                android:layout_width="0dip"
-                android:layout_weight="1.0"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dip"
-                android:singleLine="false"
-                android:ellipsize="none" />
-        </LinearLayout>
+
+        <TextView
+            android:id="@+id/addresses"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondary"
+            android:layout_width="0dip"
+            android:layout_weight="1.0"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dip"
+            android:singleLine="false"
+            android:ellipsize="none" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
