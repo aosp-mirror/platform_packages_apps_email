@@ -71,11 +71,11 @@ import java.util.concurrent.FutureTask;
  *
  * === Support for automated testing ==
  * This activity can also be launched directly via ACTION_CREATE_ACCOUNT.  This is intended
- * only for use by continuous test systems, and is currently only available when "ro.monkey"
- * is set.  To use this mode, you must construct an intent which contains all necessary information
- * to create the account.  No connection checking is done, so the account may or may not actually
- * work.  Here is a sample command, for a gmail account "test_account" with a password of
- * "test_password".
+ * only for use by continuous test systems, and is currently only available when
+ * {@link ActivityManager#isRunningInTestHarness()} is set.  To use this mode, you must construct
+ * an intent which contains all necessary information to create the account.  No connection
+ * checking is done, so the account may or may not actually work.  Here is a sample command, for a
+ * gmail account "test_account" with a password of "test_password".
  *
  *      $ adb shell am start -a com.android.email.CREATE_ACCOUNT \
  *          -e EMAIL test_account@gmail.com \
@@ -100,7 +100,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     private final String EXTRA_CREATE_ACCOUNT_USER = "USER";
     private final String EXTRA_CREATE_ACCOUNT_INCOMING = "INCOMING";
     private final String EXTRA_CREATE_ACCOUNT_OUTGOING = "OUTGOING";
-    private final Boolean DEBUG_ALLOW_NON_MONKEY_CREATION = true;  // STOPSHIP - must be FALSE
+    private final Boolean DEBUG_ALLOW_NON_TEST_HARNESS_CREATION = false;
 
     private final static String STATE_KEY_PROVIDER = "AccountSetupBasics.provider";
 
@@ -262,8 +262,10 @@ public class AccountSetupBasics extends AccountSetupActivity
         // Handle force account creation immediately (now that fragment is set up)
         // This is never allowed in a normal user build and will exit immediately.
         if (SetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
-            if (!DEBUG_ALLOW_NON_MONKEY_CREATION && !ActivityManager.isUserAMonkey()) {
-                Log.e(Email.LOG_TAG, "ERROR: Force account create only allowed for monkeys");
+            if (!DEBUG_ALLOW_NON_TEST_HARNESS_CREATION &&
+                    !ActivityManager.isRunningInTestHarness()) {
+                Log.e(Email.LOG_TAG,
+                        "ERROR: Force account create only allowed while in test harness");
                 finish();
                 return;
             }
