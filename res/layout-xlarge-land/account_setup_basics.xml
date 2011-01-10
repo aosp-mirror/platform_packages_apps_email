@@ -22,9 +22,9 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="16dip"
-        android:paddingLeft="96dip"
-        android:paddingRight="96dip"
+        android:paddingTop="@dimen/setup_padding_top"
+        android:paddingLeft="@dimen/setup_padding_left"
+        android:paddingRight="@dimen/setup_padding_right"
         >
 
         <!-- Headline and hairline divider -->
@@ -46,13 +46,14 @@
             android:layout_height="1px"
             android:background="@color/account_setup_divider_color" />
 
+        <!-- STOPSHIP - button vertical positions are estimates -->
         <!-- Buttons on the right -->
         <Button
             android:id="@+id/manual_setup"
             android:layout_below="@+id/top_divider"
             android:layout_alignParentRight="true"
             android:layout_marginTop="32dip"
-            android:layout_marginRight="16dip"
+            android:layout_marginRight="@dimen/setup_buttons_padding_right"
             style="@style/accountSetupButton"
             android:text="@string/account_setup_basics_manual_setup_action" />
         <Button
@@ -60,7 +61,7 @@
             android:layout_below="@+id/manual_setup"
             android:layout_alignParentRight="true"
             android:layout_marginTop="32dip"
-            android:layout_marginRight="16dip"
+            android:layout_marginRight="@dimen/setup_buttons_padding_right"
             style="@style/accountSetupButton"
             android:text="@string/next_action" />
 

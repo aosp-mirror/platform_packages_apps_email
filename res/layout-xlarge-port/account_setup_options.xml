@@ -25,15 +25,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingLeft="96dip"
-        android:paddingRight="96dip"
+        android:paddingTop="@dimen/setup_padding_top"
+        android:paddingLeft="@dimen/setup_padding_left"
+        android:paddingRight="@dimen/setup_padding_right"
         >
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingTop="16dip"
             >
 
             <!-- Headline and hairline divider -->
@@ -49,164 +49,45 @@
             <View
                 android:id="@+id/top_divider"
                 android:layout_below="@+id/headline"
-                android:layout_marginBottom="16dip"
+                android:layout_marginBottom="32dip"
                 android:layout_width="match_parent"
                 android:layout_height="1px"
                 android:background="@color/account_setup_divider_color" />
 
-            <!-- Layout on the top containing the setup info -->
-            <RelativeLayout
-                android:id="@+id/setup_options_section"
+            <!-- Frame on the top containing the (common) setup info -->
+            <FrameLayout
+                android:id="@+id/common"
                 android:layout_below="@+id/top_divider"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 >
-                <!-- Spinners in a table to line everything up nicely -->
-                <TableLayout
-                    android:id="@+id/spinners_table"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginRight="96dip"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:stretchColumns="1" >
-                    <TableRow
-                        android:paddingTop="16dip" >
-                        <TextView
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:layout_marginRight="16dip"
-                            android:text="@string/account_setup_options_mail_check_frequency_label"
-                            android:textColor="?android:attr/textColorPrimary" />
-                        <Spinner
-                            android:id="@+id/account_check_frequency"
-                            android:layout_height="wrap_content"
-                            android:layout_width="match_parent" />
-                    </TableRow>
-                    <!-- 2nd row is shown only for EAS accounts -->
-                    <TableRow
-                        android:id="@+id/account_sync_window_row"
-                        android:paddingTop="16dip"
-                        android:visibility="gone" >
-                        <TextView
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:layout_marginRight="16dip"
-                            android:text="@string/account_setup_options_mail_window_label"
-                            android:textColor="?android:attr/textColorPrimary" />
-                        <Spinner
-                            android:id="@+id/account_sync_window"
-                            android:layout_height="wrap_content"
-                            android:layout_width="match_parent" />
-                    </TableRow>
-                </TableLayout>
-                <View
-                    android:id="@+id/account_default_divider_upper"
-                    android:layout_below="@+id/spinners_table"
-                    android:layout_marginTop="32dip"
-                    android:layout_width="match_parent"
-                    android:layout_height="1px"
-                    android:background="@color/account_setup_divider_color" />
-                <CheckBox
-                    android:id="@+id/account_default"
-                    android:layout_below="@+id/account_default_divider_upper"
-                    android:layout_marginTop="16dip"
-                    android:layout_marginBottom="16dip"
-                    android:layout_marginLeft="32dip"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:text="@string/account_setup_options_default_label" />
-                <View
-                    android:id="@+id/account_default_divider"
-                    android:layout_below="@+id/account_default"
-                    android:layout_width="match_parent"
-                    android:layout_height="1px"
-                    android:background="@color/account_setup_divider_color" />
-                <CheckBox
-                    android:id="@+id/account_notify"
-                    android:layout_below="@+id/account_default_divider"
-                    android:layout_marginTop="16dip"
-                    android:layout_marginBottom="16dip"
-                    android:layout_marginLeft="32dip"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:text="@string/account_setup_options_notify_label" />
-                <View
-                    android:id="@+id/account_notify_divider"
-                    android:layout_below="@+id/account_notify"
-                    android:layout_width="match_parent"
-                    android:layout_height="1px"
-                    android:background="@color/account_setup_divider_color" />
-                <!-- Contacts sync - hide unless EAS -->
-                <CheckBox
-                    android:id="@+id/account_sync_contacts"
-                    android:layout_below="@+id/account_notify_divider"
-                    android:layout_marginTop="16dip"
-                    android:layout_marginBottom="16dip"
-                    android:layout_marginLeft="32dip"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:text="@string/account_setup_options_sync_contacts_label"
-                    android:visibility="gone" />
-                <View
-                    android:id="@+id/account_sync_contacts_divider"
-                    android:layout_below="@+id/account_sync_contacts"
-                    android:layout_width="match_parent"
-                    android:layout_height="1px"
-                    android:background="@color/account_setup_divider_color"
-                    android:visibility="gone" />
-                <!-- Calendar sync - hide unless EAS -->
-                <CheckBox
-                    android:id="@+id/account_sync_calendar"
-                    android:layout_below="@+id/account_sync_contacts_divider"
-                    android:layout_marginTop="16dip"
-                    android:layout_marginBottom="16dip"
-                    android:layout_marginLeft="32dip"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:text="@string/account_setup_options_sync_calendar_label"
-                    android:visibility="gone" />
-                <View
-                    android:id="@+id/account_sync_calendar_divider"
-                    android:layout_below="@+id/account_sync_calendar"
-                    android:layout_width="match_parent"
-                    android:layout_height="1px"
-                    android:background="@color/account_setup_divider_color"
-                    android:visibility="gone" />
-                <!-- Email sync - always show -->
-                <CheckBox
-                    android:id="@+id/account_sync_email"
-                    android:layout_below="@+id/account_sync_calendar_divider"
-                    android:layout_marginTop="16dip"
-                    android:layout_marginBottom="16dip"
-                    android:layout_marginLeft="32dip"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:text="@string/account_setup_options_sync_email_label" />
-                <View
-                    android:id="@+id/account_sync_email_divider"
-                    android:layout_below="@+id/account_sync_email"
-                    android:layout_width="match_parent"
-                    android:layout_height="1px"
-                    android:background="@color/account_setup_divider_color" />
-            </RelativeLayout>
+                <include
+                    layout="@layout/account_setup_options_common"
+                    />
+            </FrameLayout>
         </RelativeLayout>
 
+        <!-- STOPSHIP - button positions are estimates -->
         <!-- Buttons below -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="48dip"
+            android:layout_marginBottom="@dimen/setup_buttons_padding_bottom"
             >
             <Button
                 android:id="@+id/previous"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
+                android:layout_marginLeft="@dimen/setup_buttons_padding_left"
                 style="@style/accountSetupButton"
                 android:text="@string/previous_action" />
             <Button
                 android:id="@+id/next"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/setup_buttons_padding_right"
                 style="@style/accountSetupButton"
                 android:text="@string/next_action" />
         </RelativeLayout>

@@ -14,7 +14,6 @@
      limitations under the License.
 -->
 
-<!-- STOPSHIP need final styles for all of account_setup_* -->
 <!-- Specializations for xlarge screens - most colors are in values/colors.xml -->
 <resources>
     <!-- The headline at the top of every account settings fragments (in preferences) -->
@@ -24,24 +23,34 @@
 
     <!-- The large headline at the top of every account setup screen -->
     <style name="accountSetupHeadline">
-        <item name="android:textSize">28sp</item>
+        <item name="android:textSize">30sp</item>
         <item name="android:textColor">@color/account_setup_headline_color</item>
     </style>
 
+    <!-- Info text in any account setup screen -->
+    <style name="accountSetupInfoText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/account_setup_info_text_color</item>
+    </style>
+
+    <!-- Item labels in any account setup screen -->
+    <style name="accountSetupLabelText">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/account_setup_label_text_color</item>
+    </style>
+
     <!-- Wizard buttons on the account setup screens -->
-    <!-- STOPSHIP these are estimates -->
     <style name="accountSetupButton">
-        <item name="android:layout_width">240sp</item>
-        <item name="android:layout_height">70sp</item>
-        <item name="android:textSize">24sp</item>
+        <item name="android:layout_width">208sp</item>
+        <item name="android:layout_height">48sp</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
     <!-- Cancel/Done buttons on the account settings (server settings) fragments -->
-    <!-- STOPSHIP these are estimates -->
     <style name="accountSettingsButton">
-        <item name="android:layout_width">200sp</item>
-        <item name="android:layout_height">60sp</item>
-        <item name="android:textSize">20sp</item>
+        <item name="android:layout_width">208sp</item>
+        <item name="android:layout_height">48sp</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
     <!-- Message compose STOPSHIP not final -->
