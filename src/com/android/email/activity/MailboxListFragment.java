@@ -67,8 +67,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static final boolean DEBUG_DRAG_DROP = false; // MUST NOT SUBMIT SET TO TRUE
 
     private static final int NO_DROP_TARGET = -1;
-    // Top and bottom scroll zone size, in pixels
+    // Total height of the top and bottom scroll zones, in pixels
     private static final int SCROLL_ZONE_SIZE = 64;
+    // The amount of time to scroll by one pixel, in ms
+    private static final int SCROLL_SPEED = 4;
 
     // Colors used for drop targets
     private static Integer sDropTrashColor;
@@ -101,10 +103,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private MailboxListItem mDropTargetView;
     // Lazily instantiated height of a mailbox list item (-1 is a sentinel for 'not initialized')
     private int mDragItemHeight = -1;
-    // STOPSHIP  Scrolling related code is preliminary and will likely be completely replaced
     // True if we are currently scrolling under the drag item
-    private boolean mTargetScrolling = false;
-    private int mScrollSpeed = -1;
+    private boolean mTargetScrolling;
 
     private Utility.ListStateSaver mSavedListState;
 
@@ -519,36 +519,22 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             mDropTargetView = newTarget;
         }
 
-        // STOPSHIP
-        // This is a quick-and-dirty implementation of drag-under-scroll.  To be rewritten
+        // This is a quick-and-dirty implementation of drag-under-scroll; something like this
+        // should eventually find its way into the framework
         int scrollDiff = rawTouchY - (mListView.getHeight() - SCROLL_ZONE_SIZE);
-        boolean scrollDown = false;
-        boolean scrollUp = false;
-        // 1 to 4
-        int scrollSpeed = 0;
-        if (scrollDiff > 0) {
-            scrollDown = true;
-            scrollSpeed = (scrollDiff / SCROLL_ZONE_SIZE / 4) + 1;
-        } else {
-            scrollDiff = SCROLL_ZONE_SIZE - rawTouchY;
-            if (scrollDiff > 0) {
-                scrollUp = true;
-                scrollSpeed = (scrollDiff / SCROLL_ZONE_SIZE / 4) + 1;
-            }
-        }
-        if ((!mTargetScrolling || (mScrollSpeed != scrollSpeed)) && scrollDown) {
-            mScrollSpeed = scrollSpeed;
+        boolean scrollDown = (scrollDiff > 0);
+        boolean scrollUp = (SCROLL_ZONE_SIZE > rawTouchY);
+        if (!mTargetScrolling && scrollDown) {
             int itemsToScroll = mListView.getCount() - targetAdapterPosition;
-            int pixelsToScroll = (itemsToScroll+1)*mDragItemHeight;
-            mListView.smoothScrollBy(pixelsToScroll, pixelsToScroll*16/scrollSpeed/4);
+            int pixelsToScroll = (itemsToScroll + 1) * mDragItemHeight;
+            mListView.smoothScrollBy(pixelsToScroll, pixelsToScroll * SCROLL_SPEED);
             if (DEBUG_DRAG_DROP) {
                 Log.d(TAG, "========== START TARGET SCROLLING DOWN");
             }
             mTargetScrolling = true;
-        } else if ((!mTargetScrolling || mScrollSpeed != scrollSpeed) && scrollUp) {
-            mScrollSpeed = scrollSpeed;
-            int pixelsToScroll = (firstVisibleItem+1)*mDragItemHeight;
-            mListView.smoothScrollBy(-pixelsToScroll, pixelsToScroll*16/scrollSpeed/4);
+        } else if (!mTargetScrolling && scrollUp) {
+            int pixelsToScroll = (firstVisibleItem + 1) * mDragItemHeight;
+            mListView.smoothScrollBy(-pixelsToScroll, pixelsToScroll * SCROLL_SPEED);
             if (DEBUG_DRAG_DROP) {
                 Log.d(TAG, "========== START TARGET SCROLLING UP");
             }
