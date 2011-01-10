@@ -229,11 +229,6 @@
     </provider>
 
     <!-- USA (other)-->
-    <!-- STOPSHIP For Marc's debugging -->
-    <provider id="eon" label="Everyone.net" domain="nextobject.com">
-        <incoming uri="imap://imap.everyone.net" label="IMAP" username="$email" />
-        <outgoing uri="smtp://smtp.everyone.net" username="$email" />
-    </provider>
     <provider id="comcast" label="Comcast" domain="comcast.net">
         <incoming uri="pop3+ssl+://mail.comcast.net" username="$user" />
         <outgoing uri="smtp+ssl+://smtp.comcast.net" username="$user" />
