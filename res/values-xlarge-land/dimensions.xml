@@ -30,4 +30,9 @@
     <dimen name="widget_senders_font_size">14sp</dimen>
     <dimen name="widget_subject_font_size">14sp</dimen>
     <dimen name="widget_date_font_size">14sp</dimen>
+
+    <!-- Account Setup Activities -->
+    <dimen name="setup_padding_top">16dip</dimen>
+    <dimen name="setup_padding_left">128dip</dimen>
+    <dimen name="setup_padding_right">128dip</dimen>
 </resources>

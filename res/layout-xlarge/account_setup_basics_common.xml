@@ -19,7 +19,10 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/setup_item_inset_left"
+    android:paddingRight="@dimen/setup_item_inset_right"
+    >
     <TextView
         android:id="@+id/instructions"
         android:layout_alignParentTop="true"
@@ -27,17 +30,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dip"
-        android:layout_marginLeft="16dip"
-        android:textSize="20sp"
         android:text="@string/accounts_welcome"
-        android:textColor="?android:attr/textColorPrimary" />
+        android:textAppearance="@style/accountSetupInfoText" />
     <TableLayout
         android:id="@+id/email_password_table"
         android:layout_below="@+id/instructions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dip"
-        android:layout_marginLeft="16dip"
         android:stretchColumns="1" >
         <TableRow
             android:paddingTop="16dip" >
@@ -46,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_marginRight="16dip"
                 android:text="@string/account_setup_basics_email_label"
-                android:textColor="?android:attr/textColorPrimary" />
+                android:textAppearance="@style/accountSetupLabelText" />
             <EditText
                 android:id="@+id/account_email"
                 android:layout_marginRight="96dip"
@@ -62,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_marginRight="16dip"
                 android:text="@string/account_setup_basics_password_label"
-                android:textColor="?android:attr/textColorPrimary" />
+                android:textAppearance="@style/accountSetupLabelText" />
             <EditText
                 android:id="@+id/account_password"
                 android:layout_marginRight="96dip"
@@ -92,6 +92,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:text="@string/account_setup_basics_default_label"
+        android:textAppearance="@style/accountSetupInfoText"
         android:visibility="gone" />
     <View
         android:id="@+id/account_default_divider_2"

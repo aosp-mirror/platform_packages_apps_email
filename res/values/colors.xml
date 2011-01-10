@@ -14,12 +14,14 @@
      limitations under the License.
 -->
 
-<!-- STOPSHIP need final colors for all of account_setup_* -->
 <!-- See also values-xlarge for specializations for xlarge screens -->
 <resources>
     <!-- Account setup screens -->
+    <!-- STOPSHIP need final colors for all of account_setup_* -->
     <color name="account_setup_headline_color">#FFA6C839</color>
-    <color name="account_setup_divider_color">#b6d650</color>
+    <color name="account_setup_info_text_color">#000000</color>
+    <color name="account_setup_label_text_color">#000000</color>
+    <color name="account_setup_divider_color">#ff808080</color>
 
     <!-- Main UI -->
     <color name="message_list_item_background_unread">#404040</color>

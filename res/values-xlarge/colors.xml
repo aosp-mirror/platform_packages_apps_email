@@ -14,12 +14,8 @@
      limitations under the License.
 -->
 
-<!-- STOPSHIP need final colors for all of account_setup_* -->
 <!-- Specializations for xlarge screens - most colors are in values/colors.xml -->
 <resources>
-    <!-- Account setup screens -->
-    <color name="account_setup_title_color">#FFA6C839</color>
-    <color name="account_setup_divider_color">#b6d650</color>
 
     <color name="message_view_fogged_glass_color">#00000000</color>
 
