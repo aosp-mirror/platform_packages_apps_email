@@ -384,10 +384,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         Log.d(TAG, "== Download of " + req.attachmentId + " timed out");
                     }
                    cancelDownload(req);
-                // STOPSHIP Remove this before ship
-                } else if (Email.DEBUG) {
-                    Log.d(TAG, "== ,  Download of " + req.attachmentId +
-                    " last callback " + (timeSinceCallback/1000) + "  secs ago");
                 }
             }
             // If there are downloads in progress, reset alarm
