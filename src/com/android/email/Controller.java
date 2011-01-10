@@ -98,8 +98,9 @@ public class Controller {
     private static final String WHERE_MESSAGE_KEY = Body.MESSAGE_KEY + "=?";
 
     private static final String MAILBOXES_FOR_ACCOUNT_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?";
-    private static final String MAILBOXES_FOR_ACCOUNT_NOT_INBOX_SELECTION =
-        MAILBOXES_FOR_ACCOUNT_SELECTION + " AND " + MailboxColumns.TYPE + "!=" + Mailbox.TYPE_INBOX;
+    private static final String MAILBOXES_FOR_ACCOUNT_EXCEPT_ACCOUNT_MAILBOX_SELECTION =
+        MAILBOXES_FOR_ACCOUNT_SELECTION + " AND " + MailboxColumns.TYPE + "!=" +
+        Mailbox.TYPE_EAS_ACCOUNT_MAILBOX;
     private static final String MESSAGES_FOR_ACCOUNT_SELECTION = MessageColumns.ACCOUNT_KEY + "=?";
 
     // Service callbacks as set up via setCallback
@@ -985,8 +986,8 @@ public class Controller {
      * policy requirements are not met, and we don't want to reveal any synced data, but we do
      * wish to keep the account configured (e.g. to accept remote wipe commands).
      *
-     * Also, leave behind an empty inbox, which simplifies things for the UI.
-     * Also, clear the sync keys on the remaining account & mailbox, since the data is gone.
+     * The only mailbox not deleted is the account mailbox (if any)
+     * Also, clear the sync keys on the remaining account, since the data is gone.
      *
      * SYNCHRONOUS - do not call from UI thread.
      *
@@ -1002,7 +1003,8 @@ public class Controller {
             // 2. Delete all remaining messages (which will be the inbox messages)
             ContentResolver resolver = mProviderContext.getContentResolver();
             String[] accountIdArgs = new String[] { Long.toString(accountId) };
-            resolver.delete(Mailbox.CONTENT_URI, MAILBOXES_FOR_ACCOUNT_NOT_INBOX_SELECTION,
+            resolver.delete(Mailbox.CONTENT_URI,
+                    MAILBOXES_FOR_ACCOUNT_EXCEPT_ACCOUNT_MAILBOX_SELECTION,
                     accountIdArgs);
             resolver.delete(Message.CONTENT_URI, MESSAGES_FOR_ACCOUNT_SELECTION, accountIdArgs);
 
@@ -1015,7 +1017,7 @@ public class Controller {
             resolver.update(Mailbox.CONTENT_URI, cv,
                     MAILBOXES_FOR_ACCOUNT_SELECTION, accountIdArgs);
 
-            // Delete PIM data (contacts, calendar) if applicable
+            // Delete PIM data (contacts, calendar), stop syncs, etc. if applicable
             IEmailService service = getServiceForAccount(accountId);
             if (service != null) {
                 service.deleteAccountPIMData(accountId);
