@@ -257,7 +257,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
                 }
                 // Second, check mailbox.
                 if (!Mailbox.canMoveFrom(c, message.mMailboxKey)) {
-                    Utility.showToast(mActivity, R.string.cannot_move_special_messages);
+                    Utility.showToast(mActivity, R.string.cannot_move_special_mailboxes_toast);
                     return -1L;
                 }
             }
