@@ -53,7 +53,17 @@
         <item name="android:textSize">18sp</item>
     </style>
 
+    <!-- Message view  -->
+    <style name="message_view_horizontal_divider">
+        <item name="android:layout_height">1dip</item>
+        <item name="android:background">?android:attr/dividerHorizontal</item>
+    </style>
+
     <!-- Message compose STOPSHIP not final -->
+    <style name="message_compose_horizontal_divider">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">?android:attr/dividerHorizontal</item>
+    </style>
     <style name="message_compose_header_field_container_no_tray" parent="PlainEditText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

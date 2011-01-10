@@ -189,7 +189,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_marginRight="@dimen/message_compose_header_button_area_width"
-                    style="@style/horizontalDivider"
+                    style="@style/message_compose_horizontal_divider"
                     />
                 <!--
                     Empty container for storing attachments. We'll stick
@@ -204,7 +204,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_marginRight="@dimen/message_compose_header_button_area_width"
-                    style="@style/horizontalDivider"
+                    style="@style/message_compose_horizontal_divider"
                     />
             </LinearLayout>
 
@@ -234,7 +234,7 @@
                 >
                 <View
                     android:layout_width="match_parent"
-                    style="@style/horizontalDivider"
+                    style="@style/message_compose_horizontal_divider"
                     />
                 <LinearLayout
                     android:orientation="horizontal"
@@ -270,7 +270,7 @@
                 </LinearLayout>
                 <View
                     android:layout_width="match_parent"
-                    style="@style/horizontalDivider"
+                    style="@style/message_compose_horizontal_divider"
                     />
             </LinearLayout>
             <!--

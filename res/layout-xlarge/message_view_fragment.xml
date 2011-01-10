@@ -64,7 +64,7 @@
                 android:layout_alignRight="@id/subject"
                 android:layout_marginTop="8dip"
                 android:layout_marginBottom="16dip"
-                style="@style/horizontalDivider"
+                style="@style/message_view_horizontal_divider"
                 />
 
             <!-- Badge -->
@@ -281,7 +281,7 @@
                 android:layout_alignRight="@id/subject"
                 android:layout_marginTop="8dip"
                 android:layout_marginBottom="2dip"
-                style="@style/horizontalDivider"
+                style="@style/message_view_horizontal_divider"
                 />
 
             <!--
@@ -305,7 +305,7 @@
                     android:orientation="horizontal"
                     android:paddingLeft="6dip"
                     android:paddingRight="6dip"
-                    android:divider="@drawable/divider"
+                    android:divider="?android:attr/dividerHorizontal"
                     android:showDividers="beginning|middle|end"
                     android:dividerPadding="8dip"
                     >
