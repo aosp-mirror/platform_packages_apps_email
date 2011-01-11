@@ -680,8 +680,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccountId, attachment.mId);
 
         try {
-            File file = Utility.createUniqueFile(Environment.getExternalStorageDirectory(),
-                    attachment.mFileName);
+            File downloads = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS);
+            downloads.mkdirs();
+            File file = Utility.createUniqueFile(downloads, attachment.mFileName);
             Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
                     mContext.getContentResolver(), attachmentUri);
             InputStream in = mContext.getContentResolver().openInputStream(contentUri);
