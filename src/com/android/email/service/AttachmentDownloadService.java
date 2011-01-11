@@ -16,12 +16,12 @@
 
 package com.android.email.service;
 
-import com.android.email.Controller.ControllerService;
 import com.android.email.Email;
-import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.Utility;
+import com.android.email.Controller.ControllerService;
+import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -487,8 +487,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 return;
             }
 
-            // Remove the request from the queue
-            remove(req);
+            // If the request is still in the queue, remove it
+            if (req != null) {
+                remove(req);
+            }
             if (Email.DEBUG) {
                 long secs = 0;
                 if (req != null) {
