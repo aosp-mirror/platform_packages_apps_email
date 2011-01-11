@@ -49,6 +49,8 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -201,6 +203,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     /**
      * Encapsulates known information about a single attachment.
+     *
+     * TODO: This should have methods to encapsulate the entire state graph of loading, canceling,
+     * viewing, and saving.
      */
     private static class AttachmentInfo {
         public String name;
@@ -213,6 +218,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         public Button cancelButton;
         public ImageView iconView;
         public ProgressBar progressView;
+        public boolean allowView;
+        public boolean allowSave;
+        public boolean isLoaded;
     }
 
     public interface Callback {
@@ -738,10 +746,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 }
                 @Override
                 protected void onPostExecute(Void result) {
-                    // If the load buttons is shown, it's already loaded -- don't show the stop
-                    // button.
-                    if (attachment.cancelButton.getVisibility() != View.VISIBLE
-                            && attachment.loadButton.getVisibility() != View.VISIBLE) {
+                    // If the timeout completes and the attachment has not loaded, show cancel
+                    if (!attachment.isLoaded) {
                         attachment.cancelButton.setVisibility(View.VISIBLE);
                     }
                 }
@@ -773,10 +779,15 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private void doFinishLoadAttachment(long attachmentId) {
         AttachmentInfo info = findAttachmentInfo(attachmentId);
         if (info != null) {
+            info.isLoaded = true;
+
             info.loadButton.setVisibility(View.GONE);
             info.cancelButton.setVisibility(View.GONE);
-            info.saveButton.setVisibility(TextUtils.isEmpty(info.name) ? View.GONE : View.VISIBLE);
-            info.viewButton.setVisibility(View.VISIBLE);
+
+            boolean showSave = info.allowSave && !TextUtils.isEmpty(info.name);
+            boolean showView = info.allowView;
+            info.saveButton.setVisibility(showSave ? View.VISIBLE : View.GONE);
+            info.viewButton.setVisibility(showView ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -1108,6 +1119,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 AttachmentProvider.inferMimeType(attachment.mFileName, attachment.mMimeType);
         attachmentInfo.name = attachment.mFileName;
         attachmentInfo.attachmentId = attachment.mId;
+        attachmentInfo.allowView = true;
+        attachmentInfo.allowSave = true;
+        attachmentInfo.isLoaded = false;
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.message_view_attachment, null);
@@ -1121,16 +1135,42 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         Button attachmentCancel = (Button)view.findViewById(R.id.cancel);
         ProgressBar attachmentProgress = (ProgressBar)view.findViewById(R.id.progress);
 
-        // TODO: Remove this test (acceptable types = everything; unacceptable = nothing)
-        if ((!MimeUtility.mimeTypeMatches(attachmentInfo.contentType,
-                Email.ACCEPTABLE_ATTACHMENT_VIEW_TYPES))
-                || (MimeUtility.mimeTypeMatches(attachmentInfo.contentType,
-                        Email.UNACCEPTABLE_ATTACHMENT_VIEW_TYPES))) {
-            attachmentView.setVisibility(View.GONE);
+        // Check for acceptable / unacceptable attachments by MIME-type
+        String contentType = attachmentInfo.contentType;
+        if ((!MimeUtility.mimeTypeMatches(contentType, Email.ACCEPTABLE_ATTACHMENT_VIEW_TYPES)) ||
+            (MimeUtility.mimeTypeMatches(contentType, Email.UNACCEPTABLE_ATTACHMENT_VIEW_TYPES))) {
+            attachmentInfo.allowView = false;
         }
 
+        // Check for unacceptable attachments by filename extension; hide both buttons
+        String extension = AttachmentProvider.getFilenameExtension(attachmentInfo.name);
+        if (!TextUtils.isEmpty(extension) &&
+                Utility.arrayContains(Email.UNACCEPTABLE_ATTACHMENT_EXTENSIONS, extension)) {
+            attachmentInfo.allowView = false;
+            attachmentInfo.allowSave = false;
+        }
+
+        // File size exceeded;  Hide both buttons
+        // The size limit is overridden when on a wifi connection - any size is OK
         if (attachmentInfo.size > Email.MAX_ATTACHMENT_DOWNLOAD_SIZE) {
+            ConnectivityManager cm = (ConnectivityManager)
+                    mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo network = cm.getActiveNetworkInfo();
+            if (network == null || network.getType() != ConnectivityManager.TYPE_WIFI) {
+                attachmentInfo.allowView = false;
+                attachmentInfo.allowSave = false;
+            }
+        }
+
+        // Don't enable the "save" button if we've got no place to save the file
+        if (!Utility.isExternalStorageMounted()) {
+            attachmentInfo.allowSave = false;
+        }
+
+        if (!attachmentInfo.allowView) {
             attachmentView.setVisibility(View.GONE);
+        }
+        if (!attachmentInfo.allowSave) {
             attachmentSave.setVisibility(View.GONE);
         }
 
@@ -1141,15 +1181,29 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         attachmentInfo.iconView = attachmentIcon;
         attachmentInfo.progressView = attachmentProgress;
 
-        // If the attachment is loaded, show 100% progress
-        // Note that for POP3 messages, the user will only see "Open" and "Save" since the entire
-        // message is loaded before being shown.
-        if (Utility.attachmentExists(mContext, attachment)) {
+        if (!attachmentInfo.allowView && !attachmentInfo.allowSave) {
+            // This attachment may never be viewed or saved, so block everything
+            attachmentProgress.setVisibility(View.GONE);
+            attachmentView.setVisibility(View.GONE);
+            attachmentSave.setVisibility(View.GONE);
+            attachmentLoad.setVisibility(View.GONE);
+            attachmentCancel.setVisibility(View.GONE);
+            // TODO: Maybe show a little icon to denote blocked download
+        } else if (Utility.attachmentExists(mContext, attachment)) {
+            // If the attachment is loaded, show 100% progress
+            // Note that for POP3 messages, the user will only see "Open" and "Save",
+            // because the entire message is loaded before being shown.
+            attachmentInfo.isLoaded = true;
+
             // Hide "Load", show "View" and "Save"
             attachmentProgress.setVisibility(View.VISIBLE);
             attachmentProgress.setProgress(100);
-            attachmentSave.setVisibility(View.VISIBLE);
-            attachmentView.setVisibility(View.VISIBLE);
+            if (attachmentInfo.allowSave) {
+                attachmentSave.setVisibility(View.VISIBLE);
+            }
+            if (attachmentInfo.allowView) {
+                attachmentView.setVisibility(View.VISIBLE);
+            }
             attachmentLoad.setVisibility(View.GONE);
             attachmentCancel.setVisibility(View.GONE);
 
@@ -1158,6 +1212,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 attachmentIcon.setImageBitmap(previewIcon);
             }
         } else {
+            // The attachment is not loaded, so present UI to start downloading it
+
             // Show "Load"; hide "View" and "Save"
             attachmentSave.setVisibility(View.GONE);
             attachmentView.setVisibility(View.GONE);
@@ -1173,11 +1229,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 attachmentLoad.setVisibility(View.VISIBLE);
                 attachmentCancel.setVisibility(View.GONE);
             }
-        }
-
-        // Don't enable the "save" button if we've got no place to save the file
-        if (!Utility.isExternalStorageMounted()) {
-            attachmentSave.setEnabled(false);
         }
 
         view.setTag(attachmentInfo);

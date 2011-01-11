@@ -208,11 +208,7 @@ public class AttachmentProvider extends ContentProvider {
 
         // Try to find an extension in the filename
         if (!TextUtils.isEmpty(fileName)) {
-            int lastDot = fileName.lastIndexOf('.');
-            String extension = null;
-            if ((lastDot > 0) && (lastDot < fileName.length() - 1)) {
-                extension = fileName.substring(lastDot + 1).toLowerCase();
-            }
+            String extension = getFilenameExtension(fileName);
             if (!TextUtils.isEmpty(extension)) {
                 // Extension found.  Look up mime type, or synthesize if none found.
                 mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
@@ -225,6 +221,22 @@ public class AttachmentProvider extends ContentProvider {
 
         // Fallback case - no good guess could be made.
         return "application/octet-stream";
+    }
+
+    /**
+     * Extract and return filename's extension, converted to lower case, and not including the "."
+     *
+     * @return extension, or null if not found (or null/empty filename)
+     */
+    public static String getFilenameExtension(String fileName) {
+        String extension = null;
+        if (!TextUtils.isEmpty(fileName)) {
+            int lastDot = fileName.lastIndexOf('.');
+            if ((lastDot > 0) && (lastDot < fileName.length() - 1)) {
+                extension = fileName.substring(lastDot + 1).toLowerCase();
+            }
+        }
+        return extension;
     }
 
     /**

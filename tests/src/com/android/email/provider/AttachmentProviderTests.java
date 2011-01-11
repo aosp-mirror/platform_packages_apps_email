@@ -313,6 +313,27 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
     }
 
     /**
+     * Text extension extractor
+     */
+    public void testGetFilenameExtension() {
+        final String FILE_NO_EXTENSION = "myfile";
+        final String FILE_EXTENSION = "myfile.pDf";
+        final String FILE_TWO_EXTENSIONS = "myfile.false.AbC";
+
+        assertNull(AttachmentProvider.getFilenameExtension(null));
+        assertNull(AttachmentProvider.getFilenameExtension(""));
+        assertNull(AttachmentProvider.getFilenameExtension(FILE_NO_EXTENSION));
+
+        assertEquals("pdf", AttachmentProvider.getFilenameExtension(FILE_EXTENSION));
+        assertEquals("abc", AttachmentProvider.getFilenameExtension(FILE_TWO_EXTENSIONS));
+
+        // The API makes no claim as to how these are handled (it probably should),
+        // but make sure that they don't crash.
+        AttachmentProvider.getFilenameExtension("filename.");
+        AttachmentProvider.getFilenameExtension(".extension");
+    }
+
+    /**
      * test openFile()
      *  - regular file
      *  - TODO: variations on the content URI
