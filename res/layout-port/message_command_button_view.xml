@@ -16,39 +16,51 @@
 
 <!-- Portrait -->
 
-<!-- extends RelativeLayout -->
+<!-- extends LinearLayout -->
 <com.android.email.activity.MessageCommandButtonView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="64dip"
     android:orientation="horizontal"
-    android:paddingTop="5dip"
-    android:paddingLeft="4dip"
-    android:paddingRight="4dip"
-    android:paddingBottom="1dip"
-    android:background="@android:drawable/bottom_bar"
+    android:gravity="center_vertical"
+    android:paddingLeft="16dip"
+    android:paddingRight="16dip"
     >
     <Button
         android:id="@+id/move_to_newer_button"
         android:text="@string/message_view_move_to_newer"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
+        android:minWidth="128dip"
+        />
+    <!-- Filler -->
+    <View
+        android:layout_height="0dip"
+        android:layout_width="0dip"
+        android:layout_weight="1"
+        android:visibility="invisible"
+        />
+    <TextView
+        android:id="@+id/message_position"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:gravity="center"
+        android:textSize="14dip"
+        android:textColor="@color/text_secondary_color"
+        android:singleLine="true"
+        />
+    <!-- Filler -->
+    <View
+        android:layout_height="0dip"
+        android:layout_width="0dip"
+        android:layout_weight="1"
+        android:visibility="invisible"
         />
     <Button
         android:id="@+id/move_to_older_button"
         android:text="@string/message_view_move_to_older"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        />
-    <TextView
-        android:id="@+id/message_position"
-        android:layout_height="wrap_content"
-        android:layout_width="0dip"
-        android:layout_toRightOf="@id/move_to_newer_button"
-        android:layout_toLeftOf="@id/move_to_older_button"
-        android:gravity="center"
-        android:layout_centerVertical="true"
+        android:minWidth="128dip"
         />
 </com.android.email.activity.MessageCommandButtonView>

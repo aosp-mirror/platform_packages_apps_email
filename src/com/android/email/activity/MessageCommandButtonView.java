@@ -21,7 +21,7 @@ import com.android.email.R;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -31,7 +31,7 @@ import android.widget.TextView;
  * This class is meant to hide layout differences between portrait and landscape, if any.
  * e.g. We might combine some of the buttons when we have small real estate.
  */
-public class MessageCommandButtonView extends RelativeLayout implements View.OnClickListener {
+public class MessageCommandButtonView extends LinearLayout implements View.OnClickListener {
     /**
      * If false, we don't want to show anything, in which case all fields holding a view
      * (e.g. {@link #mMoveToNewerButton}) are null.
