@@ -736,7 +736,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 }
                 @Override
                 protected void onPostExecute(Void result) {
-                    if (attachment.cancelButton.getVisibility() != View.VISIBLE) {
+                    // If the load buttons is shown, it's already loaded -- don't show the stop
+                    // button.
+                    if (attachment.cancelButton.getVisibility() != View.VISIBLE
+                            && attachment.loadButton.getVisibility() != View.VISIBLE) {
                         attachment.cancelButton.setVisibility(View.VISIBLE);
                     }
                 }
