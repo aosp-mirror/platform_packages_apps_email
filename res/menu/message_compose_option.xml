@@ -15,7 +15,6 @@
 -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- STOPSHIP Need icon-->
     <item
         android:id="@+id/send"
         android:title="@string/send_action"
@@ -23,13 +22,13 @@
         android:icon="@drawable/ic_menu_send_holo_light"
         android:alphabeticShortcut="s"
     />
+    <!-- "Save draft" should only be text -->
     <item
         android:id="@+id/save"
         android:title="@string/save_draft_action"
         android:showAsAction="always"
         android:alphabeticShortcut="d"
     />
-    <!-- STOPSHIP Need icon, don't need title-->
     <item
         android:id="@+id/discard"
         android:title="@string/discard_action"

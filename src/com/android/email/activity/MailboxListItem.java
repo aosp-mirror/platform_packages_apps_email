@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
 public class MailboxListItem extends RelativeLayout {
@@ -81,20 +80,5 @@ public class MailboxListItem extends RelativeLayout {
             setBackgroundDrawable(mBackground);
             return false;
         }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        // TODO Can we know we're in mailbox list / message list two-pane mode?  If so, we should
-        // check for this instead...
-        // We don't want a touch very near the right edge to be used to visit a folder, as it might
-        // easily have been an attempt to drag
-        // STOPSHIP
-        if (Welcome.useTwoPane(getContext()) && event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (event.getX() + 10 > this.getWidth()) {
-                return true;
-            }
-        }
-        return super.onTouchEvent(event);
     }
 }

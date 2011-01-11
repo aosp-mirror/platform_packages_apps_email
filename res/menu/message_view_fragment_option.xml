@@ -15,7 +15,6 @@
 -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- STOPSHIP Need icons, Don't need text -->
     <item
         android:id="@+id/move"
         android:orderInCategory="1000"

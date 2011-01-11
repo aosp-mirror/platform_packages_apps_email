@@ -15,7 +15,6 @@
 -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- STOPSHIP Need icon -->
     <item
         android:id="@+id/send"
         android:orderInCategory="50"
