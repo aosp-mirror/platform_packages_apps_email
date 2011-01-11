@@ -185,5 +185,9 @@
         <item>@color/combined_view_account_color_3</item>
         <item>@color/combined_view_account_color_4</item>
         <item>@color/combined_view_account_color_5</item>
+        <item>@color/combined_view_account_color_6</item>
+        <item>@color/combined_view_account_color_7</item>
+        <item>@color/combined_view_account_color_8</item>
+        <item>@color/combined_view_account_color_9</item>
     </array>
 </resources>
