@@ -609,7 +609,7 @@ public class MessageListFragment extends ListFragment
             }
             // Start dragging now
             listItem.setOnDragListener(this);
-            listItem.startDrag(data, new ShadowBuilder(listItem, size), false, null);
+            listItem.startDrag(data, new ShadowBuilder(listItem, size), null, 0);
             return true;
         }
         return false;
