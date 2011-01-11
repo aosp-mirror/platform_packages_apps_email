@@ -20,11 +20,11 @@ package com.android.exchange.adapter;
 import com.android.email.Utility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
-import com.android.email.provider.EmailProvider;
 import com.android.exchange.Eas;
 import com.android.exchange.ExchangeService;
 import com.android.exchange.MockParserStream;
@@ -67,8 +67,8 @@ public class FolderSyncParser extends AbstractSyncParser {
     public static final int JOURNAL_TYPE = 11;
     public static final int USER_MAILBOX_TYPE = 12;
 
-    // Maximum user mailboxes we will handle (to prevent binder overload when sending to provider)
-    public final static int MAX_USER_MAILBOXES = 1000;
+    // Chunk size for our mailbox commits
+    public final static int MAILBOX_COMMIT_SIZE = 20;
 
     // EAS types that we are willing to consider valid folders for EAS sync
     public static final List<Integer> VALID_EAS_FOLDER_TYPES = Arrays.asList(INBOX_TYPE,
@@ -111,6 +111,14 @@ public class FolderSyncParser extends AbstractSyncParser {
         int status;
         boolean res = false;
         boolean resetFolders = false;
+        // Since we're now (potentially) committing mailboxes in chunks, ensure that we start with
+        // only the account mailbox
+        String key = mAccount.mSyncKey;
+        boolean initialSync = (key == null) || "0".equals(key);
+        if (initialSync) {
+            mContentResolver.delete(Mailbox.CONTENT_URI, ALL_BUT_ACCOUNT_MAILBOX,
+                    new String[] {Long.toString(mAccountId)});
+        }
         if (nextTag(START_DOCUMENT) != Tags.FOLDER_FOLDER_SYNC)
             throw new EasParserException();
         while (nextTag(START_DOCUMENT) != END_DOCUMENT) {
@@ -138,7 +146,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                 mAccount.mSyncKey = getValue();
                 userLog("New Account SyncKey: ", mAccount.mSyncKey);
             } else if (tag == Tags.FOLDER_CHANGES) {
-                changesParser(mOperations);
+                changesParser(mOperations, initialSync);
             } else
                 skipTag();
         }
@@ -353,7 +361,42 @@ public class FolderSyncParser extends AbstractSyncParser {
         }
     }
 
-    public void changesParser(ArrayList<ContentProviderOperation> ops) throws IOException {
+    private void commitMailboxes(ArrayList<Mailbox> validMailboxes,
+            ArrayList<Mailbox> userMailboxes, HashMap<String, Mailbox> mailboxMap,
+            ArrayList<ContentProviderOperation> ops) throws IOException {
+
+        // Go through the generic user mailboxes; we'll call them valid if any parent is valid
+        for (Mailbox m: userMailboxes) {
+            if (isValidMailFolder(m, mailboxMap)) {
+                m.mType = Mailbox.TYPE_MAIL;
+                validMailboxes.add(m);
+            } else {
+                userLog("Rejecting unknown type mailbox: " + m.mDisplayName);
+            }
+        }
+
+        // Add operations for all valid mailboxes
+        for (Mailbox m: validMailboxes) {
+            userLog("Adding mailbox: ", m.mDisplayName);
+            ops.add(ContentProviderOperation
+                    .newInsert(Mailbox.CONTENT_URI).withValues(m.toContentValues()).build());
+        }
+
+        // Commit the mailboxes
+        userLog("Applying ", mOperations.size(), " mailbox operations.");
+        // Execute the batch; throw IOExceptions if this fails, hoping the issue isn't repeatable
+        // If it IS repeatable, there's no good result, since the folder list will be invalid
+        try {
+            mContentResolver.applyBatch(EmailProvider.EMAIL_AUTHORITY, mOperations);
+        } catch (RemoteException e) {
+            throw new IOException("RemoteException committing folders.");
+        } catch (OperationApplicationException e) {
+            throw new IOException("OperationApplicationException committing folders.");
+        }
+    }
+
+    public void changesParser(ArrayList<ContentProviderOperation> ops, boolean initialSync)
+            throws IOException {
         // Mailboxes that we known contain email
         ArrayList<Mailbox> validMailboxes = new ArrayList<Mailbox>();
         // Mailboxes that we're unsure about
@@ -361,7 +404,7 @@ public class FolderSyncParser extends AbstractSyncParser {
         // Maps folder serverId to mailbox type
         HashMap<String, Mailbox> mailboxMap = new HashMap<String, Mailbox>();
 
-        int userMailboxCount = 0;
+        int mailboxAddCount = 0;
         while (nextTag(Tags.FOLDER_CHANGES) != END) {
             if (tag == Tags.FOLDER_ADD) {
                 Mailbox mailbox = addParser();
@@ -370,13 +413,18 @@ public class FolderSyncParser extends AbstractSyncParser {
                     mailboxMap.put(mailbox.mServerId, mailbox);
                     // And add the mailbox to the proper list
                     if (type == USER_MAILBOX_TYPE) {
-                        // Limit user mailboxes to 1000
-                        if (++userMailboxCount < MAX_USER_MAILBOXES) {
-                            userMailboxes.add(mailbox);
-                        }
-                        // TODO: Consider ways to avoid having to truncate the list of mailboxes
+                        userMailboxes.add(mailbox);
                     } else {
                         validMailboxes.add(mailbox);
+                    }
+                    // On initial sync, we commit what we have every 20 mailboxes
+                    if (initialSync && (++mailboxAddCount == MAILBOX_COMMIT_SIZE)) {
+                        commitMailboxes(validMailboxes, userMailboxes, mailboxMap, ops);
+                        // Clear our arrays to prepare for more
+                        userMailboxes.clear();
+                        validMailboxes.clear();
+                        ops.clear();
+                        mailboxAddCount = 0;
                     }
                 }
             } else if (tag == Tags.FOLDER_DELETE) {
@@ -397,21 +445,14 @@ public class FolderSyncParser extends AbstractSyncParser {
             return;
         }
 
-        // Go through the generic user mailboxes; we'll call them valid if any parent is valid
-        for (Mailbox m: userMailboxes) {
-            if (isValidMailFolder(m, mailboxMap)) {
-                m.mType = Mailbox.TYPE_MAIL;
-                validMailboxes.add(m);
-            } else {
-                userLog("Rejecting unknown type mailbox: " + m.mDisplayName);
-            }
-        }
-
-        for (Mailbox m: validMailboxes) {
-            userLog("Adding mailbox: ", m.mDisplayName);
-            ops.add(ContentProviderOperation
-                    .newInsert(Mailbox.CONTENT_URI).withValues(m.toContentValues()).build());
-        }
+        // Commit the sync key and mailboxes
+        ContentValues cv = new ContentValues();
+        cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
+        ops.add(ContentProviderOperation.newUpdate(
+                ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId))
+                .withValues(cv)
+                .build());
+        commitMailboxes(validMailboxes, userMailboxes, mailboxMap, ops);
     }
 
     /**
@@ -422,30 +463,10 @@ public class FolderSyncParser extends AbstractSyncParser {
     }
 
     /**
-     * Commit all changes from this sync (sync key, adds, updates, and deletes)
+     * Clean up after sync
      */
     @Override
     public void commit() throws IOException {
-        // Commit the sync key
-        ContentValues cv = new ContentValues();
-        cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
-        mOperations.add(ContentProviderOperation.newUpdate(
-                ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId))
-                .withValues(cv)
-                .build());
-
-        userLog("Applying ", mOperations.size(), " mailbox operations.");
-
-        // Execute the batch
-        try {
-            mContentResolver.applyBatch(EmailProvider.EMAIL_AUTHORITY, mOperations);
-            userLog("New Account SyncKey: ", mAccount.mSyncKey);
-        } catch (RemoteException e) {
-            // There is nothing to be done here; fail by returning null
-        } catch (OperationApplicationException e) {
-            // There is nothing to be done here; fail by returning null
-        }
-
         // Look for sync issues and its children and delete them
         // I'm not aware of any other way to deal with this properly
         mBindArguments[0] = "Sync Issues";
