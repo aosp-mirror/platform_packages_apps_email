@@ -174,7 +174,6 @@
             android:layout_height="match_parent"
             android:layout_width="0dip"
             android:layout_weight="1" />
-        <!-- STOPSHIP Need icon -->
         <Button
             android:id="@+id/add_attachment"
             android:text="@string/add_attachment_action"

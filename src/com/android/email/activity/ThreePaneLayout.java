@@ -44,7 +44,6 @@ import android.widget.LinearLayout;
 public class ThreePaneLayout extends LinearLayout implements View.OnClickListener {
     private static final boolean ANIMATION_DEBUG = false; // DON'T SUBMIT WITH true
 
-    // STOPSHIP Make sure we're using the same parameters as gmail does
     private static final int ANIMATION_DURATION = ANIMATION_DEBUG ? 1000 : 80;
     private static final TimeInterpolator INTERPOLATOR = new DecelerateInterpolator(1.5f);
 
