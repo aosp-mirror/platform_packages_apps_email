@@ -343,10 +343,15 @@
                     </LinearLayout>
                     <View
                         android:layout_width="match_parent"
-                        android:layout_marginBottom="16dip"
                         style="@style/message_view_horizontal_divider"
                         />
                 </LinearLayout>
+
+                <!-- margin -->
+                <View
+                    android:layout_width="0dip"
+                    android:layout_height="16dip"
+                    />
 
                 <!-- content area - only one of them is visible at a time -->
                 <!-- Message body -->
@@ -400,8 +405,6 @@
     <include
         layout="@layout/message_command_button_view"
         android:id="@+id/message_command_buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:visibility="gone"
         />
 </LinearLayout>

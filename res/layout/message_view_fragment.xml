@@ -251,8 +251,6 @@
     <include
         layout="@layout/message_command_button_view"
         android:id="@+id/message_command_buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:visibility="gone"
         />
 </LinearLayout>
