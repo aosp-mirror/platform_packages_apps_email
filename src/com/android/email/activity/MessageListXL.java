@@ -383,14 +383,12 @@ public class MessageListXL extends Activity implements
      * Disable/enable the move-to-newer/older buttons.
      */
     private void updateNavigationArrows() {
-        MessageViewFragment f = mFragmentManager.getMessageViewFragment();
-        if (f == null) {
-            return;
-        }
         if (mOrderManager == null) {
-            f.enableNavigationButons(false, false, 0, 0); // shouldn't happen, but just in case
+            // shouldn't happen, but just in case
+            mFragmentManager.updateMessageCommandButtons(false, false, 0, 0);
         } else {
-            f.enableNavigationButons(mOrderManager.canMoveToNewer(), mOrderManager.canMoveToOlder(),
+            mFragmentManager.updateMessageCommandButtons(
+                    mOrderManager.canMoveToNewer(), mOrderManager.canMoveToOlder(),
                     mOrderManager.getCurrentPosition(), mOrderManager.getTotalMessageCount());
         }
     }
@@ -505,16 +503,6 @@ public class MessageListXL extends Activity implements
         }
 
         @Override
-        public void onMoveToNewer() {
-            moveToNewer();
-        }
-
-        @Override
-        public void onMoveToOlder() {
-            moveToOlder();
-        }
-
-        @Override
         public void onBeforeMessageDelete() {
             onCurrentMessageGone();
         }
@@ -553,6 +541,16 @@ public class MessageListXL extends Activity implements
     @Override
     public void onMailboxChanged(long accountId, long newMailboxId) {
         updateProgressIcon();
+    }
+
+    @Override
+    public void onMoveToNewer() {
+        moveToNewer();
+    }
+
+    @Override
+    public void onMoveToOlder() {
+        moveToOlder();
     }
 
     /**

@@ -61,7 +61,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
     private CheckBox mMeetingYes;
     private CheckBox mMeetingMaybe;
     private CheckBox mMeetingNo;
-    private MessageCommandButtonView mCommandButtons;
     private int mPreviousMeetingResponse = -1;
 
     private Drawable mFavoriteIconOn;
@@ -77,8 +76,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
     /** ID of the currently shown message */
     private long mCurrentMessageId = -1;
-
-    private final CommandButtonCallback mCommandButtonCallback = new CommandButtonCallback();
 
     /**
      * This class has more call backs than {@link MessageViewFragmentBase}.
@@ -106,12 +103,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
         /** Called when the current message is set unread. */
         public void onMessageSetUnread();
 
-        /** Called when "move to newer" button is pressed. */
-        public void onMoveToNewer();
-
-        /** Called when "move to older" button is pressed. */
-        public void onMoveToOlder();
-
         /**
          * Called right before the current message will be deleted.
          * Callees don't have to delete messages.  The fragment does.
@@ -135,8 +126,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
         @Override public void onCalendarLinkClicked(long epochEventStartTime) { }
         @Override public void onMessageSetUnread() { }
         @Override public void onRespondedToInvite(int response) { }
-        @Override public void onMoveToNewer() { }
-        @Override public void onMoveToOlder() { }
         @Override public void onBeforeMessageDelete() { }
         @Override public void onMoveMessage() { }
         @Override public void onForward() { }
@@ -180,12 +169,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
         mMeetingMaybe.setOnCheckedChangeListener(this);
         mMeetingNo.setOnCheckedChangeListener(this);
         view.findViewById(R.id.invite_link).setOnClickListener(this);
-
-        // Show the command buttons at the bottom.
-        mCommandButtons =
-                (MessageCommandButtonView) view.findViewById(R.id.message_command_buttons);
-        mCommandButtons.setVisibility(View.VISIBLE);
-        mCommandButtons.setCallback(mCommandButtonCallback);
 
         enableReplyForwardButtons(false);
 
@@ -284,12 +267,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
         // Show the menu when it's showing a message.
         setHasOptionsMenu(true);
-    }
-
-    public void enableNavigationButons(boolean enableMoveToNewer, boolean enableMoveToOlder,
-            int currentPosition, int countMessages) {
-        mCommandButtons.enableNavigationButtons(enableMoveToNewer, enableMoveToOlder,
-                currentPosition, countMessages);
     }
 
     /**
@@ -440,18 +417,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
         // Enable the invite tab if necessary
         if ((message.mFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0) {
             addTabFlags(TAB_FLAGS_HAS_INVITE);
-        }
-    }
-
-    private class CommandButtonCallback implements MessageCommandButtonView.Callback {
-        @Override
-        public void onMoveToNewer() {
-            mCallback.onMoveToNewer();
-        }
-
-        @Override
-        public void onMoveToOlder() {
-            mCallback.onMoveToOlder();
         }
     }
 }

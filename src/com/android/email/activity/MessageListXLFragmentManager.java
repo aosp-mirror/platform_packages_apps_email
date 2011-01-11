@@ -70,6 +70,7 @@ class MessageListXLFragmentManager {
     private MailboxListFragment mMailboxListFragment;
     private MessageListFragment mMessageListFragment;
     private MessageViewFragment mMessageViewFragment;
+    private MessageCommandButtonView mMessageCommandButtons;
 
     private MailboxFinder mMailboxFinder;
     private final MailboxFinderCallback mMailboxFinderCallback = new MailboxFinderCallback();
@@ -104,6 +105,12 @@ class MessageListXLFragmentManager {
          */
         public void onMailboxChanged(long accountId, long newMailboxId);
 
+        /** Called when "move to newer" button is pressed. */
+        public void onMoveToNewer();
+
+        /** Called when "move to older" button is pressed. */
+        public void onMoveToOlder();
+
         public View findViewById(int id);
     }
 
@@ -134,6 +141,8 @@ class MessageListXLFragmentManager {
                 mThreePane.getMiddlePaneId());
         mMessageViewFragment = (MessageViewFragment) fm.findFragmentById(
                 mThreePane.getRightPaneId());
+        mMessageCommandButtons = mThreePane.getMessageCommandButtons();
+        mMessageCommandButtons.setCallback(new CommandButtonCallback());
 
         mActionBar = mTargetActivity.getActionBar();
 
@@ -517,6 +526,24 @@ class MessageListXLFragmentManager {
                 Log.d(Email.LOG_TAG, "MailboxFinderCallback.onMailboxNotFound");
             }
             // Shouldn't happen
+        }
+    }
+
+    public void updateMessageCommandButtons(boolean enableMoveToNewer, boolean enableMoveToOlder,
+            int currentPosition, int countMessages) {
+        mMessageCommandButtons.enableNavigationButtons(enableMoveToNewer, enableMoveToOlder,
+                currentPosition, countMessages);
+    }
+
+    private class CommandButtonCallback implements MessageCommandButtonView.Callback {
+        @Override
+        public void onMoveToNewer() {
+            mTargetActivity.onMoveToNewer();
+        }
+
+        @Override
+        public void onMoveToOlder() {
+            mTargetActivity.onMoveToOlder();
         }
     }
 

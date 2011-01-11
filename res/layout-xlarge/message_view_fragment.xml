@@ -399,12 +399,4 @@
             </LinearLayout>
         </RelativeLayout>
     </FrameLayout>
-
-    <!-- Buttons at the bottom.
-         Only MessageViewFragment uses these. MessageFileViewFragment doesn't. -->
-    <include
-        layout="@layout/message_command_button_view"
-        android:id="@+id/message_command_buttons"
-        android:visibility="gone"
-        />
 </LinearLayout>

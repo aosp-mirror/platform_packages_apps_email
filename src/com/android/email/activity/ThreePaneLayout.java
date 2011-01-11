@@ -48,16 +48,16 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     private static final TimeInterpolator INTERPOLATOR = new DecelerateInterpolator(1.5f);
 
     /** Uninitialized state -- {@link #changePaneState} hasn't been called yet. */
-    private static final int STATE_UNINITIALIZED = 0;
+    private static final int STATE_UNINITIALIZED = -1;
 
     /** Mailbox list + message list */
-    private static final int STATE_LEFT_VISIBLE = 1;
+    private static final int STATE_LEFT_VISIBLE = 0;
 
     /** Message view on portrait, + message list on landscape. */
-    private static final int STATE_RIGHT_VISIBLE = 2;
+    private static final int STATE_RIGHT_VISIBLE = 1;
 
     /** Portrait mode only: message view + expanded message list */
-    private static final int STATE_PORTRAIT_MIDDLE_EXPANDED = 3;
+    private static final int STATE_PORTRAIT_MIDDLE_EXPANDED = 2;
 
     // Flags for getVisiblePanes()
     public static final int PANE_LEFT = 1 << 2;
@@ -73,6 +73,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     private View mLeftPane;
     private View mMiddlePane;
     private View mRightPane;
+    private MessageCommandButtonView mMessageCommandButtons;
 
     // Views used only on portrait
     private View mFoggedGlass;
@@ -98,12 +99,15 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
      */
     private AnimatorListener mLastAnimatorListener;
 
+    // 2nd index for {@link #changePaneState}
+    private final int INDEX_VISIBLE = 0;
+    private final int INDEX_INVISIBLE = 1;
+    private final int INDEX_GONE = 2;
+
     // Arrays used in {@link #changePaneState}
-    private View[] mViewsLeft;
-    private View[] mViewsRight;
-    private View[] mViewsLeftMiddle;
-    private View[] mViewsMiddleRightFogged;
-    private View[] mViewsLeftMiddleFogged;
+    // First index: STATE_*
+    // Second index: INDEX_*
+    private View[][][] mShowHideViews;
 
     private Callback mCallback = EmptyCallback.INSTANCE;
 
@@ -144,6 +148,8 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
         mLeftPane = findViewById(R.id.left_pane);
         mMiddlePane = findViewById(R.id.middle_pane);
+        mMessageCommandButtons =
+                (MessageCommandButtonView) findViewById(R.id.message_command_buttons);
 
         mFoggedGlass = findViewById(R.id.fogged_glass);
         if (mFoggedGlass != null) { // If it's around, it's portrait.
@@ -152,11 +158,50 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         } else { // landscape
             mRightPane = findViewById(R.id.right_pane);
         }
-        mViewsLeft = new View[] {mLeftPane};
-        mViewsRight = new View[] {mRightPane};
-        mViewsLeftMiddle = new View[] {mLeftPane, mMiddlePane};
-        mViewsMiddleRightFogged = new View[] {mMiddlePane, mRightPane, mFoggedGlass};
-        mViewsLeftMiddleFogged = new View[] {mLeftPane, mMiddlePane, mFoggedGlass};
+
+        if (isLandscape()) {
+            mShowHideViews = new View[][][] {
+                    // STATE_LEFT_VISIBLE
+                    {
+                        {mLeftPane, mMiddlePane}, // Visible
+                        {mRightPane}, // Invisible
+                        {mMessageCommandButtons}, // Gone
+                    },
+                    // STATE_RIGHT_VISIBLE
+                    {
+                        {mMiddlePane, mMessageCommandButtons, mRightPane}, // Visible
+                        {mLeftPane}, // Invisible
+                        {}, // Gone
+                    },
+                    // STATE_PORTRAIT_MIDDLE_EXPANDED -- not used in landscape
+                    {
+                        {}, // Visible
+                        {}, // Invisible
+                        {}, // Gone
+                    },
+            };
+        } else {
+            mShowHideViews = new View[][][] {
+                    // STATE_LEFT_VISIBLE
+                    {
+                        {mLeftPane, mMiddlePane}, // Visible
+                        {mRightPane, mFoggedGlass}, // Invisible
+                        {mMessageCommandButtons}, // Gone
+                    },
+                    // STATE_RIGHT_VISIBLE
+                    {
+                        {mRightPane, mMessageCommandButtons}, // Visible
+                        {mLeftPane, mMiddlePane, mFoggedGlass}, // Invisible
+                        {}, // Gone
+                    },
+                    // STATE_PORTRAIT_MIDDLE_EXPANDED
+                    {
+                        {mMiddlePane, mRightPane, mMessageCommandButtons, mFoggedGlass}, // Visible
+                        {mLeftPane}, // Invisible
+                        {}, // Gone
+                    },
+            };
+        }
 
         mInitialPaneState = STATE_LEFT_VISIBLE;
 
@@ -173,6 +218,10 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
     private boolean isLandscape() {
         return mFoggedGlass == null;
+    }
+
+    public MessageCommandButtonView getMessageCommandButtons() {
+        return mMessageCommandButtons;
     }
 
     @Override
@@ -300,9 +349,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
         final String animatorLabel; // for debug purpose
 
-        final View[] viewsToShow;
-        final View[] viewsToHide;
-
         if (isLandscape()) { // Landscape
             setViewWidth(mLeftPane, mMailboxListWidth);
             setViewWidth(mRightPane, totalWidth - mMessageListWidth);
@@ -313,16 +359,12 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                     animatorLabel = "moving to [mailbox list + message list]";
                     expectedMailboxLeft = 0;
                     expectedMessageListWidth = totalWidth - mMailboxListWidth;
-                    viewsToShow = mViewsLeft;
-                    viewsToHide = mViewsRight;
                     break;
                 case STATE_RIGHT_VISIBLE:
                     // message list + message view
                     animatorLabel = "moving to [message list + message view]";
                     expectedMailboxLeft = -mMailboxListWidth;
                     expectedMessageListWidth = mMessageListWidth;
-                    viewsToShow = mViewsRight;
-                    viewsToHide = mViewsLeft;
                     break;
                 default:
                     throw new IllegalStateException();
@@ -338,32 +380,30 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                     animatorLabel = "moving to [mailbox list + message list]";
                     expectedMailboxLeft = 0;
                     expectedMessageListWidth = totalWidth - mMailboxListWidth;
-                    viewsToShow = mViewsLeftMiddle;
-                    viewsToHide = mViewsRight;
                     break;
                 case STATE_PORTRAIT_MIDDLE_EXPANDED:
                     // mailbox + message list -> message list + message view
                     animatorLabel = "moving to [message list + message view]";
                     expectedMailboxLeft = -mMailboxListWidth;
                     expectedMessageListWidth = mMessageListWidth;
-                    viewsToShow = mViewsMiddleRightFogged;
-                    viewsToHide = mViewsLeft;
                     break;
                 case STATE_RIGHT_VISIBLE:
                     // message view only
                     animatorLabel = "moving to [message view]";
                     expectedMailboxLeft = -(mMailboxListWidth + mMessageListWidth);
                     expectedMessageListWidth = mMessageListWidth;
-                    viewsToShow = mViewsRight;
-                    viewsToHide = mViewsLeftMiddleFogged;
                     break;
                 default:
                     throw new IllegalStateException();
             }
         }
 
-        final AnimatorListener listener = new AnimatorListener(animatorLabel, viewsToShow,
-                viewsToHide, previousVisiblePanes) ;
+        final View[][] showHideViews = mShowHideViews[mPaneState];
+        final AnimatorListener listener = new AnimatorListener(animatorLabel,
+                showHideViews[INDEX_VISIBLE],
+                showHideViews[INDEX_INVISIBLE],
+                showHideViews[INDEX_GONE],
+                previousVisiblePanes);
 
         // Animation properties -- mailbox list left and message list width, at the same time.
         startLayoutAnimation(animate ? ANIMATION_DURATION : 0, listener,
@@ -470,17 +510,19 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
      */
     private class AnimatorListener implements Animator.AnimatorListener {
         private final String mLogLabel;
-        private final View[] mViewsToShow;
-        private final View[] mViewsToHide;
+        private final View[] mViewsVisible;
+        private final View[] mViewsInvisible;
+        private final View[] mViewsGone;
         private final int mPreviousVisiblePanes;
 
         private boolean mCancelled;
 
-        public AnimatorListener(String logLabel, View[] viewsToShow, View[] viewsToHide,
-                int previousVisiblePanes) {
+        public AnimatorListener(String logLabel, View[] viewsVisible, View[] viewsInvisible,
+                View[] viewsGone, int previousVisiblePanes) {
             mLogLabel = logLabel;
-            mViewsToShow = viewsToShow;
-            mViewsToHide = viewsToHide;
+            mViewsVisible = viewsVisible;
+            mViewsInvisible = viewsInvisible;
+            mViewsGone = viewsGone;
             mPreviousVisiblePanes = previousVisiblePanes;
         }
 
@@ -501,7 +543,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         @Override
         public void onAnimationStart(Animator animation) {
             log("start");
-            for (View v : mViewsToShow) {
+            for (View v : mViewsVisible) {
                 v.setVisibility(View.VISIBLE);
             }
             mCallback.onVisiblePanesChanged(mPreviousVisiblePanes);
@@ -524,8 +566,11 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                 return; // But they shouldn't be hidden when cancelled.
             }
             log("end");
-            for (View v : mViewsToHide) {
+            for (View v : mViewsInvisible) {
                 v.setVisibility(View.INVISIBLE);
+            }
+            for (View v : mViewsGone) {
+                v.setVisibility(View.GONE);
             }
             mCallback.onVisiblePanesChanged(mPreviousVisiblePanes);
         }

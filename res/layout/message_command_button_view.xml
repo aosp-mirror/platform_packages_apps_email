@@ -14,8 +14,6 @@
      limitations under the License.
 -->
 
-<!-- Portrait -->
-
 <!-- extends LinearLayout -->
 <com.android.email.activity.MessageCommandButtonView
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -25,6 +23,7 @@
     android:gravity="center_vertical"
     android:paddingLeft="16dip"
     android:paddingRight="16dip"
+    android:background="#fff"
     >
     <Button
         android:id="@+id/move_to_newer_button"

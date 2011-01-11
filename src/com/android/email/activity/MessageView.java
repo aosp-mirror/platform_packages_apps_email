@@ -350,16 +350,6 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
     }
 
     @Override
-    public void onMoveToNewer() {
-        // TODO Implement this
-    }
-
-    @Override
-    public void onMoveToOlder() {
-        // TODO Implement this
-    }
-
-    @Override
     public void onBeforeMessageDelete() {
         // TODO Implement this
     }

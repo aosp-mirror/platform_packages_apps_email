@@ -244,13 +244,4 @@
             />
     </ScrollView>
     <!-- end of content area -->
-    <!--
-        Buttons such as delete, mark unread.  Only MessageViewFragment uses these.
-        MessageFileViewFragment doesn't.
-    -->
-    <include
-        layout="@layout/message_command_button_view"
-        android:id="@+id/message_command_buttons"
-        android:visibility="gone"
-        />
 </LinearLayout>
