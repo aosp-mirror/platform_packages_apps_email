@@ -729,6 +729,11 @@ public class WidgetProvider extends AppWidgetProvider {
                     if (widget != null) {
                         WidgetViewSwitcher switcher = new WidgetViewSwitcher(widget);
                         switcher.execute();
+                        // STOPHIP Remove logging
+                        Log.d(TAG, "Widget " + widget.mWidgetId + ", chg to " + widget.mViewType);
+                    // STOPSHIP Remove logging
+                    } else {
+                        Log.d(TAG, "Can't switch widget view, not found: " + (int)arg1);
                     }
                 }
             } catch (NumberFormatException e) {
