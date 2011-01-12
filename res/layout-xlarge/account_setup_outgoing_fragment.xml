@@ -17,13 +17,9 @@
 <!-- Incoming server settings - xlarge - see layout/ for phone UX variant -->
 <!-- This is used directly by the account setup activity, but during settings it is
      wrapped in an outer layout (account_settings_outgoing_fragment) -->
-<!-- TODO add back styles for final appearance -->
 <TableLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="16dip"
-    android:layout_marginLeft="16dip"
-    android:layout_marginRight="96dip"
     android:stretchColumns="1" >
 
     <TableRow
