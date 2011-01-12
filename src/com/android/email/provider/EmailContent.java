@@ -544,6 +544,9 @@ public abstract class EmailContent {
         private static final String FAVORITE_COUNT_SELECTION =
             MessageColumns.FLAG_FAVORITE + "= 1";
 
+        private static final String ACCOUNT_FAVORITE_COUNT_SELECTION =
+            MessageColumns.FLAG_FAVORITE + "= 1 AND " + MessageColumns.ACCOUNT_KEY + "=?";
+
         private static final String ACCOUNT_KEY_SELECTION =
             MessageColumns.ACCOUNT_KEY + "=?";
 
@@ -856,6 +859,14 @@ public abstract class EmailContent {
          */
         public static int getFavoriteMessageCount(Context context) {
             return count(context, Message.CONTENT_URI, FAVORITE_COUNT_SELECTION, null);
+        }
+
+        /**
+         * @return number of favorite (starred) messages for an account
+         */
+        public static int getFavoriteMessageCount(Context context, long accountId) {
+            return count(context, Message.CONTENT_URI, ACCOUNT_FAVORITE_COUNT_SELECTION,
+                    new String[]{Long.toString(accountId)});
         }
 
         public static long getKeyColumnLong(Context context, long messageId, String column) {
