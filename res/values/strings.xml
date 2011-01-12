@@ -304,6 +304,10 @@
     <string name="message_view_bcc_label">Bcc:</string>
     <!-- Label for the date field. [CHAR LIMIT=20]-->
     <string name="message_view_date_label">Date:</string>
+    <!-- Label for the from field. [CHAR LIMIT=20]-->
+    <string name="message_view_from_label">From:</string>
+    <!-- Label for the subject field. [CHAR LIMIT=20]-->
+    <string name="message_view_subject_label">Subject:</string>
     <!-- Button name to view an attachment (in another activity) [CHAR LIMIT=10]-->
     <string name="message_view_attachment_view_action">View</string>
     <!-- Button name, to load an attachment from the mail server [CHAR LIMIT=10]-->

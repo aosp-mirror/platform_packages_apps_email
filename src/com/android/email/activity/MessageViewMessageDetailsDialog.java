@@ -33,17 +33,21 @@ import android.widget.TextView;
  * "Message Details" dialog box.
  */
 public class MessageViewMessageDetailsDialog  extends DialogFragment {
+    private static final String BUNDLE_SUBJECT = "subject";
     private static final String BUNDLE_DATE = "date";
+    private static final String BUNDLE_FROM = "from";
     private static final String BUNDLE_TO = "to";
     private static final String BUNDLE_CC = "cc";
     private static final String BUNDLE_BCC = "bcc";
     private static final String TextView = null;
 
-    public static MessageViewMessageDetailsDialog newInstance(Activity parent, String date,
-            String to, String cc, String bcc) {
+    public static MessageViewMessageDetailsDialog newInstance(Activity parent, String subject,
+            String date, String from, String to, String cc, String bcc) {
         MessageViewMessageDetailsDialog dialog = new MessageViewMessageDetailsDialog();
         Bundle args = new Bundle();
+        args.putString(BUNDLE_SUBJECT, subject);
         args.putString(BUNDLE_DATE, date);
+        args.putString(BUNDLE_FROM, from);
         args.putString(BUNDLE_TO, to);
         args.putString(BUNDLE_CC, cc);
         args.putString(BUNDLE_BCC, bcc);
@@ -73,9 +77,12 @@ public class MessageViewMessageDetailsDialog  extends DialogFragment {
         View root = getActivity().getLayoutInflater().inflate(R.layout.message_view_details, null);
         Bundle args = getArguments();
 
+        setText(root, args.getString(BUNDLE_SUBJECT), R.id.subject, R.id.subject_row);
         setText(root, args.getString(BUNDLE_DATE), R.id.date, R.id.date_row);
+        setText(root, args.getString(BUNDLE_FROM), R.id.from, R.id.from_row);
         setText(root, args.getString(BUNDLE_TO), R.id.to, R.id.to_row);
         setText(root, args.getString(BUNDLE_CC), R.id.cc, R.id.cc_row);
+        setText(root, args.getString(BUNDLE_BCC), R.id.bcc, R.id.bcc_row);
         setText(root, args.getString(BUNDLE_BCC), R.id.bcc, R.id.bcc_row);
 
         return root;
