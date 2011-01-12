@@ -917,9 +917,9 @@ save attachment.</string>
         results from <xliff:g id="domain">%2$s</xliff:g></string>
 
     <!-- General Preferences Screen -->
-    <!-- Label in preferences header to describe general preferences -->
+    <!-- Label in preferences header to describe general preferences [CHAR LIMIT=32] -->
     <string name="header_label_general_preferences">Email Preferences</string>
-    <!-- First category in general preferences -->
+    <!-- First category in general preferences [CHAR LIMIT=64] -->
     <string name="category_general_preferences">Application Preferences</string>
 
     <!-- General preference: Label of the setting for the direction to move to
