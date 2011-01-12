@@ -47,13 +47,13 @@
     <!-- XL -->
     <string name="general_preference_background_attachments_summary" msgid="5979699362452475451">"Descargar adjuntos para los mensajes de la Bandeja de entrada. (No disponible para cuentas POP3)."</string>
     <!-- XL -->
-    <!-- outdated translation 2235868157165916683 -->     <string name="widget_other_views" msgid="1576933747721573011">"Toca el ícono de correo electrónico para obtener otras vistas."</string>
+    <string name="widget_other_views" msgid="1576933747721573011">"Presionar ícono para cambiar"</string>
     <!-- XL -->
-    <!-- outdated translation 2591232593337738878 -->     <string name="widget_all_mail" msgid="507010372552999526">"Todos los mensajes de correo"</string>
+    <string name="widget_all_mail" msgid="507010372552999526">"Bandeja de entrada combinada"</string>
     <!-- XL -->
-    <!-- outdated translation 2398169960761261128 -->     <string name="widget_unread" msgid="6314299154678507793">"No leídos"</string>
+    <string name="widget_unread" msgid="6314299154678507793">"No leídos"</string>
     <!-- XL -->
-    <!-- outdated translation 8091300824301512274 -->     <string name="widget_starred" msgid="8526007834142332107">"Todos los destacados"</string>
+    <string name="widget_starred" msgid="8526007834142332107">"Destacado"</string>
     <!-- XL -->
     <string name="message_view_move_to_newer" msgid="5866340092692648766">"Nuevos"</string>
     <!-- XL -->
