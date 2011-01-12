@@ -17,13 +17,16 @@
 <!-- xlarge -->
 <resources>
 
-    <!-- STOPSHIP tbd: in portrait, padding from bottom -->
-    <!-- STOPSHIP tbd: in landscape, vertical descent of buttons -->
     <!-- Account Setup Activities -->
-    <dimen name="setup_buttons_padding_top">16dip</dimen>
-    <dimen name="setup_buttons_padding_bottom">48dip</dimen>
+    <!-- inset distance for setup/settings buttons -->
     <dimen name="setup_buttons_padding_left">16dip</dimen>
     <dimen name="setup_buttons_padding_right">16dip</dimen>
+    <!-- distance of any button below the upper hairline -->
+    <dimen name="setup_buttons_padding_top">64dip</dimen>
+    <!-- distance of any button below the previous button (vertical stack) -->
+    <dimen name="setup_buttons_vertical_spacing">48dip</dimen>
+    <!-- distance of any button above the bottom of the screen -->
+    <dimen name="setup_buttons_padding_bottom">48dip</dimen>
 
     <!-- In setup screens, the inset for all items below the headline+hairline -->
     <dimen name="setup_item_inset_left">16dip</dimen>
