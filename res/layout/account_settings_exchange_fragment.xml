@@ -26,37 +26,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="32dip"
-        android:paddingBottom="32dip"
-        android:paddingLeft="16dip"
-        android:paddingRight="16dip"
+        android:paddingTop="@dimen/settings_fragment_padding_top"
+        android:paddingLeft="@dimen/settings_fragment_padding_left"
+        android:paddingRight="@dimen/settings_fragment_padding_right"
         >
-        <!-- Headline and hairline dividers -->
-        <View
-            android:layout_marginBottom="16dip"
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:background="@color/account_setup_divider_color" />
-
-        <TextView
-            android:layout_marginBottom="16dip"
-            android:layout_marginLeft="16dip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/account_setup_exchange_headline"
-            android:textAppearance="@style/accountSettingsHeadline" />
-
-        <View
-            android:layout_marginBottom="16dip"
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:background="@color/account_setup_divider_color" />
 
         <!-- Fields entry -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="16dip"
             >
             <include
                 layout="@layout/account_setup_exchange_fragment"
@@ -74,17 +52,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:paddingTop="@dimen/settings_buttons_padding_top"
+            android:paddingBottom="@dimen/settings_buttons_padding_bottom"
             >
             <Button
                 android:id="@+id/cancel"
                 android:layout_alignParentLeft="true"
-                android:layout_marginTop="48dip"
                 style="@style/accountSettingsButton"
                 android:text="@string/cancel_action" />
             <Button
                 android:id="@+id/done"
                 android:layout_alignParentRight="true"
-                android:layout_marginTop="48dip"
                 style="@style/accountSettingsButton"
                 android:text="@string/done_action" />
         </RelativeLayout>
