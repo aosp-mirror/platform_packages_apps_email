@@ -28,6 +28,7 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -161,6 +162,9 @@ public class AccountSettingsXL extends PreferenceActivity {
             }
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
+
+        getActionBar().setDisplayOptions(
+                ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
     }
 
     @Override
@@ -222,6 +226,13 @@ public class AccountSettingsXL extends PreferenceActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                // The app icon on the action bar is pressed.  Just emulate a back press.
+                // TODO: this should navigate to the main screen, even if a sub-setting is open.
+                // But we shouldn't just finish(), as we want to show "discard changes?" dialog
+                // when necessary.
+                onBackPressed();
+                break;
             case R.id.add_new_account:
                 onAddNewAccount();
                 break;
