@@ -328,7 +328,12 @@ public class MessageListItem extends View {
         TextPaint senderPaint = mRead ? sDefaultPaint : sBoldPaint;
         int senderWidth = (mMode == MODE_WIDE) ? sSenderWidth : mSenderSnippetWidth;
         // And get the ellipsized string for the calculated width
-        mFormattedSender = TextUtils.ellipsize(mSender, senderPaint, senderWidth, TruncateAt.END);
+        if (TextUtils.isEmpty(mSender)) {
+            mFormattedSender = "";
+        } else {
+            mFormattedSender = TextUtils.ellipsize(mSender, senderPaint, senderWidth,
+                    TruncateAt.END);
+        }
         // Get a nicely formatted date string (relative to today)
         String date = DateUtils.getRelativeTimeSpanString(getContext(), mTimestamp).toString();
         // And make it fit to our size
