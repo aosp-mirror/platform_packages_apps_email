@@ -806,12 +806,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (mMessage == null) {
             return; // shouldn't happen
         }
+        String subject = mMessage.mSubject;
         String date = formatDate(mMessage.mTimeStamp, true);
+        String from = Address.toString(Address.unpack(mMessage.mFrom));
         String to = Address.toString(Address.unpack(mMessage.mTo));
         String cc = Address.toString(Address.unpack(mMessage.mCc));
         String bcc = Address.toString(Address.unpack(mMessage.mBcc));
         MessageViewMessageDetailsDialog dialog = MessageViewMessageDetailsDialog.newInstance(
-                getActivity(), date, to, cc, bcc);
+                getActivity(), subject, date, from, to, cc, bcc);
         dialog.show(getActivity().getFragmentManager(), null);
     }
 

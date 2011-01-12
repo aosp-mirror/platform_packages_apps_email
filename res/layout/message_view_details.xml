@@ -27,22 +27,42 @@
         android:shrinkColumns="2"
         >
         <TableRow
+            android:id="@+id/subject_row"
+            >
+            <TextView
+                android:layout_column="1"
+                android:text="@string/message_view_subject_label"
+                style="@style/message_details_label"
+                />
+            <TextView
+                android:id="@+id/subject"
+                style="@style/message_details_value"
+                />
+        </TableRow>
+        <TableRow
+            android:id="@+id/from_row"
+            >
+            <TextView
+                android:layout_column="1"
+                android:text="@string/message_view_from_label"
+                style="@style/message_details_label"
+                />
+            <TextView
+                android:id="@+id/from"
+                style="@style/message_details_value"
+                />
+        </TableRow>
+        <TableRow
             android:id="@+id/date_row"
             >
             <TextView
                 android:layout_column="1"
                 android:text="@string/message_view_date_label"
-                android:padding="8dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
-                android:textStyle="bold"
+                style="@style/message_details_label"
                 />
             <TextView
                 android:id="@+id/date"
-                android:padding="8dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
-                android:singleLine="false"
+                style="@style/message_details_value"
                 />
         </TableRow>
         <TableRow
@@ -51,16 +71,11 @@
             <TextView
                 android:layout_column="1"
                 android:text="@string/message_view_to_label"
-                android:padding="8dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
-                android:textStyle="bold"
+                style="@style/message_details_label"
                 />
             <TextView
                 android:id="@+id/to"
-                android:padding="8dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
+                style="@style/message_details_value"
                 />
         </TableRow>
         <TableRow
@@ -69,16 +84,11 @@
             <TextView
                 android:layout_column="1"
                 android:text="@string/message_view_cc_label"
-                android:padding="8dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
-                android:textStyle="bold"
+                style="@style/message_details_label"
                 />
             <TextView
                 android:id="@+id/cc"
-                android:padding="8dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
+                style="@style/message_details_value"
                 />
         </TableRow>
         <TableRow
@@ -87,16 +97,11 @@
             <TextView
                 android:layout_column="1"
                 android:text="@string/message_view_bcc_label"
-                android:padding="8dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
-                android:textStyle="bold"
+                style="@style/message_details_label"
                 />
             <TextView
                 android:id="@+id/bcc"
-                android:padding="8dip"
-                android:textSize="14dip"
-                android:textColor="@color/text_secondary_color"
+                style="@style/message_details_value"
                 />
         </TableRow>
     </TableLayout>
