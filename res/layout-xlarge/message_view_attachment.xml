@@ -50,13 +50,16 @@
             <ProgressBar
                 android:id="@+id/progress"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="16dip"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
+                android:layout_marginTop="2dip"
+                android:layout_marginBottom="6dip"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:max="100"
                 android:visibility="invisible"
+                android:gravity="center"
                 />
             <TextView
                 android:id="@+id/attachment_info"
