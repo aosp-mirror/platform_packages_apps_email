@@ -69,7 +69,6 @@
             </FrameLayout>
         </RelativeLayout>
 
-        <!-- STOPSHIP - button positions are estimates -->
         <!-- Button below that -->
         <RelativeLayout
             android:layout_width="match_parent"
