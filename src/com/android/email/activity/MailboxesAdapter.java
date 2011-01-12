@@ -350,6 +350,7 @@ import android.widget.TextView;
     private static class MailboxesLoader extends ThrottlingCursorLoader {
         private final Context mContext;
         private final int mMode;
+        private final long mAccountId;
 
         private static String getSelection(int mode) {
             if (mode == MODE_MOVE_TO_TARGET) {
@@ -365,6 +366,7 @@ import android.widget.TextView;
                     new String[] { String.valueOf(accountId) }, MAILBOX_ORDER_BY);
             mContext = context;
             mMode = mode;
+            mAccountId = accountId;
         }
 
         @Override
@@ -381,10 +383,10 @@ import android.widget.TextView;
                 return Utility.CloseTraceCursorWrapper.get(mailboxesCursor);
             }
 
-            // Add "Starred".
+            // Add "Starred", only if the account has at least one starred message.
             // TODO It's currently "combined starred", but the plan is to make it per-account
             // starred.
-            final int starredCount = Message.getFavoriteMessageCount(mContext);
+            final int starredCount = Message.getFavoriteMessageCount(mContext, mAccountId);
             if (starredCount == 0) {
                 return Utility.CloseTraceCursorWrapper.get(mailboxesCursor); // no starred message
             }

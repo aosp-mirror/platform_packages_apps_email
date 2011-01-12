@@ -1914,6 +1914,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
      * - {@link Mailbox#getUnreadCountByAccountAndMailboxType(Context, long, int)}
      * - {@link Mailbox#getUnreadCountByMailboxType(Context, int)}
      * - {@link Message#getFavoriteMessageCount(Context)}
+     * - {@link Message#getFavoriteMessageCount(Context, long)}
      */
     public void testMessageCount() {
         final Context c = mMockContext;
@@ -1936,6 +1937,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, getMessageCount(b4.mId));
 
         assertEquals(0, Message.getFavoriteMessageCount(c));
+        assertEquals(0, Message.getFavoriteMessageCount(c, a1.mId));
+        assertEquals(0, Message.getFavoriteMessageCount(c, a2.mId));
         assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_INBOX));
         assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
         assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_INBOX));
@@ -1953,14 +1956,14 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         // 1. Test for insert triggers.
 
         // Create some messages
-        // b1 (account 1, inbox): 1 message
+        // b1 (account 1, inbox): 1 message, including 1 starred
         Message m11 = createMessage(c, b1, true, false);
 
-        // b2 (account 1, outbox): 2 message
+        // b2 (account 1, outbox): 2 message, including 1 starred
         Message m21 = createMessage(c, b2, false, false);
         Message m22 = createMessage(c, b2, true, true);
 
-        // b3 (account 2, inbox): 3 message
+        // b3 (account 2, inbox): 3 message, including 1 starred
         Message m31 = createMessage(c, b3, false, false);
         Message m32 = createMessage(c, b3, false, false);
         Message m33 = createMessage(c, b3, true, true);
@@ -1975,6 +1978,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // Check the simple counting methods.
         assertEquals(3, Message.getFavoriteMessageCount(c));
+        assertEquals(2, Message.getFavoriteMessageCount(c, a1.mId));
+        assertEquals(1, Message.getFavoriteMessageCount(c, a2.mId));
         assertEquals(3, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_INBOX));
         assertEquals(1, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
         assertEquals(4, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_INBOX));
