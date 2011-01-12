@@ -45,6 +45,8 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
@@ -81,6 +83,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Formatter;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -711,20 +714,26 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     private void onViewAttachment(AttachmentInfo info) {
-        Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccountId, info.attachmentId);
-        Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
-                mContext.getContentResolver(), attachmentUri);
+        Intent intent = getAttachmentIntent(info);
         try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(contentUri);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                            | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
             startActivity(intent);
         } catch (ActivityNotFoundException e) {
             Utility.showToast(getActivity(), R.string.message_view_display_attachment_toast);
-            // TODO: Add a proper warning message (and lots of upstream cleanup to prevent
-            // it from happening) in the next release.
         }
+    }
+
+    /**
+     * Returns an <code>Intent</code> to load the given attachment.
+     */
+    private Intent getAttachmentIntent(AttachmentInfo info) {
+        Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccountId, info.attachmentId);
+        Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
+                mContext.getContentResolver(), attachmentUri);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(contentUri);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        return intent;
     }
 
     private void onLoadAttachment(final AttachmentInfo attachment) {
@@ -1164,6 +1173,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             }
         }
 
+        // No activity to view the attachment; Hide both buttons
+        if (!isAttachmentViewerInstalled(attachmentInfo)) {
+            attachmentInfo.allowView = false;
+            attachmentInfo.allowSave = false;
+        }
+
         // Don't enable the "save" button if we've got no place to save the file
         if (!Utility.isExternalStorageMounted()) {
             attachmentInfo.allowSave = false;
@@ -1248,6 +1263,16 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         mAttachments.addView(view);
         mAttachments.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Returns whether or not there is an Activity installed that can handle the given attachment.
+     */
+    private boolean isAttachmentViewerInstalled(AttachmentInfo info) {
+        Intent intent = getAttachmentIntent(info);
+        PackageManager pm = mContext.getPackageManager();
+        List<ResolveInfo> activityList = pm.queryIntentActivities(intent, 0);
+        return (activityList.size() > 0);
     }
 
     /**
