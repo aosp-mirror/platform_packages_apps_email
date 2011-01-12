@@ -650,7 +650,7 @@ public class WidgetProvider extends AppWidgetProvider {
      */
     /*package*/ static class WidgetViewSwitcher extends AsyncTask<Void, Void, Void> {
         private final EmailWidget mWidget;
-        private boolean mLoadAfterSwitch;
+        private boolean mLoadAfterSwitch = true;
 
         public WidgetViewSwitcher(EmailWidget widget) {
             mWidget = widget;
