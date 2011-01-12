@@ -37,7 +37,6 @@
             android:layout_height="wrap_content"
             android:text="@string/account_setup_basics_headline"
             android:textAppearance="@style/accountSetupHeadline" />
-
         <View
             android:id="@+id/top_divider"
             android:layout_below="@+id/headline"
