@@ -70,16 +70,6 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     private String mCacheLoginCredential;
 
     /**
-     * Create the fragment with parameters - used mainly to force into settings mode (with buttons)
-     * @param settingsMode if true, alters appearance for use in settings (default is "setup")
-     */
-    public static AccountSetupExchangeFragment newInstance(boolean settingsMode) {
-        AccountSetupExchangeFragment f = new AccountSetupExchangeFragment();
-        f.setSetupArguments(settingsMode);
-        return f;
-    }
-
-    /**
      * Called to do initial creation of a fragment.  This is called after
      * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.
      */

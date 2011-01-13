@@ -77,16 +77,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     private boolean mLoaded;
 
     /**
-     * Create the fragment with parameters - used mainly to force into settings mode (with buttons)
-     * @param settingsMode if true, alters appearance for use in settings (default is "setup")
-     */
-    public static AccountSetupOutgoingFragment newInstance(boolean settingsMode) {
-        AccountSetupOutgoingFragment f = new AccountSetupOutgoingFragment();
-        f.setSetupArguments(settingsMode);
-        return f;
-    }
-
-    /**
      * Called to do initial creation of a fragment.  This is called after
      * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.
      */

@@ -243,6 +243,21 @@ public class AccountSettingsXL extends PreferenceActivity {
     }
 
     /**
+     * TODO: Any time we exit via this pathway, and we are showing a server settings fragment,
+     * we should put up the exit-save-changes dialog.  This will work for the following cases:
+     *   Cancel button
+     *   Back button
+     *   Up arrow in application icon
+     * It will *not* apply in the following cases:
+     *   Click the parent breadcrumb - need to find a hook for this
+     *   Click in the header list (e.g. another account) - handled elsewhere
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
+    /**
      * If the caller requested a specific account to be edited, switch to it.  This is a one-shot,
      * so the user is free to edit another account as well.
      */
@@ -541,17 +556,16 @@ public class AccountSettingsXL extends PreferenceActivity {
             if (store != null) {
                 Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
                 if (setting != null) {
-//                    java.lang.reflect.Method m = setting.getMethod("actionEditIncomingSettings",
-//                            Activity.class, int.class, Account.class);
-//                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, account);
                     SetupData.init(SetupData.FLOW_MODE_EDIT, account);
-                    Fragment f = null;
                     if (setting.equals(AccountSetupIncoming.class)) {
-                        f = AccountSetupIncomingFragment.newInstance(true);
+                        startPreferencePanel(AccountSetupIncomingFragment.class.getName(),
+                                AccountSetupIncomingFragment.getSettingsModeArgs(),
+                                R.string.account_settings_incoming_label, null, null, 0);
                     } else if (setting.equals(AccountSetupExchange.class)) {
-                        f = AccountSetupExchangeFragment.newInstance(true);
+                        startPreferencePanel(AccountSetupExchangeFragment.class.getName(),
+                                AccountSetupExchangeFragment.getSettingsModeArgs(),
+                                R.string.account_settings_incoming_label, null, null, 0);
                     }
-                    startPreferenceFragment(f, true);
                 }
             }
         } catch (Exception e) {
@@ -571,15 +585,12 @@ public class AccountSettingsXL extends PreferenceActivity {
             if (sender != null) {
                 Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
                 if (setting != null) {
-//                    java.lang.reflect.Method m = setting.getMethod("actionEditOutgoingSettings",
-//                            Activity.class, int.class, Account.class);
-//                    m.invoke(null, this, SetupData.FLOW_MODE_EDIT, account);
                     SetupData.init(SetupData.FLOW_MODE_EDIT, account);
-                    Fragment f = null;
                     if (setting.equals(AccountSetupOutgoing.class)) {
-                        f = AccountSetupOutgoingFragment.newInstance(true);
+                        startPreferencePanel(AccountSetupOutgoingFragment.class.getName(),
+                                AccountSetupOutgoingFragment.getSettingsModeArgs(),
+                                R.string.account_settings_outgoing_label, null, null, 0);
                     }
-                    startPreferenceFragment(f, true);
                 }
             }
         } catch (Exception e) {
