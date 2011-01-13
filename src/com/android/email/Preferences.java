@@ -55,7 +55,6 @@ public class Preferences {
     public static final int TEXT_ZOOM_HUGE = 4;
     // "normal" will be the default
     public static final int TEXT_ZOOM_DEFAULT = TEXT_ZOOM_NORMAL;
-    public static final float[] TEXT_ZOOM_ARRAY = new float[] {0.8f, 0.9f, 1.0f, 1.2f, 1.5f};
 
     private static Preferences sPreferences;
 
