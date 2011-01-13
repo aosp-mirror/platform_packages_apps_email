@@ -16,14 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="status_sending_messages" msgid="3971880826111264523">"正在发送邮件..."</string>
-    <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"全部发送"</string>
-    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"正在提取附件。"</string>
-    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"正在获取附件<xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="read_attachment_label" msgid="1162255191991555285">"查看电子邮件附件"</string>
-    <string name="read_attachment_desc" msgid="7594746717616308643">"允许此应用程序读取您的电子邮件附件。"</string>
-    <string name="permission_access_provider_label" msgid="4274353114641168675">"访问电子邮件提供者数据"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"允许此应用程序访问您的电子邮件数据库，包括已收邮件、已发邮件、用户名和密码。"</string>
     <string name="app_name" msgid="5815426892327290362">"发送电子邮件"</string>
     <string name="compose_title" msgid="427986915662706899">"撰写"</string>
     <string name="debug_title" msgid="5175710493691536719">"调试"</string>
@@ -60,6 +52,8 @@
     <string name="move_action" msgid="3059189775933985898">"移动"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"添加抄送/密送"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"添加附件"</string>
+    <!-- no translation found for close_action (533058985745238100) -->
+    <skip />
     <string name="dump_settings_action" msgid="4478192525236169829">"转储设置"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"选择附件"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"移至"</string>
@@ -67,10 +61,18 @@
     <string name="status_network_error" msgid="6045933332005067021">"连接错误"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"新电子邮件"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"载入消息文本时出现意外错误。可能是讯息太大，无法查看。"</string>
-  <plurals name="move_messages">
-    <item quantity="one" msgid="1891601902988083907">"移动 <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> 封邮件"</item>
-    <item quantity="other" msgid="8792313600381332865">"移动 <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> 封邮件"</item>
-  </plurals>
+    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
+    <skip />
+    <!-- no translation found for move_messages:one (320885379869442589) -->
+    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
+    <skip />
+    <!-- no translation found for move_messages:other (371256717624461324) -->
+    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
+    <skip />
+    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
+    <skip />
+    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
+    <skip />
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> 封未读邮件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -127,6 +129,8 @@
     <string name="message_view_to_label" msgid="6485191743265527381">"收件人："</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"抄送："</string>
     <string name="message_view_bcc_label" msgid="7577479221285310198">"密送："</string>
+    <!-- no translation found for message_view_date_label (7033814961837313339) -->
+    <skip />
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"查看"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"载入"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"保存"</string>
@@ -150,6 +154,10 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"您已接受此邀请"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"您已对此邀请回复了“不确定”"</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"您已拒绝此邀请"</string>
+    <!-- no translation found for message_view_show_details (6287415596441037095) -->
+    <skip />
+    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
+    <skip />
     <string name="eml_view_title" msgid="8827210108543430336">"查看 <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"舍弃邮件"</string>
   <plurals name="message_delete_confirm">
@@ -387,9 +395,9 @@
     <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"自动抓取附件"</string>
     <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"下载收件箱中邮件的附件（POP3 帐户不可用）。"</string>
     <string name="position_of_count" msgid="7989353140376877792">"第 <xliff:g id="ID_1">%1$d</xliff:g> 封，共 <xliff:g id="ID_2">%2$s</xliff:g> 封"</string>
-    <!-- outdated translation 2924270018204427009 -->     <string name="widget_other_views" msgid="2265335608760083337">"点按电子邮件图标查看其他视图"</string>
-    <!-- outdated translation 6436796211067834315 -->     <string name="widget_all_mail" msgid="4352573990283094963">"所有邮件"</string>
-    <!-- outdated translation 488582205091831168 -->     <string name="widget_unread" msgid="4404711399009077833">"所有未读邮件"</string>
-    <!-- outdated translation 7855645697293191958 -->     <string name="widget_starred" msgid="8290352707134011791">"所有已加星标的邮件"</string>
+    <string name="widget_other_views" msgid="2265335608760083337">"点按图标可进行更改"</string>
+    <string name="widget_all_mail" msgid="4352573990283094963">"合并的收件箱"</string>
+    <string name="widget_unread" msgid="4404711399009077833">"未读邮件"</string>
+    <string name="widget_starred" msgid="8290352707134011791">"已加星标的邮件"</string>
     <string name="widget_loading" msgid="2340962056927255554">"正在载入..."</string>
 </resources>

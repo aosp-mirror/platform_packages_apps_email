@@ -16,14 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="status_sending_messages" msgid="3971880826111264523">"Envoi des messages en cours"</string>
-    <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"Tout envoyer"</string>
-    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Récupération de la pièce jointe."</string>
-    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Récupération de la pièce jointe <xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="read_attachment_label" msgid="1162255191991555285">"Lire les pièces jointes"</string>
-    <string name="read_attachment_desc" msgid="7594746717616308643">"Permet à cette application de lire les pièces jointes aux e-mails."</string>
-    <string name="permission_access_provider_label" msgid="4274353114641168675">"Accéder aux données du client de messagerie"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Autorise l\'application à accéder à la base de données de votre messagerie électronique, y compris aux messages reçus et envoyés, aux noms d\'utilisateur et aux mots de passe."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Nouveau message"</string>
     <string name="debug_title" msgid="5175710493691536719">"Débogage"</string>
@@ -60,6 +52,8 @@
     <string name="move_action" msgid="3059189775933985898">"Déplacer"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Cci"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Ajouter une pièce jointe"</string>
+    <!-- no translation found for close_action (533058985745238100) -->
+    <skip />
     <string name="dump_settings_action" msgid="4478192525236169829">"Paramètres d\'image mémoire"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir·une·pièce·jointe"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Déplacer vers"</string>
@@ -67,10 +61,18 @@
     <string name="status_network_error" msgid="6045933332005067021">"Erreur de connexion"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Nouvel e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Une erreur inattendue s\'est produite lors du chargement du message. Il se peut que ce dernier soit trop volumineux."</string>
-  <plurals name="move_messages">
-    <item quantity="one" msgid="1891601902988083907">"Déplacer <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> message"</item>
-    <item quantity="other" msgid="8792313600381332865">"Déplacer <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> messages"</item>
-  </plurals>
+    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
+    <skip />
+    <!-- no translation found for move_messages:one (320885379869442589) -->
+    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
+    <skip />
+    <!-- no translation found for move_messages:other (371256717624461324) -->
+    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
+    <skip />
+    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
+    <skip />
+    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
+    <skip />
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> non lus (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> non lus (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -127,6 +129,8 @@
     <string name="message_view_to_label" msgid="6485191743265527381">"À :"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc :"</string>
     <string name="message_view_bcc_label" msgid="7577479221285310198">"Cci :"</string>
+    <!-- no translation found for message_view_date_label (7033814961837313339) -->
+    <skip />
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Afficher"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Charger"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Enreg."</string>
@@ -150,6 +154,10 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Vous avez accepté cette invitation."</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Vous avez répondu \"Peut-être\" à cette invitation."</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Vous avez refusé cette invitation."</string>
+    <!-- no translation found for message_view_show_details (6287415596441037095) -->
+    <skip />
+    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
+    <skip />
     <string name="eml_view_title" msgid="8827210108543430336">"Affichage de <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Supprimer message"</string>
   <plurals name="message_delete_confirm">
@@ -387,9 +395,9 @@
     <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"Récupérer pièces jointes"</string>
     <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"Télécharger pièces jointes messages reçus (non disponible pour comptes POP3)"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> sur <xliff:g id="ID_2">%2$s</xliff:g>"</string>
-    <!-- outdated translation 2924270018204427009 -->     <string name="widget_other_views" msgid="2265335608760083337">"Appuyez icône enveloppe pour afficher autres vues."</string>
-    <!-- outdated translation 6436796211067834315 -->     <string name="widget_all_mail" msgid="4352573990283094963">"Tous les messages"</string>
-    <!-- outdated translation 488582205091831168 -->     <string name="widget_unread" msgid="4404711399009077833">"Messages non lus"</string>
-    <!-- outdated translation 7855645697293191958 -->     <string name="widget_starred" msgid="8290352707134011791">"Messages suivis"</string>
+    <string name="widget_other_views" msgid="2265335608760083337">"Appuyez icône pour modifier"</string>
+    <string name="widget_all_mail" msgid="4352573990283094963">"Boîte réception combinée"</string>
+    <string name="widget_unread" msgid="4404711399009077833">"Non lus"</string>
+    <string name="widget_starred" msgid="8290352707134011791">"Suivis"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Chargement…"</string>
 </resources>
