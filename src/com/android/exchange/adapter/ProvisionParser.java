@@ -196,7 +196,7 @@ public class ProvisionParser extends Parser {
 
         mPolicySet = new SecurityPolicy.PolicySet(minPasswordLength, passwordMode,
                 maxPasswordFails, maxScreenLockTime, true, passwordExpirationDays, passwordHistory,
-                passwordComplexChars);
+                passwordComplexChars, false);
     }
 
     /**
@@ -253,7 +253,7 @@ public class ProvisionParser extends Parser {
 
         mPolicySet = new PolicySet(sps.mMinPasswordLength, sps.mPasswordMode, sps.mMaxPasswordFails,
                 sps.mMaxScreenLockTime, true, sps.mPasswordExpiration, sps.mPasswordHistory,
-                sps.mPasswordComplexChars);
+                sps.mPasswordComplexChars, false);
     }
 
     /**

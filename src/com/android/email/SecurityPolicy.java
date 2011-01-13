@@ -48,7 +48,7 @@ public class SecurityPolicy {
     private PolicySet mAggregatePolicy;
 
     /* package */ static final PolicySet NO_POLICY_SET =
-            new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0);
+            new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0, false);
 
     /**
      * This projection on Account is for scanning/reading
@@ -104,6 +104,7 @@ public class SecurityPolicy {
      *  password history            take the max (strongest mode)
      *  password expiration         take the min (strongest mode)
      *  password complex chars      take the max (strongest mode)
+     *  encryption                  take the max (logical or)
      *
      * @return a policy representing the strongest aggregate.  If no policy sets are defined,
      * a lightweight "nothing required" policy will be returned.  Never null.
@@ -119,6 +120,7 @@ public class SecurityPolicy {
         int passwordHistory = Integer.MIN_VALUE;
         int passwordExpirationDays = Integer.MAX_VALUE;
         int passwordComplexChars = Integer.MIN_VALUE;
+        boolean requireEncryption = false;
 
         Cursor c = mContext.getContentResolver().query(Account.CONTENT_URI,
                 ACCOUNT_SECURITY_PROJECTION, Account.SECURITY_NONZERO_SELECTION, null, null);
@@ -147,6 +149,7 @@ public class SecurityPolicy {
                                 passwordComplexChars);
                     }
                     requireRemoteWipe |= p.mRequireRemoteWipe;
+                    requireEncryption |= p.mRequireEncryption;
                     policiesFound = true;
                 }
             }
@@ -165,7 +168,7 @@ public class SecurityPolicy {
 
             return new PolicySet(minPasswordLength, passwordMode, maxPasswordFails,
                     maxScreenLockTime, requireRemoteWipe, passwordExpirationDays, passwordHistory,
-                    passwordComplexChars);
+                    passwordComplexChars, requireEncryption);
         } else {
             return NO_POLICY_SET;
         }
@@ -211,6 +214,57 @@ public class SecurityPolicy {
     }
 
     /**
+     * API: Query if the proposed set of policies are supported on the device.
+     *
+     * @param policies requested
+     * @return boolean if supported
+     */
+    public boolean isSupported(PolicySet policies) {
+        // IMPLEMENTATION:  At this time, the only policy which might not be supported is
+        // encryption (which requires low-level systems support).  Other policies are fully
+        // supported by the framework and do not need to be checked.
+        if (policies.mRequireEncryption) {
+            int encryptionStatus = getDPM().getStorageEncryption(null);
+            if (encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_UNSUPPORTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * API: Query used to determine if a given policy is "active" (the device is operating at
+     * the required security level).
+     *
+     * @param policies the policies requested, or null to check aggregate stored policies
+     * @return true if the requested policies are active, false if not.
+     */
+    public boolean isActive(PolicySet policies) {
+        int reasons = getInactiveReasons(policies);
+        return reasons == 0;
+    }
+
+    /**
+     * Return bits from isActive:  Device Policy Manager has not been activated
+     */
+    public final static int INACTIVE_NEED_ACTIVATION = 1;
+
+    /**
+     * Return bits from isActive:  Some required configuration is not correct (no user action).
+     */
+    public final static int INACTIVE_NEED_CONFIGURATION = 2;
+
+    /**
+     * Return bits from isActive:  Password needs to be set or updated
+     */
+    public final static int INACTIVE_NEED_PASSWORD = 4;
+
+    /**
+     * Return bits from isActive:  Encryption has not be enabled
+     */
+    public final static int INACTIVE_NEED_ENCRYPTION = 8;
+
+    /**
      * API: Query used to determine if a given policy is "active" (the device is operating at
      * the required security level).
      *
@@ -227,37 +281,39 @@ public class SecurityPolicy {
      * based on the requirements of the account with the shortest interval.
      *
      * @param policies the policies requested, or null to check aggregate stored policies
-     * @return true if the policies are active, false if not active
+     * @return zero if the requested policies are active, non-zero bits indicates that more work
+     * is needed (typically, by the user) before the required security polices are fully active.
      */
-    public boolean isActive(PolicySet policies) {
+    public int getInactiveReasons(PolicySet policies) {
         // select aggregate set if needed
         if (policies == null) {
             policies = getAggregatePolicy();
         }
         // quick check for the "empty set" of no policies
         if (policies == NO_POLICY_SET) {
-            return true;
+            return 0;
         }
+        int reasons = 0;
         DevicePolicyManager dpm = getDPM();
         if (isActiveAdmin()) {
             // check each policy explicitly
             if (policies.mMinPasswordLength > 0) {
                 if (dpm.getPasswordMinimumLength(mAdminName) < policies.mMinPasswordLength) {
-                    return false;
+                    reasons |= INACTIVE_NEED_PASSWORD;
                 }
             }
             if (policies.mPasswordMode > 0) {
                 if (dpm.getPasswordQuality(mAdminName) < policies.getDPManagerPasswordQuality()) {
-                    return false;
+                    reasons |= INACTIVE_NEED_PASSWORD;
                 }
                 if (!dpm.isActivePasswordSufficient()) {
-                    return false;
+                    reasons |= INACTIVE_NEED_PASSWORD;
                 }
             }
             if (policies.mMaxScreenLockTime > 0) {
                 // Note, we use seconds, dpm uses milliseconds
                 if (dpm.getMaximumTimeToLock(mAdminName) > policies.mMaxScreenLockTime * 1000) {
-                    return false;
+                    reasons |= INACTIVE_NEED_CONFIGURATION;
                 }
             }
             if (policies.mPasswordExpirationDays > 0) {
@@ -265,34 +321,40 @@ public class SecurityPolicy {
                 long currentTimeout = dpm.getPasswordExpirationTimeout(mAdminName);
                 if (currentTimeout == 0
                         || currentTimeout > policies.getDPManagerPasswordExpirationTimeout()) {
-                    return false;
+                    reasons |= INACTIVE_NEED_PASSWORD;
                 }
                 // confirm that the current password hasn't expired
                 long expirationDate = dpm.getPasswordExpiration(mAdminName);
                 long timeUntilExpiration = expirationDate - System.currentTimeMillis();
                 boolean expired = timeUntilExpiration < 0;
                 if (expired) {
-                    return false;
+                    reasons |= INACTIVE_NEED_PASSWORD;
                 }
             }
             if (policies.mPasswordHistory > 0) {
                 if (dpm.getPasswordHistoryLength(mAdminName) < policies.mPasswordHistory) {
-                    return false;
+                    reasons |= INACTIVE_NEED_PASSWORD;
                 }
             }
             if (policies.mPasswordComplexChars > 0) {
                 if (dpm.getPasswordMinimumNonLetter(mAdminName) < policies.mPasswordComplexChars) {
-                    return false;
+                    reasons |= INACTIVE_NEED_PASSWORD;
+                }
+            }
+            if (policies.mRequireEncryption) {
+                int encryptionStatus = getDPM().getStorageEncryption(null);
+                if (encryptionStatus != DevicePolicyManager.ENCRYPTION_STATUS_ACTIVE) {
+                    reasons |= INACTIVE_NEED_ENCRYPTION;
                 }
             }
             // password failures are counted locally - no test required here
             // no check required for remote wipe (it's supported, if we're the admin)
 
-            // making it this far means we passed!
-            return true;
+            // If we made it all the way, reasons == 0 here.  Otherwise it's a list of grievances.
+            return reasons;
         }
         // return false, not active
-        return false;
+        return INACTIVE_NEED_ACTIVATION;
     }
 
     /**
@@ -323,6 +385,8 @@ public class SecurityPolicy {
             dpm.setPasswordHistoryLength(mAdminName, policies.mPasswordHistory);
             // password minimum complex characters
             dpm.setPasswordMinimumNonLetter(mAdminName, policies.mPasswordComplexChars);
+            // encryption required
+            dpm.setStorageEncryption(mAdminName, policies.mRequireEncryption);
         }
     }
 
@@ -422,14 +486,16 @@ public class SecurityPolicy {
         private static final int PASSWORD_EXPIRATION_SHIFT = 26;
         private static final long PASSWORD_EXPIRATION_MASK = 1023L << PASSWORD_EXPIRATION_SHIFT;
         public static final int PASSWORD_EXPIRATION_MAX = 1023;
-            // bit 35..42: password history (length; 0=not required)
+            // bit 36..43: password history (length; 0=not required)
         private static final int PASSWORD_HISTORY_SHIFT = 36;
         private static final long PASSWORD_HISTORY_MASK = 255L << PASSWORD_HISTORY_SHIFT;
         public static final int PASSWORD_HISTORY_MAX = 255;
-            // bit 42..46: min complex characters (0=not required)
+            // bit 44..48: min complex characters (0=not required)
         private static final int PASSWORD_COMPLEX_CHARS_SHIFT = 44;
         private static final long PASSWORD_COMPLEX_CHARS_MASK = 31L << PASSWORD_COMPLEX_CHARS_SHIFT;
         public static final int PASSWORD_COMPLEX_CHARS_MAX = 31;
+            // bit 49: requires device encryption
+        private static final long REQUIRE_ENCRYPTION = 1L << 49;
 
         /* Convert days to mSec (used for password expiration) */
         private static final long DAYS_TO_MSEC = 24 * 60 * 60 * 1000;
@@ -444,6 +510,7 @@ public class SecurityPolicy {
         /*package*/ final int mPasswordExpirationDays;
         /*package*/ final int mPasswordHistory;
         /*package*/ final int mPasswordComplexChars;
+        /*package*/ final boolean mRequireEncryption;
 
         public int getMinPasswordLengthForTest() {
             return mMinPasswordLength;
@@ -465,6 +532,10 @@ public class SecurityPolicy {
             return mRequireRemoteWipe;
         }
 
+        public boolean isRequireEncryptionForTest() {
+            return mRequireEncryption;
+        }
+
         /**
          * Create from raw values.
          * @param minPasswordLength (0=not enforced)
@@ -479,7 +550,8 @@ public class SecurityPolicy {
          */
         public PolicySet(int minPasswordLength, int passwordMode, int maxPasswordFails,
                 int maxScreenLockTime, boolean requireRemoteWipe, int passwordExpirationDays,
-                int passwordHistory, int passwordComplexChars) throws IllegalArgumentException {
+                int passwordHistory, int passwordComplexChars, boolean requireEncryption)
+                throws IllegalArgumentException {
             // If we're not enforcing passwords, make sure we clean up related values, since EAS
             // can send non-zero values for any or all of these
             if (passwordMode == PASSWORD_MODE_NONE) {
@@ -529,6 +601,7 @@ public class SecurityPolicy {
             mPasswordExpirationDays = passwordExpirationDays;
             mPasswordHistory = passwordHistory;
             mPasswordComplexChars = passwordComplexChars;
+            mRequireEncryption = requireEncryption;
         }
 
         /**
@@ -558,6 +631,7 @@ public class SecurityPolicy {
                 (int) ((flags & PASSWORD_HISTORY_MASK) >> PASSWORD_HISTORY_SHIFT);
             mPasswordComplexChars =
                 (int) ((flags & PASSWORD_COMPLEX_CHARS_MASK) >> PASSWORD_COMPLEX_CHARS_SHIFT);
+            mRequireEncryption = 0 != (flags & REQUIRE_ENCRYPTION);
         }
 
         /**
@@ -661,6 +735,7 @@ public class SecurityPolicy {
             dest.writeInt(mPasswordExpirationDays);
             dest.writeInt(mPasswordHistory);
             dest.writeInt(mPasswordComplexChars);
+            dest.writeInt(mRequireEncryption ? 1 : 0);
         }
 
         /**
@@ -675,6 +750,7 @@ public class SecurityPolicy {
             mPasswordExpirationDays = in.readInt();
             mPasswordHistory = in.readInt();
             mPasswordComplexChars = in.readInt();
+            mRequireEncryption = in.readInt() == 1;
         }
 
         @Override
@@ -689,12 +765,11 @@ public class SecurityPolicy {
             flags |= mPasswordMode;
             flags |= (long)mMaxPasswordFails << PASSWORD_MAX_FAILS_SHIFT;
             flags |= (long)mMaxScreenLockTime << SCREEN_LOCK_TIME_SHIFT;
-            if (mRequireRemoteWipe) {
-                flags |= REQUIRE_REMOTE_WIPE;
-            }
+            if (mRequireRemoteWipe) flags |= REQUIRE_REMOTE_WIPE;
             flags |= (long)mPasswordHistory << PASSWORD_HISTORY_SHIFT;
             flags |= (long)mPasswordExpirationDays << PASSWORD_EXPIRATION_SHIFT;
             flags |= (long)mPasswordComplexChars << PASSWORD_COMPLEX_CHARS_SHIFT;
+            if (mRequireEncryption) flags |= REQUIRE_ENCRYPTION;
             return flags;
         }
 
@@ -705,7 +780,8 @@ public class SecurityPolicy {
                     + mMaxScreenLockTime + " remote-wipe-req=" + mRequireRemoteWipe
                     + " pw-expiration=" + mPasswordExpirationDays
                     + " pw-history=" + mPasswordHistory
-                    + " pw-complex-chars=" + mPasswordComplexChars + "}";
+                    + " pw-complex-chars=" + mPasswordComplexChars
+                    + " require-encryption=" + mRequireEncryption + "}";
         }
     }
 

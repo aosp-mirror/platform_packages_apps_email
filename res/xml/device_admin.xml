@@ -22,5 +22,6 @@
         <force-lock />
         <wipe-data />
         <expire-password />
+        <encrypted-storage />
     </uses-policies>
 </device-admin>
