@@ -52,6 +52,8 @@ public abstract class AccountServerBaseFragment extends Fragment
     // This is used to debounce multiple clicks on the proceed button (which does async work)
     public boolean mProceedButtonPressed;
 
+    public static Bundle sSetupModeArgs = null;
+
     /**
      * Callback interface that owning activities must provide
      */
@@ -86,12 +88,15 @@ public abstract class AccountServerBaseFragment extends Fragment
     }
 
     /**
-     * At constructor time, set the fragment arguments
+     * Get the static arguments bundle that forces a server settings fragment into "settings" mode
+     * (If not included, you'll be in "setup" mode which behaves slightly differently.)
      */
-    protected void setSetupArguments(boolean settingsMode) {
-        Bundle b = new Bundle();
-        b.putBoolean(BUNDLE_KEY_SETTINGS, true);
-        setArguments(b);
+    public static synchronized Bundle getSettingsModeArgs() {
+        if (sSetupModeArgs == null) {
+            sSetupModeArgs = new Bundle();
+            sSetupModeArgs.putBoolean(BUNDLE_KEY_SETTINGS, true);
+        }
+        return sSetupModeArgs;
     }
 
     /**
