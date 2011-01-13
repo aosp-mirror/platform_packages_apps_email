@@ -41,6 +41,10 @@ public class Snippet {
     // For some reason, isWhitespace() returns false with the following...
     /*package*/ static final char NON_BREAKING_SPACE_CHARACTER = (char)160;
 
+    // Tags whose content must be stripped as well
+    static final String[] STRIP_TAGS = new String[] {"title ", "script", "style ", "applet"};
+    static final int STRIP_TAG_LENGTH = 6;
+
     // Note: ESCAPE_STRINGS is taken from the StringUtil class which is part of the
     // unbundled_google package
     static final Map<String, Character> ESCAPE_STRINGS;
@@ -311,6 +315,33 @@ public class Snippet {
         return fromText(text, false);
     }
 
+    /**
+     * Find the end of this tag; there are two alternatives: <tag .../> or <tag ...> ... </tag>
+     * @param htmlText some HTML text
+     * @param tag the HTML tag
+     * @param startPos the start position in the HTML text where the tag starts
+     * @return the position just before the end of the tag or -1 if not found
+     */
+    /*package*/ static int findTagEnd(String htmlText, String tag, int startPos) {
+        if (tag.endsWith(" ")) {
+            tag = tag.substring(0, tag.length() - 1);
+        }
+        int length = htmlText.length();
+        char prevChar = 0;
+        for (int i = startPos; i < length; i++) {
+            char c = htmlText.charAt(i);
+            if (c == '>') {
+               if (prevChar == '/') {
+                   return i - 1;
+               }
+               break;
+            }
+            prevChar = c;
+        }
+        // We didn't find /> at the end of the tag so find </tag>
+        return htmlText.indexOf("/" + tag, startPos);
+    }
+
     public static String fromText(String text, boolean stripHtml) {
         // Handle null and empty string
         if (TextUtils.isEmpty(text)) return "";
@@ -338,6 +369,26 @@ public class Snippet {
                     char peek = text.charAt(i + 1);
                     if (peek == '!' || peek == '-' || peek == '/' || Character.isLetter(peek)) {
                         inTag = true;
+                        // Strip content of title, script, style and applet tags
+                        if (i < (length - (STRIP_TAG_LENGTH + 2))) {
+                            String tag = text.substring(i + 1, i + STRIP_TAG_LENGTH + 1);
+                            boolean stripContent = false;
+                            for (String stripTag: STRIP_TAGS) {
+                                if (stripTag.equals(tag)) {
+                                    stripContent = true;
+                                    break;
+                                }
+                            }
+                            if (stripContent) {
+                                // Look for the end of this tag
+                                int endTagPosition = findTagEnd(text, tag, i);
+                                if (endTagPosition < 0) {
+                                    break;
+                                } else {
+                                    i = endTagPosition;
+                                }
+                            }
+                        }
                     }
                 }
             } else if (stripHtml && inTag && (c == '>')) {
