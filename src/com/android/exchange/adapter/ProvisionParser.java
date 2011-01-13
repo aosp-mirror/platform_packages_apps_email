@@ -68,6 +68,7 @@ public class ProvisionParser extends Parser {
         int passwordExpirationDays = 0;
         int passwordHistory = 0;
         int passwordComplexChars = 0;
+        boolean encryptionRequired = false;
 
         while (nextTag(Tags.PROVISION_EAS_PROVISION_DOC) != END) {
             boolean tagIsSupported = true;
@@ -129,10 +130,18 @@ public class ProvisionParser extends Parser {
                         tagIsSupported = false;
                     }
                     break;
+                // We may now support device (internal) encryption; we'll check this capability
+                // below with the call to SecurityPolicy.isSupported()
+                case Tags.PROVISION_REQUIRE_DEVICE_ENCRYPTION:
+                    if (getValueInt() == 1) {
+                        encryptionRequired = true;
+                    }
+                    break;
                 // The following policies, if true, can't be supported at the moment
+                // Note that DEVICE_ENCRYPTION_ENABLED refers to SD card encryption, which we do
+                // not yet support.
                 case Tags.PROVISION_DEVICE_ENCRYPTION_ENABLED:
                 case Tags.PROVISION_PASSWORD_RECOVERY_ENABLED:
-                case Tags.PROVISION_REQUIRE_DEVICE_ENCRYPTION:
                 case Tags.PROVISION_REQUIRE_SIGNED_SMIME_MESSAGES:
                 case Tags.PROVISION_REQUIRE_ENCRYPTED_SMIME_MESSAGES:
                 case Tags.PROVISION_REQUIRE_SIGNED_SMIME_ALGORITHM:
@@ -196,7 +205,12 @@ public class ProvisionParser extends Parser {
 
         mPolicySet = new SecurityPolicy.PolicySet(minPasswordLength, passwordMode,
                 maxPasswordFails, maxScreenLockTime, true, passwordExpirationDays, passwordHistory,
-                passwordComplexChars, false);
+                passwordComplexChars, encryptionRequired);
+        // We can only determine whether encryption is supported on device by using isSupported here
+        if (!SecurityPolicy.getInstance(mService.mContext).isSupported(mPolicySet)) {
+            log("SecurityPolicy reports PolicySet not supported.");
+            mIsSupportable = false;
+        }
     }
 
     /**
