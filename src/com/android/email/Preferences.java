@@ -47,13 +47,15 @@ public class Preferences {
     // "move to older" was the behavior on older versions.
     public static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
 
+    // The following constants are used as offsets into TEXT_ZOOM_ARRAY (below)
     public static final int TEXT_ZOOM_TINY = 0;
     public static final int TEXT_ZOOM_SMALL = 1;
     public static final int TEXT_ZOOM_NORMAL = 2;
     public static final int TEXT_ZOOM_LARGE = 3;
     public static final int TEXT_ZOOM_HUGE = 4;
-    // "large" will be the default
-    public static final int TEXT_ZOOM_DEFAULT = TEXT_ZOOM_LARGE;
+    // "normal" will be the default
+    public static final int TEXT_ZOOM_DEFAULT = TEXT_ZOOM_NORMAL;
+    public static final float[] TEXT_ZOOM_ARRAY = new float[] {0.8f, 0.9f, 1.0f, 1.2f, 1.5f};
 
     private static Preferences sPreferences;
 

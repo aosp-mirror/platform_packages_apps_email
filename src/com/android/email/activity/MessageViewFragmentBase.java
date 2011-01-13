@@ -502,24 +502,29 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mMessageContentView.clearView();
 
             // Dynamic configuration of WebView
-            WebSettings.TextSize textZoom;
-            switch (Preferences.getPreferences(mContext).getTextZoom()) {
-                case Preferences.TEXT_ZOOM_TINY:    textZoom = WebSettings.TextSize.SMALLEST; break;
-                case Preferences.TEXT_ZOOM_SMALL:   textZoom = WebSettings.TextSize.SMALLER; break;
-                case Preferences.TEXT_ZOOM_NORMAL:  textZoom = WebSettings.TextSize.NORMAL; break;
-                case Preferences.TEXT_ZOOM_LARGE:   textZoom = WebSettings.TextSize.LARGER; break;
-                case Preferences.TEXT_ZOOM_HUGE:    textZoom = WebSettings.TextSize.LARGEST; break;
-                default:                            textZoom = WebSettings.TextSize.NORMAL; break;
-            }
             final WebSettings settings = mMessageContentView.getSettings();
-            settings.setTextSize(textZoom);
             settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
+            setTextZoom();
         }
         mAttachmentsScroll.scrollTo(0, 0);
         mInviteScroll.scrollTo(0, 0);
         mAttachments.removeAllViews();
         mAttachments.setVisibility(View.GONE);
         initContactStatusViews();
+    }
+
+    /**
+     * Sets the zoom value which is a combination of the user setting
+     * (tiny, small, normal, large, huge) and the device density. The intention
+     * is for the text to be physically equal in size over different density
+     * screens.
+     */
+    private void setTextZoom() {
+        float density = mContext.getResources().getDisplayMetrics().density;
+        int zoom = Preferences.getPreferences(mContext).getTextZoom();
+        float textZoom = Preferences.TEXT_ZOOM_ARRAY[zoom] * density;
+
+        mMessageContentView.setInitialScale((int) (textZoom * 100));
     }
 
     private void initContactStatusViews() {
