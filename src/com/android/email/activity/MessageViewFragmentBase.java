@@ -205,6 +205,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private int mCurrentTab;
 
     /**
+     * Zoom scales for webview.  Values correspond to {@link Preferences#TEXT_ZOOM_TINY}..
+     * {@link Preferences#TEXT_ZOOM_HUGE}.
+     */
+    private static final float[] ZOOM_SCALE_ARRAY = new float[] {0.8f, 0.9f, 1.0f, 1.2f, 1.5f};
+
+    /**
      * Encapsulates known information about a single attachment.
      *
      * TODO: This should have methods to encapsulate the entire state graph of loading, canceling,
@@ -504,7 +510,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             // Dynamic configuration of WebView
             final WebSettings settings = mMessageContentView.getSettings();
             settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
-            setTextZoom();
+            mMessageContentView.setInitialScale(getWebViewZoom());
         }
         mAttachmentsScroll.scrollTo(0, 0);
         mInviteScroll.scrollTo(0, 0);
@@ -514,17 +520,15 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     /**
-     * Sets the zoom value which is a combination of the user setting
+     * Returns the zoom scale (in percent) which is a combination of the user setting
      * (tiny, small, normal, large, huge) and the device density. The intention
      * is for the text to be physically equal in size over different density
      * screens.
      */
-    private void setTextZoom() {
+    private int getWebViewZoom() {
         float density = mContext.getResources().getDisplayMetrics().density;
         int zoom = Preferences.getPreferences(mContext).getTextZoom();
-        float textZoom = Preferences.TEXT_ZOOM_ARRAY[zoom] * density;
-
-        mMessageContentView.setInitialScale((int) (textZoom * 100));
+        return (int) (ZOOM_SCALE_ARRAY[zoom] * density * 100);
     }
 
     private void initContactStatusViews() {
@@ -590,7 +594,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      */
     private void setCurrentTab(int tab) {
         mCurrentTab = tab;
-        makeVisible(mMessageContentView, tab == TAB_MESSAGE);
+        if (mMessageContentView != null) {
+            makeVisible(mMessageContentView, tab == TAB_MESSAGE);
+        }
         mMessageTab.setSelected(tab == TAB_MESSAGE);
 
         makeVisible(mAttachmentsScroll, tab == TAB_ATTACHMENT);
