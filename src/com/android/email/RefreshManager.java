@@ -239,7 +239,7 @@ public class RefreshManager {
      * "load more messages" in a mailbox.
      */
     public boolean loadMoreMessages(long accountId, long mailboxId) {
-        return refreshMessageList(accountId, mailboxId, true);
+        return refreshMessageList(accountId, mailboxId, true, true);
     }
 
     private boolean refreshMessageList(long accountId, long mailboxId, boolean loadMoreMessages,
