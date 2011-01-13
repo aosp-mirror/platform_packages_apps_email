@@ -541,14 +541,18 @@ public abstract class EmailContent {
 
         public static final String[] ID_COLUMN_PROJECTION = new String[] { RECORD_ID };
 
-        private static final String FAVORITE_COUNT_SELECTION =
-            MessageColumns.FLAG_FAVORITE + "= 1";
-
-        private static final String ACCOUNT_FAVORITE_COUNT_SELECTION =
-            MessageColumns.FLAG_FAVORITE + "= 1 AND " + MessageColumns.ACCOUNT_KEY + "=?";
+        public static final String ALL_FAVORITE_SELECTION =
+            MessageColumns.FLAG_FAVORITE + "=1 AND "
+            + MessageColumns.MAILBOX_KEY + " NOT IN ("
+            +     "SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME + ""
+            +     " WHERE " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_TRASH
+            +     ")";
 
         private static final String ACCOUNT_KEY_SELECTION =
             MessageColumns.ACCOUNT_KEY + "=?";
+
+        private static final String ACCOUNT_FAVORITE_SELECTION =
+            ACCOUNT_KEY_SELECTION + " AND " + ALL_FAVORITE_SELECTION;
 
         /**
          * Selection for latest incoming messages.  In order to tell whether incoming or not,
@@ -858,14 +862,14 @@ public abstract class EmailContent {
          * @return number of favorite (starred) messages throughout all accounts.
          */
         public static int getFavoriteMessageCount(Context context) {
-            return count(context, Message.CONTENT_URI, FAVORITE_COUNT_SELECTION, null);
+            return count(context, Message.CONTENT_URI, ALL_FAVORITE_SELECTION, null);
         }
 
         /**
          * @return number of favorite (starred) messages for an account
          */
         public static int getFavoriteMessageCount(Context context, long accountId) {
-            return count(context, Message.CONTENT_URI, ACCOUNT_FAVORITE_COUNT_SELECTION,
+            return count(context, Message.CONTENT_URI, ACCOUNT_FAVORITE_SELECTION,
                     new String[]{Long.toString(accountId)});
         }
 

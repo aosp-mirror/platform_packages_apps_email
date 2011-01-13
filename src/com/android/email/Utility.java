@@ -341,7 +341,7 @@ public class Utility {
         } else  if (mailboxId == Mailbox.QUERY_ALL_UNREAD) {
             selection.append(Message.FLAG_READ + "=0");
         } else if (mailboxId == Mailbox.QUERY_ALL_FAVORITES) {
-            selection.append(Message.FLAG_FAVORITE + "=1");
+            selection.append(Message.ALL_FAVORITE_SELECTION);
         } else {
             selection.append(MessageColumns.MAILBOX_KEY + "=" + mailboxId);
             if (Mailbox.getMailboxType(context, mailboxId) == Mailbox.TYPE_OUTBOX) {

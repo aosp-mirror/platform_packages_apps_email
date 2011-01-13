@@ -125,7 +125,7 @@ public class WidgetProvider extends AppWidgetProvider {
     public enum ViewType {
         ALL_MAIL(null, NO_ARGUMENTS, R.string.widget_all_mail),
         UNREAD(MessageColumns.FLAG_READ + "=0", NO_ARGUMENTS, R.string.widget_unread),
-        STARRED(MessageColumns.FLAG_FAVORITE + "=1", NO_ARGUMENTS, R.string.widget_starred),
+        STARRED(Message.ALL_FAVORITE_SELECTION, NO_ARGUMENTS, R.string.widget_starred),
         ACCOUNT(MessageColumns.ACCOUNT_KEY + "=?", new String[1], 0);
 
         private final String selection;
