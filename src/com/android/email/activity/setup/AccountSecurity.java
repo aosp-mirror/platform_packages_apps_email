@@ -37,12 +37,15 @@ import android.os.Bundle;
  * 3.  When we are actively administrating, check current policies and see if they're sufficient
  * 4.  If not, set policies
  * 5.  If necessary, request for user to update device password
+ * 6.  If necessary, request for user to activate device encryption
  */
 public class AccountSecurity extends Activity {
 
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity.setup.ACCOUNT_ID";
 
     private static final int REQUEST_ENABLE = 1;
+    private static final int REQUEST_PASSWORD = 2;
+    private static final int REQUEST_ENCRYPTION = 3;
 
     /**
      * Used for generating intent for this activity (which is intended to be launched
@@ -91,7 +94,11 @@ public class AccountSecurity extends Activity {
                         }
                     } else {
                         // already active - try to set actual policies, finish, and return
-                        setActivePolicies();
+                        boolean startedActivity = setActivePolicies();
+                        if (startedActivity) {
+                            // keep this activity on stack to process result
+                            return;
+                        }
                     }
                 }
             }
@@ -104,11 +111,17 @@ public class AccountSecurity extends Activity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        boolean startedActivity = false;
         switch (requestCode) {
+            case REQUEST_PASSWORD:
+            case REQUEST_ENCRYPTION:
+                // Force the result code and just check the DPM to check for actual success
+                resultCode = Activity.RESULT_OK;
+              //$FALL-THROUGH$
             case REQUEST_ENABLE:
                 if (resultCode == Activity.RESULT_OK) {
                     // now active - try to set actual policies
-                    setActivePolicies();
+                    startedActivity = setActivePolicies();
                 } else {
                     // failed - repost notification, and exit
                     final long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
@@ -123,30 +136,45 @@ public class AccountSecurity extends Activity {
                     }
                 }
         }
-        finish();
+        if (!startedActivity) {
+            finish();
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
      * Now that we are connected as an active device admin, try to set the device to the
      * correct security level, and ask for a password if necessary.
+     * @return true if we started another activity (and should not finish(), as we're waiting for
+     * their result.)
      */
-    private void setActivePolicies() {
+    private boolean setActivePolicies() {
         SecurityPolicy sp = SecurityPolicy.getInstance(this);
         // check current security level - if sufficient, we're done!
         if (sp.isActive(null)) {
             Account.clearSecurityHoldOnAllAccounts(this);
-            return;
+            return false;
         }
         // set current security level
         sp.setActivePolicies();
         // check current security level - if sufficient, we're done!
-        if (sp.isActive(null)) {
+        int inactiveReasons = sp.getInactiveReasons(null);
+        if (inactiveReasons == 0) {
             Account.clearSecurityHoldOnAllAccounts(this);
-            return;
+            return false;
         }
-        // if not sufficient, launch the activity to have the user set a new password.
-        Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
-        startActivity(intent);
+        // If password or encryption required, launch relevant intent
+        if ((inactiveReasons & SecurityPolicy.INACTIVE_NEED_PASSWORD) != 0) {
+            // launch the activity to have the user set a new password.
+            Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
+            startActivityForResult(intent, REQUEST_PASSWORD);
+            return true;
+        } else if ((inactiveReasons & SecurityPolicy.INACTIVE_NEED_ENCRYPTION) != 0) {
+            // launch the activity to start up encryption.
+            Intent intent = new Intent(DevicePolicyManager.ACTION_START_ENCRYPTION);
+            startActivityForResult(intent, REQUEST_ENCRYPTION);
+            return true;
+        }
+        return false;
     }
 }
