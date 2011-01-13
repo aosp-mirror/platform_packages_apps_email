@@ -300,6 +300,13 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
              */
             throw new Error(use);
         }
+
+        try {
+            mLoadedUri = getUri();
+        } catch (URISyntaxException ignore) {
+            // ignore; should not happen
+        }
+
         mLoaded = true;
         validateFields();
     }
@@ -368,7 +375,8 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      * a problem with the user input.
      * @return a URI built from the account setup fields
      */
-    /* package */ URI getUri() throws URISyntaxException {
+    @Override
+    protected URI getUri() throws URISyntaxException {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         String userInfo = null;
         if (mRequireLoginView.isChecked()) {

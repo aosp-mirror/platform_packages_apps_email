@@ -66,7 +66,6 @@ import java.util.List;
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
 public class AccountSettingsXL extends PreferenceActivity {
-
     // Intent extras for our internal activity launch
     /* package */ static final String EXTRA_ACCOUNT_ID = "AccountSettingsXL.account_id";
     private static final String EXTRA_ENABLE_DEBUG = "AccountSettingsXL.enable_debug";
@@ -243,8 +242,8 @@ public class AccountSettingsXL extends PreferenceActivity {
     }
 
     /**
-     * TODO: Any time we exit via this pathway, and we are showing a server settings fragment,
-     * we should put up the exit-save-changes dialog.  This will work for the following cases:
+     * Any time we exit via this pathway, and we are showing a server settings fragment,
+     * we put up the exit-save-changes dialog.  This will work for the following cases:
      *   Cancel button
      *   Back button
      *   Up arrow in application icon
@@ -254,6 +253,15 @@ public class AccountSettingsXL extends PreferenceActivity {
      */
     @Override
     public void onBackPressed() {
+        if (mCurrentFragment instanceof AccountServerBaseFragment) {
+            boolean changed = ((AccountServerBaseFragment)mCurrentFragment).haveSettingsChanged();
+            if (changed) {
+                UnsavedChangesDialogFragment dialogFragment =
+                    UnsavedChangesDialogFragment.newInstanceForBack();
+                dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
+                return; // Prevent "back" from being handled
+            }
+        }
         super.onBackPressed();
     }
 
@@ -444,12 +452,13 @@ public class AccountSettingsXL extends PreferenceActivity {
     public void onHeaderClick(Header header, int position) {
         // special case when exiting the server settings fragments
         if (mCurrentFragment instanceof AccountServerBaseFragment) {
-            if (position != mCurrentHeaderPosition) {
+            boolean changed = ((AccountServerBaseFragment)mCurrentFragment).haveSettingsChanged();
+            if (changed) {
                 UnsavedChangesDialogFragment dialogFragment =
-                    UnsavedChangesDialogFragment.newInstance(position);
+                    UnsavedChangesDialogFragment.newInstanceForHeader(position);
                 dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
+                return;
             }
-            return;
         }
 
         // Secret keys:  Click 10x to enable debug settings
@@ -472,10 +481,23 @@ public class AccountSettingsXL extends PreferenceActivity {
      * in {@link #onHeaderClick(Header, int)}.  Called after we interrupted a header switch
      * with a dialog, and the user OK'd it.
      */
-    private void forceSwitchHeader(int newPosition) {
-        mCurrentHeaderPosition = newPosition;
-        Header header = mGeneratedHeaders.get(newPosition);
-        switchToHeader(header.fragment, header.fragmentArguments);
+    private void forceSwitchHeader(int position) {
+        mCurrentHeaderPosition = position;
+        // Clear the current fragment; we're navigating away
+        mCurrentFragment = null;
+        // Ensure the UI visually shows the correct header selected
+        setSelection(position);
+        Header header = mGeneratedHeaders.get(position);
+        switchToHeader(header);
+    }
+
+    /**
+     * Forcefully go backward in the stack. This may potentially discard unsaved settings.
+     */
+    private void forceBack() {
+        // Clear the current fragment; we're navigating away
+        mCurrentFragment = null;
+        onBackPressed();
     }
 
     /**
@@ -539,6 +561,8 @@ public class AccountSettingsXL extends PreferenceActivity {
          */
         public void onCheckSettingsComplete(int result, int setupMode) {
             if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
+                // Settings checked & saved; clear current fragment
+                mCurrentFragment = null;
                 onBackPressed();
             }
         }
@@ -653,27 +677,47 @@ public class AccountSettingsXL extends PreferenceActivity {
     /**
      * Dialog fragment to show "exit with unsaved changes?" dialog
      */
-    public static class UnsavedChangesDialogFragment extends DialogFragment {
+    /* package */ static class UnsavedChangesDialogFragment extends DialogFragment {
         private final static String TAG = "UnsavedChangesDialogFragment";
 
         // Argument bundle keys
-        private final static String BUNDLE_KEY_NEW_HEADER = "UnsavedChangesDialogFragment.Header";
+        private final static String BUNDLE_KEY_HEADER = "UnsavedChangesDialogFragment.Header";
+        private final static String BUNDLE_KEY_BACK = "UnsavedChangesDialogFragment.Back";
 
         /**
-         * Create the dialog with parameters
+         * Creates a save changes dialog when the user selects a new header
+         * @param position The new header index to make active if the user accepts the dialog. This
+         * must be a valid header index although there is no error checking.
          */
-        public static UnsavedChangesDialogFragment newInstance(int newPosition) {
+        public static UnsavedChangesDialogFragment newInstanceForHeader(int position) {
             UnsavedChangesDialogFragment f = new UnsavedChangesDialogFragment();
             Bundle b = new Bundle();
-            b.putInt(BUNDLE_KEY_NEW_HEADER, newPosition);
+            b.putInt(BUNDLE_KEY_HEADER, position);
             f.setArguments(b);
             return f;
+        }
+
+        /**
+         * Creates a save changes dialog when the user navigates "back".
+         * {@link AccountSettingsXL#onBackPressed()} defines in which case this may be triggered.
+         */
+        public static UnsavedChangesDialogFragment newInstanceForBack() {
+            UnsavedChangesDialogFragment f = new UnsavedChangesDialogFragment();
+            Bundle b = new Bundle();
+            b.putBoolean(BUNDLE_KEY_BACK, true);
+            f.setArguments(b);
+            return f;
+        }
+
+        // Force usage of newInstance()
+        private UnsavedChangesDialogFragment() {
         }
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             final AccountSettingsXL activity = (AccountSettingsXL) getActivity();
-            final int newPosition = getArguments().getInt(BUNDLE_KEY_NEW_HEADER);
+            final int position = getArguments().getInt(BUNDLE_KEY_HEADER);
+            final boolean isBack = getArguments().getBoolean(BUNDLE_KEY_BACK);
 
             return new AlertDialog.Builder(activity)
                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -683,13 +727,16 @@ public class AccountSettingsXL extends PreferenceActivity {
                         R.string.okay_action,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                activity.forceSwitchHeader(newPosition);
+                                if (isBack) {
+                                    activity.forceBack();
+                                } else {
+                                    activity.forceSwitchHeader(position);
+                                }
                                 dismiss();
                             }
                         })
                 .setNegativeButton(
-                        activity.getString(R.string.cancel_action),
-                        null)
+                        activity.getString(R.string.cancel_action), null)
                 .create();
         }
     }

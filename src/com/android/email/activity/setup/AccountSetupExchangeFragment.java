@@ -262,6 +262,12 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         mTrustCertificatesView.setChecked(trustCertificates);
         showTrustCertificates(ssl);
 
+        try {
+            mLoadedUri = getUri();
+        } catch (URISyntaxException ignore) {
+            // ignore; should not happen
+        }
+
         mLoaded = true;
         return validateFields();
     }
@@ -347,7 +353,8 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      * a problem with the user input.
      * @return a URI built from the account setup fields
      */
-    /* package */ URI getUri() throws URISyntaxException {
+    @Override
+    protected URI getUri() throws URISyntaxException {
         boolean sslRequired = mSslSecurityView.isChecked();
         boolean trustCertificates = mTrustCertificatesView.isChecked();
         String scheme = (sslRequired)

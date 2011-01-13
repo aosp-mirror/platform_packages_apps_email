@@ -78,6 +78,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     private Spinner mDeletePolicyView;
     private View mImapPathPrefixSectionView;
     private EditText mImapPathPrefixView;
+    // Delete policy as loaded from the device
+    private int mLoadedDeletePolicy;
 
     // Support for lifecycle
     private boolean mStarted;
@@ -333,7 +335,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             }
 
             if (uri.getScheme().startsWith("pop3")) {
-                SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, account.getDeletePolicy());
+                mLoadedDeletePolicy = account.getDeletePolicy();
+                SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, mLoadedDeletePolicy);
             } else if (uri.getScheme().startsWith("imap")) {
                 if (uri.getPath() != null && uri.getPath().length() > 0) {
                     mImapPathPrefixView.setText(uri.getPath().substring(1));
@@ -363,6 +366,13 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
              */
             throw new Error(use);
         }
+
+        try {
+            mLoadedUri = getUri();
+        } catch (URISyntaxException ignore) {
+            // ignore; should not happen
+        }
+
         mLoaded = true;
         validateFields();
     }
@@ -440,7 +450,8 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
      * a problem with the user input.
      * @return a URI built from the account setup fields
      */
-    /* package */ URI getUri() throws URISyntaxException {
+    @Override
+    protected URI getUri() throws URISyntaxException {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         String path = null;
         if (mAccountSchemes[securityType].startsWith("imap")) {
@@ -484,5 +495,19 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
              */
             throw new Error(use);
         }
+    }
+
+    @Override
+    public boolean haveSettingsChanged() {
+        boolean deletePolicyChanged = false;
+
+        // Only verify the delete policy if the control is visible (i.e. is a pop3 account)
+        if (mDeletePolicyView.getVisibility() == View.VISIBLE) {
+            int newDeletePolicy =
+                (Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value;
+            deletePolicyChanged = mLoadedDeletePolicy != newDeletePolicy;
+        }
+
+        return deletePolicyChanged || super.haveSettingsChanged();
     }
 }
