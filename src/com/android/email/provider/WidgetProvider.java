@@ -614,7 +614,6 @@ public class WidgetProvider extends AppWidgetProvider {
         if (Email.DEBUG) {
             Log.d(TAG, "onEnabled");
         }
-        context.startService(new Intent(context, WidgetService.class));
     }
 
     @Override
@@ -625,7 +624,6 @@ public class WidgetProvider extends AppWidgetProvider {
             if (extras != null) {
                 final int[] appWidgetIds = extras.getIntArray(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                 if (appWidgetIds != null && appWidgetIds.length > 0) {
-                    context.startService(new Intent(context, WidgetService.class));
                     update(context, appWidgetIds);
                 }
             }
@@ -729,11 +727,6 @@ public class WidgetProvider extends AppWidgetProvider {
                     if (widget != null) {
                         WidgetViewSwitcher switcher = new WidgetViewSwitcher(widget);
                         switcher.execute();
-                        // STOPHIP Remove logging
-                        Log.d(TAG, "Widget " + widget.mWidgetId + ", chg to " + widget.mViewType);
-                    // STOPSHIP Remove logging
-                    } else {
-                        Log.d(TAG, "Can't switch widget view, not found: " + (int)arg1);
                     }
                 }
             } catch (NumberFormatException e) {
