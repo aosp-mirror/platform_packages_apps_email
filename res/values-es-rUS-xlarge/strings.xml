@@ -47,11 +47,7 @@
     <!-- XL -->
     <string name="general_preference_background_attachments_summary" msgid="5979699362452475451">"Descargar adjuntos para los mensajes de la Bandeja de entrada. (No disponible para cuentas POP3)."</string>
     <!-- XL -->
-    <string name="widget_other_views" msgid="1576933747721573011">"Presionar ícono para cambiar"</string>
-    <!-- XL -->
     <string name="widget_all_mail" msgid="507010372552999526">"Bandeja de entrada combinada"</string>
-    <!-- XL -->
-    <string name="widget_unread" msgid="6314299154678507793">"No leídos"</string>
     <!-- XL -->
     <string name="widget_starred" msgid="8526007834142332107">"Destacado"</string>
     <!-- XL -->

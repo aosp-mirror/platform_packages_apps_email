@@ -16,14 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="status_sending_messages" msgid="3971880826111264523">"Надсил-ня листів…"</string>
-    <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"Надіслати всі"</string>
-    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Отримання вклад. файлу."</string>
-    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Отримання вклад. файлу <xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="read_attachment_label" msgid="1162255191991555285">"Читати вклад. файли пошти"</string>
-    <string name="read_attachment_desc" msgid="7594746717616308643">"Дозволяє цій програмі читати вкладені файли вашої пошти."</string>
-    <string name="permission_access_provider_label" msgid="4274353114641168675">"Доступ до даних провайд. пошти"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Дозволяє програмі отримувати доступ до бази даних пошти, зокрема отриманих і надісланих повід., імен користувачів і паролів."</string>
     <string name="app_name" msgid="5815426892327290362">"Ел.пошта"</string>
     <string name="compose_title" msgid="427986915662706899">"Написати"</string>
     <string name="debug_title" msgid="5175710493691536719">"Налагодж."</string>
@@ -60,6 +52,8 @@
     <string name="move_action" msgid="3059189775933985898">"Переміст."</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Коп./Прих.коп."</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Дод. вклад. файл"</string>
+    <!-- no translation found for close_action (533058985745238100) -->
+    <skip />
     <string name="dump_settings_action" msgid="4478192525236169829">"Налашт-ня дампу"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Виберіть вклад. файл"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Перемістити до"</string>
@@ -67,10 +61,18 @@
     <string name="status_network_error" msgid="6045933332005067021">"Помилка з\'єднання"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Новий лист"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Неочік. помилка під час завант. тексту повід. Воно може бути завелике для перегл."</string>
-  <plurals name="move_messages">
-    <item quantity="one" msgid="1891601902988083907">"Переміщ. <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> повід."</item>
-    <item quantity="other" msgid="8792313600381332865">"Переміщ. <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> повід."</item>
-  </plurals>
+    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
+    <skip />
+    <!-- no translation found for move_messages:one (320885379869442589) -->
+    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
+    <skip />
+    <!-- no translation found for move_messages:other (371256717624461324) -->
+    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
+    <skip />
+    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
+    <skip />
+    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
+    <skip />
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> непрочит. (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> непрочит. (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -128,6 +130,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Копія:"</string>
     <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
     <skip />
+    <!-- no translation found for message_view_date_label (7033814961837313339) -->
+    <skip />
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Переглян."</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Завантаж."</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Зберегти"</string>
@@ -151,6 +155,10 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Ви прийняли це запрошення"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Ваша відповідь на це запрошення: \"Можливо\""</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Ви відхилили це запрошення"</string>
+    <!-- no translation found for message_view_show_details (6287415596441037095) -->
+    <skip />
+    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
+    <skip />
     <string name="eml_view_title" msgid="8827210108543430336">"Перегляд <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Відхилити повід."</string>
   <plurals name="message_delete_confirm">
@@ -385,8 +393,8 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Звичайний"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Великий"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Дуже великий"</string>
-    <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"Автомат. отримувати вклад. файли"</string>
-    <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"Завантаж. вклад. файлів для вхідних повід. (Недоступ. для обл. зап. POP3)."</string>
+    <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"Автоматично отримувати вкладення"</string>
+    <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"Завантаження вкладень для вхідних повід. (Недоступ. для обл. записів POP3)."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> з <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <!-- outdated translation 2924270018204427009 -->     <string name="widget_other_views" msgid="2265335608760083337">"Натисніть значок ел. пошти для інших переглядів"</string>
     <!-- outdated translation 6436796211067834315 -->     <string name="widget_all_mail" msgid="4352573990283094963">"Уся пошта"</string>

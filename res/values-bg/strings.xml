@@ -16,14 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="status_sending_messages" msgid="3971880826111264523">"Съобщенията се изпращат"</string>
-    <string name="message_list_send_pending_messages_action" msgid="6350878794250526493">"Изпр. на всички"</string>
-    <string name="message_view_fetching_attachment_toast" msgid="8812363375155391184">"Извлича се прикачен файл."</string>
-    <string name="message_view_fetching_attachment_progress" msgid="8238550182655758164">"Извлича се прикаченият файл<xliff:g id="FILENAME">%s</xliff:g>"</string>
-    <string name="read_attachment_label" msgid="1162255191991555285">"Четене на прикачени файлове в имейла"</string>
-    <string name="read_attachment_desc" msgid="7594746717616308643">"Позволява на това приложение да чете прикачените файлове в имейла ви."</string>
-    <string name="permission_access_provider_label" msgid="4274353114641168675">"Достъп до данни на доставчика на имейл"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Дава на това приложение достъп до базата от данни на имейла ви, вкл. получени и изпратени съобщения, потребителски имена и пароли."</string>
     <string name="app_name" msgid="5815426892327290362">"Имейл"</string>
     <string name="compose_title" msgid="427986915662706899">"Ново съобщение"</string>
     <string name="debug_title" msgid="5175710493691536719">"Отстраняване на грешки"</string>
@@ -60,6 +52,8 @@
     <string name="move_action" msgid="3059189775933985898">"Местене"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Як/Ск"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Добавяне на прикачен файл"</string>
+    <!-- no translation found for close_action (533058985745238100) -->
+    <skip />
     <string name="dump_settings_action" msgid="4478192525236169829">"Настройки за отхвърляне"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Избор на прикачен файл"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Преместване във:"</string>
@@ -67,10 +61,18 @@
     <string name="status_network_error" msgid="6045933332005067021">"Грешка при свързване"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Нов имейл"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Неочаквана грешка при зареждане на текст. Съобщението може да е твърде голямо за преглед."</string>
-  <plurals name="move_messages">
-    <item quantity="one" msgid="1891601902988083907">"Преместване на <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> съобщение"</item>
-    <item quantity="other" msgid="8792313600381332865">"Преместване на <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> съобщения"</item>
-  </plurals>
+    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
+    <skip />
+    <!-- no translation found for move_messages:one (320885379869442589) -->
+    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
+    <skip />
+    <!-- no translation found for move_messages:other (371256717624461324) -->
+    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
+    <skip />
+    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
+    <skip />
+    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
+    <skip />
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> непрочетено (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> непрочетени (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -128,6 +130,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Як:"</string>
     <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
     <skip />
+    <!-- no translation found for message_view_date_label (7033814961837313339) -->
+    <skip />
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Преглед"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Зареждане"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Запазване"</string>
@@ -151,6 +155,10 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Приехте тази покана"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Отговорихте на тази покана с „Може би“"</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Отклонихте тази покана"</string>
+    <!-- no translation found for message_view_show_details (6287415596441037095) -->
+    <skip />
+    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
+    <skip />
     <string name="eml_view_title" msgid="8827210108543430336">"Преглед на <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Отхвърляне"</string>
   <plurals name="message_delete_confirm">
@@ -193,7 +201,7 @@
     <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
     <skip />
     <string name="message_view_move_to_older" msgid="4993043091356700890">"По-стари"</string>
-    <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" - "</string>
+    <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" – "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Настройка на профила"</string>
     <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Добавяне на нов профил от Exchange"</string>
     <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Добавяне на нов профил от Exchange ActiveSync"</string>
@@ -388,9 +396,9 @@
     <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"Авт. извличане на прик. файлове"</string>
     <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"Изтегляне на прикачени файлове във вх. поща. (Без POP3 профили.)"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> от <xliff:g id="ID_2">%2$s</xliff:g>"</string>
-    <!-- outdated translation 2924270018204427009 -->     <string name="widget_other_views" msgid="2265335608760083337">"Докоснете иконата за имейл за други изгледи"</string>
-    <!-- outdated translation 6436796211067834315 -->     <string name="widget_all_mail" msgid="4352573990283094963">"Цялата поща"</string>
-    <!-- outdated translation 488582205091831168 -->     <string name="widget_unread" msgid="4404711399009077833">"Всички непрочетени"</string>
-    <!-- outdated translation 7855645697293191958 -->     <string name="widget_starred" msgid="8290352707134011791">"Всички със звезда"</string>
+    <string name="widget_other_views" msgid="2265335608760083337">"Докоснете за промяна"</string>
+    <string name="widget_all_mail" msgid="4352573990283094963">"Комбинирана вх. поща"</string>
+    <string name="widget_unread" msgid="4404711399009077833">"Непрочетени"</string>
+    <string name="widget_starred" msgid="8290352707134011791">"Със звезда"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Зарежда се…"</string>
 </resources>
