@@ -402,6 +402,17 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         }, WAIT_UNTIL_TIMEOUT_SECONDS);
     }
 
+    public void testLoadMoreMessages() {
+        final long ACCOUNT_ID = 123;
+        final long MAILBOX_ID = 456;
+
+        mTarget.loadMoreMessages(ACCOUNT_ID, MAILBOX_ID);
+
+        assertTrue(mController.mCalledLoadMoreMessages);
+        assertEquals(mController.mMailboxId, MAILBOX_ID);
+        assertFalse(mController.mCalledUpdateMailbox);
+    }
+
     // volatile is necessary for testSendPendingMessagesForAllAccounts().
     // (Not all of them are actually necessary, but added for consistency.)
     private static class MockController extends Controller {
@@ -410,6 +421,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         public volatile boolean mCalledSendPendingMessages;
         public volatile boolean mCalledUpdateMailbox;
         public volatile boolean mCalledUpdateMailboxList;
+        public volatile boolean mCalledLoadMoreMessages;
         public volatile Result mListener;
 
         protected MockController(Context context) {
@@ -441,6 +453,13 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         public void updateMailboxList(long accountId) {
             mCalledUpdateMailboxList = true;
             mAccountId = accountId;
+        }
+
+        @Override
+        public void loadMoreMessages(long mailboxId) {
+            mCalledLoadMoreMessages = true;
+            mAccountId = -1;
+            mMailboxId = mailboxId;
         }
 
         @Override
