@@ -2336,7 +2336,7 @@ public class ExchangeService extends Service implements Runnable {
     }
 
     // DO NOT CALL THIS IN A LOOP ON THE SERVICEMAP
-    static private void stopManualSync(long mailboxId) {
+    static public void stopManualSync(long mailboxId) {
         ExchangeService exchangeService = INSTANCE;
         if (exchangeService == null) return;
         synchronized (sSyncLock) {

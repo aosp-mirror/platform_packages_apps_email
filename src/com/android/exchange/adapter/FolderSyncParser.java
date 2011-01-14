@@ -20,11 +20,11 @@ package com.android.exchange.adapter;
 import com.android.email.Utility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.email.provider.EmailProvider;
 import com.android.exchange.Eas;
 import com.android.exchange.ExchangeService;
 import com.android.exchange.MockParserStream;
@@ -361,9 +361,9 @@ public class FolderSyncParser extends AbstractSyncParser {
         }
     }
 
-    private void commitMailboxes(ArrayList<Mailbox> validMailboxes,
+    private boolean commitMailboxes(ArrayList<Mailbox> validMailboxes,
             ArrayList<Mailbox> userMailboxes, HashMap<String, Mailbox> mailboxMap,
-            ArrayList<ContentProviderOperation> ops) throws IOException {
+            ArrayList<ContentProviderOperation> ops) {
 
         // Go through the generic user mailboxes; we'll call them valid if any parent is valid
         for (Mailbox m: userMailboxes) {
@@ -388,44 +388,26 @@ public class FolderSyncParser extends AbstractSyncParser {
         // If it IS repeatable, there's no good result, since the folder list will be invalid
         try {
             mContentResolver.applyBatch(EmailProvider.EMAIL_AUTHORITY, mOperations);
+            return true;
         } catch (RemoteException e) {
-            throw new IOException("RemoteException committing folders.");
+            userLog("RemoteException in commitMailboxes");
+            return false;
         } catch (OperationApplicationException e) {
-            throw new IOException("OperationApplicationException committing folders.");
+            userLog("OperationApplicationException in commitMailboxes");
+            return false;
         }
     }
 
-    public void changesParser(ArrayList<ContentProviderOperation> ops, boolean initialSync)
-            throws IOException {
-        // Mailboxes that we known contain email
-        ArrayList<Mailbox> validMailboxes = new ArrayList<Mailbox>();
-        // Mailboxes that we're unsure about
-        ArrayList<Mailbox> userMailboxes = new ArrayList<Mailbox>();
-        // Maps folder serverId to mailbox type
-        HashMap<String, Mailbox> mailboxMap = new HashMap<String, Mailbox>();
+    public void changesParser(final ArrayList<ContentProviderOperation> ops,
+            final boolean initialSync) throws IOException {
+        // Array of added mailboxes
+        final ArrayList<Mailbox> addMailboxes = new ArrayList<Mailbox>();
 
-        int mailboxAddCount = 0;
         while (nextTag(Tags.FOLDER_CHANGES) != END) {
             if (tag == Tags.FOLDER_ADD) {
                 Mailbox mailbox = addParser();
                 if (mailbox != null) {
-                    // Save away the type of this folder
-                    mailboxMap.put(mailbox.mServerId, mailbox);
-                    // And add the mailbox to the proper list
-                    if (type == USER_MAILBOX_TYPE) {
-                        userMailboxes.add(mailbox);
-                    } else {
-                        validMailboxes.add(mailbox);
-                    }
-                    // On initial sync, we commit what we have every 20 mailboxes
-                    if (initialSync && (++mailboxAddCount == MAILBOX_COMMIT_SIZE)) {
-                        commitMailboxes(validMailboxes, userMailboxes, mailboxMap, ops);
-                        // Clear our arrays to prepare for more
-                        userMailboxes.clear();
-                        validMailboxes.clear();
-                        ops.clear();
-                        mailboxAddCount = 0;
-                    }
+                    addMailboxes.add(mailbox);
                 }
             } else if (tag == Tags.FOLDER_DELETE) {
                 deleteParser(ops);
@@ -437,22 +419,53 @@ public class FolderSyncParser extends AbstractSyncParser {
                 skipTag();
         }
 
-        // The mock stream is used for junit tests, so that the parsing code can be tested
-        // separately from the provider code.
-        // TODO Change tests to not require this; remove references to the mock stream
-        if (mMock != null) {
-            mMock.setResult(null);
-            return;
-        }
-
-        // Commit the sync key and mailboxes
-        ContentValues cv = new ContentValues();
-        cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
-        ops.add(ContentProviderOperation.newUpdate(
-                ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId))
-                .withValues(cv)
-                .build());
-        commitMailboxes(validMailboxes, userMailboxes, mailboxMap, ops);
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                // Synchronize on the parser to prevent this being run multiple times concurrently
+                // (an extremely unlikely event, but nonetheless possible)
+                synchronized (FolderSyncParser.this) {
+                    // Mailboxes that we known contain email
+                    ArrayList<Mailbox> validMailboxes = new ArrayList<Mailbox>();
+                    // Mailboxes that we're unsure about
+                    ArrayList<Mailbox> userMailboxes = new ArrayList<Mailbox>();
+                    // Maps folder serverId to mailbox type
+                    HashMap<String, Mailbox> mailboxMap = new HashMap<String, Mailbox>();
+                    int mailboxCommitCount = 0;
+                    for (Mailbox mailbox : addMailboxes) {
+                        // Save away the type of this folder
+                        mailboxMap.put(mailbox.mServerId, mailbox);
+                        // And add the mailbox to the proper list
+                        if (type == USER_MAILBOX_TYPE) {
+                            userMailboxes.add(mailbox);
+                        } else {
+                            validMailboxes.add(mailbox);
+                        }
+                        // On initial sync, we commit what we have every 20 mailboxes
+                        if (initialSync && (++mailboxCommitCount == MAILBOX_COMMIT_SIZE)) {
+                            if (!commitMailboxes(validMailboxes, userMailboxes, mailboxMap, ops)) {
+                                mService.stop();
+                                return;
+                            }
+                            // Clear our arrays to prepare for more
+                            userMailboxes.clear();
+                            validMailboxes.clear();
+                            ops.clear();
+                            mailboxCommitCount = 0;
+                        }
+                    }
+                    // Commit the sync key and mailboxes
+                    ContentValues cv = new ContentValues();
+                    cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
+                    ops.add(ContentProviderOperation
+                            .newUpdate(
+                                    ContentUris.withAppendedId(Account.CONTENT_URI, mAccount.mId))
+                            .withValues(cv).build());
+                    if (!commitMailboxes(validMailboxes, userMailboxes, mailboxMap, ops)) {
+                        mService.stop();
+                    }
+                }
+            }});
     }
 
     /**
