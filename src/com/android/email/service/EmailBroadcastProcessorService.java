@@ -23,6 +23,7 @@ import com.android.email.SecurityPolicy;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.setup.AccountSettingsXL;
 
+import android.accounts.AccountManager;
 import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Context;
@@ -108,6 +109,8 @@ public class EmailBroadcastProcessorService extends IntentService {
             } else if (ACTION_SECRET_CODE.equals(broadcastAction)
                     && SECRET_CODE_HOST_DEBUG_SCREEN.equals(broadcastIntent.getData().getHost())) {
                 AccountSettingsXL.actionSettingsWithDebug(this);
+            } else if (AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION.equals(broadcastAction)) {
+                onSystemAccountChanged();
             }
         } else if (ACTION_DEVICE_POLICY_ADMIN.equals(action)) {
             int message = intent.getIntExtra(EXTRA_DEVICE_POLICY_ADMIN, -1);
@@ -168,5 +171,14 @@ public class EmailBroadcastProcessorService extends IntentService {
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                         : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
+    }
+
+    private void onSystemAccountChanged() {
+        Log.i(Email.LOG_TAG, "System accouns updated.");
+        MailService.reconcilePopImapAccountsSync(this);
+
+        // Let ExchangeService reconcile EAS accouts.
+        // The service will stops itself it there's no EAS accounts.
+        ExchangeUtils.startExchangeService(this);
     }
 }

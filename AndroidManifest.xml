@@ -296,7 +296,7 @@
             android:name="com.android.exchange.MailboxAlarmReceiver"/>
         <!--EXCHANGE-REMOVE-SECTION-END-->
 
-        <receiver 
+        <receiver
             android:name=".service.AttachmentDownloadService$Watchdog"
             android:enabled="true"/>
 
@@ -310,6 +310,8 @@
                     android:name="android.intent.action.DEVICE_STORAGE_LOW" />
                 <action
                     android:name="android.intent.action.DEVICE_STORAGE_OK" />
+                <action
+                    android:name="android.accounts.LOGIN_ACCOUNTS_CHANGED" />
             </intent-filter>
             <!-- To handle secret code to activate the debug screen. -->
             <intent-filter>
@@ -365,7 +367,7 @@
             android:enabled="true"
             >
             <intent-filter>
-                <action 
+                <action
                     android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
             <meta-data
@@ -490,7 +492,7 @@
             android:readPermission="android.permission.READ_CONTACTS"
             android:multiprocess="false"
             >
-          <meta-data 
+          <meta-data
               android:name="android.content.ContactDirectory"
               android:value="true"/>
         </provider>
@@ -505,10 +507,10 @@
         <receiver
             android:name=".provider.WidgetProvider" >
             <intent-filter>
-                <action 
+                <action
                     android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-            <meta-data 
+            <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
         </receiver>

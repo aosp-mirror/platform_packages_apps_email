@@ -51,7 +51,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 import android.accounts.AccountManager;
-import android.accounts.OnAccountsUpdateListener;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -210,7 +209,6 @@ public class ExchangeService extends Service implements Runnable {
     private SyncedMessageObserver mSyncedMessageObserver;
     private EasSyncStatusObserver mSyncStatusObserver;
     private Object mStatusChangeListener;
-    private EasAccountsUpdatedListener mAccountsUpdatedListener;
 
     private HashMap<Long, CalendarObserver> mCalendarObservers =
         new HashMap<Long, CalendarObserver>();
@@ -1045,25 +1043,6 @@ public class ExchangeService extends Service implements Runnable {
     }
 
     /**
-     * The reconciler (which is called from this listener) can make blocking calls back into
-     * the account manager.  So, in this callback we spin up a worker thread to call the
-     * reconciler.
-     */
-    public class EasAccountsUpdatedListener implements OnAccountsUpdateListener {
-        public void onAccountsUpdated(android.accounts.Account[] accounts) {
-            final ExchangeService exchangeService = INSTANCE;
-            if (exchangeService != null) {
-                Utility.runAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        exchangeService.runAccountReconcilerSync(exchangeService);
-                    }
-                });
-            }
-        }
-    }
-
-    /**
      * Blocking call to the account reconciler
      */
     private void runAccountReconcilerSync(Context context) {
@@ -1872,11 +1851,6 @@ public class ExchangeService extends Service implements Runnable {
                     ContentResolver.addStatusChangeListener(
                             ContentResolver.SYNC_OBSERVER_TYPE_SETTINGS, mSyncStatusObserver);
 
-                // Set up our observer for AccountManager
-                mAccountsUpdatedListener = new EasAccountsUpdatedListener();
-                AccountManager.get(getApplication()).addOnAccountsUpdatedListener(
-                        mAccountsUpdatedListener, mHandler, true);
-
                 // Set up receivers for connectivity and background data setting
                 mConnectivityReceiver = new ConnectivityReceiver();
                 registerReceiver(mConnectivityReceiver, new IntentFilter(
@@ -1972,13 +1946,6 @@ public class ExchangeService extends Service implements Runnable {
                     mMailboxObserver = null;
                 }
                 unregisterCalendarObservers();
-
-                // Remove account listener (registered with AccountManager)
-                if (mAccountsUpdatedListener != null) {
-                    AccountManager.get(this).removeOnAccountsUpdatedListener(
-                            mAccountsUpdatedListener);
-                    mAccountsUpdatedListener = null;
-                }
 
                 // Remove the sync status change listener (and null out the observer)
                 if (mStatusChangeListener != null) {

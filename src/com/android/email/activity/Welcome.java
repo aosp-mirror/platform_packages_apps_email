@@ -19,15 +19,12 @@ package com.android.email.activity;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
-import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.service.MailService;
 
-import android.accounts.AccountManager;
-import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -80,7 +77,6 @@ public class Welcome extends Activity {
      */
     private static final String EXTRA_DEBUG_PANE_MODE = "DEBUG_PANE_MODE";
 
-    private AccountsUpdatedListener mAccountsUpdatedListener;
     private Handler mHandler = new Handler();
 
     /**
@@ -178,16 +174,9 @@ public class Welcome extends Activity {
         // Because the app could be reloaded (for debugging, etc.), we need to make sure that
         // ExchangeService gets a chance to start.  There is no harm to starting it if it has
         // already been started
+        // When the service starts, it reconciles EAS accounts.
         // TODO More completely separate ExchangeService from Email app
         ExchangeUtils.startExchangeService(this);
-
-        // TODO Move this listener code to a more central location
-        // Set up our observer for AccountManager
-        mAccountsUpdatedListener = new AccountsUpdatedListener();
-        AccountManager.get(getApplication()).addOnAccountsUpdatedListener(
-                mAccountsUpdatedListener, mHandler, true);
-        // Run reconciliation to make sure we're up-to-date on account status
-        mAccountsUpdatedListener.onAccountsUpdated(null);
 
         final long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
         final long mailboxId = getIntent().getLongExtra(EXTRA_MAILBOX_ID, -1);
@@ -199,22 +188,6 @@ public class Welcome extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mAccountsUpdatedListener != null) {
-            AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
-        }
-    }
-
-    /**
-     * Reconcile accounts when accounts are added/removed from AccountManager
-     */
-    public class AccountsUpdatedListener implements OnAccountsUpdateListener {
-        public void onAccountsUpdated(android.accounts.Account[] accounts) {
-            Utility.runAsync(new Runnable() {
-                public void run() {
-                    MailService.reconcilePopImapAccounts(Welcome.this);
-                }
-            });
-        }
     }
 
     /**
@@ -249,6 +222,9 @@ public class Welcome extends Activity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            // Reconcile POP/IMAP accounts.  EAS accounts are taken care of by ExchangeService.
+            MailService.reconcilePopImapAccountsSync(mFromActivity);
+
             final int numAccount =
                     EmailContent.count(mFromActivity, EmailContent.Account.CONTENT_URI);
             if (numAccount == 0) {
