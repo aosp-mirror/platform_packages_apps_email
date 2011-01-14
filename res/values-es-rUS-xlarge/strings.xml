@@ -51,6 +51,25 @@
     <!-- XL -->
     <string name="widget_starred" msgid="8526007834142332107">"Destacado"</string>
     <!-- XL -->
+    <string name="close_action" msgid="459699717871388452">"Cerrar"</string>
+    <!-- XL -->
+  <plurals name="move_messages">
+    <item quantity="one" msgid="7951472351768879253">"Mover mensaje"</item>
+    <item quantity="other" msgid="4694727753349185883">"Mover mensajes"</item>
+  </plurals>
+    <!-- XL -->
+    <string name="cannot_move_protocol_not_supported_toast" msgid="6466065021915766735">"No se admite la opción de mover en cuentas POP3."</string>
+    <!-- XL -->
+    <string name="cannot_move_multiple_accounts_toast" msgid="3533514223409188826">"No se puede mover. La selección contiene varias cuentas."</string>
+    <!-- XL -->
+    <string name="cannot_move_special_mailboxes_toast" msgid="3336529723573389942">"No se pueden mover los mensajes en Drafts (Borrador), Outbox (Bandeja de salida) o Sent (Enviados)."</string>
+    <!-- XL -->
+    <string name="message_view_date_label" msgid="6604514416512980759">"Fecha:"</string>
+    <!-- XL -->
+    <string name="message_view_show_details" msgid="3601616170146921428">"Mostrar detalles"</string>
+    <!-- XL -->
+    <string name="message_view_message_details_dialog_title" msgid="6651820998848063331">"Detalles del mensaje"</string>
+    <!-- XL -->
     <string name="message_view_move_to_newer" msgid="5866340092692648766">"Nuevos"</string>
     <!-- XL -->
     <string name="account_setup_basics_email_label" msgid="6620387718127685390">"Dirección de correo electrónico"</string>
