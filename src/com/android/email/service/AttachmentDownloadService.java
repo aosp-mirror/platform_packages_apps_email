@@ -90,7 +90,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
     /*package*/ static AttachmentDownloadService sRunningService = null;
 
     /*package*/ Context mContext;
-    Preferences mPreferences;
+    private final Preferences mPreferences;
     /*package*/ final DownloadSet mDownloadSet = new DownloadSet(new DownloadComparator());
 
     private final HashMap<Long, Class<? extends Service>> mAccountServiceMap =
@@ -521,7 +521,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     }
                     // If we're an attachment on forwarded mail, and if we're not still blocked,
                     // try to send pending mail now (as mediated by MailService)
-                    if ((req != null) && 
+                    if ((req != null) &&
                             !Utility.hasUnloadedAttachments(mContext, attachment.mMessageKey)) {
                         if (Email.DEBUG) {
                             Log.d(TAG, "== Downloads finished for outgoing msg #" + req.messageId);
@@ -545,6 +545,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
             // Process the queue
             kick();
         }
+    }
+
+    public AttachmentDownloadService() {
+        mPreferences = Preferences.getPreferences(this);
     }
 
     /**
@@ -786,7 +790,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
     public void run() {
         mContext = this;
         mAccountManagerStub = new AccountManagerStub(this);
-        mPreferences = Preferences.getPreferences(this);
 
         // Run through all attachments in the database that require download and add them to
         // the queue
