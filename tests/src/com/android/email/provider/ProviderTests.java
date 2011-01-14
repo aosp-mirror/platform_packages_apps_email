@@ -1928,6 +1928,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Mailbox b2 = ProviderTestUtils.setupMailbox("box2", a1.mId, true, c, Mailbox.TYPE_OUTBOX);
         Mailbox b3 = ProviderTestUtils.setupMailbox("box3", a2.mId, true, c, Mailbox.TYPE_INBOX);
         Mailbox b4 = ProviderTestUtils.setupMailbox("box4", a2.mId, true, c, Mailbox.TYPE_OUTBOX);
+        Mailbox bt = ProviderTestUtils.setupMailbox("boxT", a2.mId, true, c, Mailbox.TYPE_TRASH);
 
         // 0. Check the initial values, just in case.
 
@@ -1935,6 +1936,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, getMessageCount(b2.mId));
         assertEquals(0, getMessageCount(b3.mId));
         assertEquals(0, getMessageCount(b4.mId));
+        assertEquals(0, getMessageCount(bt.mId));
 
         assertEquals(0, Message.getFavoriteMessageCount(c));
         assertEquals(0, Message.getFavoriteMessageCount(c, a1.mId));
@@ -1943,15 +1945,20 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
         assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_INBOX));
         assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
+        assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_TRASH));
 
         assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
                 a1.mId, Mailbox.TYPE_INBOX));
         assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
                 a1.mId, Mailbox.TYPE_OUTBOX));
         assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a1.mId, Mailbox.TYPE_TRASH));
+        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
                 a2.mId, Mailbox.TYPE_INBOX));
         assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
                 a2.mId, Mailbox.TYPE_OUTBOX));
+        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a2.mId, Mailbox.TYPE_TRASH));
 
         // 1. Test for insert triggers.
 
@@ -1970,29 +1977,40 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // b4 (account 2, outbox) has no messages.
 
+        // bt (account 2, trash) has 3 messages, including 2 starred
+        Message mt1 = createMessage(c, bt, true, false);
+        Message mt2 = createMessage(c, bt, true, false);
+        Message mt3 = createMessage(c, bt, false, false);
+
         // Check message counts
         assertEquals(1, getMessageCount(b1.mId));
         assertEquals(2, getMessageCount(b2.mId));
         assertEquals(3, getMessageCount(b3.mId));
         assertEquals(0, getMessageCount(b4.mId));
+        assertEquals(3, getMessageCount(bt.mId));
 
         // Check the simple counting methods.
-        assertEquals(3, Message.getFavoriteMessageCount(c));
+        assertEquals(3, Message.getFavoriteMessageCount(c)); // excludes starred in trash
         assertEquals(2, Message.getFavoriteMessageCount(c, a1.mId));
-        assertEquals(1, Message.getFavoriteMessageCount(c, a2.mId));
+        assertEquals(1, Message.getFavoriteMessageCount(c, a2.mId)); // excludes starred in trash
         assertEquals(3, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_INBOX));
         assertEquals(1, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
         assertEquals(4, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_INBOX));
         assertEquals(2, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
+        assertEquals(3, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_TRASH));
 
         assertEquals(1, Mailbox.getUnreadCountByAccountAndMailboxType(c,
                 a1.mId, Mailbox.TYPE_INBOX));
         assertEquals(1, Mailbox.getUnreadCountByAccountAndMailboxType(c,
                 a1.mId, Mailbox.TYPE_OUTBOX));
+        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a1.mId, Mailbox.TYPE_TRASH));
         assertEquals(2, Mailbox.getUnreadCountByAccountAndMailboxType(c,
                 a2.mId, Mailbox.TYPE_INBOX));
         assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
                 a2.mId, Mailbox.TYPE_OUTBOX));
+        assertEquals(3, Mailbox.getUnreadCountByAccountAndMailboxType(c,
+                a2.mId, Mailbox.TYPE_TRASH));
 
         // 2. test for recalculateMessageCount.
 

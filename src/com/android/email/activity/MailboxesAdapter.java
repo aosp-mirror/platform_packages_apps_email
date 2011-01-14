@@ -386,15 +386,16 @@ import android.widget.TextView;
             // Add "Starred", only if the account has at least one starred message.
             // TODO It's currently "combined starred", but the plan is to make it per-account
             // starred.
-            final int starredCount = Message.getFavoriteMessageCount(mContext, mAccountId);
-            if (starredCount == 0) {
+            final int accountStarredCount = Message.getFavoriteMessageCount(mContext, mAccountId);
+            if (accountStarredCount == 0) {
                 return Utility.CloseTraceCursorWrapper.get(mailboxesCursor); // no starred message
             }
 
             final MatrixCursor starredCursor = new MatrixCursor(getProjection());
 
+            final int totalStarredCount = Message.getFavoriteMessageCount(mContext);
             addSummaryMailboxRow(mContext, starredCursor,
-                    Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL, starredCount, true);
+                    Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL, totalStarredCount, true);
 
             return Utility.CloseTraceCursorWrapper.get(
                     new MergeCursor(new Cursor[] {starredCursor, mailboxesCursor}));

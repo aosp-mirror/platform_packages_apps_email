@@ -55,6 +55,8 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         Mailbox b2o = ProviderTestUtils.setupMailbox("box2i", a2.mId, true, c, Mailbox.TYPE_OUTBOX);
         Mailbox b1d = ProviderTestUtils.setupMailbox("box1d", a1.mId, true, c, Mailbox.TYPE_DRAFTS);
         Mailbox b2d = ProviderTestUtils.setupMailbox("box2d", a2.mId, true, c, Mailbox.TYPE_DRAFTS);
+        Mailbox b1t = ProviderTestUtils.setupMailbox("box1t", a1.mId, true, c, Mailbox.TYPE_TRASH);
+        Mailbox b2t = ProviderTestUtils.setupMailbox("box2t", a2.mId, true, c, Mailbox.TYPE_TRASH);
 
         createMessage(c, b1i, false, false);
         createMessage(c, b2i, true, true);
@@ -67,6 +69,8 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         createMessage(c, b2d, false, true);
         createMessage(c, b2d, false, true);
         createMessage(c, b2d, false, true);
+
+        createMessage(c, b2t, true, true); // Starred message in trash; All Starred excludes it.
 
         // Kick the method
         Cursor cursor = MailboxesAdapter.getSpecialMailboxesCursor(c);
