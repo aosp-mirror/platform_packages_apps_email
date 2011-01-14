@@ -706,11 +706,15 @@ public class Controller {
         // 1. Get the message's account
         Account account = Account.getAccountForMessageId(mProviderContext, messageId);
 
+        if (account == null) return;
+
         // 2. Confirm that there is a trash mailbox available.  If not, create one
         long trashMailboxId = findOrCreateMailboxOfType(account.mId, Mailbox.TYPE_TRASH);
 
         // 3. Get the message's original mailbox
         Mailbox mailbox = Mailbox.getMailboxForMessageId(mProviderContext, messageId);
+
+        if (mailbox == null) return;
 
         // 4.  Drop non-essential data for the message (e.g. attachment files)
         AttachmentProvider.deleteAllAttachmentFiles(mProviderContext, account.mId,
