@@ -31,6 +31,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
  * Common base class for server settings fragments, so they can be more easily manipulated by
  * AccountSettingsXL.  Provides the following common functionality:
@@ -42,17 +45,21 @@ import android.widget.Button;
 public abstract class AccountServerBaseFragment extends Fragment
         implements AccountCheckSettingsFragment.Callbacks, OnClickListener {
 
+    public static Bundle sSetupModeArgs = null;
+    protected static URI sDefaultUri;
+
     private final static String BUNDLE_KEY_SETTINGS = "AccountServerBaseFragment.settings";
 
     protected Context mContext;
     protected Callback mCallback = EmptyCallback.INSTANCE;
     protected boolean mSettingsMode;
+    // The URI that represents this account's currently saved settings
+    protected URI mLoadedUri;
+
     // This is null in the setup wizard screens, and non-null in AccountSettings mode
     public Button mProceedButton;
     // This is used to debounce multiple clicks on the proceed button (which does async work)
     public boolean mProceedButtonPressed;
-
-    public static Bundle sSetupModeArgs = null;
 
     /**
      * Callback interface that owning activities must provide
@@ -97,6 +104,16 @@ public abstract class AccountServerBaseFragment extends Fragment
             sSetupModeArgs.putBoolean(BUNDLE_KEY_SETTINGS, true);
         }
         return sSetupModeArgs;
+    }
+
+    public AccountServerBaseFragment() {
+        if (sDefaultUri == null) {
+            try {
+                sDefaultUri = new URI("");
+            } catch (URISyntaxException ignore) {
+                // ignore; will never happen
+            }
+        }
     }
 
     /**
@@ -273,6 +290,21 @@ public abstract class AccountServerBaseFragment extends Fragment
     }
 
     /**
+     * Returns whether or not any settings have changed.
+     */
+    public boolean haveSettingsChanged() {
+        URI newUri = null;
+
+        try {
+            newUri = getUri();
+        } catch (URISyntaxException ignore) {
+            // ignore
+        }
+
+        return (mLoadedUri == null) || !mLoadedUri.equals(newUri);
+    }
+
+    /**
      * Save settings after "OK" result from checker.  Concrete classes must implement.
      * This is called from a worker thread and is allowed to perform DB operations.
      */
@@ -288,4 +320,7 @@ public abstract class AccountServerBaseFragment extends Fragment
      * Respond to a click of the "Next" button.  Concrete classes must implement.
      */
     public abstract void onNext();
+
+    protected abstract URI getUri() throws URISyntaxException;
+
 }
