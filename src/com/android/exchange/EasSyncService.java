@@ -1883,6 +1883,7 @@ public class EasSyncService extends AbstractSyncService {
         ArrayList<String> readyMailboxes = new ArrayList<String>();
         ArrayList<String> notReadyMailboxes = new ArrayList<String>();
         int pingWaitCount = 0;
+        long inboxId = -1;
 
         while ((System.currentTimeMillis() < endTime) && !mStop) {
             // Count of pushable mailboxes
@@ -1898,6 +1899,10 @@ public class EasSyncService extends AbstractSyncService {
                     AND_FREQUENCY_PING_PUSH_AND_NOT_ACCOUNT_MAILBOX, null, null);
             notReadyMailboxes.clear();
             readyMailboxes.clear();
+            // Look for an inbox, and remember its id
+            if (inboxId == -1) {
+                inboxId = Mailbox.findMailboxOfType(mContext, mAccount.mId, Mailbox.TYPE_INBOX);
+            }
             try {
                 // Loop through our pushed boxes seeing what is available to push
                 while (c.moveToNext()) {
@@ -2082,6 +2087,9 @@ public class EasSyncService extends AbstractSyncService {
                 // we're in one of the other possible states.
                 userLog("pingLoop waiting for initial sync of ", uninitCount, " box(es)");
                 sleep(10*SECONDS, true);
+            } else if (inboxId == -1) {
+                // In this case, we're still syncing mailboxes, so sleep for only a short time
+                sleep(45*SECONDS, true);
             } else {
                 // We've got nothing to do, so we'll check again in 20 minutes at which time
                 // we'll update the folder list, check for policy changes and/or remote wipe, etc.
