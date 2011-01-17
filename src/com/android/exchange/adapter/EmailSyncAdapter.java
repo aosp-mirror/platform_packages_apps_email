@@ -304,6 +304,8 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                             // it will take time and throw an exception anyway when EOF is reached
                             // In this case, we will load the body separately by tagging the message
                             // "partially loaded".
+                            // Get the data (and ignore it)
+                            getValue();
                             userLog("Partially loaded: ", msg.mServerId);
                             msg.mFlagLoaded = Message.FLAG_LOADED_PARTIAL;
                             mFetchNeeded = true;
