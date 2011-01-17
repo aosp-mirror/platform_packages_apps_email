@@ -28,7 +28,6 @@ import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
@@ -37,6 +36,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.email.provider.EmailProvider;
 import com.android.email.service.MailService;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
@@ -705,8 +705,6 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
             for (Message msg: fetchedEmails) {
-                // If there's really no text, we're done here
-                if (msg.mText == null) continue;
                 // Find the original message's id (by serverId and mailbox)
                 Cursor c = getServerIdCursor(msg.mServerId, EmailContent.ID_PROJECTION);
                 String id = null;
