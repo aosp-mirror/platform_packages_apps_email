@@ -460,24 +460,10 @@ public class ExchangeService extends Service implements Runnable {
          * @throws RemoteException
          */
         public void deleteAccountPIMData(long accountId) throws RemoteException {
-            ExchangeService exchangeService = INSTANCE;
-            if (exchangeService == null) return;
             // Stop any running syncs
-            exchangeService.stopAccountSyncs(accountId, true);
-            Mailbox mailbox =
-                Mailbox.restoreMailboxOfType(exchangeService, accountId, Mailbox.TYPE_CONTACTS);
-            if (mailbox != null) {
-                EasSyncService service = new EasSyncService(exchangeService, mailbox);
-                ContactsSyncAdapter adapter = new ContactsSyncAdapter(service);
-                adapter.wipe();
-            }
-            mailbox =
-                Mailbox.restoreMailboxOfType(exchangeService, accountId, Mailbox.TYPE_CALENDAR);
-            if (mailbox != null) {
-                EasSyncService service = new EasSyncService(exchangeService, mailbox);
-                CalendarSyncAdapter adapter = new CalendarSyncAdapter(service);
-                adapter.wipe();
-            }
+            ExchangeService.stopAccountSyncs(accountId);
+            // Delete the data
+            ExchangeService.deleteAccountPIMData(accountId);
         }
     };
 
@@ -509,6 +495,25 @@ public class ExchangeService extends Service implements Runnable {
                 }
             }
             return null;
+        }
+    }
+
+    public static void deleteAccountPIMData(long accountId) {
+        ExchangeService exchangeService = INSTANCE;
+        if (exchangeService == null) return;
+        Mailbox mailbox =
+            Mailbox.restoreMailboxOfType(exchangeService, accountId, Mailbox.TYPE_CONTACTS);
+        if (mailbox != null) {
+            EasSyncService service = new EasSyncService(exchangeService, mailbox);
+            ContactsSyncAdapter adapter = new ContactsSyncAdapter(service);
+            adapter.wipe();
+        }
+        mailbox =
+            Mailbox.restoreMailboxOfType(exchangeService, accountId, Mailbox.TYPE_CALENDAR);
+        if (mailbox != null) {
+            EasSyncService service = new EasSyncService(exchangeService, mailbox);
+            CalendarSyncAdapter adapter = new CalendarSyncAdapter(service);
+            adapter.wipe();
         }
     }
 
