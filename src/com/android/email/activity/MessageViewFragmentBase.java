@@ -564,15 +564,15 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         v.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
+    private static boolean isVisible(View v) {
+        return v.getVisibility() == View.VISIBLE;
+    }
+
     /**
      * Update the visual of the tabs.  (visibility, text, etc)
      */
     private void updateTabFlags(int tabFlags) {
         mTabFlags = tabFlags;
-        mTabSection.setVisibility(tabFlags == 0 ? View.GONE : View.VISIBLE);
-        if (tabFlags == 0) {
-            return;
-        }
         boolean messageTabVisible = (tabFlags & (TAB_FLAGS_HAS_INVITE | TAB_FLAGS_HAS_ATTACHMENT))
                 != 0;
         makeVisible(mMessageTab, messageTabVisible);
@@ -586,6 +586,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mAttachmentTab.setText(mContext.getResources().getQuantityString(
                 R.plurals.message_view_show_attachments_action,
                 mAttachmentCount, mAttachmentCount));
+
+        // Hide the entire section if no tabs are visible.
+        makeVisible(mTabSection, isVisible(mMessageTab) || isVisible(mInviteTab)
+                || isVisible(mAttachmentTab) || isVisible(mShowPicturesTab));
     }
 
     /**
