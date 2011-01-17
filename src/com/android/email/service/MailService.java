@@ -21,6 +21,7 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.NotificationController;
 import com.android.email.SecurityPolicy;
+import com.android.email.SingleRunningTask;
 import com.android.email.Utility;
 import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
@@ -29,12 +30,12 @@ import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailProvider;
+import com.android.exchange.ExchangeService;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
-import android.accounts.OnAccountsUpdateListener;
 import android.accounts.OperationCanceledException;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -47,7 +48,6 @@ import android.content.SyncStatusObserver;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -59,7 +59,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Background service for refreshing non-push email accounts.
@@ -98,17 +97,12 @@ public class MailService extends Service {
     private static final String[] NEW_MESSAGE_COUNT_PROJECTION =
         new String[] {AccountColumns.NEW_MESSAGE_COUNT};
 
-    // Keep track of the number of times we're calling the reconciler
-    // If the count is > 1, don't try to run another one (it means that one is running and one is
-    // already queued).
-    private static AtomicInteger sReconcilerCount = new AtomicInteger(0);
     private static MailService sMailService;
 
     /*package*/ Controller mController;
     private final Controller.Result mControllerCallback = new ControllerResults();
     private ContentResolver mContentResolver;
     private Context mContext;
-    /*package*/ AccountsUpdatedListener mAccountsUpdatedListener;
     private Handler mHandler = new Handler();
 
     private int mStartId;
@@ -206,12 +200,12 @@ public class MailService extends Service {
         // Restore accounts, if it has not happened already
         AccountBackupRestore.restoreAccountsIfNeeded(this);
 
-        // Set up our observer for AccountManager
-        mAccountsUpdatedListener = new AccountsUpdatedListener();
-        AccountManager.get(getApplication()).addOnAccountsUpdatedListener(
-                mAccountsUpdatedListener, mHandler, true);
-        // Run reconciliation to make sure we're up-to-date on account status
-        mAccountsUpdatedListener.onAccountsUpdated(null);
+        Utility.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                reconcilePopImapAccountsSync(MailService.this);
+            }
+        });
 
         // TODO this needs to be passed through the controller and back to us
         mStartId = startId;
@@ -358,10 +352,6 @@ public class MailService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
-        // Unregister our account listener
-        if (mAccountsUpdatedListener != null) {
-            AccountManager.get(this).removeOnAccountsUpdatedListener(mAccountsUpdatedListener);
-        }
     }
 
     private void cancel() {
@@ -809,46 +799,24 @@ public class MailService extends Service {
         return providerAccounts;
     }
 
-    /**
-     * We synchronize this, since it can be called from multiple threads
-     */
-    public static synchronized void reconcilePopImapAccounts(Context context) {
-        android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
-            .getAccountsByType(Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
-        ArrayList<Account> providerAccounts = getPopImapAccountList(context);
-        MailService.reconcileAccountsWithAccountManager(context, providerAccounts,
-                accountManagerAccounts, false, context.getContentResolver());
+    private static final SingleRunningTask<Context> sReconcilePopImapAccountsSyncExecutor =
+            new SingleRunningTask<Context>("ReconcilePopImapAccountsSync") {
+                @Override
+                protected void runInternal(Context context) {
+                    android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
+                            .getAccountsByType(Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
+                    ArrayList<Account> providerAccounts = getPopImapAccountList(context);
+                    MailService.reconcileAccountsWithAccountManager(context, providerAccounts,
+                            accountManagerAccounts, false, context.getContentResolver());
 
-    }
-
-    /**
-     * Reconcile accounts when accounts are added/removed from AccountManager; note that the
-     * required argument is ignored (we request those of our specific type within the method)
-     */
-    public class AccountsUpdatedListener implements OnAccountsUpdateListener {
-
-        public void onAccountsUpdated(android.accounts.Account[] accounts) {
-            // Only allow one to be queued at a time (and one running)
-            if (sReconcilerCount.getAndIncrement() > 1) {
-                sReconcilerCount.decrementAndGet();
-                return;
-            }
-            new AccountReconcilerTask().execute();
-        }
-
-        private class AccountReconcilerTask extends AsyncTask<Void, Void, Void> {
-            @Override
-            protected Void doInBackground(Void... params) {
-                try {
-                    reconcilePopImapAccounts(MailService.this);
-                } finally {
-                    // Belt & suspenders; most likely, any RuntimeException in this code would
-                    // kill the Email process
-                    sReconcilerCount.decrementAndGet();
                 }
-                return null;
-            }
-        }
+    };
+
+    /**
+     * Reconcile POP/IMAP accounts.
+     */
+    public static void reconcilePopImapAccountsSync(Context context) {
+        sReconcilePopImapAccountsSyncExecutor.run(context);
     }
 
     /**

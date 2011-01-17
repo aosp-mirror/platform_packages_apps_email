@@ -101,24 +101,6 @@ public class MailServiceTests extends AccountTestCase {
     }
 
     /**
-     * Call onAccountsUpdated as fast as we can from a single thread (simulating them all coming
-     * from the UI thread); it shouldn't crash
-     */
-    public void testThrashOnAccountsUpdated() {
-        final MailService mailService = new MailService();
-        mailService.mController = new TestController(mMockContext, getContext());
-        assertNotNull(mailService);
-        final android.accounts.Account[] accounts = getExchangeAccounts();
-        Utility.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 1000; i++) {
-                    mailService.mAccountsUpdatedListener.onAccountsUpdated(accounts);
-                }
-            }});
-    }
-
-    /**
      * Note, there is some inherent risk in this test, as it creates *real* accounts in the
      * system (it cannot use the mock context with the Account Manager).
      */
