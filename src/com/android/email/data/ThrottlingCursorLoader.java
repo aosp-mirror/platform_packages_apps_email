@@ -81,10 +81,10 @@ public class ThrottlingCursorLoader extends CursorLoader {
     }
 
     @Override
-    public void onCancelled(Cursor cursor) {
+    public void onCanceled(Cursor cursor) {
         if (Throttle.DEBUG) debugLog("onCancelled");
         mThrottle.cancelScheduledCallback();
-        super.onCancelled(cursor);
+        super.onCanceled(cursor);
     }
 
     @Override

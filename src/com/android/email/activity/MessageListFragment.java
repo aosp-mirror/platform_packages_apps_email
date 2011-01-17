@@ -591,8 +591,7 @@ public class MessageListFragment extends ListFragment
             }
             // Create ClipData with the Uri of the message we're long clicking
             ClipData data = ClipData.newUri(mActivity.getContentResolver(),
-                    MessageListItem.MESSAGE_LIST_ITEMS_CLIP_LABEL, null,
-                    Message.CONTENT_URI.buildUpon()
+                    MessageListItem.MESSAGE_LIST_ITEMS_CLIP_LABEL, Message.CONTENT_URI.buildUpon()
                     .appendPath(Long.toString(listItem.mMessageId))
                     .appendQueryParameter(
                             EmailProvider.MESSAGE_URI_PARAMETER_MAILBOX_ID,

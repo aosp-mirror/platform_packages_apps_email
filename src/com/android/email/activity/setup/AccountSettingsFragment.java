@@ -546,7 +546,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     public boolean onPreferenceClick(Preference preference) {
                         DeleteAccountFragment dialogFragment = DeleteAccountFragment.newInstance(
                                 mAccount, AccountSettingsFragment.this);
-                        FragmentTransaction ft = getFragmentManager().openTransaction();
+                        FragmentTransaction ft = getFragmentManager().beginTransaction();
                         ft.addToBackStack(null);
                         dialogFragment.show(ft, DeleteAccountFragment.TAG);
                         return true;
