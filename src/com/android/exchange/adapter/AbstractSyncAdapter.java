@@ -137,5 +137,21 @@ public abstract class AbstractSyncAdapter {
     public void setSyncKey(String syncKey, boolean inCommands) throws IOException {
         mMailbox.mSyncKey = syncKey;
     }
+
+    /**
+     * Sync failures can use SyncStatusException, which includes the actual error status and
+     * server id
+     */
+    static class SyncStatusException extends IOException {
+        private static final long serialVersionUID = 1L;
+
+        public final int mStatus;
+        public final String mServerId;
+
+        protected SyncStatusException(String serverId, int status) {
+            mServerId = serverId;
+            mStatus = status;
+        }
+    }
 }
 

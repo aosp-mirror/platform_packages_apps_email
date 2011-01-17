@@ -403,16 +403,25 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             }
         }
 
-        private void addParser(ArrayList<Message> emails) throws IOException {
+        /**
+         * Parse a message from the server stream.
+         * @return the parsed Message
+         * @throws IOException
+         */
+        private Message addParser() throws IOException {
             Message msg = new Message();
             msg.mAccountKey = mAccount.mId;
             msg.mMailboxKey = mMailbox.mId;
             msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
+            int status = -1;
 
             while (nextTag(Tags.SYNC_ADD) != END) {
                 switch (tag) {
                     case Tags.SYNC_SERVER_ID:
                         msg.mServerId = getValue();
+                        break;
+                    case Tags.SYNC_STATUS:
+                        status = getValueInt();
                         break;
                     case Tags.SYNC_APPLICATION_DATA:
                         addData(msg);
@@ -421,7 +430,11 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                         skipTag();
                 }
             }
-            emails.add(msg);
+            // For sync, status 1 = success
+            if (status != 1) {
+                throw new SyncStatusException(msg.mServerId, status);
+            }
+            return msg;
         }
 
         // For now, we only care about the "active" state
@@ -672,7 +685,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         public void commandsParser() throws IOException {
             while (nextTag(Tags.SYNC_COMMANDS) != END) {
                 if (tag == Tags.SYNC_ADD) {
-                    addParser(newEmails);
+                    newEmails.add(addParser());
                     incrementChangeCount();
                 } else if (tag == Tags.SYNC_DELETE || tag == Tags.SYNC_SOFT_DELETE) {
                     deleteParser(deletedEmails, tag);
@@ -691,7 +704,19 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 if (tag == Tags.SYNC_ADD || tag == Tags.SYNC_CHANGE || tag == Tags.SYNC_DELETE) {
                     // We can ignore all of these
                 } else if (tag == Tags.SYNC_FETCH) {
-                    addParser(fetchedEmails);
+                    try {
+                        fetchedEmails.add(addParser());
+                    } catch (SyncStatusException sse) {
+                        if (sse.mStatus == 8) {
+                            // 8 = object not found; delete the message from EmailProvider
+                            // No other status should be seen in a fetch response, except, perhaps,
+                            // for some temporary server failure
+                            mBindArguments[0] = sse.mServerId;
+                            mBindArguments[1] = mMailboxIdAsString;
+                            mContentResolver.delete(Message.CONTENT_URI,
+                                    WHERE_SERVER_ID_AND_MAILBOX_KEY, mBindArguments);
+                        }
+                    }
                 }
             }
         }
