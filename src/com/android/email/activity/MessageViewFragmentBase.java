@@ -51,6 +51,7 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -723,7 +724,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             Utility.showToast(getActivity(), String.format(
                     mContext.getString(R.string.message_view_status_attachment_saved),
                     file.getName()));
-            MediaOpener.scanAndOpen(getActivity(), file);
+            // Run the attachment through the media scanner; adds supported types to the media
+            // content provider
+            MediaScannerConnection.scanFile(mContext, new String[] {file.getAbsolutePath()},
+                    null, null);
         } catch (IOException ioe) {
             Utility.showToast(getActivity(), R.string.message_view_status_attachment_not_saved);
         }
