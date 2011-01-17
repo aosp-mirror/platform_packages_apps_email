@@ -413,7 +413,8 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             msg.mAccountKey = mAccount.mId;
             msg.mMailboxKey = mMailbox.mId;
             msg.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
-            int status = -1;
+            // Default to 1 (success) in case we don't get this tag
+            int status = 1;
 
             while (nextTag(Tags.SYNC_ADD) != END) {
                 switch (tag) {
