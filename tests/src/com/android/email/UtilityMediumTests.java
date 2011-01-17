@@ -258,7 +258,7 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
         // Combined mailboxes
         assertEquals(Message.FLAG_READ + "=0" + FLAG_LOADED_TEST,
                 Utility.buildMailboxIdSelection(mMockContext, Mailbox.QUERY_ALL_UNREAD));
-        assertEquals(Message.FLAG_FAVORITE + "=1" + FLAG_LOADED_TEST,
+        assertEquals(Message.ALL_FAVORITE_SELECTION + FLAG_LOADED_TEST,
                 Utility.buildMailboxIdSelection(mMockContext, Mailbox.QUERY_ALL_FAVORITES));
 
         assertEquals(MessageColumns.MAILBOX_KEY + " IN (" + box1in.mId + "," + box2in.mId + ")"
