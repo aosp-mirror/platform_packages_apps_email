@@ -224,7 +224,7 @@ public class SecurityPolicy {
         // encryption (which requires low-level systems support).  Other policies are fully
         // supported by the framework and do not need to be checked.
         if (policies.mRequireEncryption) {
-            int encryptionStatus = getDPM().getStorageEncryption(null);
+            int encryptionStatus = getDPM().getStorageEncryptionStatus();
             if (encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_UNSUPPORTED) {
                 return false;
             }
@@ -342,7 +342,7 @@ public class SecurityPolicy {
                 }
             }
             if (policies.mRequireEncryption) {
-                int encryptionStatus = getDPM().getStorageEncryption(null);
+                int encryptionStatus = getDPM().getStorageEncryptionStatus();
                 if (encryptionStatus != DevicePolicyManager.ENCRYPTION_STATUS_ACTIVE) {
                     reasons |= INACTIVE_NEED_ENCRYPTION;
                 }
@@ -796,8 +796,9 @@ public class SecurityPolicy {
      */
     public boolean isActiveAdmin() {
         DevicePolicyManager dpm = getDPM();
-        return dpm.isAdminActive(mAdminName) &&
-                dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_POLICY_EXPIRE_PASSWORD);
+        return dpm.isAdminActive(mAdminName)
+                && dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_POLICY_EXPIRE_PASSWORD)
+                && dpm.hasGrantedPolicy(mAdminName, DeviceAdminInfo.USES_ENCRYPTED_STORAGE);
     }
 
     /**
