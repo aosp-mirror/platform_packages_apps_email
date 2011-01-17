@@ -40,12 +40,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
+import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 
 /**
@@ -141,20 +140,23 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         mDatabase = SQLiteDatabase.openOrCreateDatabase(new URI(mLocalStoreUri).getPath(), null);
     }
 
-    private void closeDatabase() {
+    private boolean closeDatabase() {
         if (mDatabase != null) {
             mDatabase.close();
             mDatabase = null;
+            return true;
         }
+        return false;
     }
 
     /**
-     * Create a new {@link LocalStore} instance and close it.
-     *
-     * It'll upgrade the existing database.
+     * Upgrades the database.
      */
-    private void createAndCloseLocalStore() throws Exception {
+    private void upgradeDatabase() throws Exception {
+        // Need to close the db if it's already open.
+        boolean opened = closeDatabase();
         LocalStore.newInstance(mLocalStoreUri, getContext(), null).close();
+        if (opened) openDatabase();
     }
 
     /**
@@ -987,7 +989,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
      */
     public void testDbVersion() throws Exception {
         // build current version database.
-        createAndCloseLocalStore();
+        upgradeDatabase();
 
         openDatabase();
 
@@ -1057,7 +1059,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         expectedAttachment.put("id", mDatabase.insert("attachments", null, initialAttachment));
 
         // upgrade database 18 to latest
-        createAndCloseLocalStore();
+        upgradeDatabase();
 
         // added message_id column should be initialized as null
         expectedMessage.put("message_id", (String) null);    // message_id type text == String
@@ -1125,7 +1127,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         expectedAttachment.put("id", mDatabase.insert("attachments", null, initialAttachment));
 
         // upgrade database 19 to latest
-        createAndCloseLocalStore();
+        upgradeDatabase();
 
         // added content_id column should be initialized as null
         expectedAttachment.put("content_id", (String) null);  // content_id type text == String
@@ -1141,30 +1143,36 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         c = mDatabase.query("messages",
                 new String[] { "id", "folder_id", "internal_date", "message_id" },
                 null, null, null, null, null);
-        // check if data is available
-        assertTrue("attachments table should have one data", c.moveToNext());
+        try {
+            // check if data is available
+            assertTrue("attachments table should have one data", c.moveToNext());
 
-        // check if data are expected
-        final ContentValues actualMessage = cursorToContentValues(c,
-                new String[] { "primary", "integer", "integer", "text" });
-        assertEquals("messages table cursor does not have expected values",
-                expectedMessage, actualMessage);
-        c.close();
+            // check if data are expected
+            final ContentValues actualMessage = cursorToContentValues(c,
+                    new String[] { "primary", "integer", "integer", "text" });
+            assertEquals("messages table cursor does not have expected values",
+                    expectedMessage, actualMessage);
+        } finally {
+            c.close();
+        }
 
         // check attachment table
         c = mDatabase.query("attachments",
                 new String[] { "id", "message_id", "mime_type", "content_id" },
                 null, null, null, null, null);
-        // check if data is available
-        assertTrue("attachments table should have one data", c.moveToNext());
+        try {
+            // check if data is available
+            assertTrue("attachments table should have one data", c.moveToNext());
 
-        // check if data are expected
-        final ContentValues actualAttachment = cursorToContentValues(c,
-                        new String[] { "primary", "integer", "text", "text" });
-        assertEquals("attachment table cursor does not have expected values",
-                expectedAttachment, actualAttachment);
+            // check if data are expected
+            final ContentValues actualAttachment = cursorToContentValues(c,
+                            new String[] { "primary", "integer", "text", "text" });
+            assertEquals("attachment table cursor does not have expected values",
+                    expectedAttachment, actualAttachment);
 
-        c.close();
+        } finally {
+            c.close();
+        }
     }
 
     /**
@@ -1177,7 +1185,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         createSampleDb(mDatabase, 20);
 
         // upgrade database 20 to latest
-        createAndCloseLocalStore();
+        upgradeDatabase();
 
         // database should be upgraded
         assertEquals("database should be upgraded", DATABASE_VERSION, mDatabase.getVersion());
@@ -1196,7 +1204,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         createSampleDb(mDatabase, 21);
 
         // upgrade database 21 to latest
-        createAndCloseLocalStore();
+        upgradeDatabase();
 
         // database should be upgraded
         assertEquals("database should be upgraded", DATABASE_VERSION, mDatabase.getVersion());
@@ -1235,7 +1243,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         outMessage3.put("id", mDatabase.insert("messages", null, inMessage3));
 
         // upgrade database 22 to latest
-        createAndCloseLocalStore();
+        upgradeDatabase();
 
         // database should be upgraded
         assertEquals("database should be upgraded", DATABASE_VERSION, mDatabase.getVersion());
@@ -1247,27 +1255,29 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         String[] columns = new String[] { "id", "message_id", "flags",
                 "flag_downloaded_full", "flag_downloaded_partial", "flag_deleted" };
         Cursor c = mDatabase.query("messages", columns, null, null, null, null, null);
-
-        for (int msgNum = 0; msgNum <= 2; ++msgNum) {
-            assertTrue(c.moveToNext());
-            ContentValues actualMessage = cursorToContentValues(c,
-                    new String[] { "primary", "text", "text", "integer", "integer", "integer" });
-            String messageId = actualMessage.getAsString("message_id");
-            int outDlFull = actualMessage.getAsInteger("flag_downloaded_full");
-            int outDlPartial = actualMessage.getAsInteger("flag_downloaded_partial");
-            int outDeleted = actualMessage.getAsInteger("flag_deleted");
-            if ("x".equals(messageId)) {
-                assertTrue("converted flag_downloaded_full",
-                        outDlFull == 1 && outDlPartial == 0 && outDeleted == 0);
-            } else if ("y".equals(messageId)) {
-                assertTrue("converted flag_downloaded_partial",
-                        outDlFull == 0 && outDlPartial == 1 && outDeleted == 0);
-            } else if ("z".equals(messageId)) {
-                assertTrue("converted flag_deleted",
-                        outDlFull == 0 && outDlPartial == 0 && outDeleted == 1);
+        try {
+            for (int msgNum = 0; msgNum <= 2; ++msgNum) {
+                assertTrue(c.moveToNext());
+                ContentValues actualMessage = cursorToContentValues(c, new String[] {
+                        "primary", "text", "text", "integer", "integer", "integer" });
+                String messageId = actualMessage.getAsString("message_id");
+                int outDlFull = actualMessage.getAsInteger("flag_downloaded_full");
+                int outDlPartial = actualMessage.getAsInteger("flag_downloaded_partial");
+                int outDeleted = actualMessage.getAsInteger("flag_deleted");
+                if ("x".equals(messageId)) {
+                    assertTrue("converted flag_downloaded_full",
+                            outDlFull == 1 && outDlPartial == 0 && outDeleted == 0);
+                } else if ("y".equals(messageId)) {
+                    assertTrue("converted flag_downloaded_partial",
+                            outDlFull == 0 && outDlPartial == 1 && outDeleted == 0);
+                } else if ("z".equals(messageId)) {
+                    assertTrue("converted flag_deleted",
+                            outDlFull == 0 && outDlPartial == 0 && outDeleted == 1);
+                }
             }
+        } finally {
+            c.close();
         }
-        c.close();
     }
 
     /**
@@ -1287,7 +1297,7 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         expectedMessage.put("id", mDatabase.insert("messages", null, initialMessage));
 
         // upgrade database 23 to latest
-        createAndCloseLocalStore();
+        upgradeDatabase();
 
         // added message_id column should be initialized as null
         expectedMessage.put("message_id", (String) null);    // message_id type text == String
@@ -1303,63 +1313,56 @@ public class LocalStoreUnitTests extends AndroidTestCase {
         c = mDatabase.query("messages",
                 new String[] { "id", "folder_id", "internal_date", "message_id" },
                 null, null, null, null, null);
-        // check if data is available
-        assertTrue("messages table should have one data", c.moveToNext());
+        try {
+            // check if data is available
+            assertTrue("messages table should have one data", c.moveToNext());
 
-        // check if data are expected
-        final ContentValues actualMessage = cursorToContentValues(c,
-                new String[] { "primary", "integer", "integer", "text" });
-        assertEquals("messages table cursor does not have expected values",
-                expectedMessage, actualMessage);
-        c.close();
+            // check if data are expected
+            final ContentValues actualMessage = cursorToContentValues(c,
+                    new String[] { "primary", "integer", "integer", "text" });
+            assertEquals("messages table cursor does not have expected values",
+                    expectedMessage, actualMessage);
+        } finally {
+            c.close();
+        }
     }
 
    /**
      * Checks the database to confirm that all tables, with all expected columns are found.
      */
     private void checkAllTablesFound(SQLiteDatabase db) {
-        Cursor c;
-        HashSet<String> foundNames;
-        ArrayList<String> expectedNames;
+        checkColumnNames(db, "messages",
+                "id", "folder_id", "uid", "subject", "date", "flags", "sender_list",
+                "to_list", "cc_list", "bcc_list", "reply_to_list",
+                "html_content", "text_content", "attachment_count",
+                "internal_date", "store_flag_1", "store_flag_2", "flag_downloaded_full",
+                "flag_downloaded_partial", "flag_deleted", "x_headers"
+                );
+        checkColumnNames(db, "attachments",
+                "id", "message_id",
+                "store_data", "content_uri", "size", "name",
+                "mime_type", "content_id"
+                );
+        checkColumnNames(db, "remote_store_data",
+                "id", "folder_id", "data_key", "data"
+                );
+    }
 
-        // check for up-to-date messages table
-        c = db.query("messages",
-                null,
-                null, null, null, null, null);
-        foundNames = cursorToColumnNames(c);
-        expectedNames = new ArrayList<String>(Arrays.asList(
-                new String[]{ "id", "folder_id", "uid", "subject", "date", "flags", "sender_list",
-                        "to_list", "cc_list", "bcc_list", "reply_to_list",
-                        "html_content", "text_content", "attachment_count",
-                        "internal_date", "store_flag_1", "store_flag_2", "flag_downloaded_full",
-                        "flag_downloaded_partial", "flag_deleted", "x_headers" }
-                ));
-        assertTrue("messages", foundNames.containsAll(expectedNames));
-        c.close();
+    private void checkColumnNames(SQLiteDatabase db, String tableName, String... expectedColumns) {
+        Cursor c = db.query(tableName, null, null, null, null, null, null);
+        try {
+            final HashSet<String> expectedSet = new HashSet<String>();
+            for (String expectedColumn : expectedColumns) {
+                expectedSet.add(expectedColumn);
+            }
+            final HashSet<String> actualSet = cursorToColumnNames(c);
 
-        // check for up-to-date attachments table
-        c = db.query("attachments",
-                null,
-                null, null, null, null, null);
-        foundNames = cursorToColumnNames(c);
-        expectedNames = new ArrayList<String>(Arrays.asList(
-                new String[]{ "id", "message_id",
-                        "store_data", "content_uri", "size", "name",
-                        "mime_type", "content_id" }
-                ));
-        assertTrue("attachments", foundNames.containsAll(expectedNames));
-        c.close();
+            expectedSet.removeAll(actualSet);
 
-        // check for up-to-date remote_store_data table
-        c = db.query("remote_store_data",
-                null,
-                null, null, null, null, null);
-        foundNames = cursorToColumnNames(c);
-        expectedNames = new ArrayList<String>(Arrays.asList(
-                new String[]{ "id", "folder_id", "data_key", "data" }
-                ));
-        assertTrue("remote_store_data", foundNames.containsAll(expectedNames));
-        c.close();
+            MoreAsserts.assertEmpty(expectedSet);
+        } finally {
+            c.close();
+        }
     }
 
     private static void createSampleDb(SQLiteDatabase db, int version) {
