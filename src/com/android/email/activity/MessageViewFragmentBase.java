@@ -60,6 +60,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.QuickContact;
+import android.provider.Settings;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -1170,6 +1171,18 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 Utility.arrayContains(Email.UNACCEPTABLE_ATTACHMENT_EXTENSIONS, extension)) {
             attachmentInfo.allowView = false;
             attachmentInfo.allowSave = false;
+        }
+
+        // Check for installable attachments by filename extension; hide both buttons
+        extension = AttachmentProvider.getFilenameExtension(attachmentInfo.name);
+        if (!TextUtils.isEmpty(extension) &&
+                Utility.arrayContains(Email.INSTALLABLE_ATTACHMENT_EXTENSIONS, extension)) {
+            int sideloadEnabled;
+            sideloadEnabled = Settings.Secure.getInt(mContext.getContentResolver(),
+                    Settings.Secure.INSTALL_NON_MARKET_APPS, 0 /* sideload disabled */);
+            // TODO Allow showing an "install" button
+            attachmentInfo.allowView = false;
+            attachmentInfo.allowSave = (sideloadEnabled == 1);
         }
 
         // File size exceeded;  Hide both buttons

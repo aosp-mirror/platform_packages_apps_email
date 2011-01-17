@@ -137,6 +137,15 @@ public class Email extends Application {
     };
 
     /**
+     * Filename extensions of attachments that can be installed.
+     * Entries in this list are compared to the end of the lower-cased filename, so they must
+     * be lower case, and should not include a "."
+     */
+    public static final String[] INSTALLABLE_ATTACHMENT_EXTENSIONS = new String[] {
+        "apk",
+    };
+
+    /**
      * Specifies how many messages will be shown in a folder by default. This number is set
      * on each new folder and can be incremented with "Load more messages..." by the
      * VISIBLE_LIMIT_INCREMENT
