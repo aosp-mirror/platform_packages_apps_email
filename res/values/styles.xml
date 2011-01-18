@@ -72,6 +72,12 @@
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
 
+    <style name="widget_list_item">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:layout_marginLeft">16dip</item>
+        <item name="android:layout_marginRight">8dip</item>
+    </style>
+
     <style name="message_details_label">
         <item name="android:textSize">14dip</item>
         <item name="android:textColor">@color/text_secondary_color</item>

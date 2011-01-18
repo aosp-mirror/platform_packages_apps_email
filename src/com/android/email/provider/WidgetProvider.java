@@ -18,6 +18,7 @@ package com.android.email.provider;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.ResourceHelper;
 import com.android.email.Utility;
 import com.android.email.activity.MessageCompose;
 import com.android.email.activity.Welcome;
@@ -161,6 +162,7 @@ public class WidgetProvider extends AppWidgetProvider {
         private int mCursorCount = TOTAL_COUNT_UNKNOWN;
         // The widget's loader (derived from ThrottlingCursorLoader)
         private WidgetLoader mLoader;
+        private final ResourceHelper mResourceHelper;
 
         // The current view type (all mail, unread, or starred for now)
         /*package*/ ViewType mViewType = ViewType.STARRED;
@@ -170,7 +172,7 @@ public class WidgetProvider extends AppWidgetProvider {
             EmailContent.RECORD_ID, MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP,
             MessageColumns.SUBJECT, MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE,
             MessageColumns.FLAG_ATTACHMENT, MessageColumns.MAILBOX_KEY, MessageColumns.SNIPPET,
-            MessageColumns.ACCOUNT_KEY
+            MessageColumns.ACCOUNT_KEY, MessageColumns.FLAGS
             };
         public static final int WIDGET_COLUMN_ID = 0;
         public static final int WIDGET_COLUMN_DISPLAY_NAME = 1;
@@ -182,6 +184,7 @@ public class WidgetProvider extends AppWidgetProvider {
         public static final int WIDGET_COLUMN_MAILBOX_KEY = 7;
         public static final int WIDGET_COLUMN_SNIPPET = 8;
         public static final int WIDGET_COLUMN_ACCOUNT_KEY = 9;
+        public static final int WIDGET_COLUMN_FLAGS = 10;
 
         public EmailWidget(int _widgetId) {
             super();
@@ -203,6 +206,7 @@ public class WidgetProvider extends AppWidgetProvider {
                 sLightTextColor = res.getColor(R.color.widget_light_text_color);
                 sConfigureText =  res.getString(R.string.widget_other_views);
             }
+            mResourceHelper = ResourceHelper.getInstance(sContext);
         }
 
         /**
@@ -471,6 +475,11 @@ public class WidgetProvider extends AppWidgetProvider {
                 RemoteViews views =
                     new RemoteViews(sContext.getPackageName(), R.layout.widget_list_item);
                 boolean isUnread = mCursor.getInt(WIDGET_COLUMN_FLAG_READ) != 1;
+                int drawableId = R.drawable.widget_read_conversation_selector;
+                if (isUnread) {
+                    drawableId = R.drawable.widget_unread_conversation_selector;
+                }
+                views.setInt(R.id.widget_message, "setBackgroundResource", drawableId);
 
                 // Add style to sender
                 SpannableStringBuilder from =
@@ -495,10 +504,27 @@ public class WidgetProvider extends AppWidgetProvider {
                     getStyledSubjectSnippet(subject, snippet, !isUnread);
                 views.setTextViewText(R.id.widget_subject, subjectAndSnippet);
 
-                if (mCursor.getInt(WIDGET_COLUMN_FLAG_ATTACHMENT) != 0) {
-                    views.setViewVisibility(R.id.widget_attachment, View.VISIBLE);
+                int messageFlags = mCursor.getInt(WIDGET_COLUMN_FLAGS);
+                boolean hasInvite = (messageFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
+                views.setViewVisibility(R.id.widget_invite, hasInvite ? View.VISIBLE : View.GONE);
+
+                boolean hasAttachment = mCursor.getInt(WIDGET_COLUMN_FLAG_ATTACHMENT) != 0;
+                views.setViewVisibility(R.id.widget_attachment,
+                        hasAttachment ? View.VISIBLE : View.GONE);
+
+                if (mViewType == ViewType.ACCOUNT) {
+                    views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
                 } else {
-                    views.setViewVisibility(R.id.widget_attachment, View.GONE);
+                    long accountId = mCursor.getLong(WIDGET_COLUMN_ACCOUNT_KEY);
+                    int colorId = mResourceHelper.getAccountColorId(accountId);
+                    if (colorId != ResourceHelper.UNDEFINED_RESOURCE_ID) {
+                        // Color defined by resource ID, so, use it
+                        views.setViewVisibility(R.id.color_chip, View.VISIBLE);
+                        views.setImageViewResource(R.id.color_chip, colorId);
+                    } else {
+                        // Color not defined by resource ID, nothing we can do, so, hide the chip
+                        views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
+                    }
                 }
 
                 // Set button intents for view, reply, and delete
