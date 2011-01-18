@@ -484,7 +484,7 @@ public class AccountSetupBasics extends AccountSetupActivity
                 AccountCheckSettingsFragment checkerFragment =
                     AccountCheckSettingsFragment.newInstance(
                         SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING, null);
-                FragmentTransaction transaction = getFragmentManager().openTransaction();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
                 transaction.add(checkerFragment, AccountCheckSettingsFragment.TAG);
                 transaction.addToBackStack("back");
                 transaction.commit();

@@ -617,7 +617,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         // Extract the messageId's to move from the ClipData (set up in MessageListItem)
         final long[] messageIds = new long[count];
         for (int i = 0; i < count; i++) {
-            Uri uri = clipData.getItem(i).getUri();
+            Uri uri = clipData.getItemAt(i).getUri();
             String msgNum = uri.getPathSegments().get(1);
             long id = Long.parseLong(msgNum);
             messageIds[i] = id;

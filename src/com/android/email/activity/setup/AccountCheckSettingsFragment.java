@@ -231,7 +231,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     if (fm.findFragmentByTag(SecurityRequiredDialog.TAG) == null) {
                         SecurityRequiredDialog securityRequiredDialog =
                                 SecurityRequiredDialog.newInstance(this, mErrorMessage);
-                        fm.openTransaction()
+                        fm.beginTransaction()
                                 .add(securityRequiredDialog, SecurityRequiredDialog.TAG)
                                 .commit();
                     }
@@ -244,7 +244,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     if (fm.findFragmentByTag(ErrorDialog.TAG) == null) {
                         ErrorDialog errorDialog =
                                 ErrorDialog.newInstance(this, mErrorStringId, mErrorMessage);
-                        fm.openTransaction()
+                        fm.beginTransaction()
                                 .add(errorDialog, ErrorDialog.TAG)
                                 .commit();
                     }
@@ -265,7 +265,7 @@ public class AccountCheckSettingsFragment extends Fragment {
 
                     if (mCheckingDialog == null) {
                         mCheckingDialog = CheckingDialog.newInstance(this, mState);
-                        fm.openTransaction()
+                        fm.beginTransaction()
                                 .add(mCheckingDialog, CheckingDialog.TAG)
                                 .commit();
                     } else {
