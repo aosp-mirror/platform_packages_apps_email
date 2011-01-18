@@ -132,6 +132,10 @@
     <skip />
     <!-- no translation found for message_view_date_label (7033814961837313339) -->
     <skip />
+    <!-- no translation found for message_view_from_label (6055076379282772675) -->
+    <skip />
+    <!-- no translation found for message_view_subject_label (3731022187530000852) -->
+    <skip />
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Zobraziť"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Načítať"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Uložiť"</string>
@@ -276,6 +280,8 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Synchronizovať kontakty z tohto účtu."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Synchronizovať kalendár z tohto účtu."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Synchronizovať e-mail z tohto účtu."</string>
+    <!-- no translation found for account_setup_options_background_attachments_label (8985175647866211124) -->
+    <skip />
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Nastavenie nie je možné dokončiť"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Množstvo na synchronizovanie"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Jeden deň"</string>
@@ -314,6 +320,10 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Všeobecné nastavenia"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Predvolený účet"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"V predvolenom nastavení odosielať e-maily z tohto účtu"</string>
+    <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
+    <skip />
+    <!-- no translation found for account_settings_background_attachments_summary (1538253695817228472) -->
+    <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mailové upozornenia"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frekvencia synchronizácie, oznámení atď."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Zobraziť upozornenie na príchod e-mailu v stavovom riadku"</string>
@@ -393,8 +403,6 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normálne"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Veľké"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Veľmi veľké"</string>
-    <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"Automaticky predbežne načítať prílohy"</string>
-    <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"Prevziať prílohy správ priečinka Doručená pošta. (Nie je k dispozícii pre účty POP3.)"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> z <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="widget_other_views" msgid="2265335608760083337">"Zmeňte klepnutím na ikonu"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Doručená pošta (všetky)"</string>

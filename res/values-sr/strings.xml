@@ -132,6 +132,10 @@
     <skip />
     <!-- no translation found for message_view_date_label (7033814961837313339) -->
     <skip />
+    <!-- no translation found for message_view_from_label (6055076379282772675) -->
+    <skip />
+    <!-- no translation found for message_view_subject_label (3731022187530000852) -->
+    <skip />
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Прикажи"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Учитај"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Сачувај"</string>
@@ -276,6 +280,8 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Синхронизуј контакте са овог налога."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Синхронизуј календар са овог налога."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Синхронизуј е-пошту са овог налога."</string>
+    <!-- no translation found for account_setup_options_background_attachments_label (8985175647866211124) -->
+    <skip />
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Није било могуће довршити поступак подешавања"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Налог за синхронизацију"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Један дан"</string>
@@ -314,6 +320,10 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Општа подешавања"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Подразумевани налог"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Подразумевано шаљи поруке е-поште са овог налога"</string>
+    <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
+    <skip />
+    <!-- no translation found for account_settings_background_attachments_summary (1538253695817228472) -->
+    <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Обавештења е-поштом"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Синхронизација учесталости, обавештења итд."</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"Обавести ме у статусној траци када стигне порука е-поште"</string>
@@ -393,12 +403,10 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Нормалан"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Велика"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Огромно"</string>
-    <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"Аутоматски преузми прилоге"</string>
-    <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"Преузми прилоге примљених порука. (Не важи за POP3 налоге.)"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> од <xliff:g id="ID_2">%2$s</xliff:g>"</string>
-    <!-- outdated translation 2924270018204427009 -->     <string name="widget_other_views" msgid="2265335608760083337">"Додирните икону е-поште за друге приказе"</string>
-    <!-- outdated translation 6436796211067834315 -->     <string name="widget_all_mail" msgid="4352573990283094963">"Сва пошта"</string>
-    <!-- outdated translation 488582205091831168 -->     <string name="widget_unread" msgid="4404711399009077833">"Све непрочитано"</string>
-    <!-- outdated translation 7855645697293191958 -->     <string name="widget_starred" msgid="8290352707134011791">"Све са звездицом"</string>
+    <string name="widget_other_views" msgid="2265335608760083337">"Додирните за промену"</string>
+    <string name="widget_all_mail" msgid="4352573990283094963">"Комбиноване Примљене"</string>
+    <string name="widget_unread" msgid="4404711399009077833">"Непрочитане"</string>
+    <string name="widget_starred" msgid="8290352707134011791">"Са звездицом"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Учитавање…"</string>
 </resources>
