@@ -505,18 +505,4 @@ import android.widget.TextView;
     /* package */ static int getUnreadCountForTest(Cursor cursor) {
         return cursor.getInt(COLUMN_UNREAD_COUNT);
     }
-
-    // STOPSHIP delete this
-    @Override
-    public long getItemId(int position) {
-        try {
-            return super.getItemId(position);
-        } catch (RuntimeException re) {
-            final Cursor c = getCursor();
-            android.util.Log.w(Email.LOG_TAG, "Crash in getItemId, this=" + this
-                    + "  cursor=" + Utility.dumpCursor(c), re);
-            Utility.CloseTraceCursorWrapper.log(c);
-            throw re;
-        }
-    }
 }
