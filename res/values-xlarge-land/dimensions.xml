@@ -16,7 +16,6 @@
 
 <!-- xlarge, landscape -->
 <resources>
-    <dimen name="message_compose_paper_width">800dip</dimen>
     <dimen name="message_compose_field_label_width">120dip</dimen>
 
     <!-- XL activity dimensions -->
