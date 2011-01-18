@@ -18,8 +18,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="4dip"
-    android:layout_marginBottom="20dip"
+    android:paddingTop="5dip"
+    android:paddingBottom="2dip"
+    android:layout_marginTop="6dip"
+    android:layout_marginBottom="17dip"
     android:layout_marginLeft="12dip"
     android:layout_marginRight="12dip"
     android:orientation="vertical"
@@ -27,7 +29,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="42sp"
-        android:layout_marginTop="5dip"
         android:layout_marginLeft="5dip"
         android:layout_marginRight="5dip"
         android:orientation="horizontal"
@@ -88,6 +89,8 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="2dip"
+        android:layout_marginRight="2dip"
         android:background="@drawable/list_div_top_btm_email_widget_holo" />
     <ListView
         android:id="@+id/message_list"
@@ -104,5 +107,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="2dip"
+        android:layout_marginRight="2dip"
         android:background="@drawable/list_div_top_btm_email_widget_holo" />
 </LinearLayout>
