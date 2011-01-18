@@ -65,7 +65,7 @@ public class DeleteMessageConfirmationDialog extends DialogFragment
         final Resources res = context.getResources();
         final AlertDialog.Builder b = new AlertDialog.Builder(context);
         b.setTitle(res.getString(R.string.message_delete_dialog_title))
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setMessage(res.getQuantityString(R.plurals.message_delete_confirm, countMessages))
                 .setPositiveButton(R.string.okay_action, this)
                 .setNegativeButton(R.string.cancel_action, null);

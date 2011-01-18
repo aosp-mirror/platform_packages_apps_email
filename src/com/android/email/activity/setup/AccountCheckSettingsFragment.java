@@ -52,7 +52,7 @@ import android.util.Log;
  * conditions.
  */
 public class AccountCheckSettingsFragment extends Fragment {
-    
+
     public final static String TAG = "AccountCheckSettingsFragment";
 
     // Debugging flags - for debugging the UI
@@ -756,7 +756,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     (AccountCheckSettingsFragment) getTargetFragment();
 
             return new AlertDialog.Builder(context)
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(context.getString(R.string.account_setup_failed_dlg_title))
                 .setMessage(context.getString(messageId, messageArguments))
                 .setCancelable(true)
@@ -808,7 +808,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     (AccountCheckSettingsFragment) getTargetFragment();
 
             return new AlertDialog.Builder(context)
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(context.getString(R.string.account_setup_security_required_title))
                 .setMessage(context.getString(
                         R.string.account_setup_security_policies_required_fmt, hostName))
