@@ -16,7 +16,6 @@
 
 <!-- xlarge, portrait -->
 <resources>
-    <dimen name="message_compose_paper_width">700dip</dimen> <!-- STOPSHIP not pixelperfect -->
     <dimen name="message_compose_field_label_width">120dip</dimen>
 
     <!-- XL activity dimensions -->
