@@ -23,6 +23,8 @@ import com.android.email.provider.EmailContent;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.view.View;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
@@ -37,6 +39,7 @@ public class AccountSetupOptionsTests
 
     private AccountSetupOptions mActivity;
     private Spinner mCheckFrequencyView;
+    private CheckBox mBackgroundAttachmentsView;
     
     public AccountSetupOptionsTests() {
         super(AccountSetupOptions.class);
@@ -86,13 +89,60 @@ public class AccountSetupOptionsTests
         boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertTrue(hasPush);
     }
-        
+
+    /**
+     * Test that POP3 accounts don't have a "background attachments" checkbox
+     */
+    public void testBackgroundAttachmentsPop() {
+        checkBackgroundAttachments("pop3://user:password@server.com", false);
+    }
+
+    /**
+     * Test that IMAP accounts have a "background attachments" checkbox
+     */
+    public void testBackgroundAttachmentsImap() {
+        checkBackgroundAttachments("imap://user:password@server.com", true);
+    }
+
+    /**
+     * Test that EAS accounts have a "background attachments" checkbox
+     */
+    public void testBackgroundAttachmentsEas() {
+        // This test should only be run if EAS is supported
+        if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext()) 
+                == null) {
+            return;
+        }
+        checkBackgroundAttachments("eas://user:password@server.com", true);
+    }
+
+    /**
+     * Common code to check that the "background attachments" checkbox is shown/hidden properly   
+     */
+    private void checkBackgroundAttachments(String storeUri, boolean expectVisible) {
+        Intent i = getTestIntent("Name", storeUri);
+        this.setActivityIntent(i);
+        getActivityAndFields();
+
+        boolean isNull = mBackgroundAttachmentsView == null;
+        boolean isVisible = !isNull && (mBackgroundAttachmentsView.getVisibility() == View.VISIBLE);
+
+        if (!expectVisible) {
+            assertTrue(!isVisible);
+        } else {
+            assertTrue(!isNull);
+            assertTrue(isVisible);
+        }
+    }
+
     /**
      * Get the activity (which causes it to be started, using our intent) and get the UI fields
      */
     private void getActivityAndFields() {
         mActivity = getActivity();
         mCheckFrequencyView = (Spinner) mActivity.findViewById(R.id.account_check_frequency);
+        mBackgroundAttachmentsView = (CheckBox) mActivity.findViewById(
+                R.id.account_background_attachments);
     }
     
     /**

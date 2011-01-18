@@ -163,6 +163,24 @@ public class AccountUnitTests extends AndroidTestCase {
         mAccount.mBackupFlags = -1;
         mAccount.refresh(mPreferences);
         assertEquals(Account.BACKUP_FLAGS_IS_DEFAULT, mAccount.mBackupFlags);
+
+        mAccount.mBackupFlags = Account.BACKUP_FLAGS_SYNC_CALENDAR;
+        mAccount.save(mPreferences);
+        mAccount.mBackupFlags = -1;
+        mAccount.refresh(mPreferences);
+        assertEquals(Account.BACKUP_FLAGS_SYNC_CALENDAR, mAccount.mBackupFlags);
+
+        mAccount.mBackupFlags = Account.BACKUP_FLAGS_DONT_SYNC_EMAIL;
+        mAccount.save(mPreferences);
+        mAccount.mBackupFlags = -1;
+        mAccount.refresh(mPreferences);
+        assertEquals(Account.BACKUP_FLAGS_DONT_SYNC_EMAIL, mAccount.mBackupFlags);
+
+        mAccount.mBackupFlags = Account.BACKUP_FLAGS_BACKGROUND_ATTACHMENTS;
+        mAccount.save(mPreferences);
+        mAccount.mBackupFlags = -1;
+        mAccount.refresh(mPreferences);
+        assertEquals(Account.BACKUP_FLAGS_BACKGROUND_ATTACHMENTS, mAccount.mBackupFlags);
     }
 
     /**

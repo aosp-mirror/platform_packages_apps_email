@@ -135,6 +135,11 @@ public class AccountBackupRestore {
                     }
                 }
 
+                // Attachment downloading
+                if ((fromAccount.mFlags & EmailContent.Account.FLAGS_BACKGROUND_ATTACHMENTS) != 0) {
+                    toAccount.mBackupFlags |= Account.BACKUP_FLAGS_BACKGROUND_ATTACHMENTS;
+                }
+
                 // If this is the default account, mark it as such
                 if (fromAccount.mId == defaultAccountId) {
                     toAccount.mBackupFlags |= Account.BACKUP_FLAGS_IS_DEFAULT;
@@ -188,6 +193,11 @@ public class AccountBackupRestore {
             // Mark the default account if this is it
             if (0 != (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_IS_DEFAULT)) {
                 toAccount.setDefaultAccount(true);
+            }
+
+            // Restore attachment flag
+            if (0 != (backupAccount.mBackupFlags & Account.BACKUP_FLAGS_BACKGROUND_ATTACHMENTS)) {
+                toAccount.mFlags |= EmailContent.Account.FLAGS_BACKGROUND_ATTACHMENTS;
             }
 
             // Note that the sense of the email flag is opposite that of contacts/calendar flags

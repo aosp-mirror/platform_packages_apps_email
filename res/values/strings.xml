@@ -34,6 +34,10 @@
     <string name="permission_access_provider_label"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="permission_access_provider_desc"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="general_preference_background_attachments_label"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="general_preference_background_attachments_summary"></string>
 
     <!-- Name of application on Home screen -->
     <string name="app_name">Email</string>
@@ -632,6 +636,10 @@ save attachment.</string>
     <!-- In Account setup options screen, check box to sync email -->
     <string name="account_setup_options_sync_email_label">Sync email from this account.
     </string>
+    <!-- In Account setup options screen, check box to auto-download attachments  [CHAR LIMIT=none]
+        -->
+    <string name="account_setup_options_background_attachments_label">Auto-download attachments
+        when connected via Wi-Fi</string>
     <!-- Dialog title when "setup" could not finish -->
     <string name="account_setup_failed_dlg_title">Setup could not finish</string>
     <!-- In Account setup options screen, label for email check frequency selector -->
@@ -749,6 +757,12 @@ save attachment.</string>
     <!-- Note, this should usually match the default account account setup checkbox string -->
     <string name="account_settings_default_summary">Send email from this account by default</string>
     <!-- On Settings screen, setting option name -->
+    <!-- Title of account preference for downloading attachments in background [CHAR LIMIT=32] -->
+    <string name="account_settings_background_attachments_label">
+        Auto-download attachments</string>
+    <!-- Summary of account preference for downloading attachments in background [CHAR LIMIT=64] -->
+    <string name="account_settings_background_attachments_summary">
+        Download files attached to recent messages when connected via Wi-Fi</string>
     <string name="account_settings_notify_label">Email notifications</string>
     <!-- On Settings screen, summary line when called via AccountManager for Exchange accounts
         [CHAR LIMIT=50] -->
@@ -973,15 +987,6 @@ save attachment.</string>
     <string name="general_preference_text_zoom_large">Large</string>
     <!-- General preference:  Text zoom.  Value is "huge" (+2) [CHAR LIMIT=32] -->
     <string name="general_preference_text_zoom_huge">Huge</string>
-
-    <!-- General preference:  Allow downloading of attachments in background -->
-    <!-- Title of general preference for downloading attachments in background [CHAR LIMIT=32] -->
-    <string name="general_preference_background_attachments_label">
-        Automatically fetch attachments</string>
-    <!-- Summary of general preference for downloading attachments in background [CHAR LIMIT=64] -->
-    <string name="general_preference_background_attachments_summary">
-        Download attachments for Inbox messages.  (Not available for POP3 accounts.)
-    </string>
 
     <!-- Generic string for "current position" / "total number" [CHAR LIMIT=12] -->
     <string name="position_of_count"><xliff:g example="1">%1$d</xliff:g> of <xliff:g

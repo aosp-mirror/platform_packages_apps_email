@@ -36,10 +36,5 @@
             android:entryValues="@array/general_preference_text_zoom_values"
             android:dialogTitle="@string/general_preference_text_zoom_dialog_title" />
 
-        <CheckBoxPreference
-            android:key="background_attachments"
-            android:title="@string/general_preference_background_attachments_label"
-            android:summary="@string/general_preference_background_attachments_summary" />
-
     </PreferenceCategory>
 </PreferenceScreen>

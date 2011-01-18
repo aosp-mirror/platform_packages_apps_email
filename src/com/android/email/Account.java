@@ -53,6 +53,7 @@ public class Account {
     // Since email sync has always been "on" prior to the creation of this flag, it's sense is
     // reversed to avoid legacy issues.
     public static final int BACKUP_FLAGS_DONT_SYNC_EMAIL = 16;
+    public static final int BACKUP_FLAGS_BACKGROUND_ATTACHMENTS = 32;
 
     // serialized values
     String mUuid;

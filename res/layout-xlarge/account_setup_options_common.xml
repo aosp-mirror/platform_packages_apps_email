@@ -149,4 +149,20 @@
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:background="@color/account_setup_divider_color" />
+    <!-- Auto-download attachments - always show, unless POP3 -->
+    <CheckBox
+        android:id="@+id/account_background_attachments"
+        android:layout_below="@+id/account_sync_email_divider"
+        android:layout_marginTop="16dip"
+        android:layout_marginBottom="16dip"
+        android:layout_marginLeft="32dip"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/account_setup_options_background_attachments_label" />
+    <View
+        android:id="@+id/account_background_attachments_divider"
+        android:layout_below="@+id/account_sync_email"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/account_setup_divider_color" />
 </RelativeLayout>
