@@ -22,9 +22,10 @@
     android:layout_width="match_parent"
     >
     <ScrollView
-        android:layout_width="@dimen/message_compose_paper_width"
         android:layout_height="fill_parent"
         android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dip"
+        style="@style/message_compose_scroll"
         android:paddingTop="16dip"
         android:paddingBottom="16dip"
         android:paddingLeft="32dip"
