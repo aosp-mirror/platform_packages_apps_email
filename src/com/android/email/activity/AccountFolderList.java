@@ -194,7 +194,7 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
     private Dialog createRemoveAccountDialog() {
         final Activity activity = this;
         return new AlertDialog.Builder(this)
-            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setIconAttribute(android.R.attr.alertDialogIcon)
             .setTitle(R.string.account_delete_dlg_title)
             .setMessage(getString(R.string.account_delete_dlg_instructions_fmt,
                     mSelectedContextAccount.getDisplayName()))

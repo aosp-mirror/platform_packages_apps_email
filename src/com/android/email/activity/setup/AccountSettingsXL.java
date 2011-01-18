@@ -720,7 +720,7 @@ public class AccountSettingsXL extends PreferenceActivity {
             final boolean isBack = getArguments().getBoolean(BUNDLE_KEY_BACK);
 
             return new AlertDialog.Builder(activity)
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(android.R.string.dialog_alert_title)
                 .setMessage(R.string.account_settings_exit_server_settings)
                 .setPositiveButton(

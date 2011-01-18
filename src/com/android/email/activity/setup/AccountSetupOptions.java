@@ -47,7 +47,7 @@ import android.widget.Spinner;
 import java.io.IOException;
 
 /**
- * TODO: Cleanup the manipulation of Account.FLAGS_INCOMPLETE and make sure it's never left set. 
+ * TODO: Cleanup the manipulation of Account.FLAGS_INCOMPLETE and make sure it's never left set.
  */
 public class AccountSetupOptions extends AccountSetupActivity implements OnClickListener {
 
@@ -265,7 +265,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         runOnUiThread(new Runnable() {
             public void run() {
                 new AlertDialog.Builder(AccountSetupOptions.this)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setIconAttribute(android.R.attr.alertDialogIcon)
                         .setTitle(getString(R.string.account_setup_failed_dlg_title))
                         .setMessage(getString(msgResId, args))
                         .setCancelable(true)
