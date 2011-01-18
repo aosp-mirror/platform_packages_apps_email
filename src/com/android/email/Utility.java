@@ -1222,7 +1222,7 @@ public class Utility {
      * Use {@link #log} to log if/where it was closed.
      */
     public static class CloseTraceCursorWrapper extends CursorWrapper {
-        private static final boolean TRACE_ENABLED = true; // STOPSHIP make it false
+        private static final boolean TRACE_ENABLED = false;
 
         private Exception mTrace;
 
