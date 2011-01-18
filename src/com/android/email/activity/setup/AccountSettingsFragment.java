@@ -668,7 +668,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
             final String name = getArguments().getString(BUNDLE_KEY_ACCOUNT_NAME);
 
             return new AlertDialog.Builder(context)
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(R.string.account_delete_dlg_title)
                 .setMessage(context.getString(R.string.account_delete_dlg_instructions_fmt, name))
                 .setPositiveButton(

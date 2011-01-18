@@ -677,7 +677,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             final String note = getArguments().getString(BUNDLE_KEY_NOTE);
 
             return new AlertDialog.Builder(context)
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(android.R.string.dialog_alert_title)
                 .setMessage(note)
                 .setPositiveButton(
