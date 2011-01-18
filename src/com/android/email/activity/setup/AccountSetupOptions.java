@@ -58,6 +58,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     private CheckBox mSyncContactsView;
     private CheckBox mSyncCalendarView;
     private CheckBox mSyncEmailView;
+    private CheckBox mBackgroundAttachmentsView;
     private boolean mDonePressed = false;
 
     public static final int REQUEST_CODE_ACCEPT_POLICIES = 1;
@@ -83,6 +84,8 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         mSyncCalendarView = (CheckBox) findViewById(R.id.account_sync_calendar);
         mSyncEmailView = (CheckBox) findViewById(R.id.account_sync_email);
         mSyncEmailView.setChecked(true);
+        mBackgroundAttachmentsView = (CheckBox) findViewById(R.id.account_background_attachments);
+        mBackgroundAttachmentsView.setChecked(true);
         findViewById(R.id.previous).setOnClickListener(this);
         findViewById(R.id.next).setOnClickListener(this);
 
@@ -139,6 +142,12 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             findViewById(R.id.account_sync_calendar_divider).setVisibility(View.VISIBLE);
         }
 
+        // If we are in POP3, hide the "Background Attachments" mode
+        if ("pop3".equals(info.mScheme)) {
+            mBackgroundAttachmentsView.setVisibility(View.GONE);
+            findViewById(R.id.account_background_attachments_divider).setVisibility(View.GONE);
+        }
+
         // If we are just visiting here to fill in details, exit immediately
         if (SetupData.isAutoSetup() ||
                 SetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
@@ -176,9 +185,13 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     private void onDone() {
         final Account account = SetupData.getAccount();
         account.setDisplayName(account.getEmailAddress());
-        int newFlags = account.getFlags() & ~(EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL);
+        int newFlags = account.getFlags() &
+                ~(Account.FLAGS_NOTIFY_NEW_MAIL | Account.FLAGS_BACKGROUND_ATTACHMENTS);
         if (mNotifyView.isChecked()) {
-            newFlags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
+            newFlags |= Account.FLAGS_NOTIFY_NEW_MAIL;
+        }
+        if (mBackgroundAttachmentsView.isChecked()) {
+            newFlags |= Account.FLAGS_BACKGROUND_ATTACHMENTS;
         }
         account.setFlags(newFlags);
         account.setSyncInterval((Integer)((SpinnerOption)mCheckFrequencyView

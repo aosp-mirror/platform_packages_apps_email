@@ -50,9 +50,16 @@
 
         <!-- Reserve order#5 here for window size (if inserted) -->
 
+        <!-- (will hide on POP3 accounts) -->
+        <CheckBoxPreference
+            android:key="account_background_attachments"
+            android:order="6"
+            android:title="@string/account_settings_background_attachments_label"
+            android:summary="@string/account_settings_background_attachments_summary" />
+
         <CheckBoxPreference
             android:key="account_default"
-            android:order="6"
+            android:order="7"
             android:title="@string/account_settings_default_label"
             android:summary="@string/account_settings_default_summary" />
 

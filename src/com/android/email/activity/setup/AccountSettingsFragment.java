@@ -69,6 +69,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private static final String PREFERENCE_NAME = "account_name";
     private static final String PREFERENCE_SIGNATURE = "account_signature";
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
+    private static final String PREFERENCE_BACKGROUND_ATTACHMENTS =
+            "account_background_attachments";
     private static final String PREFERENCE_DEFAULT = "account_default";
     private static final String PREFERENCE_CATEGORY_NOTIFICATIONS = "account_notifications";
     private static final String PREFERENCE_NOTIFY = "account_notify";
@@ -92,6 +94,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private EditTextPreference mAccountSignature;
     private ListPreference mCheckFrequency;
     private ListPreference mSyncWindow;
+    private CheckBoxPreference mAccountBackgroundAttachments;
     private CheckBoxPreference mAccountDefault;
     private CheckBoxPreference mAccountNotify;
     private ListPreference mAccountVibrateWhen;
@@ -446,6 +449,17 @@ public class AccountSettingsFragment extends PreferenceFragment {
             topCategory.addPreference(mSyncWindow);
         }
 
+        // Show "background attachments" for IMAP & EAS - hide it for POP3.
+        mAccountBackgroundAttachments = (CheckBoxPreference)
+                findPreference(PREFERENCE_BACKGROUND_ATTACHMENTS);
+        if ("pop3".equals(mAccount.mHostAuthRecv.mProtocol)) {
+            topCategory.removePreference(mAccountBackgroundAttachments);
+        } else {
+            mAccountBackgroundAttachments.setChecked(
+                    0 != (mAccount.getFlags() & Account.FLAGS_BACKGROUND_ATTACHMENTS));
+            mAccountBackgroundAttachments.setOnPreferenceChangeListener(mPreferenceChangeListener);
+        }
+
         mAccountDefault = (CheckBoxPreference) findPreference(PREFERENCE_DEFAULT);
         mAccountDefault.setChecked(mAccount.mId == mDefaultAccountId);
         mAccountDefault.setOnPreferenceChangeListener(mPreferenceChangeListener);
@@ -578,10 +592,14 @@ public class AccountSettingsFragment extends PreferenceFragment {
      * committed before we might be killed.
      */
     private void saveSettings() {
+        // Turn off all controlled flags - will turn them back on while checking UI elements
         int newFlags = mAccount.getFlags() &
                 ~(Account.FLAGS_NOTIFY_NEW_MAIL |
-                        Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_VIBRATE_WHEN_SILENT);
+                        Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_VIBRATE_WHEN_SILENT |
+                        Account.FLAGS_BACKGROUND_ATTACHMENTS);
 
+        newFlags |= mAccountBackgroundAttachments.isChecked() ? 
+                Account.FLAGS_BACKGROUND_ATTACHMENTS : 0;
         mAccount.setDefaultAccount(mAccountDefault.isChecked());
         mAccount.setDisplayName(mAccountDescription.getText());
         mAccount.setSenderName(mAccountName.getText());
