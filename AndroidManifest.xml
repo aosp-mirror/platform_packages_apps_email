@@ -501,8 +501,8 @@
         <!-- Email AppWidget definitions -->
         <service
             android:name=".provider.WidgetProvider$WidgetService"
-            android:enabled="true"
-            android:exported="true"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false"
             />
         <receiver
             android:name=".provider.WidgetProvider" >
