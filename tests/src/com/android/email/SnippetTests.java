@@ -118,6 +118,8 @@ public class SnippetTests extends AndroidTestCase {
     public void testStripContent() {
         assertEquals("Visible", Snippet.fromHtmlText(
             "<html><style foo=\"bar\">Not</style>Visible</html>"));
+        assertEquals("Visible", Snippet.fromHtmlText(
+            "<html><STYLE foo=\"bar\">Not</STYLE>Visible</html>"));
         assertEquals("IsVisible", Snippet.fromHtmlText(
             "<html><nostrip foo=\"bar\">Is</nostrip>Visible</html>"));
         assertEquals("Visible", Snippet.fromHtmlText(
