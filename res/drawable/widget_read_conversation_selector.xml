@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2010 The Android Open Source Project
+<!-- Copyright (C) 2011 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,12 +14,10 @@
      limitations under the License.
 -->
 
-<!-- Specializations for xlarge screens - most colors are in values/colors.xml -->
-<resources>
-
-    <color name="message_view_fogged_glass_color">#00000000</color>
-
-    <!-- Standard text colors -->
-    <color name="text_primary_color">#000000</color>
-    <color name="text_secondary_color">#666666</color>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true"
+          android:drawable="@drawable/header_row_focused_email_widget_holo" />
+    <item android:state_pressed="true"
+          android:drawable="@drawable/header_row_press_email_widget_holo" />
+    <item android:drawable="@drawable/bg_row_read_email_widget_holo" />
+</selector>

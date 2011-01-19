@@ -22,13 +22,21 @@
     android:paddingLeft="16dip"
     android:paddingRight="8dip"
     android:orientation="vertical"
-    android:background="@drawable/widget_conversation_selector"
+    android:background="@drawable/widget_unread_conversation_selector"
     >
+    <ImageView
+        android:id="@+id/color_chip"
+        android:layout_width="32dip"
+        android:layout_height="8dip"
+        style="@style/widget_list_item"
+        android:layout_gravity="right|top"
+        android:visibility="visible"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8sp"
         android:orientation="horizontal"
+        style="@style/widget_list_item"
         >
         <TextView
             android:id="@+id/widget_from"
@@ -38,6 +46,13 @@
             android:paddingRight="16dip"
             android:singleLine="true" />
         <!-- Use negative margins to align attachment icon with text -->
+        <ImageView
+            android:id="@+id/widget_invite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-10sp"
+            android:layout_marginRight="-4dip"
+            android:src="@drawable/ic_badge_invite" />
         <ImageView
             android:id="@+id/widget_attachment"
             android:layout_width="wrap_content"
@@ -54,6 +69,7 @@
         android:id="@+id/widget_subject"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        style="@style/widget_list_item"
         android:layout_marginTop="-4sp"
         android:maxLines="2"/>
  </LinearLayout>
