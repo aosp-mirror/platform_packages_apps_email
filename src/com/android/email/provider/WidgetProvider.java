@@ -59,8 +59,11 @@ import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import java.util.HashMap;
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WidgetProvider extends AppWidgetProvider {
     private static final String TAG = "WidgetProvider";
@@ -106,7 +109,8 @@ public class WidgetProvider extends AppWidgetProvider {
 
 
     // Map holding our instantiated widgets, accessed by widget id
-    private static HashMap<Integer, EmailWidget> sWidgetMap = new HashMap<Integer, EmailWidget>();
+    private final static Map<Integer, EmailWidget> sWidgetMap
+            = new ConcurrentHashMap<Integer, EmailWidget>();
     private static AppWidgetManager sWidgetManager;
     private static Context sContext;
     private static ContentResolver sResolver;
@@ -145,6 +149,24 @@ public class WidgetProvider extends AppWidgetProvider {
                 title = context.getString(titleResource);
             }
             return title;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder("ViewType:selection=");
+            sb.append("\"");
+            sb.append(selection);
+            sb.append("\"");
+            if (selectionArgs != null && selectionArgs.length > 0) {
+                sb.append(",args=(");
+                for (String arg : selectionArgs) {
+                    sb.append(arg);
+                    sb.append(", ");
+                }
+                sb.append(")");
+            }
+
+            return sb.toString();
         }
 
         public String getSelection(Context context) {
@@ -775,6 +797,15 @@ public class WidgetProvider extends AppWidgetProvider {
             if (mailbox == null) return;
             startActivity(Welcome.createOpenMessageIntent(this, mailbox.mAccountKey, mailboxId,
                     messageId));
+        }
+
+        @Override
+        protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
+            int n = 0;
+            for (EmailWidget widget : sWidgetMap.values()) {
+                writer.println("Widget #" + (++n));
+                writer.println("    ViewType=" + widget.mViewType);
+            }
         }
     }
 }
