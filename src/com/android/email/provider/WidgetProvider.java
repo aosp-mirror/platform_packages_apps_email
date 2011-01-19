@@ -388,7 +388,7 @@ public class WidgetProvider extends AppWidgetProvider {
             Intent intent = new Intent(sContext, WidgetService.class);
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mWidgetId);
             intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
-            views.setRemoteAdapter(R.id.message_list, intent);
+            views.setRemoteAdapter(mWidgetId, R.id.message_list, intent);
 
             setupTitleAndCount(views);
 
