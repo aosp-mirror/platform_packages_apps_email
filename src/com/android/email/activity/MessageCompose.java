@@ -447,6 +447,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         invalidateOptionsMenu();
     }
 
+    public void setFocusShifter(int fromViewId, final int targetViewId) {
+        View label = findViewById(fromViewId);
+        // Labels don't exist on the phone UI, so null check.
+        if (label != null) {
+            label.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    findViewById(targetViewId).requestFocus();
+                }
+            });
+        }
+    }
+
     private void initViews() {
         mActionBar = getActionBar();
         mFromView = (TextView)findViewById(R.id.from);
@@ -564,6 +577,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         findViewById(R.id.add_cc_bcc).setOnClickListener(this);
         findViewById(R.id.add_attachment).setOnClickListener(this);
+
+        setFocusShifter(R.id.to_label, R.id.to);
+        setFocusShifter(R.id.cc_label, R.id.cc);
+        setFocusShifter(R.id.bcc_label, R.id.bcc);
+        setFocusShifter(R.id.subject_label, R.id.subject);
+        setFocusShifter(R.id.tap_trap, R.id.message_content);
 
         mSubjectView.setOnFocusChangeListener(this);
         mMessageContentView.setOnFocusChangeListener(this);
