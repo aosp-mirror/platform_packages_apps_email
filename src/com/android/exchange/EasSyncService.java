@@ -1527,7 +1527,12 @@ public class EasSyncService extends AbstractSyncService {
                         String policyKey = acknowledgeProvision(pp.getPolicyKey(),
                                 PROVISION_STATUS_PARTIAL);
                         // Return either the parser (success) or null (failure)
-                        return (policyKey != null) ? pp : null;
+                        if (policyKey != null) {
+                            pp.clearUnsupportedPolicies();
+                            return pp;
+                        } else {
+                            return null;
+                        }
                     }
                 }
             }
@@ -2190,7 +2195,7 @@ public class EasSyncService extends AbstractSyncService {
     /**
      * Common code to sync E+PIM data
      *
-     * @param target, an EasMailbox, EasContacts, or EasCalendar object
+     * @param target an EasMailbox, EasContacts, or EasCalendar object
      */
     public void sync(AbstractSyncAdapter target) throws IOException {
         Mailbox mailbox = target.mMailbox;
