@@ -127,11 +127,16 @@ public class FolderSyncParser extends AbstractSyncParser {
                 if (status != Eas.FOLDER_STATUS_OK) {
                     mService.errorLog("FolderSync failed: " + status);
                     if (status == Eas.FOLDER_STATUS_INVALID_KEY) {
-                        mAccount.mSyncKey = "0";
                         mService.errorLog("Bad sync key; RESET and delete all folders");
-                        // Delete PIM data first
+                        // Reset the sync key and save
+                        mAccount.mSyncKey = "0";
+                        ContentValues cv = new ContentValues();
+                        cv.put(AccountColumns.SYNC_KEY, mAccount.mSyncKey);
+                        mContentResolver.update(ContentUris.withAppendedId(Account.CONTENT_URI,
+                                mAccount.mId), cv, null, null);
+                        // Delete PIM data
                         ExchangeService.deleteAccountPIMData(mAccountId);
-                        // Then, delete mailboxes
+                        // And only then, delete mailboxes
                         mContentResolver.delete(Mailbox.CONTENT_URI, ALL_BUT_ACCOUNT_MAILBOX,
                                 new String[] {Long.toString(mAccountId)});
                         // Stop existing syncs and reconstruct _main
