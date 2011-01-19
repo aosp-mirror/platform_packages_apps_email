@@ -187,7 +187,7 @@ public class SecurityPolicy {
     /**
      * Get the dpm.  This mainly allows us to make some utility calls without it, for testing.
      */
-    private synchronized DevicePolicyManager getDPM() {
+    /* package */ synchronized DevicePolicyManager getDPM() {
         if (mDPM == null) {
             mDPM = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
         }
@@ -216,7 +216,7 @@ public class SecurityPolicy {
     /**
      * API: Query if the proposed set of policies are supported on the device.
      *
-     * @param policies requested
+     * @param policies the polices that were requested
      * @return boolean if supported
      */
     public boolean isSupported(PolicySet policies) {
@@ -230,6 +230,34 @@ public class SecurityPolicy {
             }
         }
         return true;
+    }
+
+    /**
+     * API: Remove any unsupported policies
+     *
+     * This is used when we have a set of polices that have been requested, but the server
+     * is willing to allow unsupported policies to be considered optional.
+     *
+     * @param policies the polices that were requested
+     * @return the same PolicySet if all are supported;  A replacement PolicySet if any
+     *   unsupported policies were removed
+     */
+    public PolicySet clearUnsupportedPolicies(PolicySet policies) {
+        PolicySet result = policies;
+        // IMPLEMENTATION:  At this time, the only policy which might not be supported is
+        // encryption (which requires low-level systems support).  Other policies are fully
+        // supported by the framework and do not need to be checked.
+        if (policies.mRequireEncryption) {
+            int encryptionStatus = getDPM().getStorageEncryptionStatus();
+            if (encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_UNSUPPORTED) {
+                // Make new PolicySet w/o encryption
+                result = new PolicySet(policies.mMinPasswordLength, policies.mPasswordMode,
+                        policies.mMaxPasswordFails, policies.mMaxScreenLockTime,
+                        policies.mRequireRemoteWipe, policies.mPasswordExpirationDays,
+                        policies.mPasswordHistory, policies.mPasswordComplexChars, false);
+            }
+        }
+        return result;
     }
 
     /**

@@ -19,13 +19,14 @@ package com.android.email;
 import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 
+import android.app.admin.DevicePolicyManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -73,7 +74,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
     /**
      * Private context wrapper used to add back getPackageName() for these tests.
      *
-     * This class also implements {@link Context} method(s) that is called during tests.
+     * This class also implements {@link Context} method(s) that are called during tests.
      */
     private static class MockContext2 extends ContextWrapper {
 
@@ -92,6 +93,11 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         @Override
         public String getPackageName() {
             return mRealContext.getPackageName();
+        }
+
+        @Override
+        public Object getSystemService(String name) {
+            return mRealContext.getSystemService(name);
         }
     }
 
@@ -605,5 +611,33 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, account.mFlags & Account.FLAGS_SECURITY_HOLD);
         account = Account.restoreAccountWithId(mMockContext, account3Id);
         assertEquals(Account.FLAGS_SECURITY_HOLD, account.mFlags & Account.FLAGS_SECURITY_HOLD);
+    }
+
+    /**
+     * Test the code that clears unsupported policies
+     * TODO inject a mock DPM so we can directly control & test all cases, no matter what device
+     */
+    public void testClearUnsupportedPolicies() {
+        PolicySet p1 = new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false);
+        PolicySet p2 = new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, true);
+
+        SecurityPolicy sp = getSecurityPolicy();
+        DevicePolicyManager dpm = sp.getDPM();
+        boolean hasEncryption =
+            dpm.getStorageEncryptionStatus() != DevicePolicyManager.ENCRYPTION_STATUS_UNSUPPORTED;
+
+        PolicySet p1Result = sp.clearUnsupportedPolicies(p1);
+        PolicySet p2Result = sp.clearUnsupportedPolicies(p2);
+
+        // No changes expected when encryptionRequested was false
+        assertEquals(p1, p1Result);
+        if (hasEncryption) {
+            // No changes expected
+            assertEquals(p2, p2Result);
+        } else {
+            PolicySet p2Expect =
+                new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false);
+            assertEquals(p2Expect, p2Result);
+        }
     }
 }

@@ -60,6 +60,12 @@ public class ProvisionParser extends Parser {
         return (mPolicySet != null) && mIsSupportable;
     }
 
+    public void clearUnsupportedPolicies() {
+        mPolicySet = SecurityPolicy.getInstance(mService.mContext)
+                .clearUnsupportedPolicies(mPolicySet);
+        mIsSupportable = true;
+    }
+
     private void parseProvisionDocWbxml() throws IOException {
         int minPasswordLength = 0;
         int passwordMode = PolicySet.PASSWORD_MODE_NONE;
