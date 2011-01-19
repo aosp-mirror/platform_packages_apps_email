@@ -18,23 +18,28 @@ package com.android.email;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Paint;
 
 /**
  * Helper class to load resources.
  */
 public class ResourceHelper {
+    public final static int UNDEFINED_RESOURCE_ID = -1;
+
     private static ResourceHelper sInstance;
     private final Context mContext;
     private final Resources mResources;
 
     private final int[] mAccountColors;
     private final Paint[] mAccountColorPaints;
+    private final TypedArray mAccountColorArray;
 
     private ResourceHelper(Context context) {
         mContext = context.getApplicationContext();
         mResources = mContext.getResources();
 
+        mAccountColorArray = mResources.obtainTypedArray(R.array.combined_view_account_colors);
         mAccountColors = mResources.getIntArray(R.array.combined_view_account_colors);
         mAccountColorPaints = new Paint[mAccountColors.length];
         for (int i = 0; i < mAccountColors.length; i++) {
@@ -62,6 +67,15 @@ public class ResourceHelper {
      */
     public int getAccountColor(long accountId) {
         return mAccountColors[getAccountColorIndex(accountId)];
+    }
+
+    /**
+     * @return The resource ID for an account color.
+     * Otherwise, {@value #UNDEFINED_RESOURCE_ID} if color was not specified via ID.
+     */
+    public int getAccountColorId(long accountId) {
+        return mAccountColorArray.getResourceId(getAccountColorIndex(accountId),
+                UNDEFINED_RESOURCE_ID);
     }
 
     /**
