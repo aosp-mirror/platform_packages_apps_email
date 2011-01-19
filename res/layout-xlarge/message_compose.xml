@@ -22,7 +22,7 @@
     android:layout_width="match_parent"
     >
     <ScrollView
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dip"
         style="@style/message_compose_scroll"
@@ -31,11 +31,12 @@
         android:paddingLeft="32dip"
         android:paddingRight="32dip"
         android:background="#ffffffff"
+        android:fillViewport="true"
         >
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             >
             <!-- headers + buttons -->
             <LinearLayout
@@ -69,6 +70,7 @@
                         style="@style/message_compose_header_field_container"
                         >
                         <TextView
+                            android:id="@+id/to_label"
                             style="@style/message_compose_header_field_label"
                             android:text="@string/message_compose_to_label"
                             />
@@ -92,6 +94,7 @@
                             style="@style/message_compose_header_field_container"
                             >
                             <TextView
+                                android:id="@+id/cc_label"
                                 style="@style/message_compose_header_field_label"
                                 android:text="@string/message_compose_cc_label"
                                 />
@@ -108,6 +111,7 @@
                             style="@style/message_compose_header_field_container"
                             >
                             <TextView
+                                android:id="@+id/bcc_label"
                                 style="@style/message_compose_header_field_label"
                                 android:text="@string/message_compose_bcc_label"
                                 />
@@ -125,6 +129,7 @@
                         style="@style/message_compose_header_field_container"
                         >
                         <TextView
+                            android:id="@+id/subject_label"
                             style="@style/message_compose_header_field_label"
                             android:text="@string/message_compose_subject_label"
                             />
@@ -214,16 +219,20 @@
                 android:id="@+id/message_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dip"
-                android:layout_marginBottom="32dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip"
+                android:layout_marginTop="0dip"
+                android:layout_marginBottom="0dip"
+                android:layout_marginLeft="0dip"
+                android:layout_marginRight="0dip"
                 android:gravity="left|top"
                 android:minLines="3"
                 android:hint="@string/message_compose_body_hint"
                 android:inputType="textLongMessage|textMultiLine|textAutoCorrect|textCapSentences"
                 android:imeOptions="actionDone|flagNoEnterAction"
                 style="@style/PlainEditText"
+                android:paddingTop="32dip"
+                android:paddingBottom="32dip"
+                android:paddingLeft="16dip"
+                android:paddingRight="16dip"
                 />
 
             <!--  quoted text bar -->
@@ -282,6 +291,12 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:layout_marginTop="16dip"
+                />
+            <View
+                android:id="@+id/tap_trap"
+                android:layout_width="match_parent"
+                android:layout_height="0dip"
+                android:layout_weight="1"
                 />
         </LinearLayout>
     </ScrollView>
