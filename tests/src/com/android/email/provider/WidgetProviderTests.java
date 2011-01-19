@@ -75,9 +75,9 @@ public class WidgetProviderTests extends ProviderTestCase2<EmailProvider> {
         ProviderTestUtils.setupAccount("account2", true, mMockContext);
         // Create a widget
         widget = new EmailWidget(2);
-        // Since there are two accounts, this should switch to the ALL_MAIL view
+        // Since there are two accounts, this should switch to the ALL_INBOX view
         switchSync(widget);
-        assertEquals(WidgetProvider.ViewType.ALL_MAIL, widget.mViewType);
+        assertEquals(WidgetProvider.ViewType.ALL_INBOX, widget.mViewType);
 
         // The next two switches should be to the two accounts
         switchSync(widget);

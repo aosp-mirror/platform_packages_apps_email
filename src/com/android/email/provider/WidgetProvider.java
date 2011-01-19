@@ -124,7 +124,7 @@ public class WidgetProvider extends AppWidgetProvider {
      * mail; we rotate between them.  Each ViewType is composed of a selection string and a title.
      */
     public enum ViewType {
-        ALL_MAIL(null, NO_ARGUMENTS, R.string.widget_all_mail),
+        ALL_INBOX(null, NO_ARGUMENTS, R.string.widget_all_inbox),
         UNREAD(MessageColumns.FLAG_READ + "=0", NO_ARGUMENTS, R.string.widget_unread),
         STARRED(Message.ALL_FAVORITE_SELECTION, NO_ARGUMENTS, R.string.widget_starred),
         ACCOUNT(MessageColumns.ACCOUNT_KEY + "=?", new String[1], 0);
@@ -145,6 +145,15 @@ public class WidgetProvider extends AppWidgetProvider {
                 title = context.getString(titleResource);
             }
             return title;
+        }
+
+        public String getSelection(Context context) {
+            // For "all inbox", we define a special selection
+            if (this == ViewType.ALL_INBOX) {
+                // Rebuild selection every time in case accounts have been added or removed
+                return Utility.buildMailboxIdSelection(context, Mailbox.QUERY_ALL_INBOXES);
+            }
+            return selection;
         }
     }
 
@@ -248,7 +257,7 @@ public class WidgetProvider extends AppWidgetProvider {
              */
             private void load(ViewType viewType) {
                 reset();
-                setSelection(viewType.selection);
+                setSelection(viewType.getSelection(sContext));
                 setSelectionArgs(viewType.selectionArgs);
                 startLoading();
             }
@@ -284,11 +293,11 @@ public class WidgetProvider extends AppWidgetProvider {
                 // Otherwise, fall through to the accounts themselves
                 case STARRED:
                     if (EmailContent.count(sContext, Account.CONTENT_URI) > 1) {
-                        mViewType = ViewType.ALL_MAIL;
+                        mViewType = ViewType.ALL_INBOX;
                         break;
                     }
                     //$FALL-THROUGH$
-                case ALL_MAIL:
+                case ALL_INBOX:
                     ViewType.ACCOUNT.selectionArgs[0] = "0";
                     //$FALL-THROUGH$
                 case ACCOUNT:
