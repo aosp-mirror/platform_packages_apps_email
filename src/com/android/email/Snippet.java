@@ -45,8 +45,6 @@ public class Snippet {
     static final String[] STRIP_TAGS = new String[] {"title ", "script", "style ", "applet"};
     static final int STRIP_TAG_LENGTH = 6;
 
-    // Note: ESCAPE_STRINGS is taken from the StringUtil class which is part of the
-    // unbundled_google package
     static final Map<String, Character> ESCAPE_STRINGS;
     static {
         // HTML character entity references as defined in HTML 4
@@ -372,9 +370,10 @@ public class Snippet {
                         // Strip content of title, script, style and applet tags
                         if (i < (length - (STRIP_TAG_LENGTH + 2))) {
                             String tag = text.substring(i + 1, i + STRIP_TAG_LENGTH + 1);
+                            String tagLowerCase = tag.toLowerCase();
                             boolean stripContent = false;
                             for (String stripTag: STRIP_TAGS) {
-                                if (stripTag.equals(tag)) {
+                                if (stripTag.equals(tagLowerCase)) {
                                     stripContent = true;
                                     break;
                                 }
