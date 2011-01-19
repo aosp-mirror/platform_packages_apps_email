@@ -1494,6 +1494,8 @@ public class Controller {
             switch (statusCode) {
                 case EmailServiceStatus.SUCCESS:
                 case EmailServiceStatus.IN_PROGRESS:
+                // Don't generate error if the account is uninitialized
+                case EmailServiceStatus.ACCOUNT_UNINITIALIZED:
                     return null;
 
                 case EmailServiceStatus.LOGIN_FAILED:
