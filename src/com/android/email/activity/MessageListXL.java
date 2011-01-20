@@ -98,11 +98,10 @@ public class MessageListXL extends Activity implements
      * @param accountId If -1, default account will be used.
      */
     public static void actionOpenAccount(Activity fromActivity, long accountId) {
-        Intent i = new Intent(fromActivity, MessageListXL.class);
+        Intent i = Utility.createRestartAppIntent(fromActivity, MessageListXL.class);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         }
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
 
@@ -114,13 +113,12 @@ public class MessageListXL extends Activity implements
      * {@link Mailbox#QUERY_ALL_INBOXES}) don't work.
      */
     public static void actionOpenMailbox(Activity fromActivity, long accountId, long mailboxId) {
-        Intent i = new Intent(fromActivity, MessageListXL.class);
         if (accountId == -1 || mailboxId == -1) {
             throw new InvalidParameterException();
         }
+        Intent i = Utility.createRestartAppIntent(fromActivity, MessageListXL.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
 
@@ -134,14 +132,13 @@ public class MessageListXL extends Activity implements
      */
     public static void actionOpenMessage(Activity fromActivity, long accountId, long mailboxId,
             long messageId) {
-        Intent i = new Intent(fromActivity, MessageListXL.class);
         if (accountId == -1 || mailboxId == -1 || messageId == -1) {
             throw new InvalidParameterException();
         }
+        Intent i = Utility.createRestartAppIntent(fromActivity, MessageListXL.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         fromActivity.startActivity(i);
     }
 
