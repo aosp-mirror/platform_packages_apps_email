@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.TextKeyListener;
 import android.text.method.TextKeyListener.Capitalize;
@@ -41,8 +42,6 @@ import android.widget.EditText;
 
 /**
  * Final screen of setup process.  Collect account nickname and/or username.
- *
- * TODO: Better processing of account nickname including trimming and prevention of empty string.
  */
 public class AccountSetupNames extends AccountSetupActivity implements OnClickListener {
     private static final int REQUEST_SECURITY = 0;
@@ -136,7 +135,15 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
      * Check input fields for legal values and enable/disable next button
      */
     private void validateFields() {
-        boolean newEnabled = mEasAccount || Utility.isTextViewNotEmpty(mName);
+        boolean newEnabled = true;
+        // Validation is based only on the "user name" field, not shown for EAS accounts
+        if (!mEasAccount) {
+            String userName = mName.getText().toString().trim();
+            newEnabled = !TextUtils.isEmpty(userName);
+            if (!newEnabled) {
+                mName.setError(getString(R.string.account_setup_names_user_name_empty_error));
+            }
+        }
         mNextButton.setEnabled(newEnabled);
     }
 
@@ -173,10 +180,11 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     private void onNext() {
         // Update account object from UI
         Account account = SetupData.getAccount();
-        if (Utility.isTextViewNotEmpty(mDescription)) {
-            account.setDisplayName(mDescription.getText().toString());
+        String description = mDescription.getText().toString().trim();
+        if (!TextUtils.isEmpty(description)) {
+            account.setDisplayName(description);
         }
-        account.setSenderName(mName.getText().toString());
+        account.setSenderName(mName.getText().toString().trim());
 
         // Launch async task for final commit work
         new FinalSetupTask(account).execute();

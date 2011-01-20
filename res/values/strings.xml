@@ -515,6 +515,8 @@ save attachment.</string>
     <!-- On "Set up email" screen, label of text field -->
     <string name="account_setup_names_user_name_label">
         Your name (displayed on outgoing messages)</string>
+    <!-- On "Set up email" screen, error pop-up when user_name field is empty [CHAR LIMIT=none] -->
+    <string name="account_setup_names_user_name_empty_error">This field cannot be blank</string>
 
     <!-- Activity Title for the account type selector (IMAP or POP3 or EAS) [CHAR LIMIT=45] -->
     <string name="account_setup_account_type_title">Account setup</string>
