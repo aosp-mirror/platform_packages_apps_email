@@ -350,7 +350,7 @@ public class AccountSetupBasics extends Activity
 
     private void finishAutoSetup() {
         String email = mEmailView.getText().toString().trim();
-        String password = mPasswordView.getText().toString().trim();
+        String password = mPasswordView.getText().toString();
         String[] emailParts = email.split("@");
         String user = emailParts[0];
         String domain = emailParts[1];
@@ -468,7 +468,7 @@ public class AccountSetupBasics extends Activity
      */
     private void onManualSetup(boolean allowAutoDiscover) {
         String email = mEmailView.getText().toString().trim();
-        String password = mPasswordView.getText().toString().trim();
+        String password = mPasswordView.getText().toString();
         String[] emailParts = email.split("@");
         String user = emailParts[0].trim();
         String domain = emailParts[1].trim();
