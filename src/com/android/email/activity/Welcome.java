@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
+import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -93,8 +94,7 @@ public class Welcome extends Activity {
      * which will drop any other activities on the stack (e.g. AccountFolderList or MessageList).
      */
     public static void actionStart(Activity fromActivity) {
-        Intent i = new Intent(fromActivity, Welcome.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent i = Utility.createRestartAppIntent(fromActivity, Welcome.class);
         fromActivity.startActivity(i);
     }
 
@@ -102,8 +102,7 @@ public class Welcome extends Activity {
      * Create an Intent to open account's inbox.
      */
     public static Intent createOpenAccountInboxIntent(Context context, long accountId) {
-        Intent i = new Intent(context, Welcome.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent i = Utility.createRestartAppIntent(context, Welcome.class);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         }
@@ -115,8 +114,7 @@ public class Welcome extends Activity {
      */
     public static Intent createOpenMessageIntent(Context context, long accountId,
             long mailboxId, long messageId) {
-        Intent i = new Intent(context, Welcome.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent i = Utility.createRestartAppIntent(context, Welcome.class);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
             i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
