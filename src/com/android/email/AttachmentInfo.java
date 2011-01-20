@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -37,18 +38,41 @@ import java.util.List;
  * based on the attachment's filename and mime type.
  */
 public class AttachmentInfo {
+    // Projection which can be used with the constructor taking a Cursor argument
+    public static final String[] PROJECTION = new String[] {Attachment.RECORD_ID, Attachment.SIZE,
+        Attachment.FILENAME, Attachment.MIME_TYPE, Attachment.ACCOUNT_KEY};
+    // Offsets into PROJECTION
+    public static final int COLUMN_ID = 0;
+    public static final int COLUMN_SIZE = 1;
+    public static final int COLUMN_FILENAME = 2;
+    public static final int COLUMN_MIME_TYPE = 3;
+    public static final int COLUMN_ACCOUNT_KEY = 4;
+
+    public final long mId;
+    public final long mSize;
     public final String mName;
     public final String mContentType;
-    public final long mSize;
-    public final long mId;
+    public final long mAccountKey;
     public final boolean mAllowView;
     public final boolean mAllowSave;
 
     public AttachmentInfo(Context context, Attachment attachment) {
-        mSize = attachment.mSize;
-        mContentType = AttachmentProvider.inferMimeType(attachment.mFileName, attachment.mMimeType);
-        mName = attachment.mFileName;
-        mId = attachment.mId;
+        this(context, attachment.mId, attachment.mSize, attachment.mFileName, attachment.mMimeType,
+                attachment.mAccountKey);
+    }
+
+    public AttachmentInfo(Context context, Cursor c) {
+        this(context, c.getLong(COLUMN_ID), c.getLong(COLUMN_SIZE), c.getString(COLUMN_FILENAME),
+                c.getString(COLUMN_MIME_TYPE), c.getLong(COLUMN_ACCOUNT_KEY));
+    }
+
+    public AttachmentInfo(Context context, long id, long size, String fileName, String mimeType,
+            long accountKey) {
+        mSize = size;
+        mContentType = AttachmentProvider.inferMimeType(fileName, mimeType);
+        mName = fileName;
+        mId = id;
+        mAccountKey = accountKey;
         boolean canView = true;
         boolean canSave = true;
 
@@ -121,7 +145,11 @@ public class AttachmentInfo {
      * An attachment is eligible for download if it can either be viewed or saved (or both)
      * @return whether the attachment is eligible for download
      */
-    public boolean eligibleForDownload() {
+    public boolean isEligibleForDownload() {
         return mAllowView || mAllowSave;
+    }
+
+    public String toString() {
+        return "{Attachment " + mId + ":" + mName + "," + mContentType + "," + mSize + "}";
     }
 }
