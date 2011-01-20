@@ -127,14 +127,14 @@ public class WidgetProvider extends AppWidgetProvider {
      * Types of views that we're prepared to show in the widget - all mail, unread mail, and starred
      * mail; we rotate between them.  Each ViewType is composed of a selection string and a title.
      */
-    public enum ViewType {
-        ALL_INBOX(null, NO_ARGUMENTS, R.string.widget_all_mail),
-        UNREAD(MessageColumns.FLAG_READ + "=0", NO_ARGUMENTS, R.string.widget_unread),
+    /* package */ enum ViewType {
+        ALL_INBOX(Message.INBOX_SELECTION, NO_ARGUMENTS, R.string.widget_all_mail),
+        UNREAD(Message.UNREAD_SELECTION, NO_ARGUMENTS, R.string.widget_unread),
         STARRED(Message.ALL_FAVORITE_SELECTION, NO_ARGUMENTS, R.string.widget_starred),
-        ACCOUNT(MessageColumns.ACCOUNT_KEY + "=?", new String[1], 0);
+        ACCOUNT(Message.PER_ACCOUNT_INBOX_SELECTION, new String[1], 0);
 
-        private final String selection;
-        private final String[] selectionArgs;
+        /* package */ final String selection;
+        /* package */ final String[] selectionArgs;
         private final int titleResource;
         private String title;
 
@@ -167,15 +167,6 @@ public class WidgetProvider extends AppWidgetProvider {
             }
 
             return sb.toString();
-        }
-
-        public String getSelection(Context context) {
-            // For "all inbox", we define a special selection
-            if (this == ViewType.ALL_INBOX) {
-                // Rebuild selection every time in case accounts have been added or removed
-                return Utility.buildMailboxIdSelection(context, Mailbox.QUERY_ALL_INBOXES);
-            }
-            return selection;
         }
     }
 
@@ -279,7 +270,7 @@ public class WidgetProvider extends AppWidgetProvider {
              */
             private void load(ViewType viewType) {
                 reset();
-                setSelection(viewType.getSelection(sContext));
+                setSelection(viewType.selection);
                 setSelectionArgs(viewType.selectionArgs);
                 startLoading();
             }
