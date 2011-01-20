@@ -362,6 +362,9 @@ public class AccountSetupBasics extends AccountSetupActivity
                 && Utility.isTextViewNotEmpty(mPasswordView)
                 && mEmailValidator.isValid(mEmailView.getText().toString().trim());
         onEnableProceedButtons(valid);
+
+        // Warn (but don't prevent) if password has leading/trailing spaces
+        AccountSettingsUtils.checkPasswordSpaces(this, mPasswordView);
     }
 
     /**
@@ -400,7 +403,7 @@ public class AccountSetupBasics extends AccountSetupActivity
      */
     private void finishAutoSetup() {
         String email = mEmailView.getText().toString().trim();
-        String password = mPasswordView.getText().toString().trim();
+        String password = mPasswordView.getText().toString();
         String[] emailParts = email.split("@");
         String user = emailParts[0];
         String domain = emailParts[1];
