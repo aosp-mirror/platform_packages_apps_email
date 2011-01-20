@@ -394,6 +394,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             }
         }
         enableNextButton(enabled);
+
+        // Warn (but don't prevent) if password has leading/trailing spaces
+        AccountSettingsUtils.checkPasswordSpaces(mContext, mPasswordView);
     }
 
     private void updatePortFromSecurityType() {

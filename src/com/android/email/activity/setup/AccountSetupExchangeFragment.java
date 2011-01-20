@@ -294,6 +294,10 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             }
         }
         enableNextButton(enabled);
+
+        // Warn (but don't prevent) if password has leading/trailing spaces
+        AccountSettingsUtils.checkPasswordSpaces(mContext, mPasswordView);
+
         return enabled;
     }
 
