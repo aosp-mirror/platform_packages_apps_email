@@ -16,12 +16,13 @@
 
 package com.android.email.service;
 
+import com.android.email.AttachmentInfo;
+import com.android.email.Controller.ControllerService;
 import com.android.email.Email;
+import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.Utility;
-import com.android.email.Controller.ControllerService;
-import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -83,9 +84,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
     // Limit on the number of simultaneous downloads per account
     // Note that a limit of 1 is currently enforced by both Services (MailService and Controller)
     private static final int MAX_SIMULTANEOUS_DOWNLOADS_PER_ACCOUNT = 1;
-
-    private static final Uri SINGLE_ATTACHMENT_URI =
-        EmailContent.uriWithLimit(Attachment.CONTENT_URI, 1);
+    // Limit on the number of attachments we'll check for background download
+    private static final int MAX_ATTACHMENTS_TO_CHECK = 25;
 
     /*package*/ static AttachmentDownloadService sRunningService = null;
 
@@ -319,42 +319,41 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 }
             }
 
-            // Respect the user's preference for background downloads
-            if (!mPreferences.getBackgroundAttachments()) {
-                return;
-            }
-
             // Then, try opportunistic download of appropriate attachments
             int backgroundDownloads = MAX_SIMULTANEOUS_DOWNLOADS - mDownloadsInProgress.size();
             // Always leave one slot for user requested download
             if (backgroundDownloads > (MAX_SIMULTANEOUS_DOWNLOADS - 1)) {
-                boolean repeat = true;
-                while (repeat) {
-                    // We'll take the most recent unloaded attachment
-                    Long prefetchId = Utility.getFirstRowLong(mContext, SINGLE_ATTACHMENT_URI,
-                            Attachment.ID_PROJECTION, AttachmentColumns.CONTENT_URI
-                            + " isnull AND " + Attachment.FLAGS + "=0", null,
-                            Attachment.RECORD_ID + " DESC", Attachment.ID_PROJECTION_COLUMN);
-                    if (prefetchId == null) break;
-                    if (Email.DEBUG) {
-                        Log.d(TAG, ">> Prefetch attachment " + prefetchId);
+                // We'll load up the newest 25 attachments that aren't loaded or queued
+                Uri lookupUri = EmailContent.uriWithLimit(Attachment.CONTENT_URI,
+                        MAX_ATTACHMENTS_TO_CHECK);
+                Cursor c = mContext.getContentResolver().query(lookupUri, AttachmentInfo.PROJECTION,
+                        AttachmentColumns.CONTENT_URI + " isnull AND " + Attachment.FLAGS + "=0",
+                        null, Attachment.RECORD_ID + " DESC");
+                File cacheDir = mContext.getCacheDir();
+                try {
+                    while (c.moveToNext()) {
+                        long accountKey = c.getLong(AttachmentInfo.COLUMN_ACCOUNT_KEY);
+                        long id = c.getLong(AttachmentInfo.COLUMN_ID);
+                        if (getServiceClassForAccount(accountKey) == null) {
+                            // Clean up this orphaned attachment; there's no point in keeping it
+                            // around; then try to find another one
+                            EmailContent.delete(mContext, Attachment.CONTENT_URI, id);
+                        } else if (canPrefetchForAccount(accountKey, cacheDir)) {
+                            // Check that the attachment meets system requirements for download
+                            AttachmentInfo info = new AttachmentInfo(mContext, c);
+                            if (info.isEligibleForDownload()) {
+                                Attachment att = Attachment.restoreAttachmentWithId(mContext, id);
+                                if (att != null) {
+                                    // Start this download and we're done
+                                    DownloadRequest req = new DownloadRequest(mContext, att);
+                                    mDownloadSet.tryStartDownload(req);
+                                    break;
+                                }
+                            }
+                        }
                     }
-                    Attachment att = Attachment.restoreAttachmentWithId(mContext, prefetchId);
-                    // If att is null, the attachment must have been deleted out from under us
-                    if (att == null) continue;
-                    if (getServiceClassForAccount(att.mAccountKey) == null) {
-                        // Clean up this orphaned attachment; there's no point in keeping it
-                        // around; then try to find another one
-                        EmailContent.delete(mContext, Attachment.CONTENT_URI, prefetchId);
-                        continue;
-                    }
-                    repeat = false;
-                    // TODO It's possible that we're just over limit for this particular account
-                    // Handle this so that attachments from other accounts (if any) can be tried
-                    if (canPrefetchForAccount(att.mAccountKey, mContext.getCacheDir())) {
-                        DownloadRequest req = new DownloadRequest(mContext, att);
-                        mDownloadSet.tryStartDownload(req);
-                    }
+                } finally {
+                    c.close();
                 }
             }
         }
@@ -745,6 +744,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * @return true if download is allowed, false otherwise
      */
     /*package*/ boolean canPrefetchForAccount(long accountId, File dir) {
+        Account account = Account.restoreAccountWithId(mContext, accountId);
+        // Check account, just in case
+        if (account == null) return false;
+        // First, check preference and quickly return if prefetch isn't allowed
+        if ((account.mFlags & Account.FLAGS_BACKGROUND_ATTACHMENTS) == 0) return false;
+
         long totalStorage = dir.getTotalSpace();
         long usableStorage = dir.getUsableSpace();
         long minAvailable = (long)(totalStorage * PREFETCH_MINIMUM_STORAGE_AVAILABLE);
