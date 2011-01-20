@@ -113,7 +113,7 @@ public class ContactStatusLoaderTest
         assertTrue(mProvider.mUris.size() >= 2);
         assertEquals("content://com.android.contacts/data/emails/lookup/a%40b.c",
                 mProvider.mUris.get(0));
-        assertEquals("content://com.android.contacts/data/12345?limit=1",
+        assertEquals("content://com.android.contacts/data/12345",
                 mProvider.mUris.get(1));
 
         // Check result
