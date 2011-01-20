@@ -780,7 +780,7 @@ save attachment.</string>
         [CHAR LIMIT=50] -->
     <string name="account_settings_summary">Sync frequency, notifications, etc.</string>
     <!-- On Settings screen, setting summary text -->
-    <string name="account_settings_notify_summary">Notify in System  bar when email arrives</string>
+    <string name="account_settings_notify_summary">Notify in System bar when email arrives</string>
     <!-- On Settings screen, setting option name and title of dialog box that opens -->
     <string name="account_settings_mail_check_frequency_label">Inbox check frequency</string>
     <!-- On Settings screen, setting option name -->
