@@ -128,7 +128,7 @@ public class WidgetProvider extends AppWidgetProvider {
      * mail; we rotate between them.  Each ViewType is composed of a selection string and a title.
      */
     public enum ViewType {
-        ALL_INBOX(null, NO_ARGUMENTS, R.string.widget_all_inbox),
+        ALL_INBOX(null, NO_ARGUMENTS, R.string.widget_all_mail),
         UNREAD(MessageColumns.FLAG_READ + "=0", NO_ARGUMENTS, R.string.widget_unread),
         STARRED(Message.ALL_FAVORITE_SELECTION, NO_ARGUMENTS, R.string.widget_starred),
         ACCOUNT(MessageColumns.ACCOUNT_KEY + "=?", new String[1], 0);
