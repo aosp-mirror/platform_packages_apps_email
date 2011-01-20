@@ -108,4 +108,9 @@
         <item name="android:textColor">@color/text_primary_color</item>
         <item name="android:singleLine">true</item>
     </style>
+    <style name="message_view_action_buttons" parent="android:Widget.Holo.Button.Borderless">
+        <item name="android:layout_width">48dip</item>
+        <item name="android:layout_height">48dip</item>
+        <item name="android:padding">8dip</item>
+    </style>
 </resources>
