@@ -128,6 +128,8 @@ public class SnippetTests extends AndroidTestCase {
             "<html>Visible<style foo=\"bar\">Not</style>AgainVisible"));
         assertEquals("VisibleAgainVisible", Snippet.fromHtmlText(
             "<html>Visible<style foo=\"bar\"/>AgainVisible"));
+        assertEquals("VisibleAgainVisible", Snippet.fromHtmlText(
+            "<html>Visible<style foo=\"bar\"/><head><//blah<style>Not</head>AgainVisible"));
     }
 
     /**
@@ -158,4 +160,22 @@ public class SnippetTests extends AndroidTestCase {
         // Test with space at end of tag
         findTagEnd("<tag foo=\"bar\">some more text but no end tag", "tag ");
     }
+
+    // For debugging large HTML samples
+
+//    private String readLargeSnippet(String fn) {
+//        File file = mContext.getFileStreamPath(fn);
+//        StringBuffer sb = new StringBuffer();
+//        BufferedReader reader = null;
+//        try {
+//            String text;
+//            reader = new BufferedReader(new FileReader(file));
+//            while ((text = reader.readLine()) != null) {
+//                sb.append(text);
+//                sb.append(" ");
+//            }
+//        } catch (IOException e) {
+//        }
+//        return sb.toString();
+//    }
  }

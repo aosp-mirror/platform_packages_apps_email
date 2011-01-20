@@ -42,7 +42,9 @@ public class Snippet {
     /*package*/ static final char NON_BREAKING_SPACE_CHARACTER = (char)160;
 
     // Tags whose content must be stripped as well
-    static final String[] STRIP_TAGS = new String[] {"title ", "script", "style ", "applet"};
+    static final String[] STRIP_TAGS =
+        new String[] {"title", "script", "style", "applet", "head"};
+    // The number of characters we peel off for testing against STRIP_TAGS
     static final int STRIP_TAG_LENGTH = 6;
 
     static final Map<String, Character> ESCAPE_STRINGS;
@@ -373,8 +375,9 @@ public class Snippet {
                             String tagLowerCase = tag.toLowerCase();
                             boolean stripContent = false;
                             for (String stripTag: STRIP_TAGS) {
-                                if (stripTag.equals(tagLowerCase)) {
+                                if (tagLowerCase.startsWith(stripTag)) {
                                     stripContent = true;
+                                    tag = tag.substring(0, stripTag.length());
                                     break;
                                 }
                             }
