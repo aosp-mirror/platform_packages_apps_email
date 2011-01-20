@@ -49,6 +49,7 @@ import android.preference.PreferenceFragment;
 import android.preference.RingtonePreference;
 import android.provider.Calendar;
 import android.provider.ContactsContract;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -363,7 +364,10 @@ public class AccountSettingsFragment extends PreferenceFragment {
         mAccountDescription.setOnPreferenceChangeListener(
             new Preference.OnPreferenceChangeListener() {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    final String summary = newValue.toString();
+                    String summary = newValue.toString().trim();
+                    if (TextUtils.isEmpty(summary)) {
+                        summary = mAccount.mEmailAddress;
+                    }
                     mAccountDescription.setSummary(summary);
                     mAccountDescription.setText(summary);
                     onPreferenceChanged();
@@ -377,22 +381,27 @@ public class AccountSettingsFragment extends PreferenceFragment {
         mAccountName.setText(mAccount.getSenderName());
         mAccountName.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                final String summary = newValue.toString();
-                mAccountName.setSummary(summary);
-                mAccountName.setText(summary);
-                onPreferenceChanged();
+                final String summary = newValue.toString().trim();
+                if (!TextUtils.isEmpty(summary)) {
+                    mAccountName.setSummary(summary);
+                    mAccountName.setText(summary);
+                    onPreferenceChanged();
+                }
                 return false;
             }
         });
 
         mAccountSignature = (EditTextPreference) findPreference(PREFERENCE_SIGNATURE);
-        mAccountSignature.setSummary(mAccount.getSignature());
+        String signature = mAccount.getSignature();
+        if (!TextUtils.isEmpty(signature)) {
+            mAccountSignature.setSummary(mAccount.getSignature());
+        }
         mAccountSignature.setText(mAccount.getSignature());
         mAccountSignature.setOnPreferenceChangeListener(
                 new Preference.OnPreferenceChangeListener() {
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        String summary = newValue.toString();
-                        if (summary == null || summary.length() == 0) {
+                        String summary = newValue.toString().trim();
+                        if (TextUtils.isEmpty(summary)) {
                             mAccountSignature.setSummary(R.string.account_settings_signature_hint);
                         } else {
                             mAccountSignature.setSummary(summary);
@@ -601,8 +610,10 @@ public class AccountSettingsFragment extends PreferenceFragment {
         newFlags |= mAccountBackgroundAttachments.isChecked() ? 
                 Account.FLAGS_BACKGROUND_ATTACHMENTS : 0;
         mAccount.setDefaultAccount(mAccountDefault.isChecked());
-        mAccount.setDisplayName(mAccountDescription.getText());
-        mAccount.setSenderName(mAccountName.getText());
+        // If the display name has been cleared, we'll reset it to the default value (email addr)
+        mAccount.setDisplayName(mAccountDescription.getText().trim());
+        // The sender name must never be empty (this is enforced by the preference editor)
+        mAccount.setSenderName(mAccountName.getText().trim());
         mAccount.setSignature(mAccountSignature.getText());
         newFlags |= mAccountNotify.isChecked() ? Account.FLAGS_NOTIFY_NEW_MAIL : 0;
         mAccount.setSyncInterval(Integer.parseInt(mCheckFrequency.getValue()));
