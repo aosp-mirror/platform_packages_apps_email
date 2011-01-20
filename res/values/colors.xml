@@ -49,10 +49,9 @@
 
     <!-- Drop target colors -->
     <!-- STOPSHIP Replace with final colors -->
-    <color name="mailbox_drop_available_color">#ffd9e3bd</color>
-    <color name="mailbox_drop_unavailable_color">#ffffffff</color>
-    <color name="mailbox_drop_target_active_color">#ffbedc62</color>
-    <color name="mailbox_drop_target_destructive_color">#ffff0000</color>
+    <color name="mailbox_drop_unavailable_fg_color">#ff999999</color>
+    <color name="mailbox_drop_available_bg_color">#00ffffff</color>
+    <color name="mailbox_drop_destructive_bg_color">#fff10000</color>
 
     <!--  Widget colors -->
     <color name="widget_label_shadow_color">#0d0d0d</color>

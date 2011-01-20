@@ -504,7 +504,7 @@ public class MessageListFragment extends ListFragment
             if (sBackground == null || mOldOrientation != newOrientation) {
                 mOldOrientation = newOrientation;
 
-                sBackground = res.getDrawable(R.drawable.drag_background_holo);
+                sBackground = res.getDrawable(R.drawable.bg_dragdrop);
                 sBackground.setBounds(0, 0, mDragWidth, mDragHeight);
 
                 sDragOffset = (int)res.getDimension(R.dimen.message_list_drag_offset);
