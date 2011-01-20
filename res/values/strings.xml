@@ -1006,7 +1006,7 @@ save attachment.</string>
     <!-- Instruction for how to move to different widget views [CHAR LIMIT=20] -->
     <string name="widget_other_views">Tap icon to change</string>
     <!-- Header for the "Combined Inbox" view (showing mail in all inboxes) [CHAR LIMIT=20] -->
-    <string name="widget_all_inbox">Combined Inbox</string>
+    <string name="widget_all_mail">Combined Inbox</string>
     <!-- Header for the "Unread" widget view (showing all unread mail) [CHAR LIMIT=20] -->
     <string name="widget_unread">Unread</string>
     <!-- Header for the "Starred" widget view (showing all starred mail) [CHAR LIMIT=20] -->
