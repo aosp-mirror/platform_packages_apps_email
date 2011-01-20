@@ -33,6 +33,7 @@ import android.content.ClipDescription;
 import android.content.Loader;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -74,7 +75,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     // Colors used for drop targets
     private static Integer sDropTrashColor;
-    private static Integer sDropActiveColor;
+    private static Drawable sDropActiveDrawable;
 
     private long mLastLoadedAccountId = -1;
     private long mAccountId = -1;
@@ -109,7 +110,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private Utility.ListStateSaver mSavedListState;
 
     private MailboxesAdapter.Callback mMailboxesAdapterCallback = new MailboxesAdapter.Callback() {
-       @Override
+        @Override
         public void onSetDropTargetBackground(MailboxListItem listItem) {
             listItem.setDropTargetBackground(mDragInProgress, mDragItemMailboxId);
         }
@@ -163,8 +164,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         if (sDropTrashColor == null) {
             Resources res = getResources();
-            sDropTrashColor = res.getColor(R.color.mailbox_drop_target_destructive_color);
-            sDropActiveColor = res.getColor(R.color.mailbox_drop_target_active_color);
+            sDropTrashColor = res.getColor(R.color.mailbox_drop_destructive_bg_color);
+            sDropActiveDrawable = res.getDrawable(R.drawable.list_activated_holo);
         }
     }
 
@@ -508,7 +509,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 newTarget.setBackgroundColor(sDropTrashColor);
             } else if (newTarget.isDropTarget(mDragItemMailboxId)) {
                 Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " TARGET");
-                newTarget.setBackgroundColor(sDropActiveColor);
+                newTarget.setBackgroundDrawable(sDropActiveDrawable);
             } else {
                 Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " (CALL)");
                 targetAdapterPosition = NO_DROP_TARGET;

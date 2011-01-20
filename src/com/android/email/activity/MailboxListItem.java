@@ -25,17 +25,22 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class MailboxListItem extends RelativeLayout {
     // Colors used for drop targets
-    private static Integer sDropAvailableColor;
-    private static Integer sDropUnavailableColor;
+    private static Integer sDropUnavailableFgColor;
+    private static Integer sDropAvailableBgColor;
+    private static Integer sTextPrimaryColor;
+    private static Integer sTextSecondaryColor;
 
     public long mMailboxId;
     public Integer mMailboxType;
     public MailboxesAdapter mAdapter;
 
     private Drawable mBackground;
+    private TextView mLabelName;
+    private TextView mLabelCount;
 
     public MailboxListItem(Context context) {
         super(context);
@@ -53,11 +58,15 @@ public class MailboxListItem extends RelativeLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
         mBackground = getBackground();
-        if (sDropAvailableColor == null) {
+        if (sDropAvailableBgColor == null) {
             Resources res = getResources();
-            sDropAvailableColor = res.getColor(R.color.mailbox_drop_available_color);
-            sDropUnavailableColor = res.getColor(R.color.mailbox_drop_unavailable_color);
+            sDropAvailableBgColor = res.getColor(R.color.mailbox_drop_available_bg_color);
+            sDropUnavailableFgColor = res.getColor(R.color.mailbox_drop_unavailable_fg_color);
+            sTextPrimaryColor = res.getColor(R.color.text_primary_color);
+            sTextSecondaryColor = res.getColor(R.color.text_secondary_color);
         }
+        mLabelName = (TextView)findViewById(R.id.mailbox_name);
+        mLabelCount = (TextView)findViewById(R.id.message_count);
     }
 
     public boolean isDropTarget(long itemMailbox) {
@@ -67,18 +76,18 @@ public class MailboxListItem extends RelativeLayout {
         return !ArrayUtils.contains(Mailbox.INVALID_DROP_TARGETS, mMailboxType);
     }
 
-    public boolean setDropTargetBackground(boolean dragInProgress, long itemMailbox) {
+    public void setDropTargetBackground(boolean dragInProgress, long itemMailbox) {
         if (dragInProgress) {
             if (isDropTarget(itemMailbox)) {
-                setBackgroundColor(sDropAvailableColor);
-                return true;
+                setBackgroundColor(sDropAvailableBgColor);
             } else {
-                setBackgroundColor(sDropUnavailableColor);
-                return false;
+                mLabelName.setTextColor(sDropUnavailableFgColor);
+                mLabelCount.setTextColor(sDropUnavailableFgColor);
             }
         } else {
+            mLabelName.setTextColor(sTextPrimaryColor);
+            mLabelCount.setTextColor(sTextSecondaryColor);
             setBackgroundDrawable(mBackground);
-            return false;
         }
     }
 }
