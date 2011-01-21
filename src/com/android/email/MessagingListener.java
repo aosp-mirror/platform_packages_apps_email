@@ -96,7 +96,8 @@ public class MessagingListener {
             long accountId,
             long messageId,
             long attachmentId,
-            MessagingException me) {
+            MessagingException me,
+            boolean background) {
     }
 
     /**

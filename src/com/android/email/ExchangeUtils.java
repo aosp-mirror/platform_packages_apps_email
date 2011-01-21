@@ -98,7 +98,7 @@ public class ExchangeUtils {
         }
 
         public void loadAttachment(long attachmentId, String destinationFile,
-                String contentUriString) throws RemoteException {
+                String contentUriString, boolean background) throws RemoteException {
         }
 
         public void loadMore(long messageId) throws RemoteException {

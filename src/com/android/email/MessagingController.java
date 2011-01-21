@@ -1870,7 +1870,7 @@ public class MessagingController implements Runnable {
      * @param listener
      */
     public void loadAttachment(final long accountId, final long messageId, final long mailboxId,
-            final long attachmentId, MessagingListener listener) {
+            final long attachmentId, MessagingListener listener, final boolean background) {
         mListeners.loadAttachmentStarted(accountId, messageId, attachmentId, true);
 
         put("loadAttachment", listener, new Runnable() {
@@ -1881,7 +1881,8 @@ public class MessagingController implements Runnable {
                         Attachment.restoreAttachmentWithId(mContext, attachmentId);
                     if (attachment == null) {
                         mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
-                                   new MessagingException("The attachment is null"));
+                                   new MessagingException("The attachment is null"),
+                                   background);
                         return;
                     }
                     if (Utility.attachmentExists(mContext, attachment)) {
@@ -1901,7 +1902,8 @@ public class MessagingController implements Runnable {
                     if (account == null || mailbox == null || message == null) {
                         mListeners.loadAttachmentFailed(accountId, messageId, attachmentId,
                                 new MessagingException(
-                                        "Account, mailbox, message or attachment are null"));
+                                        "Account, mailbox, message or attachment are null"),
+                                background);
                         return;
                     }
 
@@ -1954,7 +1956,8 @@ public class MessagingController implements Runnable {
                 }
                 catch (MessagingException me) {
                     if (Email.LOGD) Log.v(Email.LOG_TAG, "", me);
-                    mListeners.loadAttachmentFailed(accountId, messageId, attachmentId, me);
+                    mListeners.loadAttachmentFailed(
+                            accountId, messageId, attachmentId, me, background);
                 } catch (IOException ioe) {
                     Log.e(Email.LOG_TAG, "Error while storing attachment." + ioe.toString());
                 }
