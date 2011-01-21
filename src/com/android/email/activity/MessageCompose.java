@@ -1071,6 +1071,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         finish();
     }
 
+    private void showCcBccFieldsIfFilled() {
+        if ((mCcView.length() > 0) || (mBccView.length() > 0)) {
+            showCcBccFields();
+        }
+    }
+
     private void showCcBccFields() {
         mCcBccContainer.setVisibility(View.VISIBLE);
         findViewById(R.id.add_cc_bcc).setVisibility(View.INVISIBLE);
@@ -1394,12 +1400,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         // Finally - expose fields that were filled in but are normally hidden, and set focus
-        if (mCcView.length() > 0) {
-            mCcView.setVisibility(View.VISIBLE);
-        }
-        if (mBccView.length() > 0) {
-            mBccView.setVisibility(View.VISIBLE);
-        }
+        showCcBccFieldsIfFilled();
         setNewMessageFocus();
         setDraftNeedsSaving(false);
     }
@@ -1527,10 +1528,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
 
             safeAddAddresses(message.mTo, ourAddress, mToView, allAddresses);
-            if (safeAddAddresses(message.mCc, ourAddress, mCcView, allAddresses)) {
-                mCcView.setVisibility(View.VISIBLE);
-            }
+            safeAddAddresses(message.mCc, ourAddress, mCcView, allAddresses);
         }
+        showCcBccFieldsIfFilled();
     }
 
     void processSourceMessageGuarded(Message message, Account account) {
@@ -1585,12 +1585,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             Address[] cc = Address.unpack(message.mCc);
             if (cc.length > 0) {
                 addAddresses(mCcView, cc);
-                showCcBccFields();
             }
             Address[] bcc = Address.unpack(message.mBcc);
             if (bcc.length > 0) {
                 addAddresses(mBccView, bcc);
-                showCcBccFields();
             }
 
             mMessageContentView.setText(message.mText);
@@ -1598,6 +1596,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // loadAttachments(message, 0);
             setDraftNeedsSaving(false);
         }
+        showCcBccFieldsIfFilled();
         setNewMessageFocus();
     }
 
