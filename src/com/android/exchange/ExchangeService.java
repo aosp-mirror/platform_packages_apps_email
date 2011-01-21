@@ -31,6 +31,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.email.provider.EmailProvider;
 import com.android.email.service.EmailServiceStatus;
 import com.android.email.service.IEmailService;
 import com.android.email.service.IEmailServiceCallback;
@@ -1524,6 +1525,7 @@ public class ExchangeService extends Service implements Runnable {
             if (cv.containsKey(MailboxColumns.SYNC_INTERVAL)) {
                 mResolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
                         cv,null, null);
+                stopPing(providerAccount.mId);
                 kick("sync settings change");
             }
         }
@@ -1537,6 +1539,7 @@ public class ExchangeService extends Service implements Runnable {
             for (Account account : mAccountList) {
                 updatePIMSyncSettings(account, Mailbox.TYPE_CONTACTS, ContactsContract.AUTHORITY);
                 updatePIMSyncSettings(account, Mailbox.TYPE_CALENDAR, Calendar.AUTHORITY);
+                updatePIMSyncSettings(account, Mailbox.TYPE_INBOX, EmailProvider.EMAIL_AUTHORITY);
             }
         }
     }
@@ -2066,6 +2069,15 @@ public class ExchangeService extends Service implements Runnable {
                         continue;
                     }
 
+                    Account account =
+                        getAccountById(c.getInt(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN));
+                    if (account == null) continue;
+
+                    // TODO: Don't rebuild this account manager account each time through
+                    android.accounts.Account accountManagerAccount =
+                        new android.accounts.Account(account.mEmailAddress,
+                                Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+
                     if (type == Mailbox.TYPE_CONTACTS || type == Mailbox.TYPE_CALENDAR) {
                         // We don't sync these automatically if master auto sync is off
                         if (!masterAutoSync) {
@@ -2073,32 +2085,32 @@ public class ExchangeService extends Service implements Runnable {
                         }
                         // Get the right authority for the mailbox
                         String authority;
-                        Account account =
-                            getAccountById(c.getInt(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN));
-                        if (account != null) {
-                            if (type == Mailbox.TYPE_CONTACTS) {
-                                authority = ContactsContract.AUTHORITY;
-                            } else {
-                                authority = Calendar.AUTHORITY;
-                                if (!mCalendarObservers.containsKey(account.mId)){
-                                    // Make sure we have an observer for this Calendar, as
-                                    // we need to be able to detect sync state changes, sigh
-                                    registerCalendarObserver(account);
-                                }
-                            }
-                            android.accounts.Account a =
-                                new android.accounts.Account(account.mEmailAddress,
-                                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                            // See if "sync automatically" is set; if not, punt
-                            if (!ContentResolver.getSyncAutomatically(a, authority)) {
-                                continue;
-                            // See if the calendar is enabled; if not, punt
-                            } else if ((type == Mailbox.TYPE_CALENDAR) &&
-                                    !isCalendarEnabled(account.mId)) {
-                                continue;
+                        if (type == Mailbox.TYPE_CONTACTS) {
+                            authority = ContactsContract.AUTHORITY;
+                        } else {
+                            authority = Calendar.AUTHORITY;
+                            if (!mCalendarObservers.containsKey(account.mId)){
+                                // Make sure we have an observer for this Calendar, as
+                                // we need to be able to detect sync state changes, sigh
+                                registerCalendarObserver(account);
                             }
                         }
+                        // See if "sync automatically" is set; if not, punt
+                        if (!ContentResolver.getSyncAutomatically(accountManagerAccount,
+                                authority)) {
+                            continue;
+                            // See if the calendar is enabled; if not, punt
+                        } else if ((type == Mailbox.TYPE_CALENDAR) &&
+                                !isCalendarEnabled(account.mId)) {
+                            continue;
+                        }
                     } else if (type == Mailbox.TYPE_TRASH) {
+                        // Never automatically sync trash
+                        continue;
+                    } else if (type < Mailbox.TYPE_NOT_EMAIL &&
+                            !ContentResolver.getSyncAutomatically(accountManagerAccount,
+                                    EmailProvider.EMAIL_AUTHORITY)) {
+                        // Don't sync mail if user hasn't chosen to sync it automatically
                         continue;
                     }
 
