@@ -348,7 +348,7 @@ public class AccountSetupIncoming extends Activity implements OnClickListener {
                     URI uri = new URI(
                             oldUri.getScheme(),
                             mUsernameView.getText().toString().trim() + ":" 
-                                    + mPasswordView.getText().toString().trim(),
+                                    + mPasswordView.getText().toString(),
                             oldUri.getHost(),
                             oldUri.getPort(),
                             null,
