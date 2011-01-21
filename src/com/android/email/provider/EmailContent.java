@@ -541,15 +541,27 @@ public abstract class EmailContent {
 
         public static final String[] ID_COLUMN_PROJECTION = new String[] { RECORD_ID };
 
+        private static final String ACCOUNT_KEY_SELECTION =
+            MessageColumns.ACCOUNT_KEY + "=?";
+
         public static final String ALL_FAVORITE_SELECTION =
             MessageColumns.FLAG_FAVORITE + "=1 AND "
             + MessageColumns.MAILBOX_KEY + " NOT IN ("
             +     "SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME + ""
             +     " WHERE " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_TRASH
             +     ")";
-
-        private static final String ACCOUNT_KEY_SELECTION =
-            MessageColumns.ACCOUNT_KEY + "=?";
+        /** Selection to retrieve all messages in "inbox" for any account */
+        public static final String INBOX_SELECTION =
+            MessageColumns.MAILBOX_KEY + " IN ("
+            +     "SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME
+            +     " WHERE " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX
+            +     ")";
+        /** Selection to retrieve unread messages in "inbox" for any account */
+        public static final String UNREAD_SELECTION =
+            MessageColumns.FLAG_READ + "=0 AND " + INBOX_SELECTION;
+        /** Selection to retrieve all messages in "inbox" for one account */
+        public static final String PER_ACCOUNT_INBOX_SELECTION =
+            ACCOUNT_KEY_SELECTION + " AND " + INBOX_SELECTION;
 
         private static final String ACCOUNT_FAVORITE_SELECTION =
             ACCOUNT_KEY_SELECTION + " AND " + ALL_FAVORITE_SELECTION;
