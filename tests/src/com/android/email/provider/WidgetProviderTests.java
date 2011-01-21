@@ -15,10 +15,17 @@
 
 package com.android.email.provider;
 
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailContent.Message;
+import com.android.email.provider.WidgetProvider;
 import com.android.email.provider.WidgetProvider.EmailWidget;
+import com.android.email.provider.WidgetProvider.ViewType;
 import com.android.email.provider.WidgetProvider.WidgetViewSwitcher;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
 import android.test.ProviderTestCase2;
 
 import java.util.concurrent.ExecutionException;
@@ -60,6 +67,24 @@ public class WidgetProviderTests extends ProviderTestCase2<EmailProvider> {
         }
     }
 
+    private int getMessageCount(ViewType view) {
+        int messageCount = 0;
+        ContentResolver cr = mMockContext.getContentResolver();
+        Cursor c = cr.query(Message.CONTENT_URI, WidgetProvider.EmailWidget.WIDGET_PROJECTION,
+                view.selection, view.selectionArgs, null);
+        try {
+            messageCount = c.getCount();
+        } finally {
+            c.close();
+        }
+        return messageCount;
+    }
+
+    private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read) {
+        return ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c, starred,
+                read);
+    }
+
     public void testWidgetSwitcher() {
         // Create account
         ProviderTestUtils.setupAccount("account1", true, mMockContext);
@@ -89,4 +114,50 @@ public class WidgetProviderTests extends ProviderTestCase2<EmailProvider> {
         switchSync(widget);
         assertEquals(WidgetProvider.ViewType.STARRED, widget.mViewType);
     }
+
+    /**
+     * Test the message counts returned by the ViewType selectors.
+     */
+    public void testCursorCount() {
+        // Create 2 accounts
+        Account a1 = ProviderTestUtils.setupAccount("account1", true, mMockContext);
+        Account a2 = ProviderTestUtils.setupAccount("account2", true, mMockContext);
+
+        // Create 2 mailboxes for each account
+        Mailbox b1 = ProviderTestUtils.setupMailbox(
+                "box1", a1.mId, true, mMockContext, Mailbox.TYPE_INBOX);
+        Mailbox b2 = ProviderTestUtils.setupMailbox(
+                "box2", a1.mId, true, mMockContext, Mailbox.TYPE_OUTBOX);
+        Mailbox b3 = ProviderTestUtils.setupMailbox(
+                "box3", a2.mId, true, mMockContext, Mailbox.TYPE_INBOX);
+        Mailbox b4 = ProviderTestUtils.setupMailbox(
+                "box4", a2.mId, true, mMockContext, Mailbox.TYPE_OUTBOX);
+        Mailbox bt = ProviderTestUtils.setupMailbox(
+                "boxT", a2.mId, true, mMockContext, Mailbox.TYPE_TRASH);
+
+        // Create some messages
+        // b1 (account 1, inbox): 1 message, including 1 starred
+        Message m11 = createMessage(mMockContext, b1, true, false);
+
+        // b2 (account 1, outbox): 2 message, including 1 starred
+        Message m21 = createMessage(mMockContext, b2, false, false);
+        Message m22 = createMessage(mMockContext, b2, true, true);
+
+        // b3 (account 2, inbox): 3 message, including 1 starred
+        Message m31 = createMessage(mMockContext, b3, false, false);
+        Message m32 = createMessage(mMockContext, b3, false, true);
+        Message m33 = createMessage(mMockContext, b3, true, true);
+
+        // b4 (account 2, outbox) has no messages.
+
+        // bt (account 2, trash) has 3 messages, including 2 starred
+        Message mt1 = createMessage(mMockContext, bt, true, false);
+        Message mt2 = createMessage(mMockContext, bt, true, true);
+        Message mt3 = createMessage(mMockContext, bt, false, false);
+
+        assertEquals(4, getMessageCount(ViewType.ALL_INBOX));
+        assertEquals(3, getMessageCount(ViewType.STARRED));
+        assertEquals(2, getMessageCount(ViewType.UNREAD));
+    }
+
 }
