@@ -1630,6 +1630,10 @@ public class Controller {
                         LegacyListener legacyListener = sInstance.mLegacyListener;
                         legacyController.loadAttachment(msg.mAccountKey, msg.mId, msg.mMailboxKey,
                                 attachmentId, legacyListener);
+                    } else {
+                        // Send back the specific error status for this case
+                        sInstance.mCallbackProxy.loadAttachmentStatus(att.mMessageKey, attachmentId,
+                                EmailServiceStatus.MESSAGE_NOT_FOUND, 0);
                     }
                 }
             }
