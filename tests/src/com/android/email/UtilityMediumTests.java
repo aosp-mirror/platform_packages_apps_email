@@ -26,6 +26,7 @@ import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
 import android.content.Context;
+import android.net.Uri;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 
@@ -119,6 +120,20 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
         attachment.mContentUri = "file://" + file.getAbsolutePath();
         // Now, this should return true
         assertTrue(Utility.attachmentExists(mMockContext, attachment));
+    }
+
+    public void testBuildLimitOneUri() {
+        // EmailProvider supports "?limit="
+        assertEquals(Uri.parse("content://com.android.email.provider?limit=1"),
+                Utility.buildLimitOneUri(Uri.parse("content://com.android.email.provider")));
+
+        // Others don't -- so don't add it.
+        assertEquals(Uri.parse("content://com.android.email.attachmentprovider"),
+                Utility.buildLimitOneUri(Uri.parse("content://com.android.email.attachmentprovider"
+                        )));
+        assertEquals(Uri.parse("content://gmail-ls/android@gmail.com"),
+                Utility.buildLimitOneUri(Uri.parse("content://gmail-ls/android@gmail.com"
+                        )));
     }
 
     public void testGetFirstRowLong() {
