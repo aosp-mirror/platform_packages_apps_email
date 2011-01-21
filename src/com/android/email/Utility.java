@@ -16,7 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.activity.Welcome;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
@@ -852,6 +851,21 @@ public class Utility {
     };
 
     /**
+     * @return if {@code original} is to the EmailProvider, add "?limit=1".  Otherwise just returns
+     * {@code original}.
+     *
+     * Other providers don't support the limit param.  Also, changing URI passed from other apps
+     * can cause permission errors.
+     */
+    /* package */ static Uri buildLimitOneUri(Uri original) {
+        if ("content".equals(original.getScheme()) &&
+                EmailContent.AUTHORITY.equals(original.getAuthority())) {
+            return EmailContent.uriWithLimit(original, 1);
+        }
+        return original;
+    }
+
+    /**
      * @return a generic in column {@code column} of the first result row, if the query returns at
      * least 1 row.  Otherwise returns {@code defaultValue}.
      */
@@ -859,7 +873,7 @@ public class Utility {
             String[] projection, String selection, String[] selectionArgs, String sortOrder,
             int column, T defaultValue, CursorGetter<T> getter) {
         // Use PARAMETER_LIMIT to restrict the query to the single row we need
-        uri = uri.buildUpon().appendQueryParameter(EmailContent.PARAMETER_LIMIT, "1").build();
+        uri = buildLimitOneUri(uri);
         Cursor c = context.getContentResolver().query(uri, projection, selection, selectionArgs,
                 sortOrder);
         if (c != null) {
