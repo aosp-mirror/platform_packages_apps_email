@@ -96,47 +96,39 @@
                 android:id="@+id/forward_reply_buttons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dip"
-                android:layout_marginLeft="8dip"
-                android:layout_marginRight="32dip"
+                android:layout_marginTop="8dip"
+                android:layout_marginLeft="0dip"
+                android:layout_marginRight="24dip"
                 android:layout_alignTop="@id/header_background"
                 android:layout_alignRight="@id/header_background"
                 android:orientation="horizontal"
                 >
                 <ImageButton
                     android:id="@+id/reply"
-                    android:layout_width="32dip"
-                    android:layout_height="32dip"
-                    android:layout_marginRight="32dip"
+                    android:layout_marginRight="16dip"
                     android:src="@drawable/ic_reply"
                     android:visibility="gone"
-                    style="@android:style/Widget.Holo.Button.Borderless"
+                    style="@style/message_view_action_buttons"
                     />
                 <ImageButton
                     android:id="@+id/reply_all"
-                    android:layout_width="32dip"
-                    android:layout_height="32dip"
-                    android:layout_marginRight="32dip"
+                    android:layout_marginRight="16dip"
                     android:src="@drawable/ic_reply_all"
                     android:visibility="gone"
-                    style="@android:style/Widget.Holo.Button.Borderless"
+                    style="@style/message_view_action_buttons"
                     />
                 <ImageButton
                     android:id="@+id/forward"
-                    android:layout_width="32dip"
-                    android:layout_height="32dip"
-                    android:layout_marginRight="32dip"
+                    android:layout_marginRight="16dip"
                     android:src="@drawable/ic_forward"
                     android:visibility="gone"
-                    style="@android:style/Widget.Holo.Button.Borderless"
+                    style="@style/message_view_action_buttons"
                     />
                 <ImageButton
                     android:id="@+id/favorite"
-                    android:layout_width="32dip"
-                    android:layout_height="32dip"
                     android:src="@drawable/ic_star_none_holo_light"
                     android:visibility="gone"
-                    style="@android:style/Widget.Holo.Button.Borderless"
+                    style="@style/message_view_action_buttons"
                     />
             </LinearLayout>
 
