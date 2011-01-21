@@ -528,7 +528,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
                         MailService.actionSendPendingMail(mContext, req.accountId);
                     }
                 }
-                if (!deleted) {
+                if (statusCode == EmailServiceStatus.MESSAGE_NOT_FOUND) {
+                    // If there's no associated message, delete the attachment
+                    EmailContent.delete(mContext, Attachment.CONTENT_URI, attachment.mId);
+                } else if (!deleted) {
                     // Clear the download flags, since we're done for now.  Note that this happens
                     // only for non-recoverable errors.  When these occur for forwarded mail, we can
                     // ignore it and continue; otherwise, it was either 1) a user request, in which
