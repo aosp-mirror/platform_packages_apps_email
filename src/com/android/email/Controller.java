@@ -1329,13 +1329,13 @@ public class Controller {
 
         @Override
         public void loadAttachmentFailed(long accountId, long messageId, long attachmentId,
-                MessagingException me) {
+                MessagingException me, boolean background) {
             try {
                 // If the cause of the MessagingException is an IOException, we send a status of
                 // CONNECTION_ERROR; in this case, AttachmentDownloadService will try again to
                 // download the attachment.  Otherwise, the error is considered non-recoverable.
                 int status = EmailServiceStatus.ATTACHMENT_NOT_FOUND;
-                if (me.getCause() instanceof IOException) {
+                if (me != null && me.getCause() instanceof IOException) {
                     status = EmailServiceStatus.CONNECTION_ERROR;
                 }
                 mCallbackProxy.loadAttachmentStatus(messageId, attachmentId, status, 0);
@@ -1343,7 +1343,15 @@ public class Controller {
             }
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
-                    listener.loadAttachmentCallback(me, accountId, messageId, attachmentId, 0);
+                    // TODO We are overloading the exception here. The UI listens for this
+                    // callback and displays a toast if the exception is not null. Since we
+                    // want to avoid displaying toast for background operations, we force
+                    // the exception to be null. This needs to be re-worked so the UI will
+                    // only receive (or at least pays attention to) responses for requests
+                    // it explicitly cares about. Then we would not need to overload the
+                    // exception parameter.
+                    listener.loadAttachmentCallback(background ? null : me, accountId, messageId,
+                            attachmentId, 0);
                 }
             }
         }
@@ -1600,7 +1608,7 @@ public class Controller {
             }
 
             public void loadAttachment(long attachmentId, String destinationFile,
-                    String contentUriString) throws RemoteException {
+                    String contentUriString, boolean background) throws RemoteException {
                 if (Email.DEBUG) {
                     Log.d(TAG, "loadAttachment: " + attachmentId + " to " + destinationFile);
                 }
@@ -1629,7 +1637,7 @@ public class Controller {
                         MessagingController legacyController = sInstance.mLegacyController;
                         LegacyListener legacyListener = sInstance.mLegacyListener;
                         legacyController.loadAttachment(msg.mAccountKey, msg.mId, msg.mMailboxKey,
-                                attachmentId, legacyListener);
+                                attachmentId, legacyListener, background);
                     } else {
                         // Send back the specific error status for this case
                         sInstance.mCallbackProxy.loadAttachmentStatus(att.mMessageKey, attachmentId,

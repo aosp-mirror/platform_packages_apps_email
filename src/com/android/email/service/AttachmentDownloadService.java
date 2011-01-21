@@ -68,11 +68,11 @@ public class AttachmentDownloadService extends Service implements Runnable {
     private static final int PRIORITY_NONE = -1;
     @SuppressWarnings("unused")
     // Low priority will be used for opportunistic downloads
-    private static final int PRIORITY_LOW = 0;
+    private static final int PRIORITY_BACKGROUND = 0;
     // Normal priority is for forwarded downloads in outgoing mail
-    private static final int PRIORITY_NORMAL = 1;
+    private static final int PRIORITY_SEND_MAIL = 1;
     // High priority is for user requests
-    private static final int PRIORITY_HIGH = 2;
+    private static final int PRIORITY_FOREGROUND = 2;
 
     // Minimum free storage in order to perform prefetch (25% of total memory)
     private static final float PREFETCH_MINIMUM_STORAGE_AVAILABLE = 0.25F;
@@ -416,7 +416,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 new EmailServiceProxy(mContext, serviceClass, mServiceCallback);
             proxy.loadAttachment(req.attachmentId, file.getAbsolutePath(),
                     AttachmentProvider.getAttachmentUri(req.accountId, req.attachmentId)
-                    .toString());
+                    .toString(), req.priority != PRIORITY_FOREGROUND);
             // Lazily initialize our (reusable) pending intent
             if (mWatchdogPendingIntent == null) {
                 Intent alarmIntent = new Intent(mContext, Watchdog.class);
@@ -563,9 +563,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
         int priorityClass = PRIORITY_NONE;
         int flags = att.mFlags;
         if ((flags & Attachment.FLAG_DOWNLOAD_FORWARD) != 0) {
-            priorityClass = PRIORITY_NORMAL;
+            priorityClass = PRIORITY_SEND_MAIL;
         } else if ((flags & Attachment.FLAG_DOWNLOAD_USER_REQUEST) != 0) {
-            priorityClass = PRIORITY_HIGH;
+            priorityClass = PRIORITY_FOREGROUND;
         }
         return priorityClass;
     }

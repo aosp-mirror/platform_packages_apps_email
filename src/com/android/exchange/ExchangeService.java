@@ -379,7 +379,7 @@ public class ExchangeService extends Service implements Runnable {
         }
 
         public void loadAttachment(long attachmentId, String destinationFile,
-                String contentUriString) throws RemoteException {
+                String contentUriString, boolean background) throws RemoteException {
             if (Email.DEBUG) {
                 Log.d(TAG, "loadAttachment: " + attachmentId + " to " + destinationFile);
             }

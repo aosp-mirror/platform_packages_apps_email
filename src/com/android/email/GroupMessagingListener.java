@@ -186,9 +186,10 @@ public class GroupMessagingListener extends MessagingListener {
             long accountId,
             long messageId,
             long attachmentId,
-            MessagingException me) {
+            MessagingException me,
+            boolean background) {
         for (MessagingListener l : mListeners) {
-            l.loadAttachmentFailed(accountId, messageId, attachmentId, me);
+            l.loadAttachmentFailed(accountId, messageId, attachmentId, me, background);
         }
     }
 

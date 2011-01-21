@@ -160,12 +160,13 @@ public class EmailServiceProxy implements IEmailService {
     }
 
     public void loadAttachment(final long attachmentId, final String destinationFile,
-            final String contentUriString) throws RemoteException {
+            final String contentUriString, final boolean background) throws RemoteException {
         setTask(new Runnable () {
             public void run() {
                 try {
                     if (mCallback != null) mService.setCallback(mCallback);
-                    mService.loadAttachment(attachmentId, destinationFile, contentUriString);
+                    mService.loadAttachment(
+                            attachmentId, destinationFile, contentUriString, background);
                 } catch (RemoteException e) {
                     try {
                         // Try to send a callback (if set)
