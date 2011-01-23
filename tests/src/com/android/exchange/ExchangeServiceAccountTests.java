@@ -18,15 +18,15 @@
 package com.android.exchange;
 
 import com.android.email.AccountTestCase;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 import com.android.exchange.ExchangeService.SyncError;
 
 import android.content.Context;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * You can run this entire test case with:
@@ -64,7 +64,7 @@ public class ExchangeServiceAccountTests extends AccountTestCase {
         Mailbox box3 = ProviderTestUtils.setupMailbox("box3", acct2.mId, true, context);
         Mailbox box4 = ProviderTestUtils.setupMailbox("box4", acct2.mId, true, context);
 
-        HashMap<Long, SyncError> errorMap = exchangeService.mSyncErrorMap;
+        ConcurrentHashMap<Long, SyncError> errorMap = exchangeService.mSyncErrorMap;
         // Add errors into the map
         errorMap.put(box1.mId, securityErrorAccount1);
         errorMap.put(box2.mId, ioError);
