@@ -196,31 +196,39 @@ public class AttachmentProvider extends ContentProvider {
      * @param mimeType The given mime type
      * @return A likely mime type for the attachment
      */
-    public static String inferMimeType(String fileName, String mimeType) {
-        if (fileName != null && fileName.toLowerCase().endsWith(".eml")) {
-            return "message/rfc822";
-        }
-        // If the given mime type appears to be non-empty and non-generic - return it
-        if (!TextUtils.isEmpty(mimeType) &&
-                !"application/octet-stream".equalsIgnoreCase(mimeType)) {
-            return mimeType;
-        }
+    public static String inferMimeType(final String fileName, final String mimeType) {
 
-        // Try to find an extension in the filename
-        if (!TextUtils.isEmpty(fileName)) {
-            String extension = getFilenameExtension(fileName);
-            if (!TextUtils.isEmpty(extension)) {
-                // Extension found.  Look up mime type, or synthesize if none found.
-                mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-                if (mimeType == null) {
-                    mimeType = "application/" + extension;
+        // NOTE mime-types are case-*sensitive* on Android.
+        // Return values from this method MUST always in lowercase.
+        String result = null;
+
+        if (fileName != null && fileName.toLowerCase().endsWith(".eml")) {
+            result = "message/rfc822";
+        } else {
+            // If the given mime type appears to be non-empty and non-generic - return it
+            if (!TextUtils.isEmpty(mimeType) &&
+                    !"application/octet-stream".equalsIgnoreCase(mimeType)) {
+                result = mimeType;
+            } else {
+                // Try to find an extension in the filename
+                if (!TextUtils.isEmpty(fileName)) {
+                    String extension = getFilenameExtension(fileName);
+                    if (!TextUtils.isEmpty(extension)) {
+                        // Extension found.  Look up mime type, or synthesize if none found.
+                        result = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                        if (TextUtils.isEmpty(result)) {
+                            result = "application/" + extension;
+                        }
+                    }
                 }
-                return mimeType;
             }
         }
 
-        // Fallback case - no good guess could be made.
-        return "application/octet-stream";
+        if (TextUtils.isEmpty(result)) {
+            // Fallback case - no good guess could be made.
+            result = "application/octet-stream";
+        }
+        return result.toLowerCase();
     }
 
     /**

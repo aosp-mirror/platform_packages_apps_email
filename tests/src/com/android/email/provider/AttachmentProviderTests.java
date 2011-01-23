@@ -277,39 +277,42 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      * If the filename has a recognizable extension and it converts to a mime type, return that.
      * If the filename has an unrecognized extension, return "application/extension"
      * Otherwise return "application/octet-stream".
+     *
+     * Also, all results should be in lowercase.
      */
     public void testInferMimeType() {
-        final String DEFAULT = "application/octet-stream";
-        final String FILE_PDF = "myfile.false.pdf";
-        final String FILE_ABC = "myfile.false.abc";
+        final String DEFAULT_MIX = "Application/Octet-stream";
+        final String DEFAULT_LOWER = DEFAULT_MIX.toLowerCase();
+        final String FILE_PDF = "myfile.false.pDf";
+        final String FILE_ABC = "myfile.false.aBc";
         final String FILE_NO_EXT = "myfile";
 
         // If the given mime type is non-empty and anything other than "application/octet-stream",
         // just return it.  (This is the most common case.)
-        assertEquals("mime/type", AttachmentProvider.inferMimeType(null, "mime/type"));
-        assertEquals("mime/type", AttachmentProvider.inferMimeType("", "mime/type"));
-        assertEquals("mime/type", AttachmentProvider.inferMimeType(FILE_PDF, "mime/type"));
+        assertEquals("mime/type", AttachmentProvider.inferMimeType(null, "Mime/TyPe"));
+        assertEquals("mime/type", AttachmentProvider.inferMimeType("", "Mime/TyPe"));
+        assertEquals("mime/type", AttachmentProvider.inferMimeType(FILE_PDF, "Mime/TyPe"));
 
         // If the filename has a recognizable extension and it converts to a mime type, return that.
         assertEquals("application/pdf", AttachmentProvider.inferMimeType(FILE_PDF, null));
         assertEquals("application/pdf", AttachmentProvider.inferMimeType(FILE_PDF, ""));
-        assertEquals("application/pdf", AttachmentProvider.inferMimeType(FILE_PDF, DEFAULT));
+        assertEquals("application/pdf", AttachmentProvider.inferMimeType(FILE_PDF, DEFAULT_MIX));
 
         // If the filename has an unrecognized extension, return "application/extension"
         assertEquals("application/abc", AttachmentProvider.inferMimeType(FILE_ABC, null));
         assertEquals("application/abc", AttachmentProvider.inferMimeType(FILE_ABC, ""));
-        assertEquals("application/abc", AttachmentProvider.inferMimeType(FILE_ABC, DEFAULT));
+        assertEquals("application/abc", AttachmentProvider.inferMimeType(FILE_ABC, DEFAULT_MIX));
 
         // Otherwise return "application/octet-stream".
-        assertEquals(DEFAULT, AttachmentProvider.inferMimeType(FILE_NO_EXT, null));
-        assertEquals(DEFAULT, AttachmentProvider.inferMimeType(FILE_NO_EXT, ""));
-        assertEquals(DEFAULT, AttachmentProvider.inferMimeType(FILE_NO_EXT, DEFAULT));
-        assertEquals(DEFAULT, AttachmentProvider.inferMimeType(null, null));
-        assertEquals(DEFAULT, AttachmentProvider.inferMimeType("", ""));
+        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(FILE_NO_EXT, null));
+        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(FILE_NO_EXT, ""));
+        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(FILE_NO_EXT, DEFAULT_MIX));
+        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(null, null));
+        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType("", ""));
 
         // Test for eml files.
-        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eMl", "text/plain"));
-        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eml", DEFAULT));
+        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eMl", "Text/Plain"));
+        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eml", DEFAULT_MIX));
     }
 
     /**
