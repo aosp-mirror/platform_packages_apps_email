@@ -91,7 +91,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mMessageIds = getArguments().getLongArray(BUNDLE_MESSAGE_IDS);
-        setStyle(STYLE_NORMAL, android.R.style.Theme_Light_Holo);
+        setStyle(STYLE_NORMAL, android.R.style.Theme_Holo_Light);
     }
 
     @Override
