@@ -113,11 +113,10 @@ public class AttachmentInfo {
             }
         }
 
-        // Check to see if any activities can view this attachment
-        // If not, we can't view it
+        // Check to see if any activities can view this attachment; if none, we can't view it
         Intent intent = getAttachmentIntent(context, 0);
         PackageManager pm = context.getPackageManager();
-        List<ResolveInfo> activityList = pm.queryIntentActivities(intent, 0);
+        List<ResolveInfo> activityList = pm.queryIntentActivities(intent, 0 /*no account*/);
         if (activityList.isEmpty()) {
             canView = false;
             canSave = false;
@@ -129,15 +128,21 @@ public class AttachmentInfo {
 
     /**
      * Returns an <code>Intent</code> to load the given attachment.
+     * @param context the caller's context
+     * @param accountId the account associated with the attachment (or 0 if we don't need to
+     * resolve from attachmentUri to contentUri)
+     * @return an Intent suitable for loading the attachment
      */
     public Intent getAttachmentIntent(Context context, long accountId) {
-        Uri attachmentUri = AttachmentProvider.getAttachmentUri(accountId, mId);
-        Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
-                context.getContentResolver(), attachmentUri);
+        Uri contentUri = AttachmentProvider.getAttachmentUri(accountId, mId);
+        if (accountId > 0) {
+            contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
+                    context.getContentResolver(), contentUri);
+        }
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(contentUri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         return intent;
     }
 
