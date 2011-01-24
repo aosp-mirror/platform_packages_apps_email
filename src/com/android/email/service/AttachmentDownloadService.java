@@ -332,7 +332,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 Uri lookupUri = EmailContent.uriWithLimit(Attachment.CONTENT_URI,
                         MAX_ATTACHMENTS_TO_CHECK);
                 Cursor c = mContext.getContentResolver().query(lookupUri, AttachmentInfo.PROJECTION,
-                        AttachmentColumns.CONTENT_URI + " isnull AND " + Attachment.FLAGS + "=0",
+                        EmailContent.Attachment.EMPTY_URI_INBOX_SELECTION,
                         null, Attachment.RECORD_ID + " DESC");
                 File cacheDir = mContext.getCacheDir();
                 try {
