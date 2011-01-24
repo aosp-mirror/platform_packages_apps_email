@@ -19,9 +19,9 @@ package com.android.email.service;
 import com.android.email.AttachmentInfo;
 import com.android.email.Controller.ControllerService;
 import com.android.email.Email;
+import com.android.email.EmailConnectivityManager;
 import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.NotificationController;
-import com.android.email.Preferences;
 import com.android.email.Utility;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
@@ -91,7 +91,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
     /*package*/ static AttachmentDownloadService sRunningService = null;
 
     /*package*/ Context mContext;
-    private final Preferences mPreferences;
+    private EmailConnectivityManager mConnectivityManager;
+
     /*package*/ final DownloadSet mDownloadSet = new DownloadSet(new DownloadComparator());
 
     private final HashMap<Long, Class<? extends Service>> mAccountServiceMap =
@@ -305,6 +306,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
             if (Email.DEBUG) {
                 Log.d(TAG, "== Checking attachment queue, " + mDownloadSet.size() + " entries");
             }
+
+            // Don't run unless/until we have connectivity
+            mConnectivityManager.waitForConnectivity();
+
             Iterator<DownloadRequest> iterator = mDownloadSet.descendingIterator();
             // First, start up any required downloads, in priority order
             while (iterator.hasNext() &&
@@ -324,6 +329,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 }
             }
 
+            // Don't prefetch if background downloading is disallowed
+            if (!mConnectivityManager.isBackgroundDataAllowed()) return;
             // Then, try opportunistic download of appropriate attachments
             int backgroundDownloads = MAX_SIMULTANEOUS_DOWNLOADS - mDownloadsInProgress.size();
             // Always leave one slot for user requested download
@@ -580,10 +587,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
             // Process the queue
             kick();
         }
-    }
-
-    public AttachmentDownloadService() {
-        mPreferences = Preferences.getPreferences(this);
     }
 
     /**
@@ -884,6 +887,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
     public void onCreate() {
         // Start up our service thread
         new Thread(this, "AttachmentDownloadService").start();
+        mConnectivityManager = new EmailConnectivityManager(this, TAG);
     }
     @Override
     public IBinder onBind(Intent intent) {
@@ -898,6 +902,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             kick();
         }
         sRunningService = null;
+        mConnectivityManager.unregister();
     }
 
     @Override
