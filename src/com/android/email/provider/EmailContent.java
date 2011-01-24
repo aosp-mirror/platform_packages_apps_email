@@ -544,18 +544,26 @@ public abstract class EmailContent {
         private static final String ACCOUNT_KEY_SELECTION =
             MessageColumns.ACCOUNT_KEY + "=?";
 
+        /** Selection for messages that are loaded */
+        public static final String FLAG_LOADED_SELECTION =
+            MessageColumns.FLAG_LOADED + " IN ("
+            +     Message.FLAG_LOADED_PARTIAL + "," + Message.FLAG_LOADED_COMPLETE
+            +     ")";
+
         public static final String ALL_FAVORITE_SELECTION =
             MessageColumns.FLAG_FAVORITE + "=1 AND "
             + MessageColumns.MAILBOX_KEY + " NOT IN ("
             +     "SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME + ""
             +     " WHERE " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_TRASH
-            +     ")";
+            +     ")"
+            + " AND " + FLAG_LOADED_SELECTION;
         /** Selection to retrieve all messages in "inbox" for any account */
         public static final String INBOX_SELECTION =
             MessageColumns.MAILBOX_KEY + " IN ("
             +     "SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME
             +     " WHERE " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX
-            +     ")";
+            +     ")"
+            + " AND " + FLAG_LOADED_SELECTION;
         /** Selection to retrieve unread messages in "inbox" for any account */
         public static final String UNREAD_SELECTION =
             MessageColumns.FLAG_READ + "=0 AND " + INBOX_SELECTION;

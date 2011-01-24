@@ -1964,23 +1964,23 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // Create some messages
         // b1 (account 1, inbox): 1 message, including 1 starred
-        Message m11 = createMessage(c, b1, true, false);
+        Message m11 = createMessage(c, b1, true, false, Message.FLAG_LOADED_COMPLETE);
 
         // b2 (account 1, outbox): 2 message, including 1 starred
-        Message m21 = createMessage(c, b2, false, false);
-        Message m22 = createMessage(c, b2, true, true);
+        Message m21 = createMessage(c, b2, false, false, Message.FLAG_LOADED_COMPLETE);
+        Message m22 = createMessage(c, b2, true, true, Message.FLAG_LOADED_COMPLETE);
 
         // b3 (account 2, inbox): 3 message, including 1 starred
-        Message m31 = createMessage(c, b3, false, false);
-        Message m32 = createMessage(c, b3, false, false);
-        Message m33 = createMessage(c, b3, true, true);
+        Message m31 = createMessage(c, b3, false, false, Message.FLAG_LOADED_COMPLETE);
+        Message m32 = createMessage(c, b3, false, false, Message.FLAG_LOADED_COMPLETE);
+        Message m33 = createMessage(c, b3, true, true, Message.FLAG_LOADED_COMPLETE);
 
         // b4 (account 2, outbox) has no messages.
 
         // bt (account 2, trash) has 3 messages, including 2 starred
-        Message mt1 = createMessage(c, bt, true, false);
-        Message mt2 = createMessage(c, bt, true, false);
-        Message mt3 = createMessage(c, bt, false, false);
+        Message mt1 = createMessage(c, bt, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message mt2 = createMessage(c, bt, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message mt3 = createMessage(c, bt, false, false, Message.FLAG_LOADED_COMPLETE);
 
         // Check message counts
         assertEquals(1, getMessageCount(b1.mId));
@@ -2072,8 +2072,17 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     }
 
     private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read) {
-        return ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c, starred,
-                read);
+        return ProviderTestUtils.setupMessage(
+                "1", b.mAccountKey, b.mId, true, true, c, starred, read);
+    }
+
+    private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read,
+            int flagLoaded) {
+        Message message = ProviderTestUtils.setupMessage(
+                "1", b.mAccountKey, b.mId, true, false, c, starred, read);
+        message.mFlagLoaded = flagLoaded;
+        message.save(c);
+        return message;
     }
 
     public void testAccountIsEasAccount() {
