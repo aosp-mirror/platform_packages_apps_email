@@ -93,6 +93,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The ExchangeService handles all aspects of starting, maintaining, and stopping the various sync
@@ -193,7 +194,8 @@ public class ExchangeService extends Service implements Runnable {
     private HashMap<Long, AbstractSyncService> mServiceMap =
         new HashMap<Long, AbstractSyncService>();
     // Keeps track of services whose last sync ended with an error (by mailbox id)
-    /*package*/ HashMap<Long, SyncError> mSyncErrorMap = new HashMap<Long, SyncError>();
+    /*package*/ ConcurrentHashMap<Long, SyncError> mSyncErrorMap =
+        new ConcurrentHashMap<Long, SyncError>();
     // Keeps track of which services require a wake lock (by mailbox id)
     private HashMap<Long, Boolean> mWakeLocks = new HashMap<Long, Boolean>();
     // Keeps track of PendingIntents for mailbox alarms (by mailbox id)
@@ -394,25 +396,19 @@ public class ExchangeService extends Service implements Runnable {
         public void hostChanged(long accountId) throws RemoteException {
             ExchangeService exchangeService = INSTANCE;
             if (exchangeService == null) return;
-            synchronized (sSyncLock) {
-                HashMap<Long, SyncError> syncErrorMap = exchangeService.mSyncErrorMap;
-                ArrayList<Long> deletedMailboxes = new ArrayList<Long>();
-                // Go through the various error mailboxes
-                for (long mailboxId: syncErrorMap.keySet()) {
-                    SyncError error = syncErrorMap.get(mailboxId);
-                    // If it's a login failure, look a little harder
-                    Mailbox m = Mailbox.restoreMailboxWithId(exchangeService, mailboxId);
-                    // If it's for the account whose host has changed, clear the error
-                    // If the mailbox is no longer around, remove the entry in the map
-                    if (m == null) {
-                        deletedMailboxes.add(mailboxId);
-                    } else if (m.mAccountKey == accountId) {
-                        error.fatal = false;
-                        error.holdEndTime = 0;
-                    }
-                }
-                for (long mailboxId: deletedMailboxes) {
+            ConcurrentHashMap<Long, SyncError> syncErrorMap = exchangeService.mSyncErrorMap;
+            // Go through the various error mailboxes
+            for (long mailboxId: syncErrorMap.keySet()) {
+                SyncError error = syncErrorMap.get(mailboxId);
+                // If it's a login failure, look a little harder
+                Mailbox m = Mailbox.restoreMailboxWithId(exchangeService, mailboxId);
+                // If it's for the account whose host has changed, clear the error
+                // If the mailbox is no longer around, remove the entry in the map
+                if (m == null) {
                     syncErrorMap.remove(mailboxId);
+                } else if (error != null && m.mAccountKey == accountId) {
+                    error.fatal = false;
+                    error.holdEndTime = 0;
                 }
             }
             // Stop any running syncs
@@ -967,16 +963,16 @@ public class ExchangeService extends Service implements Runnable {
     }
 
     private void logSyncHolds() {
-        if (Eas.USER_LOG && !mSyncErrorMap.isEmpty()) {
+        if (Eas.USER_LOG) {
             log("Sync holds:");
             long time = System.currentTimeMillis();
-            synchronized (sSyncLock) {
-                for (long mailboxId : mSyncErrorMap.keySet()) {
-                    Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
-                    if (m == null) {
-                        log("Mailbox " + mailboxId + " no longer exists");
-                    } else {
-                        SyncError error = mSyncErrorMap.get(mailboxId);
+            for (long mailboxId : mSyncErrorMap.keySet()) {
+                Mailbox m = Mailbox.restoreMailboxWithId(this, mailboxId);
+                if (m == null) {
+                    log("Mailbox " + mailboxId + " no longer exists");
+                } else {
+                    SyncError error = mSyncErrorMap.get(mailboxId);
+                    if (error != null) {
                         log("Mailbox " + m.mDisplayName + ", error = " + error.reason
                                 + ", fatal = " + error.fatal);
                         if (error.holdEndTime > 0) {
@@ -1014,29 +1010,23 @@ public class ExchangeService extends Service implements Runnable {
     }
 
     private boolean releaseSyncHoldsImpl(Context context, int reason, Account account) {
-        synchronized(sSyncLock) {
-            boolean holdWasReleased = false;
-            ArrayList<Long> releaseList = new ArrayList<Long>();
-            for (long mailboxId: mSyncErrorMap.keySet()) {
-                if (account != null) {
-                    Mailbox m = Mailbox.restoreMailboxWithId(context, mailboxId);
-                    if (m == null) {
-                        releaseList.add(mailboxId);
-                    } else if (m.mAccountKey != account.mId) {
-                        continue;
-                    }
-                }
-                SyncError error = mSyncErrorMap.get(mailboxId);
-                if (error.reason == reason) {
-                    releaseList.add(mailboxId);
+        boolean holdWasReleased = false;
+        for (long mailboxId: mSyncErrorMap.keySet()) {
+            if (account != null) {
+                Mailbox m = Mailbox.restoreMailboxWithId(context, mailboxId);
+                if (m == null) {
+                    mSyncErrorMap.remove(mailboxId);
+                } else if (m.mAccountKey != account.mId) {
+                    continue;
                 }
             }
-            for (long mailboxId: releaseList) {
+            SyncError error = mSyncErrorMap.get(mailboxId);
+            if (error != null && error.reason == reason) {
                 mSyncErrorMap.remove(mailboxId);
                 holdWasReleased = true;
             }
-            return holdWasReleased;
         }
+        return holdWasReleased;
     }
 
     public class EasSyncStatusObserver implements SyncStatusObserver {
@@ -2371,8 +2361,7 @@ public class ExchangeService extends Service implements Runnable {
      */
     static public void removeFromSyncErrorMap(long mailboxId) {
         ExchangeService exchangeService = INSTANCE;
-        if (exchangeService == null) return;
-        synchronized(sSyncLock) {
+        if (exchangeService != null) {
             exchangeService.mSyncErrorMap.remove(mailboxId);
         }
     }
@@ -2388,7 +2377,7 @@ public class ExchangeService extends Service implements Runnable {
         if (exchangeService == null) return;
         synchronized(sSyncLock) {
             long mailboxId = svc.mMailboxId;
-            HashMap<Long, SyncError> errorMap = exchangeService.mSyncErrorMap;
+            ConcurrentHashMap<Long, SyncError> errorMap = exchangeService.mSyncErrorMap;
             SyncError syncError = errorMap.get(mailboxId);
             exchangeService.releaseMailbox(mailboxId);
             int exitStatus = svc.mExitStatus;
