@@ -41,7 +41,7 @@
             android:title="@string/account_settings_signature_label"
             android:summary="@string/account_settings_signature_hint"
             android:dialogTitle="@string/account_settings_signature_label"
-            android:inputType="textCapSentences" />
+            android:inputType="textCapSentences|textMultiLine" />
 
         <ListPreference
             android:key="account_check_frequency"
