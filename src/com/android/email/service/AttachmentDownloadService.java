@@ -64,7 +64,8 @@ public class AttachmentDownloadService extends Service implements Runnable {
     private static final int WATCHDOG_CHECK_INTERVAL = 15 * ((int)DateUtils.SECOND_IN_MILLIS);
     // How long we'll wait for a callback before canceling a download and retrying
     private static final int CALLBACK_TIMEOUT = 30 * ((int)DateUtils.SECOND_IN_MILLIS);
-
+    // Try to download an attachment in the background this many times before giving up
+    private static final int MAX_DOWNLOAD_RETRIES = 5;
     private static final int PRIORITY_NONE = -1;
     @SuppressWarnings("unused")
     // Low priority will be used for opportunistic downloads
@@ -100,6 +101,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
     // amount plus the size of any new attachments laoded).  If and when we reach the per-account
     // limit, we recalculate the actual usage
     /*package*/ final HashMap<Long, Long> mAttachmentStorageMap = new HashMap<Long, Long>();
+    // A map of attachment ids to the number of failed attempts to download the attachment
+    // NOTE: We do not want to persist this. This allows us to retry background downloading
+    // if any transient network errors are fixed & and the app is restarted
+    /* package */ final HashMap<Long, Integer> mAttachmentFailureMap = new HashMap<Long, Integer>();
     private final ServiceCallback mServiceCallback = new ServiceCallback();
 
     private final Object mLock = new Object();
@@ -344,6 +349,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
                             if (info.isEligibleForDownload()) {
                                 Attachment att = Attachment.restoreAttachmentWithId(mContext, id);
                                 if (att != null) {
+                                    Integer tryCount;
+                                    tryCount = mAttachmentFailureMap.get(att.mId);
+                                    if (tryCount != null && tryCount > MAX_DOWNLOAD_RETRIES) {
+                                        // move onto the next attachment
+                                        continue;
+                                    }
                                     // Start this download and we're done
                                     DownloadRequest req = new DownloadRequest(mContext, att);
                                     mDownloadSet.tryStartDownload(req);
@@ -442,6 +453,11 @@ public class AttachmentDownloadService extends Service implements Runnable {
         /*package*/ synchronized boolean tryStartDownload(DownloadRequest req) {
             Class<? extends Service> serviceClass = getServiceClassForAccount(req.accountId);
             if (serviceClass == null) return false;
+
+            // Do not download the same attachment multiple times
+            boolean alreadyInProgress = mDownloadsInProgress.get(req.attachmentId) != null;
+            if (alreadyInProgress) return false;
+
             try {
                 if (Email.DEBUG) {
                     Log.d(TAG, ">> Starting download for attachment #" + req.attachmentId);
@@ -468,6 +484,23 @@ public class AttachmentDownloadService extends Service implements Runnable {
         /*package*/ synchronized void endDownload(long attachmentId, int statusCode) {
             // Say we're no longer downloading this
             mDownloadsInProgress.remove(attachmentId);
+
+            // TODO: This code is conservative and treats connection issues as failures.
+            // Since we have no mechanism to throttle reconnection attempts, it makes
+            // sense to be cautious here. Once logic is in place to prevent connecting
+            // in a tight loop, we can exclude counting connection issues as "failures".
+
+            // Update the attachment failure list if needed
+            Integer downloadCount;
+            downloadCount = mAttachmentFailureMap.remove(attachmentId);
+            if (statusCode != EmailServiceStatus.SUCCESS) {
+                if (downloadCount == null) {
+                    downloadCount = 0;
+                }
+                downloadCount += 1;
+                mAttachmentFailureMap.put(attachmentId, downloadCount);
+            }
+
             DownloadRequest req = mDownloadSet.findDownloadRequest(attachmentId);
             if (statusCode == EmailServiceStatus.CONNECTION_ERROR) {
                 // If this needs to be retried, just process the queue again
