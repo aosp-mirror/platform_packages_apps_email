@@ -393,24 +393,22 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
         mAccountSignature = (EditTextPreference) findPreference(PREFERENCE_SIGNATURE);
         String signature = mAccount.getSignature();
-        if (!TextUtils.isEmpty(signature)) {
-            mAccountSignature.setSummary(mAccount.getSignature());
-        }
         mAccountSignature.setText(mAccount.getSignature());
         mAccountSignature.setOnPreferenceChangeListener(
-                new Preference.OnPreferenceChangeListener() {
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        String summary = newValue.toString().trim();
-                        if (TextUtils.isEmpty(summary)) {
-                            mAccountSignature.setSummary(R.string.account_settings_signature_hint);
-                        } else {
-                            mAccountSignature.setSummary(summary);
-                        }
-                        mAccountSignature.setText(summary);
-                        onPreferenceChanged();
-                        return false;
+            new Preference.OnPreferenceChangeListener() {
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    // Clean up signature if it's only whitespace (which is easy to do on a
+                    // soft keyboard) but leave whitespace in place otherwise, to give the user
+                    // maximum flexibility, e.g. the ability to indent
+                    String signature = newValue.toString();
+                    if (signature.trim().isEmpty()) {
+                        signature = "";
                     }
-                });
+                    mAccountSignature.setText(signature);
+                    onPreferenceChanged();
+                    return false;
+                }
+            });
 
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
 
