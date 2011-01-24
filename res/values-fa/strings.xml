@@ -52,8 +52,7 @@
     <string name="move_action" msgid="3059189775933985898">"انتقال"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"افزودن پیوست"</string>
-    <!-- no translation found for close_action (533058985745238100) -->
-    <skip />
+    <string name="close_action" msgid="533058985745238100">"بستن"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"تنظیمات نسخه برداری"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"انتخاب پیوست"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"انتقال به"</string>
@@ -61,18 +60,13 @@
     <string name="status_network_error" msgid="6045933332005067021">"خطای اتصال"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"ایمیل جدید"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"خطای پیش بینی نشده در حین بارگیری متن پیام. پیام ممکن است خیلی بزرگ باشد و نشان داده نشود."</string>
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
-    <skip />
-    <!-- no translation found for move_messages:one (320885379869442589) -->
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
-    <skip />
-    <!-- no translation found for move_messages:other (371256717624461324) -->
-    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
-    <skip />
-    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
-    <skip />
-    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
-    <skip />
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"انتقال پیام"</item>
+    <item quantity="other" msgid="371256717624461324">"انتقال پیام ها"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"در حساب های POP3 انتقال پشتیبانی نمی شود."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"انتقال امکان پذیر نیست. مورد انتخابی شامل چندین حساب است."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"پیام های موجود در پیش نویس ها. صندوق ارسال و موارد ارسالی قابل انتقال نمی باشند."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> خوانده نشده (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> خوانده نشده <xliff:g id="ACCOUNT">%2$s</xliff:g>"</item>
@@ -130,8 +124,7 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"گیرنده کپی:"</string>
     <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
     <skip />
-    <!-- no translation found for message_view_date_label (7033814961837313339) -->
-    <skip />
+    <string name="message_view_date_label" msgid="7033814961837313339">"تاریخ:"</string>
     <!-- no translation found for message_view_from_label (6055076379282772675) -->
     <skip />
     <!-- no translation found for message_view_subject_label (3731022187530000852) -->
@@ -159,9 +152,9 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"شما این دعوتنامه را پذیرفته اید"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"شما پاسخ \"شاید\" به این دعوت نامه داده اید"</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"شما این دعوتنامه را رد کرده اید"</string>
-    <!-- no translation found for message_view_show_details (6287415596441037095) -->
-    <skip />
-    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
+    <string name="message_view_show_details" msgid="6287415596441037095">"نمایش جزئیات"</string>
+    <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"جزئیات پیام"</string>
+    <!-- no translation found for message_decode_error (7812862491622388416) -->
     <skip />
     <string name="eml_view_title" msgid="8827210108543430336">"مشاهده <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"صرفنظر کردن از پیام"</string>
@@ -222,6 +215,8 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"یک آدرس ایمیل و رمز ورود معتبر تایپ کنید."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"حساب تکراری"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"این ورود به سیستم در حال حاضر برای حساب \"<xliff:g id="DUPLICATE">%s</xliff:g>\" استفاده می شود."</string>
+    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
+    <skip />
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"در حال بازیابی اطلاعات حساب..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"در حال بررسی تنظیمات سرور ورودی..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"در حال بررسی تنظیمات سرور خروجی..."</string>
@@ -229,6 +224,8 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"حساب شما تنظیم شد و ایمیل در راه است!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"نامی به این حساب اختصاص دهید (اختیاری)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"نام شما (در پیام های خروجی نمایش داده می شود)"</string>
+    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
+    <skip />
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"تنظیم حساب"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"نوع حساب"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"این چه نوع حسابی است؟"</string>
@@ -280,7 +277,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"همگام سازی مخاطبین از این حساب."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"همگام سازی تقویم از این حساب."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"ایمیل را از این حساب همگام سازی کنید."</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (8985175647866211124) -->
+    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
     <skip />
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"تنظیم پایان نیافت"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"مقدار همگام سازی"</string>
@@ -302,13 +299,15 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"اتصال به سرور باز نمی شود."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"آدرس سرور را اشتباه وارد کرده اید یا سرور به نسخه پروتکلی احتیاج دارد که ایمیل پشتیبانی نمی کند."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"مدیریت امنیت راه دور"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی گوشی شما را به صورت خودکار کنترل کند. آیا می خواهید تنظیم این حساب را به پایان برسانید؟"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"این سرور به ویژگی های امنیتی نیاز دارد که گوشی شما پشتیبانی نمی کند."</string>
+    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
+    <skip />
+    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"این سرور به ویژگی های امنیتی نیاز دارد که گوشی شما پشتیبانی نمی کند."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"اخطار: غیرفعال کردن قدرت برنامه ایمیل جهت مدیریت سیستم خود، همه حسابهای ایمیلی که به آن احتیاج دارند، به همراه ایمیل، مخاطبین، رویدادهای تقویم و سایر داده های آنها را حذف می کند."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"تنظیمات امنیتی حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" باید به روزرسانی شود."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"به روزرسانی تنظیمات امنیتی"</string>
     <string name="account_security_title" msgid="4441470647344315196">"امنیت دستگاه"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی گوشی شما را به صورت خودکار کنترل کند."</string>
+    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
+    <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"ویرایش جزئیات"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" از شما می خواهد که کد بازکردن قفل صفحه نمایش خود را به روز کنید."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"کد جدید باز کردن قفل صفحه نمایش مورد نیاز است"</string>
@@ -322,11 +321,11 @@
     <string name="account_settings_default_summary" msgid="1531901438624688482">"ارسال ایمیل از این حساب به صورت پیش فرض"</string>
     <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
     <skip />
-    <!-- no translation found for account_settings_background_attachments_summary (1538253695817228472) -->
+    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"اعلان های ایمیل"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"تکرار همگام سازی، اعلان ها، موارد دیگر"</string>
-    <string name="account_settings_notify_summary" msgid="6609224590300639887">"ورود ایمیل در نوار وضعیت اعلان شود"</string>
+    <!-- outdated translation 6609224590300639887 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"ورود ایمیل در نوار وضعیت اعلان شود"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"دفعات بررسی صندوق دریافت"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"تنظیمات ورودی"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"تنظیمات خروجی"</string>
@@ -409,4 +408,6 @@
     <string name="widget_unread" msgid="4404711399009077833">"خوانده نشده"</string>
     <string name="widget_starred" msgid="8290352707134011791">"ستاره دار"</string>
     <string name="widget_loading" msgid="2340962056927255554">"در حال بارگیری..."</string>
+    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
+    <skip />
 </resources>

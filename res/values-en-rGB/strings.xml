@@ -52,8 +52,7 @@
     <string name="move_action" msgid="3059189775933985898">"Move"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Add attachment"</string>
-    <!-- no translation found for close_action (533058985745238100) -->
-    <skip />
+    <string name="close_action" msgid="533058985745238100">"Close"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Dump settings"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choose attachment"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Move to"</string>
@@ -61,18 +60,13 @@
     <string name="status_network_error" msgid="6045933332005067021">"Connection error"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"New email"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Unexpected error while loading message text. Message may be too large to view."</string>
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
-    <skip />
-    <!-- no translation found for move_messages:one (320885379869442589) -->
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
-    <skip />
-    <!-- no translation found for move_messages:other (371256717624461324) -->
-    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
-    <skip />
-    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
-    <skip />
-    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
-    <skip />
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"Move message"</item>
+    <item quantity="other" msgid="371256717624461324">"Move messages"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"Move is not supported on POP3 accounts."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"Cannot move. Selection contains multiple accounts."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"Messages in Drafts, Outbox and Sent cannot be moved."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> unread (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> unread (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -130,8 +124,7 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
     <skip />
-    <!-- no translation found for message_view_date_label (7033814961837313339) -->
-    <skip />
+    <string name="message_view_date_label" msgid="7033814961837313339">"Date:"</string>
     <!-- no translation found for message_view_from_label (6055076379282772675) -->
     <skip />
     <!-- no translation found for message_view_subject_label (3731022187530000852) -->
@@ -159,9 +152,9 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"You have accepted the invitation"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"You have replied \"maybe\" to this invitation"</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"You have declined this invitation"</string>
-    <!-- no translation found for message_view_show_details (6287415596441037095) -->
-    <skip />
-    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
+    <string name="message_view_show_details" msgid="6287415596441037095">"Show details"</string>
+    <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Message Details"</string>
+    <!-- no translation found for message_decode_error (7812862491622388416) -->
     <skip />
     <string name="eml_view_title" msgid="8827210108543430336">"Viewing <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Discard message"</string>
@@ -222,6 +215,8 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Please type a valid email address and password."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Duplicate Account"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"This login is already in use for the account \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
+    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
+    <skip />
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Retrieving account information…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Checking incoming server settings…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Checking outgoing server settings…"</string>
@@ -229,6 +224,8 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Your account is set up and email is on its way!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Give this account a name (optional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Your name (displayed on outgoing messages)"</string>
+    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
+    <skip />
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Account setup"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Account type"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"What type of account is this?"</string>
@@ -280,7 +277,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sync contacts from this account."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sync calendar from this account."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sync email from this account."</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (8985175647866211124) -->
+    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
     <skip />
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Setup could not finish"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Amount to synchronise"</string>
@@ -302,13 +299,15 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Unable to open connection to server."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"You\'ve entered an incorrect server address or the server requires a protocol version that Email does not support."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Remote security administration"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"The server <xliff:g id="SERVER">%s</xliff:g> requires that you allow it to control some security features of your phone remotely. Do you wish to finish setting up this account?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"This server requires security features that your phone does not support."</string>
+    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
+    <skip />
+    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"This server requires security features that your phone does not support."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"WARNING: Deactivating the Email application\'s authority to administer your device will delete all Email accounts that require it, along with their emails, contacts, calendar events and other data."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requires security settings update."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Update Security Settings"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Device Security"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"The server <xliff:g id="SERVER">%s</xliff:g> requires that you allow it to control some security features of your phone remotely."</string>
+    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
+    <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edit details"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requires you to update your screen unlock code."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"New screen unlock required"</string>
@@ -322,11 +321,11 @@
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Send email from this account by default"</string>
     <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
     <skip />
-    <!-- no translation found for account_settings_background_attachments_summary (1538253695817228472) -->
+    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Email notifications"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Sync frequency, notifications, etc."</string>
-    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Notify in status bar when email arrives"</string>
+    <!-- outdated translation 6609224590300639887 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notify in status bar when email arrives"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Inbox check frequency"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Incoming settings"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Outgoing settings"</string>
@@ -409,4 +408,6 @@
     <string name="widget_unread" msgid="4404711399009077833">"Unread"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Starred"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Loading…"</string>
+    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
+    <skip />
 </resources>
