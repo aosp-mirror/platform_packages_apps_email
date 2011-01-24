@@ -52,8 +52,7 @@
     <string name="move_action" msgid="3059189775933985898">"이동"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ 참조/숨은참조"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"첨부파일 추가"</string>
-    <!-- no translation found for close_action (533058985745238100) -->
-    <skip />
+    <string name="close_action" msgid="533058985745238100">"닫기"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"덤프 설정"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"첨부파일 선택"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"이동"</string>
@@ -61,18 +60,13 @@
     <string name="status_network_error" msgid="6045933332005067021">"연결 오류"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"새 이메일"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"문자 메시지를 로드하는 중에 예기치 못한 오류가 발생했습니다. 메시지가 너무 커서 표시할 수 없기 때문일 수 있습니다."</string>
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
-    <skip />
-    <!-- no translation found for move_messages:one (320885379869442589) -->
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
-    <skip />
-    <!-- no translation found for move_messages:other (371256717624461324) -->
-    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
-    <skip />
-    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
-    <skip />
-    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
-    <skip />
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"메일 이동"</item>
+    <item quantity="other" msgid="371256717624461324">"메일 이동"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"POP3 계정에서는 메일 이동이 지원되지 않습니다."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"이동할 수 없습니다. 선택하신 메일에 여러 계정이 포함되어 있습니다."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"임시보관함과 보낼편지함, 보낸편지함의 메일은 이동할 수 없습니다."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"읽지 않은 메일 <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>개(<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"읽지 않은 메일 <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>개(<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -129,8 +123,7 @@
     <string name="message_view_to_label" msgid="6485191743265527381">"받는사람:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"참조:"</string>
     <string name="message_view_bcc_label" msgid="7577479221285310198">"숨은 참조:"</string>
-    <!-- no translation found for message_view_date_label (7033814961837313339) -->
-    <skip />
+    <string name="message_view_date_label" msgid="7033814961837313339">"날짜:"</string>
     <!-- no translation found for message_view_from_label (6055076379282772675) -->
     <skip />
     <!-- no translation found for message_view_subject_label (3731022187530000852) -->
@@ -158,9 +151,9 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"초대를 수락했습니다."</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"이 초대에 \'미정\'으로 응답했습니다."</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"초대를 거절했습니다."</string>
-    <!-- no translation found for message_view_show_details (6287415596441037095) -->
-    <skip />
-    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
+    <string name="message_view_show_details" msgid="6287415596441037095">"세부정보 표시"</string>
+    <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"메일 세부정보"</string>
+    <!-- no translation found for message_decode_error (7812862491622388416) -->
     <skip />
     <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g> 보기"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"메일 삭제"</string>
@@ -221,6 +214,8 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"올바른 이메일 주소와 비밀번호를 입력하세요."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"중복 계정"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"이 로그인은 이미 \'<xliff:g id="DUPLICATE">%s</xliff:g>\' 계정에서 사용 중입니다."</string>
+    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
+    <skip />
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"계정 정보 검색 중..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"받는 서버 설정 확인 중..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"발신 서버 설정 확인 중..."</string>
@@ -228,6 +223,8 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"계정이 설정되었으며 이메일을 사용할 수 있습니다."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"계정 이름 지정(선택사항)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"이름(발신 메시지에 표시)"</string>
+    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
+    <skip />
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"계정 설정"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"계정 유형"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"계정 유형이 무엇입니까?"</string>
@@ -279,7 +276,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"이 계정에서 연락처를 동기화합니다."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"이 계정에서 캘린더를 동기화합니다."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"이 계정에서 이메일을 동기화합니다."</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (8985175647866211124) -->
+    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
     <skip />
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"설정을 완료할 수 없음"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"동기화할 이메일 양"</string>
@@ -301,13 +298,15 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"서버에 연결할 수 없습니다."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"입력한 서버 주소가 잘못되었거나, 서버에 이메일 지원이 되지 않는 프로토콜 버전이 필요합니다."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"원격 보안 관리"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"<xliff:g id="SERVER">%s</xliff:g> 서버가 휴대전화의 몇 가지 보안 기능을 원격으로 제어할 수 있도록 해야 합니다. 이 계정 설정을 완료하시겠습니까?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"서버에 필요한 보안 기능 중, 휴대전화에서 지원하지 않는 것이 있습니다."</string>
+    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
+    <skip />
+    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"서버에 필요한 보안 기능 중, 휴대전화에서 지원하지 않는 것이 있습니다."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"경고: 이메일 애플리케이션의 기기 관리 권한을 비활성화하면 관련된 모든 이메일 계정이 해당 이메일, 주소록, 캘린더 일정 및 기타 데이터와 함께 삭제됩니다."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"\'<xliff:g id="ACCOUNT">%s</xliff:g>\' 계정을 사용하려면 보안 설정을 업데이트해야 합니다."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"보안 설정 업데이트"</string>
     <string name="account_security_title" msgid="4441470647344315196">"기기 보안"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"<xliff:g id="SERVER">%s</xliff:g> 서버는 휴대전화의 몇 가지 보안 기능을 원격으로 제어할 수 있어야 합니다."</string>
+    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
+    <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"세부정보 수정"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"\'<xliff:g id="ACCOUNT">%s</xliff:g>\' 계정에 대해 화면 잠금해제 코드를 업데이트해야 합니다."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"새로운 화면 잠금해제가 필요합니다."</string>
@@ -321,11 +320,11 @@
     <string name="account_settings_default_summary" msgid="1531901438624688482">"이 계정에서 이메일 보냄(기본값)"</string>
     <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
     <skip />
-    <!-- no translation found for account_settings_background_attachments_summary (1538253695817228472) -->
+    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"이메일 알림"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"빈도 및 알림 등을 동기화합니다."</string>
-    <string name="account_settings_notify_summary" msgid="6609224590300639887">"이메일이 오면 상태 표시줄에 알림"</string>
+    <!-- outdated translation 6609224590300639887 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"이메일이 오면 상태 표시줄에 알림"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"받은편지함 확인 빈도"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"수신 설정"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"발신 설정"</string>
@@ -408,4 +407,6 @@
     <string name="widget_unread" msgid="4404711399009077833">"읽지않음"</string>
     <string name="widget_starred" msgid="8290352707134011791">"별표"</string>
     <string name="widget_loading" msgid="2340962056927255554">"로드 중..."</string>
+    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
+    <skip />
 </resources>

@@ -162,6 +162,8 @@
     <skip />
     <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
     <skip />
+    <!-- no translation found for message_decode_error (7812862491622388416) -->
+    <skip />
     <string name="eml_view_title" msgid="8827210108543430336">"Affichage de <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Supprimer message"</string>
   <plurals name="message_delete_confirm">
@@ -221,6 +223,8 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Veuillez saisir une adresse e-mail et un mot de passe corrects."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Dupliquer le compte"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Ces informations de connexion sont déjà utilisées pour le compte \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
+    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
+    <skip />
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Récupération des informations sur le compte…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Vérification des paramètres de serveur entrant…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Vérification des paramètres de serveur sortant…"</string>
@@ -228,6 +232,8 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Votre compte est configuré et votre messagerie a été activée !"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Nom du compte (facultatif)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Votre nom (affiché sur les messages sortants)"</string>
+    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
+    <skip />
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Configuration du compte"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Type de compte"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"De quel type de compte s\'agit-il ?"</string>
@@ -279,7 +285,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Synchroniser les contacts issus de ce compte"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Synchroniser l\'agenda à partir de ce compte"</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Synchroniser les e-mails à partir de ce compte"</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (8985175647866211124) -->
+    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
     <skip />
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Échec de la configuration"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Nombre de messages à synchroniser"</string>
@@ -301,13 +307,15 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impossible d\'établir une connexion avec le serveur."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"L\'adresse de serveur saisie est incorrecte ou le serveur exige une version du protocole non prise en charge par la messagerie électronique."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administration de la sécurité à distance"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre téléphone. Voulez-vous terminer la configuration de ce compte ?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Ce serveur nécessite des fonctionnalités de sécurité que votre téléphone ne prend pas en charge."</string>
+    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
+    <skip />
+    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Ce serveur nécessite des fonctionnalités de sécurité que votre téléphone ne prend pas en charge."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"AVERTISSEMENT : Si vous désactivez la gestion de votre appareil par l\'application de messagerie électronique, tous les comptes de messagerie électronique qui y sont associés seront supprimés, de même que leurs données (e-mails, contacts, événements d\'agenda, etc.)."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" nécessite une mise à jour de ses paramètres de sécurité."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Mettre à jour les paramètres de sécurité"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Sécurité du périphérique"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre téléphone."</string>
+    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
+    <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifier les infos"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requiert la mise à jour du code de déverrouillage de l\'écran."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Nouvel écran de déverrouillage requis"</string>
@@ -321,11 +329,11 @@
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Par défaut, envoyer les e-mails avec ce compte"</string>
     <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
     <skip />
-    <!-- no translation found for account_settings_background_attachments_summary (1538253695817228472) -->
+    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notifications"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Fréquence de synchronisation, notifications, etc."</string>
-    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Afficher notification dans barre d\'état lors de la réception d\'un e-mail"</string>
+    <!-- outdated translation 6609224590300639887 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Afficher notification dans barre d\'état lors de la réception d\'un e-mail"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Fréquence de consultation de la boîte de réception"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Paramètres de réception"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Paramètres d\'envoi"</string>
@@ -408,4 +416,6 @@
     <string name="widget_unread" msgid="4404711399009077833">"Non lus"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Suivis"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Chargement…"</string>
+    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
+    <skip />
 </resources>
