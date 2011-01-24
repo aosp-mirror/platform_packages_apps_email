@@ -16,6 +16,7 @@
 
 package com.android.email.provider;
 
+import com.android.email.AttachmentInfo;
 import com.android.email.R;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.store.LocalStore;
@@ -184,6 +185,88 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         assertEquals(attachment3Uri.toString(), c.getString(2));    // content URI
         assertEquals("file3", c.getString(1));                      // display name
         assertEquals(300, c.getInt(0));                             // size
+    }
+
+    private static Message createMessage(Context c, Mailbox b) {
+        return ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c, false,
+                false);
+    }
+
+    public void testInboxQuery() {
+        // Create 2 accounts
+        Account a1 = ProviderTestUtils.setupAccount("inboxquery-1", true, mMockContext);
+        Account a2 = ProviderTestUtils.setupAccount("inboxquery-2", true, mMockContext);
+
+        // Create mailboxes for each account
+        Mailbox b1 = ProviderTestUtils.setupMailbox(
+                "box1", a1.mId, true, mMockContext, Mailbox.TYPE_INBOX);
+        Mailbox b2 = ProviderTestUtils.setupMailbox(
+                "box2", a1.mId, true, mMockContext, Mailbox.TYPE_MAIL);
+        Mailbox b3 = ProviderTestUtils.setupMailbox(
+                "box3", a2.mId, true, mMockContext, Mailbox.TYPE_INBOX);
+        Mailbox b4 = ProviderTestUtils.setupMailbox(
+                "box4", a2.mId, true, mMockContext, Mailbox.TYPE_MAIL);
+        Mailbox bt = ProviderTestUtils.setupMailbox(
+                "boxT", a2.mId, true, mMockContext, Mailbox.TYPE_TRASH);
+
+        // Create some messages
+        // b1 (account 1, inbox): 2 messages
+        Message m11 = createMessage(mMockContext, b1);
+        Message m12 = createMessage(mMockContext, b1);
+
+        // b2 (account 1, mail): 2 messages
+        Message m21 = createMessage(mMockContext, b2);
+        Message m22 = createMessage(mMockContext, b2);
+
+        // b3 (account 2, inbox): 1 message
+        Message m31 = createMessage(mMockContext, b3);
+
+        // b4 (account 2, mail) has no messages.
+
+        // bt (account 2, trash): 1 message
+        Message mt1 = createMessage(mMockContext, bt);
+
+        // 4 attachments in the inbox, 2 different messages, 1 downloaded
+        createAttachment(a1, m11.mId, null);
+        createAttachment(a1, m11.mId, null);
+        createAttachment(a1, m12.mId, null);
+        createAttachment(a1, m12.mId, "file:///path/to/file1");
+
+        // 3 attachments in generic mailbox, 2 different messages, 1 downloaded
+        createAttachment(a1, m21.mId, null);
+        createAttachment(a1, m21.mId, null);
+        createAttachment(a1, m22.mId, null);
+        createAttachment(a1, m22.mId, "file:///path/to/file2");
+
+        // 1 attachment in inbox
+        createAttachment(a2, m31.mId, null);
+
+        // 2 attachments in trash, same message
+        createAttachment(a2, mt1.mId, null);
+        createAttachment(a2, mt1.mId, null);
+
+        Cursor c = null;
+        try {
+            // count all attachments with an empty URI, regardless of mailbox location
+            c = mMockContext.getContentResolver().query(
+                    Attachment.CONTENT_URI, AttachmentInfo.PROJECTION,
+                    EmailContent.Attachment.EMPTY_URI_SELECTION,
+                    null, Attachment.RECORD_ID + " DESC");
+            assertEquals(9, c.getCount());
+        } finally {
+            c.close();
+        }
+
+        try {
+            // count all attachments with an empty URI, only in an inbox
+            c = mMockContext.getContentResolver().query(
+                    Attachment.CONTENT_URI, AttachmentInfo.PROJECTION,
+                    EmailContent.Attachment.EMPTY_URI_INBOX_SELECTION,
+                    null, Attachment.RECORD_ID + " DESC");
+            assertEquals(4, c.getCount());
+        } finally {
+            c.close();
+        }
     }
 
     /**
