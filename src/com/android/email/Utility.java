@@ -90,12 +90,6 @@ public class Utility {
     private static final Pattern DATE_CLEANUP_PATTERN_WRONG_TIMEZONE =
             Pattern.compile("GMT([-+]\\d{4})$");
 
-    private static final String SELECTION_FLAG_LOADED_FOR_VISIBLE_MESSAGE =
-            " AND ("
-            + MessageColumns.FLAG_LOADED + " IN ("
-            + Message.FLAG_LOADED_PARTIAL + "," + Message.FLAG_LOADED_COMPLETE
-            + "))";
-
     public final static String readInputStream(InputStream in, String encoding) throws IOException {
         InputStreamReader reader = new InputStreamReader(in, encoding);
         StringBuffer sb = new StringBuffer();
@@ -302,6 +296,9 @@ public class Utility {
     /**
      * Returns the where clause for a message list selection.
      *
+     * TODO This method needs to be rewritten to use the _SELECTION constants defined in
+     * EmailContent.Message.
+     *
      * MUST NOT be called on the UI thread.
      */
     public static String buildMailboxIdSelection(Context context, long mailboxId) {
@@ -355,7 +352,7 @@ public class Utility {
             // This makes sure they're not visible in the message list.
             // This means unread counts on the mailbox list can be different from the
             // number of messages in the message list, but it should be transient...
-            selection.append(SELECTION_FLAG_LOADED_FOR_VISIBLE_MESSAGE);
+            selection.append(" AND ").append(Message.FLAG_LOADED_SELECTION);
         }
 
         return selection.toString();

@@ -80,9 +80,13 @@ public class WidgetProviderTests extends ProviderTestCase2<EmailProvider> {
         return messageCount;
     }
 
-    private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read) {
-        return ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c, starred,
-                read);
+    private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read,
+            int flagLoaded) {
+        Message message = ProviderTestUtils.setupMessage(
+                "1", b.mAccountKey, b.mId, true, false, c, starred, read);
+        message.mFlagLoaded = flagLoaded;
+        message.save(c);
+        return message;
     }
 
     public void testWidgetSwitcher() {
@@ -136,24 +140,26 @@ public class WidgetProviderTests extends ProviderTestCase2<EmailProvider> {
                 "boxT", a2.mId, true, mMockContext, Mailbox.TYPE_TRASH);
 
         // Create some messages
-        // b1 (account 1, inbox): 1 message, including 1 starred
-        Message m11 = createMessage(mMockContext, b1, true, false);
+        // b1 (account 1, inbox): 2 messages, including 1 starred, 1 unloaded
+        Message m11 = createMessage(mMockContext, b1, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message m12 = createMessage(mMockContext, b1, false, false, Message.FLAG_LOADED_UNLOADED);
 
-        // b2 (account 1, outbox): 2 message, including 1 starred
-        Message m21 = createMessage(mMockContext, b2, false, false);
-        Message m22 = createMessage(mMockContext, b2, true, true);
+        // b2 (account 1, outbox): 2 messages, including 1 starred
+        Message m21 = createMessage(mMockContext, b2, false, false, Message.FLAG_LOADED_COMPLETE);
+        Message m22 = createMessage(mMockContext, b2, true, true, Message.FLAG_LOADED_COMPLETE);
 
-        // b3 (account 2, inbox): 3 message, including 1 starred
-        Message m31 = createMessage(mMockContext, b3, false, false);
-        Message m32 = createMessage(mMockContext, b3, false, true);
-        Message m33 = createMessage(mMockContext, b3, true, true);
+        // b3 (account 2, inbox): 4 messages, including 1 starred, 1 unloaded
+        Message m31 = createMessage(mMockContext, b3, false, false, Message.FLAG_LOADED_COMPLETE);
+        Message m32 = createMessage(mMockContext, b3, false, true, Message.FLAG_LOADED_COMPLETE);
+        Message m33 = createMessage(mMockContext, b3, true, true, Message.FLAG_LOADED_COMPLETE);
+        Message m34 = createMessage(mMockContext, b3, true, true, Message.FLAG_LOADED_UNLOADED);
 
         // b4 (account 2, outbox) has no messages.
 
-        // bt (account 2, trash) has 3 messages, including 2 starred
-        Message mt1 = createMessage(mMockContext, bt, true, false);
-        Message mt2 = createMessage(mMockContext, bt, true, true);
-        Message mt3 = createMessage(mMockContext, bt, false, false);
+        // bt (account 2, trash): 3 messages, including 2 starred
+        Message mt1 = createMessage(mMockContext, bt, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message mt2 = createMessage(mMockContext, bt, true, true, Message.FLAG_LOADED_COMPLETE);
+        Message mt3 = createMessage(mMockContext, bt, false, false, Message.FLAG_LOADED_COMPLETE);
 
         assertEquals(4, getMessageCount(ViewType.ALL_INBOX));
         assertEquals(3, getMessageCount(ViewType.STARRED));
