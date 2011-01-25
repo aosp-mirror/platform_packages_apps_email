@@ -201,13 +201,13 @@ public class AttachmentProvider extends ContentProvider {
         // NOTE mime-types are case-*sensitive* on Android.
         // Return values from this method MUST always in lowercase.
         String result = null;
-
         if (fileName != null && fileName.toLowerCase().endsWith(".eml")) {
             result = "message/rfc822";
         } else {
             // If the given mime type appears to be non-empty and non-generic - return it
+            boolean isTextPlain = "text/plain".equalsIgnoreCase(mimeType);
             if (!TextUtils.isEmpty(mimeType) &&
-                    !"application/octet-stream".equalsIgnoreCase(mimeType)) {
+                    !"application/octet-stream".equalsIgnoreCase(mimeType) && !isTextPlain) {
                 result = mimeType;
             } else {
                 // Try to find an extension in the filename
@@ -217,7 +217,8 @@ public class AttachmentProvider extends ContentProvider {
                         // Extension found.  Look up mime type, or synthesize if none found.
                         result = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
                         if (TextUtils.isEmpty(result)) {
-                            result = "application/" + extension;
+                            // If original mimetype is text/plain, us it; otherwise synthesize
+                            result = isTextPlain ? mimeType : "application/" + extension;
                         }
                     }
                 }
