@@ -885,9 +885,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
      */
     @Override
     public void onCreate() {
+        mConnectivityManager = new EmailConnectivityManager(this, TAG);
         // Start up our service thread
         new Thread(this, "AttachmentDownloadService").start();
-        mConnectivityManager = new EmailConnectivityManager(this, TAG);
     }
     @Override
     public IBinder onBind(Intent intent) {
