@@ -31,6 +31,7 @@ import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
 import org.apache.james.mime4j.util.CharsetUtil;
 
 import android.util.Base64;
+import android.util.Base64DataException;
 import android.util.Base64InputStream;
 import android.util.Log;
 
@@ -379,8 +380,14 @@ public class MimeUtility {
         in = getInputStreamForContentTransferEncoding(in, contentTransferEncoding);
         BinaryTempFileBody tempBody = new BinaryTempFileBody();
         OutputStream out = tempBody.getOutputStream();
-        IOUtils.copy(in, out);
-        out.close();
+        try {
+            IOUtils.copy(in, out);
+        } catch (Base64DataException bde) {
+            String warning = "\n\n" + Email.getMessageDecodeErrorString();
+            out.write(warning.getBytes());
+        } finally {
+            out.close();
+        }
         return tempBody;
     }
 
