@@ -366,6 +366,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
     public void testInferMimeType() {
         final String DEFAULT_MIX = "Application/Octet-stream";
         final String DEFAULT_LOWER = DEFAULT_MIX.toLowerCase();
+        final String TEXT_PLAIN = "text/plain";
         final String FILE_PDF = "myfile.false.pDf";
         final String FILE_ABC = "myfile.false.aBc";
         final String FILE_NO_EXT = "myfile";
@@ -392,6 +393,11 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(FILE_NO_EXT, DEFAULT_MIX));
         assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(null, null));
         assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType("", ""));
+
+        // If mime type can be inferred, return it; otherwise return text/plain
+        assertEquals("application/pdf", AttachmentProvider.inferMimeType(FILE_PDF, TEXT_PLAIN));
+        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(FILE_NO_EXT, TEXT_PLAIN));
+        assertEquals(TEXT_PLAIN, AttachmentProvider.inferMimeType(FILE_ABC, TEXT_PLAIN));
 
         // Test for eml files.
         assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eMl", "Text/Plain"));
