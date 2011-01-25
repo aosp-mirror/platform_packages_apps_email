@@ -40,6 +40,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -70,6 +71,9 @@ public class MessageListXL extends Activity implements
     private final RefreshListener mMailRefreshManagerListener
             = new RefreshListener();
     private Controller.Result mControllerResult;
+
+    /** True between onCreate() to onDestroy() */
+    private boolean mIsCreated;
 
     private AccountSelectorAdapter mAccountsSelectorAdapter;
     private final ActionBarNavigationCallback mActionBarNavigationCallback
@@ -188,6 +192,8 @@ public class MessageListXL extends Activity implements
         mControllerResult = new ControllerResultUiThreadWrapper<ControllerResult>(new Handler(),
                 new ControllerResult());
         mController.addResultCallback(mControllerResult);
+
+        mIsCreated = true;
     }
 
     private void initFromIntent() {
@@ -256,6 +262,7 @@ public class MessageListXL extends Activity implements
     @Override
     protected void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onDestroy");
+        mIsCreated = false;
         mController.removeResultCallback(mControllerResult);
         Utility.cancelTaskInterrupt(mRefreshTask);
         mRefreshManager.unregisterListener(mMailRefreshManagerListener);
@@ -553,10 +560,33 @@ public class MessageListXL extends Activity implements
     /**
      * Call this when getting a connection error.
      */
-    private void showErrorMessage(String message, long accountId) {
-        if (mBannerController.show(message)) {
-            mLastErrorAccountId = accountId;
-        }
+    private void showErrorMessage(final String rawMessage, final long accountId) {
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                Account account = Account.restoreAccountWithId(MessageListXL.this, accountId);
+                return (account == null) ? null : account.mDisplayName;
+            }
+
+            @Override
+            protected void onPostExecute(String accountName) {
+                if (!mIsCreated) {
+                    return; // activity destroyed.
+                }
+                final String message;
+                if (TextUtils.isEmpty(accountName)) {
+                    message = rawMessage;
+                } else {
+                    // TODO Use properly designed layout.  Don't just concat strings, which isn't
+                    // good for I18N either.
+                    message = rawMessage + "   (" + accountName + ")";
+                }
+                if (mBannerController.show(message)) {
+                    mLastErrorAccountId = accountId;
+                }
+            }
+        }.execute();
+
     }
 
     /**
