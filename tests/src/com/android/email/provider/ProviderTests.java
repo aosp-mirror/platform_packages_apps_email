@@ -355,6 +355,27 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     }
 
     /**
+     * Test preservation of username & password in URI
+     */
+    @SuppressWarnings("deprecation")
+    public void testHostAuthUri() {
+        HostAuth ha = new HostAuth();
+        ha.setStoreUri("protocol://user:password@server:123");
+        String getUri = ha.getStoreUri();
+        assertEquals("protocol://user:password@server:123", getUri);
+
+        // Now put spaces in/around username (they are trimmed)
+        ha.setStoreUri("protocol://%20us%20er%20:password@server:123");
+        getUri = ha.getStoreUri();
+        assertEquals("protocol://us%20er:password@server:123", getUri);
+
+        // Now put spaces around password (should not be trimmed)
+        ha.setStoreUri("protocol://user:%20pass%20word%20@server:123");
+        getUri = ha.getStoreUri();
+        assertEquals("protocol://user:%20pass%20word%20@server:123", getUri);
+    }
+
+    /**
      * Test simple mailbox save/retrieve
      */
     public void testMailboxSave() {
