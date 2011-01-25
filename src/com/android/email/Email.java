@@ -184,6 +184,8 @@ public class Email extends Application {
 
     private static File sTempDirectory;
 
+    private static String sMessageDecodeErrorString;
+
     private static Thread sUiThread;
 
     public static void setTempDirectory(Context context) {
@@ -306,6 +308,9 @@ public class Email extends Application {
 
         // Enable logging in the EAS service, so it starts up as early as possible.
         updateLoggingFlags(this);
+
+        // Get a helper string used deep inside message decoders (which don't have context)
+        sMessageDecodeErrorString = getString(R.string.message_decode_error);
     }
 
     /**
@@ -351,5 +356,13 @@ public class Email extends Application {
         if (Thread.currentThread().equals(sUiThread)) {
             Log.w(Email.LOG_TAG, "Method called on the UI thread", new Exception("STACK TRACE"));
         }
+    }
+
+    /**
+     * Retrieve a simple string that can be used when message decoders encounter bad data.
+     * This is provided here because the protocol decoders typically don't have mContext.
+     */
+    public static String getMessageDecodeErrorString() {
+        return sMessageDecodeErrorString != null ? sMessageDecodeErrorString : "";
     }
 }
