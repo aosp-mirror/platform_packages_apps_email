@@ -22,7 +22,6 @@
     >
 
     <!-- Error message goes over the normal view -->
-    <!-- STOPSHIP not pixel perfect -->
     <TextView
         android:id="@+id/error_message"
         android:layout_width="match_parent"
