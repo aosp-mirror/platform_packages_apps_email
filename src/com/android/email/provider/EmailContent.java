@@ -2683,8 +2683,8 @@ public abstract class EmailContent {
             String userInfo = null;
             if ((mFlags & FLAG_AUTHENTICATE) != 0) {
                 String trimUser = (mLogin != null) ? mLogin.trim() : "";
-                String trimPassword = (mPassword != null) ? mPassword.trim() : "";
-                userInfo = trimUser + ":" + trimPassword;
+                String password = (mPassword != null) ? mPassword : "";
+                userInfo = trimUser + ":" + password;
             }
             String address = (mAddress != null) ? mAddress.trim() : null;
             String path = (mDomain != null) ? "/" + mDomain : null;
