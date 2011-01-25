@@ -56,6 +56,7 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Base64DataException;
 import android.util.Config;
 import android.util.Log;
 
@@ -1039,17 +1040,23 @@ public class ImapStore extends Store {
             in = MimeUtility.getInputStreamForContentTransferEncoding(in, contentTransferEncoding);
             BinaryTempFileBody tempBody = new BinaryTempFileBody();
             OutputStream out = tempBody.getOutputStream();
-            byte[] buffer = new byte[COPY_BUFFER_SIZE];
-            int n = 0;
-            int count = 0;
-            while (-1 != (n = in.read(buffer))) {
-                out.write(buffer, 0, n);
-                count += n;
-                if (listener != null) {
-                    listener.loadAttachmentProgress(count * 100 / size);
+            try {
+                byte[] buffer = new byte[COPY_BUFFER_SIZE];
+                int n = 0;
+                int count = 0;
+                while (-1 != (n = in.read(buffer))) {
+                    out.write(buffer, 0, n);
+                    count += n;
+                    if (listener != null) {
+                        listener.loadAttachmentProgress(count * 100 / size);
+                    }
                 }
+            } catch (Base64DataException bde) {
+                String warning = "\n\n" + Email.getMessageDecodeErrorString();
+                out.write(warning.getBytes());
+            } finally {
+                out.close();
             }
-            out.close();
             return tempBody;
         }
 
