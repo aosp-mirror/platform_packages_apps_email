@@ -118,12 +118,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     private Button mNextButton;
     private boolean mNextButtonInhibit;
     private boolean mPaused;
-
-    // Used when this Activity is called as part of account authentification flow,
-    // which requires to do extra work before and after the account creation.
-    // See also AccountAuthenticatorActivity.
-    private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
-    private Bundle mResultBundle = null;
+    private boolean mReportAccountAuthenticatorError;
 
     // FutureTask to look up the owner
     FutureTask<String> mOwnerLookupTask;
@@ -241,11 +236,17 @@ public class AccountSetupBasics extends AccountSetupActivity
         // Lightweight debounce while Async tasks underway
         mNextButtonInhibit = false;
 
-        mAccountAuthenticatorResponse =
+        // Set aside incoming AccountAuthenticatorResponse, if there was any
+        AccountAuthenticatorResponse authenticatorResponse =
             getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
-
-        if (mAccountAuthenticatorResponse != null) {
-            mAccountAuthenticatorResponse.onRequestContinued();
+        SetupData.setAccountAuthenticatorResponse(authenticatorResponse);
+        if (authenticatorResponse != null) {
+            // When this Activity is called as part of account authentification flow,
+            // we are responsible for eventually reporting the result (success or failure) to
+            // the account manager.  Most exit paths represent an failed or abandoned setup,
+            // so the default is to report the error.  Success will be reported by the code in
+            // AccountSetupOptions that commits the finally created account.
+            mReportAccountAuthenticatorError = true;
         }
 
         // Load fields, but only once
@@ -311,15 +312,15 @@ public class AccountSetupBasics extends AccountSetupActivity
 
     @Override
     public void finish() {
-        if (mAccountAuthenticatorResponse != null) {
-            // send the result bundle back if set, otherwise send an error.
-            if (mResultBundle != null) {
-                mAccountAuthenticatorResponse.onResult(mResultBundle);
-            } else {
-                mAccountAuthenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED,
-                        "canceled");
+        // If the account manager initiated the creation, and success was not reported,
+        // then we assume that we're giving up (for any reason) - report failure.
+        if (mReportAccountAuthenticatorError) {
+            AccountAuthenticatorResponse authenticatorResponse =
+                    SetupData.getAccountAuthenticatorResponse();
+            if (authenticatorResponse != null) {
+                authenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED, "canceled");
+                SetupData.setAccountAuthenticatorResponse(null);
             }
-            mAccountAuthenticatorResponse = null;
         }
         super.finish();
     }
@@ -624,11 +625,15 @@ public class AccountSetupBasics extends AccountSetupActivity
      * Implements AccountCheckSettingsFragment.Callbacks
      *
      * This is used in automatic setup mode to jump directly down to the options screen.
+     *
+     * This is the only case where we finish() this activity but account setup is continuing,
+     * so we inhibit reporting any error back to the Account manager.
      */
     @Override
     public void onCheckSettingsComplete(int result) {
         if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
             AccountSetupOptions.actionOptions(this);
+            mReportAccountAuthenticatorError = false;
             finish();
         }
     }
