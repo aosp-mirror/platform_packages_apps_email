@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.provider.EmailContent.Account;
 
+import android.accounts.AccountAuthenticatorResponse;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -58,6 +59,7 @@ public class SetupData implements Parcelable {
     private PolicySet mPolicySet;
     private boolean mAutoSetup = false;
     private boolean mDefault = false;
+    private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
 
     // We only have one instance of SetupData; if/when the process is destroyed, this data will be
     // saved in the savedInstanceState Bundle
@@ -152,6 +154,14 @@ public class SetupData implements Parcelable {
         getInstance().mDefault = mDefault;
     }
 
+    static public AccountAuthenticatorResponse getAccountAuthenticatorResponse() {
+        return getInstance().mAccountAuthenticatorResponse;
+    }
+
+    static public void setAccountAuthenticatorResponse(AccountAuthenticatorResponse response) {
+        getInstance().mAccountAuthenticatorResponse = response;
+    }
+
     public static void init(int flowMode) {
         SetupData data = getInstance();
         data.commonInit();
@@ -174,6 +184,7 @@ public class SetupData implements Parcelable {
         mDefault = false;
         mUsername = null;
         mPassword = null;
+        mAccountAuthenticatorResponse = null;
     }
 
     // Parcelable methods
@@ -202,6 +213,7 @@ public class SetupData implements Parcelable {
         dest.writeParcelable(mPolicySet, 0);
         dest.writeInt(mAutoSetup ? 1 : 0);
         dest.writeInt(mDefault ? 1 : 0);
+        dest.writeParcelable(mAccountAuthenticatorResponse, 0);
     }
 
     public SetupData(Parcel in) {
@@ -215,6 +227,7 @@ public class SetupData implements Parcelable {
         mPolicySet = in.readParcelable(loader);
         mAutoSetup = in.readInt() == 1;
         mDefault = in.readInt() == 1;
+        mAccountAuthenticatorResponse = in.readParcelable(loader);
     }
 
     // Save/restore our SetupData (used in AccountSetupActivity)
