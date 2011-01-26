@@ -28,6 +28,10 @@
     -->
     <dimen name="message_list_width">440dip</dimen>
 
+    <dimen name="action_bar_account_name_max_width">176dip</dimen>
+    <!-- Narrower than action_bar_account_name_max_width, to account for unread count -->
+    <dimen name="action_bar_account_dropdown_width">160dip</dimen>
+
     <dimen name="widget_senders_font_size">14sp</dimen>
     <dimen name="widget_subject_font_size">14sp</dimen>
     <dimen name="widget_date_font_size">14sp</dimen>

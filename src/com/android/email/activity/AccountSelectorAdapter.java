@@ -84,7 +84,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
-        final View view = mInflater.inflate(R.layout.account_selector_dropdown, null);
+        final View view = mInflater.inflate(R.layout.account_selector_dropdown, parent, false);
 
         final TextView displayNameView = (TextView) view.findViewById(R.id.display_name);
         final TextView emailAddressView = (TextView) view.findViewById(R.id.email_address);
@@ -112,7 +112,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return mInflater.inflate(R.layout.account_selector, null);
+        return mInflater.inflate(R.layout.account_selector, parent, false);
     }
 
     /** @return Account id extracted from a Cursor. */
