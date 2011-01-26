@@ -70,9 +70,7 @@ import java.util.Set;
  * All references to ContentCache that are external to the ContentCache class MUST synchronize on
  * the ContentCache instance (e.g. CachedCursor.close())
  */
-public final class ContentCache extends LinkedHashMap<String, Cursor> {
-    private static final long serialVersionUID = 1L;
-
+public final class ContentCache {
     private static final boolean DEBUG_CACHE = false;  // DO NOT CHECK IN TRUE
     private static final boolean DEBUG_TOKENS = false;  // DO NOT CHECK IN TRUE
     private static final boolean DEBUG_NOT_CACHEABLE = false;  // DO NOT CHECK IN TRUE
@@ -85,6 +83,24 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
     private static int sNotCacheable = 0;
     // A map of queries that aren't cacheable (debug only)
     private static final CounterMap<String> sNotCacheableMap = new CounterMap<String>();
+
+    private final Map<String, Cursor> mMap = new LinkedHashMap<String, Cursor>() {
+        @Override
+        public boolean removeEldestEntry(Map.Entry<String, Cursor> entry) {
+            synchronized (ContentCache.this) {
+                // If we're above the maximum size for this cache, remove the LRU cache entry
+                if (size() > mMaxSize) {
+                    Cursor cursor = entry.getValue();
+                    // Close this cursor if it's no longer being used
+                    if (!sActiveCursors.contains(cursor)) {
+                        cursor.close();
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }
+    };
 
     // All defined caches
     private static final ArrayList<ContentCache> sContentCaches = new ArrayList<ContentCache>();
@@ -113,7 +129,6 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
      * A synchronized reference counter for arbitrary objects
      */
     /*package*/ static class CounterMap<T> {
-        private static final long serialVersionUID = 1L;
         private HashMap<T, Integer> mMap;
 
         /*package*/ CounterMap(int maxSize) {
@@ -238,7 +253,6 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
      * record.
      */
     public static final class CacheToken {
-        private static final long serialVersionUID = 1L;
         private final String mId;
         private boolean mIsValid = READ_CACHE_ENABLED;
 
@@ -304,7 +318,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         public void close() {
             synchronized(mCache) {
                 int count = sActiveCursors.subtract(mCursor);
-                if ((count == 0) && !mCache.containsValue(mCursor)) {
+                if ((count == 0) && !mCache.mMap.containsValue(mCursor)) {
                     super.close();
                 }
             }
@@ -390,8 +404,6 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
      * @param maxSize the maximum number of content cursors to cache
      */
     public ContentCache(String name, String[] baseProjection, int maxSize) {
-        // Third argument true makes this LRU, rather than LRI
-        super(maxSize, .75F, true);
         mName = name;
         mMaxSize = maxSize;
         mBaseProjection = baseProjection;
@@ -426,21 +438,12 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         return token;
     }
 
-    /* (non-Javadoc)
-     * @see java.util.LinkedHashMap#removeEldestEntry(java.util.Map.Entry)
-     */
-    @Override
-    public synchronized boolean removeEldestEntry(Map.Entry<String,Cursor> entry) {
-        // If we're above the maximum size for this cache, remove the LRU cache entry
-        if (size() > mMaxSize) {
-            Cursor cursor = entry.getValue();
-            // Close this cursor if it's no longer being used
-            if (!sActiveCursors.contains(cursor)) {
-                cursor.close();
-            }
-            return true;
-        }
-        return false;
+    public int size() {
+        return mMap.size();
+    }
+
+    private Cursor get(String id) {
+        return mMap.get(id);
     }
 
     /**
@@ -479,7 +482,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
                 if (existingCursor != null) {
                    unlockImpl(id, null, false);
                 }
-                put(id, c);
+                mMap.put(id, c);
                 return new CachedCursor(c, this, id);
             }
             return c;
@@ -623,12 +626,12 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
                         Log.d(mLogTag, "=========== Recaching with new values: " + id);
                     }
                     cursor.moveToFirst();
-                    put(id, cursor);
+                    mMap.put(id, cursor);
                 } else {
-                    remove(id);
+                    mMap.remove(id);
                 }
             } else {
-                remove(id);
+                mMap.remove(id);
             }
             // If there are no cursors using the old cached cursor, close it
             if (!sActiveCursors.contains(c)) {
@@ -662,12 +665,12 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         }
         mStats.mInvalidateCount++;
         // Close all cached cursors that are no longer in use
-        for (Cursor c: values()) {
+        for (Cursor c: mMap.values()) {
             if (!sActiveCursors.contains(c)) {
                 c.close();
             }
         }
-        clear();
+        mMap.clear();
         // Invalidate all current tokens
         mTokenList.invalidate();
     }
@@ -701,7 +704,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         }
     }
 
-    private static class CacheCounter implements Comparable<Object> {
+    private static class CacheCounter implements Comparable<CacheCounter> {
         String uri;
         Integer count;
 
@@ -711,9 +714,8 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         }
 
         @Override
-        public int compareTo(Object another) {
-            CacheCounter x = (CacheCounter)another;
-            return x.count > count ? 1 : x.count == count ? 0 : -1;
+        public int compareTo(CacheCounter another) {
+            return another.count > count ? 1 : another.count == count ? 0 : -1;
         }
     }
 
@@ -722,7 +724,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         CacheCounter[] array = new CacheCounter[size];
 
         int i = 0;
-        for (Entry<String, Integer> entry: sNotCacheableMap.entrySet()) {
+        for (Map.Entry<String, Integer> entry: sNotCacheableMap.entrySet()) {
             array[i++] = new CacheCounter(entry.getKey(), entry.getValue());
         }
         Arrays.sort(array);

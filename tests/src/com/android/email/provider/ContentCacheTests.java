@@ -256,7 +256,7 @@ public class ContentCacheTests extends ProviderTestCase2<EmailProvider> {
         assertFalse(cursor2.isClosed());
         assertFalse(cursor3.isClosed());
     }
-    
+
     public void testCloseCachedCursor() {
         // Create a cache of size 2
         ContentCache cache = new ContentCache("Name", SIMPLE_PROJECTION, 2);
@@ -274,10 +274,10 @@ public class ContentCacheTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, ContentCache.sActiveCursors.getCount(underlyingCursor));
         // Underlying cursor should be closed (no cached cursors open)
         assertTrue(underlyingCursor.isClosed());
-        
+
         underlyingCursor = getOneRowCursor();
-        cache.put("2", underlyingCursor);
-        cachedCursor1 = new CachedCursor(underlyingCursor, cache, "2");
+        cachedCursor1 = cache.putCursor(
+                underlyingCursor, "2", SIMPLE_PROJECTION, cache.getCacheToken("2"));
         cachedCursor2 = new CachedCursor(underlyingCursor, cache, "2");
         assertEquals(2, ContentCache.sActiveCursors.getCount(underlyingCursor));
         cachedCursor1.close();
@@ -289,7 +289,7 @@ public class ContentCacheTests extends ProviderTestCase2<EmailProvider> {
         cachedCursor2 = new CachedCursor(underlyingCursor, cache, "2");
         assertEquals(1, ContentCache.sActiveCursors.getCount(underlyingCursor));
         // Remove "2" from the cache and close the cursor
-        cache.remove("2");
+        cache.invalidate();
         cachedCursor2.close();
         // The underlying cursor should now be closed (not in the cache and no cached cursors)
         assertEquals(0, ContentCache.sActiveCursors.getCount(underlyingCursor));
