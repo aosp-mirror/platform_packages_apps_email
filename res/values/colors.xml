@@ -33,7 +33,6 @@
     <color name="text_secondary_color">#666666</color>
     <color name="text_ternary_color">#888888</color>
 
-    <!-- STOPSHIP Use same color as EditText tray? -->
     <color name="divider_color">#ff808080</color>
 
     <!-- Account color chips on combined view -->
