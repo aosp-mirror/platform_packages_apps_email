@@ -117,6 +117,7 @@ public class AccountSetupBasics extends AccountSetupActivity
     private Button mManualButton;
     private Button mNextButton;
     private boolean mNextButtonInhibit;
+    private boolean mPaused;
 
     // Used when this Activity is called as part of account authentification flow,
     // which requires to do extra work before and after the account creation.
@@ -294,6 +295,18 @@ public class AccountSetupBasics extends AccountSetupActivity
         // the time the user clicks next or manual.
         mOwnerLookupTask = new FutureTask<String>(mOwnerLookupCallable);
         Utility.runAsync(mOwnerLookupTask);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPaused = true;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPaused = false;
     }
 
     @Override
@@ -477,6 +490,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         @Override
         protected void onPostExecute(Account duplicateAccount) {
             mNextButtonInhibit = false;
+            // Exit immediately if the user left before we finished
+            if (mPaused) return;
             // Show duplicate account warning, or proceed
             if (duplicateAccount != null) {
                 DuplicateAccountDialogFragment dialogFragment =
