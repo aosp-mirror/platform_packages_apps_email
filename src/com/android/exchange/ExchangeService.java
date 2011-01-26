@@ -464,6 +464,28 @@ public class ExchangeService extends Service implements Runnable {
         }
     };
 
+    private static AccountList collectEasAccounts(Context context, AccountList accounts) {
+        Cursor c = context.getContentResolver().query(Account.CONTENT_URI,
+                Account.CONTENT_PROJECTION, null, null, null);
+        try {
+            while (c.moveToNext()) {
+                long hostAuthId = c.getLong(Account.CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
+                if (hostAuthId > 0) {
+                    HostAuth ha = HostAuth.restoreHostAuthWithId(context, hostAuthId);
+                    if (ha != null && ha.mProtocol.equals("eas")) {
+                        Account account = new Account().restore(c);
+                        // Cache the HostAuth
+                        account.mHostAuthRecv = ha;
+                        accounts.add(account);
+                    }
+                }
+            }
+        } finally {
+            c.close();
+        }
+        return accounts;
+    }
+
     static class AccountList extends ArrayList<Account> {
         private static final long serialVersionUID = 1L;
 
@@ -523,15 +545,7 @@ public class ExchangeService extends Service implements Runnable {
             // At startup, we want to see what EAS accounts exist and cache them
             Context context = getContext();
             synchronized (mAccountList) {
-                Cursor c = getContentResolver().query(Account.CONTENT_URI,
-                        Account.CONTENT_PROJECTION, null, null, null);
-                // Build the account list from the cursor
-                try {
-                    collectEasAccounts(c, mAccountList);
-                } finally {
-                    c.close();
-                }
-
+                collectEasAccounts(context, mAccountList);
                 // Create an account mailbox for any account without one
                 for (Account account : mAccountList) {
                     int cnt = Mailbox.count(context, Mailbox.CONTENT_URI, "accountKey="
@@ -603,81 +617,74 @@ public class ExchangeService extends Service implements Runnable {
 
             // A change to the list requires us to scan for deletions (stop running syncs)
             // At startup, we want to see what accounts exist and cache them
-            AccountList currentAccounts = new AccountList();
-            Cursor c = getContentResolver().query(Account.CONTENT_URI,
-                    Account.CONTENT_PROJECTION, null, null, null);
-            try {
-                collectEasAccounts(c, currentAccounts);
-                synchronized (mAccountList) {
-                    for (Account account : mAccountList) {
-                        boolean accountIncomplete =
-                            (account.mFlags & Account.FLAGS_INCOMPLETE) != 0;
-                        // If the current list doesn't include this account and the account wasn't
-                        // incomplete, then this is a deletion
-                        if (!currentAccounts.contains(account.mId) && !accountIncomplete) {
-                            // Shut down any account-related syncs
+            AccountList currentAccounts = collectEasAccounts(context, new AccountList());
+            synchronized (mAccountList) {
+                for (Account account : mAccountList) {
+                    boolean accountIncomplete =
+                        (account.mFlags & Account.FLAGS_INCOMPLETE) != 0;
+                    // If the current list doesn't include this account and the account wasn't
+                    // incomplete, then this is a deletion
+                    if (!currentAccounts.contains(account.mId) && !accountIncomplete) {
+                        // Shut down any account-related syncs
+                        stopAccountSyncs(account.mId, true);
+                        // Delete this from AccountManager...
+                        android.accounts.Account acct = new android.accounts.Account(
+                                account.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                        AccountManager.get(ExchangeService.this)
+                        .removeAccount(acct, null, null);
+                        mSyncableEasMailboxSelector = null;
+                        mEasAccountSelector = null;
+                    } else {
+                        // Get the newest version of this account
+                        Account updatedAccount =
+                            Account.restoreAccountWithId(context, account.mId);
+                        if (updatedAccount == null) continue;
+                        if (account.mSyncInterval != updatedAccount.mSyncInterval
+                                || account.mSyncLookback != updatedAccount.mSyncLookback) {
+                            // Set the inbox interval to the interval of the Account
+                            // This setting should NOT affect other boxes
+                            ContentValues cv = new ContentValues();
+                            cv.put(MailboxColumns.SYNC_INTERVAL, updatedAccount.mSyncInterval);
+                            getContentResolver().update(Mailbox.CONTENT_URI, cv,
+                                    WHERE_IN_ACCOUNT_AND_TYPE_INBOX, new String[] {
+                                    Long.toString(account.mId)
+                            });
+                            // Stop all current syncs; the appropriate ones will restart
+                            log("Account " + account.mDisplayName + " changed; stop syncs");
                             stopAccountSyncs(account.mId, true);
-                            // Delete this from AccountManager...
-                            android.accounts.Account acct = new android.accounts.Account(
-                                    account.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-                            AccountManager.get(ExchangeService.this)
-                                .removeAccount(acct, null, null);
-                            mSyncableEasMailboxSelector = null;
-                            mEasAccountSelector = null;
-                        } else {
-                            // Get the newest version of this account
-                            Account updatedAccount =
-                                Account.restoreAccountWithId(context, account.mId);
-                            if (updatedAccount == null) continue;
-                            if (account.mSyncInterval != updatedAccount.mSyncInterval
-                                    || account.mSyncLookback != updatedAccount.mSyncLookback) {
-                                // Set the inbox interval to the interval of the Account
-                                // This setting should NOT affect other boxes
-                                ContentValues cv = new ContentValues();
-                                cv.put(MailboxColumns.SYNC_INTERVAL, updatedAccount.mSyncInterval);
-                                getContentResolver().update(Mailbox.CONTENT_URI, cv,
-                                        WHERE_IN_ACCOUNT_AND_TYPE_INBOX, new String[] {
-                                            Long.toString(account.mId)
-                                        });
-                                // Stop all current syncs; the appropriate ones will restart
-                                log("Account " + account.mDisplayName + " changed; stop syncs");
-                                stopAccountSyncs(account.mId, true);
-                            }
-
-                            // See if this account is no longer on security hold
-                            if (onSecurityHold(account) && !onSecurityHold(updatedAccount)) {
-                                releaseSyncHolds(ExchangeService.this,
-                                        AbstractSyncService.EXIT_SECURITY_FAILURE, account);
-                            }
-
-                            // Put current values into our cached account
-                            account.mSyncInterval = updatedAccount.mSyncInterval;
-                            account.mSyncLookback = updatedAccount.mSyncLookback;
-                            account.mFlags = updatedAccount.mFlags;
                         }
-                    }
-                    // Look for new accounts
-                    for (Account account : currentAccounts) {
-                        if (!mAccountList.contains(account.mId)) {
-                            // Don't forget to cache the HostAuth
-                            HostAuth ha = HostAuth.restoreHostAuthWithId(getContext(),
-                                    account.mHostAuthKeyRecv);
-                            if (ha == null) continue;
-                            account.mHostAuthRecv = ha;
-                            // This is an addition; create our magic hidden mailbox...
-                            log("Account observer found new account: " + account.mDisplayName);
-                            addAccountMailbox(account.mId);
-                            mAccountList.add(account);
-                            mSyncableEasMailboxSelector = null;
-                            mEasAccountSelector = null;
+
+                        // See if this account is no longer on security hold
+                        if (onSecurityHold(account) && !onSecurityHold(updatedAccount)) {
+                            releaseSyncHolds(ExchangeService.this,
+                                    AbstractSyncService.EXIT_SECURITY_FAILURE, account);
                         }
+
+                        // Put current values into our cached account
+                        account.mSyncInterval = updatedAccount.mSyncInterval;
+                        account.mSyncLookback = updatedAccount.mSyncLookback;
+                        account.mFlags = updatedAccount.mFlags;
                     }
-                    // Finally, make sure our account list is up to date
-                    mAccountList.clear();
-                    mAccountList.addAll(currentAccounts);
                 }
-            } finally {
-                c.close();
+                // Look for new accounts
+                for (Account account : currentAccounts) {
+                    if (!mAccountList.contains(account.mId)) {
+                        // Don't forget to cache the HostAuth
+                        HostAuth ha = HostAuth.restoreHostAuthWithId(getContext(),
+                                account.mHostAuthKeyRecv);
+                        if (ha == null) continue;
+                        account.mHostAuthRecv = ha;
+                        // This is an addition; create our magic hidden mailbox...
+                        log("Account observer found new account: " + account.mDisplayName);
+                        addAccountMailbox(account.mId);
+                        mAccountList.add(account);
+                        mSyncableEasMailboxSelector = null;
+                        mEasAccountSelector = null;
+                    }
+                }
+                // Finally, make sure our account list is up to date
+                mAccountList.clear();
+                mAccountList.addAll(currentAccounts);
             }
 
             // See if there's anything to do...
@@ -690,23 +697,6 @@ public class ExchangeService extends Service implements Runnable {
                public void run() {
                    onAccountChanged();
                 }}, "Account Observer").start();
-        }
-
-        private void collectEasAccounts(Cursor c, ArrayList<Account> accounts) {
-            Context context = getContext();
-            if (context == null) return;
-            while (c.moveToNext()) {
-                long hostAuthId = c.getLong(Account.CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
-                if (hostAuthId > 0) {
-                    HostAuth ha = HostAuth.restoreHostAuthWithId(context, hostAuthId);
-                    if (ha != null && ha.mProtocol.equals("eas")) {
-                        Account account = new Account().restore(c);
-                        // Cache the HostAuth
-                        account.mHostAuthRecv = ha;
-                        accounts.add(account);
-                    }
-                }
-            }
         }
 
         private void addAccountMailbox(long acctId) {
@@ -1044,16 +1034,13 @@ public class ExchangeService extends Service implements Runnable {
     private void runAccountReconcilerSync(Context context) {
         android.accounts.Account[] accountMgrList = AccountManager.get(context)
                 .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
-        synchronized (mAccountList) {
-            // Make sure we have an up-to-date sAccountList.  If not (for example, if the
-            // service has been destroyed), we would be reconciling against an empty account
-            // list, which would cause the deletion of all of our accounts
-            if (mAccountObserver != null) {
-                mAccountObserver.onAccountChanged();
-                MailService.reconcileAccountsWithAccountManager(context,
-                        mAccountList, accountMgrList, false, mResolver);
-            }
-        }
+        // Make sure we have an up-to-date sAccountList.  If not (for example, if the
+        // service has been destroyed), we would be reconciling against an empty account
+        // list, which would cause the deletion of all of our accounts
+        AccountList accountList = collectEasAccounts(context, new AccountList());
+        alwaysLog("Reconciling accounts...");
+        MailService.reconcileAccountsWithAccountManager(context, accountList, accountMgrList,
+                false, context.getContentResolver());
     }
 
     public static void log(String str) {
