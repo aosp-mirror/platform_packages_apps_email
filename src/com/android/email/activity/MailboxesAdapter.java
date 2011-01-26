@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.ResourceHelper;
 import com.android.email.Utility;
+import com.android.email.data.ClosingMatrixCursor;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -423,33 +424,31 @@ import android.widget.TextView;
 
         @Override
         public Cursor loadInBackground() {
-            final MatrixCursor combinedWithAccounts = getSpecialMailboxesCursor(mContext);
             final Cursor accounts = super.loadInBackground();
-            try {
-                accounts.moveToPosition(-1);
-                while (accounts.moveToNext()) {
-                    RowBuilder row =  combinedWithAccounts.newRow();
-                    final long accountId = accounts.getLong(COLUMN_ACCOUND_ID);
-                    row.add(accountId);
-                    row.add(accountId);
-                    row.add(accounts.getString(COLUMN_ACCOUNT_DISPLAY_NAME));
-                    row.add(-1); // No mailbox type.  Shouldn't really be used.
-                    final int unreadCount = Mailbox.getUnreadCountByAccountAndMailboxType(
-                            mContext, accountId, Mailbox.TYPE_INBOX);
-                    row.add(unreadCount);
-                    row.add(unreadCount);
-                    row.add(ROW_TYPE_ACCOUNT);
-                }
-            } finally {
-                accounts.close();
+            final MatrixCursor combinedWithAccounts = getSpecialMailboxesCursor(mContext, accounts);
+
+            accounts.moveToPosition(-1);
+            while (accounts.moveToNext()) {
+                RowBuilder row =  combinedWithAccounts.newRow();
+                final long accountId = accounts.getLong(COLUMN_ACCOUND_ID);
+                row.add(accountId);
+                row.add(accountId);
+                row.add(accounts.getString(COLUMN_ACCOUNT_DISPLAY_NAME));
+                row.add(-1); // No mailbox type.  Shouldn't really be used.
+                final int unreadCount = Mailbox.getUnreadCountByAccountAndMailboxType(
+                        mContext, accountId, Mailbox.TYPE_INBOX);
+                row.add(unreadCount);
+                row.add(unreadCount);
+                row.add(ROW_TYPE_ACCOUNT);
             }
 
             return Utility.CloseTraceCursorWrapper.get(combinedWithAccounts);
         }
     }
 
-    /* package */ static MatrixCursor getSpecialMailboxesCursor(Context context) {
-        MatrixCursor cursor = new MatrixCursor(PROJECTION);
+    /* package */ static MatrixCursor getSpecialMailboxesCursor(Context context,
+            Cursor innerCursor) {
+        MatrixCursor cursor = new ClosingMatrixCursor(PROJECTION, innerCursor);
         // Combined inbox -- show unread count
         addSummaryMailboxRow(context, cursor,
                 Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
