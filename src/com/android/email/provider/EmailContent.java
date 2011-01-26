@@ -1976,7 +1976,9 @@ public abstract class EmailContent {
         public static final int FLAG_DOWNLOAD_FORWARD = 1<<2;
         // Indicates that the attachment download failed in a non-recoverable manner
         public static final int FLAG_DOWNLOAD_FAILED = 1<<3;
-
+        // Allow "room" for some additional download-related flags here
+        // Indicates that the attachment will be smart-forwarded
+        public static final int FLAG_SMART_FORWARD = 1<<8;
         /**
          * no public constructor since this is a utility class
          */
