@@ -18,7 +18,6 @@
     Custom view set to the action bar on 2-pane.
     Displays the current mailbox and the unread count.
 -->
-<!-- STOPSHIP not pixel perfect yet -->
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
