@@ -45,7 +45,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.TextView;
 
 import java.security.InvalidParameterException;
@@ -151,7 +150,6 @@ public class MessageListXL extends Activity implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onCreate");
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.message_list_xl);
 
         ActionBar ab = getActionBar();
@@ -703,7 +701,7 @@ public class MessageListXL extends Activity implements
      * If we're refreshing the current mailbox, animate the "mailbox refreshing" progress icon.
      */
     private void updateProgressIcon() {
-        setProgressBarIndeterminateVisibility(isProgressActive());
+        invalidateOptionsMenu();
     }
 
     private boolean isProgressActive() {
@@ -723,6 +721,12 @@ public class MessageListXL extends Activity implements
         MenuItem item = menu.findItem(R.id.refresh);
         if (item != null) {
             item.setVisible(shouldShowRefreshButton());
+            if (isProgressActive()) {
+                // Turn it into a progress icon.
+                item.setActionView(R.layout.action_bar_indeterminate_progress);
+            } else {
+                item.setActionView(null);
+            }
         }
         return super.onPrepareOptionsMenu(menu);
     }
