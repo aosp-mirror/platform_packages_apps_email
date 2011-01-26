@@ -27,6 +27,8 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.service.MailService;
 
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
@@ -153,6 +155,19 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 SetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
             onDone();
         }
+    }
+
+    @Override
+    public void finish() {
+        // If the account manager initiated the creation, and success was not reported,
+        // then we assume that we're giving up (for any reason) - report failure.
+        AccountAuthenticatorResponse authenticatorResponse =
+            SetupData.getAccountAuthenticatorResponse();
+        if (authenticatorResponse != null) {
+            authenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED, "canceled");
+            SetupData.setAccountAuthenticatorResponse(null);
+        }
+        super.finish();
     }
 
     /**
@@ -298,6 +313,14 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
      * This is called after the account manager creates the new account.
      */
     private void optionsComplete() {
+        // If the account manager initiated the creation, report success at this point
+        AccountAuthenticatorResponse authenticatorResponse =
+                SetupData.getAccountAuthenticatorResponse();
+        if (authenticatorResponse != null) {
+            authenticatorResponse.onResult(null);
+            SetupData.setAccountAuthenticatorResponse(null);
+        }
+
         // If we've got policies for this account, ask the user to accept.
         Account account = SetupData.getAccount();
         if ((account.mFlags & Account.FLAGS_SECURITY_HOLD) != 0) {
