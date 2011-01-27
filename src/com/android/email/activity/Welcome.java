@@ -99,7 +99,8 @@ public class Welcome extends Activity {
     }
 
     /**
-     * Create an Intent to open account's inbox.
+     * Create an Intent to open email activity. If <code>accountId</code> is not -1, the
+     * specified account will be automatically be opened when the activity starts.
      */
     public static Intent createOpenAccountInboxIntent(Context context, long accountId) {
         Intent i = Utility.createRestartAppIntent(context, Welcome.class);

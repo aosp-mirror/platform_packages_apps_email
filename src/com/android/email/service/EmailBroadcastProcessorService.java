@@ -22,6 +22,7 @@ import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.setup.AccountSettingsXL;
+import com.android.email.provider.WidgetProvider;
 
 import android.accounts.AccountManager;
 import android.app.IntentService;
@@ -180,5 +181,8 @@ public class EmailBroadcastProcessorService extends IntentService {
         // Let ExchangeService reconcile EAS accouts.
         // The service will stops itself it there's no EAS accounts.
         ExchangeUtils.startExchangeService(this);
+
+        // Let all of the widgets update
+        WidgetProvider.updateAllWidgets();
     }
 }
