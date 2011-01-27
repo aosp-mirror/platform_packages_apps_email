@@ -447,6 +447,8 @@ public class SecurityPolicy {
      */
     public void policiesRequired(long accountId) {
         Account account = EmailContent.Account.restoreAccountWithId(mContext, accountId);
+        // In case the account has been deleted, just return
+        if (account == null) return;
 
         // Mark the account as "on hold".
         setAccountHoldFlag(mContext, account, true);
