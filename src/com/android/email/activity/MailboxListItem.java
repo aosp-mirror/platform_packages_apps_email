@@ -77,17 +77,19 @@ public class MailboxListItem extends RelativeLayout {
     }
 
     public void setDropTargetBackground(boolean dragInProgress, long itemMailbox) {
+        int labelNameColor = sTextPrimaryColor;
+        int labelCountColor = sTextSecondaryColor;
         if (dragInProgress) {
             if (isDropTarget(itemMailbox)) {
                 setBackgroundColor(sDropAvailableBgColor);
             } else {
-                mLabelName.setTextColor(sDropUnavailableFgColor);
-                mLabelCount.setTextColor(sDropUnavailableFgColor);
+                labelNameColor = sDropUnavailableFgColor;
+                labelCountColor = sDropUnavailableFgColor;
             }
         } else {
-            mLabelName.setTextColor(sTextPrimaryColor);
-            mLabelCount.setTextColor(sTextSecondaryColor);
             setBackgroundDrawable(mBackground);
         }
+        mLabelName.setTextColor(labelNameColor);
+        mLabelCount.setTextColor(labelCountColor);
     }
 }
