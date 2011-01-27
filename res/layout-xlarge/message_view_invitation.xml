@@ -33,7 +33,7 @@
         android:layout_height="64dip"
         android:orientation="horizontal"
         >
-        <!-- STOPSHIP Put icon here -->
+        <!-- TODO: The plan is to show a calendar icon here. -->
         <ImageView
             android:layout_width="64dip"
             android:layout_height="64dip"

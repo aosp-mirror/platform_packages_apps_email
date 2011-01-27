@@ -22,7 +22,6 @@
     android:layout_height="64dip"
     android:orientation="horizontal"
     >
-    <!-- STOPSHIP default icon is not final -->
     <ImageView
         android:id="@+id/attachment_icon"
         android:layout_width="64dip"
