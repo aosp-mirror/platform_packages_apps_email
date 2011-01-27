@@ -73,7 +73,7 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         createMessage(c, b2t, true, true); // Starred message in trash; All Starred excludes it.
 
         // Kick the method
-        Cursor cursor = MailboxesAdapter.getSpecialMailboxesCursor(c);
+        Cursor cursor = MailboxesAdapter.getSpecialMailboxesCursor(c, null);
 
         // Check the result
         assertEquals(4, cursor.getCount());
