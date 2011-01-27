@@ -22,6 +22,7 @@ import com.android.email.ResourceHelper;
 import com.android.email.Utility;
 import com.android.email.activity.MessageCompose;
 import com.android.email.activity.Welcome;
+import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
@@ -61,6 +62,7 @@ import android.widget.RemoteViewsService;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -183,8 +185,10 @@ public class WidgetProvider extends AppWidgetProvider {
         // Number of records in the cursor
         private int mCursorCount = TOTAL_COUNT_UNKNOWN;
         // The widget's loader (derived from ThrottlingCursorLoader)
-        private WidgetLoader mLoader;
+        private ViewCursorLoader mLoader;
         private final ResourceHelper mResourceHelper;
+        // Number of defined accounts
+        private int mAccountCount = TOTAL_COUNT_UNKNOWN;
 
         // The current view type (all mail, unread, or starred for now)
         /*package*/ ViewType mViewType = ViewType.STARRED;
@@ -214,7 +218,7 @@ public class WidgetProvider extends AppWidgetProvider {
                 Log.d(TAG, "Creating EmailWidget with id = " + _widgetId);
             }
             mWidgetId = _widgetId;
-            mLoader = new WidgetLoader();
+            mLoader = new ViewCursorLoader();
             if (sSubjectSnippetDivider == null) {
                 // Initialize string, color, dimension resources
                 Resources res = sContext.getResources();
@@ -232,12 +236,36 @@ public class WidgetProvider extends AppWidgetProvider {
         }
 
         /**
+         *  Task for updating widget data (eg: the header, view list items, etc...)
+         *  If parameter to {@link #execute(Boolean...)} is <code>true</code>, the current
+         *  view is validated against the current set of accounts. And if the current view
+         *  is determined to be invalid, the view will automatically progress to the next
+         *  valid view.
+         */
+        final class WidgetUpdateTask extends AsyncTask<Boolean, Void, Boolean> {
+            @Override
+            protected Boolean doInBackground(Boolean... validateView) {
+                mAccountCount = EmailContent.count(sContext, EmailContent.Account.CONTENT_URI);
+                // If displaying invalid view, switch to the next view
+                return !validateView[0] || isViewValid();
+            }
+
+            @Override
+            protected void onPostExecute(Boolean isValidView) {
+                updateHeader();
+                if (!isValidView) {
+                    new WidgetViewSwitcher(EmailWidget.this).execute();
+                }
+            }
+        }
+
+        /**
          * The ThrottlingCursorLoader does all of the heavy lifting in managing the data loading
          * task; all we need is to register a listener so that we're notified when the load is
          * complete.
          */
-        final class WidgetLoader extends ThrottlingCursorLoader {
-            protected WidgetLoader() {
+        final class ViewCursorLoader extends ThrottlingCursorLoader {
+            protected ViewCursorLoader() {
                 super(sContext, Message.CONTENT_URI, WIDGET_PROJECTION, mViewType.selection,
                         mViewType.selectionArgs, SORT_TIMESTAMP_DESCENDING);
                 registerListener(0, new OnLoadCompleteListener<Cursor>() {
@@ -280,6 +308,8 @@ public class WidgetProvider extends AppWidgetProvider {
          * Initialize to first appropriate view (depending on the number of accounts)
          */
         private void init() {
+            // Just update the account count & header; no need to validate the view
+            new WidgetUpdateTask().execute(false);
             new WidgetViewSwitcher(this).execute();
         }
 
@@ -337,6 +367,35 @@ public class WidgetProvider extends AppWidgetProvider {
         }
 
         /**
+         * Returns whether the current view is valid. The following rules determine if a view is
+         * considered valid:
+         * 1. If the view is either {@link ViewType#STARRED} or {@link ViewType#UNREAD}, always
+         * returns <code>true</code>.
+         * 2. If the view is {@link ViewType#ALL_INBOX}, returns <code>true</code> if more than
+         * one account is defined. Otherwise, returns <code>false</code>.
+         * 3. If the view is {@link ViewType#ACCOUNT}, returns <code>true</code> if the account
+         * is defined. Otherwise, returns <code>false</code>.
+         */
+        private boolean isViewValid() {
+            switch(mViewType) {
+                case ALL_INBOX:
+                    // "all inbox" is valid only if there is more than one account
+                    return (EmailContent.count(sContext, Account.CONTENT_URI) > 1);
+                case ACCOUNT:
+                    // Ensure current account still exists
+                    String idString = ViewType.ACCOUNT.selectionArgs[0];
+                    Cursor c = sResolver.query(Account.CONTENT_URI, ID_NAME_PROJECTION, "_id=?",
+                            new String[] {idString}, SORT_ID_ASCENDING);
+                    try {
+                        return c.moveToFirst();
+                    } finally {
+                        c.close();
+                    }
+            }
+            return true;
+        }
+
+        /**
          * Convenience method for creating an onClickPendingIntent that executes a command via
          * our command Uri.  Used for the "next view" command; appends the widget id to the command
          * Uri.
@@ -356,15 +415,13 @@ public class WidgetProvider extends AppWidgetProvider {
 
         /**
          * Convenience method for creating an onClickPendingIntent that launches another activity
-         * directly.  Used for the "Compose" button
+         * directly.
          *
          * @param views The RemoteViews we're inflating
          * @param buttonId the id of the button view
-         * @param activityClass the class of the activity to be launched
+         * @param intent The intent to be used when launching the activity
          */
-        private void setActivityIntent(RemoteViews views, int buttonId,
-                Class<? extends Activity> activityClass) {
-            Intent intent = new Intent(sContext, activityClass);
+        private void setActivityIntent(RemoteViews views, int buttonId, Intent intent) {
             PendingIntent pendingIntent = PendingIntent.getActivity(sContext, 0, intent, 0);
             views.setOnClickPendingIntent(buttonId, pendingIntent);
         }
@@ -418,8 +475,24 @@ public class WidgetProvider extends AppWidgetProvider {
 
             setupTitleAndCount(views);
 
-             // Set up "new" button (compose new message) and "next view" button
-            setActivityIntent(views, R.id.widget_compose, MessageCompose.class);
+            if (mAccountCount == 0) {
+                // Hide compose icon & show "touch to configure" text
+                views.setViewVisibility(R.id.widget_compose, View.INVISIBLE);
+                views.setViewVisibility(R.id.message_list, View.GONE);
+                views.setViewVisibility(R.id.tap_to_configure, View.VISIBLE);
+                // Create click intent for "touch to configure" target
+                intent = Welcome.createOpenAccountInboxIntent(sContext, -1);
+                setActivityIntent(views, R.id.tap_to_configure, intent);
+            } else {
+                // Show compose icon & message list
+                views.setViewVisibility(R.id.widget_compose, View.VISIBLE);
+                views.setViewVisibility(R.id.message_list, View.VISIBLE);
+                views.setViewVisibility(R.id.tap_to_configure, View.GONE);
+                // Create click intent for "compose email" target
+                intent = MessageCompose.getMessageComposeIntent(sContext, -1);
+                setActivityIntent(views, R.id.widget_compose, intent);
+            }
+            // Create click intent for "view rotation" target
             setCommandIntent(views, R.id.widget_logo, COMMAND_URI_SWITCH_LIST_VIEW);
 
             // Use a bare intent for our template; we need to fill everything in
@@ -615,6 +688,20 @@ public class WidgetProvider extends AppWidgetProvider {
     private static synchronized void update(Context context, int[] appWidgetIds) {
         for (int widgetId: appWidgetIds) {
             getOrCreateWidget(context, widgetId).updateHeader();
+        }
+    }
+
+    /**
+     * Updates all active widgets. If no widgets are active, does nothing.
+     */
+    public static synchronized void updateAllWidgets() {
+        // Ignore if the widget is not active
+        if (sContext != null && sWidgetMap.size() > 0) {
+            Collection<EmailWidget> widgetSet = sWidgetMap.values();
+            for (EmailWidget widget: widgetSet) {
+                // Anything could have changed; update widget & validate the current view
+                widget.new WidgetUpdateTask().execute(true);
+            }
         }
     }
 
