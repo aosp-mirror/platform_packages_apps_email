@@ -22,6 +22,8 @@
     <dimen name="message_list_item_checkbox_hit_width">64dip</dimen>
     <dimen name="message_list_item_favorite_hit_width">64dip</dimen>
     <dimen name="message_list_item_favorite_padding_right">16dip</dimen>
+    <dimen name="message_list_item_badge_padding_top">8dip</dimen>
+    <dimen name="message_list_item_badge_padding_right">-8dip</dimen>
     <dimen name="message_list_item_date_icon_width_wide">144dip</dimen>
     <dimen name="message_list_item_date_icon_width_narrow">112dip</dimen>
     <dimen name="message_list_item_sender_padding_top_narrow">10dip</dimen>

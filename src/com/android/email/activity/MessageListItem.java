@@ -123,6 +123,8 @@ public class MessageListItem extends View {
     private static int sDateIconWidthNarrow;
     private static int sFavoriteHitWidth;
     private static int sFavoritePaddingRight;
+    private static int sBadgePaddingTop;
+    private static int sBadgePaddingRight;
     private static int sSenderPaddingTopNarrow;
     private static int sSenderWidth;
     private static int sPaddingLarge;
@@ -159,6 +161,10 @@ public class MessageListItem extends View {
                 r.getDimensionPixelSize(R.dimen.message_list_item_favorite_hit_width);
             sFavoritePaddingRight =
                 r.getDimensionPixelSize(R.dimen.message_list_item_favorite_padding_right);
+            sBadgePaddingTop =
+                r.getDimensionPixelSize(R.dimen.message_list_item_badge_padding_top);
+            sBadgePaddingRight =
+                r.getDimensionPixelSize(R.dimen.message_list_item_badge_padding_right);
             sSenderPaddingTopNarrow =
                 r.getDimensionPixelSize(R.dimen.message_list_item_sender_padding_top_narrow);
             sDateIconWidthWide =
@@ -205,9 +211,9 @@ public class MessageListItem extends View {
             sAttachmentIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_attachment);
             sInviteIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_invite);
             sFavoriteIconOff =
-                BitmapFactory.decodeResource(r, R.drawable.ic_star_none_holo_light);
+                BitmapFactory.decodeResource(r, R.drawable.btn_star_off_normal_email_holo_light);
             sFavoriteIconOn =
-                BitmapFactory.decodeResource(r, R.drawable.btn_star_big_buttonless_dark_on);
+                BitmapFactory.decodeResource(r, R.drawable.btn_star_on_normal_email_holo_light);
             sSelectedIconOff =
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_off_normal_holo_light);
             sSelectedIconOn =
@@ -474,20 +480,24 @@ public class MessageListItem extends View {
 
         int iconTop;
         if (mHasAttachment) {
-            left -= sAttachmentIcon.getWidth() + sPaddingSmall;
+            left -= sAttachmentIcon.getWidth();
             if (mMode == MODE_WIDE) {
                 iconTop = (mViewHeight - sAttachmentIcon.getHeight()) / 2;
+                left -= sPaddingSmall;
             } else {
-                iconTop = senderY - sAttachmentIcon.getHeight();
+                iconTop = senderY - sAttachmentIcon.getHeight() + sBadgePaddingTop;
+                left -= sBadgePaddingRight;
             }
             canvas.drawBitmap(sAttachmentIcon, left, iconTop, sDefaultPaint);
         }
         if (mHasInvite) {
-            left -= sInviteIcon.getWidth() + sPaddingSmall;
+            left -= sInviteIcon.getWidth();
             if (mMode == MODE_WIDE) {
                 iconTop = (mViewHeight - sInviteIcon.getHeight()) / 2;
+                left -= sPaddingSmall;
             } else {
-                iconTop = senderY - sInviteIcon.getHeight();
+                iconTop = senderY - sInviteIcon.getHeight() + sBadgePaddingTop;
+                left -= sBadgePaddingRight;
             }
             canvas.drawBitmap(sInviteIcon, left, iconTop, sDefaultPaint);
         }
