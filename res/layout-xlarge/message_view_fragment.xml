@@ -126,7 +126,7 @@
                     />
                 <ImageButton
                     android:id="@+id/favorite"
-                    android:src="@drawable/ic_star_none_holo_light"
+                    android:src="@drawable/btn_star_off_normal_email_holo_light"
                     android:visibility="gone"
                     style="@style/message_view_action_buttons"
                     />

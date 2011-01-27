@@ -50,16 +50,14 @@
             android:id="@+id/widget_invite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-10sp"
-            android:layout_marginRight="-4dip"
-            android:src="@drawable/ic_badge_invite" />
+            android:layout_marginTop="-4sp"
+            android:src="@drawable/ic_badge_invite_widget" />
         <ImageView
             android:id="@+id/widget_attachment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-10sp"
-            android:layout_marginRight="-4dip"
-            android:src="@drawable/ic_badge_attachment" />
+            android:layout_marginTop="-4sp"
+            android:src="@drawable/ic_badge_attachment_widget" />
         <TextView
             android:id="@+id/widget_date"
             android:layout_width="wrap_content"

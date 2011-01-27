@@ -34,6 +34,6 @@
         android:orderInCategory="1200"
         android:title="@string/mark_as_unread_action"
         android:showAsAction="ifRoom"
-        android:icon="@drawable/ic_menu_mark_read_holo_light"
+        android:icon="@drawable/ic_menu_mark_unread_holo_light"
     />
 </menu>

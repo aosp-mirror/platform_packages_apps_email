@@ -146,7 +146,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:src="@drawable/btn_star_big_buttonless_off" />
+                android:src="@drawable/btn_star_off_normal_email_holo_light" />
         </LinearLayout>
     </LinearLayout>
     <!-- end of header area -->
