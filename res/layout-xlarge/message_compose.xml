@@ -180,7 +180,7 @@
                         android:paddingLeft="0dip"
                         android:paddingRight="0dip"
                         android:gravity="left|center_vertical"
-                        android:src="@drawable/ic_add_attachment_holo_light"
+                        android:src="@drawable/ic_attachment_holo_light"
                         />
                 </RelativeLayout> <!-- end of buttons -->
             </LinearLayout> <!-- end of headers+buttons -->
