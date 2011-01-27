@@ -20,6 +20,7 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.NotificationController;
+import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.SingleRunningTask;
 import com.android.email.Utility;
@@ -30,7 +31,6 @@ import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailProvider;
-import com.android.exchange.ExchangeService;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -67,9 +67,6 @@ import java.util.List;
  * possible problems with out-of-order startId processing.
  */
 public class MailService extends Service {
-    /** DO NOT CHECK IN "TRUE" */
-    private static final boolean DEBUG_FORCE_QUICK_REFRESH = false;     // force 1-minute refresh
-
     private static final String LOG_TAG = "Email-MailService";
 
     private static final String ACTION_CHECK_MAIL =
@@ -583,6 +580,12 @@ public class MailService extends Service {
             uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
         }
 
+        final boolean oneMinuteRefresh
+                = Preferences.getPreferences(this).getForceOneMinuteRefresh();
+        if (oneMinuteRefresh) {
+            Log.w(LOG_TAG, "One-minute refresh enabled.");
+        }
+
         // We use a full projection here because we'll restore each account object from it
         Cursor c = resolver.query(uri, Account.CONTENT_PROJECTION, null, null, null);
         try {
@@ -604,7 +607,7 @@ public class MailService extends Service {
                 // If we're not using MessagingController (EAS at this point), don't schedule syncs
                 if (!mController.isMessagingController(account.mId)) {
                     syncInterval = Account.CHECK_INTERVAL_NEVER;
-                } else if (DEBUG_FORCE_QUICK_REFRESH && syncInterval >= 0) {
+                } else if (oneMinuteRefresh && syncInterval >= 0) {
                     syncInterval = 1;
                 }
 

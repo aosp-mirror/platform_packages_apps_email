@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.service.MailService;
 import com.android.exchange.Eas;
 import com.android.exchange.utility.FileLogger;
 
@@ -42,6 +43,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
     private CheckBox mEnableExchangeLoggingView;
     private CheckBox mEnableExchangeFileLoggingView;
     private CheckBox mInhibitGraphicsAccelerationView;
+    private CheckBox mForceOneMinuteRefreshView;
 
     private Preferences mPreferences;
 
@@ -84,6 +86,11 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         mInhibitGraphicsAccelerationView.setChecked(Email.sDebugInhibitGraphicsAcceleration);
         mInhibitGraphicsAccelerationView.setOnCheckedChangeListener(this);
 
+        mForceOneMinuteRefreshView = (CheckBox)
+                view.findViewById(R.id.debug_force_one_minute_refresh);
+        mForceOneMinuteRefreshView.setChecked(mPreferences.getForceOneMinuteRefresh());
+        mForceOneMinuteRefreshView.setOnCheckedChangeListener(this);
+
         return view;
     }
 
@@ -108,6 +115,10 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
             case R.id.debug_disable_graphics_acceleration:
                 Email.sDebugInhibitGraphicsAcceleration = isChecked;
                 mPreferences.setInhibitGraphicsAcceleration(isChecked);
+                break;
+            case R.id.debug_force_one_minute_refresh:
+                mPreferences.setForceOneMinuteRefresh(isChecked);
+                MailService.actionReschedule(getActivity());
                 break;
         }
 
