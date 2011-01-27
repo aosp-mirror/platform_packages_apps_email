@@ -59,7 +59,6 @@ import java.util.List;
  *   DebugFragment
  *
  * TODO: In Account settings in Phone UI, change title
- * TODO: Rework all remaining calls to DB from UI thread
  * TODO: Delete account - on single-pane view (phone UX) the account list doesn't update properly
  * TODO: Handle dynamic changes to the account list (exit if necessary).  It probably makes
  *       sense to use a loader for the accounts list, because it would provide better support for
@@ -571,7 +570,6 @@ public class AccountSettingsXL extends PreferenceActivity {
     /**
      * Dispatch to edit incoming settings.
      *
-     * TODO: Cache the store lookup earlier, in an AsyncTask, to avoid this DB access
      * TODO: Make things less hardwired
      */
     public void onIncomingSettings(Account account) {
@@ -600,7 +598,6 @@ public class AccountSettingsXL extends PreferenceActivity {
     /**
      * Dispatch to edit outgoing settings.
      *
-     * TODO: Cache the store lookup earlier, in an AsyncTask, to avoid this DB access
      * TODO: Make things less hardwired
      */
     public void onOutgoingSettings(Account account) {
@@ -640,7 +637,7 @@ public class AccountSettingsXL extends PreferenceActivity {
             Header prefsHeader = getAppPreferencesHeader();
             this.switchToHeader(prefsHeader.fragment, prefsHeader.fragmentArguments);
             mDeletingAccountId = account.mId;
-            invalidateHeaders();
+            updateAccounts();
         } else {
             // We should only be calling this while showing AccountSettingsFragment,
             // so a finish() should bring us back to headers.  No point hiding the deleted account.
