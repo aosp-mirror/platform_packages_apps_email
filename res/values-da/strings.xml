@@ -194,8 +194,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> Gb"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> Gb"</item>
   </plurals>
-    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
-    <skip />
+    <!-- outdated translation 5866340092692648766 -->     <string name="message_view_move_to_newer" msgid="2190862552581773765">"Nyere"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Ældre"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" – "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Konfiguration af konto"</string>
@@ -205,10 +204,8 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"Du kan konfigurere e-mail til de fleste konti med blot nogle få trin."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Du kan konfigurere en Exchange-konto i nogle få trin."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Du kan konfigurere en Exchange ActiveSync-konto i nogle få trin."</string>
-    <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
-    <skip />
+    <!-- outdated translation 6620387718127685390 -->     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-mail-adresse"</string>
+    <!-- outdated translation 6959191755612121221 -->     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Adgangskode"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Send e-mail fra denne konto som standard."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuel opsætning"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Indtast en gyldig e-mail-adresse og adgangskode."</string>
@@ -300,7 +297,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Ekstern sikkerhedsadministration"</string>
     <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
     <skip />
-    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Denne server kræver sikkerhedsfunktioner, som telefonen ikke understøtter."</string>
+    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Denne server kræver sikkerhedsfunktioner, som telefonen ikke understøtter."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ADVARSEL: Hvis du deaktiverer programmet E-mails tilladelse til at administrere din enhed, slettes alle konti i E-mail, der kræver dette, sammen med alle e-mails, kontaktpersoner, kalenderbegivenheder og andre data på disse konti."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" kræver opdatering af sikkerhedsindstillingerne."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Opdater sikkerhedsindstillinger"</string>
@@ -324,7 +321,7 @@
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mail-beskeder"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkroniseringsinterval, meddelelser osv."</string>
-    <!-- outdated translation 6609224590300639887 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Underret i statuslinjen, når der kommer en e-mail"</string>
+    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Vis på statusbjælken ved ny e-mail"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Kontrolfrekvens for indbakke"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Indgående indstillinger"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Udgående indstillinger"</string>

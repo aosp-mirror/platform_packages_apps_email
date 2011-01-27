@@ -89,7 +89,7 @@
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"البريد غير المهم"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"الإصدار: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"الحسابات"</string>
-    <!-- outdated translation 5790553737870057607 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"بريد وارد مجمّع"</string>
+    <!-- outdated translation 8551686380750629387 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"البريد الوارد"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"مميّزة بنجمة"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"المسودات"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"البريد الصادر"</string>
@@ -122,8 +122,7 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> و<xliff:g id="NUMBER">%2$d</xliff:g> أخرى"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"إلى:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"نسخة إلى:"</string>
-    <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
-    <skip />
+    <!-- outdated translation 3004740137987424936 -->     <string name="message_view_bcc_label" msgid="7577479221285310198">"نسخة مخفية الوجهة:"</string>
     <string name="message_view_date_label" msgid="7033814961837313339">"التاريخ:"</string>
     <!-- no translation found for message_view_from_label (6055076379282772675) -->
     <skip />
@@ -195,8 +194,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> غيغابايت"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> غيغابايت"</item>
   </plurals>
-    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
-    <skip />
+    <!-- outdated translation 5866340092692648766 -->     <string name="message_view_move_to_newer" msgid="2190862552581773765">"أحدث"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"أقدم"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"إعداد الحساب"</string>
@@ -206,10 +204,8 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"يمكنك تهيئة البريد الإلكتروني لمعظم الحسابات من خلال اتباع خطوات قليلة."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"يمكنك تهيئة حساب Exchange من خلال اتباع خطوات قليلة."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"يمكنك تهيئة حساب Exchange ActiveSync من خلال اتباع خطوات قليلة."</string>
-    <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
-    <skip />
+    <!-- outdated translation 6620387718127685390 -->     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"عنوان بريد إلكتروني"</string>
+    <!-- outdated translation 6959191755612121221 -->     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"كلمة المرور"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"إرسال الرسائل الإلكترونية من هذا الحساب افتراضيًا."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"إعداد يدوي"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"يُرجى إدخال عنوان بريد إلكتروني وكلمة مرور صالحين."</string>
@@ -301,7 +297,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"التحكم عن بعد في إدارة الأمان"</string>
     <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
     <skip />
-    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"يتطلب هذا الخادم ميزات أمان غير معتمدة على هاتفك."</string>
+    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"يتطلب هذا الخادم ميزات أمان غير معتمدة على هاتفك."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"تحذير: سيؤدي إلغاء تنشيط صلاحية تطبيق البريد الإلكتروني لإدارة الجهاز إلى حذف جميع حسابات البريد الإلكتروني التي تتطلب الصلاحية، وأيضًا حذف البريد الإلكتروني وجهات الاتصال وأحداث التقويم وغيرها من البيانات."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"يتطلب الحساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" تحديث إعدادات الأمان."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"تحديث إعدادات الأمان"</string>
@@ -325,7 +321,7 @@
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"إشعارات البريد إلكتروني"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"معدل المزامنة والتنبيهات وما إلى ذلك"</string>
-    <!-- outdated translation 6609224590300639887 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"التنبيه في شريط الوضع عند استلام رسالة إلكترونية"</string>
+    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"التنبيه في شريط الوضع عند استلام رسالة إلكترونية"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"معدل الإطلاع على البريد الوارد"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"إعدادات البريد الوارد"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"إعدادات البريد الصادر"</string>
