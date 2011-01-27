@@ -95,7 +95,7 @@
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Smeće"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Verzija: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Računi"</string>
-    <!-- outdated translation 5790553737870057607 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Kombinirana pristigla pošta"</string>
+    <!-- outdated translation 8551686380750629387 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Pristigla pošta"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Sa zvjezdicom"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Skice"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Izlazna pošta"</string>
@@ -128,8 +128,7 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> i <xliff:g id="NUMBER">%2$d</xliff:g> ostalih"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Prima:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kopija:"</string>
-    <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
-    <skip />
+    <!-- outdated translation 3004740137987424936 -->     <string name="message_view_bcc_label" msgid="7577479221285310198">"Skrivena kopija:"</string>
     <!-- no translation found for message_view_date_label (7033814961837313339) -->
     <skip />
     <!-- no translation found for message_view_from_label (6055076379282772675) -->
@@ -204,8 +203,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
   </plurals>
-    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
-    <skip />
+    <!-- outdated translation 5866340092692648766 -->     <string name="message_view_move_to_newer" msgid="2190862552581773765">"Novije"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Starije"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" – "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Postavljanje računa"</string>
@@ -215,10 +213,8 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"E-poštu možete konfigurirati za većinu računa u samo nekoliko koraka."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Exchange račun možete konfigurirati u samo nekoliko koraka."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Račun Exchange ActiveSync možete konfigurirati u samo nekoliko koraka."</string>
-    <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
-    <skip />
+    <!-- outdated translation 6620387718127685390 -->     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Adresa e-pošte"</string>
+    <!-- outdated translation 6959191755612121221 -->     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Zaporka"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Šalji e-poštu s ovog računa prema zadanim postavkama."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Ručno postavljanje"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Upišite važeću adresu e-pošte i zaporku."</string>
@@ -310,7 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Sigurnosna administracija na daljinu"</string>
     <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
     <skip />
-    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Ovaj poslužitelj zahtijeva sigurnosne značajke koje vaš telefon ne podržava."</string>
+    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Ovaj poslužitelj zahtijeva sigurnosne značajke koje vaš telefon ne podržava."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"UPOZORENJE: Deaktivacijom ovlasti aplikacije e-pošte za upravljanje uređajem izbrisat će se svi računi e-pošte koji traže tu ovlast, kao i e-pošta, kontakti, događaji kalendara i drugi podaci."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Račun \"<xliff:g id="ACCOUNT">%s</xliff:g>\" zahtijeva ažuriranje sigurnosnih postavki."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Ažuriranje sigurnosnih postavki"</string>
@@ -334,7 +330,7 @@
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Obavijesti e-pošte"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Učestalost sinkronizacije, obavijesti itd."</string>
-    <!-- outdated translation 6609224590300639887 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Obavijesti na traci stanja kad stigne e-pošta"</string>
+    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Postavi obavijest u traci statusa kada stigne e-pošta"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Učestalost provjeravanja e-pošte"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Dolazne postavke"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Odlazne postavke"</string>
