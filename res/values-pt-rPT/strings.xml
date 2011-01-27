@@ -194,8 +194,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
-    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
-    <skip />
+    <!-- outdated translation 5866340092692648766 -->     <string name="message_view_move_to_newer" msgid="2190862552581773765">"Mais recente"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Mais antigas"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuração da conta"</string>
@@ -205,10 +204,8 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"Pode configurar o e-mail para a maioria das contas em apenas alguns passos."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Pode configurar uma conta do Exchange em apenas alguns passos."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Pode configurar uma conta do Exchange ActiveSync em apenas alguns passos."</string>
-    <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
-    <skip />
+    <!-- outdated translation 6620387718127685390 -->     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Endereço de e-mail"</string>
+    <!-- outdated translation 6959191755612121221 -->     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Palavra-passe"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Enviar e-mail a partir desta conta por predefinição."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuração manual"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Escreva um endereço de e-mail e uma palavra-passe válidos."</string>
@@ -300,7 +297,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administração de segurança remota"</string>
     <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
     <skip />
-    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Este servidor do requer funcionalidades de segurança que não são suportadas pelo telefone."</string>
+    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Este servidor requer funcionalidades de segurança que não são suportadas pelo telefone."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"AVISO: desactivar a autorização da aplicação de e-mail para administrar o dispositivo vai eliminar todas as contas de e-mail que necessitam desta, juntamente com o respectivo e-mail, contactos, eventos de calendário e outros dados."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"A conta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requer a actualização das definições de segurança."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Actualizar definições de segurança"</string>
@@ -324,7 +321,7 @@
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificações de e-mail"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frequência da sincronização, notificações, etc."</string>
-    <!-- outdated translation 6609224590300639887 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notificar na barra de estado quando chegar e-mail"</string>
+    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notificar na barra de estado quando chegar e-mail"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Frequência de verificação de caixa de entrada"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Definições de recepção"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Definições de envio"</string>

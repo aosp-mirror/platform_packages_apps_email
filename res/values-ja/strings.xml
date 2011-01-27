@@ -203,8 +203,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
-    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
-    <skip />
+    <!-- outdated translation 5866340092692648766 -->     <string name="message_view_move_to_newer" msgid="2190862552581773765">"次"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"前"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"アカウント設定"</string>
@@ -214,10 +213,8 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"ほとんどのメールアカウントを簡単な操作で設定できます。"</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Exchangeアカウントのメール設定は簡単な操作で完了します。"</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Exchange ActiveSyncアカウントの設定は簡単な操作で完了します。"</string>
-    <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
-    <skip />
+    <!-- outdated translation 6620387718127685390 -->     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"メールアドレス"</string>
+    <!-- outdated translation 6959191755612121221 -->     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"パスワード"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"いつもこのアカウントでメールを送信"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"手動セットアップ"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"有効なメールアドレスとパスワードを入力してください。"</string>
@@ -309,7 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"セキュリティのリモート管理"</string>
     <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
     <skip />
-    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"このサーバーにはお使いの携帯電話でサポートされていないセキュリティ機能が必要です。"</string>
+    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"このサーバーにはお使いの携帯端末でサポートされていないセキュリティ機能が必要です。"</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"警告: メールアプリケーションの端末管理権限を無効にすると、権限を必要とするすべてのメールアカウントが削除されます。また、そのアカウントのメール、連絡先、カレンダーの予定などのデータも削除されます。"</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"アカウント「<xliff:g id="ACCOUNT">%s</xliff:g>」でセキュリティ設定の更新が必要です。"</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"セキュリティ設定を更新"</string>
@@ -333,7 +330,7 @@
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"メール着信通知"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"同期頻度、通知、その他"</string>
-    <!-- outdated translation 6609224590300639887 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"メール受信: ステータスバーで通知"</string>
+    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"メール受信: ステータスバーで通知"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"受信トレイの確認頻度"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"受信設定"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"送信設定"</string>

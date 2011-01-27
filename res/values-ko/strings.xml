@@ -194,8 +194,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
-    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
-    <skip />
+    <!-- outdated translation 5866340092692648766 -->     <string name="message_view_move_to_newer" msgid="2190862552581773765">"다음"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"이전"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"계정 설정"</string>
@@ -205,10 +204,8 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"간단한 몇 가지 설정만으로 이메일 계정을 등록할 수 있습니다."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"간단한 몇 가지 설정만으로 Exchange 계정을 등록할 수 있습니다."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"간단한 몇 가지 설정만으로 Exchange ActiveSync 계정을 등록할 수 있습니다."</string>
-    <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
-    <skip />
+    <!-- outdated translation 6620387718127685390 -->     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"이메일 주소"</string>
+    <!-- outdated translation 6959191755612121221 -->     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"비밀번호"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"이 계정에서 이메일 보냄(기본값)"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"수동 설정"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"올바른 이메일 주소와 비밀번호를 입력하세요."</string>
@@ -300,7 +297,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"원격 보안 관리"</string>
     <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
     <skip />
-    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"서버에 필요한 보안 기능 중, 휴대전화에서 지원하지 않는 것이 있습니다."</string>
+    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"서버에 필요한 보안 기능 중, 휴대전화에서 지원하지 않는 것이 있습니다."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"경고: 이메일 애플리케이션의 기기 관리 권한을 비활성화하면 관련된 모든 이메일 계정이 해당 이메일, 주소록, 캘린더 일정 및 기타 데이터와 함께 삭제됩니다."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"\'<xliff:g id="ACCOUNT">%s</xliff:g>\' 계정을 사용하려면 보안 설정을 업데이트해야 합니다."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"보안 설정 업데이트"</string>
@@ -324,7 +321,7 @@
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"이메일 알림"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"빈도 및 알림 등을 동기화합니다."</string>
-    <!-- outdated translation 6609224590300639887 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"이메일이 오면 상태 표시줄에 알림"</string>
+    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"이메일이 오면 상태 표시줄에 알림"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"받은편지함 확인 빈도"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"수신 설정"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"발신 설정"</string>
