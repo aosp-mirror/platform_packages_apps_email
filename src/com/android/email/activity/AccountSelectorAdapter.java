@@ -16,9 +16,9 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.data.ClosingMatrixCursor;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -206,25 +206,6 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 rb.add(totalUnread);
             }
             return Utility.CloseTraceCursorWrapper.get(resultCursor);
-        }
-    }
-
-    /**
-     * {@link MatrixCursor} which takes an extra {@link Cursor} to the constructor, and close
-     * it when self is closed.
-     */
-    private static class ClosingMatrixCursor extends MatrixCursor {
-        private final Cursor mInnerCursor;
-
-        public ClosingMatrixCursor(String[] columnNames, Cursor innerCursor) {
-            super(columnNames);
-            mInnerCursor = innerCursor;
-        }
-
-        @Override
-        public void close() {
-            mInnerCursor.close();
-            super.close();
         }
     }
 }
