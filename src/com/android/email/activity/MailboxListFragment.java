@@ -467,7 +467,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     /**
-     * STOPSHIP: Very preliminary scrolling code
+     * Called while dragging;  highlight possible drop targets, and autoscroll the list.
      */
     private void onDragLocation(DragEvent event) {
         // The drag is somewhere in the ListView
@@ -505,13 +505,19 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 onDragExited();
                 return;
             } else if (newTarget.mMailboxType == Mailbox.TYPE_TRASH) {
-                Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " TRASH");
+                if (DEBUG_DRAG_DROP) {
+                    Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " TRASH");
+                }
                 newTarget.setBackgroundColor(sDropTrashColor);
             } else if (newTarget.isDropTarget(mDragItemMailboxId)) {
-                Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " TARGET");
+                if (DEBUG_DRAG_DROP) {
+                    Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " TARGET");
+                }
                 newTarget.setBackgroundDrawable(sDropActiveDrawable);
             } else {
-                Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " (CALL)");
+                if (DEBUG_DRAG_DROP) {
+                    Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " (CALL)");
+                }
                 targetAdapterPosition = NO_DROP_TARGET;
                 newTarget.setDropTargetBackground(true, mDragItemMailboxId);
             }
