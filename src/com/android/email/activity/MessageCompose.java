@@ -172,6 +172,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     /**
+     * Create an {@link Intent} that can start the message compose activity. If accountId -1,
+     * the default account will be used; otherwise, the specified account is used.
+     */
+    public static Intent getMessageComposeIntent(Context context, long accountId) {
+        Intent i = getBaseIntent(context);
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        return i;
+    }
+
+    /**
      * Compose a new message using the given account. If account is -1 the default account
      * will be used.
      * @param context
@@ -179,8 +189,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     public static void actionCompose(Context context, long accountId) {
        try {
-           Intent i = getBaseIntent(context);
-           i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+           Intent i = getMessageComposeIntent(context, accountId);
            context.startActivity(i);
        } catch (ActivityNotFoundException anfe) {
            // Swallow it - this is usually a race condition, especially under automated test.
@@ -199,10 +208,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     public static boolean actionCompose(Context context, String uriString, long accountId) {
         try {
-            Intent i = getBaseIntent(context);
+            Intent i = getMessageComposeIntent(context, accountId);
             i.setAction(Intent.ACTION_SEND);
             i.setData(Uri.parse(uriString));
-            i.putExtra(EXTRA_ACCOUNT_ID, accountId);
             context.startActivity(i);
             return true;
         } catch (ActivityNotFoundException anfe) {

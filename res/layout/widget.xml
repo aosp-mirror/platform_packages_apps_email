@@ -104,6 +104,20 @@
         android:fadingEdge="none"
         android:divider="@drawable/list_div_email_widget_holo"
         android:cacheColorHint="#00000000" />
+    <TextView
+        android:id="@+id/tap_to_configure"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dip"
+        android:layout_marginRight="5dip"
+        android:layout_weight="1"
+        android:layout_gravity="fill"
+        android:gravity="center"
+        android:paddingTop="6dip"
+        android:text="@string/widget_touch_to_configure"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:visibility="gone"/>
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
