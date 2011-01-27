@@ -17,6 +17,7 @@
 package com.android.email.service;
 
 import com.android.email.AccountTestCase;
+import com.android.email.EmailConnectivityManager;
 import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -56,8 +57,10 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
 
         // Set up an account and mailbox
         mAccount = ProviderTestUtils.setupAccount("account", false, mMockContext);
+        mAccount.mFlags |= Account.FLAGS_BACKGROUND_ATTACHMENTS;
         mAccount.save(mMockContext);
         mAccountId = mAccount.mId;
+
         mMailbox = ProviderTestUtils.setupMailbox("mailbox", mAccountId, true, mMockContext);
         mMailboxId = mMailbox.mId;
 
@@ -68,6 +71,7 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         mService.addServiceClass(mAccountId, NullEmailService.class);
         mAccountManagerStub = new AttachmentDownloadService.AccountManagerStub(null);
         mService.mAccountManagerStub = mAccountManagerStub;
+        mService.mConnectivityManager = new MockConnectivityManager(getContext(), "mock");
         mDownloadSet = mService.mDownloadSet;
         mMockDirectory =
             new MockDirectory(mService.mContext.getCacheDir().getAbsolutePath());
@@ -96,10 +100,10 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         Attachment att4 = ProviderTestUtils.setupAttachment(message.mId, "filename4", 1000,
                 Attachment.FLAG_DOWNLOAD_USER_REQUEST, true, mMockContext);
         // Indicate that these attachments have changed; they will be added to the queue
-        mDownloadSet.onChange(att1);
-        mDownloadSet.onChange(att2);
-        mDownloadSet.onChange(att3);
-        mDownloadSet.onChange(att4);
+        mDownloadSet.onChange(mMockContext, att1);
+        mDownloadSet.onChange(mMockContext, att2);
+        mDownloadSet.onChange(mMockContext, att3);
+        mDownloadSet.onChange(mMockContext, att4);
         Iterator<DownloadRequest> iterator = mDownloadSet.descendingIterator();
         // Check the expected ordering; 1 & 4 are higher priority than 2 & 3
         // 1 and 3 were created earlier than their priority equals
@@ -156,7 +160,7 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
      * A mock file directory containing a single (Mock)File.  The total space, usable space, and
      * length of the single file can be set
      */
-    static class MockDirectory extends File {
+    private static class MockDirectory extends File {
         private static final long serialVersionUID = 1L;
         private long mTotalSpace;
         private long mUsableSpace;
@@ -195,7 +199,7 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
     /**
      * A mock file that reports back a pre-set length
      */
-    static class MockFile extends File {
+    private static class MockFile extends File {
         private static final long serialVersionUID = 1L;
         private long mLength = 0;
 
@@ -208,6 +212,21 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         }
     }
 
+    private static class MockConnectivityManager extends EmailConnectivityManager {
+        public MockConnectivityManager(Context context, String name) {
+            super(context, name);
+        }
+
+        @Override
+        public void waitForConnectivity() {
+        }
+
+        @Override
+        public boolean isBackgroundDataAllowed() {
+            return true;
+        }
+    }
+
     public void testCanPrefetchForAccount() {
         // First, test our "global" limits (based on free storage)
         // Mock storage @ 100 total and 26 available
@@ -216,24 +235,41 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         // Mock 2 accounts in total
         mAccountManagerStub.setNumberOfAccounts(2);
         // With 26% available, we should be ok to prefetch
-        assertTrue(mService.canPrefetchForAccount(1, mMockDirectory));
+        assertTrue(mService.canPrefetchForAccount(mAccountId, mMockDirectory));
         // Now change to 24 available
         mMockDirectory.setTotalAndUsableSpace(100L, 24L);
         // With 24% available, we should NOT be ok to prefetch
-        assertFalse(mService.canPrefetchForAccount(1, mMockDirectory));
+        assertFalse(mService.canPrefetchForAccount(mAccountId, mMockDirectory));
 
         // Now, test per-account storage
         // Mock storage @ 100 total and 50 available
         mMockDirectory.setTotalAndUsableSpace(100L, 50L);
         // Mock a file of length 12, but need to uncache previous amount first
-        mService.mAttachmentStorageMap.remove(1L);
+        mService.mAttachmentStorageMap.remove(mAccountId);
         mMockDirectory.setFileLength(11);
         // We can prefetch since 11 < 50/4
-        assertTrue(mService.canPrefetchForAccount(1, mMockDirectory));
+        assertTrue(mService.canPrefetchForAccount(mAccountId, mMockDirectory));
         // Mock a file of length 13, but need to uncache previous amount first
-        mService.mAttachmentStorageMap.remove(1L);
+        mService.mAttachmentStorageMap.remove(mAccountId);
         mMockDirectory.setFileLength(13);
         // We can't prefetch since 13 > 50/4
-        assertFalse(mService.canPrefetchForAccount(1, mMockDirectory));
+        assertFalse(mService.canPrefetchForAccount(mAccountId, mMockDirectory));
+    }
+
+    public void testCanPrefetchForAccountNoBackgroundDownload() {
+        Account account = ProviderTestUtils.setupAccount("account2", false, mMockContext);
+        account.mFlags &= ~Account.FLAGS_BACKGROUND_ATTACHMENTS;
+        account.save(mMockContext);
+
+        // First, test our "global" limits (based on free storage)
+        // Mock storage @ 100 total and 26 available
+        // Note that all file lengths in this test are in arbitrary units
+        mMockDirectory.setTotalAndUsableSpace(100L, 26L);
+        // Mock 2 accounts in total
+        mAccountManagerStub.setNumberOfAccounts(2);
+
+        // With 26% available, we should be ok to prefetch,
+        // *but* bg download is disabled on the account.
+        assertFalse(mService.canPrefetchForAccount(account.mId, mMockDirectory));
     }
 }

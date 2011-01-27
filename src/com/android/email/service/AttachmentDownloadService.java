@@ -27,7 +27,6 @@ import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
-import com.android.email.provider.EmailContent.AttachmentColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.exchange.ExchangeService;
 
@@ -88,10 +87,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
     // Limit on the number of attachments we'll check for background download
     private static final int MAX_ATTACHMENTS_TO_CHECK = 25;
 
-    /*package*/ static AttachmentDownloadService sRunningService = null;
+    // sRunningService is only set in the UI thread; it's visibility elsewhere is guaranteed
+    // by the use of "volatile"
+    /*package*/ static volatile AttachmentDownloadService sRunningService = null;
 
     /*package*/ Context mContext;
-    private EmailConnectivityManager mConnectivityManager;
+    /*package*/ EmailConnectivityManager mConnectivityManager;
 
     /*package*/ final DownloadSet mDownloadSet = new DownloadSet(new DownloadComparator());
 
@@ -247,7 +248,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * necessary that we detect a deleted attachment, as the code always checks for the
          * existence of an attachment before acting on it.
          */
-        public synchronized void onChange(Attachment att) {
+        public synchronized void onChange(Context context, Attachment att) {
             DownloadRequest req = findDownloadRequest(att.mId);
             long priority = getPriority(att);
             if (priority == PRIORITY_NONE) {
@@ -268,7 +269,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 if (mDownloadsInProgress.containsKey(att.mId)) return;
                 // If this is new, add the request to the queue
                 if (req == null) {
-                    req = new DownloadRequest(mContext, att);
+                    req = new DownloadRequest(context, att);
                     add(req);
                 }
                 // If the request already existed, we'll update the priority (so that the time is
@@ -693,7 +694,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
     }
 
     /*package*/ void onChange(Attachment att) {
-        mDownloadSet.onChange(att);
+        mDownloadSet.onChange(this, att);
     }
 
     /*package*/ boolean isQueued(long attachmentId) {
@@ -721,8 +722,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * @return the number of items queued for download
      */
     public static int getQueueSize() {
-        if (sRunningService != null) {
-            return sRunningService.getSize();
+        AttachmentDownloadService service = sRunningService;
+        if (service != null) {
+            return service.getSize();
         }
         return 0;
     }
@@ -733,8 +735,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * @return whether or not the attachment is queued for download
      */
     public static boolean isAttachmentQueued(long attachmentId) {
-        if (sRunningService != null) {
-            return sRunningService.isQueued(attachmentId);
+        AttachmentDownloadService service = sRunningService;
+        if (service != null) {
+            return service.isQueued(attachmentId);
         }
         return false;
     }
@@ -745,15 +748,17 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * @return whether or not the attachment was removed from the queue
      */
     public static boolean cancelQueuedAttachment(long attachmentId) {
-        if (sRunningService != null) {
-            return sRunningService.dequeue(attachmentId);
+        AttachmentDownloadService service = sRunningService;
+        if (service != null) {
+            return service.dequeue(attachmentId);
         }
         return false;
     }
 
     public static void watchdogAlarm() {
-        if (sRunningService != null) {
-            sRunningService.mDownloadSet.onWatchdogAlarm();
+        AttachmentDownloadService service = sRunningService;
+        if (service != null) {
+            service.mDownloadSet.onWatchdogAlarm();
         }
     }
 
@@ -763,17 +768,18 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * @param flags the new flags for the attachment
      */
     public static void attachmentChanged(final long id, final int flags) {
-        if (sRunningService == null) return;
+        final AttachmentDownloadService service = sRunningService;
+        if (service == null) return;
         Utility.runAsync(new Runnable() {
             public void run() {
                 final Attachment attachment =
-                    Attachment.restoreAttachmentWithId(sRunningService, id);
+                    Attachment.restoreAttachmentWithId(service, id);
                 if (attachment != null) {
                     // Store the flags we got from EmailProvider; given that all of this
                     // activity is asynchronous, we need to use the newest data from
                     // EmailProvider
                     attachment.mFlags = flags;
-                    sRunningService.onChange(attachment);
+                    service.onChange(attachment);
                 }
             }});
     }
@@ -832,7 +838,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
     }
 
     public void run() {
+        // These fields are only used within the service thread
         mContext = this;
+        mConnectivityManager = new EmailConnectivityManager(this, TAG);
         mAccountManagerStub = new AccountManagerStub(this);
 
         // Run through all attachments in the database that require download and add them to
@@ -847,7 +855,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 Attachment attachment = Attachment.restoreAttachmentWithId(
                         this, c.getLong(EmailContent.ID_PROJECTION_COLUMN));
                 if (attachment != null) {
-                    mDownloadSet.onChange(attachment);
+                    mDownloadSet.onChange(this, attachment);
                 }
             }
         } catch (Exception e) {
@@ -869,6 +877,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 }
             }
         }
+
+        // Unregister now that we're done
+        mConnectivityManager.unregister();
     }
 
     @Override
@@ -885,7 +896,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
      */
     @Override
     public void onCreate() {
-        mConnectivityManager = new EmailConnectivityManager(this, TAG);
         // Start up our service thread
         new Thread(this, "AttachmentDownloadService").start();
     }
@@ -902,7 +912,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
             kick();
         }
         sRunningService = null;
-        mConnectivityManager.unregister();
     }
 
     @Override
@@ -918,7 +927,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 pw.println("    Account: " + req.accountId + ", Attachment: " + req.attachmentId);
                 pw.println("      Priority: " + req.priority + ", Time: " + req.time +
                         (req.inProgress ? " [In progress]" : ""));
-                Attachment att = Attachment.restoreAttachmentWithId(mContext, req.attachmentId);
+                Attachment att = Attachment.restoreAttachmentWithId(this, req.attachmentId);
                 if (att == null) {
                     pw.println("      Attachment not in database?");
                 } else if (att.mFileName != null) {
