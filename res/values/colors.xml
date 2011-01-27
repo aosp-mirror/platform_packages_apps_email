@@ -47,7 +47,6 @@
     <color name="combined_view_account_color_9">#ff9d50a4</color>
 
     <!-- Drop target colors -->
-    <!-- STOPSHIP Replace with final colors -->
     <color name="mailbox_drop_unavailable_fg_color">#ff999999</color>
     <color name="mailbox_drop_available_bg_color">#00ffffff</color>
     <color name="mailbox_drop_destructive_bg_color">#fff10000</color>
