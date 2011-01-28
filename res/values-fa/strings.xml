@@ -66,7 +66,7 @@
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"در حساب های POP3 انتقال پشتیبانی نمی شود."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"انتقال امکان پذیر نیست. مورد انتخابی شامل چندین حساب است."</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"پیام های موجود در پیش نویس ها. صندوق ارسال و موارد ارسالی قابل انتقال نمی باشند."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"پیام های موجود در پیش نویس ها، صندوق ارسال و موارد ارسالی قابل انتقال نمی باشند."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> خوانده نشده (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> خوانده نشده <xliff:g id="ACCOUNT">%2$s</xliff:g>"</item>
