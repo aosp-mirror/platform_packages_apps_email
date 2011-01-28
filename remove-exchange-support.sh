@@ -20,7 +20,6 @@
 
 set -e # fail fast
 
-
 # Step 0. Make sure we're in the right directory, and the user really wants it.
 
 if [[ ! -d src/com/android/email/ ]] ; then
@@ -47,13 +46,13 @@ rm -fr src/com/android/exchange/ \
 # Step 2. Remove lines surrounded by START-EXCHANGE and END-EXCHANGE
 
 find . \( -name '*.java' -o -name '*.xml' -o -name 'Android.mk' \) -print0 |
-    xargs -0 sed -i -e '/EXCHANGE-REMOVE-SECTION-START/,/EXCHANGE-REMOVE-SECTION-END/d'
+    xargs -0 sed -i "" -e '/EXCHANGE-REMOVE-SECTION-START/,/EXCHANGE-REMOVE-SECTION-END/d'
 
 
 # Step 3. Remove all imports from com.android.exchange (and its subpackages).
 
 find . -name '*.java' -print0 |
-    xargs -0 sed -i -e '/^import com\.android\.exchange/d'
+    xargs -0 sed -i "" -e '/^import com\.android\.exchange/d'
 
 
 echo ""
