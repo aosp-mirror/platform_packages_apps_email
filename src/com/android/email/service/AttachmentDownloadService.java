@@ -679,11 +679,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
         if (serviceClass == null) {
             String protocol = Account.getProtocol(mContext, accountId);
             if (protocol == null) return null;
+            serviceClass = ControllerService.class;
+            // EXCHANGE-REMOVE-SECTION-START
             if (protocol.equals("eas")) {
                 serviceClass = ExchangeService.class;
-            } else {
-                serviceClass = ControllerService.class;
             }
+            // EXCHANGE-REMOVE-SECTION-END
             mAccountServiceMap.put(accountId, serviceClass);
         }
         return serviceClass;
