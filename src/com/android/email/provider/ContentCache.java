@@ -389,7 +389,8 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
      * @param maxSize the maximum number of content cursors to cache
      */
     public ContentCache(String name, String[] baseProjection, int maxSize) {
-        super();
+        // Third argument true makes this LRU, rather than LRI
+        super(maxSize, .75F, true);
         mName = name;
         mMaxSize = maxSize;
         mBaseProjection = baseProjection;
