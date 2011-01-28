@@ -64,7 +64,7 @@
     <item quantity="one" msgid="320885379869442589">"Premikanje sporočil"</item>
     <item quantity="other" msgid="371256717624461324">"Premikanje sporočil"</item>
   </plurals>
-    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"Računi POP3 ne podpirajo premikanje sporočil."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"Računi POP3 ne podpirajo premikanja sporočil."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"Sporočil ni mogoče premakniti. Izbor vsebuje več računov."</string>
     <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"Sporočil v mapah Osnutki, Odpošlji in Poslano ni mogoče premakniti."</string>
   <plurals name="notification_new_one_account_fmt">
