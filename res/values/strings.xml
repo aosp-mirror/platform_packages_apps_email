@@ -229,6 +229,9 @@
     <!-- Do Not Translate.  Checkbox label, shown on debug screen. -->
     <string name="debug_disable_graphics_acceleration_label" translatable="false">
         Disable hardware graphics acceleration</string>
+    <!-- Do Not Translate.  Checkbox label, shown on debug screen. -->
+    <string name="debug_force_one_minute_refresh_label" translatable="false">
+        Force 1-minute refresh for POP/IMAP</string>
 
     <!-- The text in the small separator between smart folders and the accounts -->
     <string name="account_folder_list_separator_accounts">Accounts</string>
