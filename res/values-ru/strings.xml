@@ -384,7 +384,7 @@
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Предыдущему сообщению"</string>
     <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Следующему сообщению"</string>
     <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Списку сообщений"</string>
-    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Размер шрифта сообщения"</string>
+    <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Размер шрифта"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="1728778773460367725">"Показывать содержание сообщений мелким шрифтом"</item>
     <item msgid="8239633518447359057">"Показывать содержание сообщений небольшим шрифтом"</item>
@@ -392,7 +392,7 @@
     <item msgid="446236334663020508">"Показывать содержание сообщений крупным шрифтом"</item>
     <item msgid="235926149071179467">"Показывать содержание сообщений огромным шрифтом"</item>
   </string-array>
-    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Размер шрифта сообщения"</string>
+    <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Размер шрифта"</string>
     <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Мелкий"</string>
     <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Небольшой"</string>
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Обычный"</string>

@@ -52,8 +52,7 @@
     <string name="move_action" msgid="3059189775933985898">"移動"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"Cc/Bccを追加"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"添付ファイルを追加"</string>
-    <!-- no translation found for close_action (533058985745238100) -->
-    <skip />
+    <string name="close_action" msgid="533058985745238100">"閉じる"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"ダンプ設定"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"添付ファイルの選択"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"移動先"</string>
@@ -61,18 +60,13 @@
     <string name="status_network_error" msgid="6045933332005067021">"接続エラー"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"新着メール"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"メッセージテキストの読み込み中に予期しないエラーが発生しました。メッセージが表示できないほど大きい可能性があります。"</string>
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
-    <skip />
-    <!-- no translation found for move_messages:one (320885379869442589) -->
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
-    <skip />
-    <!-- no translation found for move_messages:other (371256717624461324) -->
-    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
-    <skip />
-    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
-    <skip />
-    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
-    <skip />
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"メッセージを移動"</item>
+    <item quantity="other" msgid="371256717624461324">"メッセージを移動"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"POP3アカウントでは移動はサポートされません。"</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"移動できません。複数のアカウントを選択しています。"</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"[下書き]、[送信トレイ]、[送信済み]のメッセージは移動できません。"</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -129,8 +123,7 @@
     <string name="message_view_to_label" msgid="6485191743265527381">"To:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
-    <!-- no translation found for message_view_date_label (7033814961837313339) -->
-    <skip />
+    <string name="message_view_date_label" msgid="7033814961837313339">"日付:"</string>
     <!-- no translation found for message_view_from_label (6055076379282772675) -->
     <skip />
     <!-- no translation found for message_view_subject_label (3731022187530000852) -->
@@ -158,10 +151,8 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"この招待を承諾しました"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"この案内を仮承諾しました"</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"この招待を辞退しました"</string>
-    <!-- no translation found for message_view_show_details (6287415596441037095) -->
-    <skip />
-    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
-    <skip />
+    <string name="message_view_show_details" msgid="6287415596441037095">"詳細を表示"</string>
+    <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"メッセージの詳細"</string>
     <!-- no translation found for message_decode_error (7812862491622388416) -->
     <skip />
     <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g>を表示"</string>

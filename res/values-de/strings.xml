@@ -52,8 +52,7 @@
     <string name="move_action" msgid="3059189775933985898">"Verschieben"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Anhang hinzufügen"</string>
-    <!-- no translation found for close_action (533058985745238100) -->
-    <skip />
+    <string name="close_action" msgid="533058985745238100">"Schließen"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Einstellungen für Speicherauszug"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Anhang auswählen"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Verschieben"</string>
@@ -61,18 +60,13 @@
     <string name="status_network_error" msgid="6045933332005067021">"Verbindungsfehler"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Neue E-Mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Unerwarteter Fehler beim Laden des Nachrichtentextes aufgetreten. Die Nachricht ist möglicherweise zu lang, um angezeigt zu werden."</string>
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
-    <skip />
-    <!-- no translation found for move_messages:one (320885379869442589) -->
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
-    <skip />
-    <!-- no translation found for move_messages:other (371256717624461324) -->
-    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
-    <skip />
-    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
-    <skip />
-    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
-    <skip />
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"Nachricht verschieben"</item>
+    <item quantity="other" msgid="371256717624461324">"Nachrichten verschieben"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"Verschieben wird für POP3-Konten nicht unterstützt."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"Verschieben nicht möglich. Auswahl enthält mehrere Konten."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"Nachrichten in \"Entwürfe\", dem Postausgang und \"Gesendet\" können nicht verschoben werden."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -129,8 +123,7 @@
     <string name="message_view_to_label" msgid="6485191743265527381">"An:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
-    <!-- no translation found for message_view_date_label (7033814961837313339) -->
-    <skip />
+    <string name="message_view_date_label" msgid="7033814961837313339">"Datum:"</string>
     <!-- no translation found for message_view_from_label (6055076379282772675) -->
     <skip />
     <!-- no translation found for message_view_subject_label (3731022187530000852) -->
@@ -158,10 +151,8 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Sie haben die Einladung angenommen."</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Sie haben auf diese Einladung mit \"Vielleicht\" geantwortet."</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Sie haben die Einladung abgelehnt."</string>
-    <!-- no translation found for message_view_show_details (6287415596441037095) -->
-    <skip />
-    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
-    <skip />
+    <string name="message_view_show_details" msgid="6287415596441037095">"Details anzeigen"</string>
+    <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Nachrichtendetails"</string>
     <!-- no translation found for message_decode_error (7812862491622388416) -->
     <skip />
     <string name="eml_view_title" msgid="8827210108543430336">"Anzeige von <xliff:g id="FILENAME">%s</xliff:g>"</string>
