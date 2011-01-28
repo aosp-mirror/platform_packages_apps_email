@@ -224,7 +224,17 @@ public class ExchangeDirectoryProvider extends ContentProvider {
                                     row[i] = R.string.exchange_name;
                                 }
                             } else if (column.equals(Directory.DISPLAY_NAME)) {
-                                row[i] = account.name;
+                                // If the account name is an email address, extract
+                                // the domain name and use it as the directory display name
+                                final String accountName = account.name;
+                                int atIndex = accountName.indexOf('@');
+                                if (atIndex != -1 && atIndex < accountName.length() - 2) {
+                                    final char firstLetter = Character.toUpperCase(
+                                            accountName.charAt(atIndex + 1));
+                                    row[i] = firstLetter + accountName.substring(atIndex + 2);
+                                } else {
+                                    row[i] = account.name;
+                                }
                             } else if (column.equals(Directory.EXPORT_SUPPORT)) {
                                 row[i] = Directory.EXPORT_SUPPORT_SAME_ACCOUNT_ONLY;
                             } else if (column.equals(Directory.SHORTCUT_SUPPORT)) {
