@@ -333,7 +333,7 @@ public class AccountSettingsXL extends PreferenceActivity {
             int headerCount = mAccountListHeaders.length;
             for (int index = 0; index < headerCount; index++) {
                 Header header = mAccountListHeaders[index];
-                if (header.id != HEADER_ID_UNDEFINED) {
+                if (header != null && header.id != HEADER_ID_UNDEFINED) {
                     if (header.id != mDeletingAccountId) {
                         target.add(header);
                         if (header.id == mRequestedAccountId) {
@@ -380,6 +380,9 @@ public class AccountSettingsXL extends PreferenceActivity {
     /**
      * This AsyncTask reads the accounts list and generates the headers.  When the headers are
      * ready, we'll trigger PreferenceActivity to refresh the account list with them.
+     *
+     * The array generated and stored in mAccountListHeaders may be sparse so any readers should
+     * check for and skip over null entries, and should not assume array length is # of accounts.
      *
      * TODO: Smaller projection
      * TODO: Convert to Loader
