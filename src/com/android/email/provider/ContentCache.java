@@ -76,6 +76,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
     private static final boolean DEBUG_CACHE = false;  // DO NOT CHECK IN TRUE
     private static final boolean DEBUG_TOKENS = false;  // DO NOT CHECK IN TRUE
     private static final boolean DEBUG_NOT_CACHEABLE = false;  // DO NOT CHECK IN TRUE
+    private static final boolean DEBUG_STATISTICS = false; // DO NOT CHECK THIS IN TRUE
 
     // If false, reads will not use the cache; this is intended for debugging only
     private static final boolean READ_CACHE_ENABLED = true;  // DO NOT CHECK IN FALSE
@@ -493,7 +494,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
      * @return a cursor based on cached values, or null if the row is not cached
      */
     public synchronized Cursor getCachedCursor(String id, String[] projection) {
-        if (Email.DEBUG) {
+        if (Email.DEBUG && DEBUG_STATISTICS) {
             // Every 200 calls to getCursor, report cache statistics
             dumpOnCount(200);
         }
