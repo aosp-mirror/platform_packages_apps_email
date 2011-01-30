@@ -1289,4 +1289,15 @@ public class Utility {
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return i;
     }
+
+    public static String getMessageCountForUi(Context context, int count,
+            boolean replaceZeroWithBlank) {
+        if (replaceZeroWithBlank && (count == 0)) {
+            return "";
+        } else if (count > 999) {
+            return context.getString(R.string.more_than_999);
+        } else {
+            return Integer.toString(count);
+        }
+    }
 }
