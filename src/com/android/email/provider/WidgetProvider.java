@@ -451,7 +451,7 @@ public class WidgetProvider extends AppWidgetProvider {
             views.setTextViewText(R.id.widget_tap, sConfigureText);
             String count = "";
             if (mCursorCount != TOTAL_COUNT_UNKNOWN) {
-                count = Integer.toString(mCursor.getCount());
+                count = Utility.getMessageCountForUi(sContext, mCursor.getCount(), false);
             }
             views.setTextViewText(R.id.widget_count, count);
         }

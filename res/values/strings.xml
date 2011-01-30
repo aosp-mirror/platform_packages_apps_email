@@ -1018,4 +1018,8 @@ save attachment.</string>
     <!-- Shown when no accounts are configured [CHAR LIMIT=35] -->
     <string name="widget_touch_to_configure">Touch to configure</string>
 
+    <!-- Generic string shown instead of regular numbers, when a number is larger than 999.
+         This should not be altered if the original string ("999+") makes sense in the
+         target language. Typical alternatives include "+999" and ">999".  [CHAR_LIMIT=4] -->
+    <string name="more_than_999">999+</string>
 </resources>
