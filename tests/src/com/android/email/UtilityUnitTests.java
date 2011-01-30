@@ -491,6 +491,31 @@ public class UtilityUnitTests extends AndroidTestCase {
         // TODO check style -- but how?
     }
 
+    public void testGetMessageCountForUi() {
+        final Context c = getContext();
+
+        // Negavive valeus not really expected, but at least shouldn't crash.
+        assertEquals("-1", Utility.getMessageCountForUi(c, -1, true));
+        assertEquals("-1", Utility.getMessageCountForUi(c, -1, false));
+
+        assertEquals("", Utility.getMessageCountForUi(c, 0, true));
+        assertEquals("0", Utility.getMessageCountForUi(c, 0, false));
+
+        assertEquals("1", Utility.getMessageCountForUi(c, 1, true));
+        assertEquals("1", Utility.getMessageCountForUi(c, 1, false));
+
+        assertEquals("999", Utility.getMessageCountForUi(c, 999, true));
+        assertEquals("999", Utility.getMessageCountForUi(c, 999, false));
+
+        final String moreThan999 = c.getString(R.string.more_than_999);
+
+        assertEquals(moreThan999, Utility.getMessageCountForUi(c, 1000, true));
+        assertEquals(moreThan999, Utility.getMessageCountForUi(c, 1000, false));
+
+        assertEquals(moreThan999, Utility.getMessageCountForUi(c, 1001, true));
+        assertEquals(moreThan999, Utility.getMessageCountForUi(c, 1001, false));
+    }
+
     /**
      * A {@link ListView} used by {@link #testListStateSaver}.
      */
