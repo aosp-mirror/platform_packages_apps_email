@@ -124,10 +124,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <!-- outdated translation 3004740137987424936 -->     <string name="message_view_bcc_label" msgid="7577479221285310198">"Cco:"</string>
     <string name="message_view_date_label" msgid="7033814961837313339">"Data:"</string>
-    <!-- no translation found for message_view_from_label (6055076379282772675) -->
-    <skip />
-    <!-- no translation found for message_view_subject_label (3731022187530000852) -->
-    <skip />
+    <string name="message_view_from_label" msgid="6055076379282772675">"De:"</string>
+    <string name="message_view_subject_label" msgid="3731022187530000852">"Assumpte:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Mostra"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Carrega"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Desa"</string>
@@ -151,7 +149,7 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Heu acceptat la invitació"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Heu respost \"potser\" a aquesta invitació"</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Heu rebutjat la invitació"</string>
-    <string name="message_view_show_details" msgid="6287415596441037095">"Mostra\'n det."</string>
+    <string name="message_view_show_details" msgid="6287415596441037095">"Mostra detalls"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Detalls del missatge"</string>
     <!-- no translation found for message_decode_error (7812862491622388416) -->
     <skip />
@@ -194,7 +192,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
-    <!-- outdated translation 5866340092692648766 -->     <string name="message_view_move_to_newer" msgid="2190862552581773765">"Més recent"</string>
+    <string name="message_view_move_to_newer" msgid="2190862552581773765">"Més recent"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Més antics"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuració del compte"</string>
@@ -204,8 +202,8 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"Podeu configurar el correu electrònic per a la majoria dels comptes en uns quants passos."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Podeu configurar un compte d\'Exchange en uns quants passos."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Podeu configurar un compte d\'Exchange ActiveSync en uns quants passos."</string>
-    <!-- outdated translation 6620387718127685390 -->     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Adreça de correu electrònic"</string>
-    <!-- outdated translation 6959191755612121221 -->     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Contrasenya"</string>
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Adreça electrònica"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Contrasenya"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Envia correu electrònic des d\'aquest compte de manera predeterminada."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuració manual"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Escriviu una adreça electrònica i una contrasenya vàlides."</string>
@@ -220,8 +218,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"El compte s\'ha configurat i aviat rebre un correu electrònic."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Assigneu un nom al compte (opcional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"El vostre nom (visualitzat als missatges de sortida)"</string>
-    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
-    <skip />
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"Aquest camp no pot estar en blanc"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Configuració del compte"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Tipus de compte"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"De quin tipus de compte es tracta?"</string>
@@ -295,15 +292,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"No es pot obrir la connexió amb el servidor."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Has introduït una adreça de servidor incorrecta o el servidor requereix una versió de protocol que el correu electrònic no admet."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administració de seguretat remota"</string>
-    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
-    <skip />
-    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Aquest servidor requereix funcions de seguretat no compatibles amb el telèfon."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"El servidor <xliff:g id="SERVER">%s</xliff:g> requereix que li permeteu controlar de manera remota algunes funcions de seguretat del telèfon. Voleu acabar de configurar aquest compte?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Aquest servidor requereix funcions de seguretat no compatibles amb el telèfon."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ADVERTIMENT: Desactivar l\'autoritat de l\'aplicació de correu electrònic per administrar el dispositiu suprimirà tots els comptes de correu electrònic que ho requereixin, juntament amb els correus electrònics, els contactes, els esdeveniments de calendari i altres dades."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Cal actualitzar la configuració de seguretat del compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Actualització de la configuració de seguretat"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Seguretat del dispositiu"</string>
-    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
-    <skip />
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"El servidor <xliff:g id="SERVER">%s</xliff:g> requereix que li permeteu controlar de manera remota algunes funcions de seguretat del telèfon."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edita\'n els detalls"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"El compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requereix que s\'actualitzi el codi de desbloq. de la pantalla."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Cal nou desbloq. de pantalla"</string>
@@ -315,13 +310,12 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Configuració general"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Compte predeterminat"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Envia correu electrònic des d\'aquest compte de manera predeterminada"</string>
-    <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
-    <skip />
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Baixada autom. fitxers adjunts"</string>
     <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificacions de correu electrònic"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Freqüència de sincronització, notificacions, etc."</string>
-    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Quan arribi correu electrònic, notifica-ho a la barra d\'estat"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notifica-ho a la barra d\'estat quan arribi un correu electrònic"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Freqüència de comprovació de la safata d\'entrada"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configuració d\'entrada"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configuració de sortida"</string>
@@ -404,6 +398,7 @@
     <string name="widget_unread" msgid="4404711399009077833">"No llegits"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Destacats"</string>
     <string name="widget_loading" msgid="2340962056927255554">"S\'està carregant…"</string>
-    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Toqueu per configurar"</string>
+    <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
 </resources>
