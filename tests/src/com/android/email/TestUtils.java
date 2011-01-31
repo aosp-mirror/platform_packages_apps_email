@@ -22,6 +22,8 @@ import android.os.PowerManager;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewParent;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -158,5 +160,19 @@ public class TestUtils extends TestCase /* It tests itself */ {
             return false;
         }
         return true;
+    }
+
+    public static void assertViewVisible(View v) {
+        if (v == null) {
+            throw new NullPointerException();
+        }
+        for (;;) {
+            assertTrue("visibility for " + v, View.VISIBLE == v.getVisibility());
+            ViewParent parent = v.getParent();
+            if (parent == null || !(parent instanceof View)) {
+                break;
+            }
+            v = (View) parent;
+        }
     }
 }

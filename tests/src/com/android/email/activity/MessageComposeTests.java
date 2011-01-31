@@ -54,6 +54,7 @@ public class MessageComposeTests
 
     private MultiAutoCompleteTextView mToView;
     private MultiAutoCompleteTextView mCcView;
+    private MultiAutoCompleteTextView mBccView;
     private EditText mSubjectView;
     private EditText mMessageView;
     private long mCreatedAccountId = -1;
@@ -144,6 +145,7 @@ public class MessageComposeTests
         final MessageCompose a = getActivity();
         mToView = (MultiAutoCompleteTextView) a.findViewById(R.id.to);
         mCcView = (MultiAutoCompleteTextView) a.findViewById(R.id.cc);
+        mBccView = (MultiAutoCompleteTextView) a.findViewById(R.id.bcc);
         mSubjectView = (EditText) a.findViewById(R.id.subject);
         mMessageView = (EditText) a.findViewById(R.id.message_content);
     }
@@ -479,6 +481,8 @@ public class MessageComposeTests
                 String result = Address.parseAndPack(mToView.getText().toString());
                 String expected = Address.parseAndPack(FROM);
                 assertEquals(expected, result);
+
+                // It doesn't harm even if the CC view is visible.
             }
         });
     }
@@ -515,6 +519,7 @@ public class MessageComposeTests
                 result = Address.parseAndPack(mCcView.getText().toString());
                 expected = Address.parseAndPack(CC1 + ',' + CC2 + ',' + CC3);
                 assertEquals(expected, result);
+                TestUtils.assertViewVisible(mCcView);
             }
         });
     }
@@ -551,6 +556,7 @@ public class MessageComposeTests
                 result = Address.parseAndPack(mCcView.getText().toString());
                 expected = Address.parseAndPack(CC1 + ',' + CC3);
                 assertEquals(expected, result);
+                TestUtils.assertViewVisible(mCcView);
             }
         });
     }
@@ -587,6 +593,7 @@ public class MessageComposeTests
                 result = Address.parseAndPack(mCcView.getText().toString());
                 expected = Address.parseAndPack(CC3);
                 assertEquals(expected, result);
+                TestUtils.assertViewVisible(mCcView);
             }
         });
     }
@@ -609,7 +616,8 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(i2);
-                checkFields(RECIPIENT_TO + ", ", RECIPIENT_CC, RECIPIENT_BCC, SUBJECT, null, null);
+                checkFields(RECIPIENT_TO + ", ", RECIPIENT_CC + ", ", RECIPIENT_BCC + ", ", SUBJECT,
+                        null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -632,8 +640,8 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(i2);
-                checkFields(UTF16_RECIPIENT_TO + ", ",
-                        UTF16_RECIPIENT_CC, UTF16_RECIPIENT_BCC, UTF16_SUBJECT, null, null);
+                checkFields(UTF16_RECIPIENT_TO + ", ", UTF16_RECIPIENT_CC + ", ",
+                        UTF16_RECIPIENT_BCC + ", ", UTF16_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -656,8 +664,8 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(i2);
-                checkFields(UTF32_RECIPIENT_TO + ", ",
-                        UTF32_RECIPIENT_CC, UTF32_RECIPIENT_BCC, UTF32_SUBJECT, null, null);
+                checkFields(UTF32_RECIPIENT_TO + ", ", UTF32_RECIPIENT_CC + ", ",
+                        UTF32_RECIPIENT_BCC + ", ", UTF32_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -733,6 +741,23 @@ public class MessageComposeTests
             assertEquals(0, toText.length());
         } else {
             assertEquals(to, toText);
+            TestUtils.assertViewVisible(mToView);
+        }
+
+        String ccText = mCcView.getText().toString();
+        if (cc == null) {
+            assertEquals(0, ccText.length());
+        } else {
+            assertEquals(cc, ccText);
+            TestUtils.assertViewVisible(mCcView);
+        }
+
+        String bccText = mBccView.getText().toString();
+        if (bcc == null) {
+            assertEquals(0, bccText.length());
+        } else {
+            assertEquals(bcc, bccText);
+            TestUtils.assertViewVisible(mBccView);
         }
 
         String subjectText = mSubjectView.getText().toString();
