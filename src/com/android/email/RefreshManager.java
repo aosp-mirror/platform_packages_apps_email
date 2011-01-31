@@ -47,7 +47,7 @@ import java.util.HashMap;
  * thread.)
  */
 public class RefreshManager {
-    private static final boolean DEBUG_CALLBACK_LOG = true;
+    private static final boolean LOG_ENABLED = false; // DONT SUBMIT WITH TRUE
     private static final long MAILBOX_AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // in milliseconds
     private static final long MAILBOX_LIST_AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // in milliseconds
 
@@ -211,7 +211,9 @@ public class RefreshManager {
         final Status status = mMailboxListStatus.get(accountId);
         if (!status.canRefresh()) return false;
 
-        Log.i(Email.LOG_TAG, "refreshMailboxList " + accountId);
+        if (LOG_ENABLED) {
+            Log.d(Email.LOG_TAG, "refreshMailboxList " + accountId);
+        }
         status.onRefreshRequested();
         notifyRefreshStatusChanged(accountId, -1);
         mController.updateMailboxList(accountId);
@@ -247,8 +249,10 @@ public class RefreshManager {
         final Status status = mMessageListStatus.get(mailboxId);
         if (!status.canRefresh()) return false;
 
-        Log.i(Email.LOG_TAG, "refreshMessageList " + accountId + ", " + mailboxId + ", "
-                + loadMoreMessages);
+        if (LOG_ENABLED) {
+            Log.d(Email.LOG_TAG, "refreshMessageList " + accountId + ", " + mailboxId + ", "
+                    + loadMoreMessages);
+        }
         status.onRefreshRequested();
         notifyRefreshStatusChanged(accountId, mailboxId);
         if (loadMoreMessages) {
@@ -263,7 +267,9 @@ public class RefreshManager {
      * Send pending messages.
      */
     public boolean sendPendingMessages(long accountId) {
-        Log.i(Email.LOG_TAG, "sendPendingMessages " + accountId);
+        if (LOG_ENABLED) {
+            Log.d(Email.LOG_TAG, "sendPendingMessages " + accountId);
+        }
         notifyRefreshStatusChanged(accountId, -1);
         mController.sendPendingMessages(accountId);
         return true;
@@ -273,7 +279,9 @@ public class RefreshManager {
      * Call {@link #sendPendingMessages} for all accounts.
      */
     public void sendPendingMessagesForAllAccounts() {
-        Log.i(Email.LOG_TAG, "sendPendingMessagesForAllAccounts");
+        if (LOG_ENABLED) {
+            Log.d(Email.LOG_TAG, "sendPendingMessagesForAllAccounts");
+        }
         new SendPendingMessagesForAllAccountsImpl().execute();
     }
 
@@ -358,7 +366,7 @@ public class RefreshManager {
         @Override
         public void updateMailboxListCallback(MessagingException exception, long accountId,
                 int progress) {
-            if (Email.DEBUG && DEBUG_CALLBACK_LOG) {
+            if (LOG_ENABLED) {
                 Log.d(Email.LOG_TAG, "updateMailboxListCallback " + accountId + ", " + progress
                         + ", " + exceptionToString(exception));
             }
@@ -375,7 +383,7 @@ public class RefreshManager {
         @Override
         public void updateMailboxCallback(MessagingException exception, long accountId,
                 long mailboxId, int progress, int dontUseNumNewMessages) {
-            if (Email.DEBUG && DEBUG_CALLBACK_LOG) {
+            if (LOG_ENABLED) {
                 Log.d(Email.LOG_TAG, "updateMailboxCallback " + accountId + ", "
                         + mailboxId + ", " + progress + ", " + exceptionToString(exception));
             }
@@ -394,7 +402,7 @@ public class RefreshManager {
         public void serviceCheckMailCallback(
                 MessagingException exception, long accountId, long mailboxId, int progress,
                 long tag) {
-            if (Email.DEBUG && DEBUG_CALLBACK_LOG) {
+            if (LOG_ENABLED) {
                 Log.d(Email.LOG_TAG, "serviceCheckMailCallback " + accountId + ", "
                         + mailboxId + ", " + progress + ", " + exceptionToString(exception));
             }
@@ -421,7 +429,7 @@ public class RefreshManager {
         @Override
         public void sendMailCallback(MessagingException exception, long accountId, long messageId,
                 int progress) {
-            if (Email.DEBUG && DEBUG_CALLBACK_LOG) {
+            if (LOG_ENABLED) {
                 Log.d(Email.LOG_TAG, "sendMailCallback " + accountId + ", "
                         + messageId + ", " + progress + ", " + exceptionToString(exception));
             }
