@@ -85,7 +85,7 @@
     <!-- Note:  Actually, android:hardwareAccelerated could be "true", but in order to switch it
          on/off in the debug screen, we have to set it "false" here and enable it at runtime.  -->
     <application
-        android:icon="@mipmap/icon"
+        android:icon="@mipmap/ic_launcher_email"
         android:label="@string/app_name"
         android:name="Email"
         android:theme="@android:style/Theme.Holo.Light"
