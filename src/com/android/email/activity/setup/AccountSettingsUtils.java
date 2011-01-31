@@ -220,8 +220,6 @@ public class AccountSettingsUtils {
      * Helper to set error status on password fields that have leading or trailing spaces
      */
     public static void checkPasswordSpaces(Context context, EditText passwordField) {
-        // STOPSHIP - there is a bug in the framework that makes these flicker.
-        // If the bug cannot be fixed shortly, then this should be pulled before we ship
         Editable password = passwordField.getText();
         int length = password.length();
         if (length > 0) {
