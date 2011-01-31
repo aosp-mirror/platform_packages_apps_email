@@ -368,23 +368,56 @@ public class AddressUnitTests extends AndroidTestCase {
      * Test various combinations of the toString (multi) method
      */
     public void testToStringMulti() {
-        Address[] addresses = Address.parse(MULTI_ADDRESSES_LIST);
+        final Address[] address = Address.parse("noname1@dom1.com");
+        final Address[] addresses = Address.parse(MULTI_ADDRESSES_LIST);
 
         assertEquals("multi addrsses count", MULTI_ADDRESSES_COUNT, addresses.length);
 
-        String line = Address.toString(addresses);
-        assertEquals("toString multi",
-                "noname1@dom1.com,"
-                + "noname2@dom2.com,"
-                + "simple name <address3@dom3.org>,"
-                + "\"name,4\" <address4@dom4.org>,"
-                + "\"big \"G\"\" <bigG@dom5.net>,"
-                + "\u65E5\u672C\u8A9E <address6@co.jp>,"
-                + "\u65E5\u672C\u8A9E <address7@co.jp>,"
-                + "\uD834\uDF01\uD834\uDF46 <address8@ne.jp>,"
-                + "\uD834\uDF01\uD834\uDF46 <address9@ne.jp>,"
-                + "noname@dom.com",
-                line);
+        {
+            String line = Address.toString(address);
+            assertEquals("toString multi-1",
+                    "noname1@dom1.com",
+                    line);
+        }
+        {
+            String line = Address.toString(addresses);
+            assertEquals("toString multi-n",
+                    "noname1@dom1.com,"
+                    + "noname2@dom2.com,"
+                    + "simple name <address3@dom3.org>,"
+                    + "\"name,4\" <address4@dom4.org>,"
+                    + "\"big \"G\"\" <bigG@dom5.net>,"
+                    + "\u65E5\u672C\u8A9E <address6@co.jp>,"
+                    + "\u65E5\u672C\u8A9E <address7@co.jp>,"
+                    + "\uD834\uDF01\uD834\uDF46 <address8@ne.jp>,"
+                    + "\uD834\uDF01\uD834\uDF46 <address9@ne.jp>,"
+                    + "noname@dom.com",
+                    line);
+        }
+
+        // With custom separator
+        {
+            String line = Address.toString(address, "$");
+            assertEquals("toString multi-1",
+                    "noname1@dom1.com",
+                    line);
+        }
+
+        {
+            String line = Address.toString(addresses, "$");
+            assertEquals("toString multi-n",
+                    "noname1@dom1.com$"
+                    + "noname2@dom2.com$"
+                    + "simple name <address3@dom3.org>$"
+                    + "\"name,4\" <address4@dom4.org>$"
+                    + "\"big \"G\"\" <bigG@dom5.net>$"
+                    + "\u65E5\u672C\u8A9E <address6@co.jp>$"
+                    + "\u65E5\u672C\u8A9E <address7@co.jp>$"
+                    + "\uD834\uDF01\uD834\uDF46 <address8@ne.jp>$"
+                    + "\uD834\uDF01\uD834\uDF46 <address9@ne.jp>$"
+                    + "noname@dom.com",
+                    line);
+        }
     }
 
     /**
@@ -480,7 +513,7 @@ public class AddressUnitTests extends AndroidTestCase {
                 noName1, noName2, simpleName, dquoteName, quotedName, utf16Name, utf32Name,
         };
         String line = Address.toHeader(addresses);
-        
+
         assertEquals("toHeader() multi",
                 "noname1@dom1.com, "
                 + "noname2@dom2.com, "

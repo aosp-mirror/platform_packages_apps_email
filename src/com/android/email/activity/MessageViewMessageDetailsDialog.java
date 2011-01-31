@@ -39,7 +39,6 @@ public class MessageViewMessageDetailsDialog  extends DialogFragment {
     private static final String BUNDLE_TO = "to";
     private static final String BUNDLE_CC = "cc";
     private static final String BUNDLE_BCC = "bcc";
-    private static final String TextView = null;
 
     public static MessageViewMessageDetailsDialog newInstance(Activity parent, String subject,
             String date, String from, String to, String cc, String bcc) {

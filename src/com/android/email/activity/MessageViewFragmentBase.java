@@ -796,10 +796,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         String subject = mMessage.mSubject;
         String date = formatDate(mMessage.mTimeStamp, true);
-        String from = Address.toString(Address.unpack(mMessage.mFrom));
-        String to = Address.toString(Address.unpack(mMessage.mTo));
-        String cc = Address.toString(Address.unpack(mMessage.mCc));
-        String bcc = Address.toString(Address.unpack(mMessage.mBcc));
+
+        final String SEPARATOR = "\n";
+        String from = Address.toString(Address.unpack(mMessage.mFrom), SEPARATOR);
+        String to = Address.toString(Address.unpack(mMessage.mTo), SEPARATOR);
+        String cc = Address.toString(Address.unpack(mMessage.mCc), SEPARATOR);
+        String bcc = Address.toString(Address.unpack(mMessage.mBcc), SEPARATOR);
         MessageViewMessageDetailsDialog dialog = MessageViewMessageDetailsDialog.newInstance(
                 getActivity(), subject, date, from, to, cc, bcc);
         dialog.show(getActivity().getFragmentManager(), null);
