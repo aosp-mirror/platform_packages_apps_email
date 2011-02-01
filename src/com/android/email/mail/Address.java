@@ -218,6 +218,17 @@ public class Address {
      * @return Human readable comma-delimited address string.
      */
     public static String toString(Address[] addresses) {
+        return toString(addresses, ",");
+    }
+
+    /**
+     * Get human readable address strings joined with the specified separator.
+     *
+     * @param addresses Address array
+     * @param separator Separator
+     * @return Human readable comma-delimited address string.
+     */
+    public static String toString(Address[] addresses, String separator) {
         if (addresses == null || addresses.length == 0) {
             return null;
         }
@@ -226,7 +237,7 @@ public class Address {
         }
         StringBuffer sb = new StringBuffer(addresses[0].toString());
         for (int i = 1; i < addresses.length; i++) {
-            sb.append(',');
+            sb.append(separator);
             sb.append(addresses[i].toString());
         }
         return sb.toString();
