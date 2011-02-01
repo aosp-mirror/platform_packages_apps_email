@@ -38,6 +38,7 @@ import android.content.Entity.NamedContentValues;
 import android.content.EntityIterator;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.Calendar;
@@ -192,8 +193,11 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
     @Override
     public void wipe() {
         // Delete the calendar associated with this account
-        mContentResolver.delete(Calendars.CONTENT_URI, CALENDAR_SELECTION,
-                new String[] {mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE});
+        // CalendarProvider2 does NOT handle selection arguments in deletions
+        mContentResolver.delete(Calendars.CONTENT_URI, Calendars._SYNC_ACCOUNT +
+                "=" + DatabaseUtils.sqlEscapeString(mEmailAddress) + " AND " +
+                Calendars._SYNC_ACCOUNT_TYPE + "=" +
+                DatabaseUtils.sqlEscapeString(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE), null);
     }
 
     @Override
