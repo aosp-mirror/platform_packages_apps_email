@@ -124,10 +124,8 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_bcc_label" msgid="7577479221285310198">"CCO:"</string>
     <string name="message_view_date_label" msgid="7033814961837313339">"Fecha:"</string>
-    <!-- no translation found for message_view_from_label (6055076379282772675) -->
-    <skip />
-    <!-- no translation found for message_view_subject_label (3731022187530000852) -->
-    <skip />
+    <string name="message_view_from_label" msgid="6055076379282772675">"De:"</string>
+    <string name="message_view_subject_label" msgid="3731022187530000852">"Asunto:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Ver"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Cargar"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Guardar"</string>
@@ -194,7 +192,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
   </plurals>
-    <!-- outdated translation 5866340092692648766 -->     <string name="message_view_move_to_newer" msgid="2190862552581773765">"Más reciente"</string>
+    <string name="message_view_move_to_newer" msgid="2190862552581773765">"Más reciente"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Anterior"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" : "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Configuración de cuenta"</string>
@@ -204,8 +202,8 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"Puedes configurar el correo electrónico para la mayoría de las cuentas en pocos pasos."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Puedes configurar una cuenta de Exchange en pocos pasos."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Puedes configurar una cuenta de Exchange ActiveSync en pocos pasos."</string>
-    <!-- outdated translation 6620387718127685390 -->     <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Dirección de correo electrónico"</string>
-    <!-- outdated translation 6959191755612121221 -->     <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Contraseña"</string>
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Dirección de correo electrónico"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Contraseña"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Enviar correo electrónico desde esta cuenta de forma predeterminada"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Configuración manual"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Introduce una dirección de correo electrónico y una contraseña válidas."</string>
@@ -315,8 +313,7 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Ajustes generales"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Cuenta predeterminada"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Enviar correo electrónico desde esta cuenta de forma predeterminada"</string>
-    <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
-    <skip />
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Descargar automát adjuntos"</string>
     <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
     <skip />
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificaciones de correo"</string>
@@ -405,5 +402,7 @@
     <string name="widget_starred" msgid="8290352707134011791">"Destacados"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Cargando…"</string>
     <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
+    <skip />
+    <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
 </resources>
