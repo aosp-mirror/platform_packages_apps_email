@@ -662,8 +662,7 @@ public final class ContentCache extends LinkedHashMap<String, Cursor> {
         }
         mStats.mInvalidateCount++;
         // Close all cached cursors that are no longer in use
-        for (String id: keySet()) {
-            Cursor c = get(id);
+        for (Cursor c: values()) {
             if (!sActiveCursors.contains(c)) {
                 c.close();
             }
