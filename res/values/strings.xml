@@ -21,8 +21,6 @@
     <!-- Do Not Translate.  Unused string. -->
     <string name="status_sending_messages"></string>
     <!-- Do Not Translate.  Unused string. -->
-    <string name="message_list_send_pending_messages_action"></string>
-    <!-- Do Not Translate.  Unused string. -->
     <string name="message_view_fetching_attachment_toast"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="message_view_fetching_attachment_progress"></string>
@@ -119,6 +117,8 @@
     <string name="close_action">Close</string>
     <!-- Menu item (debug screen) -->
     <string name="dump_settings_action">Dump settings</string>
+    <!-- Command shown on Outbox to send all pending messages [CHAR LIMIT=20] -->
+    <string name="message_list_send_pending_messages_action">Send all messages</string>
     <!-- Appears in choose attachment dialog title -->
     <string name="choose_attachment_dialog_title">Choose attachment</string>
     <!-- Dialog title to select a mailbox to which the user moves messages [CHAR LIMIT=20] -->
