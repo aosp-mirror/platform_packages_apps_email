@@ -26,13 +26,12 @@ import com.android.email.mail.Part;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.james.mime4j.codec.EncoderUtil;
+import org.apache.james.mime4j.decoder.Base64InputStream;
 import org.apache.james.mime4j.decoder.DecoderUtil;
 import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
 import org.apache.james.mime4j.util.CharsetUtil;
 
 import android.util.Log;
-import android.util.Base64;
-import android.util.Base64InputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -361,7 +360,7 @@ public class MimeUtility {
                 in = new QuotedPrintableInputStream(in);
             }
             else if ("base64".equalsIgnoreCase(contentTransferEncoding)) {
-                in = new Base64InputStream(in, Base64.DEFAULT);
+                in = new Base64InputStream(in);
             }
         }
 

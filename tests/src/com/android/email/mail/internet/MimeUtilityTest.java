@@ -24,6 +24,10 @@ import com.android.email.mail.Part;
 import com.android.email.mail.MessageTestUtils.MessageBuilder;
 import com.android.email.mail.MessageTestUtils.MultipartBuilder;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.test.suitebuilder.annotation.SmallTest;
 
 import junit.framework.TestCase;
@@ -49,6 +53,16 @@ public class MimeUtilityTest extends TestCase {
 
     /** a string without any unicode */
     private final String SHORT_PLAIN = "abcd";
+
+    /** Good base64 string */
+    private final String GOOD_BASE64 =
+                              "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    /** Bad base64 string */
+    private final String BAD_BASE64 = "CgpTZW50IGZyb20gU2Ftc3VuZyB0YWJsZXQ=";
+
+    /** Encoding type */
+    private final String BASE64 = "base64";
     
     /** long subject which will be split into two MIME/Base64 chunks */
     private final String LONG_UNICODE_SPLIT =
@@ -501,7 +515,20 @@ public class MimeUtilityTest extends TestCase {
         assertTrue(MimeUtility.mimeTypeMatches("match/this", arrayTwo));
     }
 
-    // TODO:  tests for decodeBody(InputStream in, String contentTransferEncoding)    
+    // TODO:  tests for decodeBody(InputStream in, String contentTransferEncoding)
+
+    /**
+     * Confirm that decodeBody() does not crash when
+     * given bad Base64 data.
+     */
+    public void testDecodeBody_BadBase64() throws IOException {
+        InputStream in = new ByteArrayInputStream(GOOD_BASE64.getBytes("us-ascii"));
+        assertNotNull(MimeUtility.decodeBody(in, BASE64));
+
+        in = new ByteArrayInputStream(BAD_BASE64.getBytes("us-ascii"));
+        assertNotNull(MimeUtility.decodeBody(in, BASE64));
+    }
+
     // TODO:  tests for collectParts(Part part, ArrayList<Part> viewables, ArrayList<Part> attachments)
 
 }
