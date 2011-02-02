@@ -145,7 +145,7 @@ public class SmtpSender extends Sender {
                      */
                     result = executeSimpleCommand("EHLO " + localHost);
                 } else {
-                    if (Config.LOGD && Email.DEBUG) {
+                    if (Email.DEBUG) {
                         Log.d(Email.LOG_TAG, "TLS not supported but required");
                     }
                     throw new MessagingException(MessagingException.TLS_REQUIRED);
@@ -167,19 +167,19 @@ public class SmtpSender extends Sender {
                     saslAuthLogin(mUsername, mPassword);
                 }
                 else {
-                    if (Config.LOGD && Email.DEBUG) {
+                    if (Email.DEBUG) {
                         Log.d(Email.LOG_TAG, "No valid authentication mechanism found.");
                     }
                     throw new MessagingException(MessagingException.AUTH_REQUIRED);
                 }
             }
         } catch (SSLException e) {
-            if (Config.LOGD && Email.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Email.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (Config.LOGD && Email.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Email.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());

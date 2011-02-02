@@ -667,7 +667,7 @@ public class LegacyConversions {
             flags |= EmailContent.Account.FLAGS_VIBRATE_WHEN_SILENT;
         result.setFlags(flags);
         result.setDeletePolicy(fromAccount.getDeletePolicy());
-        // result.setDefaultAccount();  -- will be set by caller, if neededf
+        // result.setDefaultAccount();  -- will be set by caller, if needed
         result.mCompatibilityUuid = fromAccount.getUuid();
         result.setSenderName(fromAccount.getName());
         result.setRingtone(fromAccount.getRingtone());

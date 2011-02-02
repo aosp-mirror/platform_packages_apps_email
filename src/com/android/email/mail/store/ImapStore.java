@@ -1476,7 +1476,7 @@ public class ImapStore extends Store {
                         // Per RFC requirement (3501-6.2.1) gather new capabilities
                         capabilityResponse = queryCapabilities();
                     } else {
-                        if (Config.LOGD && Email.DEBUG) {
+                        if (Email.DEBUG) {
                             Log.d(Email.LOG_TAG, "TLS not supported but required");
                         }
                         throw new MessagingException(MessagingException.TLS_REQUIRED);
@@ -1501,7 +1501,7 @@ public class ImapStore extends Store {
                             executeSimpleCommand(mIdPhrase);
                         } catch (ImapException ie) {
                             // Log for debugging, but this is not a fatal problem.
-                            if (Config.LOGD && Email.DEBUG) {
+                            if (Email.DEBUG) {
                                 Log.d(Email.LOG_TAG, ie.toString());
                             }
                         } catch (IOException ioe) {
@@ -1518,7 +1518,7 @@ public class ImapStore extends Store {
                     // options such as SASL
                     executeSimpleCommand(mLoginPhrase, true);
                 } catch (ImapException ie) {
-                    if (Config.LOGD && Email.DEBUG) {
+                    if (Email.DEBUG) {
                         Log.d(Email.LOG_TAG, ie.toString());
                     }
                     throw new AuthenticationFailedException(ie.getAlertText(), ie);
@@ -1527,7 +1527,7 @@ public class ImapStore extends Store {
                     throw new AuthenticationFailedException(null, me);
                 }
             } catch (SSLException e) {
-                if (Config.LOGD && Email.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(Email.LOG_TAG, e.toString());
                 }
                 throw new CertificateValidationException(e.getMessage(), e);
@@ -1535,7 +1535,7 @@ public class ImapStore extends Store {
                 // NOTE:  Unlike similar code in POP3, I'm going to rethrow as-is.  There is a lot
                 // of other code here that catches IOException and I don't want to break it.
                 // This catch is only here to enhance logging of connection-time issues.
-                if (Config.LOGD && Email.DEBUG) {
+                if (Email.DEBUG) {
                     Log.d(Email.LOG_TAG, ioe.toString());
                 }
                 throw ioe;

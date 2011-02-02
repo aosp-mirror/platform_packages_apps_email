@@ -22,7 +22,7 @@ import android.os.Environment;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
+import java.util.Calendar;
 
 public class FileLogger {
     private static FileLogger LOGGER = null;
@@ -63,16 +63,15 @@ public class FileLogger {
         }
     }
 
-    @SuppressWarnings("deprecation")
     static public synchronized void log(String prefix, String str) {
         if (LOGGER == null) {
             LOGGER = new FileLogger();
             log("Logger", "\r\n\r\n --- New Log ---");
         }
-        Date d = new Date();
-        int hr = d.getHours();
-        int min = d.getMinutes();
-        int sec = d.getSeconds();
+        Calendar cal = Calendar.getInstance();
+        int hr = cal.get(Calendar.HOUR_OF_DAY);
+        int min = cal.get(Calendar.MINUTE);
+        int sec = cal.get(Calendar.SECOND);
 
         // I don't use DateFormat here because (in my experience), it's much slower
         StringBuffer sb = new StringBuffer(256);

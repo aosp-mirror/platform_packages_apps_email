@@ -23,6 +23,7 @@ import com.android.email.R;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Notification;
+import android.app.Notification.Builder;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
@@ -98,11 +99,15 @@ public class CalendarSyncEnabler {
                 createLaunchCalendarIntent(), 0);
 
         String tickerText = mContext.getString(R.string.notification_exchange_calendar_added);
-        Notification n = new Notification(R.drawable.stat_notify_calendar,
-                tickerText, System.currentTimeMillis());
-        n.setLatestEventInfo(mContext, tickerText, emailAddresses, launchCalendarPendingIntent);
-        n.flags = Notification.FLAG_AUTO_CANCEL;
-
+        Builder b = new Builder(mContext);
+        b.setSmallIcon(R.drawable.stat_notify_calendar)
+            .setTicker(tickerText)
+            .setWhen(System.currentTimeMillis())
+            .setContentTitle(tickerText)
+            .setContentText(emailAddresses)
+            .setContentIntent(launchCalendarPendingIntent)
+            .setAutoCancel(true);
+        Notification n = b.getNotification();
         NotificationManager nm =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(NotificationController.NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED, n);

@@ -44,11 +44,11 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
 /**
- * This class implements the common aspects of "transport", one layer below the 
+ * This class implements the common aspects of "transport", one layer below the
  * specific wire protocols such as POP3, IMAP, or SMTP.
  */
 public class MailTransport implements Transport {
-    
+
     // TODO protected eventually
     /*protected*/ public static final int SOCKET_CONNECT_TIMEOUT = 10000;
     /*protected*/ public static final int SOCKET_READ_TIMEOUT = 60000;
@@ -57,7 +57,7 @@ public class MailTransport implements Transport {
             HttpsURLConnection.getDefaultHostnameVerifier();
 
     private String mDebugLabel;
-    
+
     private String mHost;
     private int mPort;
     private String[] mUserInfoParts;
@@ -69,7 +69,7 @@ public class MailTransport implements Transport {
     private OutputStream mOut;
 
     /**
-     * Simple constructor for starting from scratch.  Call setUri() and setSecurity() to 
+     * Simple constructor for starting from scratch.  Call setUri() and setSecurity() to
      * complete the configuration.
      * @param debugLabel Label used for Log.d calls
      */
@@ -77,7 +77,7 @@ public class MailTransport implements Transport {
         super();
         mDebugLabel = debugLabel;
     }
-    
+
     /**
      * Get a new transport, using an existing one as a model.  The new transport is configured as if
      * setUri() and setSecurity() have been called, but not opened or connected in any way.
@@ -85,7 +85,7 @@ public class MailTransport implements Transport {
      */
     public Transport newInstanceWithConfiguration() {
         MailTransport newObject = new MailTransport(mDebugLabel);
-        
+
         newObject.mDebugLabel = mDebugLabel;
         newObject.mHost = mHost;
         newObject.mPort = mPort;
@@ -108,9 +108,9 @@ public class MailTransport implements Transport {
         if (uri.getUserInfo() != null) {
             mUserInfoParts = uri.getUserInfo().split(":", 2);
         }
-        
+
     }
-    
+
     public String[] getUserInfoParts() {
         return mUserInfoParts;
     }
@@ -135,11 +135,11 @@ public class MailTransport implements Transport {
     public boolean canTrySslSecurity() {
         return mConnectionSecurity == CONNECTION_SECURITY_SSL;
     }
-    
+
     public boolean canTryTlsSecurity() {
         return mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS;
     }
-    
+
     public boolean canTrustAllCertificates() {
         return mTrustCertificates;
     }
@@ -149,8 +149,8 @@ public class MailTransport implements Transport {
      * an SSL connection if indicated.
      */
     public void open() throws MessagingException, CertificateValidationException {
-        if (Config.LOGD && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "*** " + mDebugLabel + " open " + 
+        if (Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "*** " + mDebugLabel + " open " +
                     getHost() + ":" + String.valueOf(getPort()));
         }
 
@@ -168,14 +168,14 @@ public class MailTransport implements Transport {
             }
             mIn = new BufferedInputStream(mSocket.getInputStream(), 1024);
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
-            
+
         } catch (SSLException e) {
-            if (Config.LOGD && Email.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Email.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (Config.LOGD && Email.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Email.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
@@ -199,12 +199,12 @@ public class MailTransport implements Transport {
             mOut = new BufferedOutputStream(mSocket.getOutputStream(), 512);
 
         } catch (SSLException e) {
-            if (Config.LOGD && Email.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Email.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
-            if (Config.LOGD && Email.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Email.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
@@ -259,7 +259,7 @@ public class MailTransport implements Transport {
     }
 
     public boolean isOpen() {
-        return (mIn != null && mOut != null && 
+        return (mIn != null && mOut != null &&
                 mSocket != null && mSocket.isConnected() && !mSocket.isClosed());
     }
 
@@ -294,26 +294,26 @@ public class MailTransport implements Transport {
     public OutputStream getOutputStream() {
         return mOut;
     }
-    
+
     /**
      * Writes a single line to the server using \r\n termination.
      */
     public void writeLine(String s, String sensitiveReplacement) throws IOException {
-        if (Config.LOGD && Email.DEBUG) {
+        if (Email.DEBUG) {
             if (sensitiveReplacement != null && !Email.DEBUG_SENSITIVE) {
                 Log.d(Email.LOG_TAG, ">>> " + sensitiveReplacement);
             } else {
                 Log.d(Email.LOG_TAG, ">>> " + s);
             }
         }
-        
+
         OutputStream out = getOutputStream();
         out.write(s.getBytes());
         out.write('\r');
         out.write('\n');
         out.flush();
     }
-    
+
     /**
      * Reads a single line from the server, using either \r\n or \n as the delimiter.  The
      * delimiter char(s) are not included in the result.
@@ -331,14 +331,12 @@ public class MailTransport implements Transport {
                 sb.append((char)d);
             }
         }
-        if (d == -1 && Config.LOGD && Email.DEBUG) {
+        if (d == -1 && Email.DEBUG) {
             Log.d(Email.LOG_TAG, "End of stream reached while trying to read line.");
         }
         String ret = sb.toString();
-        if (Config.LOGD) {
-            if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "<<< " + ret);
-            }
+        if (Email.DEBUG) {
+            Log.d(Email.LOG_TAG, "<<< " + ret);
         }
         return ret;
     }

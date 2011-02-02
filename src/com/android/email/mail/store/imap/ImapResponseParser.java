@@ -89,7 +89,7 @@ public class ImapResponseParser {
      */
     /* package for test */ ImapResponseParser(InputStream in, DiscourseLogger discourseLogger,
             int literalKeepInMemoryThreshold) {
-        if (DEBUG_LOG_RAW_STREAM && Config.LOGD && Email.DEBUG) {
+        if (DEBUG_LOG_RAW_STREAM && Email.DEBUG) {
             in = new LoggingInputStream(in);
         }
         mIn = new PeekableInputStream(in);
@@ -99,7 +99,7 @@ public class ImapResponseParser {
 
     private static IOException newEOSException() {
         final String message = "End of stream reached";
-        if (Config.LOGD && Email.DEBUG) {
+        if (Email.DEBUG) {
             Log.d(Email.LOG_TAG, message);
         }
         return new IOException(message);
@@ -161,7 +161,7 @@ public class ImapResponseParser {
         ImapResponse response = null;
         try {
             response = parseResponse();
-            if (Config.LOGD && Email.DEBUG) {
+            if (Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "<<< " + response.toString());
             }
 

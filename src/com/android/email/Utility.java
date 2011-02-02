@@ -74,7 +74,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
@@ -262,35 +261,6 @@ public class Utility {
         catch (UnsupportedEncodingException uee) {
             return null;
         }
-    }
-
-    /**
-     * Returns true if the specified date is within today. Returns false otherwise.
-     * @param date
-     * @return
-     */
-    public static boolean isDateToday(Date date) {
-        // TODO But Calendar is so slowwwwwww....
-        Date today = new Date();
-        if (date.getYear() == today.getYear() &&
-                date.getMonth() == today.getMonth() &&
-                date.getDate() == today.getDate()) {
-            return true;
-        }
-        return false;
-    }
-
-    /*
-     * TODO disabled this method globally. It is used in all the settings screens but I just
-     * noticed that an unrelated icon was dimmed. Android must share drawables internally.
-     */
-    public static void setCompoundDrawablesAlpha(TextView view, int alpha) {
-//        Drawable[] drawables = view.getCompoundDrawables();
-//        for (Drawable drawable : drawables) {
-//            if (drawable != null) {
-//                drawable.setAlpha(alpha);
-//            }
-//        }
     }
 
     /**

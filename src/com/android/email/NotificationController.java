@@ -26,6 +26,7 @@ import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
 
 import android.app.Notification;
+import android.app.Notification.Builder;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -301,10 +302,15 @@ public class NotificationController {
             pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
         }
-        Notification n = new Notification(android.R.drawable.stat_notify_error, tickerText,
-                mClock.getTime());
-        n.setLatestEventInfo(mContext, tickerText, notificationText, pendingIntent);
-        n.flags = Notification.FLAG_AUTO_CANCEL;
+        Builder b = new Builder(mContext);
+        b.setSmallIcon(android.R.drawable.stat_notify_error)
+            .setTicker(tickerText)
+            .setWhen(mClock.getTime())
+            .setContentTitle(tickerText)
+            .setContentText(notificationText)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true);
+        Notification n = b.getNotification();
         mNotificationManager.notify(id, n);
     }
 
