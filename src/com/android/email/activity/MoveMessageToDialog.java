@@ -96,9 +96,6 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
 
     @Override
     public void onDestroy() {
-        LoaderManager lm = getActivity().getLoaderManager();
-        lm.destroyLoader(ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER);
-        lm.destroyLoader(ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER);
         mDestroyed = true;
         super.onDestroy();
     }
@@ -117,7 +114,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
                     new MailboxesAdapter.EmptyCallback());
         builder.setSingleChoiceItems(mAdapter, -1, this);
 
-        activity.getLoaderManager().initLoader(
+        getLoaderManager().initLoader(
                 ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER,
                 null, new MessageCheckerCallback());
 
@@ -178,7 +175,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
                 return;
             }
             mAccountId = accountId;
-            getActivity().getLoaderManager().initLoader(
+            getLoaderManager().initLoader(
                     ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER,
                     null, new MailboxesLoaderCallbacks());
         }
