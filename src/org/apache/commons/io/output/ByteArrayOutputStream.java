@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package org.apache.commons.io.output;
- 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class implements an output stream in which the data is 
- * written into a byte array. The buffer automatically grows as data 
+ * This class implements an output stream in which the data is
+ * written into a byte array. The buffer automatically grows as data
  * is written to it.
- * <p> 
+ * <p>
  * The data can be retrieved using <code>toByteArray()</code> and
  * <code>toString()</code>.
  * <p>
@@ -43,7 +43,7 @@ import java.util.List;
  * the contents don't have to be copied to the new buffer. This class is
  * designed to behave exactly like the original. The only exception is the
  * deprecated toString(int) method that has been ignored.
- * 
+ *
  * @author <a href="mailto:jeremias@apache.org">Jeremias Maerki</a>
  * @author Holger Hoffstatte
  * @version $Id: ByteArrayOutputStream.java 610010 2008-01-08 14:50:59Z niallp $
@@ -54,7 +54,7 @@ public class ByteArrayOutputStream extends OutputStream {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     /** The list of buffers, which grows and never reduces. */
-    private List buffers = new ArrayList();
+    private List<byte[]> buffers = new ArrayList<byte[]>();
     /** The index of the current buffer. */
     private int currentBufferIndex;
     /** The total count of bytes in all the filled buffers. */
@@ -65,16 +65,16 @@ public class ByteArrayOutputStream extends OutputStream {
     private int count;
 
     /**
-     * Creates a new byte array output stream. The buffer capacity is 
-     * initially 1024 bytes, though its size increases if necessary. 
+     * Creates a new byte array output stream. The buffer capacity is
+     * initially 1024 bytes, though its size increases if necessary.
      */
     public ByteArrayOutputStream() {
         this(1024);
     }
 
     /**
-     * Creates a new byte array output stream, with a buffer capacity of 
-     * the specified size, in bytes. 
+     * Creates a new byte array output stream, with a buffer capacity of
+     * the specified size, in bytes.
      *
      * @param size  the initial size
      * @throws IllegalArgumentException if size is negative
@@ -88,14 +88,14 @@ public class ByteArrayOutputStream extends OutputStream {
     }
 
     /**
-     * Return the appropriate <code>byte[]</code> buffer 
+     * Return the appropriate <code>byte[]</code> buffer
      * specified by index.
      *
      * @param index  the index of the buffer required
      * @return the buffer
      */
     private byte[] getBuffer(int index) {
-        return (byte[]) buffers.get(index);
+        return buffers.get(index);
     }
 
     /**
@@ -108,7 +108,7 @@ public class ByteArrayOutputStream extends OutputStream {
         if (currentBufferIndex < buffers.size() - 1) {
             //Recycling old buffer
             filledBufferSum += currentBuffer.length;
-            
+
             currentBufferIndex++;
             currentBuffer = getBuffer(currentBufferIndex);
         } else {
@@ -119,11 +119,11 @@ public class ByteArrayOutputStream extends OutputStream {
                 filledBufferSum = 0;
             } else {
                 newBufferSize = Math.max(
-                    currentBuffer.length << 1, 
+                    currentBuffer.length << 1,
                     newcount - filledBufferSum);
                 filledBufferSum += currentBuffer.length;
             }
-            
+
             currentBufferIndex++;
             currentBuffer = new byte[newBufferSize];
             buffers.add(currentBuffer);
@@ -136,11 +136,12 @@ public class ByteArrayOutputStream extends OutputStream {
      * @param off The start offset
      * @param len The number of bytes to write
      */
+    @Override
     public void write(byte[] b, int off, int len) {
-        if ((off < 0) 
-                || (off > b.length) 
-                || (len < 0) 
-                || ((off + len) > b.length) 
+        if ((off < 0)
+                || (off > b.length)
+                || (len < 0)
+                || ((off + len) > b.length)
                 || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
         } else if (len == 0) {
@@ -167,6 +168,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * Write a byte to byte array.
      * @param b the byte to write
      */
+    @Override
     public synchronized void write(int b) {
         int inBufferPos = count - filledBufferSum;
         if (inBufferPos == currentBuffer.length) {
@@ -221,6 +223,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @throws IOException never (this method should not declare this exception
      * but it has to now due to backwards compatability)
      */
+    @Override
     public void close() throws IOException {
         //nop
     }
@@ -266,7 +269,7 @@ public class ByteArrayOutputStream extends OutputStream {
     public synchronized byte[] toByteArray() {
         int remaining = count;
         if (remaining == 0) {
-            return EMPTY_BYTE_ARRAY; 
+            return EMPTY_BYTE_ARRAY;
         }
         byte newbuf[] = new byte[remaining];
         int pos = 0;
@@ -288,6 +291,7 @@ public class ByteArrayOutputStream extends OutputStream {
      * @return the contents of the byte array as a String
      * @see java.io.ByteArrayOutputStream#toString()
      */
+    @Override
     public String toString() {
         return new String(toByteArray());
     }

@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -141,7 +141,7 @@ public class FilenameUtils {
     //-----------------------------------------------------------------------
     /**
      * Determines if Windows file system is in use.
-     * 
+     *
      * @return true if the system is Windows
      */
     static boolean isSystemWindows() {
@@ -151,7 +151,7 @@ public class FilenameUtils {
     //-----------------------------------------------------------------------
     /**
      * Checks if the character is a separator.
-     * 
+     *
      * @param ch  the character to check
      * @return true if it is a separator character
      */
@@ -269,24 +269,24 @@ public class FilenameUtils {
         if (prefix < 0) {
             return null;
         }
-        
+
         char[] array = new char[size + 2];  // +1 for possible extra slash, +2 for arraycopy
         filename.getChars(0, filename.length(), array, 0);
-        
+
         // fix separators throughout
         for (int i = 0; i < array.length; i++) {
             if (array[i] == OTHER_SEPARATOR) {
                 array[i] = SYSTEM_SEPARATOR;
             }
         }
-        
+
         // add extra separator on the end to simplify code below
         boolean lastIsDirectory = true;
         if (array[size - 1] != SYSTEM_SEPARATOR) {
             array[size++] = SYSTEM_SEPARATOR;
             lastIsDirectory = false;
         }
-        
+
         // adjoining slashes
         for (int i = prefix + 1; i < size; i++) {
             if (array[i] == SYSTEM_SEPARATOR && array[i - 1] == SYSTEM_SEPARATOR) {
@@ -295,7 +295,7 @@ public class FilenameUtils {
                 i--;
             }
         }
-        
+
         // dot slash
         for (int i = prefix + 1; i < size; i++) {
             if (array[i] == SYSTEM_SEPARATOR && array[i - 1] == '.' &&
@@ -308,7 +308,7 @@ public class FilenameUtils {
                 i--;
             }
         }
-        
+
         // double dot slash
         outer:
         for (int i = prefix + 2; i < size; i++) {
@@ -336,7 +336,7 @@ public class FilenameUtils {
                 i = prefix + 1;
             }
         }
-        
+
         if (size <= 0) {  // should never be less than 0
             return "";
         }
@@ -416,7 +416,7 @@ public class FilenameUtils {
     //-----------------------------------------------------------------------
     /**
      * Converts all separators to the Unix separator of forward slash.
-     * 
+     *
      * @param path  the path to be changed, null ignored
      * @return the updated path
      */
@@ -429,7 +429,7 @@ public class FilenameUtils {
 
     /**
      * Converts all separators to the Windows separator of backslash.
-     * 
+     *
      * @param path  the path to be changed, null ignored
      * @return the updated path
      */
@@ -442,7 +442,7 @@ public class FilenameUtils {
 
     /**
      * Converts all separators to the system separator.
-     * 
+     *
      * @param path  the path to be changed, null ignored
      * @return the updated path
      */
@@ -527,7 +527,7 @@ public class FilenameUtils {
                     return 3;
                 }
                 return -1;
-                
+
             } else if (isSeparator(ch0) && isSeparator(ch1)) {
                 int posUnix = filename.indexOf(UNIX_SEPARATOR, 2);
                 int posWin = filename.indexOf(WINDOWS_SEPARATOR, 2);
@@ -550,7 +550,7 @@ public class FilenameUtils {
      * The position of the last forward or backslash is returned.
      * <p>
      * The output will be the same irrespective of the machine that the code is running on.
-     * 
+     *
      * @param filename  the filename to find the last path separator in, null returns -1
      * @return the index of the last separator character, or -1 if there
      * is no such character
@@ -572,7 +572,7 @@ public class FilenameUtils {
      * handle a file in either Unix or Windows format.
      * <p>
      * The output will be the same irrespective of the machine that the code is running on.
-     * 
+     *
      * @param filename  the filename to find the last path separator in, null returns -1
      * @return the index of the last separator character, or -1 if there
      * is no such character
@@ -685,7 +685,7 @@ public class FilenameUtils {
 
     /**
      * Does the work of getting the path.
-     * 
+     *
      * @param filename  the filename
      * @param separatorAdd  0 to omit the end separator, 1 to return it
      * @return the path
@@ -766,7 +766,7 @@ public class FilenameUtils {
 
     /**
      * Does the work of getting the path.
-     * 
+     *
      * @param filename  the filename
      * @param includeSeparator  true to include the end separator
      * @return the path
@@ -977,7 +977,7 @@ public class FilenameUtils {
     public static boolean equals(
             String filename1, String filename2,
             boolean normalized, IOCase caseSensitivity) {
-        
+
         if (filename1 == null || filename2 == null) {
             return filename1 == filename2;
         }
@@ -1056,7 +1056,7 @@ public class FilenameUtils {
      * @param extensions  the extensions to check for, null checks for no extension
      * @return true if the filename is one of the extensions
      */
-    public static boolean isExtension(String filename, Collection extensions) {
+    public static boolean isExtension(String filename, Collection<String> extensions) {
         if (filename == null) {
             return false;
         }
@@ -1064,7 +1064,7 @@ public class FilenameUtils {
             return (indexOfExtension(filename) == -1);
         }
         String fileExt = getExtension(filename);
-        for (Iterator it = extensions.iterator(); it.hasNext();) {
+        for (Iterator<String> it = extensions.iterator(); it.hasNext();) {
             if (fileExt.equals(it.next())) {
                 return true;
             }
@@ -1088,7 +1088,7 @@ public class FilenameUtils {
      * wildcardMatch("c.txt", "*.???")      --> true
      * wildcardMatch("c.txt", "*.????")     --> false
      * </pre>
-     * 
+     *
      * @param filename  the filename to match on
      * @param wildcardMatcher  the wildcard string to match against
      * @return true if the filename matches the wilcard string
@@ -1113,7 +1113,7 @@ public class FilenameUtils {
      * wildcardMatch("c.txt", "*.???")      --> true
      * wildcardMatch("c.txt", "*.????")     --> false
      * </pre>
-     * 
+     *
      * @param filename  the filename to match on
      * @param wildcardMatcher  the wildcard string to match against
      * @return true if the filename matches the wilcard string
@@ -1129,7 +1129,7 @@ public class FilenameUtils {
      * <p>
      * The wildcard matcher uses the characters '?' and '*' to represent a
      * single or multiple wildcard characters.
-     * 
+     *
      * @param filename  the filename to match on
      * @param wildcardMatcher  the wildcard string to match against
      * @param caseSensitivity  what case sensitivity rule to use, null means case-sensitive
@@ -1152,32 +1152,32 @@ public class FilenameUtils {
         boolean anyChars = false;
         int textIdx = 0;
         int wcsIdx = 0;
-        Stack backtrack = new Stack();
-        
+        Stack<int[]> backtrack = new Stack<int[]>();
+
         // loop around a backtrack stack, to handle complex * matching
         do {
             if (backtrack.size() > 0) {
-                int[] array = (int[]) backtrack.pop();
+                int[] array = backtrack.pop();
                 wcsIdx = array[0];
                 textIdx = array[1];
                 anyChars = true;
             }
-            
+
             // loop whilst tokens and text left to process
             while (wcsIdx < wcs.length) {
-      
+
                 if (wcs[wcsIdx].equals("?")) {
                     // ? so move to next text char
                     textIdx++;
                     anyChars = false;
-                    
+
                 } else if (wcs[wcsIdx].equals("*")) {
                     // set any chars status
                     anyChars = true;
                     if (wcsIdx == wcs.length - 1) {
                         textIdx = filename.length();
                     }
-                    
+
                 } else {
                     // matching text token
                     if (anyChars) {
@@ -1198,41 +1198,41 @@ public class FilenameUtils {
                             break;
                         }
                     }
-      
+
                     // matched text token, move text index to end of matched token
                     textIdx += wcs[wcsIdx].length();
                     anyChars = false;
                 }
-      
+
                 wcsIdx++;
             }
-            
+
             // full match
             if (wcsIdx == wcs.length && textIdx == filename.length()) {
                 return true;
             }
-            
+
         } while (backtrack.size() > 0);
-  
+
         return false;
     }
 
     /**
      * Splits a string into a number of tokens.
-     * 
+     *
      * @param text  the text to split
      * @return the tokens, never null
      */
     static String[] splitOnTokens(String text) {
         // used by wildcardMatch
         // package level so a unit test may run on this
-        
+
         if (text.indexOf("?") == -1 && text.indexOf("*") == -1) {
             return new String[] { text };
         }
 
         char[] array = text.toCharArray();
-        ArrayList list = new ArrayList();
+        ArrayList<String> list = new ArrayList<String>();
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < array.length; i++) {
             if (array[i] == '?' || array[i] == '*') {
@@ -1254,7 +1254,7 @@ public class FilenameUtils {
             list.add(buffer.toString());
         }
 
-        return (String[]) list.toArray( new String[ list.size() ] );
+        return list.toArray( new String[ list.size() ] );
     }
 
 }

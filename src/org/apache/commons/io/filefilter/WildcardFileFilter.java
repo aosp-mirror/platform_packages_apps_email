@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -119,7 +119,7 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
      * @throws IllegalArgumentException if the pattern list is null
      * @throws ClassCastException if the list does not contain Strings
      */
-    public WildcardFileFilter(List wildcards) {
+    public WildcardFileFilter(List<String> wildcards) {
         this(wildcards, null);
     }
 
@@ -131,11 +131,11 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
      * @throws IllegalArgumentException if the pattern list is null
      * @throws ClassCastException if the list does not contain Strings
      */
-    public WildcardFileFilter(List wildcards, IOCase caseSensitivity) {
+    public WildcardFileFilter(List<String> wildcards, IOCase caseSensitivity) {
         if (wildcards == null) {
             throw new IllegalArgumentException("The wildcard list must not be null");
         }
-        this.wildcards = (String[]) wildcards.toArray(new String[wildcards.size()]);
+        this.wildcards = wildcards.toArray(new String[wildcards.size()]);
         this.caseSensitivity = (caseSensitivity == null ? IOCase.SENSITIVE : caseSensitivity);
     }
 
@@ -147,6 +147,7 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
      * @param name  the filename
      * @return true if the filename matches one of the wildcards
      */
+    @Override
     public boolean accept(File dir, String name) {
         for (int i = 0; i < wildcards.length; i++) {
             if (FilenameUtils.wildcardMatch(name, wildcards[i], caseSensitivity)) {
@@ -162,6 +163,7 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
      * @param file  the file to check
      * @return true if the filename matches one of the wildcards
      */
+    @Override
     public boolean accept(File file) {
         String name = file.getName();
         for (int i = 0; i < wildcards.length; i++) {
@@ -177,6 +179,7 @@ public class WildcardFileFilter extends AbstractFileFilter implements Serializab
      *
      * @return a String representaion
      */
+    @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append(super.toString());

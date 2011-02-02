@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,11 +44,11 @@ public class FileCleaningTracker {
     /**
      * Queue of <code>Tracker</code> instances being watched.
      */
-    ReferenceQueue /* Tracker */ q = new ReferenceQueue();
+    ReferenceQueue<Object> /* Tracker */ q = new ReferenceQueue<Object>();
     /**
      * Collection of <code>Tracker</code> instances in existence.
      */
-    final Collection /* Tracker */ trackers = new Vector();  // synchronized
+    final Collection<Tracker> /* Tracker */ trackers = new Vector<Tracker>();  // synchronized
     /**
      * Whether to terminate the thread when the tracking is complete.
      */
@@ -121,7 +121,7 @@ public class FileCleaningTracker {
 
     /**
      * Adds a tracker to the list of trackers.
-     * 
+     *
      * @param path  the full path to the file to be tracked, not null
      * @param marker  the marker object used to track the file, not null
      * @param deleteStrategy  the strategy to delete the file, null means normal
@@ -196,6 +196,7 @@ public class FileCleaningTracker {
          * Run the reaper thread that will delete files as their associated
          * marker objects are reclaimed by the garbage collector.
          */
+        @Override
         public void run() {
             // thread exits when exitWhenFinished is true and there are no more tracked objects
             while (exitWhenFinished == false || trackers.size() > 0) {
@@ -219,7 +220,7 @@ public class FileCleaningTracker {
     /**
      * Inner class which acts as the reference for a file pending deletion.
      */
-    private static final class Tracker extends PhantomReference {
+    private static final class Tracker extends PhantomReference<Object> {
 
         /**
          * The full path to the file being tracked.
@@ -238,7 +239,7 @@ public class FileCleaningTracker {
          * @param marker  the marker object used to track the file, not null
          * @param queue  the queue on to which the tracker will be pushed, not null
          */
-        Tracker(String path, FileDeleteStrategy deleteStrategy, Object marker, ReferenceQueue queue) {
+        Tracker(String path, FileDeleteStrategy deleteStrategy, Object marker, ReferenceQueue<Object> queue) {
             super(marker, queue);
             this.path = path;
             this.deleteStrategy = (deleteStrategy == null ? FileDeleteStrategy.NORMAL : deleteStrategy);

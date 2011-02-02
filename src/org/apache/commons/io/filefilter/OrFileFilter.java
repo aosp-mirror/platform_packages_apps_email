@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,7 +40,7 @@ public class OrFileFilter
         implements ConditionalFileFilter, Serializable {
 
     /** The list of file filters. */
-    private List fileFilters;
+    private List<IOFileFilter> fileFilters;
 
     /**
      * Constructs a new instance of <code>OrFileFilter</code>.
@@ -48,7 +48,7 @@ public class OrFileFilter
      * @since Commons IO 1.1
      */
     public OrFileFilter() {
-        this.fileFilters = new ArrayList();
+        this.fileFilters = new ArrayList<IOFileFilter>();
     }
 
     /**
@@ -58,17 +58,17 @@ public class OrFileFilter
      * @param fileFilters  the file filters for this filter, copied, null ignored
      * @since Commons IO 1.1
      */
-    public OrFileFilter(final List fileFilters) {
+    public OrFileFilter(final List<IOFileFilter> fileFilters) {
         if (fileFilters == null) {
-            this.fileFilters = new ArrayList();
+            this.fileFilters = new ArrayList<IOFileFilter>();
         } else {
-            this.fileFilters = new ArrayList(fileFilters);
+            this.fileFilters = new ArrayList<IOFileFilter>(fileFilters);
         }
     }
 
     /**
      * Constructs a new file filter that ORs the result of two other filters.
-     * 
+     *
      * @param filter1  the first filter, must not be null
      * @param filter2  the second filter, must not be null
      * @throws IllegalArgumentException if either filter is null
@@ -77,7 +77,7 @@ public class OrFileFilter
         if (filter1 == null || filter2 == null) {
             throw new IllegalArgumentException("The filters must not be null");
         }
-        this.fileFilters = new ArrayList();
+        this.fileFilters = new ArrayList<IOFileFilter>();
         addFileFilter(filter1);
         addFileFilter(filter2);
     }
@@ -92,7 +92,7 @@ public class OrFileFilter
     /**
      * {@inheritDoc}
      */
-    public List getFileFilters() {
+    public List<IOFileFilter> getFileFilters() {
         return Collections.unmodifiableList(this.fileFilters);
     }
 
@@ -106,16 +106,17 @@ public class OrFileFilter
     /**
      * {@inheritDoc}
      */
-    public void setFileFilters(final List fileFilters) {
+    public void setFileFilters(final List<IOFileFilter> fileFilters) {
         this.fileFilters = fileFilters;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean accept(final File file) {
-        for (Iterator iter = this.fileFilters.iterator(); iter.hasNext();) {
-            IOFileFilter fileFilter = (IOFileFilter) iter.next();
+        for (Iterator<IOFileFilter> iter = this.fileFilters.iterator(); iter.hasNext();) {
+            IOFileFilter fileFilter = iter.next();
             if (fileFilter.accept(file)) {
                 return true;
             }
@@ -126,9 +127,10 @@ public class OrFileFilter
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean accept(final File file, final String name) {
-        for (Iterator iter = this.fileFilters.iterator(); iter.hasNext();) {
-            IOFileFilter fileFilter = (IOFileFilter) iter.next();
+        for (Iterator<IOFileFilter> iter = this.fileFilters.iterator(); iter.hasNext();) {
+            IOFileFilter fileFilter = iter.next();
             if (fileFilter.accept(file, name)) {
                 return true;
             }
@@ -141,6 +143,7 @@ public class OrFileFilter
      *
      * @return a String representaion
      */
+    @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append(super.toString());

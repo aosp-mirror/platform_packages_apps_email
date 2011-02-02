@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -117,7 +117,7 @@ public class FileUtils {
      * An exception is thrown if the file does not exist.
      * An exception is thrown if the file object exists but is a directory.
      * An exception is thrown if the file exists but cannot be read.
-     * 
+     *
      * @param file  the file to open for input, must not be <code>null</code>
      * @return a new {@link FileInputStream} for the specified file
      * @throws FileNotFoundException if the file does not exist
@@ -152,7 +152,7 @@ public class FileUtils {
      * An exception is thrown if the file object exists but is a directory.
      * An exception is thrown if the file exists but cannot be written to.
      * An exception is thrown if the parent directory cannot be created.
-     * 
+     *
      * @param file  the file to open for output, must not be <code>null</code>
      * @return a new {@link FileOutputStream} for the specified file
      * @throws IOException if the file object is a directory
@@ -235,8 +235,8 @@ public class FileUtils {
      * @param files  a Collection containing java.io.File instances
      * @return an array of java.io.File
      */
-    public static File[] convertFileCollectionToFileArray(Collection files) {
-         return (File[]) files.toArray(new File[files.size()]);
+    public static File[] convertFileCollectionToFileArray(Collection<File> files) {
+         return files.toArray(new File[files.size()]);
     }
 
     //-----------------------------------------------------------------------
@@ -248,7 +248,7 @@ public class FileUtils {
      * @param directory the directory to search in.
      * @param filter the filter to apply to files and directories.
      */
-    private static void innerListFiles(Collection files, File directory,
+    private static void innerListFiles(Collection<File> files, File directory,
             IOFileFilter filter) {
         File[] found = directory.listFiles((FileFilter) filter);
         if (found != null) {
@@ -287,7 +287,7 @@ public class FileUtils {
      * @see org.apache.commons.io.filefilter.FileFilterUtils
      * @see org.apache.commons.io.filefilter.NameFileFilter
      */
-    public static Collection listFiles(
+    public static Collection<File> listFiles(
             File directory, IOFileFilter fileFilter, IOFileFilter dirFilter) {
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException(
@@ -311,7 +311,7 @@ public class FileUtils {
         }
 
         //Find files
-        Collection files = new java.util.LinkedList();
+        Collection<File> files = new java.util.LinkedList<File>();
         innerListFiles(files, directory,
             FileFilterUtils.orFileFilter(effFileFilter, effDirFilter));
         return files;
@@ -334,7 +334,7 @@ public class FileUtils {
      * @see org.apache.commons.io.filefilter.NameFileFilter
      * @since Commons IO 1.2
      */
-    public static Iterator iterateFiles(
+    public static Iterator<File> iterateFiles(
             File directory, IOFileFilter fileFilter, IOFileFilter dirFilter) {
         return listFiles(directory, fileFilter, dirFilter).iterator();
     }
@@ -366,7 +366,7 @@ public class FileUtils {
      * @param recursive  if true all subdirectories are searched as well
      * @return an collection of java.io.File with the matching files
      */
-    public static Collection listFiles(
+    public static Collection<File> listFiles(
             File directory, String[] extensions, boolean recursive) {
         IOFileFilter filter;
         if (extensions == null) {
@@ -391,7 +391,7 @@ public class FileUtils {
      * @return an iterator of java.io.File with the matching files
      * @since Commons IO 1.2
      */
-    public static Iterator iterateFiles(
+    public static Iterator<File> iterateFiles(
             File directory, String[] extensions, boolean recursive) {
         return listFiles(directory, extensions, recursive).iterator();
     }
@@ -531,7 +531,7 @@ public class FileUtils {
         URL[] urls = new URL[files.length];
 
         for (int i = 0; i < urls.length; i++) {
-            urls[i] = files[i].toURL();
+            urls[i] = files[i].toURI().toURL();
         }
 
         return urls;
@@ -594,10 +594,10 @@ public class FileUtils {
      * specified destination file. The directory holding the destination file is
      * created if it does not exist. If the destination file exists, then this
      * method will overwrite it.
-     * 
+     *
      * @param srcFile  an existing file to copy, must not be <code>null</code>
      * @param destFile  the new file, must not be <code>null</code>
-     * 
+     *
      * @throws NullPointerException if source or destination is <code>null</code>
      * @throws IOException if source or destination is invalid
      * @throws IOException if an IO error occurs during copying
@@ -655,7 +655,7 @@ public class FileUtils {
 
     /**
      * Internal copy file method.
-     * 
+     *
      * @param srcFile  the validated source file, must not be <code>null</code>
      * @param destFile  the validated destination file, must not be <code>null</code>
      * @param preserveFileDate  whether to preserve the file date
@@ -780,7 +780,7 @@ public class FileUtils {
      * If the destination directory did exist, then this method merges
      * the source with the destination, with the source taking precedence.
      *
-     * <h4>Example: Copy directories only</h4> 
+     * <h4>Example: Copy directories only</h4>
      *  <pre>
      *  // only copy the directory structure
      *  FileUtils.copyDirectory(srcDir, destDir, DirectoryFileFilter.DIRECTORY);
@@ -824,7 +824,7 @@ public class FileUtils {
      * If the destination directory did exist, then this method merges
      * the source with the destination, with the source taking precedence.
      *
-     * <h4>Example: Copy directories only</h4> 
+     * <h4>Example: Copy directories only</h4>
      *  <pre>
      *  // only copy the directory structure
      *  FileUtils.copyDirectory(srcDir, destDir, DirectoryFileFilter.DIRECTORY, false);
@@ -842,7 +842,7 @@ public class FileUtils {
      *  // Copy using the filter
      *  FileUtils.copyDirectory(srcDir, destDir, filter, false);
      *  </pre>
-     * 
+     *
      * @param srcDir  an existing directory to copy, must not be <code>null</code>
      * @param destDir  the new directory, must not be <code>null</code>
      * @param filter  the filter to apply, null means copy all directories and files
@@ -873,11 +873,11 @@ public class FileUtils {
         }
 
         // Cater for destination being directory within the source directory (see IO-141)
-        List exclusionList = null;
+        List<String> exclusionList = null;
         if (destDir.getCanonicalPath().startsWith(srcDir.getCanonicalPath())) {
             File[] srcFiles = filter == null ? srcDir.listFiles() : srcDir.listFiles(filter);
             if (srcFiles != null && srcFiles.length > 0) {
-                exclusionList = new ArrayList(srcFiles.length);
+                exclusionList = new ArrayList<String>(srcFiles.length);
                 for (int i = 0; i < srcFiles.length; i++) {
                     File copiedFile = new File(destDir, srcFiles[i].getName());
                     exclusionList.add(copiedFile.getCanonicalPath());
@@ -889,7 +889,7 @@ public class FileUtils {
 
     /**
      * Internal copy directory method.
-     * 
+     *
      * @param srcDir  the validated source directory, must not be <code>null</code>
      * @param destDir  the validated destination directory, must not be <code>null</code>
      * @param filter  the filter to apply, null means copy all directories and files
@@ -899,7 +899,7 @@ public class FileUtils {
      * @since Commons IO 1.1
      */
     private static void doCopyDirectory(File srcDir, File destDir, FileFilter filter,
-            boolean preserveFileDate, List exclusionList) throws IOException {
+            boolean preserveFileDate, List<String> exclusionList) throws IOException {
         if (destDir.exists()) {
             if (destDir.isDirectory() == false) {
                 throw new IOException("Destination '" + destDir + "' exists but is not a directory");
@@ -964,7 +964,7 @@ public class FileUtils {
 
     //-----------------------------------------------------------------------
     /**
-     * Deletes a directory recursively. 
+     * Deletes a directory recursively.
      *
      * @param directory  directory to delete
      * @throws IOException in case deletion is unsuccessful
@@ -1108,7 +1108,7 @@ public class FileUtils {
 
 
     /**
-     * Reads the contents of a file into a String using the default encoding for the VM. 
+     * Reads the contents of a file into a String using the default encoding for the VM.
      * The file is always closed.
      *
      * @param file  the file to read, must not be <code>null</code>
@@ -1150,7 +1150,7 @@ public class FileUtils {
      * @throws java.io.UnsupportedEncodingException if the encoding is not supported by the VM
      * @since Commons IO 1.1
      */
-    public static List readLines(File file, String encoding) throws IOException {
+    public static List<String> readLines(File file, String encoding) throws IOException {
         InputStream in = null;
         try {
             in = openInputStream(file);
@@ -1169,7 +1169,7 @@ public class FileUtils {
      * @throws IOException in case of an I/O error
      * @since Commons IO 1.3
      */
-    public static List readLines(File file) throws IOException {
+    public static List<String> readLines(File file) throws IOException {
         return readLines(file, null);
     }
 
@@ -1256,7 +1256,7 @@ public class FileUtils {
 
     /**
      * Writes a String to a file creating the file if it does not exist using the default encoding for the VM.
-     * 
+     *
      * @param file  the file to write
      * @param data  the content to write to the file
      * @throws IOException in case of an I/O error
@@ -1301,7 +1301,7 @@ public class FileUtils {
      * @throws java.io.UnsupportedEncodingException if the encoding is not supported by the VM
      * @since Commons IO 1.1
      */
-    public static void writeLines(File file, String encoding, Collection lines) throws IOException {
+    public static void writeLines(File file, String encoding, Collection<Object> lines) throws IOException {
         writeLines(file, encoding, lines, null);
     }
 
@@ -1315,7 +1315,7 @@ public class FileUtils {
      * @throws IOException in case of an I/O error
      * @since Commons IO 1.3
      */
-    public static void writeLines(File file, Collection lines) throws IOException {
+    public static void writeLines(File file, Collection<Object> lines) throws IOException {
         writeLines(file, null, lines, null);
     }
 
@@ -1335,7 +1335,7 @@ public class FileUtils {
      * @throws java.io.UnsupportedEncodingException if the encoding is not supported by the VM
      * @since Commons IO 1.1
      */
-    public static void writeLines(File file, String encoding, Collection lines, String lineEnding) throws IOException {
+    public static void writeLines(File file, String encoding, Collection<Object> lines, String lineEnding) throws IOException {
         OutputStream out = null;
         try {
             out = openOutputStream(file);
@@ -1356,7 +1356,7 @@ public class FileUtils {
      * @throws IOException in case of an I/O error
      * @since Commons IO 1.3
      */
-    public static void writeLines(File file, Collection lines, String lineEnding) throws IOException {
+    public static void writeLines(File file, Collection<Object> lines, String lineEnding) throws IOException {
         writeLines(file, null, lines, lineEnding);
     }
 
@@ -1556,7 +1556,7 @@ public class FileUtils {
     /**
      * Tests if the specified <code>File</code> is newer than the specified
      * <code>Date</code>.
-     * 
+     *
      * @param file  the <code>File</code> of which the modification date
      * must be compared, must not be <code>null</code>
      * @param date  the date reference, must not be <code>null</code>
@@ -1623,7 +1623,7 @@ public class FileUtils {
     /**
      * Tests if the specified <code>File</code> is older than the specified
      * <code>Date</code>.
-     * 
+     *
      * @param file  the <code>File</code> of which the modification date
      * must be compared, must not be <code>null</code>
      * @param date  the date reference, must not be <code>null</code>
@@ -1779,7 +1779,7 @@ public class FileUtils {
             throw new IOException("Destination '" + destDir + "' is not a directory");
         }
         moveDirectory(src, new File(destDir, src.getName()));
-    
+
     }
 
     /**
@@ -1862,7 +1862,7 @@ public class FileUtils {
      * When the destination is on another file system, do a "copy and delete".
      *
      * @param src the file or directory to be moved
-     * @param destDir the destination directory 
+     * @param destDir the destination directory
      * @param createDestDir If <code>true</code> create the destination directory,
      * otherwise if <code>false</code> throw an IOException
      * @throws NullPointerException if source or destination is <code>null</code>

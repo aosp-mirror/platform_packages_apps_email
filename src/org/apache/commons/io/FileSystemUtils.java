@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -217,19 +217,19 @@ public class FileSystemUtils {
         if (path.length() > 2 && path.charAt(1) == ':') {
             path = path.substring(0, 2);  // seems to make it work
         }
-        
+
         // build and run the 'dir' command
         String[] cmdAttribs = new String[] {"cmd.exe", "/C", "dir /-c " + path};
-        
+
         // read in the output of the command to an ArrayList
-        List lines = performCommand(cmdAttribs, Integer.MAX_VALUE);
-        
+        List<String> lines = performCommand(cmdAttribs, Integer.MAX_VALUE);
+
         // now iterate over the lines we just read and find the LAST
         // non-empty line (the free space bytes should be in the last element
         // of the ArrayList anyway, but this will ensure it works even if it's
         // not, still assuming it is on the last non-blank line)
         for (int i = lines.size() - 1; i >= 0; i--) {
-            String line = (String) lines.get(i);
+            String line = lines.get(i);
             if (line.length() > 0) {
                 return parseDir(line, path);
             }
@@ -281,7 +281,7 @@ public class FileSystemUtils {
                     "Command line 'dir /-c' did not return valid info " +
                     "for path '" + path + "'");
         }
-        
+
         // remove commas and dots in the bytes count
         StringBuffer buf = new StringBuffer(line.substring(bytesStart, bytesEnd));
         for (int k = 0; k < buf.length(); k++) {
@@ -316,25 +316,25 @@ public class FileSystemUtils {
         if (posix) {
             flags += "P";
         }
-        String[] cmdAttribs = 
+        String[] cmdAttribs =
             (flags.length() > 1 ? new String[] {"df", flags, path} : new String[] {"df", path});
-        
+
         // perform the command, asking for up to 3 lines (header, interesting, overflow)
-        List lines = performCommand(cmdAttribs, 3);
+        List<String> lines = performCommand(cmdAttribs, 3);
         if (lines.size() < 2) {
             // unknown problem, throw exception
             throw new IOException(
                     "Command line 'df' did not return info as expected " +
                     "for path '" + path + "'- response was " + lines);
         }
-        String line2 = (String) lines.get(1); // the line we're interested in
-        
+        String line2 = lines.get(1); // the line we're interested in
+
         // Now, we tokenize the string. The fourth element is what we want.
         StringTokenizer tok = new StringTokenizer(line2, " ");
         if (tok.countTokens() < 4) {
             // could be long Filesystem, thus data on third line
             if (tok.countTokens() == 1 && lines.size() >= 3) {
-                String line3 = (String) lines.get(2); // the line may be interested in
+                String line3 = lines.get(2); // the line may be interested in
                 tok = new StringTokenizer(line3, " ");
             } else {
                 throw new IOException(
@@ -353,7 +353,7 @@ public class FileSystemUtils {
     //-----------------------------------------------------------------------
     /**
      * Parses the bytes from a string.
-     * 
+     *
      * @param freeSpace  the free space string
      * @param path  the path
      * @return the number of bytes
@@ -368,7 +368,7 @@ public class FileSystemUtils {
                         "for path '" + path + "'- check path is valid");
             }
             return bytes;
-            
+
         } catch (NumberFormatException ex) {
             throw new IOException(
                     "Command line 'df' did not return numeric data as expected " +
@@ -385,7 +385,7 @@ public class FileSystemUtils {
      * @return the parsed data
      * @throws IOException if an error occurs
      */
-    List performCommand(String[] cmdAttribs, int max) throws IOException {
+    List<String> performCommand(String[] cmdAttribs, int max) throws IOException {
         // this method does what it can to avoid the 'Too many open files' error
         // based on trial and error and these links:
         // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4784692
@@ -393,8 +393,8 @@ public class FileSystemUtils {
         // http://forum.java.sun.com/thread.jspa?threadID=533029&messageID=2572018
         // however, its still not perfect as the JDK support is so poor
         // (see commond-exec or ant for a better multi-threaded multi-os solution)
-        
-        List lines = new ArrayList(20);
+
+        List<String> lines = new ArrayList<String>(20);
         Process proc = null;
         InputStream in = null;
         OutputStream out = null;
@@ -412,7 +412,7 @@ public class FileSystemUtils {
                 lines.add(line);
                 line = inr.readLine();
             }
-            
+
             proc.waitFor();
             if (proc.exitValue() != 0) {
                 // os command problem, throw exception
@@ -427,7 +427,7 @@ public class FileSystemUtils {
                         "for command " + Arrays.asList(cmdAttribs));
             }
             return lines;
-            
+
         } catch (InterruptedException ex) {
             throw new IOException(
                     "Command line threw an InterruptedException '" + ex.getMessage() +

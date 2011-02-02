@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,7 +43,7 @@ public interface ConditionalFileFilter {
      * @return the file filter list
      * @since Commons IO 1.1
      */
-    public List getFileFilters();
+    public List<IOFileFilter> getFileFilters();
 
     /**
      * Removes the specified file filter.
@@ -62,6 +62,6 @@ public interface ConditionalFileFilter {
      * @param fileFilters the list of filters
      * @since Commons IO 1.1
      */
-    public void setFileFilters(List fileFilters);
+    public void setFileFilters(List<IOFileFilter> fileFilters);
 
 }

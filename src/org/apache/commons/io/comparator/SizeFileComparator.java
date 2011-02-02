@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,25 +49,25 @@ import org.apache.commons.io.FileUtils;
  * @version $Revision: 609243 $ $Date: 2008-01-06 00:30:42 +0000 (Sun, 06 Jan 2008) $
  * @since Commons IO 1.4
  */
-public class SizeFileComparator implements Comparator, Serializable {
+public class SizeFileComparator implements Comparator<File>, Serializable {
 
     /** Size comparator instance - directories are treated as zero size */
-    public static final Comparator SIZE_COMPARATOR = new SizeFileComparator();
+    public static final Comparator<File> SIZE_COMPARATOR = new SizeFileComparator();
 
     /** Reverse size comparator instance - directories are treated as zero size */
-    public static final Comparator SIZE_REVERSE = new ReverseComparator(SIZE_COMPARATOR);
+    public static final Comparator<File> SIZE_REVERSE = new ReverseComparator<File>(SIZE_COMPARATOR);
 
     /**
      * Size comparator instance which sums the size of a directory's contents
      * using {@link FileUtils#sizeOfDirectory(File)}
      */
-    public static final Comparator SIZE_SUMDIR_COMPARATOR = new SizeFileComparator(true);
+    public static final Comparator<File> SIZE_SUMDIR_COMPARATOR = new SizeFileComparator(true);
 
     /**
      * Reverse size comparator instance which sums the size of a directory's contents
      * using {@link FileUtils#sizeOfDirectory(File)}
      */
-    public static final Comparator SIZE_SUMDIR_REVERSE = new ReverseComparator(SIZE_SUMDIR_COMPARATOR);
+    public static final Comparator<File> SIZE_SUMDIR_REVERSE = new ReverseComparator<File>(SIZE_SUMDIR_COMPARATOR);
 
     /** Whether the sum of the directory's contents should be calculated. */
     private final boolean sumDirectoryContents;
@@ -96,18 +96,16 @@ public class SizeFileComparator implements Comparator, Serializable {
 
     /**
      * Compare the length of two files.
-     * 
+     *
      * @param obj1 The first file to compare
      * @param obj2 The second file to compare
      * @return a negative value if the first file's length
      * is less than the second, zero if the lengths are the
      * same and a positive value if the first files length
      * is greater than the second file.
-     * 
+     *
      */
-    public int compare(Object obj1, Object obj2) {
-        File file1 = (File)obj1;
-        File file2 = (File)obj2;
+    public int compare(File file1, File file2) {
         long size1 = 0;
         if (file1.isDirectory()) {
             size1 = sumDirectoryContents && file1.exists() ? FileUtils.sizeOfDirectory(file1) : 0;
