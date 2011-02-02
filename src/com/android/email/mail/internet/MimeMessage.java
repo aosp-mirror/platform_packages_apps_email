@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
 public class MimeMessage extends Message {
     private MimeHeader mHeader;
     private MimeHeader mExtendedHeader;
-    
+
     // NOTE:  The fields here are transcribed out of headers, and values stored here will supercede
     // the values found in the headers.  Use caution to prevent any out-of-phase errors.  In
     // particular, any adds/changes/deletes here must be echoed by changes in the parse() function.
@@ -69,7 +69,7 @@ public class MimeMessage extends Message {
 
     // Shared random source for generating local message-id values
     private static final java.util.Random sRandom = new java.util.Random();
-    
+
     // In MIME, en_US-like date format should be used. In other words "MMM" should be encoded to
     // "Jan", not the other localized format like "Ene" (meaning January in locale es).
     // This conversion is used when generating outgoing MIME messages. Incoming MIME date
@@ -327,7 +327,7 @@ public class MimeMessage extends Message {
             mReplyTo = replyTo;
         }
     }
-    
+
     /**
      * Set the mime "Message-ID" header
      * @param messageId the new Message-ID value
@@ -337,7 +337,7 @@ public class MimeMessage extends Message {
     public void setMessageId(String messageId) throws MessagingException {
         setHeader("Message-ID", messageId);
     }
-    
+
     /**
      * Get the mime "Message-ID" header.  This value will be preloaded with a locally-generated
      * random ID, if the value has not previously been set.  Local generation can be inhibited/
@@ -409,7 +409,7 @@ public class MimeMessage extends Message {
 
     /**
      * Set extended header
-     * 
+     *
      * @param name Extended header name
      * @param value header value - flattened by removing CR-NL if any
      * remove header if value is null
@@ -430,7 +430,7 @@ public class MimeMessage extends Message {
 
     /**
      * Get extended header
-     * 
+     *
      * @param name Extended header name
      * @return header value - null if header does not exist
      * @throws MessagingException
@@ -444,7 +444,7 @@ public class MimeMessage extends Message {
 
     /**
      * Set entire extended headers from String
-     * 
+     *
      * @param headers Extended header and its value - "CR-NL-separated pairs
      * if null or empty, remove entire extended headers
      * @throws MessagingException
@@ -466,7 +466,7 @@ public class MimeMessage extends Message {
 
     /**
      * Get entire extended headers as String
-     * 
+     *
      * @return "CR-NL-separated extended headers - null if extended header does not exist
      */
     public String getExtendedHeaders() {
@@ -478,7 +478,7 @@ public class MimeMessage extends Message {
 
     /**
      * Write message header and body to output stream
-     * 
+     *
      * @param out Output steam to write message header and body.
      */
     public void writeTo(OutputStream out) throws IOException, MessagingException {
@@ -500,7 +500,7 @@ public class MimeMessage extends Message {
     }
 
     class MimeMessageBuilder implements ContentHandler {
-        private Stack stack = new Stack();
+        private Stack<Object> stack = new Stack<Object>();
 
         public MimeMessageBuilder() {
         }

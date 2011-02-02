@@ -70,7 +70,9 @@ public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
                 Account.CONTENT_PROJECTION, null, null, null);
         try {
             while (c.moveToNext()) {
-                accountList.add(new Account().restore(c));
+                Account account = new Account();
+                account.restore(c);
+                accountList.add(account);
             }
         } finally {
             c.close();

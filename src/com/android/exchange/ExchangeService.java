@@ -473,7 +473,8 @@ public class ExchangeService extends Service implements Runnable {
                 if (hostAuthId > 0) {
                     HostAuth ha = HostAuth.restoreHostAuthWithId(context, hostAuthId);
                     if (ha != null && ha.mProtocol.equals("eas")) {
-                        Account account = new Account().restore(c);
+                        Account account = new Account();
+                        account.restore(c);
                         // Cache the HostAuth
                         account.mHostAuthRecv = ha;
                         accounts.add(account);
@@ -1228,7 +1229,8 @@ public class ExchangeService extends Service implements Runnable {
         try {
             if (c.moveToFirst()) {
                 synchronized(sSyncLock) {
-                    Mailbox m = new Mailbox().restore(c);
+                    Mailbox m = new Mailbox();
+                    m.restore(c);
                     Account acct = Account.restoreAccountWithId(context, accountId);
                     if (acct == null) {
                         reloadFolderListFailed(accountId);

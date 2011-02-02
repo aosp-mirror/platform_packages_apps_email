@@ -105,7 +105,8 @@ public class AccountShortcutPicker extends ListActivity
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Cursor cursor = (Cursor)parent.getItemAtPosition(position);
-        Account account = new Account().restore(cursor);
+        Account account = new Account();
+        account.restore(cursor);
         setupShortcut(account);
         finish();
     }

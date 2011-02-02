@@ -601,7 +601,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /**
      * Set up address auto-completion adapters.
      */
-    @SuppressWarnings("all")
     private void setupAddressAdapters() {
         mAddressAdapterTo = new EmailAddressAdapter(this);
         mAddressAdapterCc = new EmailAddressAdapter(this);

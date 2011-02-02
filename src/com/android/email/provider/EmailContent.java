@@ -100,7 +100,7 @@ public abstract class EmailContent {
     // Write the Content into a ContentValues container
     public abstract ContentValues toContentValues();
     // Read the Content from a ContentCursor
-    public abstract <T extends EmailContent> T restore (Cursor cursor);
+    public abstract void restore (Cursor cursor);
 
     // The Uri is lazily initialized
     public Uri getUri() {
@@ -114,13 +114,13 @@ public abstract class EmailContent {
         return mId != NOT_SAVED;
     }
 
-    @SuppressWarnings("unchecked")
     // The Content sub class must have a no-arg constructor
     static public <T extends EmailContent> T getContent(Cursor cursor, Class<T> klass) {
         try {
             T content = klass.newInstance();
             content.mId = cursor.getLong(0);
-            return (T)content.restore(cursor);
+            content.restore(cursor);
+            return content;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
@@ -382,17 +382,15 @@ public abstract class EmailContent {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public EmailContent.Body restore(Cursor c) {
+        public void restore(Cursor cursor) {
             mBaseUri = EmailContent.Body.CONTENT_URI;
-            mMessageKey = c.getLong(CONTENT_MESSAGE_KEY_COLUMN);
-            mHtmlContent = c.getString(CONTENT_HTML_CONTENT_COLUMN);
-            mTextContent = c.getString(CONTENT_TEXT_CONTENT_COLUMN);
-            mHtmlReply = c.getString(CONTENT_HTML_REPLY_COLUMN);
-            mTextReply = c.getString(CONTENT_TEXT_REPLY_COLUMN);
-            mSourceKey = c.getLong(CONTENT_SOURCE_KEY_COLUMN);
-            mIntroText = c.getString(CONTENT_INTRO_TEXT_COLUMN);
-            return this;
+            mMessageKey = cursor.getLong(CONTENT_MESSAGE_KEY_COLUMN);
+            mHtmlContent = cursor.getString(CONTENT_HTML_CONTENT_COLUMN);
+            mTextContent = cursor.getString(CONTENT_TEXT_CONTENT_COLUMN);
+            mHtmlReply = cursor.getString(CONTENT_HTML_REPLY_COLUMN);
+            mTextReply = cursor.getString(CONTENT_TEXT_REPLY_COLUMN);
+            mSourceKey = cursor.getLong(CONTENT_SOURCE_KEY_COLUMN);
+            mIntroText = cursor.getString(CONTENT_INTRO_TEXT_COLUMN);
         }
 
         public boolean update() {
@@ -737,32 +735,30 @@ public abstract class EmailContent {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public EmailContent.Message restore(Cursor c) {
+        public void restore(Cursor cursor) {
             mBaseUri = CONTENT_URI;
-            mId = c.getLong(CONTENT_ID_COLUMN);
-            mDisplayName = c.getString(CONTENT_DISPLAY_NAME_COLUMN);
-            mTimeStamp = c.getLong(CONTENT_TIMESTAMP_COLUMN);
-            mSubject = c.getString(CONTENT_SUBJECT_COLUMN);
-            mFlagRead = c.getInt(CONTENT_FLAG_READ_COLUMN) == 1;
-            mFlagLoaded = c.getInt(CONTENT_FLAG_LOADED_COLUMN);
-            mFlagFavorite = c.getInt(CONTENT_FLAG_FAVORITE_COLUMN) == 1;
-            mFlagAttachment = c.getInt(CONTENT_FLAG_ATTACHMENT_COLUMN) == 1;
-            mFlags = c.getInt(CONTENT_FLAGS_COLUMN);
-            mServerId = c.getString(CONTENT_SERVER_ID_COLUMN);
-            mServerTimeStamp = c.getLong(CONTENT_SERVER_TIMESTAMP_COLUMN);
-            mClientId = c.getString(CONTENT_CLIENT_ID_COLUMN);
-            mMessageId = c.getString(CONTENT_MESSAGE_ID_COLUMN);
-            mMailboxKey = c.getLong(CONTENT_MAILBOX_KEY_COLUMN);
-            mAccountKey = c.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
-            mFrom = c.getString(CONTENT_FROM_LIST_COLUMN);
-            mTo = c.getString(CONTENT_TO_LIST_COLUMN);
-            mCc = c.getString(CONTENT_CC_LIST_COLUMN);
-            mBcc = c.getString(CONTENT_BCC_LIST_COLUMN);
-            mReplyTo = c.getString(CONTENT_REPLY_TO_COLUMN);
-            mMeetingInfo = c.getString(CONTENT_MEETING_INFO_COLUMN);
-            mSnippet = c.getString(CONTENT_SNIPPET_COLUMN);
-            return this;
+            mId = cursor.getLong(CONTENT_ID_COLUMN);
+            mDisplayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
+            mTimeStamp = cursor.getLong(CONTENT_TIMESTAMP_COLUMN);
+            mSubject = cursor.getString(CONTENT_SUBJECT_COLUMN);
+            mFlagRead = cursor.getInt(CONTENT_FLAG_READ_COLUMN) == 1;
+            mFlagLoaded = cursor.getInt(CONTENT_FLAG_LOADED_COLUMN);
+            mFlagFavorite = cursor.getInt(CONTENT_FLAG_FAVORITE_COLUMN) == 1;
+            mFlagAttachment = cursor.getInt(CONTENT_FLAG_ATTACHMENT_COLUMN) == 1;
+            mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
+            mServerId = cursor.getString(CONTENT_SERVER_ID_COLUMN);
+            mServerTimeStamp = cursor.getLong(CONTENT_SERVER_TIMESTAMP_COLUMN);
+            mClientId = cursor.getString(CONTENT_CLIENT_ID_COLUMN);
+            mMessageId = cursor.getString(CONTENT_MESSAGE_ID_COLUMN);
+            mMailboxKey = cursor.getLong(CONTENT_MAILBOX_KEY_COLUMN);
+            mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
+            mFrom = cursor.getString(CONTENT_FROM_LIST_COLUMN);
+            mTo = cursor.getString(CONTENT_TO_LIST_COLUMN);
+            mCc = cursor.getString(CONTENT_CC_LIST_COLUMN);
+            mBcc = cursor.getString(CONTENT_BCC_LIST_COLUMN);
+            mReplyTo = cursor.getString(CONTENT_REPLY_TO_COLUMN);
+            mMeetingInfo = cursor.getString(CONTENT_MEETING_INFO_COLUMN);
+            mSnippet = cursor.getString(CONTENT_SNIPPET_COLUMN);
         }
 
         public boolean update() {
@@ -1133,8 +1129,7 @@ public abstract class EmailContent {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public EmailContent.Account restore(Cursor cursor) {
+        public void restore(Cursor cursor) {
             mId = cursor.getLong(CONTENT_ID_COLUMN);
             mBaseUri = CONTENT_URI;
             mDisplayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
@@ -1154,7 +1149,6 @@ public abstract class EmailContent {
             mSecurityFlags = cursor.getLong(CONTENT_SECURITY_FLAGS_COLUMN);
             mSecuritySyncKey = cursor.getString(CONTENT_SECURITY_SYNC_KEY_COLUMN);
             mSignature = cursor.getString(CONTENT_SIGNATURE_COLUMN);
-            return this;
         }
 
         private long getId(Uri u) {
@@ -2019,7 +2013,9 @@ public abstract class EmailContent {
                 Attachment[] attachments = new Attachment[count];
                 for (int i = 0; i < count; ++i) {
                     c.moveToNext();
-                    attachments[i] = new Attachment().restore(c);
+                    Attachment attach = new Attachment();
+                    attach.restore(c);
+                    attachments[i] = attach;
                 }
                 return attachments;
             } finally {
@@ -2061,8 +2057,7 @@ public abstract class EmailContent {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public EmailContent.Attachment restore(Cursor cursor) {
+        public void restore(Cursor cursor) {
             mBaseUri = CONTENT_URI;
             mId = cursor.getLong(CONTENT_ID_COLUMN);
             mFileName= cursor.getString(CONTENT_FILENAME_COLUMN);
@@ -2077,7 +2072,6 @@ public abstract class EmailContent {
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mContentBytes = cursor.getBlob(CONTENT_CONTENT_BYTES_COLUMN);
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
-            return this;
         }
 
         @Override
@@ -2361,7 +2355,7 @@ public abstract class EmailContent {
 
             try {
                 if (c.moveToFirst()) {
-                    return EmailContent.getContent(c, Mailbox.class);
+                    return getContent(c, Mailbox.class);
                 } else {
                     return null;
                 }
@@ -2371,8 +2365,7 @@ public abstract class EmailContent {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public EmailContent.Mailbox restore(Cursor cursor) {
+        public void restore(Cursor cursor) {
             mBaseUri = CONTENT_URI;
             mId = cursor.getLong(CONTENT_ID_COLUMN);
             mDisplayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
@@ -2389,7 +2382,6 @@ public abstract class EmailContent {
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mVisibleLimit = cursor.getInt(CONTENT_VISIBLE_LIMIT_COLUMN);
             mSyncStatus = cursor.getString(CONTENT_SYNC_STATUS_COLUMN);
-            return this;
         }
 
         @Override
@@ -2634,8 +2626,7 @@ public abstract class EmailContent {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public EmailContent.HostAuth restore(Cursor cursor) {
+        public void restore(Cursor cursor) {
             mBaseUri = CONTENT_URI;
             mId = cursor.getLong(CONTENT_ID_COLUMN);
             mProtocol = cursor.getString(CONTENT_PROTOCOL_COLUMN);
@@ -2646,7 +2637,6 @@ public abstract class EmailContent {
             mPassword = cursor.getString(CONTENT_PASSWORD_COLUMN);
             mDomain = cursor.getString(CONTENT_DOMAIN_COLUMN);
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
-            return this;
         }
 
         @Override

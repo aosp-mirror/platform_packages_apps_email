@@ -217,7 +217,9 @@ public class Controller {
                 Mailbox.CONTENT_PROJECTION, WHERE_TYPE_ATTACHMENT, null, null);
         try {
             if (c.moveToFirst()) {
-                return new Mailbox().restore(c);
+                Mailbox m = new Mailbox();
+                m.restore(c);
+                return m;
             }
         } finally {
             c.close();

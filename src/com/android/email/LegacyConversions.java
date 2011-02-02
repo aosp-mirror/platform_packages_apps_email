@@ -391,7 +391,8 @@ public class LegacyConversions {
         boolean attachmentFoundInDb = false;
         try {
             while (cursor.moveToNext()) {
-                Attachment dbAttachment = new Attachment().restore(cursor);
+                Attachment dbAttachment = new Attachment();
+                dbAttachment.restore(cursor);
                 // We test each of the fields here (instead of in SQL) because they may be
                 // null, or may be strings.
                 if (stringNotEqual(dbAttachment.mFileName, localAttachment.mFileName)) continue;
