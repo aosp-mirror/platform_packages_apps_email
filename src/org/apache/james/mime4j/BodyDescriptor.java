@@ -23,23 +23,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Encapsulates the values of the MIME-specific header fields 
- * (which starts with <code>Content-</code>). 
+ * Encapsulates the values of the MIME-specific header fields
+ * (which starts with <code>Content-</code>).
  *
- * 
+ *
  * @version $Id: BodyDescriptor.java,v 1.4 2005/02/11 10:08:37 ntherning Exp $
  */
 public class BodyDescriptor {
     private static Log log = LogFactory.getLog(BodyDescriptor.class);
-    
+
     private String mimeType = "text/plain";
     private String boundary = null;
     private String charset = "us-ascii";
     private String transferEncoding = "7bit";
-    private Map parameters = new HashMap();
+    private Map<String, String> parameters = new HashMap<String, String>();
     private boolean contentTypeSet = false;
     private boolean contentTransferEncSet = false;
-    
+
     /**
      * Creates a new root <code>BodyDescriptor</code> instance.
      */
@@ -49,7 +49,7 @@ public class BodyDescriptor {
 
     /**
      * Creates a new <code>BodyDescriptor</code> instance.
-     * 
+     *
      * @param parent the descriptor of the parent or <code>null</code> if this
      *        is the root descriptor.
      */
@@ -60,31 +60,31 @@ public class BodyDescriptor {
             mimeType = "text/plain";
         }
     }
-    
+
     /**
-     * Should be called for each <code>Content-</code> header field of 
+     * Should be called for each <code>Content-</code> header field of
      * a MIME message or part.
-     * 
+     *
      * @param name the field name.
      * @param value the field value.
      */
     public void addField(String name, String value) {
-        
+
         name = name.trim().toLowerCase();
-        
+
         if (name.equals("content-transfer-encoding") && !contentTransferEncSet) {
             contentTransferEncSet = true;
-            
+
             value = value.trim().toLowerCase();
             if (value.length() > 0) {
                 transferEncoding = value;
             }
-            
+
         } else if (name.equals("content-type") && !contentTypeSet) {
             contentTypeSet = true;
-            
+
             value = value.trim();
-            
+
             /*
              * Unfold Content-Type value
              */
@@ -96,10 +96,10 @@ public class BodyDescriptor {
                 }
                 sb.append(c);
             }
-            
-            Map params = getHeaderParams(sb.toString());
-            
-            String main = (String) params.get("");
+
+            Map<String, String> params = getHeaderParams(sb.toString());
+
+            String main = params.get("");
             if (main != null) {
                 main = main.toLowerCase().trim();
                 int index = main.indexOf('/');
@@ -112,32 +112,32 @@ public class BodyDescriptor {
                         valid = true;
                     }
                 }
-                
+
                 if (!valid) {
                     main = null;
                 }
             }
-            String b = (String) params.get("boundary");
-            
-            if (main != null 
-                    && ((main.startsWith("multipart/") && b != null) 
+            String b = params.get("boundary");
+
+            if (main != null
+                    && ((main.startsWith("multipart/") && b != null)
                             || !main.startsWith("multipart/"))) {
-                
+
                 mimeType = main;
             }
-            
+
             if (isMultipart()) {
                 boundary = b;
             }
-            
-            String c = (String) params.get("charset");
+
+            String c = params.get("charset");
             if (c != null) {
                 c = c.trim();
                 if (c.length() > 0) {
                     charset = c.toLowerCase();
                 }
             }
-            
+
             /*
              * Add all other parameters to parameters.
              */
@@ -147,9 +147,9 @@ public class BodyDescriptor {
             parameters.remove("charset");
         }
     }
-    
-    private Map getHeaderParams(String headerValue) {
-        Map result = new HashMap();
+
+    private Map<String, String> getHeaderParams(String headerValue) {
+        Map<String, String> result = new HashMap<String, String>();
 
         // split main value and parameters
         String main;
@@ -198,7 +198,7 @@ public class BodyDescriptor {
                         paramValue = new StringBuffer();
 
                         state = IN_NAME;
-                        // fall-through
+                        // $FALL-THROUGH$
 
                     case IN_NAME:
                         if (c == '=') {
@@ -232,7 +232,7 @@ public class BodyDescriptor {
                         if (!fallThrough)
                             break;
 
-                        // fall-through
+                        // $FALL-THROUGH$
 
                     case IN_VALUE:
                         fallThrough = false;
@@ -253,6 +253,8 @@ public class BodyDescriptor {
                         if (!fallThrough)
                             break;
 
+                        // $FALL-THROUGH$
+
                     case VALUE_DONE:
                         switch (c) {
                             case ';':
@@ -268,7 +270,7 @@ public class BodyDescriptor {
                                 break;
                         }
                         break;
-                        
+
                     case IN_QUOTED_VALUE:
                         switch (c) {
                             case '"':
@@ -280,10 +282,10 @@ public class BodyDescriptor {
                                     state = VALUE_DONE;
                                 } else {
                                     escaped = false;
-                                    paramValue.append(c);                                    
+                                    paramValue.append(c);
                                 }
                                 break;
-                                
+
                             case '\\':
                                 if (escaped) {
                                     paramValue.append('\\');
@@ -314,93 +316,76 @@ public class BodyDescriptor {
 
         return result;
     }
-    
+
 
     public boolean isMimeType(String mimeType) {
         return this.mimeType.equals(mimeType.toLowerCase());
     }
-    
+
     /**
-     * Return true if the BodyDescriptor belongs to a message 
-     * 
-     * @return
+     * Return true if the BodyDescriptor belongs to a message
      */
     public boolean isMessage() {
         return mimeType.equals("message/rfc822");
     }
-    
+
     /**
-     * Retrun true if the BodyDescripotro belogns to a multipart
-     * 
-     * @return
+     * Return true if the BodyDescripotro belongs to a multipart
      */
     public boolean isMultipart() {
         return mimeType.startsWith("multipart/");
     }
-    
+
     /**
-     * Return the MimeType 
-     * 
-     * @return mimeType
+     * Return the MimeType
      */
     public String getMimeType() {
         return mimeType;
     }
-    
+
     /**
      * Return the boundary
-     * 
-     * @return boundary
      */
     public String getBoundary() {
         return boundary;
     }
-    
+
     /**
      * Return the charset
-     * 
-     * @return charset
      */
     public String getCharset() {
         return charset;
     }
-    
+
     /**
      * Return all parameters for the BodyDescriptor
-     * 
-     * @return parameters
      */
-    public Map getParameters() {
+    public Map<String, String> getParameters() {
         return parameters;
     }
-    
+
     /**
      * Return the TransferEncoding
-     * 
-     * @return transferEncoding
      */
     public String getTransferEncoding() {
         return transferEncoding;
     }
-    
+
     /**
      * Return true if it's base64 encoded
-     * 
-     * @return
-     * 
      */
     public boolean isBase64Encoded() {
         return "base64".equals(transferEncoding);
     }
-    
+
     /**
      * Return true if it's quoted-printable
-     * @return
      */
     public boolean isQuotedPrintableEncoded() {
         return "quoted-printable".equals(transferEncoding);
     }
-    
+
+    @Override
     public String toString() {
         return mimeType;
     }

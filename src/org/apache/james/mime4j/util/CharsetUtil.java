@@ -786,68 +786,67 @@ import org.apache.james.mime4j.LogFactory;
  *         <td></td>
  *     </tr>
  * </table>
- * 
- * 
+ *
+ *
  * @version $Id: CharsetUtil.java,v 1.1 2004/10/25 07:26:46 ntherning Exp $
  */
 public class CharsetUtil {
     private static Log log = LogFactory.getLog(CharsetUtil.class);
-    
-    private static class Charset implements Comparable {
+
+    private static class Charset implements Comparable<Charset> {
         private String canonical = null;
         private String mime = null;
         private String[] aliases = null;
-        
+
         private Charset(String canonical, String mime, String[] aliases) {
             this.canonical = canonical;
             this.mime = mime;
             this.aliases = aliases;
         }
 
-        public int compareTo(Object o) {
-            Charset c = (Charset) o;
+        public int compareTo(Charset c) {
             return this.canonical.compareTo(c.canonical);
         }
     }
-    
+
     private static Charset[] JAVA_CHARSETS = {
-        new Charset("ISO8859_1", "ISO-8859-1", 
-                    new String[] {"ISO_8859-1:1987", "iso-ir-100", "ISO_8859-1", 
-                                  "latin1", "l1", "IBM819", "CP819", 
-                                  "csISOLatin1", "8859_1", "819", "IBM-819", 
+        new Charset("ISO8859_1", "ISO-8859-1",
+                    new String[] {"ISO_8859-1:1987", "iso-ir-100", "ISO_8859-1",
+                                  "latin1", "l1", "IBM819", "CP819",
+                                  "csISOLatin1", "8859_1", "819", "IBM-819",
                                   "ISO8859-1", "ISO_8859_1"}),
-        new Charset("ISO8859_2", "ISO-8859-2", 
-                    new String[] {"ISO_8859-2:1987", "iso-ir-101", "ISO_8859-2",  
-                                  "latin2", "l2", "csISOLatin2", "8859_2", 
+        new Charset("ISO8859_2", "ISO-8859-2",
+                    new String[] {"ISO_8859-2:1987", "iso-ir-101", "ISO_8859-2",
+                                  "latin2", "l2", "csISOLatin2", "8859_2",
                                   "iso8859_2"}),
         new Charset("ISO8859_3", "ISO-8859-3", new String[] {"ISO_8859-3:1988", "iso-ir-109", "ISO_8859-3", "latin3", "l3", "csISOLatin3", "8859_3"}),
-        new Charset("ISO8859_4", "ISO-8859-4", 
+        new Charset("ISO8859_4", "ISO-8859-4",
                     new String[] {"ISO_8859-4:1988", "iso-ir-110", "ISO_8859-4",
                                   "latin4", "l4", "csISOLatin4", "8859_4"}),
-        new Charset("ISO8859_5", "ISO-8859-5", 
-                    new String[] {"ISO_8859-5:1988", "iso-ir-144", "ISO_8859-5", 
+        new Charset("ISO8859_5", "ISO-8859-5",
+                    new String[] {"ISO_8859-5:1988", "iso-ir-144", "ISO_8859-5",
                                   "cyrillic", "csISOLatinCyrillic", "8859_5"}),
         new Charset("ISO8859_6", "ISO-8859-6", new String[] {"ISO_8859-6:1987", "iso-ir-127", "ISO_8859-6", "ECMA-114", "ASMO-708", "arabic", "csISOLatinArabic", "8859_6"}),
-        new Charset("ISO8859_7", "ISO-8859-7", 
-                    new String[] {"ISO_8859-7:1987", "iso-ir-126", "ISO_8859-7", 
-                                  "ELOT_928", "ECMA-118", "greek", "greek8", 
+        new Charset("ISO8859_7", "ISO-8859-7",
+                    new String[] {"ISO_8859-7:1987", "iso-ir-126", "ISO_8859-7",
+                                  "ELOT_928", "ECMA-118", "greek", "greek8",
                                   "csISOLatinGreek", "8859_7", "sun_eu_greek"}),
         new Charset("ISO8859_8", "ISO-8859-8", new String[] {"ISO_8859-8:1988", "iso-ir-138", "ISO_8859-8", "hebrew", "csISOLatinHebrew", "8859_8"}),
-        new Charset("ISO8859_9", "ISO-8859-9", 
-                    new String[] {"ISO_8859-9:1989", "iso-ir-148", "ISO_8859-9",  
+        new Charset("ISO8859_9", "ISO-8859-9",
+                    new String[] {"ISO_8859-9:1989", "iso-ir-148", "ISO_8859-9",
                                   "latin5", "l5", "csISOLatin5", "8859_9"}),
 
         new Charset("ISO8859_13", "ISO-8859-13", new String[] {}),
-        new Charset("ISO8859_15", "ISO-8859-15", 
-                    new String[] {"ISO_8859-15", "Latin-9", "8859_15", 
+        new Charset("ISO8859_15", "ISO-8859-15",
+                    new String[] {"ISO_8859-15", "Latin-9", "8859_15",
                                   "csISOlatin9", "IBM923", "cp923", "923", "L9",
-                                  "IBM-923", "ISO8859-15", "LATIN9", "LATIN0", 
+                                  "IBM-923", "ISO8859-15", "LATIN9", "LATIN0",
                                   "csISOlatin0", "ISO8859_15_FDIS"}),
         new Charset("KOI8_R", "KOI8-R", new String[] {"csKOI8R", "koi8"}),
-        new Charset("ASCII", "US-ASCII", 
-                    new String[] {"ANSI_X3.4-1968", "iso-ir-6", 
-                                  "ANSI_X3.4-1986", "ISO_646.irv:1991", 
-                                  "ISO646-US", "us", "IBM367", "cp367", 
+        new Charset("ASCII", "US-ASCII",
+                    new String[] {"ANSI_X3.4-1968", "iso-ir-6",
+                                  "ANSI_X3.4-1986", "ISO_646.irv:1991",
+                                  "ISO646-US", "us", "IBM367", "cp367",
                                   "csASCII", "ascii7", "646", "iso_646.irv:1983"}),
         new Charset("UTF8", "UTF-8", new String[] {}),
         new Charset("UTF-16", "UTF-16", new String[] {"UTF_16"}),
@@ -855,13 +854,13 @@ public class CharsetUtil {
         new Charset("UnicodeLittleUnmarked", "UTF-16LE", new String[] {"UTF_16LE", "X-UTF-16LE"}),
         new Charset("Big5", "Big5", new String[] {"csBig5", "CN-Big5", "BIG-FIVE", "BIGFIVE"}),
         new Charset("Big5_HKSCS", "Big5-HKSCS", new String[] {"big5hkscs"}),
-        new Charset("EUC_JP", "EUC-JP", 
-                    new String[] {"csEUCPkdFmtJapanese", 
+        new Charset("EUC_JP", "EUC-JP",
+                    new String[] {"csEUCPkdFmtJapanese",
                               "Extended_UNIX_Code_Packed_Format_for_Japanese",
                               "eucjis", "x-eucjp", "eucjp", "x-euc-jp"}),
-        new Charset("EUC_KR", "EUC-KR", 
-                    new String[] {"csEUCKR", "ksc5601", "5601", "ksc5601_1987", 
-                                  "ksc_5601", "ksc5601-1987", "ks_c_5601-1987", 
+        new Charset("EUC_KR", "EUC-KR",
+                    new String[] {"csEUCKR", "ksc5601", "5601", "ksc5601_1987",
+                                  "ksc_5601", "ksc5601-1987", "ks_c_5601-1987",
                                   "euckr"}),
         new Charset("GB18030", "GB18030", new String[] {"gb18030-2000"}),
         new Charset("EUC_CN", "GB2312", new String[] {"x-EUC-CN", "csGB2312", "euccn", "euc-cn", "gb2312-80", "gb2312-1980", "CN-GB", "CN-GB-ISOIR165"}),
@@ -885,8 +884,8 @@ public class CharsetUtil {
         new Charset("Cp852", "IBM852", new String[] {"852", "csPCp852"}),
         new Charset("Cp855", "IBM855", new String[] {"855", "csIBM855"}),
         new Charset("Cp857", "IBM857", new String[] {"857", "csIBM857"}),
-        new Charset("Cp858", "IBM00858", 
-                new String[] {"CCSID00858", "CP00858", 
+        new Charset("Cp858", "IBM00858",
+                new String[] {"CCSID00858", "CP00858",
                               "PC-Multilingual-850+euro"}),
         new Charset("Cp860", "IBM860", new String[] {"860", "csIBM860"}),
         new Charset("Cp861", "IBM861", new String[] {"861", "cp-is", "csIBM861"}),
@@ -902,11 +901,11 @@ public class CharsetUtil {
         new Charset("Cp918", "IBM918", new String[] {"ebcdic-cp-ar2", "csIBM918"}),
         new Charset("Cp1026", "IBM1026", new String[] {"csIBM1026"}),
         new Charset("Cp1047", "IBM1047", new String[] {"IBM-1047"}),
-        new Charset("Cp1140", "IBM01140", 
-                    new String[] {"CCSID01140", "CP01140", 
+        new Charset("Cp1140", "IBM01140",
+                    new String[] {"CCSID01140", "CP01140",
                                   "ebcdic-us-37+euro"}),
-        new Charset("Cp1141", "IBM01141", 
-                    new String[] {"CCSID01141", "CP01141", 
+        new Charset("Cp1141", "IBM01141",
+                    new String[] {"CCSID01141", "CP01141",
                                   "ebcdic-de-273+euro"}),
         new Charset("Cp1142", "IBM01142", new String[] {"CCSID01142", "CP01142", "ebcdic-dk-277+euro", "ebcdic-no-277+euro"}),
         new Charset("Cp1143", "IBM01143", new String[] {"CCSID01143", "CP01143", "ebcdic-fi-278+euro", "ebcdic-se-278+euro"}),
@@ -962,7 +961,7 @@ public class CharsetUtil {
         new Charset("Cp964", null, new String[] {}),
         new Charset("Cp970", null, new String[] {}),
         new Charset("Cp1006", null, new String[] {}),
-        new Charset("Cp1025", null, new String[] {}),    
+        new Charset("Cp1025", null, new String[] {}),
         new Charset("Cp1046", null, new String[] {}),
         new Charset("Cp1097", null, new String[] {}),
         new Charset("Cp1098", null, new String[] {}),
@@ -1000,26 +999,26 @@ public class CharsetUtil {
     };
 
     /**
-     * Contains the canonical names of character sets which can be used to 
+     * Contains the canonical names of character sets which can be used to
      * decode bytes into Java chars.
      */
-    private static TreeSet decodingSupported = null;
-    
+    private static TreeSet<String> decodingSupported = null;
+
     /**
-     * Contains the canonical names of character sets which can be used to 
+     * Contains the canonical names of character sets which can be used to
      * encode Java chars into bytes.
      */
-    private static TreeSet encodingSupported = null;
-    
+    private static TreeSet<String> encodingSupported = null;
+
     /**
      * Maps character set names to Charset objects. All possible names of
      * a charset will be mapped to the Charset.
      */
-    private static HashMap charsetMap = null;
-    
+    private static HashMap<String, Charset> charsetMap = null;
+
     static {
-        decodingSupported = new TreeSet();
-        encodingSupported = new TreeSet();
+        decodingSupported = new TreeSet<String>();
+        encodingSupported = new TreeSet<String>();
         byte[] dummy = new byte[] {'d', 'u', 'm', 'm', 'y'};
         for (int i = 0; i < JAVA_CHARSETS.length; i++) {
             try {
@@ -1035,8 +1034,8 @@ public class CharsetUtil {
             } catch (UnsupportedEncodingException e) {
             }
         }
-        
-        charsetMap = new HashMap();
+
+        charsetMap = new HashMap<String, Charset>();
         for (int i = 0; i < JAVA_CHARSETS.length; i++) {
             Charset c = JAVA_CHARSETS[i];
             charsetMap.put(c.canonical.toLowerCase(), c);
@@ -1049,19 +1048,19 @@ public class CharsetUtil {
                 }
             }
         }
-        
+
         if (log.isDebugEnabled()) {
-            log.debug("Character sets which support decoding: " 
+            log.debug("Character sets which support decoding: "
                         + decodingSupported);
-            log.debug("Character sets which support encoding: " 
+            log.debug("Character sets which support encoding: "
                         + encodingSupported);
         }
     }
-    
+
     /**
      * ANDROID:  THE FOLLOWING SET OF STATIC STRINGS ARE COPIED FROM A NEWER VERSION OF MIME4J
      */
-    
+
     /** carriage return - line feed sequence */
     public static final String CRLF = "\r\n";
 
@@ -1076,7 +1075,7 @@ public class CharsetUtil {
 
     /** US-ASCII HT, horizontal-tab (9)*/
     public static final int HT = '\t';
-    
+
     public static final java.nio.charset.Charset US_ASCII = java.nio.charset.Charset
             .forName("US-ASCII");
 
@@ -1089,9 +1088,9 @@ public class CharsetUtil {
     /**
      * Returns <code>true</code> if the specified character is a whitespace
      * character (CR, LF, SP or HT).
-     * 
+     *
      * ANDROID:  COPIED FROM A NEWER VERSION OF MIME4J
-     * 
+     *
      * @param ch
      *            character to test.
      * @return <code>true</code> if the specified character is a whitespace
@@ -1104,9 +1103,9 @@ public class CharsetUtil {
     /**
      * Returns <code>true</code> if the specified string consists entirely of
      * whitespace characters.
-     * 
+     *
      * ANDROID:  COPIED FROM A NEWER VERSION OF MIME4J
-     * 
+     *
      * @param s
      *            string to test.
      * @return <code>true</code> if the specified string consists entirely of
@@ -1126,12 +1125,12 @@ public class CharsetUtil {
     }
 
     /**
-     * Determines if the VM supports encoding (chars to bytes) the 
-     * specified character set. NOTE: the given character set name may 
+     * Determines if the VM supports encoding (chars to bytes) the
+     * specified character set. NOTE: the given character set name may
      * not be known to the VM even if this method returns <code>true</code>.
      * Use {@link #toJavaCharset(String)} to get the canonical Java character
      * set name.
-     * 
+     *
      * @param charsetName the characters set name.
      * @return <code>true</code> if encoding is supported, <code>false</code>
      *         otherwise.
@@ -1139,14 +1138,14 @@ public class CharsetUtil {
     public static boolean isEncodingSupported(String charsetName) {
         return encodingSupported.contains(charsetName.toLowerCase());
     }
-    
+
     /**
-     * Determines if the VM supports decoding (bytes to chars) the 
-     * specified character set. NOTE: the given character set name may 
+     * Determines if the VM supports decoding (bytes to chars) the
+     * specified character set. NOTE: the given character set name may
      * not be known to the VM even if this method returns <code>true</code>.
      * Use {@link #toJavaCharset(String)} to get the canonical Java character
      * set name.
-     * 
+     *
      * @param charsetName the characters set name.
      * @return <code>true</code> if decoding is supported, <code>false</code>
      *         otherwise.
@@ -1154,22 +1153,22 @@ public class CharsetUtil {
     public static boolean isDecodingSupported(String charsetName) {
         return decodingSupported.contains(charsetName.toLowerCase());
     }
-    
+
     /**
      * Gets the preferred MIME character set name for the specified
      * character set or <code>null</code> if not known.
-     * 
+     *
      * @param charsetName the character set name to look for.
      * @return the MIME preferred name or <code>null</code> if not known.
      */
     public static String toMimeCharset(String charsetName) {
-        Charset c = (Charset) charsetMap.get(charsetName.toLowerCase());
+        Charset c = charsetMap.get(charsetName.toLowerCase());
         if (c != null) {
             return c.mime;
         }
         return null;
     }
-    
+
     /**
      * Gets the canonical Java character set name for the specified
      * character set or <code>null</code> if not known. This should be
@@ -1177,12 +1176,12 @@ public class CharsetUtil {
      * you must use {@link #isEncodingSupported(String)} or
      * {@link #isDecodingSupported(String)} to make sure the returned
      * Java character set is supported by the current VM.
-     * 
+     *
      * @param charsetName the character set name to look for.
      * @return the canonical Java name or <code>null</code> if not known.
      */
     public static String toJavaCharset(String charsetName) {
-        Charset c = (Charset) charsetMap.get(charsetName.toLowerCase());
+        Charset c = charsetMap.get(charsetName.toLowerCase());
         if (c != null) {
             return c.canonical;
         }
@@ -1191,28 +1190,28 @@ public class CharsetUtil {
 
     public static java.nio.charset.Charset getCharset(String charsetName) {
         String defaultCharset = "ISO-8859-1";
-        
+
         // Use the default chareset if given charset is null
         if(charsetName == null) charsetName = defaultCharset;
-            
+
         try {
             return java.nio.charset.Charset.forName(charsetName);
         } catch (IllegalCharsetNameException e) {
             log.info("Illegal charset " + charsetName + ", fallback to " + defaultCharset + ": " + e);
-            // Use default charset on exception 
+            // Use default charset on exception
             return java.nio.charset.Charset.forName(defaultCharset);
         } catch (UnsupportedCharsetException ex) {
             log.info("Unsupported charset " + charsetName + ", fallback to " + defaultCharset + ": " + ex);
             // Use default charset on exception
             return java.nio.charset.Charset.forName(defaultCharset);
         }
-        
+
     }
     /*
      * Uncomment the code below and run the main method to regenerate the
-     * Javadoc table above when the known charsets change. 
+     * Javadoc table above when the known charsets change.
      */
-    
+
     /*
     private static String dumpHtmlTable() {
         LinkedList l = new LinkedList(Arrays.asList(JAVA_CHARSETS));
@@ -1240,7 +1239,7 @@ public class CharsetUtil {
         sb.append(" * </table>\n");
         return sb.toString();
     }
-    
+
     public static void main(String[] args) {
         System.out.println(dumpHtmlTable());
     }*/

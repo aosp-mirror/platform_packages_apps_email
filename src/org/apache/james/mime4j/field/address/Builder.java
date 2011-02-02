@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.james.mime4j.decoder.DecoderUtil;
-import org.apache.james.mime4j.field.address.parser.*;
 import org.apache.james.mime4j.field.address.parser.ASTaddr_spec;
 import org.apache.james.mime4j.field.address.parser.ASTaddress;
 import org.apache.james.mime4j.field.address.parser.ASTaddress_list;
@@ -43,20 +42,20 @@ import org.apache.james.mime4j.field.address.parser.Token;
  * Transforms the JJTree-generated abstract syntax tree
  * into a graph of org.apache.james.mime4j.field.address objects.
  *
- * 
+ *
  */
 class Builder {
 
 	private static Builder singleton = new Builder();
-	
+
 	public static Builder getInstance() {
 		return singleton;
 	}
-	
-	
-	
+
+
+
 	public AddressList buildAddressList(ASTaddress_list node) {
-		ArrayList list = new ArrayList();
+		ArrayList<Address> list = new ArrayList<Address>();
 		for (int i = 0; i < node.jjtGetNumChildren(); i++) {
 			ASTaddress childNode = (ASTaddress) node.jjtGetChild(i);
 			Address address = buildAddress(childNode);
@@ -92,11 +91,11 @@ class Builder {
 			throw new IllegalStateException();
 		}
 	}
-	
-	
-	
+
+
+
 	private MailboxList buildGroupBody(ASTgroup_body node) {
-		ArrayList results = new ArrayList();
+		ArrayList<Address> results = new ArrayList<Address>();
 		ChildNodeIterator it = new ChildNodeIterator(node);
 		while (it.hasNext()) {
 			Node n = it.nextNode();
@@ -135,7 +134,7 @@ class Builder {
 		else {
 			throw new IllegalStateException();
 		}
-		
+
 		n = it.nextNode();
 		if (n instanceof ASTangle_addr) {
             name = DecoderUtil.decodeEncodedWords(name);
@@ -145,7 +144,7 @@ class Builder {
 			throw new IllegalStateException();
 		}
 	}
-	
+
 	private Mailbox buildAngleAddr(ASTangle_addr node) {
 		ChildNodeIterator it = new ChildNodeIterator(node);
 		DomainList route = null;
@@ -158,7 +157,7 @@ class Builder {
 			; // do nothing
 		else
 			throw new IllegalStateException();
-		
+
 		if (n instanceof ASTaddr_spec)
 			return buildAddrSpec(route, (ASTaddr_spec)n);
 		else
@@ -166,7 +165,7 @@ class Builder {
 	}
 
 	private DomainList buildRoute(ASTroute node) {
-		ArrayList results = new ArrayList(node.jjtGetNumChildren());
+		ArrayList<String> results = new ArrayList<String>(node.jjtGetNumChildren());
 		ChildNodeIterator it = new ChildNodeIterator(node);
 		while (it.hasNext()) {
 			Node n = it.nextNode();
@@ -185,7 +184,7 @@ class Builder {
 		ChildNodeIterator it = new ChildNodeIterator(node);
 		String localPart = buildString((ASTlocal_part)it.nextNode(), true);
 		String domain = buildString((ASTdomain)it.nextNode(), true);
-		return new Mailbox(route, localPart, domain);		
+		return new Mailbox(route, localPart, domain);
 	}
 
 
@@ -193,15 +192,15 @@ class Builder {
 		Token head = node.firstToken;
 		Token tail = node.lastToken;
 		StringBuffer out = new StringBuffer();
-		
+
 		while (head != tail) {
 			out.append(head.image);
 			head = head.next;
 			if (!stripSpaces)
 				addSpecials(out, head.specialToken);
 		}
-		out.append(tail.image);			
-		
+		out.append(tail.image);
+
 		return out.toString();
 	}
 
@@ -212,18 +211,18 @@ class Builder {
 		}
 	}
 
-	private static class ChildNodeIterator implements Iterator {
+	private static class ChildNodeIterator implements Iterator<Node> {
 
 		private SimpleNode simpleNode;
 		private int index;
 		private int len;
-		
+
 		public ChildNodeIterator(SimpleNode simpleNode) {
 			this.simpleNode = simpleNode;
 			this.len = simpleNode.jjtGetNumChildren();
 			this.index = 0;
 		}
-		
+
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
@@ -232,13 +231,13 @@ class Builder {
 			return index < len;
 		}
 
-		public Object next() {
+		public Node next() {
 			return nextNode();
 		}
-		
+
 		public Node nextNode() {
 			return simpleNode.jjtGetChild(index++);
 		}
-		
+
 	}
 }

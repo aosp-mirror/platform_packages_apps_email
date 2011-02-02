@@ -24,6 +24,7 @@ import com.android.email.provider.EmailContent.Message;
 
 import org.apache.james.mime4j.field.Field;
 import org.apache.james.mime4j.message.Body;
+import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.Entity;
 import org.apache.james.mime4j.message.Header;
 import org.apache.james.mime4j.message.Multipart;
@@ -210,11 +211,11 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         Field contentType = header.getField("content-type");
         assertTrue(contentType.getBody().contains("multipart/alternative"));
         Multipart multipart = (Multipart)mimeMessage.getBody();
-        List<Body> partList = multipart.getBodyParts();
+        List<BodyPart> partList = multipart.getBodyParts();
         assertEquals(2, partList.size());
-        Entity part = (Entity)partList.get(0);
+        Entity part = partList.get(0);
         assertEquals("text/plain", part.getMimeType());
-        part = (Entity)partList.get(1);
+        part = partList.get(1);
         assertEquals("text/calendar", part.getMimeType());
         header = part.getHeader();
         assertNull(header.getField("content-disposition"));
@@ -254,11 +255,11 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         Field contentType = header.getField("content-type");
         assertTrue(contentType.getBody().contains("multipart/mixed"));
         Multipart multipart = (Multipart)mimeMessage.getBody();
-        List<Body> partList = multipart.getBodyParts();
+        List<BodyPart> partList = multipart.getBodyParts();
         assertEquals(2, partList.size());
-        Entity part = (Entity)partList.get(0);
+        Entity part = partList.get(0);
         assertEquals("text/plain", part.getMimeType());
-        part = (Entity)partList.get(1);
+        part = partList.get(1);
         assertEquals("text/html", part.getMimeType());
         header = part.getHeader();
         assertNotNull(header.getField("content-disposition"));

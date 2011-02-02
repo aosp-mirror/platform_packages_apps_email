@@ -22,14 +22,14 @@ package org.apache.james.mime4j.field.address;
 import java.util.ArrayList;
 
 /**
- * A named group of zero or more mailboxes.  
+ * A named group of zero or more mailboxes.
  *
- * 
+ *
  */
 public class Group extends Address {
 	private String name;
 	private MailboxList mailboxList;
-	
+
 	/**
 	 * @param name The group name.
 	 * @param mailboxes The mailboxes in this group.
@@ -45,14 +45,15 @@ public class Group extends Address {
 	public String getName() {
 		return name;
 	}
-	
+
 	/**
 	 * Returns the mailboxes in this group.
 	 */
 	public MailboxList getMailboxes() {
 		return mailboxList;
 	}
-	
+
+	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
 		buf.append(name);
@@ -66,7 +67,8 @@ public class Group extends Address {
 		return buf.toString();
 	}
 
-	protected void doAddMailboxesTo(ArrayList results) {
+	@Override
+	protected void doAddMailboxesTo(ArrayList<Address> results) {
 		for (int i = 0; i < mailboxList.size(); i++)
 			results.add(mailboxList.get(i));
 	}

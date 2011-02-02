@@ -17,18 +17,19 @@
 package org.apache.james.mime4j.field.contenttype.parser;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class ContentTypeParser implements ContentTypeParserConstants {
 
         private String type;
         private String subtype;
-        private ArrayList paramNames = new ArrayList();
-        private ArrayList paramValues = new ArrayList();
+        private ArrayList<String> paramNames = new ArrayList<String>();
+        private ArrayList<String> paramValues = new ArrayList<String>();
 
         public String getType() { return type; }
         public String getSubType() { return subtype; }
-        public ArrayList getParamNames() { return paramNames; }
-        public ArrayList getParamValues() { return paramValues; }
+        public ArrayList<String> getParamNames() { return paramNames; }
+        public ArrayList<String> getParamValues() { return paramValues; }
 
     public static void main(String args[]) throws ParseException {
         while (true) {
@@ -221,7 +222,7 @@ public class ContentTypeParser implements ContentTypeParserConstants {
       return (jj_ntk = jj_nt.kind);
   }
 
-  private java.util.Vector jj_expentries = new java.util.Vector();
+  private Vector<int[]> jj_expentries = new Vector<int[]>();
   private int[] jj_expentry;
   private int jj_kind = -1;
 
@@ -253,7 +254,7 @@ public class ContentTypeParser implements ContentTypeParserConstants {
     }
     int[][] exptokseq = new int[jj_expentries.size()][];
     for (int i = 0; i < jj_expentries.size(); i++) {
-      exptokseq[i] = (int[])jj_expentries.elementAt(i);
+      exptokseq[i] = jj_expentries.elementAt(i);
     }
     return new ParseException(token, exptokseq, tokenImage);
   }

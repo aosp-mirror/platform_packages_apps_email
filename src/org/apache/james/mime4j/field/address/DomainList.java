@@ -22,25 +22,25 @@ package org.apache.james.mime4j.field.address;
 import java.util.ArrayList;
 
 /**
- * An immutable, random-access list of Strings (that 
+ * An immutable, random-access list of Strings (that
  * are supposedly domain names or domain literals).
  *
- * 
+ *
  */
 public class DomainList {
-	private ArrayList domains;
-	
+	private ArrayList<String> domains;
+
 	/**
-	 * @param domains An ArrayList that contains only String objects. 
+	 * @param domains An ArrayList that contains only String objects.
 	 * @param dontCopy true iff it is not possible for the domains ArrayList to be modified by someone else.
 	 */
-	public DomainList(ArrayList domains, boolean dontCopy) {
+	public DomainList(ArrayList<String> domains, boolean dontCopy) {
 		if (domains != null)
-			this.domains = (dontCopy ? domains : (ArrayList) domains.clone());
+			this.domains = (dontCopy ? domains : new ArrayList<String>(domains));
 		else
-			this.domains = new ArrayList(0);
+			this.domains = new ArrayList<String>(0);
 	}
-	
+
 	/**
 	 * The number of elements in this list.
 	 */
@@ -56,12 +56,12 @@ public class DomainList {
 	public String get(int index) {
 		if (0 > index || size() <= index)
 			throw new IndexOutOfBoundsException();
-		return (String) domains.get(index);
+		return domains.get(index);
 	}
 
 	/**
 	 * Returns the list of domains formatted as a route
-	 * string (not including the trailing ':'). 
+	 * string (not including the trailing ':').
 	 */
 	public String toRouteString() {
 		StringBuffer out = new StringBuffer();

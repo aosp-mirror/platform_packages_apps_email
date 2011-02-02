@@ -34,30 +34,30 @@ import org.apache.james.mime4j.field.UnstructuredField;
 
 
 /**
- * Represents a MIME message. The following code parses a stream into a 
+ * Represents a MIME message. The following code parses a stream into a
  * <code>Message</code> object.
- * 
+ *
  * <pre>
  *      Message msg = new Message(new BufferedInputStream(
  *                                      new FileInputStream("mime.msg")));
  * </pre>
- * 
  *
- * 
+ *
+ *
  * @version $Id: Message.java,v 1.3 2004/10/02 12:41:11 ntherning Exp $
  */
 public class Message extends Entity implements Body {
-    
+
     /**
      * Creates a new empty <code>Message</code>.
      */
     public Message() {
     }
-    
+
     /**
      * Parses the specified MIME message stream into a <code>Message</code>
      * instance.
-     * 
+     *
      * @param is the stream to parse.
      * @throws IOException on I/O errors.
      */
@@ -67,10 +67,10 @@ public class Message extends Entity implements Body {
         parser.parse(is);
     }
 
-    
+
     /**
      * Gets the <code>Subject</code> field.
-     * 
+     *
      * @return the <code>Subject</code> field or <code>null</code> if it
      *         doesn't exist.
      */
@@ -79,9 +79,10 @@ public class Message extends Entity implements Body {
     }
 
     /**
-     * 
+     *
      * @see org.apache.james.mime4j.message.Entity#writeTo(java.io.OutputStream)
      */
+    @Override
     public void writeTo(OutputStream out) throws IOException {
         getHeader().writeTo(out);
 
@@ -93,14 +94,14 @@ public class Message extends Entity implements Body {
             body.writeTo(out);
         }
     }
-    
-    
+
+
     private class MessageBuilder implements ContentHandler {
-        private Stack stack = new Stack();
-        
+        private Stack<Object> stack = new Stack<Object>();
+
         public MessageBuilder() {
         }
-        
+
         private void expect(Class c) {
             if (!c.isInstance(stack.peek())) {
                 throw new IllegalStateException("Internal stack error: "
@@ -108,7 +109,7 @@ public class Message extends Entity implements Body {
                         + stack.peek().getClass().getName() + "'");
             }
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#startMessage()
          */
@@ -122,7 +123,7 @@ public class Message extends Entity implements Body {
                 stack.push(m);
             }
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#endMessage()
          */
@@ -130,14 +131,14 @@ public class Message extends Entity implements Body {
             expect(Message.class);
             stack.pop();
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#startHeader()
          */
         public void startHeader() {
             stack.push(new Header());
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#field(java.lang.String)
          */
@@ -145,7 +146,7 @@ public class Message extends Entity implements Body {
             expect(Header.class);
             ((Header) stack.peek()).addField(Field.parse(fieldData));
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#endHeader()
          */
@@ -155,60 +156,60 @@ public class Message extends Entity implements Body {
             expect(Entity.class);
             ((Entity) stack.peek()).setHeader(h);
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#startMultipart(org.apache.james.mime4j.BodyDescriptor)
          */
         public void startMultipart(BodyDescriptor bd) {
             expect(Entity.class);
-            
+
             Entity e = (Entity) stack.peek();
             Multipart multiPart = new Multipart();
             e.setBody(multiPart);
             stack.push(multiPart);
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#body(org.apache.james.mime4j.BodyDescriptor, java.io.InputStream)
          */
         public void body(BodyDescriptor bd, InputStream is) throws IOException {
             expect(Entity.class);
-            
+
             String enc = bd.getTransferEncoding();
             if ("base64".equals(enc)) {
                 is = new Base64InputStream(is);
             } else if ("quoted-printable".equals(enc)) {
                 is = new QuotedPrintableInputStream(is);
             }
-            
+
             Body body = null;
             if (bd.getMimeType().startsWith("text/")) {
                 body = new MemoryTextBody(is, bd.getCharset());
             } else {
                 body = new MemoryBinaryBody(is);
             }
-            
+
             ((Entity) stack.peek()).setBody(body);
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#endMultipart()
          */
         public void endMultipart() {
             stack.pop();
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#startBodyPart()
          */
         public void startBodyPart() {
             expect(Multipart.class);
-            
+
             BodyPart bodyPart = new BodyPart();
             ((Multipart) stack.peek()).addBodyPart(bodyPart);
             stack.push(bodyPart);
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#endBodyPart()
          */
@@ -216,7 +217,7 @@ public class Message extends Entity implements Body {
             expect(BodyPart.class);
             stack.pop();
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#epilogue(java.io.InputStream)
          */
@@ -229,7 +230,7 @@ public class Message extends Entity implements Body {
             }
             ((Multipart) stack.peek()).setEpilogue(sb.toString());
         }
-        
+
         /**
          * @see org.apache.james.mime4j.ContentHandler#preamble(java.io.InputStream)
          */
@@ -242,10 +243,10 @@ public class Message extends Entity implements Body {
             }
             ((Multipart) stack.peek()).setPreamble(sb.toString());
         }
-        
+
         /**
          * TODO: Implement me
-         * 
+         *
          * @see org.apache.james.mime4j.ContentHandler#raw(java.io.InputStream)
          */
         public void raw(InputStream is) throws IOException {

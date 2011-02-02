@@ -24,39 +24,39 @@ import java.util.ArrayList;
 /**
  * An immutable, random-access list of Mailbox objects.
  *
- * 
+ *
  */
 public class MailboxList {
 
-	private ArrayList mailboxes;
-	
+	private ArrayList<Address> mailboxes;
+
 	/**
-	 * @param mailboxes An ArrayList that contains only Mailbox objects. 
+	 * @param mailboxes An ArrayList that contains only Mailbox objects.
 	 * @param dontCopy true iff it is not possible for the mailboxes ArrayList to be modified by someone else.
 	 */
-	public MailboxList(ArrayList mailboxes, boolean dontCopy) {
+	public MailboxList(ArrayList<Address> mailboxes, boolean dontCopy) {
 		if (mailboxes != null)
-			this.mailboxes = (dontCopy ? mailboxes : (ArrayList) mailboxes.clone());
+			this.mailboxes = (dontCopy ? mailboxes : new ArrayList<Address>(mailboxes));
 		else
-			this.mailboxes = new ArrayList(0);
+			this.mailboxes = new ArrayList<Address>(0);
 	}
-	
+
 	/**
 	 * The number of elements in this list.
 	 */
 	public int size() {
 		return mailboxes.size();
 	}
-	
+
 	/**
-	 * Gets an address. 
+	 * Gets an address.
 	 */
 	public Mailbox get(int index) {
 		if (0 > index || size() <= index)
 			throw new IndexOutOfBoundsException();
-		return (Mailbox) mailboxes.get(index);
+		return (Mailbox)mailboxes.get(index);
 	}
-	
+
 	/**
 	 * Dumps a representation of this mailbox list to
 	 * stdout, for debugging purposes.

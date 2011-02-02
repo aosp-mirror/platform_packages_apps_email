@@ -18,7 +18,7 @@ package org.apache.james.mime4j.field.datetime.parser;
 
 import org.apache.james.mime4j.field.datetime.DateTime;
 
-import java.util.Calendar;
+import java.util.Vector;
 
 public class DateTimeParser implements DateTimeParserConstants {
     private static final boolean ignoreMilitaryZoneOffset = true;
@@ -521,7 +521,7 @@ public class DateTimeParser implements DateTimeParserConstants {
       return (jj_ntk = jj_nt.kind);
   }
 
-  private java.util.Vector jj_expentries = new java.util.Vector();
+  private Vector<int[]> jj_expentries = new Vector<int[]>();
   private int[] jj_expentry;
   private int jj_kind = -1;
 
@@ -556,7 +556,7 @@ public class DateTimeParser implements DateTimeParserConstants {
     }
     int[][] exptokseq = new int[jj_expentries.size()][];
     for (int i = 0; i < jj_expentries.size(); i++) {
-      exptokseq[i] = (int[])jj_expentries.elementAt(i);
+      exptokseq[i] = jj_expentries.elementAt(i);
     }
     return new ParseException(token, exptokseq, tokenImage);
   }

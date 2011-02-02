@@ -28,21 +28,21 @@ import java.util.ArrayList;
 /**
  * An immutable, random-access list of Address objects.
  *
- * 
+ *
  */
 public class AddressList {
-	
-	private ArrayList addresses;
+
+	private ArrayList<Address> addresses;
 
 	/**
-	 * @param addresses An ArrayList that contains only Address objects. 
+	 * @param addresses An ArrayList that contains only Address objects.
 	 * @param dontCopy true iff it is not possible for the addresses ArrayList to be modified by someone else.
 	 */
-	public AddressList(ArrayList addresses, boolean dontCopy) {
+	public AddressList(ArrayList<Address> addresses, boolean dontCopy) {
 		if (addresses != null)
-			this.addresses = (dontCopy ? addresses : (ArrayList) addresses.clone());
+			this.addresses = (dontCopy ? addresses : new ArrayList<Address>(addresses));
 		else
-			this.addresses = new ArrayList(0);
+			this.addresses = new ArrayList<Address>(0);
 	}
 
 	/**
@@ -53,18 +53,18 @@ public class AddressList {
 	}
 
 	/**
-	 * Gets an address. 
+	 * Gets an address.
 	 */
 	public Address get(int index) {
 		if (0 > index || size() <= index)
 			throw new IndexOutOfBoundsException();
-		return (Address) addresses.get(index);
+		return addresses.get(index);
 	}
 
 	/**
 	 * Returns a flat list of all mailboxes represented
 	 * in this address list. Use this if you don't care
-	 * about grouping. 
+	 * about grouping.
 	 */
 	public MailboxList flatten() {
 		// in the common case, all addresses are mailboxes
@@ -75,21 +75,21 @@ public class AddressList {
 				break;
 			}
 		}
-		
+
 		if (!groupDetected)
 			return new MailboxList(addresses, true);
-		
-		ArrayList results = new ArrayList();
+
+		ArrayList<Address> results = new ArrayList<Address>();
 		for (int i = 0; i < size(); i++) {
 			Address addr = get(i);
 			addr.addMailboxesTo(results);
 		}
-		
+
 		// copy-on-construct this time, because subclasses
 		// could have held onto a reference to the results
 		return new MailboxList(results, false);
 	}
-	
+
 	/**
 	 * Dumps a representation of this address list to
 	 * stdout, for debugging purposes.
@@ -101,20 +101,18 @@ public class AddressList {
 		}
 	}
 
-
-
 	/**
-	 * Parse the address list string, such as the value 
+	 * Parse the address list string, such as the value
 	 * of a From, To, Cc, Bcc, Sender, or Reply-To
 	 * header.
-	 * 
+	 *
 	 * The string MUST be unfolded already.
 	 */
 	public static AddressList parse(String rawAddressList) throws ParseException {
 		AddressListParser parser = new AddressListParser(new StringReader(rawAddressList));
 		return Builder.getInstance().buildAddressList(parser.parse());
 	}
-	
+
 	/**
 	 * Test console.
 	 */
