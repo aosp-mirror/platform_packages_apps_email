@@ -22,6 +22,7 @@ import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
@@ -56,13 +57,8 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
     private final static String STATE_KEY_LOADED = "AccountSetupOutgoingFragment.loaded";
 
-    private static final int SMTP_PORTS[] = {
-            587, 465, 465, 587, 587
-    };
-
-    private static final String SMTP_SCHEMES[] = {
-            "smtp", "smtp+ssl+", "smtp+ssl+trustallcerts", "smtp+tls+", "smtp+tls+trustallcerts"
-    };
+    private static final int SMTP_PORT_NORMAL = 587;
+    private static final int SMTP_PORT_SSL    = 465;
 
     private EditText mUsernameView;
     private EditText mPasswordView;
@@ -91,6 +87,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         if (savedInstanceState != null) {
             mLoaded = savedInstanceState.getBoolean(STATE_KEY_LOADED, false);
         }
+        mBaseScheme = "smtp";
     }
 
     @Override
@@ -118,15 +115,15 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
         // Note:  Strings are shared with AccountSetupIncomingFragment
         SpinnerOption securityTypes[] = {
-            new SpinnerOption(0, context.getString(
+            new SpinnerOption(HostAuth.FLAG_NONE, context.getString(
                     R.string.account_setup_incoming_security_none_label)),
-            new SpinnerOption(1, context.getString(
+            new SpinnerOption(HostAuth.FLAG_SSL, context.getString(
                     R.string.account_setup_incoming_security_ssl_label)),
-            new SpinnerOption(2, context.getString(
+            new SpinnerOption(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, context.getString(
                     R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
-            new SpinnerOption(3, context.getString(
+            new SpinnerOption(HostAuth.FLAG_TLS, context.getString(
                     R.string.account_setup_incoming_security_tls_label)),
-            new SpinnerOption(4, context.getString(
+            new SpinnerOption(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, context.getString(
                     R.string.account_setup_incoming_security_tls_trust_certificates_label)),
         };
 
@@ -258,50 +255,38 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     private void loadSettings() {
         if (mLoaded) return;
-        try {
-            // TODO this should be accessed directly via the HostAuth structure
-            URI uri = new URI(SetupData.getAccount().getSenderUri(mContext));
-            String username = null;
-            String password = null;
-            if (uri.getUserInfo() != null) {
-                String[] userInfoParts = uri.getUserInfo().split(":", 2);
-                username = userInfoParts[0];
-                if (userInfoParts.length > 1) {
-                    password = userInfoParts[1];
-                }
-            }
 
+        HostAuth senderAuth = SetupData.getAccount().getOrCreateHostAuthSend(mContext);
+        if ((senderAuth.mFlags & HostAuth.FLAG_AUTHENTICATE) != 0) {
+            String username = senderAuth.mLogin;
             if (username != null) {
                 mUsernameView.setText(username);
                 mRequireLoginView.setChecked(true);
             }
 
+            String password = senderAuth.mPassword;
             if (password != null) {
                 mPasswordView.setText(password);
             }
-
-            for (int i = 0; i < SMTP_SCHEMES.length; i++) {
-                if (SMTP_SCHEMES[i].equals(uri.getScheme())) {
-                    SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, i);
-                }
-            }
-
-            if (uri.getHost() != null) {
-                mServerView.setText(uri.getHost());
-            }
-
-            if (uri.getPort() != -1) {
-                mPortView.setText(Integer.toString(uri.getPort()));
-            } else {
-                updatePortFromSecurityType();
-            }
-        } catch (URISyntaxException use) {
-            /*
-             * We should always be able to parse our own settings.
-             */
-            throw new Error(use);
         }
 
+        int flags = senderAuth.mFlags & ~HostAuth.FLAG_AUTHENTICATE;
+        SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, flags);
+
+        String hostname = senderAuth.mAddress;
+        if (hostname != null) {
+            mServerView.setText(hostname);
+        }
+
+        int port = senderAuth.mPort;
+        if (port != -1) {
+            mPortView.setText(Integer.toString(port));
+        } else {
+            updatePortFromSecurityType();
+        }
+
+        // TODO See how to get rid of this. Maybe define an "equals()" for HostAuth?
+        // used to determine if these settings have changed
         try {
             mLoadedUri = getUri();
         } catch (URISyntaxException ignore) {
@@ -350,9 +335,15 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         validateFields();
     }
 
-    private void updatePortFromSecurityType() {
+    private int getPortFromSecurityType() {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
-        mPortView.setText(Integer.toString(SMTP_PORTS[securityType]));
+        int port = (securityType & HostAuth.FLAG_SSL) != 0 ? SMTP_PORT_SSL : SMTP_PORT_NORMAL;
+        return port;
+    }
+
+    private void updatePortFromSecurityType() {
+        int port = getPortFromSecurityType();
+        mPortView.setText(Integer.toString(port));
     }
 
     /**
@@ -386,12 +377,18 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         if (mRequireLoginView.isChecked()) {
             userInfo = mUsernameView.getText().toString().trim() + ":" + mPasswordView.getText();
         }
+        String host = mServerView.getText().toString().trim();
+        String path = null;
+        int port = Integer.parseInt(mPortView.getText().toString().trim());
+
         URI uri = new URI(
-                SMTP_SCHEMES[securityType],
+                HostAuth.getSchemeString(mBaseScheme, securityType),
                 userInfo,
-                mServerView.getText().toString().trim(),
-                Integer.parseInt(mPortView.getText().toString().trim()),
-                null, null, null);
+                host,
+                port,
+                path,
+                null,
+                null);
         return uri;
     }
 
@@ -401,17 +398,23 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public void onNext() {
         EmailContent.Account account = SetupData.getAccount();
+        HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
+
+        String userName = mUsernameView.getText().toString().trim();
+        String userPassword = mPasswordView.getText().toString();
+        sendAuth.setLogin(userName, userPassword);
+
+        String serverAddress = mServerView.getText().toString().trim();
+        int serverPort;
         try {
-            // TODO this should be accessed directly via the HostAuth structure
-            URI uri = getUri();
-            account.setSenderUri(mContext, uri.toString());
-        } catch (URISyntaxException use) {
-            /*
-             * It's unrecoverable if we cannot create a URI from components that
-             * we validated to be safe.
-             */
-            throw new Error(use);
+            serverPort = Integer.parseInt(mPortView.getText().toString().trim());
+        } catch (NumberFormatException e) {
+            serverPort = getPortFromSecurityType();
+            Log.d(Logging.LOG_TAG, "Non-integer server port; using '" + serverPort + "'");
         }
+        int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
+        sendAuth.setConnection(mBaseScheme, serverAddress, serverPort, securityType);
+        sendAuth.mDomain = null;
 
         mCallback.onProceedNext(SetupData.CHECK_OUTGOING, this);
     }

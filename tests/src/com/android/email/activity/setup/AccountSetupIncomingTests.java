@@ -18,7 +18,10 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
+import android.content.Context;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
@@ -34,14 +37,14 @@ import java.net.URISyntaxException;
  *   runtest -c com.android.email.activity.setup.AccountSetupIncomingTests email
  */
 @MediumTest
-public class AccountSetupIncomingTests extends 
+public class AccountSetupIncomingTests extends
         ActivityInstrumentationTestCase2<AccountSetupIncoming> {
-    
+
     private AccountSetupIncoming mActivity;
     private AccountSetupIncomingFragment mFragment;
     private EditText mServerView;
     private EditText mPasswordView;
-    
+
     public AccountSetupIncomingTests() {
         super(AccountSetupIncoming.class);
     }
@@ -60,47 +63,51 @@ public class AccountSetupIncomingTests extends
         Intent i = getTestIntent("imap://user:password@server.com:999");
         setActivityIntent(i);
     }
-    
+
     /**
      * Test processing with a complete, good URI -> good fields
      */
-    public void testGoodUri() {
+    public void testGoodUri()
+            throws URISyntaxException {
         Intent i = getTestIntent("imap://user:password@server.com:999");
         setActivityIntent(i);
         getActivityAndFields();
         assertTrue(mActivity.mNextButtonEnabled);
     }
-    
+
     /**
      * No user is not OK - not enabled
      */
-    public void testBadUriNoUser() {
+    public void testBadUriNoUser()
+            throws URISyntaxException {
         Intent i = getTestIntent("imap://:password@server.com:999");
         setActivityIntent(i);
         getActivityAndFields();
         assertFalse(mActivity.mNextButtonEnabled);
     }
-    
+
     /**
      * No password is not OK - not enabled
      */
-    public void testBadUriNoPassword() {
+    public void testBadUriNoPassword()
+            throws URISyntaxException {
         Intent i = getTestIntent("imap://user@server.com:999");
         setActivityIntent(i);
         getActivityAndFields();
         assertFalse(mActivity.mNextButtonEnabled);
     }
-    
+
     /**
      * No port is OK - still enabled
      */
-    public void testGoodUriNoPort() {
+    public void testGoodUriNoPort()
+            throws URISyntaxException {
         Intent i = getTestIntent("imap://user:password@server.com");
         setActivityIntent(i);
         getActivityAndFields();
         assertTrue(mActivity.mNextButtonEnabled);
     }
-        
+
     /**
      * Test for non-standard but OK server names
      */
@@ -108,11 +115,11 @@ public class AccountSetupIncomingTests extends
     public void testGoodServerVariants() {
         getActivityAndFields();
         assertTrue(mActivity.mNextButtonEnabled);
-        
+
         mServerView.setText("  server.com  ");
         assertTrue(mActivity.mNextButtonEnabled);
     }
-        
+
     /**
      * Test for non-empty but non-OK server names
      */
@@ -120,10 +127,10 @@ public class AccountSetupIncomingTests extends
     public void testBadServerVariants() {
         getActivityAndFields();
         assertTrue(mActivity.mNextButtonEnabled);
-        
+
         mServerView.setText("  ");
         assertFalse(mActivity.mNextButtonEnabled);
-        
+
         mServerView.setText("serv$er.com");
         assertFalse(mActivity.mNextButtonEnabled);
     }
@@ -169,7 +176,7 @@ public class AccountSetupIncomingTests extends
      * TODO:  A series of tests to explore the logic around security models & ports
      * TODO:  A series of tests exploring differences between IMAP and POP3
      */
-        
+
     /**
      * Get the activity (which causes it to be started, using our intent) and get the UI fields
      */
@@ -179,13 +186,16 @@ public class AccountSetupIncomingTests extends
         mServerView = (EditText) mActivity.findViewById(R.id.account_server);
         mPasswordView = (EditText) mActivity.findViewById(R.id.account_password);
     }
-    
+
     /**
      * Create an intent with the Account in it
      */
-    private Intent getTestIntent(String storeUriString) {
+    private Intent getTestIntent(String storeUriString)
+            throws URISyntaxException {
         EmailContent.Account account = new EmailContent.Account();
-        account.setStoreUri(getInstrumentation().getTargetContext(), storeUriString);
+        Context context = getInstrumentation().getTargetContext();
+        HostAuth auth = account.getOrCreateHostAuthRecv(context);
+        Utility.setHostAuthFromString(auth, storeUriString);
         SetupData.init(SetupData.FLOW_MODE_NORMAL, account);
         return new Intent(Intent.ACTION_MAIN);
     }

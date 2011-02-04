@@ -19,7 +19,10 @@ package com.android.email.activity.setup;
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
+import android.content.Context;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -28,19 +31,21 @@ import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
+import java.net.URISyntaxException;
+
 /**
  * Tests of basic UI logic in the AccountSetupOptions screen.
  * You can run this entire test case with:
  *   runtest -c com.android.email.activity.setup.AccountSetupOptionsTests email
  */
 @MediumTest
-public class AccountSetupOptionsTests 
+public class AccountSetupOptionsTests
         extends ActivityInstrumentationTestCase2<AccountSetupOptions> {
 
     private AccountSetupOptions mActivity;
     private Spinner mCheckFrequencyView;
     private CheckBox mBackgroundAttachmentsView;
-    
+
     public AccountSetupOptionsTests() {
         super(AccountSetupOptions.class);
     }
@@ -48,44 +53,47 @@ public class AccountSetupOptionsTests
     /**
      * Test that POP accounts aren't displayed with a push option
      */
-    public void testPushOptionPOP() {
+    public void testPushOptionPOP() 
+            throws URISyntaxException {
         Intent i = getTestIntent("Name", "pop3://user:password@server.com");
         this.setActivityIntent(i);
-        
+
         getActivityAndFields();
-        
+
         boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
-        
+
     /**
      * Test that IMAP accounts aren't displayed with a push option
      */
-    public void testPushOptionIMAP() {
+    public void testPushOptionIMAP()
+            throws URISyntaxException {
         Intent i = getTestIntent("Name", "imap://user:password@server.com");
         this.setActivityIntent(i);
-        
+
         getActivityAndFields();
-        
+
         boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
-        
+
     /**
      * Test that EAS accounts are displayed with a push option
      */
-    public void testPushOptionEAS() {
+    public void testPushOptionEAS()
+            throws URISyntaxException {
         // This test should only be run if EAS is supported
-        if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext()) 
+        if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext())
                 == null) {
             return;
         }
-            
+
         Intent i = getTestIntent("Name", "eas://user:password@server.com");
         this.setActivityIntent(i);
-        
+
         getActivityAndFields();
-        
+
         boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
         assertTrue(hasPush);
     }
@@ -93,23 +101,26 @@ public class AccountSetupOptionsTests
     /**
      * Test that POP3 accounts don't have a "background attachments" checkbox
      */
-    public void testBackgroundAttachmentsPop() {
+    public void testBackgroundAttachmentsPop()
+            throws URISyntaxException {
         checkBackgroundAttachments("pop3://user:password@server.com", false);
     }
 
     /**
      * Test that IMAP accounts have a "background attachments" checkbox
      */
-    public void testBackgroundAttachmentsImap() {
+    public void testBackgroundAttachmentsImap()
+            throws URISyntaxException {
         checkBackgroundAttachments("imap://user:password@server.com", true);
     }
 
     /**
      * Test that EAS accounts have a "background attachments" checkbox
      */
-    public void testBackgroundAttachmentsEas() {
+    public void testBackgroundAttachmentsEas()
+            throws URISyntaxException {
         // This test should only be run if EAS is supported
-        if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext()) 
+        if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext())
                 == null) {
             return;
         }
@@ -117,9 +128,10 @@ public class AccountSetupOptionsTests
     }
 
     /**
-     * Common code to check that the "background attachments" checkbox is shown/hidden properly   
+     * Common code to check that the "background attachments" checkbox is shown/hidden properly
      */
-    private void checkBackgroundAttachments(String storeUri, boolean expectVisible) {
+    private void checkBackgroundAttachments(String storeUri, boolean expectVisible)
+            throws URISyntaxException {
         Intent i = getTestIntent("Name", storeUri);
         this.setActivityIntent(i);
         getActivityAndFields();
@@ -144,7 +156,7 @@ public class AccountSetupOptionsTests
         mBackgroundAttachmentsView = (CheckBox) mActivity.findViewById(
                 R.id.account_background_attachments);
     }
-    
+
     /**
      * Test the frequency values list for a particular value
      */
@@ -159,16 +171,19 @@ public class AccountSetupOptionsTests
         }
         return false;
     }
-    
+
     /**
      * Create an intent with the Account in it
      */
-    private Intent getTestIntent(String name, String storeUri) {
+    private Intent getTestIntent(String name, String storeUri)
+            throws URISyntaxException {
         EmailContent.Account account = new EmailContent.Account();
         account.setSenderName(name);
-        account.setStoreUri(getInstrumentation().getTargetContext(), storeUri);
+        Context context = getInstrumentation().getTargetContext();
+        HostAuth auth = account.getOrCreateHostAuthRecv(context);
+        Utility.setHostAuthFromString(auth, storeUri);
         SetupData.init(SetupData.FLOW_MODE_NORMAL, account);
         return new Intent(Intent.ACTION_MAIN);
     }
-    
+
 }

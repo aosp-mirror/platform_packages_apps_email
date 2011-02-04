@@ -219,20 +219,16 @@ public class VendorPolicyLoader {
         params.putString(FIND_PROVIDER, domain);
         Bundle out = getPolicy(FIND_PROVIDER, params);
         if (out != null && !out.isEmpty()) {
-            try {
-                Provider p = new Provider();
-                p.id = null;
-                p.label = null;
-                p.domain = domain;
-                p.incomingUriTemplate = new URI(out.getString(FIND_PROVIDER_IN_URI));
-                p.incomingUsernameTemplate = out.getString(FIND_PROVIDER_IN_USER);
-                p.outgoingUriTemplate = new URI(out.getString(FIND_PROVIDER_OUT_URI));
-                p.outgoingUsernameTemplate = out.getString(FIND_PROVIDER_OUT_USER);
-                p.note = out.getString(FIND_PROVIDER_NOTE);
-                return p;
-            } catch (URISyntaxException e) {
-                Log.d(Logging.LOG_TAG, "uri exception while vendor policy loads " + domain);
-            }
+            Provider p = new Provider();
+            p.id = null;
+            p.label = null;
+            p.domain = domain;
+            p.incomingUriTemplate = out.getString(FIND_PROVIDER_IN_URI);
+            p.incomingUsernameTemplate = out.getString(FIND_PROVIDER_IN_USER);
+            p.outgoingUriTemplate = out.getString(FIND_PROVIDER_OUT_URI);
+            p.outgoingUsernameTemplate = out.getString(FIND_PROVIDER_OUT_USER);
+            p.note = out.getString(FIND_PROVIDER_NOTE);
+            return p;
         }
         return null;
     }

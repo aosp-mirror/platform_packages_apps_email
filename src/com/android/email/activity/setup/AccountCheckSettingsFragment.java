@@ -501,9 +501,10 @@ public class AccountCheckSettingsFragment extends Fragment {
                     return new MessagingException(MessagingException.AUTHENTICATION_FAILED);
                 }
                 // Return "real" AD results
-                HostAuth serverInfo = new HostAuth();
-                serverInfo.setStoreUri("eas://user:password@testserver.com");
-                return new AutoDiscoverResults(false, serverInfo);
+                HostAuth auth = new HostAuth();
+                auth.setLogin("user", "password");
+                auth.setConnection(Store.STORE_SCHEME_EAS, "testserver.com", 0);
+                return new AutoDiscoverResults(false, auth);
             }
             if (isCancelled()) return null;
             if ((mMode & SetupData.CHECK_INCOMING) != 0) {
@@ -632,6 +633,7 @@ public class AccountCheckSettingsFragment extends Fragment {
      * recreated at any time without affecting the account checking progress.
      */
     public static class CheckingDialog extends DialogFragment {
+        @SuppressWarnings("hiding")
         public final static String TAG = "CheckProgressDialog";
 
         // Extras for saved instance state
@@ -729,6 +731,7 @@ public class AccountCheckSettingsFragment extends Fragment {
      * The standard error dialog.  Calls back to onErrorDialogButton().
      */
     public static class ErrorDialog extends DialogFragment {
+        @SuppressWarnings("hiding")
         public final static String TAG = "ErrorDialog";
 
         // Bundle keys for arguments
@@ -784,6 +787,7 @@ public class AccountCheckSettingsFragment extends Fragment {
      * same as any other failed check.)
      */
     public static class SecurityRequiredDialog extends DialogFragment {
+        @SuppressWarnings("hiding")
         public final static String TAG = "SecurityRequiredDialog";
 
         // Bundle keys for arguments

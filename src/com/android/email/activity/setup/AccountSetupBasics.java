@@ -22,6 +22,7 @@ import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.Welcome;
 import com.android.email.activity.setup.AccountSettingsUtils.Provider;
+import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -53,7 +54,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -421,47 +421,40 @@ public class AccountSetupBasics extends AccountSetupActivity
         String[] emailParts = email.split("@");
         String user = emailParts[0];
         String domain = emailParts[1];
-        URI incomingUri = null;
-        URI outgoingUri = null;
-        String incomingUsername = mProvider.incomingUsernameTemplate;
+
         try {
+            String incomingUsername = mProvider.incomingUsernameTemplate;
             incomingUsername = incomingUsername.replaceAll("\\$email", email);
             incomingUsername = incomingUsername.replaceAll("\\$user", user);
             incomingUsername = incomingUsername.replaceAll("\\$domain", domain);
 
-            URI incomingUriTemplate = mProvider.incomingUriTemplate;
-            incomingUri = new URI(incomingUriTemplate.getScheme(), incomingUsername + ":"
-                    + password, incomingUriTemplate.getHost(), incomingUriTemplate.getPort(),
-                    incomingUriTemplate.getPath(), null, null);
+            Account account = SetupData.getAccount();
+            HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+            Utility.setHostAuthFromString(recvAuth, mProvider.incomingUriTemplate);
 
             String outgoingUsername = mProvider.outgoingUsernameTemplate;
             outgoingUsername = outgoingUsername.replaceAll("\\$email", email);
             outgoingUsername = outgoingUsername.replaceAll("\\$user", user);
             outgoingUsername = outgoingUsername.replaceAll("\\$domain", domain);
 
-            URI outgoingUriTemplate = mProvider.outgoingUriTemplate;
-            outgoingUri = new URI(outgoingUriTemplate.getScheme(), outgoingUsername + ":"
-                    + password, outgoingUriTemplate.getHost(), outgoingUriTemplate.getPort(),
-                    outgoingUriTemplate.getPath(), null, null);
+            HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+            Utility.setHostAuthFromString(sendAuth, mProvider.outgoingUriTemplate);
 
-        } catch (URISyntaxException use) {
+            // Populate the setup data, assuming that the duplicate account check will succeed
+            populateSetupData(getOwnerName(), email, mDefaultView.isChecked());
+
+            // Stop here if the login credentials duplicate an existing account
+            // Launch an Async task to do the work
+            new DuplicateCheckTask(this, recvAuth.mAddress, incomingUsername).execute();
+        } catch (URISyntaxException e) {
             /*
-             * If there is some problem with the URI we give up and go on to
-             * manual setup.  Technically speaking, AutoDiscover is OK here, since user clicked
-             * "Next" to get here.  This would never happen in practice because we don't expect
-             * to find any EAS accounts in the providers list.
+             * If there is some problem with the URI we give up and go on to manual setup.
+             * Technically speaking, AutoDiscover is OK here, since the user clicked "Next"
+             * to get here. This will not happen in practice because we don't expect to
+             * find any EAS accounts in the providers list.
              */
             onManualSetup(true);
-            return;
         }
-
-        // Populate the setup data, assuming that the duplicate account check will succeed
-        populateSetupData(getOwnerName(), email, mDefaultView.isChecked(),
-                incomingUri.toString(), outgoingUri.toString());
-
-        // Stop here if the login credentials duplicate an existing account
-        // Launch an Async task to do the work
-        new DuplicateCheckTask(this, incomingUri.getHost(), incomingUsername).execute();
     }
 
     /**
@@ -561,18 +554,16 @@ public class AccountSetupBasics extends AccountSetupActivity
             return;
         }
 
-        String uriString = null;
-        try {
-            URI uri = new URI("placeholder", user + ":" + password, domain, -1, null, null, null);
-            uriString = uri.toString();
-        } catch (URISyntaxException use) {
-            // If we can't set up the URL, don't continue - account setup pages will fail too
-            Toast.makeText(this, R.string.account_setup_username_password_toast,
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
+        Account account = SetupData.getAccount();
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+        recvAuth.setLogin(user, password);
+        recvAuth.setConnection("placeholder", domain, HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
 
-        populateSetupData(getOwnerName(), email, mDefaultView.isChecked(), uriString, uriString);
+        HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+        sendAuth.setLogin(user, password);
+        sendAuth.setConnection("placeholder", domain, HostAuth.PORT_UNKNOWN, HostAuth.FLAG_NONE);
+
+        populateSetupData(getOwnerName(), email, mDefaultView.isChecked());
 
         SetupData.setAllowAutodiscover(allowAutoDiscover);
         AccountSetupAccountType.actionSelectAccountType(this);
@@ -590,31 +581,42 @@ public class AccountSetupBasics extends AccountSetupActivity
      * @param outgoing The URI-style string defining the outgoing account
      */
     private void forceCreateAccount(String email, String user, String incoming, String outgoing) {
-        populateSetupData(user, email, false, incoming, outgoing);
+        Account account = SetupData.getAccount();
+        try {
+            HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+            Utility.setHostAuthFromString(recvAuth, incoming);
+
+            HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+            Utility.setHostAuthFromString(sendAuth, outgoing);
+
+            populateSetupData(user, email, false);
+        } catch (URISyntaxException e) {
+            // If we can't set up the URL, don't continue - account setup pages will fail too
+            Toast.makeText(
+                    this, R.string.account_setup_username_password_toast, Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
      * Populate SetupData's account with complete setup info.
      */
-    private void populateSetupData(String senderName, String senderEmail, boolean isDefault,
-            String incoming, String outgoing) {
+    private void populateSetupData(String senderName, String senderEmail, boolean isDefault) {
         Account account = SetupData.getAccount();
         account.setSenderName(senderName);
         account.setEmailAddress(senderEmail);
         account.setDisplayName(senderEmail);
         account.setDefaultAccount(isDefault);
         SetupData.setDefault(isDefault);        // TODO - why duplicated, if already set in account
-        account.setStoreUri(this, incoming);
-        account.setSenderUri(this, outgoing);
 
-        // Set sync and delete policies for specific account types
-        if (incoming.startsWith("imap")) {
+        String protocol = account.mHostAuthRecv.mProtocol;
+        // Set sync and delete policies for specific inbound account types
+        if (Store.STORE_SCHEME_IMAP.equals(protocol)) {
             // Delete policy must be set explicitly, because IMAP does not provide a UI selection
             // for it. This logic needs to be followed in the auto setup flow as well.
             account.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
         }
 
-        if (incoming.startsWith("eas")) {
+        if (Store.STORE_SCHEME_EAS.equals(protocol)) {
             account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
         } else {
             account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);

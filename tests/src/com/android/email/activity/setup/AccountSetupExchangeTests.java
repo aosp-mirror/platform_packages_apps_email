@@ -21,7 +21,9 @@ import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
+import android.content.Context;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
@@ -73,7 +75,8 @@ public class AccountSetupExchangeTests extends
     /**
      * Test processing with a complete, good URI -> good fields
      */
-    public void testGoodUri() {
+    public void testGoodUri() 
+            throws URISyntaxException {
         Intent i = getTestIntent("eas://user:password@server.com");
         setActivityIntent(i);
         getActivityAndFields();
@@ -86,7 +89,8 @@ public class AccountSetupExchangeTests extends
     /**
      * No user is not OK - not enabled
      */
-    public void testBadUriNoUser() {
+    public void testBadUriNoUser() 
+            throws URISyntaxException {
         Intent i = getTestIntent("eas://:password@server.com");
         setActivityIntent(i);
         getActivityAndFields();
@@ -96,7 +100,8 @@ public class AccountSetupExchangeTests extends
     /**
      * No password is not OK - not enabled
      */
-    public void testBadUriNoPassword() {
+    public void testBadUriNoPassword() 
+            throws URISyntaxException {
         Intent i = getTestIntent("eas://user@server.com");
         setActivityIntent(i);
         getActivityAndFields();
@@ -187,7 +192,7 @@ public class AccountSetupExchangeTests extends
         account.mHostAuthRecv = ProviderTestUtils.setupHostAuth(
                 "eas", "hostauth", 1, false, mActivity.getBaseContext());
         account.mHostAuthRecv.mFlags |= HostAuth.FLAG_SSL;
-        account.mHostAuthRecv.mFlags &= ~HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+        account.mHostAuthRecv.mFlags &= ~HostAuth.FLAG_TRUST_ALL;
         mActivity.mFragment.mLoaded = false;
         boolean loadResult = mActivity.mFragment.loadSettings(account);
         assertTrue(loadResult);
@@ -197,7 +202,7 @@ public class AccountSetupExchangeTests extends
 
         // Setup host auth with variants of SSL enabled and check.  This also enables the
         // "trust certificates" checkbox (not checked, but visible now).
-        account.mHostAuthRecv.mFlags |= HostAuth.FLAG_TRUST_ALL_CERTIFICATES;
+        account.mHostAuthRecv.mFlags |= HostAuth.FLAG_TRUST_ALL;
         mActivity.mFragment.mLoaded = false;
         loadResult = mActivity.mFragment.loadSettings(account);
         assertTrue(loadResult);
@@ -232,9 +237,12 @@ public class AccountSetupExchangeTests extends
     /**
      * Create an intent with the Account in it
      */
-    private Intent getTestIntent(String storeUriString) {
+    private Intent getTestIntent(String storeUriString)
+            throws URISyntaxException {
         EmailContent.Account account = new EmailContent.Account();
-        account.setStoreUri(getInstrumentation().getTargetContext(), storeUriString);
+        Context context = getInstrumentation().getTargetContext();
+        HostAuth auth = account.getOrCreateHostAuthRecv(context);
+        Utility.setHostAuthFromString(auth, storeUriString);
         Intent i = new Intent(Intent.ACTION_MAIN);
         SetupData.init(SetupData.FLOW_MODE_NORMAL, account);
         SetupData.setAllowAutodiscover(false);

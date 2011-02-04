@@ -20,8 +20,10 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
+import com.android.email.mail.Store;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.utility.Utility;
@@ -85,6 +87,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             mCacheLoginCredential = savedInstanceState.getString(STATE_KEY_CREDENTIAL);
             mLoaded = savedInstanceState.getBoolean(STATE_KEY_LOADED, false);
         }
+        mBaseScheme = Store.STORE_SCHEME_EAS;
     }
 
     @Override
@@ -255,11 +258,13 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         }
 
         boolean ssl = 0 != (hostAuth.mFlags & HostAuth.FLAG_SSL);
-        boolean trustCertificates = 0 != (hostAuth.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES);
+        boolean trustCertificates = 0 != (hostAuth.mFlags & HostAuth.FLAG_TRUST_ALL);
         mSslSecurityView.setChecked(ssl);
         mTrustCertificatesView.setChecked(trustCertificates);
         showTrustCertificates(ssl);
 
+        // TODO See how to get rid of this. Maybe define an "equals()" for HostAuth?
+        // used to determine if these settings have changed
         try {
             mLoadedUri = getUri();
         } catch (URISyntaxException ignore) {
@@ -357,11 +362,9 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      */
     @Override
     protected URI getUri() throws URISyntaxException {
+        Account account = SetupData.getAccount();
         boolean sslRequired = mSslSecurityView.isChecked();
         boolean trustCertificates = mTrustCertificatesView.isChecked();
-        String scheme = (sslRequired)
-                        ? (trustCertificates ? "eas+ssl+trustallcerts" : "eas+ssl+")
-                        : "eas";
         String userName = mUsernameView.getText().toString().trim();
         // Remove a leading backslash, if there is one, since we now automatically put one at
         // the start of the username field
@@ -372,16 +375,18 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         String userInfo = userName + ":" + mPasswordView.getText();
         String host = mServerView.getText().toString().trim();
         String path = null;
+        int port = mSslSecurityView.isChecked() ? 443 : 80;
+        // Ensure TLS is not set
+        int flags = account.getOrCreateHostAuthRecv(mContext).mFlags & ~HostAuth.FLAG_TLS;
 
         URI uri = new URI(
-                scheme,
+                HostAuth.getSchemeString(mBaseScheme, flags),
                 userInfo,
                 host,
-                0,
+                port,
                 path,
                 null,
                 null);
-
         return uri;
     }
 
@@ -399,21 +404,38 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      */
     @Override
     public void onNext() {
-        try {
-            URI uri = getUri();
-            Account setupAccount = SetupData.getAccount();
-            setupAccount.setStoreUri(mContext, uri.toString());
-            setupAccount.setSenderUri(mContext, uri.toString());
+        EmailContent.Account account = SetupData.getAccount();
 
-            // Check for a duplicate account (requires async DB work) and if OK, proceed with check
-            startDuplicateTaskCheck(setupAccount.mId, uri.getHost(), mCacheLoginCredential,
-                    SetupData.CHECK_INCOMING);
-        } catch (URISyntaxException use) {
-            /*
-             * It's unrecoverable if we cannot create a URI from components that
-             * we validated to be safe.
-             */
-            throw new Error(use);
+        String userName = mUsernameView.getText().toString().trim();
+        if (userName.startsWith("\\")) {
+            userName = userName.substring(1);
         }
+        mCacheLoginCredential = userName;
+        String userPassword = mPasswordView.getText().toString();
+
+        int flags = 0;
+        if (mSslSecurityView.isChecked()) {
+            flags |= HostAuth.FLAG_SSL;
+        }
+        if (mTrustCertificatesView.isChecked()) {
+            flags |= HostAuth.FLAG_TRUST_ALL;
+        }
+        String serverAddress = mServerView.getText().toString().trim();
+
+        int port = mSslSecurityView.isChecked() ? 443 : 80;
+        HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
+        sendAuth.setLogin(userName, userPassword);
+        sendAuth.setConnection(mBaseScheme, serverAddress, port, flags);
+        sendAuth.mDomain = null;
+
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        recvAuth.setLogin(userName, userPassword);
+        recvAuth.setConnection(mBaseScheme, serverAddress, port, flags);
+        recvAuth.mDomain = null;
+
+        // Check for a duplicate account (requires async DB work) and if OK, proceed with check
+        startDuplicateTaskCheck(account.mId, serverAddress, mCacheLoginCredential,
+                SetupData.CHECK_INCOMING);
     }
+
 }

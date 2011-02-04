@@ -19,9 +19,10 @@ package com.android.email.activity.setup;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
@@ -54,21 +55,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     private final static String STATE_KEY_CREDENTIAL = "AccountSetupIncomingFragment.credential";
     private final static String STATE_KEY_LOADED = "AccountSetupIncomingFragment.loaded";
 
-    private static final int POP_PORTS[] = {
-            110, 995, 995, 110, 110
-    };
-    private static final String POP_SCHEMES[] = {
-            "pop3", "pop3+ssl+", "pop3+ssl+trustallcerts", "pop3+tls+", "pop3+tls+trustallcerts"
-    };
-    private static final int IMAP_PORTS[] = {
-            143, 993, 993, 143, 143
-    };
-    private static final String IMAP_SCHEMES[] = {
-            "imap", "imap+ssl+", "imap+ssl+trustallcerts", "imap+tls+", "imap+tls+trustallcerts"
-    };
+    private static final int POP3_PORT_NORMAL = 110;
+    private static final int POP3_PORT_SSL = 995;
 
-    private int mAccountPorts[];
-    private String mAccountSchemes[];
+    private static final int IMAP_PORT_NORMAL = 143;
+    private static final int IMAP_PORT_SSL = 993;
+
     private EditText mUsernameView;
     private EditText mPasswordView;
     private TextView mServerLabelView;
@@ -131,18 +123,16 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
 
         // Set up spinners
         SpinnerOption securityTypes[] = {
-            new SpinnerOption(0,
-                    context.getString(R.string.account_setup_incoming_security_none_label)),
-            new SpinnerOption(1,
-                    context.getString(R.string.account_setup_incoming_security_ssl_label)),
-            new SpinnerOption(2,
-                    context.getString(
-                            R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
-            new SpinnerOption(3,
-                    context.getString(R.string.account_setup_incoming_security_tls_label)),
-            new SpinnerOption(4,
-                    context.getString(
-                            R.string.account_setup_incoming_security_tls_trust_certificates_label)),
+            new SpinnerOption(HostAuth.FLAG_NONE, context.getString(
+                    R.string.account_setup_incoming_security_none_label)),
+            new SpinnerOption(HostAuth.FLAG_SSL, context.getString(
+                    R.string.account_setup_incoming_security_ssl_label)),
+            new SpinnerOption(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, context.getString(
+                    R.string.account_setup_incoming_security_ssl_trust_certificates_label)),
+            new SpinnerOption(HostAuth.FLAG_TLS, context.getString(
+                    R.string.account_setup_incoming_security_tls_label)),
+            new SpinnerOption(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL, context.getString(
+                    R.string.account_setup_incoming_security_tls_trust_certificates_label)),
         };
 
         SpinnerOption deletePolicies[] = {
@@ -290,16 +280,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     private void configureEditor() {
         if (mConfigured) return;
         Account account = SetupData.getAccount();
-        String protocol = account.mHostAuthRecv.mProtocol;
-        if (protocol.startsWith("pop3")) {
+        mBaseScheme = account.mHostAuthRecv.mProtocol;
+        if (Store.STORE_SCHEME_POP3.equals(mBaseScheme)) {
             mServerLabelView.setText(R.string.account_setup_incoming_pop_server_label);
-            mAccountPorts = POP_PORTS;
-            mAccountSchemes = POP_SCHEMES;
             mImapPathPrefixSectionView.setVisibility(View.GONE);
-        } else if (protocol.startsWith("imap")) {
+        } else if (Store.STORE_SCHEME_IMAP.equals(mBaseScheme)) {
             mServerLabelView.setText(R.string.account_setup_incoming_imap_server_label);
-            mAccountPorts = IMAP_PORTS;
-            mAccountSchemes = IMAP_SCHEMES;
             mDeletePolicyLabelView.setVisibility(View.GONE);
             mDeletePolicyView.setVisibility(View.GONE);
         } else {
@@ -313,61 +299,49 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
      */
     private void loadSettings() {
         if (mLoaded) return;
-        try {
-            // TODO this should be accessed directly via the HostAuth structure
-            EmailContent.Account account = SetupData.getAccount();
-            URI uri = new URI(account.getStoreUri(mContext));
-            String username = null;
-            String password = null;
-            if (uri.getUserInfo() != null) {
-                String[] userInfoParts = uri.getUserInfo().split(":", 2);
-                username = userInfoParts[0];
-                if (userInfoParts.length > 1) {
-                    password = userInfoParts[1];
-                }
-            }
 
-            if (username != null) {
-                mUsernameView.setText(username);
-            }
+        Account account = SetupData.getAccount();
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
 
-            if (password != null) {
-                mPasswordView.setText(password);
-            }
-
-            if (uri.getScheme().startsWith("pop3")) {
-                mLoadedDeletePolicy = account.getDeletePolicy();
-                SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, mLoadedDeletePolicy);
-            } else if (uri.getScheme().startsWith("imap")) {
-                if (uri.getPath() != null && uri.getPath().length() > 0) {
-                    mImapPathPrefixView.setText(uri.getPath().substring(1));
-                }
-            } else {
-                throw new Error("Unknown account type: " + account.getStoreUri(mContext));
-            }
-
-            for (int i = 0; i < mAccountSchemes.length; i++) {
-                if (mAccountSchemes[i].equals(uri.getScheme())) {
-                    SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, i);
-                }
-            }
-
-            if (uri.getHost() != null) {
-                mServerView.setText(uri.getHost());
-            }
-
-            if (uri.getPort() != -1) {
-                mPortView.setText(Integer.toString(uri.getPort()));
-            } else {
-                updatePortFromSecurityType();
-            }
-        } catch (URISyntaxException use) {
-            /*
-             * We should always be able to parse our own settings.
-             */
-            throw new Error(use);
+        String username = recvAuth.mLogin;
+        if (username != null) {
+            mUsernameView.setText(username);
+        }
+        String password = recvAuth.mPassword;
+        if (password != null) {
+            mPasswordView.setText(password);
         }
 
+        if (Store.STORE_SCHEME_POP3.equals(recvAuth.mProtocol)) {
+            mLoadedDeletePolicy = account.getDeletePolicy();
+            SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, mLoadedDeletePolicy);
+        } else if (Store.STORE_SCHEME_IMAP.equals(recvAuth.mProtocol)) {
+            String prefix = recvAuth.mDomain;
+            if (prefix != null && prefix.length() > 0) {
+                mImapPathPrefixView.setText(prefix.substring(1));
+            }
+        } else {
+            throw new Error("Unknown account type: " + account.getStoreUri(mContext));
+        }
+
+        int flags = recvAuth.mFlags;
+        flags &= ~HostAuth.FLAG_AUTHENTICATE;
+        SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, flags);
+
+        String hostname = recvAuth.mAddress;
+        if (hostname != null) {
+            mServerView.setText(hostname);
+        }
+
+        int port = recvAuth.mPort;
+        if (port != HostAuth.PORT_UNKNOWN) {
+            mPortView.setText(Integer.toString(port));
+        } else {
+            updatePortFromSecurityType();
+        }
+
+        // TODO See how to get rid of this. Maybe define an "equals()" for HostAuth?
+        // used to determine if these settings have changed
         try {
             mLoadedUri = getUri();
         } catch (URISyntaxException ignore) {
@@ -400,9 +374,19 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         AccountSettingsUtils.checkPasswordSpaces(mContext, mPasswordView);
     }
 
-    private void updatePortFromSecurityType() {
+    private int getPortFromSecurityType() {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
-        mPortView.setText(Integer.toString(mAccountPorts[securityType]));
+        boolean useSsl = ((securityType & HostAuth.FLAG_SSL) != 0);
+        int port = useSsl ? IMAP_PORT_SSL : IMAP_PORT_NORMAL;     // default to IMAP
+        if (Store.STORE_SCHEME_POP3.equals(mBaseScheme)) {
+            port = useSsl ? POP3_PORT_SSL : POP3_PORT_NORMAL;
+        }
+        return port;
+    }
+
+    private void updatePortFromSecurityType() {
+        int port = getPortFromSecurityType();
+        mPortView.setText(Integer.toString(port));
     }
 
     /**
@@ -425,28 +409,16 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
      */
     @Override
     public void saveSettingsAfterSetup() {
-        EmailContent.Account account = SetupData.getAccount();
+        Account account = SetupData.getAccount();
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
 
         // Set the username and password for the outgoing settings to the username and
         // password the user just set for incoming.  Use the verified host address to try and
         // pick a smarter outgoing address.
-        try {
-            String hostName =
-                AccountSettingsUtils.inferServerName(account.mHostAuthRecv.mAddress, null, "smtp");
-            URI oldUri = new URI(account.getSenderUri(mContext));
-            URI uri = new URI(
-                    oldUri.getScheme(),
-                    mUsernameView.getText().toString().trim() + ":"
-                            + mPasswordView.getText().toString(),
-                    hostName,
-                    oldUri.getPort(),
-                    null,
-                    null,
-                    null);
-            account.setSenderUri(mContext, uri.toString());
-        } catch (URISyntaxException use) {
-            // If we can't set up the URL we just continue. It's only for convenience.
-        }
+        String hostName = AccountSettingsUtils.inferServerName(recvAuth.mAddress, null, "smtp");
+        sendAuth.setLogin(recvAuth.mLogin, recvAuth.mPassword);
+        sendAuth.setConnection(sendAuth.mProtocol, hostName, sendAuth.mPort, sendAuth.mFlags);
     }
 
     /**
@@ -458,20 +430,23 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     protected URI getUri() throws URISyntaxException {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         String path = null;
-        if (mAccountSchemes[securityType].startsWith("imap")) {
+        if (Store.STORE_SCHEME_IMAP.equals(mBaseScheme)) {
             path = "/" + mImapPathPrefixView.getText().toString().trim();
         }
         String userName = mUsernameView.getText().toString().trim();
         mCacheLoginCredential = userName;
+        String userInfo = userName + ":" + mPasswordView.getText();
+        String host = mServerView.getText().toString().trim();
+        int port = Integer.parseInt(mPortView.getText().toString().trim());
+
         URI uri = new URI(
-                mAccountSchemes[securityType],
-                userName + ":" + mPasswordView.getText(),
-                mServerView.getText().toString().trim(),
-                Integer.parseInt(mPortView.getText().toString().trim()),
+                HostAuth.getSchemeString(mBaseScheme, securityType),
+                userInfo,
+                host,
+                port,
                 path, // path
                 null, // query
                 null);
-
         return uri;
     }
 
@@ -480,25 +455,32 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
      */
     @Override
     public void onNext() {
-        EmailContent.Account setupAccount = SetupData.getAccount();
+        Account account = SetupData.getAccount();
 
-        setupAccount.setDeletePolicy(
-                (Integer)((SpinnerOption)mDeletePolicyView.getSelectedItem()).value);
+        account.setDeletePolicy(
+                (Integer) ((SpinnerOption) mDeletePolicyView.getSelectedItem()).value);
 
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        String userName = mUsernameView.getText().toString().trim();
+        String userPassword = mPasswordView.getText().toString();
+        recvAuth.setLogin(userName, userPassword);
+
+        String serverAddress = mServerView.getText().toString().trim();
+        int serverPort;
         try {
-            URI uri = getUri();
-            setupAccount.setStoreUri(mContext, uri.toString());
-
-            // Check for a duplicate account (requires async DB work) and if OK, proceed with check
-            startDuplicateTaskCheck(setupAccount.mId, uri.getHost(), mCacheLoginCredential,
-                    SetupData.CHECK_INCOMING);
-        } catch (URISyntaxException use) {
-            /*
-             * It's unrecoverable if we cannot create a URI from components that
-             * we validated to be safe.
-             */
-            throw new Error(use);
+            serverPort = Integer.parseInt(mPortView.getText().toString().trim());
+        } catch (NumberFormatException e) {
+            serverPort = getPortFromSecurityType();
+            Log.d(Logging.LOG_TAG, "Non-integer server port; using '" + serverPort + "'");
         }
+        int securityType = (Integer) ((SpinnerOption) mSecurityTypeView.getSelectedItem()).value;
+        recvAuth.setConnection(mBaseScheme, serverAddress, serverPort, securityType);
+        recvAuth.mDomain = null;
+
+        // Check for a duplicate account (requires async DB work) and if OK,
+        // proceed with check
+        startDuplicateTaskCheck(
+                account.mId, serverAddress, mCacheLoginCredential, SetupData.CHECK_INCOMING);
     }
 
     @Override

@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -27,6 +28,8 @@ import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+
+import java.net.URISyntaxException;
 
 /**
  * Tests of basic UI logic in the Account Settings fragment.
@@ -129,7 +132,7 @@ public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<Acc
      */
     private void getActivityAndFields() throws Throwable {
         final AccountSettingsXL theActivity = getActivity();
-        
+
         runTestOnUiThread(new Runnable() {
             public void run() {
                 PreferenceFragment f = (PreferenceFragment) theActivity.mCurrentFragment;
@@ -155,13 +158,14 @@ public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<Acc
     /**
      * Create an intent with the Account in it
      */
-    private Intent getTestIntent(String name, String storeUri, String senderUri) {
+    private Intent getTestIntent(String name, String storeUri, String senderUri)
+            throws URISyntaxException {
         mAccount = new Account();
         mAccount.setSenderName(name);
         // For EAS, at least, email address is required
         mAccount.mEmailAddress = "user@server.com";
-        mAccount.setStoreUri(mContext, storeUri);
-        mAccount.setSenderUri(mContext, senderUri);
+        Utility.setHostAuthFromString(mAccount.getOrCreateHostAuthRecv(mContext), storeUri);
+        Utility.setHostAuthFromString(mAccount.getOrCreateHostAuthSend(mContext), senderUri);
         mAccount.save(mContext);
         mAccountId = mAccount.mId;
 

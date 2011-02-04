@@ -119,13 +119,13 @@ public class AccountSettingsUtils {
                 else if (xmlEventType == XmlResourceParser.START_TAG
                         && "incoming".equals(xml.getName())
                         && provider != null) {
-                    provider.incomingUriTemplate = new URI(getXmlAttribute(context, xml, "uri"));
+                    provider.incomingUriTemplate = getXmlAttribute(context, xml, "uri");
                     provider.incomingUsernameTemplate = getXmlAttribute(context, xml, "username");
                 }
                 else if (xmlEventType == XmlResourceParser.START_TAG
                         && "outgoing".equals(xml.getName())
                         && provider != null) {
-                    provider.outgoingUriTemplate = new URI(getXmlAttribute(context, xml, "uri"));
+                    provider.outgoingUriTemplate = getXmlAttribute(context, xml, "uri");
                     provider.outgoingUsernameTemplate = getXmlAttribute(context, xml, "username");
                 }
                 else if (xmlEventType == XmlResourceParser.END_TAG
@@ -164,9 +164,9 @@ public class AccountSettingsUtils {
         public String id;
         public String label;
         public String domain;
-        public URI incomingUriTemplate;
+        public String incomingUriTemplate;
         public String incomingUsernameTemplate;
-        public URI outgoingUriTemplate;
+        public String outgoingUriTemplate;
         public String outgoingUsernameTemplate;
         public String note;
     }

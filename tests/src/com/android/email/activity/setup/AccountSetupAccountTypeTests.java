@@ -19,6 +19,8 @@ package com.android.email.activity.setup;
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -28,6 +30,7 @@ import android.test.ActivityUnitTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 
+import java.net.URISyntaxException;
 import java.util.HashSet;
 
 /**
@@ -69,7 +72,8 @@ public class AccountSetupAccountTypeTests
     /**
      * Test store type limit enforcement
      */
-    public void testStoreTypeLimits() {
+    public void testStoreTypeLimits() 
+            throws URISyntaxException {
         createTestAccount("scheme1");
         createTestAccount("scheme1");
         createTestAccount("scheme2");
@@ -94,7 +98,8 @@ public class AccountSetupAccountTypeTests
     /**
      * Confirm that EAS is presented, when supported.
      */
-    public void testEasOffered() {
+    public void testEasOffered() 
+            throws URISyntaxException {
         createTestAccount("scheme1");
         AccountSetupAccountType activity = startActivity(getTestIntent(), null, null);
         View exchangeButton = activity.findViewById(R.id.exchange);
@@ -110,9 +115,11 @@ public class AccountSetupAccountTypeTests
     /**
      * Create a dummy account with minimal fields
      */
-    private Account createTestAccount(String scheme) {
+    private Account createTestAccount(String scheme)
+            throws URISyntaxException {
         Account account = new Account();
-        account.setStoreUri(mContext, scheme + "://user:pass@server.com:123");
+        HostAuth auth = account.getOrCreateHostAuthRecv(mContext);
+        Utility.setHostAuthFromString(auth, scheme + "://user:pass@server.com:123");
         account.save(mContext);
         mAccounts.add(account);
         SetupData.init(SetupData.FLOW_MODE_NORMAL, account);

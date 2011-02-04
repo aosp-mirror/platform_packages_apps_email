@@ -32,6 +32,7 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.net.URI;
@@ -454,6 +455,7 @@ public abstract class EmailContent {
         public static final String DELETED_TABLE_NAME = "Message_Deletes";
 
         // To refer to a specific message, use ContentUris.withAppendedId(CONTENT_URI, id)
+        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/message");
         public static final Uri CONTENT_URI_LIMIT_1 = uriWithLimit(CONTENT_URI, 1);
         public static final Uri SYNCED_CONTENT_URI =
@@ -965,6 +967,7 @@ public abstract class EmailContent {
 
     public static final class Account extends EmailContent implements AccountColumns, Parcelable {
         public static final String TABLE_NAME = "Account";
+        @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/account");
         public static final Uri ADD_TO_FIELD_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
@@ -1353,37 +1356,7 @@ public abstract class EmailContent {
             return "";
         }
 
-        /**
-         * For compatibility while converting to provider model, set the store URI
-         *
-         * @param context
-         * @param storeUri the new value
-         */
-        @Deprecated
-        public void setStoreUri(Context context, String storeUri) {
-            // reconstitute or create if necessary
-            if (mHostAuthRecv == null) {
-                if (mHostAuthKeyRecv != 0) {
-                    mHostAuthRecv = HostAuth.restoreHostAuthWithId(context, mHostAuthKeyRecv);
-                } else {
-                    mHostAuthRecv = new EmailContent.HostAuth();
-                }
-            }
-
-            if (mHostAuthRecv != null) {
-                mHostAuthRecv.setStoreUri(storeUri);
-            }
-        }
-
-        /**
-         * For compatibility while converting to provider model, set the sender URI
-         *
-         * @param context
-         * @param senderUri the new value
-         */
-        @Deprecated
-        public void setSenderUri(Context context, String senderUri) {
-            // reconstitute or create if necessary
+        public HostAuth getOrCreateHostAuthSend(Context context) {
             if (mHostAuthSend == null) {
                 if (mHostAuthKeySend != 0) {
                     mHostAuthSend = HostAuth.restoreHostAuthWithId(context, mHostAuthKeySend);
@@ -1391,10 +1364,18 @@ public abstract class EmailContent {
                     mHostAuthSend = new EmailContent.HostAuth();
                 }
             }
+            return mHostAuthSend;
+        }
 
-            if (mHostAuthSend != null) {
-                mHostAuthSend.setStoreUri(senderUri);
+        public HostAuth getOrCreateHostAuthRecv(Context context) {
+            if (mHostAuthRecv == null) {
+                if (mHostAuthKeyRecv != 0) {
+                    mHostAuthRecv = HostAuth.restoreHostAuthWithId(context, mHostAuthKeyRecv);
+                } else {
+                    mHostAuthRecv = new EmailContent.HostAuth();
+                }
             }
+            return mHostAuthRecv;
         }
 
         /**
@@ -2569,10 +2550,15 @@ public abstract class EmailContent {
         @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/hostauth");
 
-        public static final int FLAG_SSL = 1;
-        public static final int FLAG_TLS = 2;
-        public static final int FLAG_AUTHENTICATE = 4;
-        public static final int FLAG_TRUST_ALL_CERTIFICATES = 8;
+        public static final int PORT_UNKNOWN = -1;
+
+        public static final int FLAG_NONE         = 0x00;    // No flags
+        public static final int FLAG_SSL          = 0x01;    // Use SSL
+        public static final int FLAG_TLS          = 0x02;    // Use TLS
+        public static final int FLAG_AUTHENTICATE = 0x04;    // Use name/password for authentication
+        public static final int FLAG_TRUST_ALL    = 0x08;    // Trust all certificates
+        // Mask of settings directly configurable by the user
+        public static final int USER_CONFIG_MASK  = 0x0b;
 
         public String mProtocol;
         public String mAddress;
@@ -2581,6 +2567,7 @@ public abstract class EmailContent {
         public String mLogin;
         public String mPassword;
         public String mDomain;
+        // TODO Remove all vestiges of this
         public long mAccountKey;        // DEPRECATED - Will not be set or stored
 
         public static final int CONTENT_ID_COLUMN = 0;
@@ -2607,7 +2594,7 @@ public abstract class EmailContent {
             mBaseUri = CONTENT_URI;
 
             // other defaults policy)
-            mPort = -1;
+            mPort = PORT_UNKNOWN;
         }
 
          /**
@@ -2630,6 +2617,52 @@ public abstract class EmailContent {
             } finally {
                 c.close();
             }
+        }
+
+
+        /**
+         * Returns the scheme for the specified flags.
+         */
+        public static String getSchemeString(String protocol, int flags) {
+            String security = "";
+            switch (flags & USER_CONFIG_MASK) {
+                case FLAG_SSL:
+                    security = "+ssl+";
+                    break;
+                case FLAG_SSL | FLAG_TRUST_ALL:
+                    security = "+ssl+trustallcerts";
+                    break;
+                case FLAG_TLS:
+                    security = "+tls+";
+                    break;
+                case FLAG_TLS | FLAG_TRUST_ALL:
+                    security = "+tls+trustallcerts";
+                    break;
+            }
+            return protocol + security;
+        }
+
+        /**
+         * Returns the flags for the specified scheme.
+         */
+        public static int getSchemeFlags(String scheme) {
+            String[] schemeParts = scheme.split("\\+");
+            int flags = HostAuth.FLAG_NONE;
+            if (schemeParts.length >= 2) {
+                String part1 = schemeParts[1];
+                if ("ssl".equals(part1)) {
+                    flags |= HostAuth.FLAG_SSL;
+                } else if ("tls".equals(part1)) {
+                    flags |= HostAuth.FLAG_TLS;
+                }
+                if (schemeParts.length >= 3) {
+                    String part2 = schemeParts[2];
+                    if ("trustallcerts".equals(part2)) {
+                        flags |= HostAuth.FLAG_TRUST_ALL;
+                    }
+                }
+            }
+            return flags;
         }
 
         @Override
@@ -2667,37 +2700,20 @@ public abstract class EmailContent {
          * @return a string in the form of a Uri, as used by the other parts of the email app
          */
         public String getStoreUri() {
-            String security;
-            switch (mFlags & (FLAG_SSL | FLAG_TLS | FLAG_TRUST_ALL_CERTIFICATES)) {
-                case FLAG_SSL:
-                    security = "+ssl+";
-                    break;
-                case FLAG_SSL | FLAG_TRUST_ALL_CERTIFICATES:
-                    security = "+ssl+trustallcerts";
-                    break;
-                case FLAG_TLS:
-                    security = "+tls+";
-                    break;
-                case FLAG_TLS | FLAG_TRUST_ALL_CERTIFICATES:
-                    security = "+tls+trustallcerts";
-                    break;
-                default:
-                    security = "";
-                    break;
-            }
             String userInfo = null;
             if ((mFlags & FLAG_AUTHENTICATE) != 0) {
                 String trimUser = (mLogin != null) ? mLogin.trim() : "";
                 String password = (mPassword != null) ? mPassword : "";
                 userInfo = trimUser + ":" + password;
             }
+            String scheme = getSchemeString(mProtocol, mFlags);
             String address = (mAddress != null) ? mAddress.trim() : null;
             String path = (mDomain != null) ? "/" + mDomain : null;
 
             URI uri;
             try {
                 uri = new URI(
-                        mProtocol + security,
+                        scheme,
                         userInfo,
                         address,
                         mPort,
@@ -2711,77 +2727,73 @@ public abstract class EmailContent {
         }
 
         /**
-         * For compatibility while converting to provider model, set fields from a "store URI"
-         *
-         * @param uriString a String containing a Uri
+         * Sets the user name and password from URI user info string
          */
-        @Deprecated
-        public void setStoreUri(String uriString) {
-            try {
-                URI uri = new URI(uriString);
-                mLogin = null;
-                mPassword = null;
-                mFlags &= ~FLAG_AUTHENTICATE;
-                if (uri.getUserInfo() != null) {
-                    String[] userInfoParts = uri.getUserInfo().split(":", 2);
-                    mLogin = userInfoParts[0];
-                    mFlags |= FLAG_AUTHENTICATE;
-                    if (userInfoParts.length > 1) {
-                        mPassword = userInfoParts[1];
-                    }
+        public void setLogin(String userInfo) {
+            String userName = null;
+            String userPassword = null;
+            if (!TextUtils.isEmpty(userInfo)) {
+                String[] userInfoParts = userInfo.split(":", 2);
+                userName = userInfoParts[0];
+                if (userInfoParts.length > 1) {
+                    userPassword = userInfoParts[1];
                 }
-
-                // Set protocol, security, and additional flags based on uri scheme
-                String[] schemeParts = uri.getScheme().split("\\+");
-                mProtocol = (schemeParts.length >= 1) ? schemeParts[0] : null;
-                mFlags &= ~(FLAG_SSL | FLAG_TLS | FLAG_TRUST_ALL_CERTIFICATES);
-                boolean ssl = false;
-                if (schemeParts.length >= 2) {
-                    String part1 = schemeParts[1];
-                    if ("ssl".equals(part1)) {
-                        ssl = true;
-                        mFlags |= FLAG_SSL;
-                    } else if ("tls".equals(part1)) {
-                        mFlags |= FLAG_TLS;
-                    }
-                    if (schemeParts.length >= 3) {
-                        String part2 = schemeParts[2];
-                        if ("trustallcerts".equals(part2)) {
-                            mFlags |= FLAG_TRUST_ALL_CERTIFICATES;
-                        }
-                    }
-                }
-
-                mAddress = uri.getHost();
-                mPort = uri.getPort();
-                if (mPort == -1) {
-                    // infer port# from protocol + security
-                    // SSL implies a different port - TLS runs in the "regular" port
-                    // TODO:  This really shouldn't be here - it should have been set up
-                    // in the account setup screens.
-                    if ("pop3".equals(mProtocol)) {
-                        mPort = ssl ? 995 : 110;
-                    } else if ("imap".equals(mProtocol)) {
-                        mPort = ssl ? 993 : 143;
-                    } else if ("eas".equals(mProtocol)) {
-                        mPort = ssl ? 443 : 80;
-                    }  else if ("smtp".equals(mProtocol)) {
-                        mPort = ssl ? 465 : 587;
-                    }
-                }
-
-                if (uri.getPath() != null && uri.getPath().length() > 0) {
-                    mDomain = uri.getPath().substring(1);
-                }
-
-
-            } catch (URISyntaxException use) {
-                /*
-                 * We should always be able to parse our own settings.
-                 */
-                throw new Error(use);
             }
+            setLogin(userName, userPassword);
+        }
 
+        /**
+         * Sets the user name and password
+         */
+        public void setLogin(String userName, String userPassword) {
+            mLogin = userName;
+            mPassword = userPassword;
+
+            if (mLogin == null) {
+                mFlags &= ~FLAG_AUTHENTICATE;
+            } else {
+                mFlags |= FLAG_AUTHENTICATE;
+            }
+        }
+
+        /**
+         * Sets the connection values of the auth structure per the given scheme, host and port.
+         */
+        public void setConnection(String scheme, String host, int port) {
+            String[] schemeParts = scheme.split("\\+");
+            String protocol = schemeParts[0];
+            int flags = getSchemeFlags(scheme);
+
+            setConnection(protocol, host, port, flags);
+        }
+
+        public void setConnection(String protocol, String address, int port, int flags) {
+            // Set protocol, security, and additional flags based on uri scheme
+            mProtocol = protocol;
+
+            mFlags &= ~(FLAG_SSL | FLAG_TLS | FLAG_TRUST_ALL);
+            mFlags |= (flags & USER_CONFIG_MASK);
+
+            mAddress = address;
+            mPort = port;
+            if (mPort == PORT_UNKNOWN) {
+                boolean useSSL = ((mFlags & FLAG_SSL) != 0);
+                // infer port# from protocol + security
+                // SSL implies a different port - TLS runs in the "regular" port
+                // NOTE: Although the port should be setup in the various setup screens, this
+                // block cannot easily be moved because we get process URIs from other sources
+                // (e.g. for tests, provider templates and account restore) that may or may not
+                // have a port specified.
+                if ("pop3".equals(mProtocol)) {
+                    mPort = useSSL ? 995 : 110;
+                } else if ("imap".equals(mProtocol)) {
+                    mPort = useSSL ? 993 : 143;
+                } else if ("eas".equals(mProtocol)) {
+                    mPort = useSSL ? 443 : 80;
+                }  else if ("smtp".equals(mProtocol)) {
+                    mPort = useSSL ? 465 : 587;
+                }
+            }
         }
 
         /**

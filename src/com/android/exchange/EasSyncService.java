@@ -242,7 +242,7 @@ public class EasSyncService extends AbstractSyncService {
             return;
         }
         mSsl = (ha.mFlags & HostAuth.FLAG_SSL) != 0;
-        mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES) != 0;
+        mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL) != 0;
     }
 
     private EasSyncService(String prefix) {
@@ -853,7 +853,7 @@ public class EasSyncService extends AbstractSyncService {
                 svc.mUserName = ha.mLogin;
                 svc.mPassword = ha.mPassword;
                 svc.mSsl = (ha.mFlags & HostAuth.FLAG_SSL) != 0;
-                svc.mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES) != 0;
+                svc.mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL) != 0;
                 svc.mDeviceId = Device.getDeviceId(context);
                 svc.mAccount = acct;
                 Serializer s = new Serializer();

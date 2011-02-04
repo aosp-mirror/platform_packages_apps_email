@@ -53,6 +53,7 @@ public abstract class AccountServerBaseFragment extends Fragment
     protected Context mContext;
     protected Callback mCallback = EmptyCallback.INSTANCE;
     protected boolean mSettingsMode;
+    // TODO See how to get rid of this. Maybe define an "equals()" for HostAuth?
     // The URI that represents this account's currently saved settings
     protected URI mLoadedUri;
 
@@ -60,6 +61,7 @@ public abstract class AccountServerBaseFragment extends Fragment
     public Button mProceedButton;
     // This is used to debounce multiple clicks on the proceed button (which does async work)
     public boolean mProceedButtonPressed;
+    /*package*/ String mBaseScheme = "protocol";
 
     /**
      * Callback interface that owning activities must provide

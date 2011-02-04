@@ -32,8 +32,10 @@ import com.android.emailcommon.mail.Message.RecipientType;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
 
@@ -48,6 +50,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -519,8 +522,20 @@ public class LegacyConversions {
         result.mSecuritySyncKey = null;
         result.mSignature = fromAccount.mSignature;
 
-        result.setStoreUri(context, fromAccount.getStoreUri());
-        result.setSenderUri(context, fromAccount.getSenderUri());
+        try {
+            HostAuth recvAuth = result.getOrCreateHostAuthRecv(context);
+            Utility.setHostAuthFromString(recvAuth, fromAccount.getStoreUri());
+        } catch (URISyntaxException e) {
+            result.mHostAuthRecv = new HostAuth();
+            Log.w(Logging.LOG_TAG, e);
+        }
+        try {
+            HostAuth sendAuth = result.getOrCreateHostAuthSend(context);
+            Utility.setHostAuthFromString(sendAuth, fromAccount.getSenderUri());
+        } catch (URISyntaxException e) {
+            result.mHostAuthSend = new HostAuth();
+            Log.w(Logging.LOG_TAG, e);
+        }
 
         return result;
     }

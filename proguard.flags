@@ -103,6 +103,10 @@
   *** setRecipient(com.android.emailcommon.mail.Message$RecipientType, com.android.emailcommon.mail.Address);
 }
 
+-keepclasseswithmembers class com.android.emailcommon.internet.MimeHeader {
+  *** writeToString();
+}
+
 -keepclasseswithmembers class com.android.emailcommon.internet.MimeMessage {
   <init>();
   <init>(java.io.InputStream);

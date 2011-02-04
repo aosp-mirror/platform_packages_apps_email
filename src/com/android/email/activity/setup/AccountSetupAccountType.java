@@ -116,24 +116,17 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
     }
 
     /**
-     * The user has selected an exchange account type.  Try to put together a URI using the entered
-     * email address.  Also set the mail delete policy here, because there is no UI (for exchange),
-     * and switch the default sync interval to "push".
+     * The user has selected an exchange account type. Set the mail delete policy here, because
+     * there is no UI (for exchange), and switch the default sync interval to "push".
      */
     private void onExchange() {
         Account account = SetupData.getAccount();
-        try {
-            URI uri = new URI(account.getStoreUri(this));
-            uri = new URI("eas+ssl+", uri.getUserInfo(), uri.getHost(), uri.getPort(),
-                    null, null, null);
-            account.setStoreUri(this, uri.toString());
-            account.setSenderUri(this, uri.toString());
-        } catch (URISyntaxException use) {
-            /*
-             * This should not happen.
-             */
-            throw new Error(use);
-        }
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
+        recvAuth.setConnection(
+                "eas", recvAuth.mAddress, recvAuth.mPort, recvAuth.mFlags | HostAuth.FLAG_SSL);
+        HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
+        sendAuth.setConnection(
+                "eas", sendAuth.mAddress, sendAuth.mPort, sendAuth.mFlags | HostAuth.FLAG_SSL);
         // TODO: Confirm correct delete policy for exchange
         account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
