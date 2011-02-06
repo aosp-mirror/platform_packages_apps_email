@@ -1012,8 +1012,7 @@ public class MessagingController implements Runnable {
                 saveOrUpdate(body, context);
 
                 // process (and save) attachments
-                LegacyConversions.updateAttachments(context, localMessage,
-                        attachments, false);
+                LegacyConversions.updateAttachments(context, localMessage, attachments);
 
                 // One last update of message with two updated flags
                 localMessage.mFlagLoaded = loadStatus;

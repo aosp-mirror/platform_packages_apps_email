@@ -103,13 +103,6 @@
                     android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.UpgradeAccounts"
-            android:label="@string/upgrade_accounts_title"
-            android:theme="@android:style/Theme.NoTitleBar"
-            android:configChanges="keyboardHidden|orientation"
-            >
-        </activity>
         <!-- Must be exported in order for the AccountManager to launch it -->
         <!-- Also available for continuous test systems to force account creation -->
         <activity
@@ -212,25 +205,6 @@
             android:name=".activity.MessageListXL"
             >
         </activity>
-
-        <!--
-            This activity catches shortcuts to account created on Android 1.6 and before,
-            and redirects to MessageList.
-            singleTask is necessary to make sure the activity is really launched.
-            Without it, the framework brings up the app to front, but doesn't necessarily
-            launch the activity.
-        -->
-        <activity
-            android:name=".activity.FolderMessageList"
-            android:launchMode="singleTask"
-            >
-            <intent-filter>
-                <!-- This action is only to allow an entry point for launcher shortcuts -->
-                <action
-                    android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-
         <activity
             android:name=".activity.MessageView"
             >

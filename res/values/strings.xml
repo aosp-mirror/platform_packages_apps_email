@@ -36,6 +36,10 @@
     <string name="general_preference_background_attachments_label"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="general_preference_background_attachments_summary"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="upgrade_accounts_title"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="upgrade_accounts_error"></string>
 
     <!-- Name of application on Home screen -->
     <string name="app_name">Email</string>
@@ -848,11 +852,6 @@ save attachment.</string>
     <string name="account_shortcut_picker_name">Email account</string>
     <!-- Title of activity/dialog containing shortcut picker (list of accounts) [CHAR_LIMIT=20] -->
     <string name="account_shortcut_picker_title">Select an account</string>
-
-    <!-- Title of Upgrade Accounts activity -->
-    <string name="upgrade_accounts_title">Upgrade accounts</string>
-    <!-- Error shown when Upgrade Accounts fails (shown below name of that account) -->
-    <string name="upgrade_accounts_error">Unable to upgrade account</string>
 
     <!-- Message that appears when adding a Windows Live Hotmail Plus account -->
     <string name="provider_note_live">Only some \"Plus\" accounts include POP access

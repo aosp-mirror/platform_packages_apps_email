@@ -19,7 +19,6 @@ package com.android.email.provider;
 import com.android.email.AttachmentInfo;
 import com.android.email.R;
 import com.android.email.mail.MessagingException;
-import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.AttachmentProvider.AttachmentProviderColumns;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -27,11 +26,9 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -50,14 +47,6 @@ import java.io.IOException;
  *   runtest -c com.android.email.provider.AttachmentProviderTests email
  */
 public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvider> {
-
-    /*
-     * This switch will enable us to transition these tests, and the AttachmentProvider, from the
-     * "old" LocalStore model to the "new" provider model.  After the transition is complete,
-     * this flag (and its associated code) can be removed.
-     */
-    private final boolean USE_LOCALSTORE = false;
-    LocalStore mLocalStore = null;
 
     EmailProvider mEmailProvider;
     Context mMockContext;
@@ -79,15 +68,6 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         assertNotNull(mEmailProvider);
         ((MockContentResolver) mMockResolver)
                 .addProvider(EmailProvider.EMAIL_AUTHORITY, mEmailProvider);
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-
-        if (mLocalStore != null) {
-            mLocalStore.delete();
-        }
     }
 
     /**
@@ -124,13 +104,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         Uri attachment2Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
         Uri attachment3Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment3Id);
 
-        // Test with no attached database - should return null
+        // Test with no attachment found - should return null
         Cursor c = mMockResolver.query(attachment1Uri, (String[])null, null, (String[])null, null);
-        assertNull(c);
-
-        // Test with an attached database, but no attachment found - should return null
-        setupAttachmentDatabase(account1);
-        c = mMockResolver.query(attachment1Uri, (String[])null, null, (String[])null, null);
         assertNull(c);
 
         // Add a couple of attachment entries.  Note, query() just uses the DB, and does not
@@ -288,13 +263,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
 
         Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
 
-        // Test with no attached database - should return null
+        // Test with no attachment found - should return null
         String type = mMockResolver.getType(attachment1Uri);
-        assertNull(type);
-
-        // Test with an attached database, but no attachment found - should return null
-        setupAttachmentDatabase(account1);
-        type = mMockResolver.getType(attachment1Uri);
         assertNull(type);
 
         // Add a couple of attachment entries.  Note, getType() just uses the DB, and does not
@@ -445,17 +415,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         Uri file1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
         Uri file2Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
 
-        // Test with no attached database - should throw an exception
+        // Test with no attachment found
         AssetFileDescriptor afd;
-        try {
-            afd = mMockResolver.openAssetFileDescriptor(file1Uri, "r");
-            fail("Should throw an exception on a bad URI");
-        } catch (FileNotFoundException fnf) {
-            // expected
-        }
-
-        // Test with an attached database, but no attachment found
-        setupAttachmentDatabase(account1);
         try {
             afd = mMockResolver.openAssetFileDescriptor(file1Uri, "r");
             fail("Should throw an exception on a missing attachment entry");
@@ -521,13 +482,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         Uri thumb2Uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment2Id,
                 62, 62);
 
-        // Test with no attached database - should return null (used to throw SQLiteException)
-        AssetFileDescriptor afd = mMockResolver.openAssetFileDescriptor(thumb1Uri, "r");
-        assertNull(afd);
-
         // Test with an attached database, but no attachment found
-        setupAttachmentDatabase(account1);
-        afd = mMockResolver.openAssetFileDescriptor(thumb1Uri, "r");
+        AssetFileDescriptor afd = mMockResolver.openAssetFileDescriptor(thumb1Uri, "r");
         assertNull(afd);
 
         // Add an attachment (but no associated file)
@@ -584,17 +540,10 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         final long attachment1Id = 1;
         final Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
 
-        // Test with no attached database - should return input
-        Uri result = AttachmentProvider.resolveAttachmentIdToContentUri(
-                mMockResolver, attachment1Uri);
-        assertEquals(attachment1Uri, result);
-
-        setupAttachmentDatabase(account1);
-
-        // Test with an attached database, but no attachment found - should return input
+        // Test with no attachment found - should return input
         // We know that the attachmentId 1 does not exist because there are no attachments
         // created at this point
-        result = AttachmentProvider.resolveAttachmentIdToContentUri(
+        Uri result = AttachmentProvider.resolveAttachmentIdToContentUri(
                 mMockResolver, attachment1Uri);
         assertEquals(attachment1Uri, result);
 
@@ -787,59 +736,12 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
     }
 
     /**
-     * Set up the attachments database.
-     */
-    private void setupAttachmentDatabase(Account forAccount) throws MessagingException {
-        if (USE_LOCALSTORE) {
-            String localStoreUri = "local://localhost/" + dbName(forAccount);
-            mLocalStore = (LocalStore) LocalStore.newInstance(localStoreUri, mMockContext, null);
-        } else {
-            // Nothing to do - EmailProvider is already available for us
-        }
-    }
-
-    /**
      * Record an attachment in the attachments database
      * @return the id of the attachment just created
      */
     private long addAttachmentToDb(Account forAccount, Attachment newAttachment) {
-        long attachmentId = -1;
-        if (USE_LOCALSTORE) {
-            ContentValues cv = new ContentValues();
-            cv.put("message_id", newAttachment.mMessageKey);
-            cv.put("content_uri", newAttachment.mContentUri);
-            cv.put("store_data", (String)null);
-            cv.put("size", newAttachment.mSize);
-            cv.put("name", newAttachment.mFileName);
-            cv.put("mime_type", newAttachment.mMimeType);
-            cv.put("content_id", newAttachment.mContentId);
-
-            SQLiteDatabase db = null;
-            try {
-                db = SQLiteDatabase.openDatabase(dbName(forAccount), null, 0);
-                attachmentId = db.insertOrThrow("attachments", "message_id", cv);
-            }
-            finally {
-                if (db != null) {
-                    db.close();
-                }
-            }
-        } else {
-            newAttachment.save(mMockContext);
-            attachmentId = newAttachment.mId;
-        }
-        return attachmentId;
-    }
-
-    /**
-     * Return the database path+name for a given account
-     */
-    private String dbName(Account forAccount) {
-        if (USE_LOCALSTORE) {
-            return mMockContext.getDatabasePath(forAccount.mCompatibilityUuid + ".db").toString();
-        } else {
-            throw new java.lang.UnsupportedOperationException();
-        }
+        newAttachment.save(mMockContext);
+        return newAttachment.mId;
     }
 
     /**
@@ -847,15 +749,10 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      */
     private File getAttachmentFile(Account forAccount, long id) {
         String idString = Long.toString(id);
-        if (USE_LOCALSTORE) {
-            return new File(mMockContext.getDatabasePath(forAccount.mCompatibilityUuid + ".db_att"),
-                    idString);
-        } else {
-            File attachmentsDir = mMockContext.getDatabasePath(forAccount.mId + ".db_att");
-            if (!attachmentsDir.exists()) {
-                attachmentsDir.mkdirs();
-            }
-            return new File(attachmentsDir, idString);
+        File attachmentsDir = mMockContext.getDatabasePath(forAccount.mId + ".db_att");
+        if (!attachmentsDir.exists()) {
+            attachmentsDir.mkdirs();
         }
+        return new File(attachmentsDir, idString);
     }
 }
