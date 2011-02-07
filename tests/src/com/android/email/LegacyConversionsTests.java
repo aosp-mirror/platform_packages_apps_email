@@ -17,11 +17,8 @@
 package com.android.email;
 
 import com.android.email.mail.Address;
-import com.android.email.mail.Body;
 import com.android.email.mail.BodyPart;
 import com.android.email.mail.Flag;
-import com.android.email.mail.Folder;
-import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.Message;
 import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.MessageTestUtils;
@@ -34,11 +31,8 @@ import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
-import com.android.email.mail.store.LocalStore;
-import com.android.email.mail.store.LocalStoreUnitTests;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Attachment;
-import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 
@@ -213,13 +207,13 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         // test 1: legacy message using content-type:name style for name
         final EmailContent.Message localMessage = ProviderTestUtils.setupMessage(
                 "local-message", accountId, mailboxId, false, true, mProviderContext);
-        final Message legacyMessage = prepareLegacyMessageWithAttachments(2, false, false);
+        final Message legacyMessage = prepareLegacyMessageWithAttachments(2, false);
         convertAndCheckcheckAddedAttachments(localMessage, legacyMessage);
 
         // test 2: legacy message using content-disposition:filename style for name
         final EmailContent.Message localMessage2 = ProviderTestUtils.setupMessage(
                 "local-message", accountId, mailboxId, false, true, mProviderContext);
-        final Message legacyMessage2 = prepareLegacyMessageWithAttachments(2, false, true);
+        final Message legacyMessage2 = prepareLegacyMessageWithAttachments(2, true);
         convertAndCheckcheckAddedAttachments(localMessage2, legacyMessage2);
     }
 
@@ -232,7 +226,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         ArrayList<Part> viewables = new ArrayList<Part>();
         ArrayList<Part> attachments = new ArrayList<Part>();
         MimeUtility.collectParts(legacyMessage, viewables, attachments);
-        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments, false);
+        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments);
 
         // Read back all attachments for message and check field values
         Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, localMessage.mId);
@@ -320,86 +314,38 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
                 "local-message", accountId, mailboxId, false, true, mProviderContext);
 
         // Prepare a legacy message with attachments
-        Message legacyMessage = prepareLegacyMessageWithAttachments(2, false, false);
+        Message legacyMessage = prepareLegacyMessageWithAttachments(2, false);
 
         // Now, convert from legacy to provider and see what happens
         ArrayList<Part> viewables = new ArrayList<Part>();
         ArrayList<Part> attachments = new ArrayList<Part>();
         MimeUtility.collectParts(legacyMessage, viewables, attachments);
-        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments, false);
+        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments);
 
         // Confirm two attachment objects created
         Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, localMessage.mId);
         assertEquals(2, EmailContent.count(mProviderContext, uri, null, null));
 
         // Now add the attachments again and confirm there are still only two
-        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments, false);
+        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments);
         assertEquals(2, EmailContent.count(mProviderContext, uri, null, null));
 
         // Now add a 3rd & 4th attachment and make sure the total is 4, not 2 or 6
-        legacyMessage = prepareLegacyMessageWithAttachments(4, false, false);
+        legacyMessage = prepareLegacyMessageWithAttachments(4, false);
         viewables = new ArrayList<Part>();
         attachments = new ArrayList<Part>();
         MimeUtility.collectParts(legacyMessage, viewables, attachments);
-        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments, false);
+        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments);
         assertEquals(4, EmailContent.count(mProviderContext, uri, null, null));
-    }
-
-    /**
-     * Sunny day test of adding attachments in "local account upgrade" mode
-     */
-    public void testLocalUpgradeAttachments() throws MessagingException, IOException {
-        // Prepare a local message to add the attachments to
-        final long accountId = 1;
-        final long mailboxId = 1;
-        final EmailContent.Message localMessage = ProviderTestUtils.setupMessage(
-                "local-upgrade", accountId, mailboxId, false, true, mProviderContext);
-
-        // Prepare a legacy message with attachments
-        final Message legacyMessage = prepareLegacyMessageWithAttachments(2, true, false);
-
-        // Now, convert from legacy to provider and see what happens
-        ArrayList<Part> viewables = new ArrayList<Part>();
-        ArrayList<Part> attachments = new ArrayList<Part>();
-        MimeUtility.collectParts(legacyMessage, viewables, attachments);
-        LegacyConversions.updateAttachments(mProviderContext, localMessage, attachments, true);
-
-        // Read back all attachments for message and check field values
-        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, localMessage.mId);
-        Cursor c = mProviderContext.getContentResolver().query(uri, Attachment.CONTENT_PROJECTION,
-                null, null, null);
-        try {
-            assertEquals(2, c.getCount());
-            while (c.moveToNext()) {
-                Attachment attachment = Attachment.getContent(c, Attachment.class);
-                // This attachment should look as if created by modern (provider) MessageCompose.
-                // 1. find the original that it was created from
-                Part fromPart = null;
-                for (Part from : attachments) {
-                    String contentType = MimeUtility.unfoldAndDecode(from.getContentType());
-                    String name = MimeUtility.getHeaderParameter(contentType, "name");
-                    if (name.equals(attachment.mFileName)) {
-                        fromPart = from;
-                        break;
-                    }
-                }
-                assertTrue(fromPart != null);
-                // 2. Check values
-                checkAttachment(attachment.mFileName, fromPart, attachment, accountId);
-            }
-        } finally {
-            c.close();
-        }
     }
 
     /**
      * Prepare a legacy message with 1+ attachments
      * @param numAttachments how many attachments to add
-     * @param localData if true, attachments are "local" data.  false = "remote" (from server)
      * @param filenameInDisposition False: attachment names are sent as content-type:name.  True:
      *          attachment names are sent as content-disposition:filename.
      */
-    private Message prepareLegacyMessageWithAttachments(int numAttachments, boolean localData,
+    private Message prepareLegacyMessageWithAttachments(int numAttachments,
             boolean filenameInDisposition) throws MessagingException {
         BodyPart[] attachmentParts = new BodyPart[numAttachments];
         for (int i = 0; i < numAttachments; ++i) {
@@ -412,30 +358,18 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
             } else {
                 name = ";\n name=" + quotedName;
             }
-            if (localData) {
-                // generate an attachment that was generated by legacy code (e.g. donut)
-                // for test of upgrading accounts in place
-                // This creator models the code in legacy MessageCompose
-                Uri uri = Uri.parse("content://test/attachment/" + i);
-                MimeBodyPart bp = new MimeBodyPart(
-                        new LocalStore.LocalAttachmentBody(uri, mProviderContext));
-                bp.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "image/jpg" + name);
-                bp.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
-                bp.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION, "attachment" + filename);
-                attachmentParts[i] = bp;
-            } else {
-                // generate an attachment that came from a server
-                BodyPart attachmentPart = MessageTestUtils.bodyPart("image/jpg", null);
 
-                // name=attachmentN size=N00 location=10N
-                attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "image/jpg" + name);
-                attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
-                attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
-                        "attachment" + filename +  ";\n size=" + (i+1) + "00");
-                attachmentPart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "10" + i);
+            // generate an attachment that came from a server
+            BodyPart attachmentPart = MessageTestUtils.bodyPart("image/jpg", null);
 
-                attachmentParts[i] = attachmentPart;
-            }
+            // name=attachmentN size=N00 location=10N
+            attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TYPE, "image/jpg" + name);
+            attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_TRANSFER_ENCODING, "base64");
+            attachmentPart.setHeader(MimeHeader.HEADER_CONTENT_DISPOSITION,
+                    "attachment" + filename +  ";\n size=" + (i+1) + "00");
+            attachmentPart.setHeader(MimeHeader.HEADER_ANDROID_ATTACHMENT_STORE_DATA, "10" + i);
+
+            attachmentParts[i] = attachmentPart;
         }
 
         return prepareLegacyMessageWithAttachments(attachmentParts);
@@ -504,17 +438,8 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         String expectedName = (contentTypeName != null) ? contentTypeName : dispositionFilename;
         assertEquals(tag, expectedName, actual.mFileName);
 
-        // content URI either both null or both matching
-        String expectedUriString = null;
-        Body body = expected.getBody();
-        if (body instanceof LocalStore.LocalAttachmentBody) {
-            LocalStore.LocalAttachmentBody localBody = (LocalStore.LocalAttachmentBody) body;
-            Uri contentUri = localBody.getContentUri();
-            if (contentUri != null) {
-                expectedUriString = contentUri.toString();
-            }
-        }
-        assertEquals(tag, expectedUriString, actual.mContentUri);
+        // content URI should be null
+        assertNull(tag, actual.mContentUri);
 
         assertTrue(tag, 0 != actual.mMessageKey);
 
@@ -804,49 +729,5 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag + " delete policy", expect.getDeletePolicy(), actual.getDeletePolicy());
         assertEquals(tag + " security", expect.mSecurityFlags, actual.mSecurityFlags);
         assertEquals(tag + " signature", expect.mSignature, actual.mSignature);
-    }
-
-    /**
-     * Test conversion of a legacy mailbox to a provider mailbox
-     */
-    public void testMakeProviderMailbox() throws MessagingException {
-        EmailContent.Account toAccount = ProviderTestUtils.setupAccount("convert-mailbox",
-                true, mProviderContext);
-        Folder fromFolder = buildTestFolder("INBOX");
-        Mailbox toMailbox = LegacyConversions.makeMailbox(mProviderContext, toAccount, fromFolder);
-
-        // Now test fields in created mailbox
-        assertEquals("INBOX", toMailbox.mDisplayName);
-        assertNull(toMailbox.mServerId);
-        assertNull(toMailbox.mParentServerId);
-        assertEquals(toAccount.mId, toMailbox.mAccountKey);
-        assertEquals(Mailbox.TYPE_INBOX, toMailbox.mType);
-        assertEquals(0, toMailbox.mDelimiter);
-        assertNull(toMailbox.mSyncKey);
-        assertEquals(0, toMailbox.mSyncLookback);
-        assertEquals(0, toMailbox.mSyncInterval);
-        assertEquals(0, toMailbox.mSyncTime);
-        assertTrue(toMailbox.mFlagVisible);
-        assertEquals(0, toMailbox.mFlags);
-        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, toMailbox.mVisibleLimit);
-        assertNull(toMailbox.mSyncStatus);
-    }
-
-    /**
-     * Build a lightweight Store Folder with simple field population.  The folder is "open"
-     * and should be closed by the caller.
-     */
-    private Folder buildTestFolder(String folderName) throws MessagingException {
-        String localStoreUri =
-            "local://localhost/" + mProviderContext.getDatabasePath(LocalStoreUnitTests.DB_NAME);
-        LocalStore store = (LocalStore) LocalStore.newInstance(localStoreUri, getContext(), null);
-        LocalStore.LocalFolder folder = (LocalStore.LocalFolder) store.getFolder(folderName);
-        folder.open(OpenMode.READ_WRITE, null);     // this will create it
-
-        // set a few fields to test values
-        // folder.getName - set by getFolder()
-        folder.setUnreadMessageCount(100);
-
-        return folder;
     }
 }

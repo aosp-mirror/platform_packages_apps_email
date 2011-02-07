@@ -156,13 +156,6 @@ public class Welcome extends Activity {
         // Reset the "accounts changed" notification, now that we're here
         Email.setNotifyUiAccountsChanged(false);
 
-        // Quickly check for bulk upgrades (from older app versions) and switch to the
-        // upgrade activity if necessary
-        if (UpgradeAccounts.doBulkUpgradeIfNecessary(this)) {
-            finish();
-            return;
-        }
-
         // Restore accounts, if it has not happened already
         // NOTE:  This is blocking, which it should not be (in the UI thread)
         // We're going to live with this for the short term and replace with something

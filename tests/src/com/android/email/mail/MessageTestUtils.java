@@ -16,19 +16,16 @@
 
 package com.android.email.mail;
 
-import com.android.email.mail.internet.BinaryTempFileBody;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.TextBody;
-import com.android.email.mail.store.LocalStore;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 
 import android.net.Uri;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -98,29 +95,6 @@ public class MessageTestUtils {
         final MimeBodyPart textPart = new MimeBodyPart(textBody);
         textPart.setHeader(MimeHeader.HEADER_CONTENT_TYPE, mimeType);
         return textPart;
-    }
-
-    /**
-     * Create attachment BodyPart with content-id.
-     * 
-     * @param mimeType MIME type of image body
-     * @param contentId content-id header value (optional - null for no header)
-     * @param attachmentId attachment id of store
-     * @param store LocalStore which stores attachment
-     * @return LocalAttachmentBodyPart with content-id 
-     * @throws MessagingException
-     * @throws IOException
-     */
-    public static BodyPart imagePart(String mimeType, String contentId,
-            long attachmentId, LocalStore store) throws MessagingException, IOException {
-        final BinaryTempFileBody imageBody = new BinaryTempFileBody();
-        final LocalStore.LocalAttachmentBodyPart imagePart =
-            store.new LocalAttachmentBodyPart(imageBody, attachmentId);
-        imagePart.setHeader(MimeHeader.HEADER_CONTENT_TYPE, mimeType);
-        if (contentId != null) {
-            imagePart.setHeader(MimeHeader.HEADER_CONTENT_ID, contentId);
-        }
-        return imagePart;
     }
 
     /**
