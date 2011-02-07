@@ -191,7 +191,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"このアカウントから連絡先を同期します。"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"このアカウントからカレンダーを同期"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"セットアップできません"</string>
-    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"同期する量"</string>
+    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"同期する期間"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"1日"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"3日間"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"1週間"</string>
