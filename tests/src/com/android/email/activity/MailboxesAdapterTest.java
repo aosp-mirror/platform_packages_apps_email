@@ -48,9 +48,11 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         // Prepare test data
         Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
         Account a2 = ProviderTestUtils.setupAccount("a2", true, c);
+        Account a3 = ProviderTestUtils.setupAccount("a3", true, c);
 
         Mailbox b1i = ProviderTestUtils.setupMailbox("box1i", a1.mId, true, c, Mailbox.TYPE_INBOX);
         Mailbox b2i = ProviderTestUtils.setupMailbox("box2i", a2.mId, true, c, Mailbox.TYPE_INBOX);
+        Mailbox b3i = ProviderTestUtils.setupMailbox("box3i", a3.mId, true, c, Mailbox.TYPE_INBOX);
         Mailbox b1o = ProviderTestUtils.setupMailbox("box1i", a1.mId, true, c, Mailbox.TYPE_OUTBOX);
         Mailbox b2o = ProviderTestUtils.setupMailbox("box2i", a2.mId, true, c, Mailbox.TYPE_OUTBOX);
         Mailbox b1d = ProviderTestUtils.setupMailbox("box1d", a1.mId, true, c, Mailbox.TYPE_DRAFTS);
@@ -58,19 +60,22 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         Mailbox b1t = ProviderTestUtils.setupMailbox("box1t", a1.mId, true, c, Mailbox.TYPE_TRASH);
         Mailbox b2t = ProviderTestUtils.setupMailbox("box2t", a2.mId, true, c, Mailbox.TYPE_TRASH);
 
-        createMessage(c, b1i, false, false);
-        createMessage(c, b2i, true, true);
-        createMessage(c, b2i, true, false);
+        createMessage(c, b1i, false, false, Message.FLAG_LOADED_COMPLETE);
+        createMessage(c, b2i, true, true, Message.FLAG_LOADED_COMPLETE);
+        createMessage(c, b2i, true, false, Message.FLAG_LOADED_COMPLETE);
+        // "unloaded" messages will not affect 'favorite' message count
+        createMessage(c, b3i, true, true, Message.FLAG_LOADED_UNLOADED);
 
-        createMessage(c, b1o, true, true);
-        createMessage(c, b2o, false, true);
+        createMessage(c, b1o, true, true, Message.FLAG_LOADED_COMPLETE);
+        createMessage(c, b2o, false, true, Message.FLAG_LOADED_COMPLETE);
 
-        createMessage(c, b1d, false, true);
-        createMessage(c, b2d, false, true);
-        createMessage(c, b2d, false, true);
-        createMessage(c, b2d, false, true);
+        createMessage(c, b1d, false, true, Message.FLAG_LOADED_COMPLETE);
+        createMessage(c, b2d, false, true, Message.FLAG_LOADED_COMPLETE);
+        createMessage(c, b2d, false, true, Message.FLAG_LOADED_COMPLETE);
+        createMessage(c, b2d, false, true, Message.FLAG_LOADED_COMPLETE);
 
-        createMessage(c, b2t, true, true); // Starred message in trash; All Starred excludes it.
+        // Starred message in trash; All Starred excludes it.
+        createMessage(c, b2t, true, true, Message.FLAG_LOADED_UNLOADED);
 
         // Kick the method
         Cursor cursor = MailboxesAdapter.getSpecialMailboxesCursor(c, null);
@@ -95,9 +100,13 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         checkSpecialMailboxRow(cursor, Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX, 2);
     }
 
-    private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read) {
-        return ProviderTestUtils.setupMessage("m", b.mAccountKey, b.mId, false, true, c, starred,
-                read);
+    private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read,
+            int flagLoaded) {
+        Message message = ProviderTestUtils.setupMessage(
+                "1", b.mAccountKey, b.mId, true, false, c, starred, read);
+        message.mFlagLoaded = flagLoaded;
+        message.save(c);
+        return message;
     }
 
     private static void checkSpecialMailboxRow(Cursor cursor, long id, int type,
