@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.Log;
 
 import junit.framework.Assert;
 
@@ -78,7 +79,7 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
 
     public void testSelection() {
         MessageOrderManagerForTest mom = new MessageOrderManagerForTest(getContext(), 5, mCallback);
-        assertEquals("mailboxKey=5 AND (flagLoaded IN (2,1))", mom.getQuerySelection());
+        assertEquals("mailboxKey=5 AND flagLoaded IN (2,1)", mom.getQuerySelection());
     }
 
     /**
