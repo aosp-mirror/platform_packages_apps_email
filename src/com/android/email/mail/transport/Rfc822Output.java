@@ -59,6 +59,9 @@ public class Rfc822Output {
     private static final SimpleDateFormat DATE_FORMAT =
         new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 
+    private static final String WHERE_NOT_SMART_FORWARD = "(" + Attachment.FLAGS + "&" +
+        Attachment.FLAG_SMART_FORWARD + ")=0";
+
     /*package*/ static String buildBodyText(Context context, Message message,
             boolean appendQuotedText) {
         Body body = Body.restoreBodyWithMessageId(context, message.mId);
@@ -151,7 +154,7 @@ public class Rfc822Output {
 
         Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, messageId);
         Cursor attachmentsCursor = context.getContentResolver().query(uri,
-                Attachment.CONTENT_PROJECTION, null, null, null);
+                Attachment.CONTENT_PROJECTION, WHERE_NOT_SMART_FORWARD, null, null);
 
         try {
             int attachmentCount = attachmentsCursor.getCount();

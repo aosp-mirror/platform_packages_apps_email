@@ -687,14 +687,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mLoadAttachmentsTask = new AsyncTask<Long, Void, Attachment[]>() {
                     @Override
                     protected Attachment[] doInBackground(Long... messageIds) {
-                        // TODO: When we finally allow the user to change the sending account,
-                        // we'll need a test to check whether the sending account is
-                        // the message's account
-                        boolean smartForward =
-                            (account.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0;
-                        if (smartForward && !draft) {
-                            return null;
-                        }
                         return Attachment.restoreAttachmentsWithMessageId(MessageCompose.this,
                                 messageIds[0]);
                     }
@@ -703,8 +695,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         if (attachments == null) {
                             return;
                         }
+                        boolean smartForward =
+                            (account.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0;
+
                         for (Attachment attachment : attachments) {
-                            addAttachment(attachment, true);
+                            if (smartForward && !draft) {
+                                attachment.mFlags |= Attachment.FLAG_SMART_FORWARD;
+                            }
+                            addAttachment(attachment, !smartForward);
                         }
                     }
                 }.execute(message.mId);
@@ -938,7 +936,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // For any unloaded attachment, set the flag saying we need it loaded
                 boolean hasUnloadedAttachments = false;
                 for (Attachment attachment : attachments) {
-                    if (attachment.mContentUri == null) {
+
+                    if (attachment.mContentUri == null &&
+                            ((attachment.mFlags & Attachment.FLAG_SMART_FORWARD) != 0)) {
                         attachment.mFlags |= Attachment.FLAG_DOWNLOAD_FORWARD;
                         hasUnloadedAttachments = true;
                         if (Email.DEBUG){
@@ -946,6 +946,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                                     "Requesting download of attachment #" + attachment.mId);
                         }
                     }
+                    // Make sure the UI version of the attachment has the now-correct id; we will
+                    // use the id again when coming back from picking new attachments
                     if (!attachment.isSaved()) {
                         // this attachment is new so save it to DB.
                         attachment.mMessageKey = mDraft.mId;
@@ -956,6 +958,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         // the attachments will be independent of the original message in the
                         // database; however, we still need the message on the server in order
                         // to retrieve unloaded attachments
+                        attachment.mMessageKey = mDraft.mId;
                         ContentValues cv = attachment.toContentValues();
                         cv.put(Attachment.FLAGS, attachment.mFlags);
                         cv.put(Attachment.MESSAGE_KEY, mDraft.mId);
