@@ -163,8 +163,11 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
     }
 
     private static Message createMessage(Context c, Mailbox b) {
-        return ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, true, c, false,
+        Message m = ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, false, c, false,
                 false);
+        m.mFlagLoaded = Message.FLAG_LOADED_COMPLETE;
+        m.save(c);
+        return m;
     }
 
     public void testInboxQuery() {
