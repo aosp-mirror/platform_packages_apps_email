@@ -167,11 +167,6 @@
         </activity>
 
         <activity
-            android:name=".activity.Debug"
-            android:label="@string/debug_title"
-            >
-        </activity>
-        <activity
             android:name=".activity.AccountFolderList"
             android:launchMode="singleTop"
             >
