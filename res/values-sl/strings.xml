@@ -151,8 +151,7 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Zavrnili ste povabilo"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Pokaži podrobnosti"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Podrobnosti sporočila"</string>
-    <!-- no translation found for message_decode_error (7812862491622388416) -->
-    <skip />
+    <string name="message_decode_error" msgid="7812862491622388416">"Napaka pri dekodiranju sporočila."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Ogledovanje <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Zavrzi sporočilo"</string>
   <plurals name="message_delete_confirm">
@@ -209,8 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Vnesite veljaven e-poštni naslov in geslo."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Podvojeni račun"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Podatki za prijavo so že v uporabi za račun »<xliff:g id="DUPLICATE">%s</xliff:g>«."</string>
-    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
-    <skip />
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Geslo se začne ali konča z vsaj enim presledkom. Številni strežniki ne podpirajo gesel s presledki."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Pridobivanje podatkov o računu..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Preverjanje nastavitev strežnika za dohodno pošto..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Preverjanje nastavitev strežnika za odhodno pošto..."</string>
@@ -218,8 +216,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Vaš račun je nastavljen, e-pošta je na poti."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Poimenujte račun (neobvezno)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Vaše ime (prikazano v odhodnih sporočilih)"</string>
-    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
-    <skip />
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"To polje ne sme biti prazno"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Nastavitev računa"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Vrsta računa"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Katera vrsta računa je to?"</string>
@@ -271,8 +268,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sinhroniziraj stike iz tega računa."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sinhroniziraj koledar iz tega računa"</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sinhroniziraj e-pošto iz tega računa"</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
-    <skip />
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Samodejni prenos prilog, ko je na voljo povezava Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Namestitve ni bilo mogoče končati"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Količina za sihnroniziranje"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"En dan"</string>
@@ -293,15 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Povezave s strežnikom ni bilo mogoče vzpostaviti."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Vnesli ste napačen naslov strežnika ali pa je za strežnik potrebna različico protokola, ki je program za e-pošto ne podpira."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Varnostno skrbništvo na daljavo"</string>
-    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
-    <skip />
-    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Za ta strežnik so potrebne varnostne funkcije, ki jih vaš telefon ne podpira."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Strežniku <xliff:g id="SERVER">%s</xliff:g> morate dovoliti, da na daljavo nadzira nekatere varnostne funkcije vaše naprave Android. Ali želite dokončati nastavitev tega računa?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Za ta strežnik so potrebne varnostne funkcije, ki jih vaša naprava Android ne podpira."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"Opozorilo: Če onemogočite pravico e-poštnega programa za upravljanja naprave, boste izbrisali vse e-poštne račune, ki jo potrebujejo, skupaj z e-pošto, stiki, dogodki koledarja in drugimi podatki."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Varnostne nastavitve računa »<xliff:g id="ACCOUNT">%s</xliff:g>« je treba posodobiti."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Posodobitev varnostnih nastavitev"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Varnost naprave"</string>
-    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
-    <skip />
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Strežniku <xliff:g id="SERVER">%s</xliff:g> morate dovoliti, da na daljavo nadzira nekatere varnostne funkcije vaše naprave Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Urejanje podrobnosti"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Za račun »<xliff:g id="ACCOUNT">%s</xliff:g>« morate najprej posodobiti kodo za odklepanje zaslona."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Potrebno je novo geslo za odklepanje zaslona"</string>
@@ -314,11 +308,10 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Privzeti račun"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Privzeto pošiljaj e-pošto iz tega računa"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Samodejni prenos prilog"</string>
-    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
-    <skip />
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Samodejni prenos prilog, ko je na voljo povezava Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-poštna obvestila"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Pogostost sinhronizacije, obvestila itd."</string>
-    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Obvestilo v vrstici stanja, ko prispe e-pošta"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Ko pride e-pošta, obvesti v sistemski vrstici"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Pogostost preverjanja mape »Prejeto«"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Nastavitve dohodne pošte"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Nastavitve odhodne pošte"</string>
@@ -401,8 +394,7 @@
     <string name="widget_unread" msgid="4404711399009077833">"Neprebrano"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Z zvezdico"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Nalaganje ..."</string>
-    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Če želite nastaviti, se dotaknite"</string>
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
 </resources>

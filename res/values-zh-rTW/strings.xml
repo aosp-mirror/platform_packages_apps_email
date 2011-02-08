@@ -151,8 +151,7 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"您已拒絕此邀請"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"顯示詳細資料"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"郵件詳細資訊"</string>
-    <!-- no translation found for message_decode_error (7812862491622388416) -->
-    <skip />
+    <string name="message_decode_error" msgid="7812862491622388416">"為郵件解碼時發生錯誤。"</string>
     <string name="eml_view_title" msgid="8827210108543430336">"檢視 <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"捨棄郵件"</string>
   <plurals name="message_delete_confirm">
@@ -209,8 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"請輸入有效的電子郵件地址和密碼。"</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"複製帳戶"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"其他帳戶 (<xliff:g id="DUPLICATE">%s</xliff:g>) 已使用相同的登入資訊。"</string>
-    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
-    <skip />
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"這組密碼的開頭或結尾為一或多個空白字元，許多伺服器都不支援包含空白字元的密碼。"</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"正在擷取帳戶資訊..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"正在檢查收信伺服器設定..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"正在檢查外寄伺服器設定..."</string>
@@ -218,8 +216,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"您的帳戶已設定完成，可以收發電子郵件了！"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"設定帳戶名稱 (選擇性)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"您的姓名 (顯示於外寄郵件)"</string>
-    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
-    <skip />
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"這個欄位不能空白"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"帳戶設定"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"帳戶類型"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"帳戶類型為何？"</string>
@@ -271,8 +268,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"同步處理此帳戶的聯絡人。"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"同步處理此帳戶的日曆。"</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"同步處理此帳戶所寄的電子郵件。"</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
-    <skip />
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"連上 Wi-Fi 時自動下載附件"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"無法完成設定"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"同步數量"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"1 天"</string>
@@ -293,15 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"無法連線至伺服器。"</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"您輸入的伺服器位址不正確，或是電子郵件不支援伺服器所需的通訊協定版本。"</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"遠端安全性管理"</string>
-    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
-    <skip />
-    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"您的手機不支援這個伺服器所需的安全性功能。"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的某些安全性功能，您要結束這個帳戶的設定程序嗎？"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"您的 Android 裝置不支援這個伺服器所需的安全性功能。"</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"警告：如果停用「電子郵件」應用程式的裝置管理權限，系統將刪除所有需要使用這項權限的「電子郵件」帳戶，以及帳戶中的所有電子郵件、聯絡人、日曆活動和其他資料。"</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"「<xliff:g id="ACCOUNT">%s</xliff:g>」帳戶必須進行安全性設定更新。"</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"更新安全性設定"</string>
     <string name="account_security_title" msgid="4441470647344315196">"裝置安全性"</string>
-    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
-    <skip />
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的某些安全性功能。"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"請編輯資料"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"帳戶「<xliff:g id="ACCOUNT">%s</xliff:g>」需要您更新螢幕解鎖碼。"</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"需要新的螢幕解鎖"</string>
@@ -314,11 +308,10 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"預設帳戶"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"預設使用這個帳戶傳送電子郵件"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"自動下載附件"</string>
-    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
-    <skip />
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"連上 Wi-Fi 時自動下載附件"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"電子郵件通知"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"同步處理頻率和通知等其他設定"</string>
-    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"收到電子郵件時，在狀態列中顯示通知"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"收到電子郵件時，在系統列中顯示通知"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"查看收件匣頻率"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"內收設定"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"外寄設定"</string>
@@ -401,8 +394,7 @@
     <string name="widget_unread" msgid="4404711399009077833">"未讀取"</string>
     <string name="widget_starred" msgid="8290352707134011791">"已加星號"</string>
     <string name="widget_loading" msgid="2340962056927255554">"載入中..."</string>
-    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"輕觸即可設定"</string>
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
 </resources>

@@ -151,8 +151,7 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Отклонихте тази покана"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Показване на подробностите"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Подробности за съобщението"</string>
-    <!-- no translation found for message_decode_error (7812862491622388416) -->
-    <skip />
+    <string name="message_decode_error" msgid="7812862491622388416">"При декодирането на съобщението възникна грешка."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Преглед на <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Отхвърляне"</string>
   <plurals name="message_delete_confirm">
@@ -209,8 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Моля, въведете валиден имейл адрес и парола."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Дублиращ профил"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Тези данни за вход вече се използват за профила „<xliff:g id="DUPLICATE">%s</xliff:g>“."</string>
-    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
-    <skip />
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Тази парола започва или завършва с един или повече знака за интервал. Много сървъри не поддържат пароли с интервали."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Извлича се информация за профила..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Настройките на вх. сървър се проверяват..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Настройките на изх. сървър се проверяват..."</string>
@@ -218,8 +216,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Профилът ви е настроен и имейлите са на път!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Именуване на този профил (незадължително)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Името ви (показвано в изходящи съобщения)"</string>
-    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
-    <skip />
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"Това поле трябва да се попълни"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Настройка на профила"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Тип профил"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Какъв вид профил е това?"</string>
@@ -271,8 +268,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Синхронизиране на контактите в този профил."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Синхронизиране на календара в този профил."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Синхрон на имейлите от този профил"</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
-    <skip />
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Автоматично изтегляне на прикачените файлове, когато има връзка с Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Настройването не можа да завърши"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Количество за синхронизиране"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Един ден"</string>
@@ -293,15 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Неуспешно свързване със сървър."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Въвели сте неправилен адрес на сървъра или сървърът изисква версия на протокола, която приложението за електронна поща не поддържа."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Отдалечено администриране на сигурността"</string>
-    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
-    <skip />
-    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Сървърът изисква защитни функции, които телефонът ви не поддържа."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Сървърът <xliff:g id="SERVER">%s</xliff:g> изисква отдалечен контрол над някои от защитните функции на устройството ви с Android. Искате ли да завършите настройването на този профил?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Този сървър изисква защитни функции, които устройството ви с Android не поддържа."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ПРЕДУПРЕЖДЕНИЕ: Деактивирането на възможността приложението за електронна поща да администрира устройството ви ще изтрие всички имейл профили, които го изискват, заедно с имейлите, контактите, календарните събития и други данни в тях."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Профилът „<xliff:g id="ACCOUNT">%s</xliff:g>“ изисква актуализация на защитните настройки."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Актуализиране на защитни настройки"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Сигурност на устройство"</string>
-    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
-    <skip />
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Сървърът <xliff:g id="SERVER">%s</xliff:g> изисква отдалечен контрол над някои от защитните функции на устройството ви с Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Редактиране на подробностите"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Профилът „<xliff:g id="ACCOUNT">%s</xliff:g>“ изисква да актуализирате кода си за отключване на екрана."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Изисква се ново отключване"</string>
@@ -313,12 +307,11 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Общи настройки"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Основен профил"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Изпращане на имейл от този профил по подразбиране"</string>
-    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Прикач. файлове – авт. изтегляне"</string>
-    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
-    <skip />
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Автоизтегляне на прикачените"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Автоматично изтегляне на прикачените файлове при връзка с Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Известия за имейл"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Честота на синхронизиране, известия и т.н."</string>
-    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Известие в лентата на състоянието при получаване на имейл"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Известие в системната лента при получаване на имейл"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Честота на проверяване за входяща поща"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Входящи настройки"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Изходящи настройки"</string>
@@ -401,8 +394,7 @@
     <string name="widget_unread" msgid="4404711399009077833">"Непрочетени"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Със звезда"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Зарежда се…"</string>
-    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Докоснете, за да конфигурирате"</string>
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
 </resources>
