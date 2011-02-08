@@ -182,54 +182,62 @@ public class AttachmentProvider extends ContentProvider {
 
     /**
      * Helper to convert unknown or unmapped attachments to something useful based on filename
-     * extensions.  Imperfect, but helps.
+     * extensions. The mime type is inferred based upon the table below. It's not perfect, but
+     * it helps.
      *
-     * If the file extension is ".eml", return "message/rfc822", which is necessary for the email
-     * app to open it.
-     * If the given mime type is non-empty and anything other than "application/octet-stream",
-     * just return it.  (This is the most common case.)
-     * If the filename has a recognizable extension and it converts to a mime type, return that.
-     * If the filename has an unrecognized extension, return "application/extension"
-     * Otherwise return "application/octet-stream".
+     * <pre>
+     *                   |---------------------------------------------------------|
+     *                   |                  E X T E N S I O N                      |
+     *                   |---------------------------------------------------------|
+     *                   | .eml        | known(.png) | unknown(.abc) | none        |
+     * | M |-----------------------------------------------------------------------|
+     * | I | none        | msg/rfc822  | image/png   | app/abc       | app/oct-str |
+     * | M |-------------| (always     |             |               |             |
+     * | E | app/oct-str |  overrides  |             |               |             |
+     * | T |-------------|             |             |-----------------------------|
+     * | Y | text/plain  |             |             | text/plain                  |
+     * | P |-------------|             |-------------------------------------------|
+     * | E | any/type    |             | any/type                                  |
+     * |---|-----------------------------------------------------------------------|
+     * </pre>
+     *
+     * NOTE: Since mime types on Android are case-*sensitive*, return values are always in
+     * lower case.
      *
      * @param fileName The given filename
      * @param mimeType The given mime type
      * @return A likely mime type for the attachment
      */
     public static String inferMimeType(final String fileName, final String mimeType) {
+        String resultType = null;
+        String fileExtension = getFilenameExtension(fileName);
+        boolean isTextPlain = "text/plain".equalsIgnoreCase(mimeType);
 
-        // NOTE mime-types are case-*sensitive* on Android.
-        // Return values from this method MUST always in lowercase.
-        String result = null;
-        if (fileName != null && fileName.toLowerCase().endsWith(".eml")) {
-            result = "message/rfc822";
+        if ("eml".equals(fileExtension)) {
+            resultType = "message/rfc822";
         } else {
-            // If the given mime type appears to be non-empty and non-generic - return it
-            boolean isTextPlain = "text/plain".equalsIgnoreCase(mimeType);
-            if (!TextUtils.isEmpty(mimeType) &&
-                    !"application/octet-stream".equalsIgnoreCase(mimeType) && !isTextPlain) {
-                result = mimeType;
-            } else {
-                // Try to find an extension in the filename
-                if (!TextUtils.isEmpty(fileName)) {
-                    String extension = getFilenameExtension(fileName);
-                    if (!TextUtils.isEmpty(extension)) {
-                        // Extension found.  Look up mime type, or synthesize if none found.
-                        result = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-                        if (TextUtils.isEmpty(result)) {
-                            // If original mimetype is text/plain, us it; otherwise synthesize
-                            result = isTextPlain ? mimeType : "application/" + extension;
-                        }
+            boolean isGenericType =
+                    isTextPlain || "application/octet-stream".equalsIgnoreCase(mimeType);
+            // If the given mime type is non-empty and non-generic, return it
+            if (isGenericType || TextUtils.isEmpty(mimeType)) {
+                if (!TextUtils.isEmpty(fileExtension)) {
+                    // Otherwise, try to find a mime type based upon the file extension
+                    resultType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
+                    if (TextUtils.isEmpty(resultType)) {
+                        // Finally, if original mimetype is text/plain, use it; otherwise synthesize
+                        resultType = isTextPlain ? mimeType : "application/" + fileExtension;
                     }
                 }
+            } else {
+                resultType = mimeType;
             }
         }
 
-        if (TextUtils.isEmpty(result)) {
-            // Fallback case - no good guess could be made.
-            result = "application/octet-stream";
+        // No good guess could be made; use an appropriate generic type
+        if (TextUtils.isEmpty(resultType)) {
+            resultType = isTextPlain ? "text/plain" : "application/octet-stream";
         }
-        return result.toLowerCase();
+        return resultType.toLowerCase();
     }
 
     /**
