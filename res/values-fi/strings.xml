@@ -151,8 +151,7 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Hylkäsit tämän kutsun"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Näytä tiedot"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Viestin tiedot"</string>
-    <!-- no translation found for message_decode_error (7812862491622388416) -->
-    <skip />
+    <string name="message_decode_error" msgid="7812862491622388416">"Virhe purettaessa viestin koodausta."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Avoinna <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Hylkää viesti"</string>
   <plurals name="message_delete_confirm">
@@ -209,8 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Anna kelvollinen sähköpostiosoite ja salasana."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Päällekkäiset tilit"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Nämä kirjautumistiedot ovat jo käytössä tilillä \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
-    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
-    <skip />
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Tämän salasanan alussa tai lopussa on välilyönti. Monet palvelimet eivät tue välilyöntejä sisältäviä salasanoja."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Noudetaan tilin tietoja…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Tarkistetaan saapuvan postin palvelimen asetuksia…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Tarkistetaan lähtevän postin palvelimen asetuksia…"</string>
@@ -218,8 +216,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Tili on määritetty ja sähköposteja noudetaan."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Anna tilille nimi (valinnainen)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Oma nimi (näytetään lähtevissä viesteissä)"</string>
-    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
-    <skip />
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"Kenttä ei voi olla tyhjä"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Tilin asetukset"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Tilin tyyppi"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Millainen tili tämä on?"</string>
@@ -271,8 +268,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Synkronoi tämän tilin yhteystiedot."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Synkronoi tämän tilin kalenteri."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Synkronoi tämän tilin lähetetyt sähköpostit."</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
-    <skip />
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Lataa liitteet automaattisesti wifi-yhteyden ollessa käytössä."</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Määrityksiä ei voitu suorittaa loppuun"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Synkronoitava määrä"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Yksi päivä"</string>
@@ -293,15 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Palvelinyhteyttä ei voi muodostaa."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Annoit virheellisen palvelimen osoitteen tai palvelin edellyttää protokollaversiota, jota sähköposti ei tue."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Suojauksen etähallinta"</string>
-    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
-    <skip />
-    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Palvelin vaatii suojausominaisuuksia, joita puhelimesi ei tue."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Palvelin <xliff:g id="SERVER">%s</xliff:g> vaatii, että sen sallitaan hallita joitakin Android-laitteen suojaustoiminnoista. Haluatko määrittää tämän tilin loppuun?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Palvelin vaatii suojausominaisuuksia, joita Android-laitteesi ei tue."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"VAROITUS: poistamalla sähköpostisovellukselta oikeuden hallinnoida laitettasi poistetaan kaikki sovellukseen liittyvät sähköpostitilit sekä niiden sähköpostit, yhteystiedot, kalenteritapahtumat ja muut tiedot."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Tili \"<xliff:g id="ACCOUNT">%s</xliff:g>\" edellyttää, että suojausasetukset päivitetään."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Päivitä suojausasetukset"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Laitteen suojaus"</string>
-    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
-    <skip />
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Palvelin <xliff:g id="SERVER">%s</xliff:g> vaatii, että sen sallitaan hallita joitakin Android-laitteen suojaustoiminnoista."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Muokkaa tietoja"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Tili <xliff:g id="ACCOUNT">%s</xliff:g> pyytää päivittämään ruudunlukituksen poistokoodin ."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Uusi lukit. poisto tarvitaan"</string>
@@ -314,11 +308,10 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Oletustili"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Lähetä sähköposti oletuksena tältä tililtä"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Lataa liitetiedostot automaattisesti"</string>
-    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
-    <skip />
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Lataa liitteet automaattisesti wifi-yhteyden ollessa käytössä."</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Sähköposti-ilmoitukset"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkronoinnin tiheys, ilmoitukset jne."</string>
-    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Ilmoita tilarivillä saapuneesta sähköpostista"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Ilmoita tilarivissä, kun sähköpostiviesti saapuu"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Uusien viestien tarkistustiheys"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Saapuvan postin asetukset"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Lähtevän postin asetukset"</string>
@@ -401,8 +394,7 @@
     <string name="widget_unread" msgid="4404711399009077833">"Lukemattomat"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Tähdelliset"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Ladataan…"</string>
-    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Kosketa ja tee määritykset"</string>
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
 </resources>

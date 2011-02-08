@@ -111,7 +111,7 @@
     <string name="message_compose_cc_label" msgid="5608567337432359209">"Cc:"</string>
     <string name="message_compose_bcc_label" msgid="8619598628773345338">"Cco:"</string>
     <string name="message_compose_subject_label" msgid="1592314202889683309">"Assumpte:"</string>
-    <string name="message_compose_body_hint" msgid="7575406246484103697">"Redacta un missatge"</string>
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"Redacta"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Missatge original --------"\n"Assumpte: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"De: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Per a: <xliff:g id="TO">%3$s</xliff:g>"\n"Cc: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> ha escrit:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Text citat"</string>
@@ -151,8 +151,7 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Heu rebutjat la invitació"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Mostra detalls"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Detalls del missatge"</string>
-    <!-- no translation found for message_decode_error (7812862491622388416) -->
-    <skip />
+    <string name="message_decode_error" msgid="7812862491622388416">"Error en descodificar el missatge."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Es mostra <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Descarta el missatge"</string>
   <plurals name="message_delete_confirm">
@@ -209,8 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Escriviu una adreça electrònica i una contrasenya vàlides."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Compte duplicat"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Aquest inici de sessió ja s\'utilitza per al compte \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
-    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
-    <skip />
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Aquesta contrasenya comença o acaba amb un o més espais en blanc. Molts servidors no admeten les contrasenyes amb espais."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"S\'està recuperant la informació del compte..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"S\'està comprovant la configuració del servidor d\'entrada…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"S\'està comprovant la configuració del servidor de sortida…"</string>
@@ -270,8 +268,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sincronitza els contactes d\'aquest compte."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sincronitza el calendari d\'aquest compte."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sincronitza el correu electrònic d\'aquest compte."</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
-    <skip />
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Baixa automàticament els fitxers adjunts en connectar-te a Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"La configuració no ha pogut finalitzar"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Quantitat per sincronitzar"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Un dia"</string>
@@ -292,13 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"No es pot obrir la connexió amb el servidor."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Has introduït una adreça de servidor incorrecta o el servidor requereix una versió de protocol que el correu electrònic no admet."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administració de seguretat remota"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"El servidor <xliff:g id="SERVER">%s</xliff:g> requereix que li permeteu controlar de manera remota algunes funcions de seguretat del telèfon. Voleu acabar de configurar aquest compte?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Aquest servidor requereix funcions de seguretat no compatibles amb el telèfon."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"El servidor <xliff:g id="SERVER">%s</xliff:g> requereix que li permetis controlar de manera remota algunes funcions de seguretat del dispositiu Android. Vols acabar de configurar aquest compte?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Aquest servidor requereix funcions de seguretat que no són compatibles amb el dispositiu Android."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ADVERTIMENT: Desactivar l\'autoritat de l\'aplicació de correu electrònic per administrar el dispositiu suprimirà tots els comptes de correu electrònic que ho requereixin, juntament amb els correus electrònics, els contactes, els esdeveniments de calendari i altres dades."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Cal actualitzar la configuració de seguretat del compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Actualització de la configuració de seguretat"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Seguretat del dispositiu"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"El servidor <xliff:g id="SERVER">%s</xliff:g> requereix que li permeteu controlar de manera remota algunes funcions de seguretat del telèfon."</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"El servidor <xliff:g id="SERVER">%s</xliff:g> requereix que li permetis controlar de manera remota algunes funcions de seguretat del dispositiu Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edita\'n els detalls"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"El compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requereix que s\'actualitzi el codi de desbloq. de la pantalla."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Cal nou desbloq. de pantalla"</string>
@@ -311,11 +308,10 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Compte predeterminat"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Envia correu electrònic des d\'aquest compte de manera predeterminada"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Baixada autom. fitxers adjunts"</string>
-    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
-    <skip />
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Baixa automàticament els fitxers adjunts en connectar-te a Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificacions de correu electrònic"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Freqüència de sincronització, notificacions, etc."</string>
-    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notifica-ho a la barra d\'estat quan arribi un correu electrònic"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notifica a la barra del sistema quan arribi un correu electrònic"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Freqüència de comprovació de la safata d\'entrada"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configuració d\'entrada"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configuració de sortida"</string>
@@ -398,7 +394,7 @@
     <string name="widget_unread" msgid="4404711399009077833">"No llegits"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Destacats"</string>
     <string name="widget_loading" msgid="2340962056927255554">"S\'està carregant…"</string>
-    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Toqueu per configurar"</string>
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Toca per configurar"</string>
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
 </resources>

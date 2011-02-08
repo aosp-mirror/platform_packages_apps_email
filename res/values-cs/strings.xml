@@ -151,8 +151,7 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Odmítli jste tuto pozvánku"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Zobrazit podrobnosti"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Podrobnosti zprávy"</string>
-    <!-- no translation found for message_decode_error (7812862491622388416) -->
-    <skip />
+    <string name="message_decode_error" msgid="7812862491622388416">"Při dekódování zprávy došlo k chybě."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Zobraz. souboru <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Zrušit zprávu"</string>
   <plurals name="message_delete_confirm">
@@ -209,8 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Zadejte platnou e-mailovou adresu a heslo."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Duplikace účtu"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Tyto přihlašovací údaje již používá účet <xliff:g id="DUPLICATE">%s</xliff:g>."</string>
-    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
-    <skip />
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Toto heslo začíná nebo končí nejméně jednou mezerou. Většina serverů hesla s mezerami nepodporuje."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Načítání informací o účtu..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Kontrola nastavení serveru příchozí pošty..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Kontrola nastavení serveru odchozí pošty..."</string>
@@ -218,8 +216,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Váš účet je nastaven, e-mail je na cestě!"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Pojmenovat tento účet (nepovinné)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Vaše jméno (zobrazované na odchozích zprávách)"</string>
-    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
-    <skip />
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"Toto pole nesmí být prázdné"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Nastavení účtu"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Typ účtu"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"O jaký typ účtu se jedná?"</string>
@@ -271,8 +268,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Synchronizovat kontakty z tohoto účtu."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Synchronizovat kalendář z tohoto účtu."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Synchronizovat e-mail z tohoto účtu."</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
-    <skip />
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Během připojení k síti Wi-Fi automaticky stahovat přílohy"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Nastavení nelze dokončit"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Množství k synchronizaci"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Jeden den"</string>
@@ -293,15 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Nelze otevřít připojení k serveru."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Zadali jste nesprávnou adresu serveru nebo server požaduje verzi protokolu, kterou aplikace E-mail nepodporuje."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Vzdálená správa zabezpečení"</string>
-    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
-    <skip />
-    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Tento server vyžaduje funkce zabezpečení, které váš telefon nepodporuje."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Server <xliff:g id="SERVER">%s</xliff:g> žádá o povolení, aby mohl vzdáleně ovládat některé funkce zabezpečení v zařízení Android. Chcete dokončit nastavení tohoto účtu?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Tento server vyžaduje funkce zabezpečení, které zařízení Android nepodporuje."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"UPOZORNĚNÍ: Deaktivujete-li oprávnění aplikace E-mail spravovat toto zařízení, budou smazány všechny účty aplikace E-mail, které toto oprávnění vyžadují. Společně s těmito účty budou smazány i všechny jejich e-maily, kontakty, události v kalendářích a další údaje."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> požaduje aktualizaci nastavení zabezpečení."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Aktualizace nastavení zabezpečení"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Zabezpečení zařízení"</string>
-    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
-    <skip />
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Server <xliff:g id="SERVER">%s</xliff:g> žádá o povolení, aby mohl vzdáleně ovládat některé funkce zabezpečení v zařízení Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Upravit podrobnosti"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> vyžaduje aktualizaci kódu pro odemknutí obrazovky."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Kód odemčení obr. brzy vyprší"</string>
@@ -314,11 +308,10 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Výchozí účet"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Ve výchozím nastavení odesílat e-maily z tohoto účtu"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Automaticky stahovat přílohy"</string>
-    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
-    <skip />
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Během připojení k síti Wi-Fi automaticky stahovat přílohy"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-mailová upozornění"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frekvence synchronizace, oznámení apod."</string>
-    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Oznámit příchod e-mailu na stavovém řádku"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Oznámit příchod e-mailu na systémové liště"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Četnost kontroly doručené pošty"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Nastavení příchozí pošty"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Nastavení odchozí pošty"</string>
@@ -401,8 +394,7 @@
     <string name="widget_unread" msgid="4404711399009077833">"Nepřečtené"</string>
     <string name="widget_starred" msgid="8290352707134011791">"S hvězdičkou"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Načítání..."</string>
-    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Dotykem zahájíte konfiguraci"</string>
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
 </resources>

@@ -151,8 +151,7 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Hai rifiutato questo invito"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Mostra dettagli"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Dettagli messaggio"</string>
-    <!-- no translation found for message_decode_error (7812862491622388416) -->
-    <skip />
+    <string name="message_decode_error" msgid="7812862491622388416">"Errore durante la decodifica del messaggio."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g> visualizzato"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Elimina messaggio"</string>
   <plurals name="message_delete_confirm">
@@ -192,7 +191,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
   </plurals>
-    <string name="message_view_move_to_newer" msgid="2190862552581773765">"Successivo"</string>
+    <string name="message_view_move_to_newer" msgid="2190862552581773765">"Più recenti"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Meno recenti"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" - "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Impostazione account"</string>
@@ -209,8 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Digita un indirizzo email e una password validi."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Duplica account"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Questo accesso è già in uso per l\'account \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
-    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
-    <skip />
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Questa password inizia o termina con uno o più spazi. Molti server non supportano le password contenenti spazi."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Recupero informazioni sull\'account in corso…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Verifica delle impostazioni del server della posta in arrivo in corso…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Verifica impostazioni server posta in uscita…"</string>
@@ -218,8 +216,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Il tuo account è stato impostato e l\'email sarà presto disponibile."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Assegna un nome all\'account (facoltativo)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Il tuo nome (visualizzato nei messaggi in uscita)"</string>
-    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
-    <skip />
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"Questo campo non può essere vuoto"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Impostazione account"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Tipo di account"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Di quale tipo di account si tratta?"</string>
@@ -271,8 +268,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Sincronizza contatti da questo account."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Sincronizza il calendario da questo account."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Sincronizza le email da questo account."</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
-    <skip />
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Scarica allegati automaticamente quando connesso a Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Impossibile completare l\'impostazione"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Quantità da sincronizzare"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Un giorno"</string>
@@ -293,15 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impossibile aprire la connessione al server."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Hai inserito l\'indirizzo di un server sbagliato o il server richiede una versione di protocollo non supportata da Email."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Amministrazione protezione da remoto"</string>
-    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
-    <skip />
-    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Per questo server sono richieste funzionalità di protezione non supportate dal tuo telefono."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Il server <xliff:g id="SERVER">%s</xliff:g> richiede che tu consenta il controllo remoto di alcune funzionalità di protezione del tuo dispositivo Android. Completare la configurazione dell\'account?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Per questo server sono richieste funzionalità di protezione non supportate dal tuo dispositivo Android."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"AVVISO. La disattivazione dell\'autorità dell\'applicazione Email per l\'amministrazione del dispositivo comporterà l\'eliminazione di tutti gli account Email che la richiedono, compresi i relativi messaggi email, contatti, eventi di calendario e altri dati."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"È richiesto l\'aggiornamento delle impostazioni di protezione per l\'account \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Aggiorna impostazioni di protezione"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Protezione dispositivo"</string>
-    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
-    <skip />
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Il server <xliff:g id="SERVER">%s</xliff:g> richiede che tu consenta il controllo remoto di alcune funzionalità di protezione del tuo dispositivo Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifica dettagli"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"L\'account \"<xliff:g id="ACCOUNT">%s</xliff:g>\" richiede l\'aggiornamento del codice di sblocco dello schermo."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Nuovo sblocco schermo richiesto"</string>
@@ -314,11 +308,10 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Account predefinito"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Invia email da questo account per impostazione predefinita"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Download automatico allegati"</string>
-    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
-    <skip />
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Scarica allegati automaticamente quando connesso a Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notifiche email"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frequenza sincronizzazione, notifiche e altro."</string>
-    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notifica sulla barra di stato l\'arrivo di email"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notifica sulla barra di Sistema l\'arrivo di email"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Frequenza di controllo Posta in arrivo"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Impost. posta in arrivo"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Impost. posta in uscita"</string>
@@ -401,8 +394,7 @@
     <string name="widget_unread" msgid="4404711399009077833">"Da leggere"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Speciali"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Caricamento..."</string>
-    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Tocca per configurare"</string>
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
 </resources>
