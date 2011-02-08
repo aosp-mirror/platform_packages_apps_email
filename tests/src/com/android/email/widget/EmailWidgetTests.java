@@ -13,33 +13,28 @@
  * limitations under the License.
  */
 
-package com.android.email.provider;
+package com.android.email.widget;
 
+import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.WidgetProvider;
-import com.android.email.provider.WidgetProvider.EmailWidget;
-import com.android.email.provider.WidgetProvider.ViewType;
-import com.android.email.provider.WidgetProvider.WidgetViewSwitcher;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
 import android.test.ProviderTestCase2;
 
-import java.util.concurrent.ExecutionException;
-
 /**
- * Tests of WidgetProvider
+ * Tests of EmailWidget
  *
  * You can run this entire test case with:
- *   runtest -c com.android.email.provider.WidgetProviderTests email
+ *   runtest -c com.android.email.widget.EmailWidget email
  */
-public class WidgetProviderTests extends ProviderTestCase2<EmailProvider> {
+public class EmailWidgetTests extends ProviderTestCase2<EmailProvider> {
     private Context mMockContext;
 
-    public WidgetProviderTests() {
+    public EmailWidgetTests() {
         super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
     }
 
@@ -54,30 +49,9 @@ public class WidgetProviderTests extends ProviderTestCase2<EmailProvider> {
         super.tearDown();
     }
 
-    /**
-     * Switch views synchronously without loading
-     */
-    private void switchSync(EmailWidget widget) {
-        WidgetViewSwitcher switcher = new WidgetProvider.WidgetViewSwitcher(widget);
-        try {
-            switcher.disableLoadAfterSwitchForTest();
-            switcher.execute().get();
-        } catch (InterruptedException e) {
-        } catch (ExecutionException e) {
-        }
-    }
-
     private int getMessageCount(ViewType view) {
-        int messageCount = 0;
-        ContentResolver cr = mMockContext.getContentResolver();
-        Cursor c = cr.query(Message.CONTENT_URI, WidgetProvider.EmailWidget.WIDGET_PROJECTION,
-                view.selection, view.selectionArgs, null);
-        try {
-            messageCount = c.getCount();
-        } finally {
-            c.close();
-        }
-        return messageCount;
+        return EmailContent.count(mMockContext, Message.CONTENT_URI, view.selection,
+                view.selectionArgs);
     }
 
     private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read,
@@ -92,31 +66,30 @@ public class WidgetProviderTests extends ProviderTestCase2<EmailProvider> {
     public void testWidgetSwitcher() {
         // Create account
         ProviderTestUtils.setupAccount("account1", true, mMockContext);
-        // Manually set up context
-        WidgetProvider.setContextForTest(mMockContext);
+
         // Create a widget
-        EmailWidget widget = new EmailWidget(1);
+        EmailWidget widget = new EmailWidget(mMockContext, 1);
         // Since there is one account, this should switch to the ACCOUNT view
-        switchSync(widget);
-        assertEquals(WidgetProvider.ViewType.ACCOUNT, widget.mViewType);
+        widget.switchViewSyncForTest();
+        assertEquals(ViewType.ACCOUNT, widget.mViewType);
 
         // Create account
         ProviderTestUtils.setupAccount("account2", true, mMockContext);
         // Create a widget
-        widget = new EmailWidget(2);
+        widget = new EmailWidget(mMockContext, 2);
         // Since there are two accounts, this should switch to the ALL_INBOX view
-        switchSync(widget);
-        assertEquals(WidgetProvider.ViewType.ALL_INBOX, widget.mViewType);
+        widget.switchViewSyncForTest();
+        assertEquals(ViewType.ALL_INBOX, widget.mViewType);
 
         // The next two switches should be to the two accounts
-        switchSync(widget);
-        assertEquals(WidgetProvider.ViewType.ACCOUNT, widget.mViewType);
-        switchSync(widget);
-        assertEquals(WidgetProvider.ViewType.ACCOUNT, widget.mViewType);
-        switchSync(widget);
-        assertEquals(WidgetProvider.ViewType.UNREAD, widget.mViewType);
-        switchSync(widget);
-        assertEquals(WidgetProvider.ViewType.STARRED, widget.mViewType);
+        widget.switchViewSyncForTest();
+        assertEquals(ViewType.ACCOUNT, widget.mViewType);
+        widget.switchViewSyncForTest();
+        assertEquals(ViewType.ACCOUNT, widget.mViewType);
+        widget.switchViewSyncForTest();
+        assertEquals(ViewType.UNREAD, widget.mViewType);
+        widget.switchViewSyncForTest();
+        assertEquals(ViewType.STARRED, widget.mViewType);
     }
 
     /**
@@ -165,5 +138,4 @@ public class WidgetProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(3, getMessageCount(ViewType.STARRED));
         assertEquals(2, getMessageCount(ViewType.UNREAD));
     }
-
 }

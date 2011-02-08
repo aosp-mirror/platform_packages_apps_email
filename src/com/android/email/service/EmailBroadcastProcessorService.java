@@ -22,7 +22,7 @@ import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.setup.AccountSettingsXL;
-import com.android.email.provider.WidgetProvider;
+import com.android.email.widget.WidgetManager;
 
 import android.accounts.AccountManager;
 import android.app.IntentService;
@@ -183,6 +183,6 @@ public class EmailBroadcastProcessorService extends IntentService {
         ExchangeUtils.startExchangeService(this);
 
         // Let all of the widgets update
-        WidgetProvider.updateAllWidgets();
+        WidgetManager.getInstance().updateAllWidgets();
     }
 }
