@@ -25,7 +25,6 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.util.Log;
 
 import junit.framework.Assert;
 
