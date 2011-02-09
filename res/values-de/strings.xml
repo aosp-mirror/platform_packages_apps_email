@@ -17,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="read_attachment_label" msgid="1162255191991555285">"Anhänge lesen"</string>
-    <string name="read_attachment_desc" msgid="7594746717616308643">"Erlaubt der Anwendung, Ihre Anhänge zu lesen."</string>
+    <string name="read_attachment_desc" msgid="7594746717616308643">"Ermöglicht der Anwendung, Ihre Anhänge zu lesen."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Auf Daten des E-Mail-Providers zugreifen"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Erlaubt dieser Anwendung, auf Ihre E-Mail-Datenbank zuzugreifen, einschließlich erhaltener Nachrichten, gesendeter Nachrichten, Benutzernamen und Passwörtern."</string>
+    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Ermöglicht dieser Anwendung, auf Ihre E-Mail-Datenbank zuzugreifen, einschließlich erhaltener Nachrichten, gesendeter Nachrichten, Benutzernamen und Passwörtern."</string>
     <string name="app_name" msgid="5815426892327290362">"E-Mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Schreiben"</string>
     <string name="debug_title" msgid="5175710493691536719">"Fehler suchen"</string>
