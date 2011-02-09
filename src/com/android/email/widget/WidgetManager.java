@@ -49,13 +49,13 @@ public class WidgetManager {
     public synchronized void updateAllWidgets() {
         for (EmailWidget widget: mWidgets.values()) {
             // Anything could have changed; update widget & validate the current view
-            widget.updateWidget(true);
+            widget.validateAndUpdate();
         }
     }
 
     public synchronized void getOrCreateWidgets(Context context, int[] widgetIds) {
         for (int widgetId : widgetIds) {
-            getOrCreateWidget(context, widgetId).updateHeader();
+            getOrCreateWidget(context, widgetId).validateAndUpdate();
         }
     }
 
@@ -66,8 +66,8 @@ public class WidgetManager {
                 Log.d(EmailWidget.TAG, "Creating EmailWidget for id #" + widgetId);
             }
             widget = new EmailWidget(context, widgetId);
-            widget.init();
             WidgetManager.getInstance().put(widgetId, widget);
+            widget.start();
         }
         return widget;
     }
@@ -88,7 +88,7 @@ public class WidgetManager {
         int n = 0;
         for (EmailWidget widget : mWidgets.values()) {
             writer.println("Widget #" + (++n));
-            writer.println("    ViewType=" + widget.mViewType);
+            writer.println("    View=" + widget.mWidgetView);
         }
     }
 }

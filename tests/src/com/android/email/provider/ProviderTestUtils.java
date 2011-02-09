@@ -26,6 +26,7 @@ import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.Utility;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.net.Uri;
 import android.test.MoreAsserts;
@@ -70,6 +71,14 @@ public class ProviderTestUtils extends Assert {
             account.save(context);
         }
         return account;
+    }
+
+    /**
+     * Lightweight way of deleting an account for testing.
+     */
+    public static void deleteAccount(Context context, long accountId) {
+        context.getContentResolver().delete(ContentUris.withAppendedId(
+                EmailContent.Account.CONTENT_URI, accountId), null, null);
     }
 
     /**
