@@ -20,14 +20,12 @@ import com.android.email.Email;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.AttachmentColumns;
-import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.AttachmentUtilities.Columns;
 
 import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Bitmap;
@@ -35,9 +33,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.ParcelFileDescriptor;
-import android.text.TextUtils;
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -66,19 +62,6 @@ import java.util.List;
  */
 public class AttachmentProvider extends ContentProvider {
 
-    public static final String AUTHORITY = "com.android.email.attachmentprovider";
-    public static final Uri CONTENT_URI = Uri.parse( "content://" + AUTHORITY);
-
-    private static final String FORMAT_RAW = "RAW";
-    private static final String FORMAT_THUMBNAIL = "THUMBNAIL";
-
-    public static class AttachmentProviderColumns {
-        public static final String _ID = "_id";
-        public static final String DATA = "_data";
-        public static final String DISPLAY_NAME = "_display_name";
-        public static final String SIZE = "_size";
-    }
-
     private static final String[] MIME_TYPE_PROJECTION = new String[] {
             AttachmentColumns.MIME_TYPE, AttachmentColumns.FILENAME };
     private static final int MIME_TYPE_COLUMN_MIME_TYPE = 0;
@@ -86,47 +69,6 @@ public class AttachmentProvider extends ContentProvider {
 
     private static final String[] PROJECTION_QUERY = new String[] { AttachmentColumns.FILENAME,
             AttachmentColumns.SIZE, AttachmentColumns.CONTENT_URI };
-
-    public static Uri getAttachmentUri(long accountId, long id) {
-        return CONTENT_URI.buildUpon()
-                .appendPath(Long.toString(accountId))
-                .appendPath(Long.toString(id))
-                .appendPath(FORMAT_RAW)
-                .build();
-    }
-
-    public static Uri getAttachmentThumbnailUri(long accountId, long id,
-            int width, int height) {
-        return CONTENT_URI.buildUpon()
-                .appendPath(Long.toString(accountId))
-                .appendPath(Long.toString(id))
-                .appendPath(FORMAT_THUMBNAIL)
-                .appendPath(Integer.toString(width))
-                .appendPath(Integer.toString(height))
-                .build();
-    }
-
-    /**
-     * Return the filename for a given attachment.  This should be used by any code that is
-     * going to *write* attachments.
-     *
-     * This does not create or write the file, or even the directories.  It simply builds
-     * the filename that should be used.
-     */
-    public static File getAttachmentFilename(Context context, long accountId, long attachmentId) {
-        return new File(getAttachmentDirectory(context, accountId), Long.toString(attachmentId));
-    }
-
-    /**
-     * Return the directory for a given attachment.  This should be used by any code that is
-     * going to *write* attachments.
-     *
-     * This does not create or write the directory.  It simply builds the pathname that should be
-     * used.
-     */
-    public static File getAttachmentDirectory(Context context, long accountId) {
-        return context.getDatabasePath(accountId + ".db_att");
-    }
 
     @Override
     public boolean onCreate() {
@@ -157,17 +99,17 @@ public class AttachmentProvider extends ContentProvider {
             List<String> segments = uri.getPathSegments();
             String id = segments.get(1);
             String format = segments.get(2);
-            if (FORMAT_THUMBNAIL.equals(format)) {
+            if (AttachmentUtilities.FORMAT_THUMBNAIL.equals(format)) {
                 return "image/png";
             } else {
                 uri = ContentUris.withAppendedId(Attachment.CONTENT_URI, Long.parseLong(id));
-                Cursor c = getContext().getContentResolver().query(uri, MIME_TYPE_PROJECTION,
-                        null, null, null);
+                Cursor c = getContext().getContentResolver().query(uri, MIME_TYPE_PROJECTION, null,
+                        null, null);
                 try {
                     if (c.moveToFirst()) {
                         String mimeType = c.getString(MIME_TYPE_COLUMN_MIME_TYPE);
                         String fileName = c.getString(MIME_TYPE_COLUMN_FILENAME);
-                        mimeType = inferMimeType(fileName, mimeType);
+                        mimeType = AttachmentUtilities.inferMimeType(fileName, mimeType);
                         return mimeType;
                     }
                 } finally {
@@ -178,82 +120,6 @@ public class AttachmentProvider extends ContentProvider {
         } finally {
             Binder.restoreCallingIdentity(callingId);
         }
-    }
-
-    /**
-     * Helper to convert unknown or unmapped attachments to something useful based on filename
-     * extensions. The mime type is inferred based upon the table below. It's not perfect, but
-     * it helps.
-     *
-     * <pre>
-     *                   |---------------------------------------------------------|
-     *                   |                  E X T E N S I O N                      |
-     *                   |---------------------------------------------------------|
-     *                   | .eml        | known(.png) | unknown(.abc) | none        |
-     * | M |-----------------------------------------------------------------------|
-     * | I | none        | msg/rfc822  | image/png   | app/abc       | app/oct-str |
-     * | M |-------------| (always     |             |               |             |
-     * | E | app/oct-str |  overrides  |             |               |             |
-     * | T |-------------|             |             |-----------------------------|
-     * | Y | text/plain  |             |             | text/plain                  |
-     * | P |-------------|             |-------------------------------------------|
-     * | E | any/type    |             | any/type                                  |
-     * |---|-----------------------------------------------------------------------|
-     * </pre>
-     *
-     * NOTE: Since mime types on Android are case-*sensitive*, return values are always in
-     * lower case.
-     *
-     * @param fileName The given filename
-     * @param mimeType The given mime type
-     * @return A likely mime type for the attachment
-     */
-    public static String inferMimeType(final String fileName, final String mimeType) {
-        String resultType = null;
-        String fileExtension = getFilenameExtension(fileName);
-        boolean isTextPlain = "text/plain".equalsIgnoreCase(mimeType);
-
-        if ("eml".equals(fileExtension)) {
-            resultType = "message/rfc822";
-        } else {
-            boolean isGenericType =
-                    isTextPlain || "application/octet-stream".equalsIgnoreCase(mimeType);
-            // If the given mime type is non-empty and non-generic, return it
-            if (isGenericType || TextUtils.isEmpty(mimeType)) {
-                if (!TextUtils.isEmpty(fileExtension)) {
-                    // Otherwise, try to find a mime type based upon the file extension
-                    resultType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-                    if (TextUtils.isEmpty(resultType)) {
-                        // Finally, if original mimetype is text/plain, use it; otherwise synthesize
-                        resultType = isTextPlain ? mimeType : "application/" + fileExtension;
-                    }
-                }
-            } else {
-                resultType = mimeType;
-            }
-        }
-
-        // No good guess could be made; use an appropriate generic type
-        if (TextUtils.isEmpty(resultType)) {
-            resultType = isTextPlain ? "text/plain" : "application/octet-stream";
-        }
-        return resultType.toLowerCase();
-    }
-
-    /**
-     * Extract and return filename's extension, converted to lower case, and not including the "."
-     *
-     * @return extension, or null if not found (or null/empty filename)
-     */
-    public static String getFilenameExtension(String fileName) {
-        String extension = null;
-        if (!TextUtils.isEmpty(fileName)) {
-            int lastDot = fileName.lastIndexOf('.');
-            if ((lastDot > 0) && (lastDot < fileName.length() - 1)) {
-                extension = fileName.substring(lastDot + 1).toLowerCase();
-            }
-        }
-        return extension;
     }
 
     /**
@@ -275,17 +141,17 @@ public class AttachmentProvider extends ContentProvider {
             String accountId = segments.get(0);
             String id = segments.get(1);
             String format = segments.get(2);
-            if (FORMAT_THUMBNAIL.equals(format)) {
+            if (AttachmentUtilities.FORMAT_THUMBNAIL.equals(format)) {
                 int width = Integer.parseInt(segments.get(3));
                 int height = Integer.parseInt(segments.get(4));
                 String filename = "thmb_" + accountId + "_" + id;
                 File dir = getContext().getCacheDir();
                 File file = new File(dir, filename);
                 if (!file.exists()) {
-                    Uri attachmentUri =
+                    Uri attachmentUri = AttachmentUtilities.
                         getAttachmentUri(Long.parseLong(accountId), Long.parseLong(id));
                     Cursor c = query(attachmentUri,
-                            new String[] { AttachmentProviderColumns.DATA }, null, null, null);
+                            new String[] { Columns.DATA }, null, null, null);
                     if (c != null) {
                         try {
                             if (c.moveToFirst()) {
@@ -355,8 +221,8 @@ public class AttachmentProvider extends ContentProvider {
             if (projection == null) {
                 projection =
                     new String[] {
-                        AttachmentProviderColumns._ID,
-                        AttachmentProviderColumns.DATA,
+                        Columns._ID,
+                        Columns.DATA,
                 };
             }
 
@@ -387,16 +253,16 @@ public class AttachmentProvider extends ContentProvider {
             Object[] values = new Object[projection.length];
             for (int i = 0, count = projection.length; i < count; i++) {
                 String column = projection[i];
-                if (AttachmentProviderColumns._ID.equals(column)) {
+                if (Columns._ID.equals(column)) {
                     values[i] = id;
                 }
-                else if (AttachmentProviderColumns.DATA.equals(column)) {
+                else if (Columns.DATA.equals(column)) {
                     values[i] = contentUri;
                 }
-                else if (AttachmentProviderColumns.DISPLAY_NAME.equals(column)) {
+                else if (Columns.DISPLAY_NAME.equals(column)) {
                     values[i] = name;
                 }
-                else if (AttachmentProviderColumns.SIZE.equals(column)) {
+                else if (Columns.SIZE.equals(column)) {
                     values[i] = size;
                 }
             }
@@ -429,101 +295,6 @@ public class AttachmentProvider extends ContentProvider {
         } catch (Exception e) {
             Log.d(Email.LOG_TAG, "createImageThumbnail failed with " + e.getMessage());
             return null;
-        }
-    }
-
-    /**
-     * Resolve attachment id to content URI.  Returns the resolved content URI (from the attachment
-     * DB) or, if not found, simply returns the incoming value.
-     *
-     * @param attachmentUri
-     * @return resolved content URI
-     *
-     * TODO:  Throws an SQLite exception on a missing DB file (e.g. unknown URI) instead of just
-     * returning the incoming uri, as it should.
-     */
-    public static Uri resolveAttachmentIdToContentUri(ContentResolver resolver, Uri attachmentUri) {
-        Cursor c = resolver.query(attachmentUri,
-                new String[] { AttachmentProvider.AttachmentProviderColumns.DATA },
-                null, null, null);
-        if (c != null) {
-            try {
-                if (c.moveToFirst()) {
-                    final String strUri = c.getString(0);
-                    if (strUri != null) {
-                        return Uri.parse(strUri);
-                    } else {
-                        Email.log("AttachmentProvider: attachment with null contentUri");
-                    }
-                }
-            } finally {
-                c.close();
-            }
-        }
-        return attachmentUri;
-    }
-
-    /**
-     * In support of deleting a message, find all attachments and delete associated attachment
-     * files.
-     * @param context
-     * @param accountId the account for the message
-     * @param messageId the message
-     */
-    public static void deleteAllAttachmentFiles(Context context, long accountId, long messageId) {
-        Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, messageId);
-        Cursor c = context.getContentResolver().query(uri, Attachment.ID_PROJECTION,
-                null, null, null);
-        try {
-            while (c.moveToNext()) {
-                long attachmentId = c.getLong(Attachment.ID_PROJECTION_COLUMN);
-                File attachmentFile = getAttachmentFilename(context, accountId, attachmentId);
-                // Note, delete() throws no exceptions for basic FS errors (e.g. file not found)
-                // it just returns false, which we ignore, and proceed to the next file.
-                // This entire loop is best-effort only.
-                attachmentFile.delete();
-            }
-        } finally {
-            c.close();
-        }
-    }
-
-    /**
-     * In support of deleting a mailbox, find all messages and delete their attachments.
-     *
-     * @param context
-     * @param accountId the account for the mailbox
-     * @param mailboxId the mailbox for the messages
-     */
-    public static void deleteAllMailboxAttachmentFiles(Context context, long accountId,
-            long mailboxId) {
-        Cursor c = context.getContentResolver().query(Message.CONTENT_URI,
-                Message.ID_COLUMN_PROJECTION, MessageColumns.MAILBOX_KEY + "=?",
-                new String[] { Long.toString(mailboxId) }, null);
-        try {
-            while (c.moveToNext()) {
-                long messageId = c.getLong(Message.ID_PROJECTION_COLUMN);
-                deleteAllAttachmentFiles(context, accountId, messageId);
-            }
-        } finally {
-            c.close();
-        }
-    }
-
-    /**
-     * In support of deleting or wiping an account, delete all related attachments.
-     *
-     * @param context
-     * @param accountId the account to scrub
-     */
-    public static void deleteAllAccountAttachmentFiles(Context context, long accountId) {
-        File[] files = getAttachmentDirectory(context, accountId).listFiles();
-        if (files == null) return;
-        for (File file : files) {
-            boolean result = file.delete();
-            if (!result) {
-                Log.e(Email.LOG_TAG, "Failed to delete attachment file " + file.getName());
-            }
         }
     }
 

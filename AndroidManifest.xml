@@ -370,6 +370,17 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".service.AccountService"
+            android:enabled="true"
+            android:permission="com.android.email.permission.ACCESS_PROVIDER"
+            >
+            <intent-filter>
+                <action
+                    android:name="com.android.email.ACCOUNT_INTENT" />
+            </intent-filter>
+        </service>
+
         <!--EXCHANGE-REMOVE-SECTION-START-->
         <!--Required stanza to register the EAS EmailSyncAdapterService with SyncManager -->
         <service

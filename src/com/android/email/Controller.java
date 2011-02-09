@@ -21,7 +21,6 @@ import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.Folder.MessageRetrievalListener;
 import com.android.email.mail.store.Pop3Store.Pop3Message;
-import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -34,6 +33,7 @@ import com.android.emailcommon.Api;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.utility.AttachmentUtilities;
 
 import android.app.Service;
 import android.content.ContentResolver;
@@ -197,7 +197,8 @@ public class Controller {
             while (c.moveToNext()) {
                 long mailboxId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
                 // Must delete attachments BEFORE messages
-                AttachmentProvider.deleteAllMailboxAttachmentFiles(mProviderContext, 0, mailboxId);
+                AttachmentUtilities.deleteAllMailboxAttachmentFiles(mProviderContext, 0,
+                        mailboxId);
                 resolver.delete(Message.CONTENT_URI, WHERE_MAILBOX_KEY,
                         new String[] {Long.toString(mailboxId)});
            }
@@ -720,7 +721,7 @@ public class Controller {
         if (mailbox == null) return;
 
         // 4.  Drop non-essential data for the message (e.g. attachment files)
-        AttachmentProvider.deleteAllAttachmentFiles(mProviderContext, account.mId,
+        AttachmentUtilities.deleteAllAttachmentFiles(mProviderContext, account.mId,
                 messageId);
 
         Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI,
@@ -1003,7 +1004,8 @@ public class Controller {
     public void deleteSyncedDataSync(long accountId) {
         try {
             // Delete synced attachments
-            AttachmentProvider.deleteAllAccountAttachmentFiles(mProviderContext, accountId);
+            AttachmentUtilities.deleteAllAccountAttachmentFiles(mProviderContext,
+                    accountId);
 
             // Delete synced email, leaving only an empty inbox.  We do this in two phases:
             // 1. Delete all non-inbox mailboxes (which will delete all of their messages)

@@ -20,21 +20,22 @@ import com.android.email.mail.Address;
 import com.android.email.mail.BodyPart;
 import com.android.email.mail.Flag;
 import com.android.email.mail.Message;
-import com.android.email.mail.Message.RecipientType;
 import com.android.email.mail.MessageTestUtils;
-import com.android.email.mail.MessageTestUtils.MessageBuilder;
-import com.android.email.mail.MessageTestUtils.MultipartBuilder;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Part;
+import com.android.email.mail.Message.RecipientType;
+import com.android.email.mail.MessageTestUtils.MessageBuilder;
+import com.android.email.mail.MessageTestUtils.MultipartBuilder;
 import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeUtility;
 import com.android.email.mail.internet.TextBody;
 import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
+import com.android.email.provider.EmailContent.Attachment;
+import com.android.emailcommon.utility.ConversionUtilities;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -191,7 +192,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         viewables.add(emptyTextPart);
 
         // a "null" body part of type text/plain should result in a null mTextContent
-        boolean result = LegacyConversions.updateBodyFields(localBody, localMessage, viewables);
+        boolean result = ConversionUtilities.updateBodyFields(localBody, localMessage, viewables);
         assertTrue(result);
         assertNull(localBody.mTextContent);
     }

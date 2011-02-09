@@ -33,7 +33,6 @@ import com.android.email.mail.internet.MimeBodyPart;
 import com.android.email.mail.internet.MimeHeader;
 import com.android.email.mail.internet.MimeMultipart;
 import com.android.email.mail.internet.MimeUtility;
-import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.AttachmentColumns;
@@ -41,6 +40,8 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.ConversionUtilities;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -300,7 +301,7 @@ public class MessagingController implements Runnable {
                                     break;
                                 default:
                                     // Drop all attachment files related to this mailbox
-                                    AttachmentProvider.deleteAllMailboxAttachmentFiles(
+                                    AttachmentUtilities.deleteAllMailboxAttachmentFiles(
                                             mContext, accountId, localInfo.mId);
                                     // Delete the mailbox.  Triggers will take care of
                                     // related Message, Body and Attachment records.
@@ -736,7 +737,8 @@ public class MessagingController implements Runnable {
 
             // Delete associated data (attachment files)
             // Attachment & Body records are auto-deleted when we delete the Message record
-            AttachmentProvider.deleteAllAttachmentFiles(mContext, account.mId, infoToDelete.mId);
+            AttachmentUtilities.deleteAllAttachmentFiles(mContext, account.mId,
+                    infoToDelete.mId);
 
             // Delete the message itself
             Uri uriToDelete = ContentUris.withAppendedId(
@@ -1005,7 +1007,7 @@ public class MessagingController implements Runnable {
                 ArrayList<Part> attachments = new ArrayList<Part>();
                 MimeUtility.collectParts(message, viewables, attachments);
 
-                LegacyConversions.updateBodyFields(body, localMessage, viewables);
+                ConversionUtilities.updateBodyFields(body, localMessage, viewables);
 
                 // Commit the message & body to the local store immediately
                 saveOrUpdate(localMessage, context);
@@ -2046,12 +2048,13 @@ public class MessagingController implements Runnable {
                         EmailContent.Message.restoreMessageWithId(mContext, messageId);
                     if (msg != null &&
                             ((msg.mFlags & EmailContent.Message.FLAG_TYPE_FORWARD) != 0)) {
-                        AttachmentProvider.deleteAllAttachmentFiles(mContext, account.mId,
+                        AttachmentUtilities.deleteAllAttachmentFiles(mContext, account.mId,
                                 messageId);
                     }
                     resolver.update(syncedUri, moveToSentValues, null, null);
                 } else {
-                    AttachmentProvider.deleteAllAttachmentFiles(mContext, account.mId, messageId);
+                    AttachmentUtilities.deleteAllAttachmentFiles(mContext, account.mId,
+                            messageId);
                     Uri uri =
                         ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, messageId);
                     resolver.delete(uri, null, null);

@@ -17,6 +17,7 @@
 package com.android.email;
 
 import com.android.email.mail.Store;
+import com.android.emailcommon.service.SyncWindow;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -37,14 +38,6 @@ public class Account {
     public static final int CHECK_INTERVAL_NEVER = -1;
     public static final int CHECK_INTERVAL_PUSH = -2;
     
-    public static final int SYNC_WINDOW_USER = -1;
-    public static final int SYNC_WINDOW_1_DAY = 1;
-    public static final int SYNC_WINDOW_3_DAYS = 2;
-    public static final int SYNC_WINDOW_1_WEEK = 3;
-    public static final int SYNC_WINDOW_2_WEEKS = 4;
-    public static final int SYNC_WINDOW_1_MONTH = 5;
-    public static final int SYNC_WINDOW_ALL = 6;
-
     // These flags will never be seen in a "real" (legacy) account
     public static final int BACKUP_FLAGS_IS_BACKUP = 1;
     public static final int BACKUP_FLAGS_SYNC_CONTACTS = 2;
@@ -109,7 +102,7 @@ public class Account {
         mVibrate = false;
         mVibrateWhenSilent = false;
         mRingtoneUri = "content://settings/system/notification_sound";
-        mSyncWindow = SYNC_WINDOW_USER;       // IMAP & POP3
+        mSyncWindow = SyncWindow.SYNC_WINDOW_USER;       // IMAP & POP3
         mBackupFlags = 0;
         mProtocolVersion = null;
         mSecurityFlags = 0;
@@ -171,7 +164,7 @@ public class Account {
                 "content://settings/system/notification_sound");
         
         mSyncWindow = preferences.mSharedPreferences.getInt(mUuid + KEY_SYNC_WINDOW, 
-                SYNC_WINDOW_USER);
+                SyncWindow.SYNC_WINDOW_USER);
 
         mBackupFlags = preferences.mSharedPreferences.getInt(mUuid + KEY_BACKUP_FLAGS, 0);
         mProtocolVersion = preferences.mSharedPreferences.getString(mUuid + KEY_PROTOCOL_VERSION,

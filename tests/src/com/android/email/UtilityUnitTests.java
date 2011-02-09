@@ -17,17 +17,16 @@
 package com.android.email;
 
 import com.android.email.Utility.NewFileCreator;
-import com.android.email.provider.AttachmentProvider;
+import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.utility.AttachmentUtilities;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.database.MatrixCursor;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -422,13 +421,13 @@ public class UtilityUnitTests extends AndroidTestCase {
         Attachment att = ProviderTestUtils.setupAttachment(mailbox.mId, "name", 123, true,
                 providerContext);
         long attachmentId = att.mId;
-        Uri uri = AttachmentProvider.getAttachmentUri(account.mId, attachmentId);
+        Uri uri = AttachmentUtilities.getAttachmentUri(account.mId, attachmentId);
 
         // Case 1: exists in the provider.
         assertEquals("name", Utility.getContentFileName(providerContext, uri));
 
         // Case 2: doesn't exist in the provider
-        Uri notExistUri = AttachmentProvider.getAttachmentUri(account.mId, 123456789);
+        Uri notExistUri = AttachmentUtilities.getAttachmentUri(account.mId, 123456789);
         String lastPathSegment = notExistUri.getLastPathSegment();
         assertEquals(lastPathSegment, Utility.getContentFileName(providerContext, notExistUri));
     }

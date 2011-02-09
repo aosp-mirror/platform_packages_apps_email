@@ -17,8 +17,8 @@
 package com.android.email;
 
 import com.android.email.mail.internet.MimeUtility;
-import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent.Attachment;
+import com.android.emailcommon.utility.AttachmentUtilities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -69,7 +69,7 @@ public class AttachmentInfo {
     public AttachmentInfo(Context context, long id, long size, String fileName, String mimeType,
             long accountKey) {
         mSize = size;
-        mContentType = AttachmentProvider.inferMimeType(fileName, mimeType);
+        mContentType = AttachmentUtilities.inferMimeType(fileName, mimeType);
         mName = fileName;
         mId = id;
         mAccountKey = accountKey;
@@ -83,7 +83,7 @@ public class AttachmentInfo {
         }
 
         // Check for unacceptable attachments by filename extension
-        String extension = AttachmentProvider.getFilenameExtension(mName);
+        String extension = AttachmentUtilities.getFilenameExtension(mName);
         if (!TextUtils.isEmpty(extension) &&
                 Utility.arrayContains(Email.UNACCEPTABLE_ATTACHMENT_EXTENSIONS, extension)) {
             canView = false;
@@ -91,7 +91,7 @@ public class AttachmentInfo {
         }
 
         // Check for installable attachments by filename extension
-        extension = AttachmentProvider.getFilenameExtension(mName);
+        extension = AttachmentUtilities.getFilenameExtension(mName);
         if (!TextUtils.isEmpty(extension) &&
                 Utility.arrayContains(Email.INSTALLABLE_ATTACHMENT_EXTENSIONS, extension)) {
             int sideloadEnabled;
@@ -134,9 +134,9 @@ public class AttachmentInfo {
      * @return an Intent suitable for loading the attachment
      */
     public Intent getAttachmentIntent(Context context, long accountId) {
-        Uri contentUri = AttachmentProvider.getAttachmentUri(accountId, mId);
+        Uri contentUri = AttachmentUtilities.getAttachmentUri(accountId, mId);
         if (accountId > 0) {
-            contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
+            contentUri = AttachmentUtilities.resolveAttachmentIdToContentUri(
                     context.getContentResolver(), contentUri);
         }
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -154,6 +154,7 @@ public class AttachmentInfo {
         return mAllowView || mAllowSave;
     }
 
+    @Override
     public String toString() {
         return "{Attachment " + mId + ":" + mName + "," + mContentType + "," + mSize + "}";
     }

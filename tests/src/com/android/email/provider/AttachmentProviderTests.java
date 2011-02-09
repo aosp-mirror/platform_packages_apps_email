@@ -19,11 +19,11 @@ package com.android.email.provider;
 import com.android.email.AttachmentInfo;
 import com.android.email.R;
 import com.android.email.mail.MessagingException;
-import com.android.email.provider.AttachmentProvider.AttachmentProviderColumns;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.emailcommon.utility.AttachmentUtilities;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -53,7 +53,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
     ContentResolver mMockResolver;
 
     public AttachmentProviderTests() {
-        super(AttachmentProvider.class, AttachmentProvider.AUTHORITY);
+        super(AttachmentProvider.class, AttachmentUtilities.AUTHORITY);
     }
 
     @Override
@@ -76,9 +76,10 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
      * test insert() - should do nothing
      */
     public void testUnimplemented() {
-        assertEquals(0, mMockResolver.delete(AttachmentProvider.CONTENT_URI, null, null));
-        assertEquals(0, mMockResolver.update(AttachmentProvider.CONTENT_URI, null, null, null));
-        assertEquals(null, mMockResolver.insert(AttachmentProvider.CONTENT_URI, null));
+        assertEquals(0, mMockResolver.delete(AttachmentUtilities.CONTENT_URI, null, null));
+        assertEquals(0, mMockResolver.update(AttachmentUtilities.CONTENT_URI, null, null,
+                null));
+        assertEquals(null, mMockResolver.insert(AttachmentUtilities.CONTENT_URI, null));
     }
 
     /**
@@ -100,9 +101,12 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // attachment we add will be id=1 and the 2nd will have id=2.  This could fail on
         // a legitimate implementation.  Asserts below will catch this and fail the test
         // if necessary.
-        Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
-        Uri attachment2Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
-        Uri attachment3Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment3Id);
+        Uri attachment1Uri = AttachmentUtilities.getAttachmentUri(account1.mId,
+                attachment1Id);
+        Uri attachment2Uri = AttachmentUtilities.getAttachmentUri(account1.mId,
+                attachment2Id);
+        Uri attachment3Uri = AttachmentUtilities.getAttachmentUri(account1.mId,
+                attachment3Id);
 
         // Test with no attachment found - should return null
         Cursor c = mMockResolver.query(attachment1Uri, (String[])null, null, (String[])null, null);
@@ -113,31 +117,32 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         Attachment newAttachment1 = ProviderTestUtils.setupAttachment(message1Id, "file1", 100,
                 false, mMockContext);
         newAttachment1.mContentUri =
-            AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id).toString();
+            AttachmentUtilities.getAttachmentUri(account1.mId, attachment1Id).toString();
         attachment1Id = addAttachmentToDb(account1, newAttachment1);
         assertEquals("Broken test:  Unexpected id assignment", 1, attachment1Id);
 
         Attachment newAttachment2 = ProviderTestUtils.setupAttachment(message1Id, "file2", 200,
                 false, mMockContext);
         newAttachment2.mContentUri =
-            AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id).toString();
+            AttachmentUtilities.getAttachmentUri(account1.mId, attachment2Id).toString();
         attachment2Id = addAttachmentToDb(account1, newAttachment2);
         assertEquals("Broken test:  Unexpected id assignment", 2, attachment2Id);
 
         Attachment newAttachment3 = ProviderTestUtils.setupAttachment(message1Id, "file3", 300,
                 false, mMockContext);
         newAttachment3.mContentUri =
-            AttachmentProvider.getAttachmentUri(account1.mId, attachment3Id).toString();
+            AttachmentUtilities.getAttachmentUri(account1.mId, attachment3Id).toString();
         attachment3Id = addAttachmentToDb(account1, newAttachment3);
         assertEquals("Broken test:  Unexpected id assignment", 3, attachment3Id);
 
         // Return a row with all columns specified
-        attachment2Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
+        attachment2Uri = AttachmentUtilities.getAttachmentUri(account1.mId, attachment2Id);
         c = mMockResolver.query(
                 attachment2Uri,
-                new String[] { AttachmentProviderColumns._ID, AttachmentProviderColumns.DATA,
-                               AttachmentProviderColumns.DISPLAY_NAME,
-                               AttachmentProviderColumns.SIZE },
+                new String[] { AttachmentUtilities.Columns._ID,
+                               AttachmentUtilities.Columns.DATA,
+                               AttachmentUtilities.Columns.DISPLAY_NAME,
+                               AttachmentUtilities.Columns.SIZE },
                 null, null, null);
         assertEquals(1, c.getCount());
         assertTrue(c.moveToFirst());
@@ -147,12 +152,13 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         assertEquals(200, c.getInt(3));                             // size
 
         // Return a row with permuted columns
-        attachment3Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment3Id);
+        attachment3Uri = AttachmentUtilities.getAttachmentUri(account1.mId, attachment3Id);
         c = mMockResolver.query(
                 attachment3Uri,
-                new String[] { AttachmentProviderColumns.SIZE,
-                               AttachmentProviderColumns.DISPLAY_NAME,
-                               AttachmentProviderColumns.DATA, AttachmentProviderColumns._ID },
+                new String[] { AttachmentUtilities.Columns.SIZE,
+                               AttachmentUtilities.Columns.DISPLAY_NAME,
+                               AttachmentUtilities.Columns.DATA,
+                               AttachmentUtilities.Columns._ID },
                 null, null, null);
         assertEquals(1, c.getCount());
         assertTrue(c.moveToFirst());
@@ -264,7 +270,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         long attachment5Id = 5;
         long attachment6Id = 6;
 
-        Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
+        Uri attachment1Uri = AttachmentUtilities.getAttachmentUri(account1.mId,
+                attachment1Id);
 
         // Test with no attachment found - should return null
         String type = mMockResolver.getType(attachment1Uri);
@@ -298,27 +305,29 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         attachment6Id = addAttachmentToDb(account1, newAttachment6);
 
         // Check the returned filetypes
-        Uri uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
+        Uri uri = AttachmentUtilities.getAttachmentUri(account1.mId, attachment2Id);
         type = mMockResolver.getType(uri);
         assertEquals("image/jpg", type);
-        uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment3Id);
+        uri = AttachmentUtilities.getAttachmentUri(account1.mId, attachment3Id);
         type = mMockResolver.getType(uri);
         assertEquals("text/plain", type);
-        uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment4Id);
+        uri = AttachmentUtilities.getAttachmentUri(account1.mId, attachment4Id);
         type = mMockResolver.getType(uri);
         assertEquals("application/msword", type);
-        uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment5Id);
+        uri = AttachmentUtilities.getAttachmentUri(account1.mId, attachment5Id);
         type = mMockResolver.getType(uri);
         assertEquals("application/xyz", type);
-        uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment6Id);
+        uri = AttachmentUtilities.getAttachmentUri(account1.mId, attachment6Id);
         type = mMockResolver.getType(uri);
         assertEquals("application/octet-stream", type);
 
         // Check the returned filetypes for the thumbnails
-        uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment2Id, 62, 62);
+        uri = AttachmentUtilities.getAttachmentThumbnailUri(account1.mId, attachment2Id, 62,
+                62);
         type = mMockResolver.getType(uri);
         assertEquals("image/png", type);
-        uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment3Id, 62, 62);
+        uri = AttachmentUtilities.getAttachmentThumbnailUri(account1.mId, attachment3Id, 62,
+                62);
         type = mMockResolver.getType(uri);
         assertEquals("image/png", type);
     }
@@ -355,42 +364,49 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         final String FILE_NO_EXT = "myfile";
 
         // .eml files always override mime type
-        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eml", null));
-        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eml", ""));
-        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eml", DEFAULT_LOWER));
-        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eMl", TEXT_PLAIN));
-        assertEquals("message/rfc822", AttachmentProvider.inferMimeType("a.eml", TYPE_IMG_PNG));
+        assertEquals("message/rfc822", AttachmentUtilities.inferMimeType("a.eml", null));
+        assertEquals("message/rfc822", AttachmentUtilities.inferMimeType("a.eml", ""));
+        assertEquals("message/rfc822",
+                AttachmentUtilities.inferMimeType("a.eml", DEFAULT_LOWER));
+        assertEquals("message/rfc822",
+                AttachmentUtilities.inferMimeType("a.eMl", TEXT_PLAIN));
+        assertEquals("message/rfc822",
+                AttachmentUtilities.inferMimeType("a.eml", TYPE_IMG_PNG));
 
         // Non-generic, non-empty mime type; return it
-        assertEquals("mime/type", AttachmentProvider.inferMimeType(FILE_PNG, "Mime/TyPe"));
-        assertEquals("mime/type", AttachmentProvider.inferMimeType(FILE_ABC, "Mime/TyPe"));
-        assertEquals("mime/type", AttachmentProvider.inferMimeType(FILE_NO_EXT, "Mime/TyPe"));
-        assertEquals("mime/type", AttachmentProvider.inferMimeType(null, "Mime/TyPe"));
-        assertEquals("mime/type", AttachmentProvider.inferMimeType("", "Mime/TyPe"));
+        assertEquals("mime/type", AttachmentUtilities.inferMimeType(FILE_PNG, "Mime/TyPe"));
+        assertEquals("mime/type", AttachmentUtilities.inferMimeType(FILE_ABC, "Mime/TyPe"));
+        assertEquals("mime/type",
+                AttachmentUtilities.inferMimeType(FILE_NO_EXT, "Mime/TyPe"));
+        assertEquals("mime/type", AttachmentUtilities.inferMimeType(null, "Mime/TyPe"));
+        assertEquals("mime/type", AttachmentUtilities.inferMimeType("", "Mime/TyPe"));
 
         // Recognizable file extension; return known type
-        assertEquals("image/png", AttachmentProvider.inferMimeType(FILE_PNG, null));
-        assertEquals("image/png", AttachmentProvider.inferMimeType(FILE_PNG, ""));
-        assertEquals("image/png", AttachmentProvider.inferMimeType(FILE_PNG, DEFAULT_MIX));
-        assertEquals("image/png", AttachmentProvider.inferMimeType(FILE_PNG, TEXT_PLAIN));
+        assertEquals("image/png", AttachmentUtilities.inferMimeType(FILE_PNG, null));
+        assertEquals("image/png", AttachmentUtilities.inferMimeType(FILE_PNG, ""));
+        assertEquals("image/png", AttachmentUtilities.inferMimeType(FILE_PNG, DEFAULT_MIX));
+        assertEquals("image/png", AttachmentUtilities.inferMimeType(FILE_PNG, TEXT_PLAIN));
 
         // Unrecognized and non-empty file extension, non-"text/plain" type; generate mime type
-        assertEquals("application/abc", AttachmentProvider.inferMimeType(FILE_ABC, null));
-        assertEquals("application/abc", AttachmentProvider.inferMimeType(FILE_ABC, ""));
-        assertEquals("application/abc", AttachmentProvider.inferMimeType(FILE_ABC, DEFAULT_MIX));
+        assertEquals("application/abc", AttachmentUtilities.inferMimeType(FILE_ABC, null));
+        assertEquals("application/abc", AttachmentUtilities.inferMimeType(FILE_ABC, ""));
+        assertEquals("application/abc",
+                AttachmentUtilities.inferMimeType(FILE_ABC, DEFAULT_MIX));
 
         // Unrecognized and empty file extension, non-"text/plain" type; return "app/octet-stream"
-        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(FILE_NO_EXT, null));
-        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(FILE_NO_EXT, ""));
-        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(FILE_NO_EXT, DEFAULT_MIX));
-        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType(null, null));
-        assertEquals(DEFAULT_LOWER, AttachmentProvider.inferMimeType("", ""));
+        assertEquals(DEFAULT_LOWER, AttachmentUtilities.inferMimeType(FILE_NO_EXT, null));
+        assertEquals(DEFAULT_LOWER, AttachmentUtilities.inferMimeType(FILE_NO_EXT, ""));
+        assertEquals(DEFAULT_LOWER,
+                AttachmentUtilities.inferMimeType(FILE_NO_EXT, DEFAULT_MIX));
+        assertEquals(DEFAULT_LOWER, AttachmentUtilities.inferMimeType(null, null));
+        assertEquals(DEFAULT_LOWER, AttachmentUtilities.inferMimeType("", ""));
 
         // Unrecognized or empty file extension, "text/plain" type; return "text/plain"
-        assertEquals(TEXT_PLAIN, AttachmentProvider.inferMimeType(FILE_ABC, TEXT_PLAIN));
-        assertEquals(TEXT_PLAIN, AttachmentProvider.inferMimeType(FILE_NO_EXT, TEXT_PLAIN));
-        assertEquals(TEXT_PLAIN, AttachmentProvider.inferMimeType(null, TEXT_PLAIN));
-        assertEquals(TEXT_PLAIN, AttachmentProvider.inferMimeType("", TEXT_PLAIN));
+        assertEquals(TEXT_PLAIN, AttachmentUtilities.inferMimeType(FILE_ABC, TEXT_PLAIN));
+        assertEquals(TEXT_PLAIN,
+                AttachmentUtilities.inferMimeType(FILE_NO_EXT, TEXT_PLAIN));
+        assertEquals(TEXT_PLAIN, AttachmentUtilities.inferMimeType(null, TEXT_PLAIN));
+        assertEquals(TEXT_PLAIN, AttachmentUtilities.inferMimeType("", TEXT_PLAIN));
     }
 
     /**
@@ -401,17 +417,17 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         final String FILE_EXTENSION = "myfile.pDf";
         final String FILE_TWO_EXTENSIONS = "myfile.false.AbC";
 
-        assertNull(AttachmentProvider.getFilenameExtension(null));
-        assertNull(AttachmentProvider.getFilenameExtension(""));
-        assertNull(AttachmentProvider.getFilenameExtension(FILE_NO_EXTENSION));
+        assertNull(AttachmentUtilities.getFilenameExtension(null));
+        assertNull(AttachmentUtilities.getFilenameExtension(""));
+        assertNull(AttachmentUtilities.getFilenameExtension(FILE_NO_EXTENSION));
 
-        assertEquals("pdf", AttachmentProvider.getFilenameExtension(FILE_EXTENSION));
-        assertEquals("abc", AttachmentProvider.getFilenameExtension(FILE_TWO_EXTENSIONS));
+        assertEquals("pdf", AttachmentUtilities.getFilenameExtension(FILE_EXTENSION));
+        assertEquals("abc", AttachmentUtilities.getFilenameExtension(FILE_TWO_EXTENSIONS));
 
         // The API makes no claim as to how these are handled (it probably should),
         // but make sure that they don't crash.
-        AttachmentProvider.getFilenameExtension("filename.");
-        AttachmentProvider.getFilenameExtension(".extension");
+        AttachmentUtilities.getFilenameExtension("filename.");
+        AttachmentUtilities.getFilenameExtension(".extension");
     }
 
     /**
@@ -431,8 +447,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // attachment we add will be id=1 and the 2nd will have id=2.  This could fail on
         // a legitimate implementation.  Asserts below will catch this and fail the test
         // if necessary.
-        Uri file1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
-        Uri file2Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id);
+        Uri file1Uri = AttachmentUtilities.getAttachmentUri(account1.mId, attachment1Id);
+        Uri file2Uri = AttachmentUtilities.getAttachmentUri(account1.mId, attachment2Id);
 
         // Test with no attachment found
         AssetFileDescriptor afd;
@@ -463,7 +479,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
                 false, mMockContext);
         newAttachment2.mContentId = null;
         newAttachment2.mContentUri =
-                AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id).toString();
+                AttachmentUtilities.getAttachmentUri(account1.mId, attachment2Id)
+                .toString();
         newAttachment2.mMimeType = "image/png";
         attachment2Id = addAttachmentToDb(account1, newAttachment2);
         assertEquals("Broken test:  Unexpected id assignment", 2, attachment2Id);
@@ -496,10 +513,10 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // attachment we add will be id=1 and the 2nd will have id=2.  This could fail on
         // a legitimate implementation.  Asserts below will catch this and fail the test
         // if necessary.
-        Uri thumb1Uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment1Id,
-                62, 62);
-        Uri thumb2Uri = AttachmentProvider.getAttachmentThumbnailUri(account1.mId, attachment2Id,
-                62, 62);
+        Uri thumb1Uri = AttachmentUtilities.getAttachmentThumbnailUri(account1.mId,
+                attachment1Id, 62, 62);
+        Uri thumb2Uri = AttachmentUtilities.getAttachmentThumbnailUri(account1.mId,
+                attachment2Id, 62, 62);
 
         // Test with an attached database, but no attachment found
         AssetFileDescriptor afd = mMockResolver.openAssetFileDescriptor(thumb1Uri, "r");
@@ -521,7 +538,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
                 false, mMockContext);
         newAttachment2.mContentId = null;
         newAttachment2.mContentUri =
-                AttachmentProvider.getAttachmentUri(account1.mId, attachment2Id).toString();
+                AttachmentUtilities.getAttachmentUri(account1.mId, attachment2Id)
+                .toString();
         newAttachment2.mMimeType = "image/png";
         attachment2Id = addAttachmentToDb(account1, newAttachment2);
         assertEquals("Broken test:  Unexpected id assignment", 2, attachment2Id);
@@ -539,7 +557,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
                 false, mMockContext);
         newAttachment.mContentUri = contentUriStr;
         long attachmentId = addAttachmentToDb(account, newAttachment);
-        Uri attachmentUri = AttachmentProvider.getAttachmentUri(account.mId, attachmentId);
+        Uri attachmentUri = AttachmentUtilities.getAttachmentUri(account.mId, attachmentId);
         return attachmentUri;
     }
 
@@ -557,12 +575,13 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         final long message1Id = 1;
         // We use attachmentId == 1 but any other id would do
         final long attachment1Id = 1;
-        final Uri attachment1Uri = AttachmentProvider.getAttachmentUri(account1.mId, attachment1Id);
+        final Uri attachment1Uri = AttachmentUtilities.getAttachmentUri(account1.mId,
+                attachment1Id);
 
         // Test with no attachment found - should return input
         // We know that the attachmentId 1 does not exist because there are no attachments
         // created at this point
-        Uri result = AttachmentProvider.resolveAttachmentIdToContentUri(
+        Uri result = AttachmentUtilities.resolveAttachmentIdToContentUri(
                 mMockResolver, attachment1Uri);
         assertEquals(attachment1Uri, result);
 
@@ -571,8 +590,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // the DB, and does not sample the files, so we won't bother creating the files
         {
             Uri attachmentUri = createAttachment(account1, message1Id, "file:///path/to/file");
-            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(mMockResolver,
-                    attachmentUri);
+            Uri contentUri = AttachmentUtilities.resolveAttachmentIdToContentUri(
+                    mMockResolver, attachmentUri);
             // When the attachment is found, return the stored content_uri value
             assertEquals("file:///path/to/file", contentUri.toString());
         }
@@ -580,8 +599,8 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         // Test with existing attachement and contentUri == null
         {
             Uri attachmentUri = createAttachment(account1, message1Id, null);
-            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(mMockResolver,
-                    attachmentUri);
+            Uri contentUri = AttachmentUtilities.resolveAttachmentIdToContentUri(
+                    mMockResolver, attachmentUri);
             // When contentUri is null should return input
             assertEquals(attachmentUri, contentUri);
         }
@@ -615,25 +634,30 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         createAttachmentFile(account1, newAttachment3.mId);
 
         // Confirm 3 attachment files found
-        File attachmentsDir = AttachmentProvider.getAttachmentDirectory(mMockContext, account1.mId);
+        File attachmentsDir = AttachmentUtilities.getAttachmentDirectory(mMockContext,
+                account1.mId);
         assertEquals(3, attachmentsDir.listFiles().length);
 
         // Command deletion of some files and check for results
 
         // Message 4 has no attachments so no files should be deleted
-        AttachmentProvider.deleteAllAttachmentFiles(mMockContext, account1.mId, message4Id);
+        AttachmentUtilities.deleteAllAttachmentFiles(mMockContext, account1.mId,
+                message4Id);
         assertEquals(3, attachmentsDir.listFiles().length);
 
         // Message 3 has no attachment files so no files should be deleted
-        AttachmentProvider.deleteAllAttachmentFiles(mMockContext, account1.mId, message3Id);
+        AttachmentUtilities.deleteAllAttachmentFiles(mMockContext, account1.mId,
+                message3Id);
         assertEquals(3, attachmentsDir.listFiles().length);
 
         // Message 2 has 2 attachment files so this should delete 2 files
-        AttachmentProvider.deleteAllAttachmentFiles(mMockContext, account1.mId, message2Id);
+        AttachmentUtilities.deleteAllAttachmentFiles(mMockContext, account1.mId,
+                message2Id);
         assertEquals(1, attachmentsDir.listFiles().length);
 
         // Message 1 has 1 attachment file so this should delete the last file
-        AttachmentProvider.deleteAllAttachmentFiles(mMockContext, account1.mId, message1Id);
+        AttachmentUtilities.deleteAllAttachmentFiles(mMockContext, account1.mId,
+                message1Id);
         assertEquals(0, attachmentsDir.listFiles().length);
     }
 
@@ -655,15 +679,18 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         populateAccountMailbox(account1, mailbox2Id, 1);
 
         // Confirm four attachment files found
-        File attachmentsDir = AttachmentProvider.getAttachmentDirectory(mMockContext, account1.mId);
+        File attachmentsDir = AttachmentUtilities.getAttachmentDirectory(mMockContext,
+                account1.mId);
         assertEquals(4, attachmentsDir.listFiles().length);
 
         // Command the deletion of mailbox 1 - we should lose 3 attachment files
-        AttachmentProvider.deleteAllMailboxAttachmentFiles(mMockContext, account1Id, mailbox1Id);
+        AttachmentUtilities.deleteAllMailboxAttachmentFiles(mMockContext, account1Id,
+                mailbox1Id);
         assertEquals(1, attachmentsDir.listFiles().length);
 
         // Command the deletion of mailbox 2 - we should lose 1 attachment file
-        AttachmentProvider.deleteAllMailboxAttachmentFiles(mMockContext, account1Id, mailbox2Id);
+        AttachmentUtilities.deleteAllMailboxAttachmentFiles(mMockContext, account1Id,
+                mailbox2Id);
         assertEquals(0, attachmentsDir.listFiles().length);
     }
 
@@ -697,18 +724,20 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         populateAccountMailbox(account2, mailbox4Id, 2);
 
         // Confirm eleven attachment files found
-        File directory1 = AttachmentProvider.getAttachmentDirectory(mMockContext, account1.mId);
+        File directory1 = AttachmentUtilities.getAttachmentDirectory(mMockContext,
+                account1.mId);
         assertEquals(4, directory1.listFiles().length);
-        File directory2 = AttachmentProvider.getAttachmentDirectory(mMockContext, account2.mId);
+        File directory2 = AttachmentUtilities.getAttachmentDirectory(mMockContext,
+                account2.mId);
         assertEquals(7, directory2.listFiles().length);
 
         // Command the deletion of account 1 - we should lose 4 attachment files
-        AttachmentProvider.deleteAllAccountAttachmentFiles(mMockContext, account1Id);
+        AttachmentUtilities.deleteAllAccountAttachmentFiles(mMockContext, account1Id);
         assertEquals(0, directory1.listFiles().length);
         assertEquals(7, directory2.listFiles().length);
 
         // Command the deletion of account 2 - we should lose 7 attachment file
-        AttachmentProvider.deleteAllAccountAttachmentFiles(mMockContext, account2Id);
+        AttachmentUtilities.deleteAllAccountAttachmentFiles(mMockContext, account2Id);
         assertEquals(0, directory1.listFiles().length);
         assertEquals(0, directory2.listFiles().length);
     }

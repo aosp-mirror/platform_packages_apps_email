@@ -23,7 +23,6 @@ import com.android.email.NotificationController;
 import com.android.email.Utility;
 import com.android.email.Controller.ControllerService;
 import com.android.email.ExchangeUtils.NullEmailService;
-import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -31,6 +30,7 @@ import com.android.email.provider.EmailContent.Message;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.exchange.ExchangeService;
 
 import android.accounts.AccountManager;
@@ -427,7 +427,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
          */
         private void startDownload(Class<? extends Service> serviceClass, DownloadRequest req)
                 throws RemoteException {
-            File file = AttachmentProvider.getAttachmentFilename(mContext, req.accountId,
+            File file = AttachmentUtilities.getAttachmentFilename(mContext, req.accountId,
                     req.attachmentId);
             req.startTime = System.currentTimeMillis();
             req.inProgress = true;
@@ -437,7 +437,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             EmailServiceProxy proxy =
                 new EmailServiceProxy(mContext, serviceClass, mServiceCallback);
             proxy.loadAttachment(req.attachmentId, file.getAbsolutePath(),
-                    AttachmentProvider.getAttachmentUri(req.accountId, req.attachmentId)
+                    AttachmentUtilities.getAttachmentUri(req.accountId, req.attachmentId)
                     .toString(), req.priority != PRIORITY_FOREGROUND);
             // Lazily initialize our (reusable) pending intent
             if (mWatchdogPendingIntent == null) {
@@ -949,7 +949,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     if (att.mMimeType != null) {
                         pw.print(att.mMimeType);
                     } else {
-                        pw.print(AttachmentProvider.inferMimeType(fileName, null));
+                        pw.print(AttachmentUtilities.inferMimeType(fileName, null));
                         pw.print(" [inferred]");
                     }
                     pw.println(" Size: " + att.mSize);

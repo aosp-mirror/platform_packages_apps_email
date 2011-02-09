@@ -20,6 +20,7 @@ import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.utility.AttachmentUtilities;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -36,8 +37,6 @@ import android.test.mock.MockContext;
 import android.test.mock.MockCursor;
 
 import java.io.File;
-
-import junit.framework.Assert;
 
 /**
  * Helper classes (and possibly methods) for database related tests.
@@ -225,7 +224,7 @@ public final class DBTestHelper {
 
             final AttachmentProvider ap = new AttachmentProvider();
             ap.attachInfo(providerContext, null);
-            resolver.addProvider(AttachmentProvider.AUTHORITY, ap);
+            resolver.addProvider(AttachmentUtilities.AUTHORITY, ap);
 
             ContentCache.invalidateAllCachesForTest();
 

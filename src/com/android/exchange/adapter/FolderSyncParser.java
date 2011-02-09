@@ -18,13 +18,13 @@
 package com.android.exchange.adapter;
 
 import com.android.email.Utility;
-import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
-import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.exchange.Eas;
 import com.android.exchange.ExchangeService;
 import com.android.exchange.MockParserStream;
@@ -187,7 +187,7 @@ public class FolderSyncParser extends AbstractSyncParser {
                             ops.add(ContentProviderOperation.newDelete(
                                     ContentUris.withAppendedId(Mailbox.CONTENT_URI,
                                             c.getLong(0))).build());
-                            AttachmentProvider.deleteAllMailboxAttachmentFiles(mContext,
+                            AttachmentUtilities.deleteAllMailboxAttachmentFiles(mContext,
                                     mAccountId, mMailbox.mId);
                         }
                     } finally {

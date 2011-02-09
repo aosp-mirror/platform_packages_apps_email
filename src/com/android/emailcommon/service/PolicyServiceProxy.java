@@ -223,6 +223,5 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
         }
         throw new IllegalStateException("PolicyService transaction failed");
     }
-
 }
 

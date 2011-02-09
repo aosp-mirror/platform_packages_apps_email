@@ -18,7 +18,6 @@ package com.android.exchange.utility;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.ResourceHelper;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent;
@@ -26,6 +25,7 @@ import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
+import com.android.emailcommon.service.AccountServiceProxy;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.ExchangeService;
@@ -1215,8 +1215,12 @@ public class CalendarUtilities {
         cv.put(Calendars.ORGANIZER_CAN_RESPOND, 0);
 
         // TODO Coordinate account colors w/ Calendar, if possible
-        // Make Email account color opaque
-        int color = ResourceHelper.getInstance(service.mContext).getAccountColor(account.mId);
+        int color = AccountServiceProxy.DEFAULT_ACCOUNT_COLOR;
+        try {
+            color = new AccountServiceProxy(service.mContext).getAccountColor(account.mId);
+        } catch (RemoteException e) {
+            // Use the default
+        }
         cv.put(Calendars.COLOR, color);
         cv.put(Calendars.TIMEZONE, Time.getCurrentTimezone());
         cv.put(Calendars.ACCESS_LEVEL, Calendars.OWNER_ACCESS);

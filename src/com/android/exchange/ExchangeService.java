@@ -17,9 +17,7 @@
 
 package com.android.exchange;
 
-import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
-import com.android.email.NotificationController;
 import com.android.email.Utility;
 import com.android.email.mail.transport.SSLUtils;
 import com.android.email.provider.EmailContent;
@@ -32,11 +30,12 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
-import com.android.email.service.MailService;
 import com.android.emailcommon.Api;
+import com.android.emailcommon.service.AccountServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.utility.AccountReconciler;
 import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.utility.FileLogger;
@@ -1046,8 +1045,15 @@ public class ExchangeService extends Service implements Runnable {
         // list, which would cause the deletion of all of our accounts
         AccountList accountList = collectEasAccounts(context, new AccountList());
         alwaysLog("Reconciling accounts...");
-        MailService.reconcileAccountsWithAccountManager(context, accountList, accountMgrList,
-                false, context.getContentResolver());
+        boolean accountsDeleted = AccountReconciler.reconcileAccounts(context, accountList,
+                accountMgrList, context.getContentResolver());
+        if (accountsDeleted) {
+            try {
+                new AccountServiceProxy(context).accountDeleted();
+            } catch (RemoteException e) {
+                // ?
+            }
+        }
     }
 
     public static void log(String str) {
@@ -1749,13 +1755,22 @@ public class ExchangeService extends Service implements Runnable {
             @Override
             public void run() {
                 synchronized (sSyncLock) {
+                    // ExchangeService cannot start unless we can connect to AccountService
+                    if (!new AccountServiceProxy(ExchangeService.this).test()) {
+                        log("!!! Email application not found; stopping self");
+                        stopSelf();
+                    }
                     // Restore accounts, if it has not happened already
-                    AccountBackupRestore.restoreAccountsIfNeeded(ExchangeService.this);
+                    try {
+                        new AccountServiceProxy(ExchangeService.this).restoreAccountsIfNeeded();
+                    } catch (RemoteException e) {
+                        // If we can't restore accounts, don't run
+                        return;
+                    }
                     // Run the reconciler and clean up any mismatched accounts - if we weren't
                     // running when accounts were deleted, it won't have been called.
                     runAccountReconcilerSync(ExchangeService.this);
                     // Update other services depending on final account configuration
-                    Email.setServicesEnabledSync(ExchangeService.this);
                     maybeStartExchangeServiceThread();
                     if (sServiceThread == null) {
                         log("!!! EAS ExchangeService, stopping self");
@@ -2385,8 +2400,12 @@ public class ExchangeService extends Service implements Runnable {
                 if (account == null) return;
                 if (exchangeService.releaseSyncHolds(exchangeService,
                         AbstractSyncService.EXIT_LOGIN_FAILURE, account)) {
-                    NotificationController.getInstance(exchangeService)
-                        .cancelLoginFailedNotification(accountId);
+                    try {
+                        new AccountServiceProxy(exchangeService).notifyLoginSucceeded(
+                                accountId);
+                    } catch (RemoteException e) {
+                        // No harm if the notification fails
+                    }
                 }
             }
 
@@ -2413,8 +2432,11 @@ public class ExchangeService extends Service implements Runnable {
                     break;
                 // These errors are not retried automatically
                 case AbstractSyncService.EXIT_LOGIN_FAILURE:
-                    NotificationController.getInstance(exchangeService)
-                        .showLoginFailedNotification(m.mAccountKey);
+                    try {
+                        new AccountServiceProxy(exchangeService).notifyLoginFailed(m.mAccountKey);
+                    } catch (RemoteException e) {
+                        // ? Anything to do?
+                    }
                     // Fall through
                 case AbstractSyncService.EXIT_SECURITY_FAILURE:
                 case AbstractSyncService.EXIT_EXCEPTION:

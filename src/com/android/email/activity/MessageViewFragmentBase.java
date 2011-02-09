@@ -27,12 +27,12 @@ import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.internet.EmailHtmlUtil;
-import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.AttachmentDownloadService;
+import com.android.emailcommon.utility.AttachmentUtilities;
 
 import org.apache.commons.io.IOUtils;
 
@@ -677,14 +677,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             return;
         }
         Attachment attachment = Attachment.restoreAttachmentWithId(mContext, info.mId);
-        Uri attachmentUri = AttachmentProvider.getAttachmentUri(mAccountId, attachment.mId);
+        Uri attachmentUri = AttachmentUtilities.getAttachmentUri(mAccountId, attachment.mId);
 
         try {
             File downloads = Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS);
             downloads.mkdirs();
             File file = Utility.createUniqueFile(downloads, attachment.mFileName);
-            Uri contentUri = AttachmentProvider.resolveAttachmentIdToContentUri(
+            Uri contentUri = AttachmentUtilities.resolveAttachmentIdToContentUri(
                     mContext.getContentResolver(), attachmentUri);
             InputStream in = mContext.getContentResolver().openInputStream(contentUri);
             OutputStream out = new FileOutputStream(file);
@@ -1076,7 +1076,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         try {
             return BitmapFactory.decodeStream(
                     mContext.getContentResolver().openInputStream(
-                            AttachmentProvider.getAttachmentThumbnailUri(
+                            AttachmentUtilities.getAttachmentThumbnailUri(
                                     mAccountId, attachment.mId,
                                     PREVIEW_ICON_WIDTH,
                                     PREVIEW_ICON_HEIGHT)));

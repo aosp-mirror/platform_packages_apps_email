@@ -21,7 +21,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_SRC_FILES += \
     src/com/android/emailcommon/service/IEmailService.aidl \
     src/com/android/emailcommon/service/IEmailServiceCallback.aidl \
-    src/com/android/emailcommon/service/IPolicyService.aidl
+    src/com/android/emailcommon/service/IPolicyService.aidl \
+    src/com/android/emailcommon/service/IAccountService.aidl
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-common
 # Revive this when the app is unbundled.

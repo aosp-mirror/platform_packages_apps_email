@@ -17,7 +17,6 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.LegacyConversions;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MeetingInfo;
@@ -26,8 +25,8 @@ import com.android.email.mail.PackedString;
 import com.android.email.mail.Part;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.internet.MimeUtility;
-import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
@@ -36,8 +35,10 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
-import com.android.email.provider.EmailProvider;
-import com.android.email.service.MailService;
+import com.android.emailcommon.service.AccountServiceProxy;
+import com.android.emailcommon.service.SyncWindow;
+import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.ConversionUtilities;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.MessageMoveRequest;
@@ -117,22 +118,23 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
         mService.clearRequests();
         mFetchRequestList.clear();
         // Delete attachments...
-        AttachmentProvider.deleteAllMailboxAttachmentFiles(mContext, mAccount.mId, mMailbox.mId);
+        AttachmentUtilities.deleteAllMailboxAttachmentFiles(mContext, mAccount.mId,
+                mMailbox.mId);
     }
 
     private String getEmailFilter() {
         switch (mAccount.mSyncLookback) {
-            case com.android.email.Account.SYNC_WINDOW_1_DAY:
+            case SyncWindow.SYNC_WINDOW_1_DAY:
                 return Eas.FILTER_1_DAY;
-            case com.android.email.Account.SYNC_WINDOW_3_DAYS:
+            case SyncWindow.SYNC_WINDOW_3_DAYS:
                 return Eas.FILTER_3_DAYS;
-            case com.android.email.Account.SYNC_WINDOW_1_WEEK:
+            case SyncWindow.SYNC_WINDOW_1_WEEK:
                 return Eas.FILTER_1_WEEK;
-            case com.android.email.Account.SYNC_WINDOW_2_WEEKS:
+            case SyncWindow.SYNC_WINDOW_2_WEEKS:
                 return Eas.FILTER_2_WEEKS;
-            case com.android.email.Account.SYNC_WINDOW_1_MONTH:
+            case SyncWindow.SYNC_WINDOW_1_MONTH:
                 return Eas.FILTER_1_MONTH;
-            case com.android.email.Account.SYNC_WINDOW_ALL:
+            case SyncWindow.SYNC_WINDOW_ALL:
                 return Eas.FILTER_ALL;
             default:
                 return Eas.FILTER_1_WEEK;
@@ -496,7 +498,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 MimeUtility.collectParts(mimeMessage, viewables, attachments);
                 Body tempBody = new Body();
                 // updateBodyFields fills in the content fields of the Body
-                LegacyConversions.updateBodyFields(tempBody, msg, viewables);
+                ConversionUtilities.updateBodyFields(tempBody, msg, viewables);
                 // But we need them in the message itself for handling during commit()
                 msg.mHtml = tempBody.mHtmlContent;
                 msg.mText = tempBody.mTextContent;
@@ -770,7 +772,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             for (Long id : deletedEmails) {
                 ops.add(ContentProviderOperation.newDelete(
                         ContentUris.withAppendedId(Message.CONTENT_URI, id)).build());
-                AttachmentProvider.deleteAllAttachmentFiles(mContext, mAccount.mId, id);
+                AttachmentUtilities.deleteAllAttachmentFiles(mContext, mAccount.mId, id);
             }
 
             if (!changedEmails.isEmpty()) {
@@ -822,7 +824,11 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
                 cv.put(EmailContent.ADD_COLUMN_NAME, notifyCount);
                 Uri uri = ContentUris.withAppendedId(Account.ADD_TO_FIELD_URI, mAccount.mId);
                 mContentResolver.update(uri, cv, null, null);
-                MailService.actionNotifyNewMessages(mContext, mAccount.mId);
+                try {
+                    new AccountServiceProxy(mService.mContext).notifyNewMessages(mAccount.mId);
+                } catch (RemoteException e) {
+                    // ? Anything to do here?
+                }
             }
         }
     }

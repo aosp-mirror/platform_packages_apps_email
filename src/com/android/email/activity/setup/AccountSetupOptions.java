@@ -26,6 +26,7 @@ import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.service.MailService;
 import com.android.emailcommon.service.PolicySet;
+import com.android.emailcommon.service.SyncWindow;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
@@ -66,7 +67,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     public static final int REQUEST_CODE_ACCEPT_POLICIES = 1;
 
     /** Default sync window for new EAS accounts */
-    private static final int SYNC_WINDOW_EAS_DEFAULT = com.android.email.Account.SYNC_WINDOW_3_DAYS;
+    private static final int SYNC_WINDOW_EAS_DEFAULT = SyncWindow.SYNC_WINDOW_3_DAYS;
 
     public static void actionOptions(Activity fromActivity) {
         fromActivity.startActivity(new Intent(fromActivity, AccountSetupOptions.class));
