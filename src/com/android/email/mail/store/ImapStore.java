@@ -47,7 +47,7 @@ import com.android.email.mail.transport.CountingOutputStream;
 import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.EOLConvertingOutputStream;
 import com.android.email.mail.transport.MailTransport;
-import com.android.email.service.EmailServiceProxy;
+import com.android.emailcommon.service.EmailServiceProxy;
 import com.beetstra.jutf7.CharsetProvider;
 
 import android.content.Context;

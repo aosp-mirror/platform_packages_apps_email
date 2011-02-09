@@ -14,39 +14,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.email.service;
 
-import com.android.email.service.IEmailServiceCallback;
+package com.android.emailcommon.service;
+
+import com.android.emailcommon.service.IEmailServiceCallback;
 import android.os.Bundle;
 
 interface IEmailService {
     Bundle validate(in String protocol, in String host, in String userName, in String password,
         int port, boolean ssl, boolean trustCertificates) ;
 
-    void startSync(long mailboxId, boolean userRequest);
-    void stopSync(long mailboxId);
+    oneway void startSync(long mailboxId, boolean userRequest);
+    oneway void stopSync(long mailboxId);
 
-    void loadMore(long messageId);
-    void loadAttachment(long attachmentId, String destinationFile, String contentUriString,
+    oneway void loadMore(long messageId);
+    oneway void loadAttachment(long attachmentId, String destinationFile, String contentUriString,
         boolean background);
 
-    void updateFolderList(long accountId);
+    oneway void updateFolderList(long accountId);
 
     boolean createFolder(long accountId, String name);
     boolean deleteFolder(long accountId, String name);
     boolean renameFolder(long accountId, String oldName, String newName);
 
+    // Must not be oneway; unless an exception is thrown, the caller is guaranteed that the callback
+    // has been registered
     void setCallback(IEmailServiceCallback cb);
 
-    void setLogging(int on);
+    oneway void setLogging(int on);
 
-    void hostChanged(long accountId);
+    oneway void hostChanged(long accountId);
 
     Bundle autoDiscover(String userName, String password);
 
-    void sendMeetingResponse(long messageId, int response);
+    oneway void sendMeetingResponse(long messageId, int response);
 
-    void moveMessage(long messageId, long mailboxId);
+    oneway void moveMessage(long messageId, long mailboxId);
 
+    // Must not be oneway; unless an exception is thrown, the caller is guaranteed that the action
+    // has been completed
     void deleteAccountPIMData(long accountId);
+
+    int getApiLevel();
 }

@@ -16,9 +16,10 @@
 
 package com.android.email;
 
-import com.android.email.service.EmailServiceProxy;
-import com.android.email.service.IEmailService;
-import com.android.email.service.IEmailServiceCallback;
+import com.android.emailcommon.Api;
+import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.IEmailService;
+import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.exchange.CalendarSyncEnabler;
 import com.android.exchange.ExchangeService;
 
@@ -140,6 +141,11 @@ public class ExchangeUtils {
 
         public IBinder asBinder() {
             return null;
+        }
+
+        @Override
+        public int getApiLevel() throws RemoteException {
+            return Api.LEVEL;
         }
 
         @Override

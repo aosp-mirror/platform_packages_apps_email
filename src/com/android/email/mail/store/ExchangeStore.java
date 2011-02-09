@@ -21,8 +21,8 @@ import com.android.email.mail.Folder;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
-import com.android.email.service.EmailServiceProxy;
-import com.android.email.service.IEmailService;
+import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.IEmailService;
 
 import android.content.Context;
 import android.os.Bundle;

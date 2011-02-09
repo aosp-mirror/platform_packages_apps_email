@@ -23,6 +23,7 @@ import com.android.email.NotificationController;
 import com.android.email.Utility;
 import com.android.email.mail.transport.SSLUtils;
 import com.android.email.provider.EmailContent;
+import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.HostAuth;
@@ -31,11 +32,11 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.SyncColumns;
-import com.android.email.provider.EmailProvider;
-import com.android.email.service.EmailServiceStatus;
-import com.android.email.service.IEmailService;
-import com.android.email.service.IEmailServiceCallback;
 import com.android.email.service.MailService;
+import com.android.emailcommon.Api;
+import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.emailcommon.service.IEmailService;
+import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.utility.FileLogger;
@@ -67,21 +68,21 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.NetworkInfo.State;
 import android.net.Uri;
+import android.net.NetworkInfo.State;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.PowerManager.WakeLock;
 import android.provider.Calendar;
+import android.provider.ContactsContract;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -461,6 +462,11 @@ public class ExchangeService extends Service implements Runnable {
             ExchangeService.stopAccountSyncs(accountId);
             // Delete the data
             ExchangeService.deleteAccountPIMData(accountId);
+        }
+
+        @Override
+        public int getApiLevel() throws RemoteException {
+             return Api.LEVEL;
         }
     };
 

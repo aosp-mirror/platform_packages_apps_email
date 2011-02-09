@@ -17,17 +17,20 @@
 package com.android.email.service;
 
 import com.android.email.AttachmentInfo;
-import com.android.email.Controller.ControllerService;
 import com.android.email.Email;
 import com.android.email.EmailConnectivityManager;
-import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.NotificationController;
 import com.android.email.Utility;
+import com.android.email.Controller.ControllerService;
+import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
+import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.exchange.ExchangeService;
 
 import android.accounts.AccountManager;

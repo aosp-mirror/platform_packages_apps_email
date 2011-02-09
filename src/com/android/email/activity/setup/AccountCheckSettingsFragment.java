@@ -25,7 +25,7 @@ import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.HostAuth;
-import com.android.email.service.EmailServiceProxy;
+import com.android.emailcommon.service.EmailServiceProxy;
 
 import android.app.Activity;
 import android.app.AlertDialog;

@@ -17,9 +17,9 @@
 package com.android.email;
 
 import com.android.email.mail.AuthenticationFailedException;
-import com.android.email.mail.Folder.MessageRetrievalListener;
 import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
+import com.android.email.mail.Folder.MessageRetrievalListener;
 import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.email.provider.AttachmentProvider;
 import com.android.email.provider.EmailContent;
@@ -30,9 +30,10 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
-import com.android.email.service.EmailServiceStatus;
-import com.android.email.service.IEmailService;
-import com.android.email.service.IEmailServiceCallback;
+import com.android.emailcommon.Api;
+import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.emailcommon.service.IEmailService;
+import com.android.emailcommon.service.IEmailServiceCallback;
 
 import android.app.Service;
 import android.content.ContentResolver;
@@ -1685,6 +1686,11 @@ public class Controller {
             }
 
             public void deleteAccountPIMData(long accountId) throws RemoteException {
+            }
+
+            @Override
+            public int getApiLevel() throws RemoteException {
+                return Api.LEVEL;
             }
         };
 

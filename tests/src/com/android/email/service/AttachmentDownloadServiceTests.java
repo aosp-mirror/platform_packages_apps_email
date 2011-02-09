@@ -26,6 +26,7 @@ import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.service.AttachmentDownloadService.DownloadRequest;
 import com.android.email.service.AttachmentDownloadService.DownloadSet;
+import com.android.emailcommon.service.EmailServiceStatus;
 
 import android.content.Context;
 

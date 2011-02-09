@@ -23,7 +23,7 @@ import com.android.email.mail.MeetingInfo;
 import com.android.email.mail.PackedString;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
-import com.android.email.service.EmailServiceConstants;
+import com.android.emailcommon.service.EmailServiceConstants;
 
 import android.app.Activity;
 import android.content.res.Resources;

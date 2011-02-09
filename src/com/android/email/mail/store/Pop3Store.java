@@ -30,7 +30,7 @@ import com.android.email.mail.Folder.OpenMode;
 import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.transport.LoggingInputStream;
 import com.android.email.mail.transport.MailTransport;
-import com.android.email.service.EmailServiceProxy;
+import com.android.emailcommon.service.EmailServiceProxy;
 
 import android.content.Context;
 import android.os.Bundle;

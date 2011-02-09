@@ -18,11 +18,9 @@ include $(CLEAR_VARS)
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
-# EXCHANGE-REMOVE-SECTION-START
 LOCAL_SRC_FILES += \
-    src/com/android/email/service/IEmailService.aidl \
-    src/com/android/email/service/IEmailServiceCallback.aidl
-# EXCHANGE-REMOVE-SECTION-END
+    src/com/android/emailcommon/service/IEmailService.aidl \
+    src/com/android/emailcommon/service/IEmailServiceCallback.aidl
 
 LOCAL_STATIC_JAVA_LIBRARIES := android-common
 # Revive this when the app is unbundled.

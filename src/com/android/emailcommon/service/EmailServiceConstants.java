@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.email.service;
+package com.android.emailcommon.service;
 
 public class EmailServiceConstants {
     public static final int MEETING_REQUEST_ACCEPTED = 1;
