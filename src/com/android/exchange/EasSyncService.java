@@ -17,8 +17,6 @@
 
 package com.android.exchange;
 
-import com.android.email.SecurityPolicy;
-import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.Utility;
 import com.android.email.mail.Address;
 import com.android.email.mail.MeetingInfo;
@@ -37,6 +35,8 @@ import com.android.email.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.service.EmailServiceConstants;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
+import com.android.emailcommon.service.PolicyServiceProxy;
+import com.android.emailcommon.service.PolicySet;
 import com.android.exchange.adapter.AbstractSyncAdapter;
 import com.android.exchange.adapter.AccountSyncAdapter;
 import com.android.exchange.adapter.CalendarSyncAdapter;
@@ -46,11 +46,11 @@ import com.android.exchange.adapter.FolderSyncParser;
 import com.android.exchange.adapter.GalParser;
 import com.android.exchange.adapter.MeetingResponseParser;
 import com.android.exchange.adapter.MoveItemsParser;
-import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
+import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.provider.GalResult;
 import com.android.exchange.utility.CalendarUtilities;
 
@@ -1435,24 +1435,23 @@ public class EasSyncService extends AbstractSyncService {
         // by the server
         ProvisionParser pp = canProvision();
         if (pp != null) {
-            SecurityPolicy sp = SecurityPolicy.getInstance(mContext);
             // Get the policies from ProvisionParser
             PolicySet ps = pp.getPolicySet();
             // Update the account with a null policyKey (the key we've gotten is
             // temporary and cannot be used for syncing)
             ps.writeAccount(mAccount, null, true, mContext);
             // Make sure that SecurityPolicy is up-to-date
-            sp.updatePolicies(mAccount.mId);
+            PolicyServiceProxy.updatePolicies(mContext, mAccount.mId);
             if (pp.getRemoteWipe()) {
                 // We've gotten a remote wipe command
                 ExchangeService.alwaysLog("!!! Remote wipe request received");
                 // Start by setting the account to security hold
-                sp.setAccountHoldFlag(mContext, mAccount, true);
+                PolicyServiceProxy.setAccountHoldFlag(mContext, mAccount, true);
                 // Force a stop to any running syncs for this account (except this one)
                 ExchangeService.stopNonAccountMailboxSyncsForAccount(mAccount.mId);
 
                 // If we're not the admin, we can't do the wipe, so just return
-                if (!sp.isActiveAdmin()) {
+                if (!PolicyServiceProxy.isActiveAdmin(mContext)) {
                     ExchangeService.alwaysLog("!!! Not device admin; can't wipe");
                     return false;
                 }
@@ -1468,9 +1467,9 @@ public class EasSyncService extends AbstractSyncService {
                 }
                 // Then, tell SecurityPolicy to wipe the device
                 ExchangeService.alwaysLog("!!! Executing remote wipe");
-                sp.remoteWipe();
+                PolicyServiceProxy.remoteWipe(mContext);
                 return false;
-            } else if (sp.isActive(ps)) {
+            } else if (PolicyServiceProxy.isActive(mContext, ps)) {
                 // See if the required policies are in force; if they are, acknowledge the policies
                 // to the server and get the final policy key
                 String policyKey = acknowledgeProvision(pp.getPolicyKey(), PROVISION_STATUS_OK);
@@ -1483,7 +1482,7 @@ public class EasSyncService extends AbstractSyncService {
                 }
             } else {
                 // Notify that we are blocked because of policies
-                sp.policiesRequired(mAccount.mId);
+                PolicyServiceProxy.policiesRequired(mContext, mAccount.mId);
             }
         }
         return false;
@@ -1762,15 +1761,14 @@ public class EasSyncService extends AbstractSyncService {
                 String key = mAccount.mSecuritySyncKey;
                 if (!TextUtils.isEmpty(key)) {
                     PolicySet ps = new PolicySet(mAccount);
-                    SecurityPolicy sp = SecurityPolicy.getInstance(mContext);
-                    if (!sp.isActive(ps)) {
+                    if (!PolicyServiceProxy.isActive(mContext, ps)) {
                         cv.clear();
                         cv.put(AccountColumns.SECURITY_FLAGS, 0);
                         cv.putNull(AccountColumns.SECURITY_SYNC_KEY);
                         long accountId = mAccount.mId;
                         mContentResolver.update(ContentUris.withAppendedId(
                                 Account.CONTENT_URI, accountId), cv, null, null);
-                        sp.policiesRequired(accountId);
+                        PolicyServiceProxy.policiesRequired(mContext, accountId);
                     }
                 }
 

@@ -16,8 +16,8 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.SecurityPolicy.PolicySet;
 import com.android.email.provider.EmailContent.Account;
+import com.android.emailcommon.service.PolicySet;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.os.Bundle;

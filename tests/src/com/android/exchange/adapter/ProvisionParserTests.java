@@ -16,7 +16,7 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.SecurityPolicy.PolicySet;
+import com.android.emailcommon.service.PolicySet;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
