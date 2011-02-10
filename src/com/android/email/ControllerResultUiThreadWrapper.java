@@ -17,7 +17,7 @@
 package com.android.email;
 
 import com.android.email.Controller.Result;
-import com.android.email.mail.MessagingException;
+import com.android.emailcommon.mail.MessagingException;
 
 import android.os.Handler;
 

@@ -16,10 +16,7 @@
 
 package com.android.email;
 
-import com.android.email.mail.AuthenticationFailedException;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
-import com.android.email.mail.Folder.MessageRetrievalListener;
 import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
@@ -30,6 +27,9 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.Api;
+import com.android.emailcommon.mail.AuthenticationFailedException;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.Folder.MessageRetrievalListener;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
@@ -1181,7 +1181,7 @@ public class Controller {
         }
 
         @Override
-        public void messageRetrieved(com.android.email.mail.Message message) {
+        public void messageRetrieved(com.android.emailcommon.mail.Message message) {
         }
     }
 

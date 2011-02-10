@@ -16,7 +16,6 @@
 
 package com.android.email.provider;
 
-import com.android.email.Snippet;
 import com.android.email.Utility;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
@@ -29,6 +28,7 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.mail.Snippet;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;

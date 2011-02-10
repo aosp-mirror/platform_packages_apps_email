@@ -17,18 +17,18 @@
 package com.android.email.mail.store;
 
 import com.android.email.Email;
-import com.android.email.mail.Address;
-import com.android.email.mail.FetchProfile;
-import com.android.email.mail.Flag;
-import com.android.email.mail.Folder;
-import com.android.email.mail.Folder.FolderType;
-import com.android.email.mail.Folder.OpenMode;
-import com.android.email.mail.Message;
-import com.android.email.mail.Message.RecipientType;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.Transport;
-import com.android.email.mail.internet.MimeMessage;
 import com.android.email.mail.transport.MockTransport;
+import com.android.emailcommon.internet.MimeMessage;
+import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.mail.FetchProfile;
+import com.android.emailcommon.mail.Flag;
+import com.android.emailcommon.mail.Folder;
+import com.android.emailcommon.mail.Message;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.Folder.FolderType;
+import com.android.emailcommon.mail.Folder.OpenMode;
+import com.android.emailcommon.mail.Message.RecipientType;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;

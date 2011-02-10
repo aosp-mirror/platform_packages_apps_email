@@ -17,9 +17,9 @@
 package com.android.email.mail.transport;
 
 import com.android.email.Email;
-import com.android.email.mail.CertificateValidationException;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.Transport;
+import com.android.emailcommon.mail.CertificateValidationException;
+import com.android.emailcommon.mail.MessagingException;
 
 import android.util.Config;
 import android.util.Log;

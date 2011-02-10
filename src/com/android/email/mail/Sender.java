@@ -18,6 +18,7 @@ package com.android.email.mail;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.emailcommon.mail.MessagingException;
 
 import org.xmlpull.v1.XmlPullParserException;
 

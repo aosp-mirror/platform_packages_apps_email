@@ -16,7 +16,7 @@
 
 package com.android.email;
 
-import com.android.email.mail.Address;
+import com.android.emailcommon.mail.Address;
 
 import android.widget.AutoCompleteTextView.Validator;
 

@@ -16,23 +16,9 @@
 
 package com.android.email;
 
-import com.android.email.mail.AuthenticationFailedException;
-import com.android.email.mail.FetchProfile;
-import com.android.email.mail.Flag;
-import com.android.email.mail.Folder;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Part;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
-import com.android.email.mail.Folder.FolderType;
-import com.android.email.mail.Folder.MessageRetrievalListener;
-import com.android.email.mail.Folder.OpenMode;
-import com.android.email.mail.internet.MimeBodyPart;
-import com.android.email.mail.internet.MimeHeader;
-import com.android.email.mail.internet.MimeMultipart;
-import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.AttachmentColumns;
@@ -40,6 +26,20 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.internet.MimeBodyPart;
+import com.android.emailcommon.internet.MimeHeader;
+import com.android.emailcommon.internet.MimeMultipart;
+import com.android.emailcommon.internet.MimeUtility;
+import com.android.emailcommon.mail.AuthenticationFailedException;
+import com.android.emailcommon.mail.FetchProfile;
+import com.android.emailcommon.mail.Flag;
+import com.android.emailcommon.mail.Folder;
+import com.android.emailcommon.mail.Message;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.Part;
+import com.android.emailcommon.mail.Folder.FolderType;
+import com.android.emailcommon.mail.Folder.MessageRetrievalListener;
+import com.android.emailcommon.mail.Folder.OpenMode;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.ConversionUtilities;
 

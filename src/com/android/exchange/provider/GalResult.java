@@ -15,7 +15,7 @@
 
 package com.android.exchange.provider;
 
-import com.android.email.mail.PackedString;
+import com.android.emailcommon.mail.PackedString;
 
 import java.util.ArrayList;
 

@@ -23,7 +23,6 @@ import static com.android.email.mail.store.imap.ImapTestUtils.createFixedLengthI
 
 import com.android.email.Email;
 import com.android.email.Utility;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.store.imap.ImapMemoryLiteral;
 import com.android.email.mail.store.imap.ImapResponse;
 import com.android.email.mail.store.imap.ImapResponseParser;
@@ -32,6 +31,7 @@ import com.android.email.mail.store.imap.ImapString;
 import com.android.email.mail.store.imap.ImapTempFileLiteral;
 import com.android.email.mail.store.imap.ImapResponseParser.ByeException;
 import com.android.email.mail.transport.DiscourseLogger;
+import com.android.emailcommon.mail.MessagingException;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;

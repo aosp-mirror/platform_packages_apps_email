@@ -17,6 +17,7 @@
 package com.android.email.mail;
 
 import com.android.email.Email;
+import com.android.emailcommon.mail.MessagingException;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;

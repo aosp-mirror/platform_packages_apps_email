@@ -18,10 +18,6 @@
 package com.android.exchange;
 
 import com.android.email.Utility;
-import com.android.email.mail.Address;
-import com.android.email.mail.MeetingInfo;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.PackedString;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Attachment;
@@ -32,6 +28,10 @@ import com.android.email.provider.EmailContent.MailboxColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.mail.MeetingInfo;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.PackedString;
 import com.android.emailcommon.service.EmailServiceConstants;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;

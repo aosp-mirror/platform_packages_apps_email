@@ -18,6 +18,7 @@ package com.android.email.mail;
 
 import com.android.email.MessagingListener;
 import com.android.email.provider.EmailContent;
+import com.android.emailcommon.mail.MessagingException;
 import com.android.email.GroupMessagingListener;
 
 import android.content.Context;

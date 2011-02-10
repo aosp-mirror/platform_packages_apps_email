@@ -16,6 +16,9 @@
 
 package com.android.email.mail;
 
+import com.android.emailcommon.mail.CertificateValidationException;
+import com.android.emailcommon.mail.MessagingException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

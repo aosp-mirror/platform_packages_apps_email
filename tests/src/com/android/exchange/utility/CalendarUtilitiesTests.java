@@ -18,10 +18,10 @@ package com.android.exchange.utility;
 
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
+import com.android.emailcommon.mail.Address;
 import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.adapter.Parser;
 import com.android.exchange.adapter.Serializer;

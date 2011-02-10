@@ -16,25 +16,25 @@
 
 package com.android.email;
 
-import com.android.email.mail.Address;
-import com.android.email.mail.BodyPart;
-import com.android.email.mail.Flag;
-import com.android.email.mail.Message;
-import com.android.email.mail.MessageTestUtils;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.Part;
-import com.android.email.mail.Message.RecipientType;
-import com.android.email.mail.MessageTestUtils.MessageBuilder;
-import com.android.email.mail.MessageTestUtils.MultipartBuilder;
-import com.android.email.mail.internet.MimeBodyPart;
-import com.android.email.mail.internet.MimeHeader;
-import com.android.email.mail.internet.MimeMessage;
-import com.android.email.mail.internet.MimeUtility;
-import com.android.email.mail.internet.TextBody;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.provider.EmailContent.Attachment;
+import com.android.emailcommon.internet.MimeBodyPart;
+import com.android.emailcommon.internet.MimeHeader;
+import com.android.emailcommon.internet.MimeMessage;
+import com.android.emailcommon.internet.MimeUtility;
+import com.android.emailcommon.internet.TextBody;
+import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.mail.BodyPart;
+import com.android.emailcommon.mail.Flag;
+import com.android.emailcommon.mail.Message;
+import com.android.emailcommon.mail.MessageTestUtils;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.Part;
+import com.android.emailcommon.mail.Message.RecipientType;
+import com.android.emailcommon.mail.MessageTestUtils.MessageBuilder;
+import com.android.emailcommon.mail.MessageTestUtils.MultipartBuilder;
 import com.android.emailcommon.utility.ConversionUtilities;
 
 import android.content.ContentUris;

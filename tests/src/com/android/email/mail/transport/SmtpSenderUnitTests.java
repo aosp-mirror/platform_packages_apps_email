@@ -17,13 +17,13 @@
 package com.android.email.mail.transport;
 
 import com.android.email.DBTestHelper;
-import com.android.email.mail.Address;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.Transport;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.mail.MessagingException;
 
 import org.apache.commons.io.IOUtils;
 

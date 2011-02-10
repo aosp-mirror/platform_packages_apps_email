@@ -17,9 +17,9 @@
 package com.android.email.provider;
 
 import com.android.email.Email;
-import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.AttachmentUtilities.Columns;
 

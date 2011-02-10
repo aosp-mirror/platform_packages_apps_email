@@ -17,10 +17,10 @@
 package com.android.email.mail.store;
 
 import com.android.email.ExchangeUtils;
-import com.android.email.mail.Folder;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
+import com.android.emailcommon.mail.Folder;
+import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 

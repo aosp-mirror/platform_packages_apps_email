@@ -19,11 +19,11 @@ package com.android.email;
 import com.android.email.activity.ContactStatusLoader;
 import com.android.email.activity.Welcome;
 import com.android.email.activity.setup.AccountSettingsXL;
-import com.android.email.mail.Address;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
 import com.android.email.provider.EmailContent.Message;
+import com.android.emailcommon.mail.Address;
 
 import android.app.Notification;
 import android.app.Notification.Builder;

@@ -22,9 +22,7 @@ import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.mail.Address;
 import com.android.email.mail.internet.EmailHtmlUtil;
-import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Attachment;
@@ -32,6 +30,8 @@ import com.android.email.provider.EmailContent.Body;
 import com.android.email.provider.EmailContent.BodyColumns;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.internet.MimeUtility;
+import com.android.emailcommon.mail.Address;
 
 import android.app.ActionBar;
 import android.app.Activity;

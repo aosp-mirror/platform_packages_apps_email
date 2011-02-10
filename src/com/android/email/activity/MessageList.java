@@ -23,12 +23,12 @@ import com.android.email.R;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
-import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.mail.MessagingException;
 
 import android.app.Activity;
 import android.content.ContentResolver;

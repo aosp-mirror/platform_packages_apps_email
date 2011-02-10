@@ -16,6 +16,8 @@
 
 package com.android.email.mail;
 
+import com.android.emailcommon.mail.MessagingException;
+
 public class NoSuchProviderException extends MessagingException {
     public static final long serialVersionUID = -1;
 

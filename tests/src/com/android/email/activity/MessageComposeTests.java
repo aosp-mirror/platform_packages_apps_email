@@ -20,10 +20,10 @@ import com.android.email.Email;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.TestUtils;
-import com.android.email.mail.Address;
-import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Message;
+import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.mail.MessagingException;
 
 import android.content.ContentUris;
 import android.content.Context;

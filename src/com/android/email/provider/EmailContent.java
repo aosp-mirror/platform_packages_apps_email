@@ -16,8 +16,8 @@
 
 package com.android.email.provider;
 
-import com.android.email.Snippet;
 import com.android.email.Utility;
+import com.android.emailcommon.mail.Snippet;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;

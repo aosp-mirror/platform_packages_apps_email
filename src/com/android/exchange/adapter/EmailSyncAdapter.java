@@ -18,13 +18,6 @@
 package com.android.exchange.adapter;
 
 import com.android.email.Utility;
-import com.android.email.mail.Address;
-import com.android.email.mail.MeetingInfo;
-import com.android.email.mail.MessagingException;
-import com.android.email.mail.PackedString;
-import com.android.email.mail.Part;
-import com.android.email.mail.internet.MimeMessage;
-import com.android.email.mail.internet.MimeUtility;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
@@ -35,6 +28,13 @@ import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailContent.MessageColumns;
 import com.android.email.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.internet.MimeMessage;
+import com.android.emailcommon.internet.MimeUtility;
+import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.mail.MeetingInfo;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.PackedString;
+import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.service.AccountServiceProxy;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.AttachmentUtilities;

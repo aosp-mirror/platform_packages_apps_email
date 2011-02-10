@@ -19,9 +19,9 @@ package com.android.email.mail.store.imap;
 import com.android.email.Email;
 import com.android.email.FixedLengthInputStream;
 import com.android.email.PeekableInputStream;
-import com.android.email.mail.MessagingException;
 import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.LoggingInputStream;
+import com.android.emailcommon.mail.MessagingException;
 
 import android.text.TextUtils;
 import android.util.Config;

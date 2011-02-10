@@ -20,11 +20,11 @@ import com.android.email.Controller;
 import com.android.email.DBTestHelper;
 import com.android.email.Email;
 import com.android.email.TestUtils;
-import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.mail.MessagingException;
 
 import android.content.Context;
 import android.test.InstrumentationTestCase;

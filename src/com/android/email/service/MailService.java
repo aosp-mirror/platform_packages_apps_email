@@ -24,13 +24,13 @@ import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.SingleRunningTask;
 import com.android.email.Utility;
-import com.android.email.mail.MessagingException;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.EmailContent.Account;
 import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.EmailContent.Mailbox;
+import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.utility.AccountReconciler;
 
 import android.accounts.AccountManager;
