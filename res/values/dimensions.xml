@@ -65,4 +65,6 @@
     <dimen name="settings_buttons_padding_top">48dip</dimen>
     <dimen name="settings_buttons_padding_bottom">48dip</dimen>
 
+    <dimen name="account_spinner_dropdown_account_name_max_width">352dip</dimen>
+
 </resources>
