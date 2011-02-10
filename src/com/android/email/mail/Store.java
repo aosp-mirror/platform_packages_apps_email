@@ -245,7 +245,7 @@ public abstract class Store {
 
     public abstract Folder getFolder(String name) throws MessagingException;
 
-    public abstract Folder[] getPersonalNamespaces() throws MessagingException;
+    public abstract Folder[] getAllFolders() throws MessagingException;
 
     public abstract Bundle checkSettings() throws MessagingException;
 

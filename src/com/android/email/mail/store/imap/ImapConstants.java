@@ -60,6 +60,7 @@ public final class ImapConstants {
     public static final String LOGIN = "LOGIN";
     public static final String LOGOUT = "LOGOUT";
     public static final String LSUB = "LSUB";
+    public static final String NAMESPACE = "NAMESPACE";
     public static final String NO = "NO";
     public static final String NOOP = "NOOP";
     public static final String OK = "OK";

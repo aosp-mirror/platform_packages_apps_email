@@ -258,7 +258,7 @@ public class MessagingController implements Runnable {
 
                     Store store = Store.getInstance(account.getStoreUri(mContext), mContext, null);
 
-                    Folder[] remoteFolders = store.getPersonalNamespaces();
+                    Folder[] remoteFolders = store.getAllFolders();
 
                     HashSet<String> remoteFolderNames = new HashSet<String>();
                     for (int i = 0, count = remoteFolders.length; i < count; i++) {

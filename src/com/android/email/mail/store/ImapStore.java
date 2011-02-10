@@ -57,7 +57,6 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Base64DataException;
-import android.util.Config;
 import android.util.Log;
 
 import java.io.IOException;
@@ -71,6 +70,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -111,9 +111,10 @@ public class ImapStore extends Store {
     private String mUsername;
     private String mPassword;
     private String mLoginPhrase;
-    private String mPathPrefix;
     private String mIdPhrase = null;
     private static String sImapId = null;
+    /*package*/ String mPathPrefix;
+    /*package*/ String mPathSeparator;
 
     private final ConcurrentLinkedQueue<ImapConnection> mConnectionPool =
             new ConcurrentLinkedQueue<ImapConnection>();
@@ -240,11 +241,11 @@ public class ImapStore extends Store {
      *
      * @param userName the username of the account
      * @param host the host (server) of the account
-     * @param capabilityResponse the capabilities list from the server
+     * @param capabilities a list of the capabilities from the server
      * @return a String for use in an IMAP ID message.
      */
     /* package */ static String getImapId(Context context, String userName, String host,
-            ImapResponse capabilityResponse) {
+            String capabilities) {
         // The first section is global to all IMAP connections, and generates the fixed
         // values in any IMAP ID message
         synchronized (ImapStore.class) {
@@ -266,7 +267,7 @@ public class ImapStore extends Store {
 
         // Optionally add any vendor-supplied id keys
         String vendorId = VendorPolicyLoader.getInstance(context).getImapIdValues(userName, host,
-                capabilityResponse.flatten());
+                capabilities);
         if (vendorId != null) {
             id.append(' ');
             id.append(vendorId);
@@ -372,7 +373,7 @@ public class ImapStore extends Store {
 
 
     @Override
-    public Folder getFolder(String name) throws MessagingException {
+    public Folder getFolder(String name) {
         ImapFolder folder;
         synchronized (mFolderCache) {
             folder = mFolderCache.get(name);
@@ -385,13 +386,18 @@ public class ImapStore extends Store {
     }
 
     @Override
-    public Folder[] getPersonalNamespaces() throws MessagingException {
+    public Folder[] getAllFolders() throws MessagingException {
         ImapConnection connection = getConnection();
         try {
             ArrayList<Folder> folders = new ArrayList<Folder>();
-            List<ImapResponse> responses = connection.executeSimpleCommand(
-                    String.format(ImapConstants.LIST + " \"\" \"%s*\"",
-                            mPathPrefix == null ? "" : mPathPrefix));
+            // Establish a connection to the IMAP server; if necessary
+            // This ensures a valid prefix if the prefix is automatically set by the server
+            connection.executeSimpleCommand(ImapConstants.NOOP);
+            String imapCommand = ImapConstants.LIST + " \"\" \"*\"";
+            if (mPathPrefix != null) {
+                imapCommand = ImapConstants.LIST + " \"\" \"" + mPathPrefix + "*\"";
+            }
+            List<ImapResponse> responses = connection.executeSimpleCommand(imapCommand);
             for (ImapResponse response : responses) {
                 // S: * LIST (\Noselect) "/" ~/Mail/foo
                 if (response.isDataResponse(0, ImapConstants.LIST)) {
@@ -400,7 +406,7 @@ public class ImapStore extends Store {
                     // Get folder name.
                     ImapString encodedFolder = response.getStringOrEmpty(3);
                     if (encodedFolder.isEmpty()) continue;
-                    String folder = decodeFolderName(encodedFolder.getString());
+                    String folder = decodeFolderName(encodedFolder.getString(), mPathPrefix);
                     if (ImapConstants.INBOX.equalsIgnoreCase(folder)) {
                         continue;
                     }
@@ -452,6 +458,19 @@ public class ImapStore extends Store {
     }
 
     /**
+     * Fixes the path prefix, if necessary. The path prefix must always end with the
+     * path separator.
+     */
+    /*package*/ void ensurePrefixIsValid() {
+        // Make sure the path prefix ends with the path separator
+        if (!TextUtils.isEmpty(mPathPrefix) && !TextUtils.isEmpty(mPathSeparator)) {
+            if (!mPathPrefix.endsWith(mPathSeparator)) {
+                mPathPrefix = mPathPrefix + mPathSeparator;
+            }
+        }
+    }
+
+    /**
      * Gets a connection if one is available from the pool, or creates a new one if not.
      */
     /* package */ ImapConnection getConnection() {
@@ -485,21 +504,37 @@ public class ImapStore extends Store {
         }
     }
 
-    /* package */ static String encodeFolderName(String name) {
+    /**
+     * Prepends the folder name with the given prefix and UTF-7 encodes it.
+     */
+    /* package */ static String encodeFolderName(String name, String prefix) {
+        // do NOT add the prefix to the special name "INBOX"
+        if (ImapConstants.INBOX.equalsIgnoreCase(name)) return name;
+
+        // Prepend prefix
+        if (prefix != null) {
+            name = prefix + name;
+        }
+
         // TODO bypass the conversion if name doesn't have special char.
         ByteBuffer bb = MODIFIED_UTF_7_CHARSET.encode(name);
         byte[] b = new byte[bb.limit()];
         bb.get(b);
+
         return Utility.fromAscii(b);
     }
 
-    /* package */ static String decodeFolderName(String name) {
+    /**
+     * UTF-7 decodes the folder name and removes the given path prefix.
+     */
+    /* package */ static String decodeFolderName(String name, String prefix) {
         // TODO bypass the conversion if name doesn't have special char.
-        /*
-         * Convert the encoded name to US-ASCII, then pass it through the modified UTF-7
-         * decoder and return the Unicode String.
-         */
-        return MODIFIED_UTF_7_CHARSET.decode(ByteBuffer.wrap(Utility.toAscii(name))).toString();
+        String folder;
+        folder = MODIFIED_UTF_7_CHARSET.decode(ByteBuffer.wrap(Utility.toAscii(name))).toString();
+        if ((prefix != null) && folder.startsWith(prefix)) {
+            folder = folder.substring(prefix.length());
+        }
+        return folder;
     }
 
     /**
@@ -526,7 +561,7 @@ public class ImapStore extends Store {
         private OpenMode mMode;
         private boolean mExists;
 
-        public ImapFolder(ImapStore store, String name) {
+        /*package*/ ImapFolder(ImapStore store, String name) {
             mStore = store;
             mName = name;
         }
@@ -574,7 +609,7 @@ public class ImapStore extends Store {
                 try {
                     List<ImapResponse> responses = mConnection.executeSimpleCommand(
                             String.format(ImapConstants.SELECT + " \"%s\"",
-                                    encodeFolderName(mName)));
+                                    encodeFolderName(mName, mStore.mPathPrefix)));
                     /*
                      * If the command succeeds we expect the folder has been opened read-write
                      * unless we are notified otherwise in the responses.
@@ -628,7 +663,7 @@ public class ImapStore extends Store {
         }
 
         @Override
-        public OpenMode getMode() throws MessagingException {
+        public OpenMode getMode() {
             return mMode;
         }
 
@@ -669,7 +704,7 @@ public class ImapStore extends Store {
             try {
                 connection.executeSimpleCommand(String.format(
                         ImapConstants.STATUS + " \"%s\" (" + ImapConstants.UIDVALIDITY + ")",
-                        encodeFolderName(mName)));
+                        encodeFolderName(mName, mStore.mPathPrefix)));
                 mExists = true;
                 return true;
 
@@ -710,7 +745,7 @@ public class ImapStore extends Store {
             }
             try {
                 connection.executeSimpleCommand(String.format(ImapConstants.CREATE + " \"%s\"",
-                        encodeFolderName(mName)));
+                        encodeFolderName(mName, mStore.mPathPrefix)));
                 return true;
 
             } catch (MessagingException me) {
@@ -735,7 +770,7 @@ public class ImapStore extends Store {
                 mConnection.executeSimpleCommand(
                         String.format(ImapConstants.UID_COPY + " %s \"%s\"",
                                 joinMessageUids(messages),
-                                encodeFolderName(folder.getName())));
+                                encodeFolderName(folder.getName(), mStore.mPathPrefix)));
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             } finally {
@@ -755,7 +790,7 @@ public class ImapStore extends Store {
                 int unreadMessageCount = 0;
                 List<ImapResponse> responses = mConnection.executeSimpleCommand(String.format(
                         ImapConstants.STATUS + " \"%s\" (" + ImapConstants.UNSEEN + ")",
-                        encodeFolderName(mName)));
+                        encodeFolderName(mName, mStore.mPathPrefix)));
                 // S: * STATUS mboxname (MESSAGES 231 UIDNEXT 44292)
                 for (ImapResponse response : responses) {
                     if (response.isDataResponse(0, ImapConstants.STATUS)) {
@@ -772,7 +807,7 @@ public class ImapStore extends Store {
         }
 
         @Override
-        public void delete(boolean recurse) throws MessagingException {
+        public void delete(boolean recurse) {
             throw new Error("ImapStore.delete() not yet implemented");
         }
 
@@ -846,8 +881,7 @@ public class ImapStore extends Store {
             return getMessagesInternal(uids, listener);
         }
 
-        public Message[] getMessagesInternal(String[] uids, MessageRetrievalListener listener)
-                throws MessagingException {
+        public Message[] getMessagesInternal(String[] uids, MessageRetrievalListener listener) {
             final ArrayList<Message> messages = new ArrayList<Message>(uids.length);
             for (int i = 0; i < uids.length; i++) {
                 final String uid = uids[i];
@@ -1061,7 +1095,7 @@ public class ImapStore extends Store {
         }
 
         @Override
-        public Flag[] getPermanentFlags() throws MessagingException {
+        public Flag[] getPermanentFlags() {
             return PERMANENT_FLAGS;
         }
 
@@ -1295,7 +1329,7 @@ public class ImapStore extends Store {
 
                     mConnection.sendCommand(
                             String.format(ImapConstants.APPEND + " \"%s\" (%s) {%d}",
-                                    encodeFolderName(mName),
+                                    encodeFolderName(mName, mStore.mPathPrefix),
                                     flagList,
                                     out.getCount()), false);
                     ImapResponse response;
@@ -1403,8 +1437,7 @@ public class ImapStore extends Store {
             }
         }
 
-        private MessagingException ioExceptionHandler(ImapConnection connection, IOException ioe)
-                throws MessagingException {
+        private MessagingException ioExceptionHandler(ImapConnection connection, IOException ioe) {
             if (Email.DEBUG) {
                 Log.d(Email.LOG_TAG, "IO Exception detected: ", ioe);
             }
@@ -1426,7 +1459,7 @@ public class ImapStore extends Store {
         }
 
         @Override
-        public Message createMessage(String uid) throws MessagingException {
+        public Message createMessage(String uid) {
             return new ImapMessage(uid, this);
         }
     }
@@ -1462,70 +1495,39 @@ public class ImapStore extends Store {
                 mParser.readResponse();
 
                 // CAPABILITY
-                ImapResponse capabilityResponse = queryCapabilities();
+                ImapResponse capabilities = queryCapabilities();
+
+                boolean hasStartTlsCapability =
+                    capabilities.contains(ImapConstants.STARTTLS);
 
                 // TLS
-                if (mTransport.canTryTlsSecurity()) {
-                    if (capabilityResponse.contains(ImapConstants.STARTTLS)) {
-                        // STARTTLS
-                        executeSimpleCommand(ImapConstants.STARTTLS);
-
-                        mTransport.reopenTls();
-                        mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
-                        createParser();
-                        // Per RFC requirement (3501-6.2.1) gather new capabilities
-                        capabilityResponse = queryCapabilities();
-                    } else {
-                        if (Email.DEBUG) {
-                            Log.d(Email.LOG_TAG, "TLS not supported but required");
-                        }
-                        throw new MessagingException(MessagingException.TLS_REQUIRED);
-                    }
+                ImapResponse newCapabilities = doStartTls(hasStartTlsCapability);
+                if (newCapabilities != null) {
+                    capabilities = newCapabilities;
                 }
+
+                // NOTE: An IMAP response MUST be processed before issuing any new IMAP
+                // requests. Subsequent requests may destroy previous response data. As
+                // such, we save away capability information here for future use.
+                boolean hasIdCapability =
+                    capabilities.contains(ImapConstants.ID);
+                boolean hasNamespaceCapability =
+                    capabilities.contains(ImapConstants.NAMESPACE);
+                String capabilityString = capabilities.flatten();
 
                 // ID
-                if (capabilityResponse.contains(ImapConstants.ID)) {
-                    // Assign user-agent string (for RFC2971 ID command)
-                    String mUserAgent = getImapId(mContext, mUsername, mRootTransport.getHost(),
-                            capabilityResponse);
-                    if (mUserAgent != null) {
-                        mIdPhrase = ImapConstants.ID + " (" + mUserAgent + ")";
-                    } else if (DEBUG_FORCE_SEND_ID) {
-                        mIdPhrase = ImapConstants.ID + " " + ImapConstants.NIL;
-                    }
-                    // else: mIdPhrase = null, no ID will be emitted
-
-                    // Send user-agent in an RFC2971 ID command
-                    if (mIdPhrase != null) {
-                        try {
-                            executeSimpleCommand(mIdPhrase);
-                        } catch (ImapException ie) {
-                            // Log for debugging, but this is not a fatal problem.
-                            if (Email.DEBUG) {
-                                Log.d(Email.LOG_TAG, ie.toString());
-                            }
-                        } catch (IOException ioe) {
-                            // Special case to handle malformed OK responses and ignore them.
-                            // A true IOException will recur on the following login steps
-                            // This can go away after the parser is fixed - see bug 2138981
-                        }
-                    }
-                }
+                doSendId(hasIdCapability, capabilityString);
 
                 // LOGIN
-                try {
-                    // TODO eventually we need to add additional authentication
-                    // options such as SASL
-                    executeSimpleCommand(mLoginPhrase, true);
-                } catch (ImapException ie) {
-                    if (Email.DEBUG) {
-                        Log.d(Email.LOG_TAG, ie.toString());
-                    }
-                    throw new AuthenticationFailedException(ie.getAlertText(), ie);
+                doLogin();
 
-                } catch (MessagingException me) {
-                    throw new AuthenticationFailedException(null, me);
-                }
+                // NAMESPACE (only valid in the Authenticated state)
+                doGetNamespace(hasNamespaceCapability);
+
+                // Gets the path separator from the server
+                doGetPathSeparator();
+
+                ensurePrefixIsValid();
             } catch (SSLException e) {
                 if (Email.DEBUG) {
                     Log.d(Email.LOG_TAG, e.toString());
@@ -1595,12 +1597,12 @@ public class ImapStore extends Store {
             return tag;
         }
 
-        public List<ImapResponse> executeSimpleCommand(String command) throws IOException,
+        /*package*/ List<ImapResponse> executeSimpleCommand(String command) throws IOException,
                 MessagingException {
             return executeSimpleCommand(command, false);
         }
 
-        public List<ImapResponse> executeSimpleCommand(String command, boolean sensitive)
+        /*package*/ List<ImapResponse> executeSimpleCommand(String command, boolean sensitive)
                 throws IOException, MessagingException {
             String tag = sendCommand(command, sensitive);
             ArrayList<ImapResponse> responses = new ArrayList<ImapResponse>();
@@ -1635,14 +1637,161 @@ public class ImapStore extends Store {
             return capabilityResponse;
         }
 
-        /** @see ImapResponseParser#logLastDiscourse() */
+        /**
+         * Sends client identification information to the IMAP server per RFC 2971. If
+         * the server does not support the ID command, this will perform no operation.
+         */
+        private void doSendId(boolean hasIdCapability, String capabilities)
+                throws MessagingException {
+            if (!hasIdCapability) return;
+
+            // Assign user-agent string (for RFC2971 ID command)
+            String mUserAgent =
+                getImapId(mContext, mUsername, mRootTransport.getHost(), capabilities);
+
+            if (mUserAgent != null) {
+                mIdPhrase = ImapConstants.ID + " (" + mUserAgent + ")";
+            } else if (DEBUG_FORCE_SEND_ID) {
+                mIdPhrase = ImapConstants.ID + " " + ImapConstants.NIL;
+            }
+            // else: mIdPhrase = null, no ID will be emitted
+
+            // Send user-agent in an RFC2971 ID command
+            if (mIdPhrase != null) {
+                try {
+                    executeSimpleCommand(mIdPhrase);
+                } catch (ImapException ie) {
+                    // Log for debugging, but this is not a fatal problem.
+                    if (Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, ie.toString());
+                    }
+                } catch (IOException ioe) {
+                    // Special case to handle malformed OK responses and ignore them.
+                    // A true IOException will recur on the following login steps
+                    // This can go away after the parser is fixed - see bug 2138981
+                }
+            }
+        }
+
+        /**
+         * Gets the user's Personal Namespace from the IMAP server per RFC 2342. If the user
+         * explicitly sets a namespace (using setup UI) or if the server does not support the
+         * namespace command, this will perform no operation.
+         */
+        private void doGetNamespace(boolean hasNamespaceCapability) throws MessagingException {
+            // user did not specify a hard-coded prefix; try to get it from the server
+            if (hasNamespaceCapability && TextUtils.isEmpty(mPathPrefix)) {
+                List<ImapResponse> responseList = Collections.emptyList();
+
+                try {
+                    responseList = executeSimpleCommand(ImapConstants.NAMESPACE);
+                } catch (ImapException ie) {
+                    // Log for debugging, but this is not a fatal problem.
+                    if (Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, ie.toString());
+                    }
+                } catch (IOException ioe) {
+                    // Special case to handle malformed OK responses and ignore them.
+                }
+
+                for (ImapResponse response: responseList) {
+                    if (response.isDataResponse(0, ImapConstants.NAMESPACE)) {
+                        ImapList namespaceList = response.getListOrEmpty(1);
+                        ImapList namespace = namespaceList.getListOrEmpty(0);
+                        String namespaceString = namespace.getStringOrEmpty(0).getString();
+                        if (!TextUtils.isEmpty(namespaceString)) {
+                            mPathPrefix = decodeFolderName(namespaceString, null);
+                            mPathSeparator = namespace.getStringOrEmpty(1).getString();
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * Logs into the IMAP server
+         */
+        private void doLogin()
+                throws IOException, MessagingException, AuthenticationFailedException {
+            try {
+                // TODO eventually we need to add additional authentication
+                // options such as SASL
+                executeSimpleCommand(mLoginPhrase, true);
+            } catch (ImapException ie) {
+                if (Email.DEBUG) {
+                    Log.d(Email.LOG_TAG, ie.toString());
+                }
+                throw new AuthenticationFailedException(ie.getAlertText(), ie);
+
+            } catch (MessagingException me) {
+                throw new AuthenticationFailedException(null, me);
+            }
+        }
+
+        /**
+         * Gets the path separator per the LIST command in RFC 3501. If the path separator
+         * was obtained while obtaining the namespace or there is no prefix defined, this
+         * will perform no operation.
+         */
+        private void doGetPathSeparator() throws MessagingException {
+            // user did not specify a hard-coded prefix; try to get it from the server
+            if (TextUtils.isEmpty(mPathSeparator) && !TextUtils.isEmpty(mPathPrefix)) {
+                List<ImapResponse> responseList = Collections.emptyList();
+
+                try {
+                    responseList = executeSimpleCommand(ImapConstants.LIST + " \"\" \"\"");
+                } catch (ImapException ie) {
+                    // Log for debugging, but this is not a fatal problem.
+                    if (Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, ie.toString());
+                    }
+                } catch (IOException ioe) {
+                    // Special case to handle malformed OK responses and ignore them.
+                }
+
+                for (ImapResponse response: responseList) {
+                    if (response.isDataResponse(0, ImapConstants.LIST)) {
+                        mPathSeparator = response.getStringOrEmpty(2).getString();
+                    }
+                }
+            }
+        }
+
+        /**
+         * Starts a TLS session with the IMAP server per RFC 3501. If the user has not opted
+         * to use TLS or the server does not support the TLS capability, this will perform
+         * no operation.
+         */
+        private ImapResponse doStartTls(boolean hasStartTlsCapability)
+                throws IOException, MessagingException {
+            if (mTransport.canTryTlsSecurity()) {
+                if (hasStartTlsCapability) {
+                    // STARTTLS
+                    executeSimpleCommand(ImapConstants.STARTTLS);
+
+                    mTransport.reopenTls();
+                    mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
+                    createParser();
+                    // Per RFC requirement (3501-6.2.1) gather new capabilities
+                    return(queryCapabilities());
+                } else {
+                    if (Email.DEBUG) {
+                        Log.d(Email.LOG_TAG, "TLS not supported but required");
+                    }
+                    throw new MessagingException(MessagingException.TLS_REQUIRED);
+                }
+            }
+            return null;
+        }
+
+        /** @see DiscourseLogger#logLastDiscourse() */
         public void logLastDiscourse() {
             mDiscourse.logLastDiscourse();
         }
     }
 
     static class ImapMessage extends MimeMessage {
-        ImapMessage(String uid, Folder folder) throws MessagingException {
+        ImapMessage(String uid, Folder folder) {
             this.mUid = uid;
             this.mFolder = folder;
         }

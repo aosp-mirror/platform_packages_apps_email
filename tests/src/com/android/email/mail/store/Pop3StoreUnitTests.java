@@ -241,7 +241,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     public void testStoreFoldersFunctions() throws MessagingException {
         
         // getPersonalNamespaces() always returns INBOX folder
-        Folder[] folders = mStore.getPersonalNamespaces();
+        Folder[] folders = mStore.getAllFolders();
         assertEquals(1, folders.length);
         assertSame(mFolder, folders[0]);
 
@@ -319,7 +319,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
      * Lightweight test to confirm that POP3 hasn't implemented any folder roles yet.
      */
     public void testNoFolderRolesYet() throws MessagingException {
-        Folder[] remoteFolders = mStore.getPersonalNamespaces();
+        Folder[] remoteFolders = mStore.getAllFolders();
         for (Folder folder : remoteFolders) {
             assertEquals(Folder.FolderRole.UNKNOWN, folder.getRole()); 
         }

@@ -80,7 +80,7 @@ public class ExchangeStore extends Store {
     }
 
     @Override
-    public Folder[] getPersonalNamespaces() {
+    public Folder[] getAllFolders() {
         return null;
     }
 

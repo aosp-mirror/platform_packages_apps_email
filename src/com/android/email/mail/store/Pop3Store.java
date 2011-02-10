@@ -157,7 +157,7 @@ public class Pop3Store extends Store {
     }
 
     @Override
-    public Folder[] getPersonalNamespaces() throws MessagingException {
+    public Folder[] getAllFolders() throws MessagingException {
         return new Folder[] {
             getFolder("INBOX"),
         };

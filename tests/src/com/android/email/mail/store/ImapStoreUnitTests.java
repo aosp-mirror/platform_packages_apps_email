@@ -191,7 +191,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         //   x-android-net-operator Carrier (Unreliable, so not tested here)
         //   AGUID           A device+account UID
         String id = ImapStore.getImapId(getContext(), "user-name", "host-name",
-                CAPABILITY_RESPONSE);
+                CAPABILITY_RESPONSE.flatten());
         HashMap<String, String> map = tokenizeImapId(id);
         assertEquals(getContext().getPackageName(), map.get("name"));
         assertEquals("android", map.get("os"));
@@ -242,7 +242,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
             // Invoke
             String id = ImapStore.getImapId(getContext(), "user-name", "host-name",
-                    ImapTestUtils.parseResponse("* CAPABILITY IMAP4rev1 XXX YYY Z"));
+                    ImapTestUtils.parseResponse("* CAPABILITY IMAP4rev1 XXX YYY Z").flatten());
 
             // Check the result
             assertEquals("test-value", tokenizeImapId(id).get("test-key"));
@@ -292,9 +292,10 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         ImapStore store2 = (ImapStore) ImapStore.newInstance("imap://user2:password@server:999",
                 getContext(), null);
 
-        String id1a = ImapStore.getImapId(getContext(), "user1", "host-name", CAPABILITY_RESPONSE);
-        String id1b = ImapStore.getImapId(getContext(), "user1", "host-name", CAPABILITY_RESPONSE);
-        String id2 = ImapStore.getImapId(getContext(), "user2", "host-name", CAPABILITY_RESPONSE);
+        String capabilities = CAPABILITY_RESPONSE.flatten();
+        String id1a = ImapStore.getImapId(getContext(), "user1", "host-name", capabilities);
+        String id1b = ImapStore.getImapId(getContext(), "user1", "host-name", capabilities);
+        String id2 = ImapStore.getImapId(getContext(), "user2", "host-name", capabilities);
 
         String uid1a = tokenizeImapId(id1a).get("AGUID");
         String uid1b = tokenizeImapId(id1b).get("AGUID");
@@ -382,7 +383,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     /**
      * Test small Folder functions that don't really do anything in Imap
      */
-    public void testSmallFolderFunctions() throws MessagingException {
+    public void testSmallFolderFunctions() {
         // getPermanentFlags() returns { Flag.DELETED, Flag.SEEN, Flag.FLAGGED }
         Flag[] flags = mFolder.getPermanentFlags();
         assertEquals(3, flags.length);
@@ -1096,10 +1097,11 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         assertEquals("initial uid", message.getUid());
     }
 
-    public void testGetPersonalNamespaces() throws Exception {
+    public void testGetAllFolders() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         expectLogin(mock);
 
+        expectNoop(mock, true);
         mock.expect(getNextTag(false) + " LIST \"\" \"\\*\"",
                 new String[] {
                 "* lIST (\\HAsNoChildren) \"/\" \"inbox\"",
@@ -1108,7 +1110,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                 "* lIST (\\HAsNoChildren) \"/\" \"&ZeVnLIqe-\"", // Japanese folder name
                 getNextTag(true) + " oK SUCCESS"
                 });
-        Folder[] folders = mStore.getPersonalNamespaces();
+        Folder[] folders = mStore.getAllFolders();
 
         ArrayList<String> list = new ArrayList<String>();
         for (Folder f : folders) {
@@ -1124,19 +1126,155 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     }
 
     public void testEncodeFolderName() {
-        assertEquals("", ImapStore.encodeFolderName(""));
-        assertEquals("a", ImapStore.encodeFolderName("a"));
-        assertEquals("XYZ", ImapStore.encodeFolderName("XYZ"));
-        assertEquals("&ZeVnLIqe-", ImapStore.encodeFolderName("\u65E5\u672C\u8A9E"));
-        assertEquals("!&ZeVnLIqe-!", ImapStore.encodeFolderName("!\u65E5\u672C\u8A9E!"));
+        // null prefix
+        assertEquals("",
+                ImapStore.encodeFolderName("", null));
+        assertEquals("a",
+                ImapStore.encodeFolderName("a", null));
+        assertEquals("XYZ",
+                ImapStore.encodeFolderName("XYZ", null));
+        assertEquals("&ZeVnLIqe-",
+                ImapStore.encodeFolderName("\u65E5\u672C\u8A9E", null));
+        assertEquals("!&ZeVnLIqe-!",
+                ImapStore.encodeFolderName("!\u65E5\u672C\u8A9E!", null));
+        // empty prefix (same as a null prefix)
+        assertEquals("",
+                ImapStore.encodeFolderName("", ""));
+        assertEquals("a",
+                ImapStore.encodeFolderName("a", ""));
+        assertEquals("XYZ",
+                ImapStore.encodeFolderName("XYZ", ""));
+        assertEquals("&ZeVnLIqe-",
+                ImapStore.encodeFolderName("\u65E5\u672C\u8A9E", ""));
+        assertEquals("!&ZeVnLIqe-!",
+                ImapStore.encodeFolderName("!\u65E5\u672C\u8A9E!", ""));
+        // defined prefix
+        assertEquals("[Gmail]/",
+                ImapStore.encodeFolderName("", "[Gmail]/"));
+        assertEquals("[Gmail]/a",
+                ImapStore.encodeFolderName("a", "[Gmail]/"));
+        assertEquals("[Gmail]/XYZ",
+                ImapStore.encodeFolderName("XYZ", "[Gmail]/"));
+        assertEquals("[Gmail]/&ZeVnLIqe-",
+                ImapStore.encodeFolderName("\u65E5\u672C\u8A9E", "[Gmail]/"));
+        assertEquals("[Gmail]/!&ZeVnLIqe-!",
+                ImapStore.encodeFolderName("!\u65E5\u672C\u8A9E!", "[Gmail]/"));
+        // Add prefix to special mailbox "INBOX" [case insensitive), no affect
+        assertEquals("INBOX",
+                ImapStore.encodeFolderName("INBOX", "[Gmail]/"));
+        assertEquals("inbox",
+                ImapStore.encodeFolderName("inbox", "[Gmail]/"));
+        assertEquals("InBoX",
+                ImapStore.encodeFolderName("InBoX", "[Gmail]/"));
     }
 
     public void testDecodeFolderName() {
-        assertEquals("", ImapStore.decodeFolderName(""));
-        assertEquals("a", ImapStore.decodeFolderName("a"));
-        assertEquals("XYZ", ImapStore.decodeFolderName("XYZ"));
-        assertEquals("\u65E5\u672C\u8A9E", ImapStore.decodeFolderName("&ZeVnLIqe-"));
-        assertEquals("!\u65E5\u672C\u8A9E!", ImapStore.decodeFolderName("!&ZeVnLIqe-!"));
+        // null prefix
+        assertEquals("",
+                ImapStore.decodeFolderName("", null));
+        assertEquals("a",
+                ImapStore.decodeFolderName("a", null));
+        assertEquals("XYZ",
+                ImapStore.decodeFolderName("XYZ", null));
+        assertEquals("\u65E5\u672C\u8A9E",
+                ImapStore.decodeFolderName("&ZeVnLIqe-", null));
+        assertEquals("!\u65E5\u672C\u8A9E!",
+                ImapStore.decodeFolderName("!&ZeVnLIqe-!", null));
+        // empty prefix (same as a null prefix)
+        assertEquals("",
+                ImapStore.decodeFolderName("", ""));
+        assertEquals("a",
+                ImapStore.decodeFolderName("a", ""));
+        assertEquals("XYZ",
+                ImapStore.decodeFolderName("XYZ", ""));
+        assertEquals("\u65E5\u672C\u8A9E",
+                ImapStore.decodeFolderName("&ZeVnLIqe-", ""));
+        assertEquals("!\u65E5\u672C\u8A9E!",
+                ImapStore.decodeFolderName("!&ZeVnLIqe-!", ""));
+        // defined prefix; prefix found, prefix removed
+        assertEquals("",
+                ImapStore.decodeFolderName("[Gmail]/", "[Gmail]/"));
+        assertEquals("a",
+                ImapStore.decodeFolderName("[Gmail]/a", "[Gmail]/"));
+        assertEquals("XYZ",
+                ImapStore.decodeFolderName("[Gmail]/XYZ", "[Gmail]/"));
+        assertEquals("\u65E5\u672C\u8A9E",
+                ImapStore.decodeFolderName("[Gmail]/&ZeVnLIqe-", "[Gmail]/"));
+        assertEquals("!\u65E5\u672C\u8A9E!",
+                ImapStore.decodeFolderName("[Gmail]/!&ZeVnLIqe-!", "[Gmail]/"));
+        // defined prefix; prefix not found, no affect
+        assertEquals("INBOX/",
+                ImapStore.decodeFolderName("INBOX/", "[Gmail]/"));
+        assertEquals("INBOX/a",
+                ImapStore.decodeFolderName("INBOX/a", "[Gmail]/"));
+        assertEquals("INBOX/XYZ",
+                ImapStore.decodeFolderName("INBOX/XYZ", "[Gmail]/"));
+        assertEquals("INBOX/\u65E5\u672C\u8A9E",
+                ImapStore.decodeFolderName("INBOX/&ZeVnLIqe-", "[Gmail]/"));
+        assertEquals("INBOX/!\u65E5\u672C\u8A9E!",
+                ImapStore.decodeFolderName("INBOX/!&ZeVnLIqe-!", "[Gmail]/"));
+    }
+
+    public void testEnsurePrefixIsValid() {
+        // Test mPathSeparator == null
+        mStore.mPathSeparator = null;
+        mStore.mPathPrefix = null;
+        mStore.ensurePrefixIsValid();
+        assertNull(mStore.mPathPrefix);
+
+        mStore.mPathPrefix = "";
+        mStore.ensurePrefixIsValid();
+        assertEquals("", mStore.mPathPrefix);
+
+        mStore.mPathPrefix = "foo";
+        mStore.ensurePrefixIsValid();
+        assertEquals("foo", mStore.mPathPrefix);
+
+        mStore.mPathPrefix = "foo.";
+        mStore.ensurePrefixIsValid();
+        assertEquals("foo.", mStore.mPathPrefix);
+
+        // Test mPathSeparator == ""
+        mStore.mPathSeparator = "";
+        mStore.mPathPrefix = null;
+        mStore.ensurePrefixIsValid();
+        assertNull(mStore.mPathPrefix);
+
+        mStore.mPathPrefix = "";
+        mStore.ensurePrefixIsValid();
+        assertEquals("", mStore.mPathPrefix);
+
+        mStore.mPathPrefix = "foo";
+        mStore.ensurePrefixIsValid();
+        assertEquals("foo", mStore.mPathPrefix);
+
+        mStore.mPathPrefix = "foo.";
+        mStore.ensurePrefixIsValid();
+        assertEquals("foo.", mStore.mPathPrefix);
+
+        // Test mPathSeparator is non-empty
+        mStore.mPathSeparator = ".";
+        mStore.mPathPrefix = null;
+        mStore.ensurePrefixIsValid();
+        assertNull(mStore.mPathPrefix);
+
+        mStore.mPathPrefix = "";
+        mStore.ensurePrefixIsValid();
+        assertEquals("", mStore.mPathPrefix);
+
+        mStore.mPathPrefix = "foo";
+        mStore.ensurePrefixIsValid();
+        assertEquals("foo.", mStore.mPathPrefix);
+
+        // Trailing separator; path separator NOT appended
+        mStore.mPathPrefix = "foo.";
+        mStore.ensurePrefixIsValid();
+        assertEquals("foo.", mStore.mPathPrefix);
+
+        // Trailing punctuation has no affect; path separator still appended
+        mStore.mPathPrefix = "foo/";
+        mStore.ensurePrefixIsValid();
+        assertEquals("foo/.", mStore.mPathPrefix);
     }
 
     public void testOpen() throws Exception {
@@ -1641,13 +1779,14 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         expectLogin(mock);
 
         // List folders.
+        expectNoop(mock, true);
         mock.expect(getNextTag(false) + " LIST \"\" \"\\*\"",
                 new String[] {
-                "* LIST () \"/\" \"" + FOLDER_1 + "\"",
-                "* LIST () \"/\" \"" + FOLDER_2 + "\"",
-                getNextTag(true) + " OK SUCCESS"
-                });
-        final Folder[] folders = mStore.getPersonalNamespaces();
+            "* LIST () \"/\" \"" + FOLDER_1 + "\"",
+            "* LIST () \"/\" \"" + FOLDER_2 + "\"",
+            getNextTag(true) + " OK SUCCESS"
+        });
+        final Folder[] folders = mStore.getAllFolders();
 
         ArrayList<String> list = new ArrayList<String>();
         for (Folder f : folders) {

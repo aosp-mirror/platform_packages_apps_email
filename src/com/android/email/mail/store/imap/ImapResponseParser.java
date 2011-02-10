@@ -24,7 +24,6 @@ import com.android.email.mail.transport.LoggingInputStream;
 import com.android.emailcommon.mail.MessagingException;
 
 import android.text.TextUtils;
-import android.util.Config;
 import android.util.Log;
 
 import java.io.IOException;
@@ -236,7 +235,7 @@ public class ImapResponseParser {
     /**
      * Read all bytes until \r\n.
      */
-    /* package */ String readUntilEol() throws IOException, MessagingException {
+    /* package */ String readUntilEol() throws IOException {
         String ret = readUntil('\r');
         expect('\n'); // TODO Should this really be error?
         return ret;
