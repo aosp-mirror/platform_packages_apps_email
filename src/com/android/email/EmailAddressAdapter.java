@@ -17,7 +17,7 @@
 package com.android.email;
 
 import com.android.common.contacts.BaseEmailAddressAdapter;
-import com.android.email.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Account;
 
 import android.content.Context;
 import android.text.TextUtils;

@@ -23,12 +23,12 @@ import com.android.email.RefreshManager;
 import com.android.email.Utility;
 import com.android.email.Utility.ListStateSaver;
 import com.android.email.data.MailboxAccountLoader;
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.Message;
 import com.android.email.provider.EmailProvider;
 import com.android.email.service.MailService;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Message;
 
 import android.app.Activity;
 import android.app.ListFragment;

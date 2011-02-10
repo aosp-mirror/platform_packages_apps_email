@@ -24,9 +24,9 @@ import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.Welcome;
 import com.android.email.activity.setup.AccountSettingsUtils.Provider;
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;

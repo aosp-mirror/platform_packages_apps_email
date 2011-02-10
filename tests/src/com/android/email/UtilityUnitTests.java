@@ -18,9 +18,9 @@ package com.android.email;
 
 import com.android.email.Utility.NewFileCreator;
 import com.android.email.provider.ProviderTestUtils;
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.Attachment;
-import com.android.email.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
 
 import android.content.Context;

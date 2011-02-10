@@ -16,10 +16,8 @@
 
 package com.android.email;
 
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
-import com.android.email.provider.EmailContent.Attachment;
 import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeHeader;
 import com.android.emailcommon.internet.MimeMessage;
@@ -35,6 +33,8 @@ import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.mail.Message.RecipientType;
 import com.android.emailcommon.mail.MessageTestUtils.MessageBuilder;
 import com.android.emailcommon.mail.MessageTestUtils.MultipartBuilder;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.utility.ConversionUtilities;
 
 import android.content.ContentUris;

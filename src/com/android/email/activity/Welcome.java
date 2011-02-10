@@ -21,10 +21,10 @@ import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSetupBasics;
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.service.MailService;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.app.Activity;
 import android.content.Context;

@@ -16,8 +16,8 @@
 
 package com.android.email;
 
-import com.android.email.provider.EmailContent.Attachment;
 import com.android.emailcommon.internet.MimeUtility;
+import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.utility.AttachmentUtilities;
 
 import android.content.Context;

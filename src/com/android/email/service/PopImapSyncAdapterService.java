@@ -17,8 +17,8 @@
 package com.android.email.service;
 
 import com.android.email.Controller;
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;

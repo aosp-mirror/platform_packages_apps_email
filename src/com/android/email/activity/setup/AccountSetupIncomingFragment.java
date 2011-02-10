@@ -20,8 +20,8 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
 
 import android.app.Activity;
 import android.content.Context;

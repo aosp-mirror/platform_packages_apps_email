@@ -18,7 +18,7 @@ package com.android.email.service;
 
 import com.android.email.Email;
 import com.android.email.activity.setup.AccountSetupBasics;
-import com.android.email.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;

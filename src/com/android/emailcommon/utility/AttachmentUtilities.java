@@ -17,9 +17,9 @@
 package com.android.emailcommon.utility;
 
 import com.android.email.Email;
-import com.android.email.provider.EmailContent.Attachment;
-import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;

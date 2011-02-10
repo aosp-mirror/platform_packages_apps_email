@@ -19,8 +19,8 @@ package com.android.exchange.adapter;
 
 import com.android.email.Email;
 import com.android.email.Utility;
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.exchange.Eas;
 import com.android.exchange.EasOutboxService;
 import com.android.exchange.EasSyncService;

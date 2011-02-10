@@ -17,8 +17,8 @@
 
 package com.android.exchange;
 
-import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;

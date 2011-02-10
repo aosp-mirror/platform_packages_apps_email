@@ -19,11 +19,11 @@ package com.android.email.mail.transport;
 import com.android.email.Email;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Transport;
-import com.android.email.provider.EmailContent.Message;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Message;
 
 import android.content.Context;
 import android.util.Config;

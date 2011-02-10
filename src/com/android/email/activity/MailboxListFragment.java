@@ -22,8 +22,8 @@ import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.Utility;
 import com.android.email.provider.EmailProvider;
-import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Message;
 
 import android.app.Activity;
 import android.app.ListFragment;

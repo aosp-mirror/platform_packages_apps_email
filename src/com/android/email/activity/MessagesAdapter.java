@@ -20,9 +20,9 @@ import com.android.email.Email;
 import com.android.email.ResourceHelper;
 import com.android.email.Utility;
 import com.android.email.data.ThrottlingCursorLoader;
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Message;
-import com.android.email.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
 
 import android.content.Context;
 import android.content.Loader;

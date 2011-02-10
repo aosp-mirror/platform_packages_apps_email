@@ -16,10 +16,6 @@
 
 package com.android.email;
 
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Attachment;
-import com.android.email.provider.EmailContent.AttachmentColumns;
-import com.android.email.provider.EmailContent.Mailbox;
 import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeHeader;
 import com.android.emailcommon.internet.MimeMessage;
@@ -32,6 +28,10 @@ import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.mail.Message.RecipientType;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
 
 import org.apache.commons.io.IOUtils;

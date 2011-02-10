@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.email.provider;
+package com.android.emailcommon.provider;
 
 import com.android.email.Utility;
+import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.mail.Snippet;
 
 import android.content.ContentProviderOperation;

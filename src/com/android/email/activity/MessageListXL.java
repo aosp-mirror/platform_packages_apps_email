@@ -26,9 +26,9 @@ import com.android.email.RefreshManager;
 import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.Mailbox;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.app.ActionBar;
 import android.app.Activity;

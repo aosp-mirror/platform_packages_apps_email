@@ -20,7 +20,7 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;

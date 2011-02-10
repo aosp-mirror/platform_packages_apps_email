@@ -16,10 +16,10 @@
 
 package com.android.exchange;
 
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.AccountColumns;
-import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;

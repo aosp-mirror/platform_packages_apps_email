@@ -19,10 +19,10 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.Message;
 import com.android.emailcommon.mail.MeetingInfo;
 import com.android.emailcommon.mail.PackedString;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.service.EmailServiceConstants;
 
 import android.app.Activity;

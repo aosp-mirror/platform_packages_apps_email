@@ -17,7 +17,7 @@
 package com.android.email.widget;
 
 import com.android.email.R;
-import com.android.email.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.Message;
 
 import android.content.Context;
 import android.text.TextUtils;

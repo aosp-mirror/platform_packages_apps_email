@@ -17,7 +17,7 @@
 
 package com.android.exchange;
 
-import com.android.email.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.Attachment;
 
 /**
  * PartRequest is the EAS wrapper for attachment loading requests.  In addition to information about

@@ -17,9 +17,10 @@
 package com.android.exchange;
 
 import com.android.email.Email;
-import com.android.email.provider.EmailContent.AccountColumns;
-import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
@@ -132,7 +133,7 @@ public class ContactsSyncAdapterService extends Service {
 
         // Find the (EmailProvider) account associated with this email address
         Cursor accountCursor =
-            cr.query(com.android.email.provider.EmailContent.Account.CONTENT_URI, ID_PROJECTION,
+            cr.query(EmailContent.Account.CONTENT_URI, ID_PROJECTION,
                 AccountColumns.EMAIL_ADDRESS + "=?", new String[] {account.name}, null);
         try {
             if (accountCursor.moveToFirst()) {

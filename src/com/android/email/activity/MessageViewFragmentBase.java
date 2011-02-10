@@ -25,13 +25,13 @@ import com.android.email.R;
 import com.android.email.Throttle;
 import com.android.email.Utility;
 import com.android.email.mail.internet.EmailHtmlUtil;
-import com.android.email.provider.EmailContent.Attachment;
-import com.android.email.provider.EmailContent.Body;
-import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.Message;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.Body;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.AttachmentUtilities;
 
 import org.apache.commons.io.IOUtils;

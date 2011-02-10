@@ -16,8 +16,8 @@
 
 package com.android.email.activity;
 
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.database.Cursor;
 import android.database.MatrixCursor;

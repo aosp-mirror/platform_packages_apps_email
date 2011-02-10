@@ -16,8 +16,8 @@
 
 package com.android.email.activity;
 
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.provider.EmailContent;
 
 import android.content.Context;
 import android.database.AbstractCursor;

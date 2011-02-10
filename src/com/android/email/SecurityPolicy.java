@@ -17,10 +17,10 @@
 package com.android.email;
 
 import com.android.email.activity.setup.AccountSecurity;
-import com.android.email.provider.EmailContent;
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.AccountColumns;
 import com.android.email.service.EmailBroadcastProcessorService;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.service.PolicySet;
 
 import android.app.admin.DeviceAdminInfo;

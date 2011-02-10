@@ -16,7 +16,7 @@
 
 package com.android.exchange;
 
-import com.android.email.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.content.Context;
 import android.test.AndroidTestCase;

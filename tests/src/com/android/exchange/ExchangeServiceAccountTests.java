@@ -18,10 +18,10 @@
 package com.android.exchange;
 
 import com.android.email.AccountTestCase;
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.exchange.ExchangeService.SyncError;
 
 import android.content.Context;

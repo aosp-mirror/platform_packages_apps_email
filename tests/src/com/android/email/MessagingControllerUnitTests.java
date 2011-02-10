@@ -16,8 +16,8 @@
 
 package com.android.email;
 
-import com.android.email.provider.EmailContent;
 import com.android.emailcommon.mail.MockFolder;
+import com.android.emailcommon.provider.EmailContent;
 
 import android.content.ContentUris;
 import android.net.Uri;

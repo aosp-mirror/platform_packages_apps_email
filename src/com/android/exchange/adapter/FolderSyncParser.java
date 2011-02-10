@@ -18,16 +18,17 @@
 package com.android.exchange.adapter;
 
 import com.android.email.Utility;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailProvider;
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.AccountColumns;
-import com.android.email.provider.EmailContent.Mailbox;
-import com.android.email.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.exchange.Eas;
 import com.android.exchange.ExchangeService;
 import com.android.exchange.MockParserStream;
+import com.android.exchange.adapter.Parser.EasParserException;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;

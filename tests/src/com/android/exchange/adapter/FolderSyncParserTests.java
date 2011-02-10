@@ -16,9 +16,9 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.Mailbox;
 import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.exchange.EasSyncService;
 
 import java.io.IOException;

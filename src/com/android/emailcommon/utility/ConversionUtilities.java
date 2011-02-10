@@ -16,12 +16,12 @@
 
 package com.android.emailcommon.utility;
 
-import com.android.email.provider.EmailContent;
 import com.android.emailcommon.internet.MimeHeader;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.mail.Snippet;
+import com.android.emailcommon.provider.EmailContent;
 
 import android.text.TextUtils;
 

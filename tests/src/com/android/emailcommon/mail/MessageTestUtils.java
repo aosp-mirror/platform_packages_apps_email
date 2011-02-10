@@ -16,12 +16,12 @@
 
 package com.android.emailcommon.mail;
 
-import com.android.email.provider.EmailContent;
 import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeHeader;
 import com.android.emailcommon.internet.MimeMessage;
 import com.android.emailcommon.internet.MimeMultipart;
 import com.android.emailcommon.internet.TextBody;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.utility.AttachmentUtilities;
 
 import android.net.Uri;

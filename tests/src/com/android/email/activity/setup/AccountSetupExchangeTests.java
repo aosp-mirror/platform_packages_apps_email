@@ -17,10 +17,10 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
-import com.android.email.provider.EmailContent;
 import com.android.email.provider.ProviderTestUtils;
-import com.android.email.provider.EmailContent.Account;
-import com.android.email.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
