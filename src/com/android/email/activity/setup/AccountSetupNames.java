@@ -18,11 +18,11 @@ package com.android.email.activity.setup;
 
 import com.android.email.AccountBackupRestore;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.Welcome;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.content.ContentValues;

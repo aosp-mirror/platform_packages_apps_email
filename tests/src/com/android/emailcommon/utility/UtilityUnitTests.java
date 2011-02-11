@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package com.android.email;
+package com.android.emailcommon.utility;
 
-import com.android.email.Utility.NewFileCreator;
+import com.android.email.DBTestHelper;
+import com.android.email.FolderProperties;
+import com.android.email.R;
+import com.android.email.TestUtils;
+import com.android.email.UiUtilities;
 import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
-import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.Utility.NewFileCreator;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -86,32 +91,32 @@ public class UtilityUnitTests extends AndroidTestCase {
         Context context = getContext();
         String expect, name;
         expect = context.getString(R.string.mailbox_name_display_inbox);
-        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_INBOX);
+        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_INBOX);
         assertEquals(expect, name);
         expect = null;
-        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_MAIL);
+        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_MAIL);
         assertEquals(expect, name);
         expect = null;
-        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_PARENT);
+        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_PARENT);
         assertEquals(expect, name);
         expect = context.getString(R.string.mailbox_name_display_drafts);
-        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_DRAFTS);
+        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_DRAFTS);
         assertEquals(expect, name);
         expect = context.getString(R.string.mailbox_name_display_outbox);
-        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_OUTBOX);
+        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_OUTBOX);
         assertEquals(expect, name);
         expect = context.getString(R.string.mailbox_name_display_sent);
-        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_SENT);
+        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_SENT);
         assertEquals(expect, name);
         expect = context.getString(R.string.mailbox_name_display_trash);
-        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_TRASH);
+        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_TRASH);
         assertEquals(expect, name);
         expect = context.getString(R.string.mailbox_name_display_junk);
-        name = Utility.FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_JUNK);
+        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_JUNK);
         assertEquals(expect, name);
         // Testing illegal index
         expect = null;
-        name = Utility.FolderProperties.getInstance(context).getDisplayName(8);
+        name = FolderProperties.getInstance(context).getDisplayName(8);
         assertEquals(expect, name);
     }
 
@@ -119,7 +124,7 @@ public class UtilityUnitTests extends AndroidTestCase {
      * Confirm that all of the special icons are available and unique
      */
     public void testSpecialIcons() {
-        Utility.FolderProperties fp = Utility.FolderProperties.getInstance(mContext);
+        FolderProperties fp = FolderProperties.getInstance(mContext);
 
         // Make sure they're available
         Drawable inbox = fp.getIcon(Mailbox.TYPE_INBOX, -1);
@@ -206,7 +211,7 @@ public class UtilityUnitTests extends AndroidTestCase {
         TelephonyManager tm =
                 (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
         if (tm == null) {
-            Log.w(Email.LOG_TAG, "TelephonyManager not supported.  Skipping.");
+            Log.w(Logging.LOG_TAG, "TelephonyManager not supported.  Skipping.");
             return;
         }
 
@@ -262,15 +267,15 @@ public class UtilityUnitTests extends AndroidTestCase {
         if (!"en".equalsIgnoreCase(Locale.getDefault().getLanguage())) {
             return; // Only works on the EN locale.
         }
-        assertEquals("0B", Utility.formatSize(getContext(), 0));
-        assertEquals("1B", Utility.formatSize(getContext(), 1));
-        assertEquals("1023B", Utility.formatSize(getContext(), 1023));
-        assertEquals("1KB", Utility.formatSize(getContext(), 1024));
-        assertEquals("1023KB", Utility.formatSize(getContext(), 1024 * 1024 - 1));
-        assertEquals("1MB", Utility.formatSize(getContext(), 1024 * 1024));
-        assertEquals("1023MB", Utility.formatSize(getContext(), 1024 * 1024 * 1024 - 1));
-        assertEquals("1GB", Utility.formatSize(getContext(), 1024 * 1024 * 1024));
-        assertEquals("5GB", Utility.formatSize(getContext(), 5L * 1024 * 1024 * 1024));
+        assertEquals("0B", UiUtilities.formatSize(getContext(), 0));
+        assertEquals("1B", UiUtilities.formatSize(getContext(), 1));
+        assertEquals("1023B", UiUtilities.formatSize(getContext(), 1023));
+        assertEquals("1KB", UiUtilities.formatSize(getContext(), 1024));
+        assertEquals("1023KB", UiUtilities.formatSize(getContext(), 1024 * 1024 - 1));
+        assertEquals("1MB", UiUtilities.formatSize(getContext(), 1024 * 1024));
+        assertEquals("1023MB", UiUtilities.formatSize(getContext(), 1024 * 1024 * 1024 - 1));
+        assertEquals("1GB", UiUtilities.formatSize(getContext(), 1024 * 1024 * 1024));
+        assertEquals("5GB", UiUtilities.formatSize(getContext(), 5L * 1024 * 1024 * 1024));
     }
 
     private static class MyNewFileCreator implements NewFileCreator {
@@ -494,25 +499,25 @@ public class UtilityUnitTests extends AndroidTestCase {
         final Context c = getContext();
 
         // Negavive valeus not really expected, but at least shouldn't crash.
-        assertEquals("-1", Utility.getMessageCountForUi(c, -1, true));
-        assertEquals("-1", Utility.getMessageCountForUi(c, -1, false));
+        assertEquals("-1", UiUtilities.getMessageCountForUi(c, -1, true));
+        assertEquals("-1", UiUtilities.getMessageCountForUi(c, -1, false));
 
-        assertEquals("", Utility.getMessageCountForUi(c, 0, true));
-        assertEquals("0", Utility.getMessageCountForUi(c, 0, false));
+        assertEquals("", UiUtilities.getMessageCountForUi(c, 0, true));
+        assertEquals("0", UiUtilities.getMessageCountForUi(c, 0, false));
 
-        assertEquals("1", Utility.getMessageCountForUi(c, 1, true));
-        assertEquals("1", Utility.getMessageCountForUi(c, 1, false));
+        assertEquals("1", UiUtilities.getMessageCountForUi(c, 1, true));
+        assertEquals("1", UiUtilities.getMessageCountForUi(c, 1, false));
 
-        assertEquals("999", Utility.getMessageCountForUi(c, 999, true));
-        assertEquals("999", Utility.getMessageCountForUi(c, 999, false));
+        assertEquals("999", UiUtilities.getMessageCountForUi(c, 999, true));
+        assertEquals("999", UiUtilities.getMessageCountForUi(c, 999, false));
 
         final String moreThan999 = c.getString(R.string.more_than_999);
 
-        assertEquals(moreThan999, Utility.getMessageCountForUi(c, 1000, true));
-        assertEquals(moreThan999, Utility.getMessageCountForUi(c, 1000, false));
+        assertEquals(moreThan999, UiUtilities.getMessageCountForUi(c, 1000, true));
+        assertEquals(moreThan999, UiUtilities.getMessageCountForUi(c, 1000, false));
 
-        assertEquals(moreThan999, Utility.getMessageCountForUi(c, 1001, true));
-        assertEquals(moreThan999, Utility.getMessageCountForUi(c, 1001, false));
+        assertEquals(moreThan999, UiUtilities.getMessageCountForUi(c, 1001, true));
+        assertEquals(moreThan999, UiUtilities.getMessageCountForUi(c, 1001, false));
     }
 
     /**

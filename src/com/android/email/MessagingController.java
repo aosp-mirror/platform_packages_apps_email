@@ -19,6 +19,7 @@ package com.android.email;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeHeader;
 import com.android.emailcommon.internet.MimeMultipart;
@@ -42,6 +43,7 @@ import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.ConversionUtilities;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -400,7 +402,7 @@ public class MessagingController implements Runnable {
             nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException e) {
             if (Email.LOGD) {
-                Log.v(Email.LOG_TAG, "synchronizeMailbox", e);
+                Log.v(Logging.LOG_TAG, "synchronizeMailbox", e);
             }
             if (e instanceof AuthenticationFailedException) {
                 // Generate authentication notification
@@ -467,7 +469,7 @@ public class MessagingController implements Runnable {
             final EmailContent.Account account, final EmailContent.Mailbox folder)
             throws MessagingException {
 
-        Log.d(Email.LOG_TAG, "*** synchronizeMailboxGeneric ***");
+        Log.d(Logging.LOG_TAG, "*** synchronizeMailboxGeneric ***");
         ContentResolver resolver = mContext.getContentResolver();
 
         // 0.  We do not ever sync DRAFTS or OUTBOX (down or up)
@@ -640,14 +642,14 @@ public class MessagingController implements Runnable {
                                             newMessages.add(message);
                                         }
                                     } catch (MessagingException me) {
-                                        Log.e(Email.LOG_TAG,
+                                        Log.e(Logging.LOG_TAG,
                                                 "Error while copying downloaded message." + me);
                                     }
 
                                 }
                             }
                             catch (Exception e) {
-                                Log.e(Email.LOG_TAG,
+                                Log.e(Logging.LOG_TAG,
                                         "Error while storing downloaded message." + e.toString());
                             }
                         }
@@ -1027,13 +1029,13 @@ public class MessagingController implements Runnable {
                 context.getContentResolver().update(uri, cv, null, null);
 
             } catch (MessagingException me) {
-                Log.e(Email.LOG_TAG, "Error while copying downloaded message." + me);
+                Log.e(Logging.LOG_TAG, "Error while copying downloaded message." + me);
             }
 
         } catch (RuntimeException rte) {
-            Log.e(Email.LOG_TAG, "Error while storing downloaded message." + rte.toString());
+            Log.e(Logging.LOG_TAG, "Error while storing downloaded message." + rte.toString());
         } catch (IOException ioe) {
-            Log.e(Email.LOG_TAG, "Error while storing attachment." + ioe.toString());
+            Log.e(Logging.LOG_TAG, "Error while storing attachment." + ioe.toString());
         }
     }
 
@@ -1050,7 +1052,7 @@ public class MessagingController implements Runnable {
                 }
                 catch (MessagingException me) {
                     if (Email.LOGD) {
-                        Log.v(Email.LOG_TAG, "processPendingActions", me);
+                        Log.v(Logging.LOG_TAG, "processPendingActions", me);
                     }
                     /*
                      * Ignore any exceptions from the commands. Commands will be processed
@@ -1150,7 +1152,7 @@ public class MessagingController implements Runnable {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
             if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "Unable to process pending delete for id="
+                Log.d(Logging.LOG_TAG, "Unable to process pending delete for id="
                             + lastMessageId + ": " + me);
             }
         } finally {
@@ -1257,7 +1259,7 @@ public class MessagingController implements Runnable {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
             if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "Unable to process pending upsync for id="
+                Log.d(Logging.LOG_TAG, "Unable to process pending upsync for id="
                         + lastMessageId + ": " + me);
             }
         } finally {
@@ -1343,7 +1345,7 @@ public class MessagingController implements Runnable {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
             if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "Unable to process pending update for id="
+                Log.d(Logging.LOG_TAG, "Unable to process pending update for id="
                             + lastMessageId + ": " + me);
             }
         } finally {
@@ -1377,18 +1379,18 @@ public class MessagingController implements Runnable {
         boolean deleteUpdate = false;
         if (message == null) {
             deleteUpdate = true;
-            Log.d(Email.LOG_TAG, "Upsync failed for null message, id=" + messageId);
+            Log.d(Logging.LOG_TAG, "Upsync failed for null message, id=" + messageId);
         } else if (mailbox.mType == Mailbox.TYPE_DRAFTS) {
             deleteUpdate = false;
-            Log.d(Email.LOG_TAG, "Upsync skipped for mailbox=drafts, id=" + messageId);
+            Log.d(Logging.LOG_TAG, "Upsync skipped for mailbox=drafts, id=" + messageId);
         } else if (mailbox.mType == Mailbox.TYPE_OUTBOX) {
             deleteUpdate = false;
-            Log.d(Email.LOG_TAG, "Upsync skipped for mailbox=outbox, id=" + messageId);
+            Log.d(Logging.LOG_TAG, "Upsync skipped for mailbox=outbox, id=" + messageId);
         } else if (mailbox.mType == Mailbox.TYPE_TRASH) {
             deleteUpdate = false;
-            Log.d(Email.LOG_TAG, "Upsync skipped for mailbox=trash, id=" + messageId);
+            Log.d(Logging.LOG_TAG, "Upsync skipped for mailbox=trash, id=" + messageId);
         } else {
-            Log.d(Email.LOG_TAG, "Upsyc triggered for message id=" + messageId);
+            Log.d(Logging.LOG_TAG, "Upsyc triggered for message id=" + messageId);
             deleteUpdate = processPendingAppend(remoteStore, account, mailbox, message);
         }
         if (deleteUpdate) {
@@ -1453,7 +1455,7 @@ public class MessagingController implements Runnable {
             return;
         }
         if (Email.DEBUG) {
-            Log.d(Email.LOG_TAG,
+            Log.d(Logging.LOG_TAG,
                     "Update for msg id=" + newMessage.mId
                     + " read=" + newMessage.mFlagRead
                     + " flagged=" + newMessage.mFlagFavorite
@@ -1854,7 +1856,7 @@ public class MessagingController implements Runnable {
                     mListeners.loadMessageForViewFinished(messageId);
 
                 } catch (MessagingException me) {
-                    if (Email.LOGD) Log.v(Email.LOG_TAG, "", me);
+                    if (Email.LOGD) Log.v(Logging.LOG_TAG, "", me);
                     mListeners.loadMessageForViewFailed(messageId, me.getMessage());
                 } catch (RuntimeException rte) {
                     mListeners.loadMessageForViewFailed(messageId, rte.getMessage());
@@ -1956,11 +1958,11 @@ public class MessagingController implements Runnable {
                     mListeners.loadAttachmentFinished(accountId, messageId, attachmentId);
                 }
                 catch (MessagingException me) {
-                    if (Email.LOGD) Log.v(Email.LOG_TAG, "", me);
+                    if (Email.LOGD) Log.v(Logging.LOG_TAG, "", me);
                     mListeners.loadAttachmentFailed(
                             accountId, messageId, attachmentId, me, background);
                 } catch (IOException ioe) {
-                    Log.e(Email.LOG_TAG, "Error while storing attachment." + ioe.toString());
+                    Log.e(Logging.LOG_TAG, "Error while storing attachment." + ioe.toString());
                 }
             }});
     }
@@ -2024,7 +2026,7 @@ public class MessagingController implements Runnable {
                     // Don't send messages with unloaded attachments
                     if (Utility.hasUnloadedAttachments(mContext, messageId)) {
                         if (Email.DEBUG) {
-                            Log.d(Email.LOG_TAG, "Can't send #" + messageId +
+                            Log.d(Logging.LOG_TAG, "Can't send #" + messageId +
                                     "; unloaded attachments");
                         }
                         continue;

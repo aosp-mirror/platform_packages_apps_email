@@ -20,7 +20,10 @@ import com.android.email.activity.AccountShortcutPicker;
 import com.android.email.activity.MessageCompose;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.MailService;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.utility.Utility;
 import com.android.exchange.Eas;
 
 import android.app.Application;
@@ -29,15 +32,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.text.format.DateUtils;
 import android.util.Log;
 
-import java.io.File;
-import java.util.HashMap;
-
 public class Email extends Application {
-    public static final String LOG_TAG = "Email";
-
     /**
      * If this is enabled there will be additional logging information sent to
      * Log.d, including protocol dumps.
@@ -76,76 +73,6 @@ public class Email extends Application {
     public static boolean sDebugInhibitGraphicsAcceleration = false;
 
     /**
-     * The MIME type(s) of attachments we're willing to send via attachments.
-     *
-     * Any attachments may be added via Intents with Intent.ACTION_SEND or ACTION_SEND_MULTIPLE.
-     */
-    public static final String[] ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES = new String[] {
-        "*/*",
-    };
-
-    /**
-     * The MIME type(s) of attachments we're willing to send from the internal UI.
-     *
-     * NOTE:  At the moment it is not possible to open a chooser with a list of filter types, so
-     * the chooser is only opened with the first item in the list.
-     */
-    public static final String[] ACCEPTABLE_ATTACHMENT_SEND_UI_TYPES = new String[] {
-        "image/*",
-        "video/*",
-    };
-
-    /**
-     * The MIME type(s) of attachments we're willing to view.
-     */
-    public static final String[] ACCEPTABLE_ATTACHMENT_VIEW_TYPES = new String[] {
-        "*/*",
-    };
-
-    /**
-     * The MIME type(s) of attachments we're not willing to view.
-     */
-    public static final String[] UNACCEPTABLE_ATTACHMENT_VIEW_TYPES = new String[] {
-    };
-
-    /**
-     * The MIME type(s) of attachments we're willing to download to SD.
-     */
-    public static final String[] ACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES = new String[] {
-        "*/*",
-    };
-
-    /**
-     * The MIME type(s) of attachments we're not willing to download to SD.
-     */
-    public static final String[] UNACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES = new String[] {
-    };
-
-    /**
-     * Filename extensions of attachments we're never willing to download (potential malware).
-     * Entries in this list are compared to the end of the lower-cased filename, so they must
-     * be lower case, and should not include a "."
-     */
-    public static final String[] UNACCEPTABLE_ATTACHMENT_EXTENSIONS = new String[] {
-        // File types that contain malware
-        "ade", "adp", "bat", "chm", "cmd", "com", "cpl", "dll", "exe",
-        "hta", "ins", "isp", "jse", "lib", "mde", "msc", "msp",
-        "mst", "pif", "scr", "sct", "shb", "sys", "vb", "vbe",
-        "vbs", "vxd", "wsc", "wsf", "wsh",
-        // File types of common compression/container formats (again, to avoid malware)
-        "zip", "gz", "z", "tar", "tgz", "bz2",
-    };
-
-    /**
-     * Filename extensions of attachments that can be installed.
-     * Entries in this list are compared to the end of the lower-cased filename, so they must
-     * be lower case, and should not include a "."
-     */
-    public static final String[] INSTALLABLE_ATTACHMENT_EXTENSIONS = new String[] {
-        "apk",
-    };
-
-    /**
      * Specifies how many messages will be shown in a folder by default. This number is set
      * on each new folder and can be incremented with "Load more messages..." by the
      * VISIBLE_LIMIT_INCREMENT
@@ -158,22 +85,6 @@ public class Email extends Application {
     public static final int VISIBLE_LIMIT_INCREMENT = 25;
 
     /**
-     * The maximum size of an attachment we're willing to download (either View or Save)
-     * Attachments that are base64 encoded (most) will be about 1.375x their actual size
-     * so we should probably factor that in. A 5MB attachment will generally be around
-     * 6.8MB downloaded but only 5MB saved.
-     */
-    public static final int MAX_ATTACHMENT_DOWNLOAD_SIZE = (5 * 1024 * 1024);
-
-    /**
-     * The maximum size of an attachment we're willing to upload (measured as stored on disk).
-     * Attachments that are base64 encoded (most) will be about 1.375x their actual size
-     * so we should probably factor that in. A 5MB attachment will generally be around
-     * 6.8MB uploaded.
-     */
-    public static final int MAX_ATTACHMENT_UPLOAD_SIZE = (5 * 1024 * 1024);
-
-    /**
      * This is used to force stacked UI to return to the "welcome" screen any time we change
      * the accounts list (e.g. deleting accounts in the Account Manager preferences.)
      */
@@ -182,24 +93,9 @@ public class Email extends Application {
     public static final String EXCHANGE_ACCOUNT_MANAGER_TYPE = "com.android.exchange";
     public static final String POP_IMAP_ACCOUNT_MANAGER_TYPE = "com.android.email";
 
-    private static File sTempDirectory;
-
     private static String sMessageDecodeErrorString;
 
     private static Thread sUiThread;
-
-    public static void setTempDirectory(Context context) {
-        sTempDirectory = context.getCacheDir();
-    }
-
-    public static File getTempDirectory() {
-        if (sTempDirectory == null) {
-            throw new RuntimeException(
-                    "TempDirectory not set.  " +
-                    "If in a unit test, call Email.setTempDirectory(context) in setUp().");
-        }
-        return sTempDirectory;
-    }
 
     /**
      * Asynchronous version of {@link #setServicesEnabledSync(Context)}.  Use when calling from
@@ -299,7 +195,7 @@ public class Email extends Application {
         Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.getEnableDebugLogging();
         sDebugInhibitGraphicsAcceleration = prefs.getInhibitGraphicsAcceleration();
-        setTempDirectory(this);
+        TempDirectory.setTempDirectory(this);
 
         // Tie MailRefreshManager to the Controller.
         RefreshManager.getInstance(this);
@@ -332,7 +228,7 @@ public class Email extends Application {
      * The calls to log() must be guarded with "if (Email.LOGD)" for performance reasons.
      */
     public static void log(String message) {
-        Log.d(LOG_TAG, message);
+        Log.d(Logging.LOG_TAG, message);
     }
 
     /**
@@ -354,7 +250,7 @@ public class Email extends Application {
 
     public static void warnIfUiThread() {
         if (Thread.currentThread().equals(sUiThread)) {
-            Log.w(Email.LOG_TAG, "Method called on the UI thread", new Exception("STACK TRACE"));
+            Log.w(Logging.LOG_TAG, "Method called on the UI thread", new Exception("STACK TRACE"));
         }
     }
 

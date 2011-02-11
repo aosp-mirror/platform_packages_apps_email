@@ -19,6 +19,7 @@ package com.android.exchange;
 import com.android.email.AccountTestCase;
 import com.android.email.Email;
 import com.android.email.NotificationController;
+import com.android.emailcommon.Logging;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -172,7 +173,7 @@ public class CalendarSyncEnablerTest extends AccountTestCase {
         // set up on the device.  Otherwise there'll be no difference from
         // testEnableEasCalendarSync.
         if (AccountManager.get(getContext()).getAccountsByType(EAT).length > 0) {
-            Log.w(Email.LOG_TAG, "testEnableEasCalendarSyncWithNoExchangeAccounts skipped:"
+            Log.w(Logging.LOG_TAG, "testEnableEasCalendarSyncWithNoExchangeAccounts skipped:"
                     + " It only runs when there's no Exchange account on the device.");
             return;
         }

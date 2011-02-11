@@ -16,8 +16,8 @@
 
 package com.android.email.data;
 
-import com.android.email.Email;
 import com.android.email.Throttle;
+import com.android.emailcommon.Logging;
 
 import android.content.Context;
 import android.content.CursorLoader;
@@ -56,7 +56,7 @@ public class ThrottlingCursorLoader extends CursorLoader {
     }
 
     private void debugLog(String message) {
-        Log.d(Email.LOG_TAG, "ThrottlingCursorLoader: [" + getUri() + "] " + message);
+        Log.d(Logging.LOG_TAG, "ThrottlingCursorLoader: [" + getUri() + "] " + message);
     }
 
     @Override

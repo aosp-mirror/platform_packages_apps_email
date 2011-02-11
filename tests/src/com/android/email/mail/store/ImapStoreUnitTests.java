@@ -16,9 +16,7 @@
 
 package com.android.email.mail.store;
 
-import com.android.email.Email;
 import com.android.email.MockVendorPolicy;
-import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Transport;
 import com.android.email.mail.store.ImapStore.ImapConnection;
@@ -26,6 +24,7 @@ import com.android.email.mail.store.ImapStore.ImapMessage;
 import com.android.email.mail.store.imap.ImapResponse;
 import com.android.email.mail.store.imap.ImapTestUtils;
 import com.android.email.mail.transport.MockTransport;
+import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeMultipart;
 import com.android.emailcommon.internet.MimeUtility;
@@ -36,12 +35,13 @@ import com.android.emailcommon.mail.Body;
 import com.android.emailcommon.mail.FetchProfile;
 import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Folder;
-import com.android.emailcommon.mail.Message;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.mail.Folder.FolderType;
 import com.android.emailcommon.mail.Folder.OpenMode;
+import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.Message.RecipientType;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.Part;
+import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
 
@@ -94,7 +94,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Email.setTempDirectory(getContext());
+        TempDirectory.setTempDirectory(getContext());
 
         // These are needed so we can get at the inner classes
         mStore = (ImapStore) ImapStore.newInstance("imap://user:password@server:999",

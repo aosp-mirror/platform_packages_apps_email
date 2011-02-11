@@ -39,7 +39,7 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
     }
 
     public MessageOrderManagerTest() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     private static void assertCanMove(MessageOrderManager mom, boolean newer, boolean older) {

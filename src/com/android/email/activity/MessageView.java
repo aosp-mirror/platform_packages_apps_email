@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.content.Context;
@@ -110,7 +111,7 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
         mMessageId = intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
         mMailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
         if (mMessageId == -1 || mMailboxId == -1) {
-            Log.w(Email.LOG_TAG, "Insufficient intent parameter.  Closing...");
+            Log.w(Logging.LOG_TAG, "Insufficient intent parameter.  Closing...");
             finish();
             return;
         }

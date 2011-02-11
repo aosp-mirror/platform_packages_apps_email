@@ -17,6 +17,7 @@
 package com.android.email;
 
 import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 
@@ -172,7 +173,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertEquals(0, mTarget.getMailboxListStatusForTest(ACCOUNT_1).getLastRefreshTime());
 
         // Done.
-        Log.w(Email.LOG_TAG, "" + mController.mListener.getClass());
+        Log.w(Logging.LOG_TAG, "" + mController.mListener.getClass());
         mController.mListener.updateMailboxListCallback(null, ACCOUNT_1, 100);
 
         assertTrue(mListener.mCalledOnRefreshStatusChanged);
@@ -207,7 +208,8 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertTrue(mListener.mCalledOnConnectionError);
         assertEquals(ACCOUNT_2, mListener.mAccountId);
         assertEquals(-1, mListener.mMailboxId);
-        assertEquals(EXCEPTION.getUiErrorMessage(mContext), mListener.mMessage);
+        assertEquals(MessagingExceptionStrings.getErrorString(mContext, EXCEPTION),
+                mListener.mMessage);
         mListener.reset();
         assertFalse(mTarget.isMailboxListRefreshing(ACCOUNT_2));
         assertEquals(mClock.mTime, mTarget.getMailboxListStatusForTest(ACCOUNT_2)
@@ -269,7 +271,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertEquals(0, mTarget.getMessageListStatusForTest(MAILBOX_1).getLastRefreshTime());
 
         // Done.
-        Log.w(Email.LOG_TAG, "" + mController.mListener.getClass());
+        Log.w(Logging.LOG_TAG, "" + mController.mListener.getClass());
         mController.mListener.updateMailboxCallback(null, ACCOUNT_1, MAILBOX_1, 100, 0);
 
         assertTrue(mListener.mCalledOnRefreshStatusChanged);
@@ -304,7 +306,8 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertTrue(mListener.mCalledOnConnectionError);
         assertEquals(ACCOUNT_2, mListener.mAccountId);
         assertEquals(MAILBOX_2, mListener.mMailboxId);
-        assertEquals(EXCEPTION.getUiErrorMessage(mContext), mListener.mMessage);
+        assertEquals(MessagingExceptionStrings.getErrorString(mContext, EXCEPTION),
+                mListener.mMessage);
         mListener.reset();
         assertFalse(mTarget.isMessageListRefreshing(MAILBOX_2));
         assertEquals(mClock.mTime, mTarget.getMessageListStatusForTest(MAILBOX_2)
@@ -358,7 +361,8 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         mController.mListener.sendMailCallback(EXCEPTION, ACCOUNT_1, 102, 0);
 
         assertTrue(mListener.mCalledOnConnectionError);
-        assertEquals(EXCEPTION.getUiErrorMessage(mContext), mListener.mMessage);
+        assertEquals(MessagingExceptionStrings.getErrorString(mContext, EXCEPTION),
+                mListener.mMessage);
         mListener.reset();
 
         // Exception again -- no more error callbacks
@@ -369,7 +373,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         mListener.reset();
 
         // Done.
-        Log.w(Email.LOG_TAG, "" + mController.mListener.getClass());
+        Log.w(Logging.LOG_TAG, "" + mController.mListener.getClass());
         mController.mListener.sendMailCallback(null, ACCOUNT_1, -1, 100);
 
         assertFalse(mListener.mCalledOnConnectionError);

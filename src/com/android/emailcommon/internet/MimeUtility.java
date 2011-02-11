@@ -16,7 +16,7 @@
 
 package com.android.emailcommon.internet;
 
-import com.android.email.Email;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Body;
 import com.android.emailcommon.mail.BodyPart;
 import com.android.emailcommon.mail.Message;
@@ -303,14 +303,14 @@ public class MimeUtility {
              * If we are not able to process the body there's nothing we can do about it. Return
              * null and let the upper layers handle the missing content.
              */
-            Log.e(Email.LOG_TAG, "Unable to getTextFromPart " + oom.toString());
+            Log.e(Logging.LOG_TAG, "Unable to getTextFromPart " + oom.toString());
         }
         catch (Exception e) {
             /*
              * If we are not able to process the body there's nothing we can do about it. Return
              * null and let the upper layers handle the missing content.
              */
-            Log.e(Email.LOG_TAG, "Unable to getTextFromPart " + e.toString());
+            Log.e(Logging.LOG_TAG, "Unable to getTextFromPart " + e.toString());
         }
         return null;
     }
@@ -383,8 +383,9 @@ public class MimeUtility {
         try {
             IOUtils.copy(in, out);
         } catch (Base64DataException bde) {
-            String warning = "\n\n" + Email.getMessageDecodeErrorString();
-            out.write(warning.getBytes());
+            // STOPSHIP Need to fix this somehow
+            //String warning = "\n\n" + Email.getMessageDecodeErrorString();
+            //out.write(warning.getBytes());
         } finally {
             out.close();
         }

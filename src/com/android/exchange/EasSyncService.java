@@ -17,7 +17,6 @@
 
 package com.android.exchange;
 
-import com.android.email.Utility;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.MeetingInfo;
 import com.android.emailcommon.mail.MessagingException;
@@ -37,6 +36,7 @@ import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.PolicyServiceProxy;
 import com.android.emailcommon.service.PolicySet;
+import com.android.emailcommon.utility.Utility;
 import com.android.exchange.adapter.AbstractSyncAdapter;
 import com.android.exchange.adapter.AccountSyncAdapter;
 import com.android.exchange.adapter.CalendarSyncAdapter;
@@ -46,11 +46,11 @@ import com.android.exchange.adapter.FolderSyncParser;
 import com.android.exchange.adapter.GalParser;
 import com.android.exchange.adapter.MeetingResponseParser;
 import com.android.exchange.adapter.MoveItemsParser;
+import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.adapter.PingParser;
 import com.android.exchange.adapter.ProvisionParser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
-import com.android.exchange.adapter.Parser.EasParserException;
 import com.android.exchange.provider.GalResult;
 import com.android.exchange.utility.CalendarUtilities;
 

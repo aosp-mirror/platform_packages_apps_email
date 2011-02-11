@@ -17,6 +17,7 @@
 package com.android.exchange.adapter;
 
 import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.exchange.EasSyncService;
@@ -43,7 +44,7 @@ public class SyncAdapterTestCase<T extends AbstractSyncAdapter>
     EasEmailSyncParser mSyncParser;
 
     public SyncAdapterTestCase() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override

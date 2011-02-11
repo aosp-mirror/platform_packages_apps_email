@@ -21,17 +21,11 @@ import static com.android.email.mail.store.imap.ImapTestUtils.buildList;
 import static com.android.email.mail.store.imap.ImapTestUtils.buildResponse;
 import static com.android.email.mail.store.imap.ImapTestUtils.createFixedLengthInputStream;
 
-import com.android.email.Email;
-import com.android.email.Utility;
-import com.android.email.mail.store.imap.ImapMemoryLiteral;
-import com.android.email.mail.store.imap.ImapResponse;
-import com.android.email.mail.store.imap.ImapResponseParser;
-import com.android.email.mail.store.imap.ImapSimpleString;
-import com.android.email.mail.store.imap.ImapString;
-import com.android.email.mail.store.imap.ImapTempFileLiteral;
 import com.android.email.mail.store.imap.ImapResponseParser.ByeException;
 import com.android.email.mail.transport.DiscourseLogger;
+import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.utility.Utility;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -50,7 +44,7 @@ public class ImapResponseParserTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Email.setTempDirectory(getContext());
+        TempDirectory.setTempDirectory(getContext());
     }
 
     public void testExpect() throws Exception {

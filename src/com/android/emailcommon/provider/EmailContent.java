@@ -16,9 +16,8 @@
 
 package com.android.emailcommon.provider;
 
-import com.android.email.Utility;
-import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.mail.Snippet;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -63,8 +62,13 @@ import java.util.UUID;
  *
  */
 public abstract class EmailContent {
-    public static final String AUTHORITY = EmailProvider.EMAIL_AUTHORITY;
-    public static final String NOTIFIER_AUTHORITY = EmailProvider.EMAIL_NOTIFIER_AUTHORITY;
+
+    public static final String AUTHORITY = "com.android.email.provider";
+    // The notifier authority is used to send notifications regarding changes to messages (insert,
+    // delete, or update) and is intended as an optimization for use by clients of message list
+    // cursors (initially, the email AppWidget).
+    public static final String NOTIFIER_AUTHORITY = "com.android.email.notifier";
+
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
     public static final String PARAMETER_LIMIT = "limit";
 
@@ -798,7 +802,7 @@ public abstract class EmailContent {
             addSaveOps(ops);
             try {
                 ContentProviderResult[] results =
-                    context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                    context.getContentResolver().applyBatch(AUTHORITY, ops);
                 // If saving, set the mId's of the various saved objects
                 if (doSave) {
                     Uri u = results[0].uri;
@@ -1469,7 +1473,7 @@ public abstract class EmailContent {
         public static long getAccountIdFromShortcutSafeUri(Context context, Uri uri) {
             // Make sure the URI is in the correct format.
             if (!"content".equals(uri.getScheme())
-                    || !EmailContent.AUTHORITY.equals(uri.getAuthority())) {
+                    || !AUTHORITY.equals(uri.getAuthority())) {
                 return -1;
             }
 
@@ -1635,7 +1639,7 @@ public abstract class EmailContent {
                         .newUpdate(ContentUris.withAppendedId(CONTENT_URI, mId))
                         .withValues(cv).build());
                 try {
-                    context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                    context.getContentResolver().applyBatch(AUTHORITY, ops);
                     return 1;
                 } catch (RemoteException e) {
                     // There is nothing to be done here; fail by returning 0
@@ -1714,7 +1718,7 @@ public abstract class EmailContent {
 
             try {
                 ContentProviderResult[] results =
-                    context.getContentResolver().applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                    context.getContentResolver().applyBatch(AUTHORITY, ops);
                 // If saving, set the mId's of the various saved objects
                 if (recvIndex >= 0) {
                     long newId = getId(results[recvIndex].uri);

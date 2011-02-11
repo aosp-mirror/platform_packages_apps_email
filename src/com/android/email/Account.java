@@ -18,6 +18,7 @@ package com.android.email;
 
 import com.android.email.mail.Store;
 import com.android.emailcommon.service.SyncWindow;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.content.SharedPreferences;

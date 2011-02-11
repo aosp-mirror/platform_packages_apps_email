@@ -18,10 +18,9 @@
 package com.android.exchange;
 
 import com.android.email.Email;
-import com.android.email.Utility;
 import com.android.email.mail.transport.SSLUtils;
-import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Api;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -36,6 +35,7 @@ import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AccountReconciler;
+import com.android.emailcommon.utility.Utility;
 import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
 import com.android.exchange.utility.FileLogger;
@@ -67,21 +67,21 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.NetworkInfo.State;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.os.PowerManager.WakeLock;
 import android.provider.Calendar;
-import android.provider.ContactsContract;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -1112,10 +1112,10 @@ public class ExchangeService extends Service implements Runnable {
                 rdr.close();
                 return id;
             } else {
-                Log.w(Email.LOG_TAG, f.getAbsolutePath() + ": File exists, but can't read?" +
+                Log.w(Logging.LOG_TAG, f.getAbsolutePath() + ": File exists, but can't read?" +
                         "  Trying to remove.");
                 if (!f.delete()) {
-                    Log.w(Email.LOG_TAG, "Remove failed. Tring to overwrite.");
+                    Log.w(Logging.LOG_TAG, "Remove failed. Tring to overwrite.");
                 }
             }
         }
@@ -1530,7 +1530,7 @@ public class ExchangeService extends Service implements Runnable {
             for (Account account : mAccountList) {
                 updatePIMSyncSettings(account, Mailbox.TYPE_CONTACTS, ContactsContract.AUTHORITY);
                 updatePIMSyncSettings(account, Mailbox.TYPE_CALENDAR, Calendar.AUTHORITY);
-                updatePIMSyncSettings(account, Mailbox.TYPE_INBOX, EmailProvider.EMAIL_AUTHORITY);
+                updatePIMSyncSettings(account, Mailbox.TYPE_INBOX, EmailContent.AUTHORITY);
             }
         }
     }
@@ -2109,7 +2109,7 @@ public class ExchangeService extends Service implements Runnable {
                         continue;
                     } else if (type < Mailbox.TYPE_NOT_EMAIL &&
                             !ContentResolver.getSyncAutomatically(accountManagerAccount,
-                                    EmailProvider.EMAIL_AUTHORITY)) {
+                                    EmailContent.AUTHORITY)) {
                         // Don't sync mail if user hasn't chosen to sync it automatically
                         continue;
                     }

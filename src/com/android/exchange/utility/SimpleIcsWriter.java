@@ -15,13 +15,12 @@
 
 package com.android.exchange.utility;
 
-import com.android.email.Utility;
+import com.android.emailcommon.utility.Utility;
 
 import android.text.TextUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * Class to generate iCalender object (*.ics) per RFC 5545.

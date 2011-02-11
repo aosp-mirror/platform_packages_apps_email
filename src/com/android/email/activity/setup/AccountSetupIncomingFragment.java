@@ -19,9 +19,10 @@ package com.android.email.activity.setup;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.Utility;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.content.Context;
@@ -94,7 +95,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onCreate");
+            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onCreate");
         }
         super.onCreate(savedInstanceState);
 
@@ -108,7 +109,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onCreateView");
+            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onCreateView");
         }
         int layoutId = mSettingsMode
                 ? R.layout.account_settings_incoming_fragment
@@ -198,7 +199,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onActivityCreated");
+            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
     }
@@ -209,7 +210,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     @Override
     public void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onStart");
+            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onStart");
         }
         super.onStart();
         mStarted = true;
@@ -223,7 +224,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     @Override
     public void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onResume");
+            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onResume");
         }
         super.onResume();
         validateFields();
@@ -232,7 +233,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     @Override
     public void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onPause");
+            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onPause");
         }
         super.onPause();
     }
@@ -243,7 +244,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     @Override
     public void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onStop");
+            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onStop");
         }
         super.onStop();
         mStarted = false;
@@ -255,7 +256,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     @Override
     public void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onDestroy");
+            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onDestroy");
         }
         super.onDestroy();
     }
@@ -263,7 +264,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupIncomingFragment onSaveInstanceState");
+            Log.d(Logging.LOG_TAG, "AccountSetupIncomingFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
 

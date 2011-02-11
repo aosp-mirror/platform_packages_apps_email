@@ -19,12 +19,13 @@ package com.android.email.activity;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
+import com.android.email.MessagingExceptionStrings;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -313,7 +314,8 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
          */
         private void updateBanner(MessagingException result, int progress) {
             if (result != null) {
-                showErrorBanner(result.getUiErrorMessage(MailboxList.this));
+                showErrorBanner(
+                        MessagingExceptionStrings.getErrorString(MailboxList.this, result));
             } else if (progress > 0) {
                 showErrorBanner(null);
             }

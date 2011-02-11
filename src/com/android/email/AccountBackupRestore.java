@@ -16,14 +16,14 @@
 
 package com.android.email;
 
-import com.android.email.provider.EmailProvider;
 import com.android.email.service.MailService;
+import com.android.emailcommon.CalendarProviderStub;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.provider.Calendar;
 import android.provider.ContactsContract;
 import android.util.Log;
 
@@ -45,7 +45,7 @@ public class AccountBackupRestore {
      */
     public static void backupAccounts(final Context context) {
         if (Email.DEBUG) {
-            Log.v(Email.LOG_TAG, "backupAccounts");
+            Log.v(Logging.LOG_TAG, "backupAccounts");
         }
         // Because we typically call this from the UI, let's do the work in a thread
         new Thread() {
@@ -68,7 +68,7 @@ public class AccountBackupRestore {
         boolean restored = doRestoreAccounts(context, Preferences.getPreferences(context), false);
         if (restored) {
             // after restoring accounts, register services appropriately
-            Log.w(Email.LOG_TAG, "Register services after restoring accounts");
+            Log.w(Logging.LOG_TAG, "Register services after restoring accounts");
             // update security profile
             SecurityPolicy.getInstance(context).updatePolicies(-1);
             // enable/disable other email services as necessary
@@ -110,7 +110,7 @@ public class AccountBackupRestore {
                 EmailContent.Account fromAccount =
                         EmailContent.getContent(c, EmailContent.Account.class);
                 if (Email.DEBUG) {
-                    Log.v(Email.LOG_TAG, "Backing up account:" + fromAccount.getDisplayName());
+                    Log.v(Logging.LOG_TAG, "Backing up account:" + fromAccount.getDisplayName());
                 }
                 Account toAccount = LegacyConversions.makeLegacyAccount(context, fromAccount);
 
@@ -124,12 +124,12 @@ public class AccountBackupRestore {
                         toAccount.mBackupFlags |= Account.BACKUP_FLAGS_SYNC_CONTACTS;
                     }
                     boolean syncCalendar = ContentResolver.getSyncAutomatically(acct,
-                            Calendar.AUTHORITY);
+                            CalendarProviderStub.AUTHORITY);
                     if (syncCalendar) {
                         toAccount.mBackupFlags |= Account.BACKUP_FLAGS_SYNC_CALENDAR;
                     }
                     boolean syncEmail = ContentResolver.getSyncAutomatically(acct,
-                            EmailProvider.EMAIL_AUTHORITY);
+                            EmailContent.AUTHORITY);
                     if (!syncEmail) {
                         toAccount.mBackupFlags |= Account.BACKUP_FLAGS_DONT_SYNC_EMAIL;
                     }
@@ -178,7 +178,7 @@ public class AccountBackupRestore {
             return result;
         }
 
-        Log.w(Email.LOG_TAG, "*** Restoring Email Accounts, found " + backups.length);
+        Log.w(Logging.LOG_TAG, "*** Restoring Email Accounts, found " + backups.length);
 
         // 3. Possible lost accounts situation - check for any backups, and restore them
         for (Account backupAccount : backups) {
@@ -187,7 +187,7 @@ public class AccountBackupRestore {
                 continue;
             }
             // Restore the account
-            Log.w(Email.LOG_TAG, "Restoring account:" + backupAccount.getDescription());
+            Log.w(Logging.LOG_TAG, "Restoring account:" + backupAccount.getDescription());
             EmailContent.Account toAccount = LegacyConversions.makeAccount(context, backupAccount);
 
             // Mark the default account if this is it

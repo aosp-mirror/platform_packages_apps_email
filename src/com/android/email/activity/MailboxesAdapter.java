@@ -17,17 +17,19 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
+import com.android.email.FolderProperties;
 import com.android.email.R;
 import com.android.email.ResourceHelper;
-import com.android.email.Utility;
 import com.android.email.data.ClosingMatrixCursor;
 import com.android.email.data.ThrottlingCursorLoader;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.content.Loader;
@@ -254,8 +256,7 @@ import android.widget.TextView;
             // we use the predefined names.
             final int type = cursor.getInt(COLUMN_TYPE);
             final long mailboxId = cursor.getLong(COLUMN_ID);
-            name = Utility.FolderProperties.getInstance(context)
-                    .getDisplayName(type, mailboxId);
+            name = FolderProperties.getInstance(context).getDisplayName(type, mailboxId);
         }
         if (name == null) {
             name = cursor.getString(COLUMN_DISPLAY_NAME);
@@ -306,7 +307,7 @@ import android.widget.TextView;
 
         // Set folder icon
         ((ImageView) view.findViewById(R.id.folder_icon)).setImageDrawable(
-                Utility.FolderProperties.getInstance(context).getIcon(type, id));
+                FolderProperties.getInstance(context).getIcon(type, id));
 
         final View chipView = view.findViewById(R.id.color_chip);
         if (isAccount) {
@@ -336,7 +337,7 @@ import android.widget.TextView;
     public static Loader<Cursor> createLoader(Context context, long accountId,
             int mode) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxesAdapter createLoader accountId=" + accountId);
+            Log.d(Logging.LOG_TAG, "MailboxesAdapter createLoader accountId=" + accountId);
         }
         if (accountId != Account.ACCOUNT_ID_COMBINED_VIEW) {
             return new MailboxesLoader(context, accountId, mode);

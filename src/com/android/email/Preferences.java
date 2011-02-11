@@ -16,6 +16,8 @@
 
 package com.android.email;
 
+import com.android.emailcommon.Logging;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -248,7 +250,7 @@ public class Preferences {
     public void dump() {
         if (Email.LOGD) {
             for (String key : mSharedPreferences.getAll().keySet()) {
-                Log.v(Email.LOG_TAG, key + " = " + mSharedPreferences.getAll().get(key));
+                Log.v(Logging.LOG_TAG, key + " = " + mSharedPreferences.getAll().get(key));
             }
         }
     }

@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.TestUtils;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -919,7 +920,7 @@ public class MessageComposeTests
      */
     public void testCommaInserting() throws Throwable {
         if (!TestUtils.isScreenOnAndNotLocked(mContext)) {
-            Log.w(Email.LOG_TAG, "SKIP testCommaInserting: Screen off or locked");
+            Log.w(Logging.LOG_TAG, "SKIP testCommaInserting: Screen off or locked");
             return;
         }
 

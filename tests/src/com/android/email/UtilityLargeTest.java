@@ -18,6 +18,7 @@ package com.android.email;
 
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.test.InstrumentationTestCase;

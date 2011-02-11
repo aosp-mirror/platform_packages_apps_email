@@ -16,7 +16,7 @@
 
 package com.android.email.mail.store.imap;
 
-import com.android.email.Email;
+import com.android.emailcommon.Logging;
 
 import android.util.Log;
 
@@ -132,7 +132,7 @@ public abstract class ImapString extends ImapElement {
             mParsedDate = DATE_TIME_FORMAT.parse(getString());
             return true;
         } catch (ParseException e) {
-            Log.w(Email.LOG_TAG, getString() + " can't be parsed as a date.");
+            Log.w(Logging.LOG_TAG, getString() + " can't be parsed as a date.");
             return false;
         }
     }

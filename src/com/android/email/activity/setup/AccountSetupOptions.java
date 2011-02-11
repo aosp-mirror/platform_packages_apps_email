@@ -19,14 +19,15 @@ package com.android.email.activity.setup;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Store;
 import com.android.email.service.MailService;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.service.PolicySet;
 import com.android.emailcommon.service.SyncWindow;
+import com.android.emailcommon.utility.Utility;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
@@ -276,11 +277,11 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 });
                 return;
             } catch (OperationCanceledException e) {
-                Log.d(Email.LOG_TAG, "addAccount was canceled");
+                Log.d(Logging.LOG_TAG, "addAccount was canceled");
             } catch (IOException e) {
-                Log.d(Email.LOG_TAG, "addAccount failed: " + e);
+                Log.d(Logging.LOG_TAG, "addAccount failed: " + e);
             } catch (AuthenticatorException e) {
-                Log.d(Email.LOG_TAG, "addAccount failed: " + e);
+                Log.d(Logging.LOG_TAG, "addAccount failed: " + e);
             }
             showErrorDialog(R.string.account_setup_failed_dlg_auth_message,
                     R.string.system_account_create_failed);

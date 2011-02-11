@@ -19,6 +19,7 @@ package com.android.email;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.content.Intent;
@@ -77,15 +78,18 @@ public class AttachmentInfo {
         boolean canSave = true;
 
         // Check for acceptable / unacceptable attachments by MIME-type
-        if ((!MimeUtility.mimeTypeMatches(mContentType, Email.ACCEPTABLE_ATTACHMENT_VIEW_TYPES)) ||
-            (MimeUtility.mimeTypeMatches(mContentType, Email.UNACCEPTABLE_ATTACHMENT_VIEW_TYPES))) {
+        if ((!MimeUtility.mimeTypeMatches(mContentType,
+                AttachmentUtilities.ACCEPTABLE_ATTACHMENT_VIEW_TYPES)) ||
+            (MimeUtility.mimeTypeMatches(mContentType,
+                    AttachmentUtilities.UNACCEPTABLE_ATTACHMENT_VIEW_TYPES))) {
             canView = false;
         }
 
         // Check for unacceptable attachments by filename extension
         String extension = AttachmentUtilities.getFilenameExtension(mName);
         if (!TextUtils.isEmpty(extension) &&
-                Utility.arrayContains(Email.UNACCEPTABLE_ATTACHMENT_EXTENSIONS, extension)) {
+                Utility.arrayContains(AttachmentUtilities.UNACCEPTABLE_ATTACHMENT_EXTENSIONS,
+                        extension)) {
             canView = false;
             canSave = false;
         }
@@ -93,7 +97,8 @@ public class AttachmentInfo {
         // Check for installable attachments by filename extension
         extension = AttachmentUtilities.getFilenameExtension(mName);
         if (!TextUtils.isEmpty(extension) &&
-                Utility.arrayContains(Email.INSTALLABLE_ATTACHMENT_EXTENSIONS, extension)) {
+                Utility.arrayContains(AttachmentUtilities.INSTALLABLE_ATTACHMENT_EXTENSIONS,
+                        extension)) {
             int sideloadEnabled;
             sideloadEnabled = Settings.Secure.getInt(context.getContentResolver(),
                     Settings.Secure.INSTALL_NON_MARKET_APPS, 0 /* sideload disabled */);
@@ -103,7 +108,7 @@ public class AttachmentInfo {
 
         // Check for file size exceeded
         // The size limit is overridden when on a wifi connection - any size is OK
-        if (mSize > Email.MAX_ATTACHMENT_DOWNLOAD_SIZE) {
+        if (mSize > AttachmentUtilities.MAX_ATTACHMENT_DOWNLOAD_SIZE) {
             ConnectivityManager cm = (ConnectivityManager)
                     context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo network = cm.getActiveNetworkInfo();

@@ -55,7 +55,7 @@ public final class DBTestHelper {
         public MyContext() {
             mProvider = new MyProvider();
             mContentResolver = new MockContentResolver();
-            mContentResolver.addProvider(EmailProvider.EMAIL_AUTHORITY, mProvider);
+            mContentResolver.addProvider(EmailContent.AUTHORITY, mProvider);
         }
 
         @Override

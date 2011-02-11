@@ -16,9 +16,8 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
+import com.android.email.FolderProperties;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
@@ -207,7 +206,7 @@ public class AccountsAdapter extends CursorAdapter {
         view.findViewById(R.id.default_sender).setVisibility(View.GONE);
         view.findViewById(R.id.folder_icon).setVisibility(View.VISIBLE);
         ((ImageView)view.findViewById(R.id.folder_icon)).setImageDrawable(
-                Utility.FolderProperties.getInstance(context).getSummaryMailboxIconIds(id));
+                FolderProperties.getInstance(context).getSummaryMailboxIconIds(id));
     }
 
     private void bindAccountItem(View view, Context context, Cursor cursor, boolean isExpanded)

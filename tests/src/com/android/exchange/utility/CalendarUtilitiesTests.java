@@ -17,17 +17,17 @@
 package com.android.exchange.utility;
 
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.utility.Utility;
 import com.android.exchange.adapter.CalendarSyncAdapter;
+import com.android.exchange.adapter.CalendarSyncAdapter.EasCalendarSyncParser;
 import com.android.exchange.adapter.Parser;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.SyncAdapterTestCase;
 import com.android.exchange.adapter.Tags;
-import com.android.exchange.adapter.CalendarSyncAdapter.EasCalendarSyncParser;
 
 import android.content.ContentValues;
 import android.content.Entity;

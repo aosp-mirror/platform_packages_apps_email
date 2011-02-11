@@ -18,6 +18,7 @@ package com.android.email;
 
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 
 import android.accounts.AccountManager;
@@ -40,7 +41,7 @@ public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
     protected static final String TEST_ACCOUNT_SUFFIX = "@android.com";
 
     public AccountTestCase() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     protected android.accounts.Account[] getExchangeAccounts() {

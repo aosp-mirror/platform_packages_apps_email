@@ -16,8 +16,7 @@
 
 package com.android.email.provider;
 
-import com.android.email.Utility;
-import com.android.email.mail.transport.Rfc822Output;
+import com.android.emailcommon.internet.Rfc822Output;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -25,6 +24,7 @@ import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.net.Uri;

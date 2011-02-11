@@ -17,9 +17,9 @@
 package com.android.email.activity.setup;
 
 import com.android.email.AccountBackupRestore;
-import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.VendorPolicyLoader;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 
@@ -136,7 +136,7 @@ public class AccountSettingsUtils {
             }
         }
         catch (Exception e) {
-            Log.e(Email.LOG_TAG, "Error while trying to load provider settings.", e);
+            Log.e(Logging.LOG_TAG, "Error while trying to load provider settings.", e);
         }
         return null;
     }

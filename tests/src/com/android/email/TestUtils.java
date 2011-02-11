@@ -16,6 +16,8 @@
 
 package com.android.email;
 
+import com.android.emailcommon.Logging;
+
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.PowerManager;
@@ -112,7 +114,7 @@ public class TestUtils extends TestCase /* It tests itself */ {
      * Wait until a {@code Condition} is met.
      */
     public static void waitUntil(String message, Condition condition, int timeoutSeconds) {
-        Log.d(Email.LOG_TAG, message + ": Waiting...");
+        Log.d(Logging.LOG_TAG, message + ": Waiting...");
         final long timeout = System.currentTimeMillis() + timeoutSeconds * 1000;
         while (System.currentTimeMillis() < timeout) {
             if (condition.isMet()) {

@@ -16,19 +16,19 @@
 
 package com.android.email.mail.store;
 
-import com.android.email.Email;
 import com.android.email.mail.Transport;
 import com.android.email.mail.transport.MockTransport;
+import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.internet.MimeMessage;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.FetchProfile;
 import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Folder;
-import com.android.emailcommon.mail.Message;
-import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Folder.FolderType;
 import com.android.emailcommon.mail.Folder.OpenMode;
+import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.Message.RecipientType;
+import com.android.emailcommon.mail.MessagingException;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -54,7 +54,7 @@ public class Pop3StoreUnitTests extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Email.setTempDirectory(getContext());
+        TempDirectory.setTempDirectory(getContext());
 
         // These are needed so we can get at the inner classes
         mStore = (Pop3Store) Pop3Store.newInstance("pop3://user:password@server:999",

@@ -19,6 +19,8 @@ package com.android.email.mail.transport;
 import com.android.email.Email;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Transport;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.internet.Rfc822Output;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.CertificateValidationException;
@@ -146,7 +148,7 @@ public class SmtpSender extends Sender {
                     result = executeSimpleCommand("EHLO " + localHost);
                 } else {
                     if (Email.DEBUG) {
-                        Log.d(Email.LOG_TAG, "TLS not supported but required");
+                        Log.d(Logging.LOG_TAG, "TLS not supported but required");
                     }
                     throw new MessagingException(MessagingException.TLS_REQUIRED);
                 }
@@ -168,19 +170,19 @@ public class SmtpSender extends Sender {
                 }
                 else {
                     if (Email.DEBUG) {
-                        Log.d(Email.LOG_TAG, "No valid authentication mechanism found.");
+                        Log.d(Logging.LOG_TAG, "No valid authentication mechanism found.");
                     }
                     throw new MessagingException(MessagingException.AUTH_REQUIRED);
                 }
             }
         } catch (SSLException e) {
             if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, e.toString());
+                Log.d(Logging.LOG_TAG, e.toString());
             }
             throw new CertificateValidationException(e.getMessage(), e);
         } catch (IOException ioe) {
             if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, ioe.toString());
+                Log.d(Logging.LOG_TAG, ioe.toString());
             }
             throw new MessagingException(MessagingException.IOERROR, ioe.toString());
         }

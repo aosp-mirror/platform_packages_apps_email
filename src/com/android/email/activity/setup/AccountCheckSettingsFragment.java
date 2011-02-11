@@ -16,16 +16,16 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.PolicySet;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -415,7 +415,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 if ((mMode & SetupData.CHECK_AUTODISCOVER) != 0) {
                     if (isCancelled()) return null;
                     publishProgress(STATE_CHECK_AUTODISCOVER);
-                    Log.d(Email.LOG_TAG, "Begin auto-discover for " + mCheckEmail);
+                    Log.d(Logging.LOG_TAG, "Begin auto-discover for " + mCheckEmail);
                     Store store = Store.getInstance(mStoreUri, mContext, null);
                     Bundle result = store.autoDiscover(mContext, mCheckEmail, mCheckPassword);
                     // Result will be one of:
@@ -442,7 +442,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 // Check Incoming Settings
                 if ((mMode & SetupData.CHECK_INCOMING) != 0) {
                     if (isCancelled()) return null;
-                    Log.d(Email.LOG_TAG, "Begin check of incoming email settings");
+                    Log.d(Logging.LOG_TAG, "Begin check of incoming email settings");
                     publishProgress(STATE_CHECK_INCOMING);
                     Store store = Store.getInstance(mStoreUri, mContext, null);
                     Bundle bundle = store.checkSettings();
@@ -467,7 +467,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 // Check Outgoing Settings
                 if ((mMode & SetupData.CHECK_OUTGOING) != 0) {
                     if (isCancelled()) return null;
-                    Log.d(Email.LOG_TAG, "Begin check of outgoing email settings");
+                    Log.d(Logging.LOG_TAG, "Begin check of outgoing email settings");
                     publishProgress(STATE_CHECK_OUTGOING);
                     Sender sender = Sender.getInstance(mContext, mSenderUri);
                     sender.close();

@@ -18,10 +18,10 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
-import com.android.email.Utility;
 import com.android.email.activity.ActivityHelper;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.app.admin.DevicePolicyManager;

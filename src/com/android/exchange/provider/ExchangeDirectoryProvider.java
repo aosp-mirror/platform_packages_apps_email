@@ -17,13 +17,13 @@
 package com.android.exchange.provider;
 
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.mail.PackedString;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.service.AccountServiceProxy;
+import com.android.emailcommon.utility.Utility;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.provider.GalResult.GalData;
 

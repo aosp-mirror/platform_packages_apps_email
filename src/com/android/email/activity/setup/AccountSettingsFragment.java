@@ -18,13 +18,15 @@ package com.android.email.activity.setup;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
+import com.android.emailcommon.CalendarProviderStub;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -47,7 +49,6 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.RingtonePreference;
-import android.provider.Calendar;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
@@ -167,7 +168,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSettingsFragment onCreate");
+            Log.d(Logging.LOG_TAG, "AccountSettingsFragment onCreate");
         }
         super.onCreate(savedInstanceState);
 
@@ -190,7 +191,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSettingsFragment onActivityCreated");
+            Log.d(Logging.LOG_TAG, "AccountSettingsFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
     }
@@ -201,7 +202,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSettingsFragment onStart");
+            Log.d(Logging.LOG_TAG, "AccountSettingsFragment onStart");
         }
         super.onStart();
         mStarted = true;
@@ -220,7 +221,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSettingsFragment onResume");
+            Log.d(Logging.LOG_TAG, "AccountSettingsFragment onResume");
         }
         super.onResume();
 
@@ -249,7 +250,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSettingsFragment onPause");
+            Log.d(Logging.LOG_TAG, "AccountSettingsFragment onPause");
         }
         super.onPause();
         if (mSaveOnExit) {
@@ -263,7 +264,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSettingsFragment onStop");
+            Log.d(Logging.LOG_TAG, "AccountSettingsFragment onStop");
         }
         super.onStop();
         mStarted = false;
@@ -275,7 +276,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSettingsFragment onDestroy");
+            Log.d(Logging.LOG_TAG, "AccountSettingsFragment onDestroy");
         }
         super.onDestroy();
 
@@ -286,7 +287,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSettingsFragment onSaveInstanceState");
+            Log.d(Logging.LOG_TAG, "AccountSettingsFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
     }
@@ -547,7 +548,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
             mSyncContacts.setOnPreferenceChangeListener(mPreferenceChangeListener);
             mSyncCalendar.setChecked(ContentResolver
-                    .getSyncAutomatically(acct, Calendar.AUTHORITY));
+                    .getSyncAutomatically(acct, CalendarProviderStub.AUTHORITY));
             mSyncCalendar.setOnPreferenceChangeListener(mPreferenceChangeListener);
             mSyncEmail.setChecked(ContentResolver
                     .getSyncAutomatically(acct, EmailContent.AUTHORITY));
@@ -632,7 +633,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
             ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,
                     mSyncContacts.isChecked());
-            ContentResolver.setSyncAutomatically(acct, Calendar.AUTHORITY,
+            ContentResolver.setSyncAutomatically(acct, CalendarProviderStub.AUTHORITY,
                     mSyncCalendar.isChecked());
             ContentResolver.setSyncAutomatically(acct, EmailContent.AUTHORITY,
                     mSyncEmail.isChecked());

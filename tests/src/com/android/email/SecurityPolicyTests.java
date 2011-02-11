@@ -52,7 +52,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0, false);
 
     public SecurityPolicyTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override

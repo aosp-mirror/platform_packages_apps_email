@@ -16,18 +16,15 @@
 
 package com.android.emailcommon.internet;
 
-import com.android.email.Email;
-import com.android.emailcommon.internet.MimeHeader;
-import com.android.emailcommon.internet.MimeMessage;
-import com.android.emailcommon.internet.MimeUtility;
+import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.Flag;
-import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Message.RecipientType;
+import com.android.emailcommon.mail.MessagingException;
 
 import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -67,7 +64,7 @@ public class MimeMessageTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Email.setTempDirectory(getContext());
+        TempDirectory.setTempDirectory(getContext());
     }
 
     /**
@@ -533,7 +530,7 @@ public class MimeMessageTest extends AndroidTestCase {
      * Make sure the parser accepts the "eBay style" date format.
      *
      * Messages from ebay have been seen that they use the wrong date format.
-     * @see com.android.email.Utility#cleanUpMimeDate
+     * @see com.android.emailcommon.utility.Utility#cleanUpMimeDate
      */
     public void testEbayDate() throws MessagingException, IOException {
         String entireMessage =

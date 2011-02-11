@@ -18,7 +18,6 @@ package com.android.email.mail.store;
 
 import com.android.email.Email;
 import com.android.email.Preferences;
-import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
@@ -32,6 +31,7 @@ import com.android.email.mail.transport.CountingOutputStream;
 import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.EOLConvertingOutputStream;
 import com.android.email.mail.transport.MailTransport;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.BinaryTempFileBody;
 import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeHeader;
@@ -48,6 +48,7 @@ import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.utility.Utility;
 import com.beetstra.jutf7.CharsetProvider;
 
 import android.content.Context;
@@ -286,7 +287,7 @@ public class ImapStore extends Store {
             id.append(hexUid);
             id.append('\"');
         } catch (NoSuchAlgorithmException e) {
-            Log.d(Email.LOG_TAG, "couldn't obtain SHA-1 hash for device UID");
+            Log.d(Logging.LOG_TAG, "couldn't obtain SHA-1 hash for device UID");
         }
         return id.toString();
     }
@@ -900,7 +901,7 @@ public class ImapStore extends Store {
             try {
                 fetchInternal(messages, fp, listener);
             } catch (RuntimeException e) { // Probably a parser error.
-                Log.w(Email.LOG_TAG, "Exception detected: " + e.getMessage());
+                Log.w(Logging.LOG_TAG, "Exception detected: " + e.getMessage());
                 if (mConnection != null) {
                     mConnection.logLastDiscourse();
                 }
@@ -1021,7 +1022,7 @@ public class ImapStore extends Store {
                                     parseBodyStructure(bs, message, ImapConstants.TEXT);
                                 } catch (MessagingException e) {
                                     if (Email.LOGD) {
-                                        Log.v(Email.LOG_TAG, "Error handling message", e);
+                                        Log.v(Logging.LOG_TAG, "Error handling message", e);
                                     }
                                     message.setBody(null);
                                 }
@@ -1439,7 +1440,7 @@ public class ImapStore extends Store {
 
         private MessagingException ioExceptionHandler(ImapConnection connection, IOException ioe) {
             if (Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "IO Exception detected: ", ioe);
+                Log.d(Logging.LOG_TAG, "IO Exception detected: ", ioe);
             }
             connection.destroyResponses();
             connection.close();
@@ -1530,7 +1531,7 @@ public class ImapStore extends Store {
                 ensurePrefixIsValid();
             } catch (SSLException e) {
                 if (Email.DEBUG) {
-                    Log.d(Email.LOG_TAG, e.toString());
+                    Log.d(Logging.LOG_TAG, e.toString());
                 }
                 throw new CertificateValidationException(e.getMessage(), e);
             } catch (IOException ioe) {
@@ -1538,7 +1539,7 @@ public class ImapStore extends Store {
                 // of other code here that catches IOException and I don't want to break it.
                 // This catch is only here to enhance logging of connection-time issues.
                 if (Email.DEBUG) {
-                    Log.d(Email.LOG_TAG, ioe.toString());
+                    Log.d(Logging.LOG_TAG, ioe.toString());
                 }
                 throw ioe;
             } finally {
@@ -1663,7 +1664,7 @@ public class ImapStore extends Store {
                 } catch (ImapException ie) {
                     // Log for debugging, but this is not a fatal problem.
                     if (Email.DEBUG) {
-                        Log.d(Email.LOG_TAG, ie.toString());
+                        Log.d(Logging.LOG_TAG, ie.toString());
                     }
                 } catch (IOException ioe) {
                     // Special case to handle malformed OK responses and ignore them.
@@ -1688,7 +1689,7 @@ public class ImapStore extends Store {
                 } catch (ImapException ie) {
                     // Log for debugging, but this is not a fatal problem.
                     if (Email.DEBUG) {
-                        Log.d(Email.LOG_TAG, ie.toString());
+                        Log.d(Logging.LOG_TAG, ie.toString());
                     }
                 } catch (IOException ioe) {
                     // Special case to handle malformed OK responses and ignore them.
@@ -1719,7 +1720,7 @@ public class ImapStore extends Store {
                 executeSimpleCommand(mLoginPhrase, true);
             } catch (ImapException ie) {
                 if (Email.DEBUG) {
-                    Log.d(Email.LOG_TAG, ie.toString());
+                    Log.d(Logging.LOG_TAG, ie.toString());
                 }
                 throw new AuthenticationFailedException(ie.getAlertText(), ie);
 
@@ -1743,7 +1744,7 @@ public class ImapStore extends Store {
                 } catch (ImapException ie) {
                     // Log for debugging, but this is not a fatal problem.
                     if (Email.DEBUG) {
-                        Log.d(Email.LOG_TAG, ie.toString());
+                        Log.d(Logging.LOG_TAG, ie.toString());
                     }
                 } catch (IOException ioe) {
                     // Special case to handle malformed OK responses and ignore them.
@@ -1776,7 +1777,7 @@ public class ImapStore extends Store {
                     return(queryCapabilities());
                 } else {
                     if (Email.DEBUG) {
-                        Log.d(Email.LOG_TAG, "TLS not supported but required");
+                        Log.d(Logging.LOG_TAG, "TLS not supported but required");
                     }
                     throw new MessagingException(MessagingException.TLS_REQUIRED);
                 }

@@ -16,7 +16,7 @@
 
 package com.android.emailcommon.utility;
 
-import com.android.email.Email;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 
 import android.accounts.AccountManager;
@@ -65,14 +65,13 @@ public class AccountReconciler {
             }
             if (!found) {
                 if ((providerAccount.mFlags & Account.FLAGS_INCOMPLETE) != 0) {
-                    if (Email.DEBUG) {
-                        Log.d(Email.LOG_TAG,
-                        "Account reconciler noticed incomplete account; ignoring");
-                    }
+                    Log.w(Logging.LOG_TAG,
+                            "Account reconciler noticed incomplete account; ignoring");
                     continue;
                 }
                 // This account has been deleted in the AccountManager!
-                Log.d(Email.LOG_TAG, "Account deleted in AccountManager; deleting from provider: " +
+                Log.d(Logging.LOG_TAG,
+                        "Account deleted in AccountManager; deleting from provider: " +
                         providerAccountName);
                 // TODO This will orphan downloaded attachments; need to handle this
                 resolver.delete(ContentUris.withAppendedId(Account.CONTENT_URI,
@@ -92,7 +91,7 @@ public class AccountReconciler {
             }
             if (!found) {
                 // This account has been deleted from the EmailProvider database
-                Log.d(Email.LOG_TAG,
+                Log.d(Logging.LOG_TAG,
                         "Account deleted from provider; deleting from AccountManager: " +
                         accountManagerAccountName);
                 // Delete the account
@@ -103,11 +102,11 @@ public class AccountReconciler {
                     // here, as there is nothing to actually do about them.
                     blockingResult.getResult();
                 } catch (OperationCanceledException e) {
-                    Log.w(Email.LOG_TAG, e.toString());
+                    Log.w(Logging.LOG_TAG, e.toString());
                 } catch (AuthenticatorException e) {
-                    Log.w(Email.LOG_TAG, e.toString());
+                    Log.w(Logging.LOG_TAG, e.toString());
                 } catch (IOException e) {
-                    Log.w(Email.LOG_TAG, e.toString());
+                    Log.w(Logging.LOG_TAG, e.toString());
                 }
                 accountsDeleted = true;
             }

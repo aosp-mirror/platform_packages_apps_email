@@ -19,6 +19,7 @@ package com.android.exchange.provider;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.mail.PackedString;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.exchange.provider.GalResult.GalData;
 
@@ -37,7 +38,7 @@ import android.test.ProviderTestCase2;
 public class ExchangeDirectoryProviderTests extends ProviderTestCase2<EmailProvider> {
 
     public ExchangeDirectoryProviderTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     // Create a test projection; we should only get back values for display name and email address

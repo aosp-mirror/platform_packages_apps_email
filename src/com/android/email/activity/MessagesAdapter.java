@@ -18,11 +18,12 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.ResourceHelper;
-import com.android.email.Utility;
 import com.android.email.data.ThrottlingCursorLoader;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.content.Loader;
@@ -202,7 +203,7 @@ import java.util.Set;
 
     public static Loader<Cursor> createLoader(Context context, long mailboxId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessagesAdapter createLoader mailboxId=" + mailboxId);
+            Log.d(Logging.LOG_TAG, "MessagesAdapter createLoader mailboxId=" + mailboxId);
         }
         return new MessagesCursorLoader(context, mailboxId);
 

@@ -19,6 +19,7 @@ package com.android.email;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.emailcommon.Api;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Folder.MessageRetrievalListener;
@@ -34,6 +35,7 @@ import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Service;
 import android.content.ContentResolver;
@@ -399,7 +401,7 @@ public class Controller {
             ContentValues cv = new ContentValues();
             cv.put(MessageColumns.FLAG_LOADED, Message.FLAG_LOADED_COMPLETE);
             mProviderContext.getContentResolver().update(uri, cv, null, null);
-            Log.d(Email.LOG_TAG, "Unexpected loadMessageForView() for service-based message.");
+            Log.d(Logging.LOG_TAG, "Unexpected loadMessageForView() for service-based message.");
             final long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
             synchronized (mListeners) {
                 for (Result listener : mListeners) {
@@ -490,7 +492,7 @@ public class Controller {
     /* package */ long createMailbox(long accountId, int mailboxType) {
         if (accountId < 0 || mailboxType < 0) {
             String mes = "Invalid arguments " + accountId + ' ' + mailboxType;
-            Log.e(Email.LOG_TAG, mes);
+            Log.e(Logging.LOG_TAG, mes);
             throw new RuntimeException(mes);
         }
         Mailbox box = new Mailbox();
@@ -979,7 +981,7 @@ public class Controller {
 
             Email.setServicesEnabledSync(context);
         } catch (Exception e) {
-            Log.w(Email.LOG_TAG, "Exception while deleting account", e);
+            Log.w(Logging.LOG_TAG, "Exception while deleting account", e);
         } finally {
             synchronized (mListeners) {
                 for (Result l : mListeners) {
@@ -1032,7 +1034,7 @@ public class Controller {
                 service.deleteAccountPIMData(accountId);
             }
         } catch (Exception e) {
-            Log.w(Email.LOG_TAG, "Exception while deleting account synced data", e);
+            Log.w(Logging.LOG_TAG, "Exception while deleting account synced data", e);
         }
     }
 

@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.service.MailService;
+import com.android.emailcommon.Logging;
 import com.android.exchange.Eas;
 import com.android.exchange.utility.FileLogger;
 
@@ -51,7 +52,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "AccountSetupBasicsFragment onCreateView");
+            Log.d(Logging.LOG_TAG, "AccountSetupBasicsFragment onCreateView");
         }
         View view = inflater.inflate(R.layout.debug, container, false);
 
@@ -138,7 +139,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         WebView webview = new WebView(getActivity());
         try {
             webview.clearCache(true);
-            Log.w(Email.LOG_TAG, "Cleard WebView cache.");
+            Log.w(Logging.LOG_TAG, "Cleard WebView cache.");
         } finally {
             webview.destroy();
         }

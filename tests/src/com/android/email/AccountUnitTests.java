@@ -16,6 +16,8 @@
 
 package com.android.email;
 
+import com.android.emailcommon.utility.Utility;
+
 import android.content.SharedPreferences;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;

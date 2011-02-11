@@ -20,10 +20,11 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
-import com.android.email.Utility;
 import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.app.ListFragment;
@@ -151,7 +152,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onCreate");
+            Log.d(Logging.LOG_TAG, "MailboxListFragment onCreate");
         }
         super.onCreate(savedInstanceState);
 
@@ -178,7 +179,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onActivityCreated");
+            Log.d(Logging.LOG_TAG, "MailboxListFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
 
@@ -198,7 +199,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      */
     public void openMailboxes(long accountId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment openMailboxes");
+            Log.d(Logging.LOG_TAG, "MailboxListFragment openMailboxes");
         }
         if (accountId == -1) {
             throw new InvalidParameterException();
@@ -226,7 +227,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onStart");
+            Log.d(Logging.LOG_TAG, "MailboxListFragment onStart");
         }
         super.onStart();
     }
@@ -237,7 +238,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onResume");
+            Log.d(Logging.LOG_TAG, "MailboxListFragment onResume");
         }
         super.onResume();
         mResumed = true;
@@ -252,7 +253,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onPause");
+            Log.d(Logging.LOG_TAG, "MailboxListFragment onPause");
         }
         mResumed = false;
         super.onPause();
@@ -265,7 +266,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onStop");
+            Log.d(Logging.LOG_TAG, "MailboxListFragment onStop");
         }
         super.onStop();
     }
@@ -276,7 +277,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onDestroy");
+            Log.d(Logging.LOG_TAG, "MailboxListFragment onDestroy");
         }
         super.onDestroy();
     }
@@ -284,7 +285,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment onSaveInstanceState");
+            Log.d(Logging.LOG_TAG, "MailboxListFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
         outState.putLong(BUNDLE_KEY_SELECTED_MAILBOX_ID, mSelectedMailboxId);
@@ -298,7 +299,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private void startLoading() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MailboxListFragment startLoading");
+            Log.d(Logging.LOG_TAG, "MailboxListFragment startLoading");
         }
         mOpenRequested = false;
         // Clear the list.  (ListFragment will show the "Loading" animation)
@@ -331,7 +332,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "MailboxListFragment onCreateLoader");
+                Log.d(Logging.LOG_TAG, "MailboxListFragment onCreateLoader");
             }
             return MailboxesAdapter.createLoader(getActivity(), mAccountId,
                     MailboxesAdapter.MODE_NORMAL);
@@ -340,7 +341,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "MailboxListFragment onLoadFinished");
+                Log.d(Logging.LOG_TAG, "MailboxListFragment onLoadFinished");
             }
             mLastLoadedAccountId = mAccountId;
 

@@ -16,7 +16,7 @@
 
 package com.android.emailcommon.utility;
 
-import com.android.email.Email;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
@@ -45,6 +45,83 @@ public class AttachmentUtilities {
         public static final String DISPLAY_NAME = "_display_name";
         public static final String SIZE = "_size";
     }
+
+    /**
+     * The MIME type(s) of attachments we're willing to send via attachments.
+     *
+     * Any attachments may be added via Intents with Intent.ACTION_SEND or ACTION_SEND_MULTIPLE.
+     */
+    public static final String[] ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES = new String[] {
+        "*/*",
+    };
+    /**
+     * The MIME type(s) of attachments we're willing to send from the internal UI.
+     *
+     * NOTE:  At the moment it is not possible to open a chooser with a list of filter types, so
+     * the chooser is only opened with the first item in the list.
+     */
+    public static final String[] ACCEPTABLE_ATTACHMENT_SEND_UI_TYPES = new String[] {
+        "image/*",
+        "video/*",
+    };
+    /**
+     * The MIME type(s) of attachments we're willing to view.
+     */
+    public static final String[] ACCEPTABLE_ATTACHMENT_VIEW_TYPES = new String[] {
+        "*/*",
+    };
+    /**
+     * The MIME type(s) of attachments we're not willing to view.
+     */
+    public static final String[] UNACCEPTABLE_ATTACHMENT_VIEW_TYPES = new String[] {
+    };
+    /**
+     * The MIME type(s) of attachments we're willing to download to SD.
+     */
+    public static final String[] ACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES = new String[] {
+        "*/*",
+    };
+    /**
+     * The MIME type(s) of attachments we're not willing to download to SD.
+     */
+    public static final String[] UNACCEPTABLE_ATTACHMENT_DOWNLOAD_TYPES = new String[] {
+    };
+    /**
+     * Filename extensions of attachments we're never willing to download (potential malware).
+     * Entries in this list are compared to the end of the lower-cased filename, so they must
+     * be lower case, and should not include a "."
+     */
+    public static final String[] UNACCEPTABLE_ATTACHMENT_EXTENSIONS = new String[] {
+        // File types that contain malware
+        "ade", "adp", "bat", "chm", "cmd", "com", "cpl", "dll", "exe",
+        "hta", "ins", "isp", "jse", "lib", "mde", "msc", "msp",
+        "mst", "pif", "scr", "sct", "shb", "sys", "vb", "vbe",
+        "vbs", "vxd", "wsc", "wsf", "wsh",
+        // File types of common compression/container formats (again, to avoid malware)
+        "zip", "gz", "z", "tar", "tgz", "bz2",
+    };
+    /**
+     * Filename extensions of attachments that can be installed.
+     * Entries in this list are compared to the end of the lower-cased filename, so they must
+     * be lower case, and should not include a "."
+     */
+    public static final String[] INSTALLABLE_ATTACHMENT_EXTENSIONS = new String[] {
+        "apk",
+    };
+    /**
+     * The maximum size of an attachment we're willing to download (either View or Save)
+     * Attachments that are base64 encoded (most) will be about 1.375x their actual size
+     * so we should probably factor that in. A 5MB attachment will generally be around
+     * 6.8MB downloaded but only 5MB saved.
+     */
+    public static final int MAX_ATTACHMENT_DOWNLOAD_SIZE = (5 * 1024 * 1024);
+    /**
+     * The maximum size of an attachment we're willing to upload (measured as stored on disk).
+     * Attachments that are base64 encoded (most) will be about 1.375x their actual size
+     * so we should probably factor that in. A 5MB attachment will generally be around
+     * 6.8MB uploaded.
+     */
+    public static final int MAX_ATTACHMENT_UPLOAD_SIZE = (5 * 1024 * 1024);
 
     public static Uri getAttachmentUri(long accountId, long id) {
         return CONTENT_URI.buildUpon()
@@ -251,7 +328,7 @@ public class AttachmentUtilities {
         for (File file : files) {
             boolean result = file.delete();
             if (!result) {
-                Log.e(Email.LOG_TAG, "Failed to delete attachment file " + file.getName());
+                Log.e(Logging.LOG_TAG, "Failed to delete attachment file " + file.getName());
             }
         }
     }

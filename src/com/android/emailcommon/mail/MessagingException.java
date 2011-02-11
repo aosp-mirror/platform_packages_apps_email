@@ -16,9 +16,6 @@
 
 package com.android.emailcommon.mail;
 
-import com.android.email.R;
-
-import android.content.Context;
 
 /**
  * This exception is used for most types of failures that occur during server interactions.
@@ -104,33 +101,5 @@ public class MessagingException extends Exception {
      */
     public int getExceptionType() {
         return mExceptionType;
-    }
-
-    /**
-     * @return the error message associated with this exception.
-     */
-    public final String getUiErrorMessage(Context context) {
-        return context.getResources().getString(getUiErrorMessageResourceId());
-    }
-
-    /**
-     * @return the resource ID of the error message associated with this exception.
-     */
-    public int getUiErrorMessageResourceId() {
-        switch (getExceptionType()) {
-            case MessagingException.IOERROR:
-                return R.string.account_setup_failed_ioerror;
-            case MessagingException.TLS_REQUIRED:
-                return R.string.account_setup_failed_tls_required;
-            case MessagingException.AUTH_REQUIRED:
-                return R.string.account_setup_failed_auth_required;
-            case MessagingException.GENERAL_SECURITY:
-                return R.string.account_setup_failed_security;
-            // TODO Generate a unique string for this case, which is the case
-            // where the security policy needs to be updated.
-            case MessagingException.SECURITY_POLICIES_REQUIRED:
-                return R.string.account_setup_failed_security;
-        }
-       return R.string.status_network_error; // default
     }
 }

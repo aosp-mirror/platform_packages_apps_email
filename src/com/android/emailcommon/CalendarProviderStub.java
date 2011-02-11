@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2011 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.emailcommon.mail;
+package com.android.emailcommon;
 
-
-public class CertificateValidationException extends MessagingException {
-    public static final long serialVersionUID = -1;
-
-    public CertificateValidationException(String message) {
-        super(MessagingException.CERTIFICATE_VALIDATION_ERROR, message);
-    }
-
-    public CertificateValidationException(String message, Throwable throwable) {
-        super(MessagingException.CERTIFICATE_VALIDATION_ERROR, message, throwable);
-    }
+/**
+ * This is the only non-SDK reference in the com.android.email project, referencing the once and
+ * future CalendarProvider authority name.
+ */
+public class CalendarProviderStub {
+    public static final String AUTHORITY = "com.android.calendar";
 }

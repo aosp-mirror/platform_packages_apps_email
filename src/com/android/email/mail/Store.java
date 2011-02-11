@@ -18,6 +18,7 @@ package com.android.email.mail;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
 
@@ -81,7 +82,7 @@ public abstract class Store {
                         PersistentDataCallbacks.class);
             o = m.invoke(null, uri, context, callbacks);
         } catch (Exception e) {
-            Log.d(Email.LOG_TAG, String.format(
+            Log.d(Logging.LOG_TAG, String.format(
                     "exception %s invoking %s.newInstance.(String, Context) method for %s",
                     e.toString(), className, uri));
             throw new MessagingException("can not instantiate Store object for " + uri);

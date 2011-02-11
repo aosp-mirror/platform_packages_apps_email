@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -33,7 +34,7 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
     private Context mMockContext;
 
     public MailboxesAdapterTest() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override

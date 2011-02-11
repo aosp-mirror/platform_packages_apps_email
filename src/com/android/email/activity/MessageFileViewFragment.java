@@ -18,8 +18,9 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.Utility;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -68,7 +69,7 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
     /** Called by activities with a URI to an EML file. */
     public void openMessage(Uri fileEmailUri) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageFileViewFragment openMessage");
+            Log.d(Logging.LOG_TAG, "MessageFileViewFragment openMessage");
         }
         if (fileEmailUri == null) {
             throw new InvalidParameterException();
@@ -101,7 +102,7 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
     protected Message openMessageSync(Activity activity) {
         synchronized (mLock) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "MessageFileViewFragment openMessageSync");
+                Log.d(Logging.LOG_TAG, "MessageFileViewFragment openMessageSync");
             }
             Uri messageUri = mFileEmailUri;
             if (messageUri == null) {

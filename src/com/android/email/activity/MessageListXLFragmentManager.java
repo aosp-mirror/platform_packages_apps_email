@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 
@@ -129,7 +130,7 @@ class MessageListXLFragmentManager {
      */
     public void onActivityViewReady() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageListXLFragmentManager.onActivityViewReady");
+            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager.onActivityViewReady");
         }
         mThreePane = (ThreePaneLayout) mTargetActivity.findViewById(R.id.three_pane);
         mThreePane.setCallback(mThreePaneLayoutCallback);
@@ -287,7 +288,7 @@ class MessageListXLFragmentManager {
         long messageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, -1);
         mMessageListFragmentState = savedInstanceState.getParcelable(BUNDLE_KEY_MESSAGE_LIST_STATE);
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageListXLFragmentManager: Restoring "
+            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager: Restoring "
                     + accountId + "," + mailboxId + "," + messageId);
         }
         if (accountId == -1) {
@@ -343,7 +344,7 @@ class MessageListXLFragmentManager {
     public void selectAccount(long accountId, long mailboxId, long messageId,
             boolean byExplicitUserAction) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "selectAccount mAccountId=" + accountId);
+            Log.d(Logging.LOG_TAG, "selectAccount mAccountId=" + accountId);
         }
         if (accountId == -1) {
             throw new InvalidParameterException();
@@ -408,7 +409,7 @@ class MessageListXLFragmentManager {
      */
     public void selectMailbox(long mailboxId, long messageId, boolean byExplicitUserAction) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "selectMailbox mMailboxId=" + mailboxId);
+            Log.d(Logging.LOG_TAG, "selectMailbox mMailboxId=" + mailboxId);
         }
         if (mailboxId == -1) {
             throw new InvalidParameterException();
@@ -446,7 +447,7 @@ class MessageListXLFragmentManager {
      */
     public void selectMessage(long messageId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "selectMessage messageId=" + messageId);
+            Log.d(Logging.LOG_TAG, "selectMessage messageId=" + messageId);
         }
         if (messageId == -1) {
             throw new InvalidParameterException();
@@ -480,7 +481,7 @@ class MessageListXLFragmentManager {
 
     private void startInboxLookup() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "startLookForInbox account=" + mAccountId);
+            Log.d(Logging.LOG_TAG, "startLookForInbox account=" + mAccountId);
         }
         closeMailboxFinder();
         mMailboxFinder = new MailboxFinder(mContext, mAccountId, Mailbox.TYPE_INBOX,
@@ -499,7 +500,7 @@ class MessageListXLFragmentManager {
         @Override
         public void onAccountNotFound() {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "MailboxFinderCallback.onAccountNotFound");
+                Log.d(Logging.LOG_TAG, "MailboxFinderCallback.onAccountNotFound");
             }
             // Shouldn't happen
         }
@@ -507,7 +508,7 @@ class MessageListXLFragmentManager {
         @Override
         public void onAccountSecurityHold(long accountId) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "MailboxFinderCallback.onAccountSecurityHold");
+                Log.d(Logging.LOG_TAG, "MailboxFinderCallback.onAccountSecurityHold");
             }
             mTargetActivity.onAccountSecurityHold(accountId);
         }
@@ -515,7 +516,7 @@ class MessageListXLFragmentManager {
         @Override
         public void onMailboxFound(long accountId, long mailboxId) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "  Found inbox");
+                Log.d(Logging.LOG_TAG, "  Found inbox");
             }
             selectMailbox(mailboxId, -1, true);
         }
@@ -523,7 +524,7 @@ class MessageListXLFragmentManager {
         @Override
         public void onMailboxNotFound(long accountId) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "MailboxFinderCallback.onMailboxNotFound");
+                Log.d(Logging.LOG_TAG, "MailboxFinderCallback.onMailboxNotFound");
             }
             // Shouldn't happen
         }

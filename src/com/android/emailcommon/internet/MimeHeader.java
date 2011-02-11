@@ -16,8 +16,8 @@
 
 package com.android.emailcommon.internet;
 
-import com.android.email.Utility;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.utility.Utility;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

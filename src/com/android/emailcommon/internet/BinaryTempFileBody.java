@@ -16,7 +16,7 @@
 
 package com.android.emailcommon.internet;
 
-import com.android.email.Email;
+import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.mail.Body;
 import com.android.emailcommon.mail.MessagingException;
 
@@ -52,7 +52,7 @@ public class BinaryTempFileBody implements Body {
     }
 
     public OutputStream getOutputStream() throws IOException {
-        mFile = File.createTempFile("body", null, Email.getTempDirectory());
+        mFile = File.createTempFile("body", null, TempDirectory.getTempDirectory());
         mFile.deleteOnExit();
         return new FileOutputStream(mFile);
     }

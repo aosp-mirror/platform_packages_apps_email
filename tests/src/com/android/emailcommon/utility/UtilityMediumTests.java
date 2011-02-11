@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.email;
+package com.android.emailcommon.utility;
 
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
@@ -48,7 +48,7 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
     Context mMockContext;
 
     public UtilityMediumTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override

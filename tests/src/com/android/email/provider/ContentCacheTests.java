@@ -19,6 +19,7 @@ package com.android.email.provider;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.provider.ContentCache.CachedCursor;
 import com.android.email.provider.ContentCache.TokenList;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 
@@ -43,7 +44,7 @@ public class ContentCacheTests extends ProviderTestCase2<EmailProvider> {
     Context mMockContext;
 
     public ContentCacheTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override

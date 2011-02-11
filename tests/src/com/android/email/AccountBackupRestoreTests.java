@@ -42,7 +42,7 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
     private Context mMockContext;
 
     public AccountBackupRestoreTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override

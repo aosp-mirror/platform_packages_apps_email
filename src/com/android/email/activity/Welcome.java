@@ -19,12 +19,12 @@ package com.android.email.activity;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
-import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.service.MailService;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.content.Context;

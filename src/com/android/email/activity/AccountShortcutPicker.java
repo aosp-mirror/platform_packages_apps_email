@@ -17,9 +17,9 @@
 package com.android.email.activity;
 
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.ListActivity;
 import android.content.Intent;

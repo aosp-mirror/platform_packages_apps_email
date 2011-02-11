@@ -23,8 +23,6 @@ import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.SingleRunningTask;
-import com.android.email.Utility;
-import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -32,6 +30,7 @@ import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.AccountReconciler;
+import com.android.emailcommon.utility.Utility;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -655,7 +654,7 @@ public class MailService extends Service {
                     new android.accounts.Account(account.mEmailAddress,
                             Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
                 report.syncEnabled = ContentResolver.getSyncAutomatically(accountManagerAccount,
-                        EmailProvider.EMAIL_AUTHORITY);
+                        EmailContent.AUTHORITY);
 
                 // TODO lookup # new in inbox
                 mSyncReports.put(report.accountId, report);

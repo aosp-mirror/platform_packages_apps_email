@@ -19,8 +19,7 @@
 
 package org.apache.james.mime4j;
 
-import com.android.email.Email;
-import com.android.email.mail.transport.LoggingInputStream;
+import com.android.emailcommon.utility.LoggingInputStream;
 
 import org.apache.james.mime4j.decoder.Base64InputStream;
 import org.apache.james.mime4j.decoder.QuotedPrintableInputStream;
@@ -85,7 +84,7 @@ public class MimeStreamParser {
      * @throws IOException on I/O errors.
      */
     public void parse(InputStream is) throws IOException {
-        if (DEBUG_LOG_MESSAGE && Email.DEBUG) {
+        if (DEBUG_LOG_MESSAGE) {
             is = new LoggingInputStream(is, "MIME", true);
         }
         rootStream = new RootInputStream(is);

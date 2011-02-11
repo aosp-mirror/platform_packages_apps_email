@@ -18,12 +18,13 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.Utility;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MeetingInfo;
 import com.android.emailcommon.mail.PackedString;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.service.EmailServiceConstants;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -201,7 +202,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
     /** Called by activities to set an id of a message to open. */
     public void openMessage(long messageId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment openMessage");
+            Log.d(Logging.LOG_TAG, "MessageViewFragment openMessage");
         }
         if (messageId == -1) {
             throw new InvalidParameterException();

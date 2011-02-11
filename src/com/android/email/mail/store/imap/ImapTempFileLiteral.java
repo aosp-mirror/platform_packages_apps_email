@@ -16,9 +16,10 @@
 
 package com.android.email.mail.store.imap;
 
-import com.android.email.Email;
 import com.android.email.FixedLengthInputStream;
-import com.android.email.Utility;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.TempDirectory;
+import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
 
@@ -44,7 +45,7 @@ public class ImapTempFileLiteral extends ImapString {
 
     /* package */  ImapTempFileLiteral(FixedLengthInputStream stream) throws IOException {
         mSize = stream.getLength();
-        mFile = File.createTempFile("imap", ".tmp", Email.getTempDirectory());
+        mFile = File.createTempFile("imap", ".tmp", TempDirectory.getTempDirectory());
 
         // Unfortunately, we can't really use deleteOnExit(), because temp filenames are random
         // so it'd simply cause a memory leak.
@@ -76,7 +77,7 @@ public class ImapTempFileLiteral extends ImapString {
             return new FileInputStream(mFile);
         } catch (FileNotFoundException e) {
             // It's probably possible if we're low on storage and the system clears the cache dir.
-            Log.w(Email.LOG_TAG, "ImapTempFileLiteral: Temp file not found");
+            Log.w(Logging.LOG_TAG, "ImapTempFileLiteral: Temp file not found");
 
             // Return 0 byte stream as a dummy...
             return new ByteArrayInputStream(new byte[0]);
@@ -89,7 +90,7 @@ public class ImapTempFileLiteral extends ImapString {
         try {
             return Utility.fromAscii(IOUtils.toByteArray(getAsStream()));
         } catch (IOException e) {
-            Log.w(Email.LOG_TAG, "ImapTempFileLiteral: Error while reading temp file");
+            Log.w(Logging.LOG_TAG, "ImapTempFileLiteral: Error while reading temp file");
             return "";
         }
     }
@@ -102,7 +103,7 @@ public class ImapTempFileLiteral extends ImapString {
             }
         } catch (RuntimeException re) {
             // Just log and ignore.
-            Log.w(Email.LOG_TAG, "Failed to remove temp file: " + re.getMessage());
+            Log.w(Logging.LOG_TAG, "Failed to remove temp file: " + re.getMessage());
         }
         super.destroy();
     }

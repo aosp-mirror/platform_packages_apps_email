@@ -20,9 +20,11 @@
 package org.apache.james.mime4j.field;
 
 //BEGIN android-changed: Stubbing out logging
+import com.android.emailcommon.utility.Utility;
+
 import org.apache.james.mime4j.Log;
 import org.apache.james.mime4j.LogFactory;
-//END android-changed
+//END
 import org.apache.james.mime4j.field.datetime.DateTime;
 import org.apache.james.mime4j.field.datetime.parser.ParseException;
 
@@ -53,7 +55,7 @@ public class DateTimeField extends Field {
             Date date = null;
             ParseException parseException = null;
             //BEGIN android-changed
-            body = com.android.email.Utility.cleanUpMimeDate(body);
+            body = Utility.cleanUpMimeDate(body);
             //END android-changed
             try {
                 date = DateTime.parse(body).getDate();

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.email.mail.transport;
+package com.android.emailcommon.utility;
 
-import com.android.email.Email;
-import com.android.email.Utility;
+import com.android.emailcommon.Logging;
 
 import android.util.Log;
 
@@ -45,7 +44,7 @@ public class LoggingInputStream extends FilterInputStream {
         mTag = tag + " ";
         mDumpEmptyLines = dumpEmptyLines;
         initBuffer();
-        Log.d(Email.LOG_TAG, mTag + "dump start");
+        Log.d(Logging.LOG_TAG, mTag + "dump start");
     }
 
     private void initBuffer() {
@@ -97,7 +96,7 @@ public class LoggingInputStream extends FilterInputStream {
 
     private void flushLog() {
         if (mDumpEmptyLines || (mSb.length() > mTag.length())) {
-            Log.d(Email.LOG_TAG, mSb.toString());
+            Log.d(Logging.LOG_TAG, mSb.toString());
             initBuffer();
         }
     }

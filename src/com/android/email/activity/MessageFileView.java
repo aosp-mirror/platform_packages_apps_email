@@ -16,9 +16,9 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.Utility;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
 import android.content.Intent;
@@ -73,7 +73,7 @@ public class MessageFileView extends MessageViewBase {
         Intent intent = getIntent();
         mFileEmailUri = intent.getData();
         if (mFileEmailUri == null) {
-            Log.w(Email.LOG_TAG, "Insufficient intent parameter.  Closing...");
+            Log.w(Logging.LOG_TAG, "Insufficient intent parameter.  Closing...");
             finish();
             return;
         }

@@ -16,7 +16,6 @@
 
 package com.android.emailcommon.mail;
 
-import com.android.email.R;
 
 public class AuthenticationFailedException extends MessagingException {
     public static final long serialVersionUID = -1;
@@ -31,10 +30,5 @@ public class AuthenticationFailedException extends MessagingException {
 
     public AuthenticationFailedException(String message, Throwable throwable) {
         super(MessagingException.AUTHENTICATION_FAILED, message, throwable);
-    }
-
-    @Override
-    public int getUiErrorMessageResourceId() {
-        return R.string.account_setup_failed_dlg_auth_message;
     }
 }

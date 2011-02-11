@@ -16,7 +16,7 @@
 
 package com.android.emailcommon.mail;
 
-import com.android.email.Utility;
+import com.android.emailcommon.utility.Utility;
 
 import org.apache.james.mime4j.codec.EncoderUtil;
 import org.apache.james.mime4j.decoder.DecoderUtil;

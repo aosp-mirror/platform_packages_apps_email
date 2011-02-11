@@ -18,6 +18,7 @@ package com.android.email.service;
 
 import com.android.email.Email;
 import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.provider.EmailContent;
 
 import android.accounts.AbstractAccountAuthenticator;
@@ -31,7 +32,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Calendar;
 import android.provider.ContactsContract;
 
 /**
@@ -85,8 +85,9 @@ public class EasAuthenticatorService extends Service {
                         options.getBoolean(OPTIONS_CALENDAR_SYNC_ENABLED)) {
                     syncCalendar = true;
                 }
-                ContentResolver.setIsSyncable(account, Calendar.AUTHORITY, 1);
-                ContentResolver.setSyncAutomatically(account, Calendar.AUTHORITY, syncCalendar);
+                ContentResolver.setIsSyncable(account, CalendarProviderStub.AUTHORITY, 1);
+                ContentResolver.setSyncAutomatically(account, CalendarProviderStub.AUTHORITY,
+                        syncCalendar);
 
                 // Set up email syncing, as above
                 boolean syncEmail = false;
@@ -95,7 +96,8 @@ public class EasAuthenticatorService extends Service {
                     syncEmail = true;
                 }
                 ContentResolver.setIsSyncable(account, EmailContent.AUTHORITY, 1);
-                ContentResolver.setSyncAutomatically(account, EmailContent.AUTHORITY, syncEmail);
+                ContentResolver.setSyncAutomatically(account, EmailContent.AUTHORITY,
+                        syncEmail);
 
                 Bundle b = new Bundle();
                 b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));

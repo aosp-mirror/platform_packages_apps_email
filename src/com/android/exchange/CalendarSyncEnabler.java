@@ -19,6 +19,7 @@ package com.android.exchange;
 import com.android.email.Email;
 import com.android.email.NotificationController;
 import com.android.email.R;
+import com.android.emailcommon.Logging;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -73,7 +74,7 @@ public class CalendarSyncEnabler {
                 .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
         for (Account account : exchangeAccounts) {
             final String emailAddress = account.name;
-            Log.i(Email.LOG_TAG, "Enabling Exchange calendar sync for " + emailAddress);
+            Log.i(Logging.LOG_TAG, "Enabling Exchange calendar sync for " + emailAddress);
 
             ContentResolver.setIsSyncable(account, Calendar.AUTHORITY, 1);
             ContentResolver.setSyncAutomatically(account, Calendar.AUTHORITY, true);

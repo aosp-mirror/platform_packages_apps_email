@@ -27,12 +27,12 @@ import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.BodyPart;
 import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Message;
-import com.android.emailcommon.mail.MessageTestUtils;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.mail.Message.RecipientType;
+import com.android.emailcommon.mail.MessageTestUtils;
 import com.android.emailcommon.mail.MessageTestUtils.MessageBuilder;
 import com.android.emailcommon.mail.MessageTestUtils.MultipartBuilder;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.utility.ConversionUtilities;
@@ -76,7 +76,7 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
     Preferences mPreferences = null;
 
     public LegacyConversionsTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override

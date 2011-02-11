@@ -23,7 +23,6 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.Email;
 import com.android.exchange.Eas;
 import com.android.exchange.utility.FileLogger;
 
@@ -38,7 +37,7 @@ import java.util.Hashtable;
 public class Serializer {
 
     private static final String TAG = "Serializer";
-    private boolean logging = Email.DEBUG && Log.isLoggable(TAG, Log.VERBOSE);
+    private boolean logging = Log.isLoggable(TAG, Log.VERBOSE);
 
     private static final int NOT_PENDING = -1;
 

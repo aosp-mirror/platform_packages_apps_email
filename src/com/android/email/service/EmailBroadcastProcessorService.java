@@ -23,6 +23,7 @@ import com.android.email.SecurityPolicy;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.email.widget.WidgetManager;
+import com.android.emailcommon.Logging;
 
 import android.accounts.AccountManager;
 import android.app.IntentService;
@@ -145,7 +146,7 @@ public class EmailBroadcastProcessorService extends IntentService {
         final int initialProgress = progress;
 
         if (progress < 1) {
-            Log.i(Email.LOG_TAG, "Onetime initialization: 1");
+            Log.i(Logging.LOG_TAG, "Onetime initialization: 1");
             progress = 1;
             if (VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()) {
                 setComponentEnabled(EasAuthenticatorServiceAlternate.class, true);
@@ -162,7 +163,7 @@ public class EmailBroadcastProcessorService extends IntentService {
 
         if (progress != initialProgress) {
             pref.setOneTimeInitializationProgress(progress);
-            Log.i(Email.LOG_TAG, "Onetime initialization: completed.");
+            Log.i(Logging.LOG_TAG, "Onetime initialization: completed.");
         }
     }
 
@@ -175,7 +176,7 @@ public class EmailBroadcastProcessorService extends IntentService {
     }
 
     private void onSystemAccountChanged() {
-        Log.i(Email.LOG_TAG, "System accouns updated.");
+        Log.i(Logging.LOG_TAG, "System accouns updated.");
         MailService.reconcilePopImapAccountsSync(this);
 
         // Let ExchangeService reconcile EAS accouts.

@@ -16,7 +16,7 @@
 
 package com.android.email.provider;
 
-import com.android.email.Email;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
@@ -177,10 +177,12 @@ public class AttachmentProvider extends ContentProvider {
                         out.close();
                         in.close();
                     } catch (IOException ioe) {
-                        Log.d(Email.LOG_TAG, "openFile/thumbnail failed with " + ioe.getMessage());
+                        Log.d(Logging.LOG_TAG, "openFile/thumbnail failed with " +
+                                ioe.getMessage());
                         return null;
                     } catch (OutOfMemoryError oome) {
-                        Log.d(Email.LOG_TAG, "openFile/thumbnail failed with " + oome.getMessage());
+                        Log.d(Logging.LOG_TAG, "openFile/thumbnail failed with " +
+                                oome.getMessage());
                         return null;
                     }
                 }
@@ -290,10 +292,10 @@ public class AttachmentProvider extends ContentProvider {
             Bitmap bitmap = BitmapFactory.decodeStream(data);
             return bitmap;
         } catch (OutOfMemoryError oome) {
-            Log.d(Email.LOG_TAG, "createImageThumbnail failed with " + oome.getMessage());
+            Log.d(Logging.LOG_TAG, "createImageThumbnail failed with " + oome.getMessage());
             return null;
         } catch (Exception e) {
-            Log.d(Email.LOG_TAG, "createImageThumbnail failed with " + e.getMessage());
+            Log.d(Logging.LOG_TAG, "createImageThumbnail failed with " + e.getMessage());
             return null;
         }
     }

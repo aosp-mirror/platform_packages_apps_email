@@ -17,18 +17,16 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.Utility;
-import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.Utility;
 import com.android.exchange.Eas;
 import com.android.exchange.ExchangeService;
 import com.android.exchange.MockParserStream;
-import com.android.exchange.adapter.Parser.EasParserException;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;
@@ -396,7 +394,7 @@ public class FolderSyncParser extends AbstractSyncParser {
         // Execute the batch; throw IOExceptions if this fails, hoping the issue isn't repeatable
         // If it IS repeatable, there's no good result, since the folder list will be invalid
         try {
-            mContentResolver.applyBatch(EmailProvider.EMAIL_AUTHORITY, mOperations);
+            mContentResolver.applyBatch(EmailContent.AUTHORITY, mOperations);
             return true;
         } catch (RemoteException e) {
             userLog("RemoteException in commitMailboxes");

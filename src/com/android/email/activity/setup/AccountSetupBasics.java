@@ -16,17 +16,17 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.Welcome;
 import com.android.email.activity.setup.AccountSettingsUtils.Provider;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
@@ -266,7 +266,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         if (SetupData.getFlowMode() == SetupData.FLOW_MODE_FORCE_CREATE) {
             if (!DEBUG_ALLOW_NON_TEST_HARNESS_CREATION &&
                     !ActivityManager.isRunningInTestHarness()) {
-                Log.e(Email.LOG_TAG,
+                Log.e(Logging.LOG_TAG,
                         "ERROR: Force account create only allowed while in test harness");
                 finish();
                 return;
@@ -278,7 +278,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             String outgoing = intent.getStringExtra(EXTRA_CREATE_ACCOUNT_OUTGOING);
             if (TextUtils.isEmpty(email) || TextUtils.isEmpty(user) ||
                     TextUtils.isEmpty(incoming) || TextUtils.isEmpty(outgoing)) {
-                Log.e(Email.LOG_TAG, "ERROR: Force account create requires extras EMAIL, USER, " +
+                Log.e(Logging.LOG_TAG, "ERROR: Force account create requires extras EMAIL, USER, " +
                         "INCOMING, OUTGOING");
                 finish();
                 return;

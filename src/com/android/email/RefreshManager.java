@@ -16,7 +16,9 @@
 
 package com.android.email;
 
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.os.Handler;
@@ -212,7 +214,7 @@ public class RefreshManager {
         if (!status.canRefresh()) return false;
 
         if (LOG_ENABLED) {
-            Log.d(Email.LOG_TAG, "refreshMailboxList " + accountId);
+            Log.d(Logging.LOG_TAG, "refreshMailboxList " + accountId);
         }
         status.onRefreshRequested();
         notifyRefreshStatusChanged(accountId, -1);
@@ -250,7 +252,7 @@ public class RefreshManager {
         if (!status.canRefresh()) return false;
 
         if (LOG_ENABLED) {
-            Log.d(Email.LOG_TAG, "refreshMessageList " + accountId + ", " + mailboxId + ", "
+            Log.d(Logging.LOG_TAG, "refreshMessageList " + accountId + ", " + mailboxId + ", "
                     + loadMoreMessages);
         }
         status.onRefreshRequested();
@@ -268,7 +270,7 @@ public class RefreshManager {
      */
     public boolean sendPendingMessages(long accountId) {
         if (LOG_ENABLED) {
-            Log.d(Email.LOG_TAG, "sendPendingMessages " + accountId);
+            Log.d(Logging.LOG_TAG, "sendPendingMessages " + accountId);
         }
         notifyRefreshStatusChanged(accountId, -1);
         mController.sendPendingMessages(accountId);
@@ -280,7 +282,7 @@ public class RefreshManager {
      */
     public void sendPendingMessagesForAllAccounts() {
         if (LOG_ENABLED) {
-            Log.d(Email.LOG_TAG, "sendPendingMessagesForAllAccounts");
+            Log.d(Logging.LOG_TAG, "sendPendingMessagesForAllAccounts");
         }
         new SendPendingMessagesForAllAccountsImpl().execute();
     }
@@ -356,7 +358,7 @@ public class RefreshManager {
             if (exception == null) {
                 return "(no exception)";
             } else {
-                return exception.getUiErrorMessage(mContext);
+                return MessagingExceptionStrings.getErrorString(mContext, exception);
             }
         }
 
@@ -367,12 +369,13 @@ public class RefreshManager {
         public void updateMailboxListCallback(MessagingException exception, long accountId,
                 int progress) {
             if (LOG_ENABLED) {
-                Log.d(Email.LOG_TAG, "updateMailboxListCallback " + accountId + ", " + progress
+                Log.d(Logging.LOG_TAG, "updateMailboxListCallback " + accountId + ", " + progress
                         + ", " + exceptionToString(exception));
             }
             mMailboxListStatus.get(accountId).onCallback(exception, progress, mClock);
             if (exception != null) {
-                reportError(accountId, -1, exception.getUiErrorMessage(mContext));
+                reportError(accountId, -1,
+                        MessagingExceptionStrings.getErrorString(mContext, exception));
             }
             notifyRefreshStatusChanged(accountId, -1);
         }
@@ -384,7 +387,7 @@ public class RefreshManager {
         public void updateMailboxCallback(MessagingException exception, long accountId,
                 long mailboxId, int progress, int dontUseNumNewMessages) {
             if (LOG_ENABLED) {
-                Log.d(Email.LOG_TAG, "updateMailboxCallback " + accountId + ", "
+                Log.d(Logging.LOG_TAG, "updateMailboxCallback " + accountId + ", "
                         + mailboxId + ", " + progress + ", " + exceptionToString(exception));
             }
             updateMailboxCallbackInternal(exception, accountId, mailboxId, progress, 0);
@@ -403,7 +406,7 @@ public class RefreshManager {
                 MessagingException exception, long accountId, long mailboxId, int progress,
                 long tag) {
             if (LOG_ENABLED) {
-                Log.d(Email.LOG_TAG, "serviceCheckMailCallback " + accountId + ", "
+                Log.d(Logging.LOG_TAG, "serviceCheckMailCallback " + accountId + ", "
                         + mailboxId + ", " + progress + ", " + exceptionToString(exception));
             }
             updateMailboxCallbackInternal(exception, accountId, mailboxId, progress, 0);
@@ -414,7 +417,8 @@ public class RefreshManager {
             // Don't use dontUseNumNewMessages.  serviceCheckMailCallback() don't set it.
             mMessageListStatus.get(mailboxId).onCallback(exception, progress, mClock);
             if (exception != null) {
-                reportError(accountId, mailboxId, exception.getUiErrorMessage(mContext));
+                reportError(accountId, mailboxId,
+                        MessagingExceptionStrings.getErrorString(mContext, exception));
             }
             notifyRefreshStatusChanged(accountId, mailboxId);
         }
@@ -430,7 +434,7 @@ public class RefreshManager {
         public void sendMailCallback(MessagingException exception, long accountId, long messageId,
                 int progress) {
             if (LOG_ENABLED) {
-                Log.d(Email.LOG_TAG, "sendMailCallback " + accountId + ", "
+                Log.d(Logging.LOG_TAG, "sendMailCallback " + accountId + ", "
                         + messageId + ", " + progress + ", " + exceptionToString(exception));
             }
             if (progress == 0 && messageId == -1) {
@@ -439,7 +443,8 @@ public class RefreshManager {
             if (exception != null && !mSendMailExceptionReported) {
                 // Only the first error in a batch will be reported.
                 mSendMailExceptionReported = true;
-                reportError(accountId, messageId, exception.getUiErrorMessage(mContext));
+                reportError(accountId, messageId,
+                        MessagingExceptionStrings.getErrorString(mContext, exception));
             }
             if (progress == 100) {
                 mSendMailExceptionReported = false;

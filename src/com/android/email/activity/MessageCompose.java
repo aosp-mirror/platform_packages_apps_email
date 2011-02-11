@@ -20,9 +20,10 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
+import com.android.email.UiUtilities;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.mail.internet.EmailHtmlUtil;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.EmailContent;
@@ -32,6 +33,8 @@ import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -652,7 +655,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     message.mIntroText = null;
                 }
             } catch (RuntimeException e) {
-                Log.d(Email.LOG_TAG, "Exception while loading message body: " + e);
+                Log.d(Logging.LOG_TAG, "Exception while loading message body: " + e);
                 return new Object[] {null, null};
             }
             return new Object[]{message, account};
@@ -904,7 +907,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         public SendOrSaveMessageTask(boolean send) {
             if (send && ActivityManager.isUserAMonkey()) {
-                Log.d(Email.LOG_TAG, "Inhibiting send while monkey is in charge.");
+                Log.d(Logging.LOG_TAG, "Inhibiting send while monkey is in charge.");
                 send = false;
             }
             mSend = send;
@@ -1098,7 +1101,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private void onAddAttachment() {
         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
-        i.setType(Email.ACCEPTABLE_ATTACHMENT_SEND_UI_TYPES[0]);
+        i.setType(AttachmentUtilities.ACCEPTABLE_ATTACHMENT_SEND_UI_TYPES[0]);
         startActivityForResult(
                 Intent.createChooser(i, getString(R.string.choose_attachment_dialog_title)),
                 ACTIVITY_REQUEST_PICK_ATTACHMENT);
@@ -1138,7 +1141,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // The size was not measurable;  This attachment is not safe to use.
                 // Quick hack to force a relevant error into the UI
                 // TODO: A proper announcement of the problem
-                size = Email.MAX_ATTACHMENT_UPLOAD_SIZE + 1;
+                size = AttachmentUtilities.MAX_ATTACHMENT_UPLOAD_SIZE + 1;
             }
         }
 
@@ -1157,7 +1160,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private void addAttachment(Attachment attachment, boolean allowDelete) {
         // Before attaching the attachment, make sure it meets any other pre-attach criteria
-        if (attachment.mSize > Email.MAX_ATTACHMENT_UPLOAD_SIZE) {
+        if (attachment.mSize > AttachmentUtilities.MAX_ATTACHMENT_UPLOAD_SIZE) {
             Toast.makeText(this, R.string.message_compose_attachment_size, Toast.LENGTH_LONG)
                     .show();
             return;
@@ -1170,7 +1173,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         TextView sizeView = (TextView)view.findViewById(R.id.attachment_size);
 
         nameView.setText(attachment.mFileName);
-        sizeView.setText(Utility.formatSize(this, attachment.mSize));
+        sizeView.setText(UiUtilities.formatSize(this, attachment.mSize));
         if (allowDelete) {
             delete.setOnClickListener(this);
             delete.setTag(view);
@@ -1386,7 +1389,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             Uri stream = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (stream != null && type != null) {
                 if (MimeUtility.mimeTypeMatches(type,
-                        Email.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
+                        AttachmentUtilities.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
                     addAttachment(stream);
                 }
             }
@@ -1401,7 +1404,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     if (uri != null) {
                         Attachment attachment = loadAttachmentInfo(uri);
                         if (MimeUtility.mimeTypeMatches(attachment.mMimeType,
-                                Email.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
+                                AttachmentUtilities.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
                             addAttachment(attachment, true);
                         }
                     }
@@ -1436,7 +1439,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
             addAddresses(mToView, to.split(" ,"));
         } catch (UnsupportedEncodingException e) {
-            Log.e(Email.LOG_TAG, e.getMessage() + " while decoding '" + mailToString + "'");
+            Log.e(Logging.LOG_TAG, e.getMessage() + " while decoding '" + mailToString + "'");
         }
 
         // Extract the other parameters

@@ -16,8 +16,8 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
 import com.android.email.R;
+import com.android.emailcommon.Logging;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -484,7 +484,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         }
         if (mLastAnimatorListener != null) {
             if (ANIMATION_DEBUG) {
-                Log.w(Email.LOG_TAG, "Anim: Cancelling last animation: " + mLastAnimator);
+                Log.w(Logging.LOG_TAG, "Anim: Cancelling last animation: " + mLastAnimator);
             }
             // Animator.cancel() doesn't call listener.cancel() immediately, so sometimes
             // we end up cancelling the previous one *after* starting the next one.
@@ -528,7 +528,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
         private void log(String message) {
             if (ANIMATION_DEBUG) {
-                Log.w(Email.LOG_TAG, "Anim: " + mLogLabel + "[" + this + "] " + message);
+                Log.w(Logging.LOG_TAG, "Anim: " + mLogLabel + "[" + this + "] " + message);
             }
         }
 

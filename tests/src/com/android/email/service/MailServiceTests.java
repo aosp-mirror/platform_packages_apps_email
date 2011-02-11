@@ -19,13 +19,13 @@ package com.android.email.service;
 import com.android.email.AccountTestCase;
 import com.android.email.Controller;
 import com.android.email.Email;
-import com.android.email.Utility;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.service.MailService.AccountSyncReport;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 import android.accounts.AccountManager;
 import android.content.ContentResolver;

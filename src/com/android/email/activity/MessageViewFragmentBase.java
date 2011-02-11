@@ -20,12 +20,13 @@ import com.android.email.AttachmentInfo;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
+import com.android.email.UiUtilities;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Throttle;
-import com.android.email.Utility;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.email.service.AttachmentDownloadService;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -33,6 +34,7 @@ import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
 
@@ -255,7 +257,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment onCreate");
+            Log.d(Logging.LOG_TAG, "MessageViewFragment onCreate");
         }
         super.onCreate(savedInstanceState);
 
@@ -272,7 +274,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment onCreateView");
+            Log.d(Logging.LOG_TAG, "MessageViewFragment onCreateView");
         }
         final View view = inflater.inflate(R.layout.message_view_fragment, container, false);
 
@@ -321,7 +323,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment onActivityCreated");
+            Log.d(Logging.LOG_TAG, "MessageViewFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
         mController.addResultCallback(mControllerCallback);
@@ -330,7 +332,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment onStart");
+            Log.d(Logging.LOG_TAG, "MessageViewFragment onStart");
         }
         super.onStart();
     }
@@ -338,7 +340,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment onResume");
+            Log.d(Logging.LOG_TAG, "MessageViewFragment onResume");
         }
         super.onResume();
 
@@ -358,7 +360,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment onPause");
+            Log.d(Logging.LOG_TAG, "MessageViewFragment onPause");
         }
         mResumed = false;
         super.onPause();
@@ -367,7 +369,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment onStop");
+            Log.d(Logging.LOG_TAG, "MessageViewFragment onStop");
         }
         super.onStop();
     }
@@ -375,7 +377,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment onDestroy");
+            Log.d(Logging.LOG_TAG, "MessageViewFragment onDestroy");
         }
         mCallback.onMessageViewGone();
         mController.removeResultCallback(mControllerCallback);
@@ -388,7 +390,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageViewFragment onSaveInstanceState");
+            Log.d(Logging.LOG_TAG, "MessageViewFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
     }
@@ -1002,7 +1004,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             } catch (RuntimeException re) {
                 // This catches SQLiteException as well as other RTE's we've seen from the
                 // database calls, such as IllegalStateException
-                Log.d(Email.LOG_TAG, "Exception while loading message body", re);
+                Log.d(Logging.LOG_TAG, "Exception while loading message body", re);
                 mErrorLoadingMessageBody = true;
                 return null;
             }
@@ -1081,7 +1083,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                                     PREVIEW_ICON_WIDTH,
                                     PREVIEW_ICON_HEIGHT)));
         } catch (Exception e) {
-            Log.d(Email.LOG_TAG, "Attachment preview failed with exception " + e.getMessage());
+            Log.d(Logging.LOG_TAG, "Attachment preview failed with exception " + e.getMessage());
             return null;
         }
     }
@@ -1227,7 +1229,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         attachmentCancel.setTag(attachmentInfo);
 
         attachmentName.setText(attachmentInfo.mName);
-        attachmentInfoView.setText(Utility.formatSize(mContext, attachmentInfo.mSize));
+        attachmentInfoView.setText(UiUtilities.formatSize(mContext, attachmentInfo.mSize));
 
         mAttachments.addView(view);
         mAttachments.setVisibility(View.VISIBLE);

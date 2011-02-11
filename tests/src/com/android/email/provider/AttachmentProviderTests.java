@@ -68,7 +68,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
         mEmailProvider.attachInfo(mMockContext, null);
         assertNotNull(mEmailProvider);
         ((MockContentResolver) mMockResolver)
-                .addProvider(EmailProvider.EMAIL_AUTHORITY, mEmailProvider);
+                .addProvider(EmailContent.AUTHORITY, mEmailProvider);
     }
 
     /**

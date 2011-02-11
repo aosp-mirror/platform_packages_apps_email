@@ -17,9 +17,9 @@
 package com.android.email.widget;
 
 import com.android.email.Email;
+import com.android.email.UiUtilities;
 import com.android.email.R;
 import com.android.email.ResourceHelper;
-import com.android.email.Utility;
 import com.android.email.activity.MessageCompose;
 import com.android.email.activity.Welcome;
 import com.android.email.data.ThrottlingCursorLoader;
@@ -30,6 +30,7 @@ import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -454,7 +455,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
         views.setTextViewText(R.id.widget_tap, sConfigureText);
         String count = "";
         if (mCursorCount != TOTAL_COUNT_UNKNOWN) {
-            count = Utility.getMessageCountForUi(mContext, mCursor.getCount(), false);
+            count = UiUtilities.getMessageCountForUi(mContext, mCursor.getCount(), false);
         }
         views.setTextViewText(R.id.widget_count, count);
     }

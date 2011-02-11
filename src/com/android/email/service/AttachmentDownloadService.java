@@ -20,7 +20,6 @@ import com.android.email.AttachmentInfo;
 import com.android.email.Email;
 import com.android.email.EmailConnectivityManager;
 import com.android.email.NotificationController;
-import com.android.email.Utility;
 import com.android.email.Controller.ControllerService;
 import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.emailcommon.provider.EmailContent;
@@ -31,6 +30,7 @@ import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.Utility;
 import com.android.exchange.ExchangeService;
 
 import android.accounts.AccountManager;

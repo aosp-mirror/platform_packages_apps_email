@@ -119,12 +119,6 @@ public class EmailProvider extends ContentProvider {
     // Version 6: Adding Body.mIntroText column
     public static final int BODY_DATABASE_VERSION = 6;
 
-    public static final String EMAIL_AUTHORITY = "com.android.email.provider";
-    // The notifier authority is used to send notifications regarding changes to messages (insert,
-    // delete, or update) and is intended as an optimization for use by clients of message list
-    // cursors (initially, the email AppWidget).
-    public static final String EMAIL_NOTIFIER_AUTHORITY = "com.android.email.notifier";
-
     private static final int ACCOUNT_BASE = 0;
     private static final int ACCOUNT = ACCOUNT_BASE;
     private static final int ACCOUNT_ID = ACCOUNT_BASE + 1;
@@ -240,56 +234,61 @@ public class EmailProvider extends ContentProvider {
         UriMatcher matcher = sURIMatcher;
 
         // All accounts
-        matcher.addURI(EMAIL_AUTHORITY, "account", ACCOUNT);
+        matcher.addURI(EmailContent.AUTHORITY, "account", ACCOUNT);
         // A specific account
         // insert into this URI causes a mailbox to be added to the account
-        matcher.addURI(EMAIL_AUTHORITY, "account/#", ACCOUNT_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
 
         // Special URI to reset the new message count.  Only update works, and content values
         // will be ignored.
-        matcher.addURI(EMAIL_AUTHORITY, "resetNewMessageCount", ACCOUNT_RESET_NEW_COUNT);
-        matcher.addURI(EMAIL_AUTHORITY, "resetNewMessageCount/#", ACCOUNT_RESET_NEW_COUNT_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount",
+                ACCOUNT_RESET_NEW_COUNT);
+        matcher.addURI(EmailContent.AUTHORITY, "resetNewMessageCount/#",
+                ACCOUNT_RESET_NEW_COUNT_ID);
 
         // All mailboxes
-        matcher.addURI(EMAIL_AUTHORITY, "mailbox", MAILBOX);
+        matcher.addURI(EmailContent.AUTHORITY, "mailbox", MAILBOX);
         // A specific mailbox
         // insert into this URI causes a message to be added to the mailbox
         // ** NOTE For now, the accountKey must be set manually in the values!
-        matcher.addURI(EMAIL_AUTHORITY, "mailbox/#", MAILBOX_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "mailbox/#", MAILBOX_ID);
 
         // All messages
-        matcher.addURI(EMAIL_AUTHORITY, "message", MESSAGE);
+        matcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
         // A specific message
         // insert into this URI causes an attachment to be added to the message
-        matcher.addURI(EMAIL_AUTHORITY, "message/#", MESSAGE_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "message/#", MESSAGE_ID);
 
         // A specific attachment
-        matcher.addURI(EMAIL_AUTHORITY, "attachment", ATTACHMENT);
+        matcher.addURI(EmailContent.AUTHORITY, "attachment", ATTACHMENT);
         // A specific attachment (the header information)
-        matcher.addURI(EMAIL_AUTHORITY, "attachment/#", ATTACHMENT_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "attachment/#", ATTACHMENT_ID);
         // The attachments of a specific message (query only) (insert & delete TBD)
-        matcher.addURI(EMAIL_AUTHORITY, "attachment/message/#", ATTACHMENTS_MESSAGE_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "attachment/message/#",
+                ATTACHMENTS_MESSAGE_ID);
 
         // All mail bodies
-        matcher.addURI(EMAIL_AUTHORITY, "body", BODY);
+        matcher.addURI(EmailContent.AUTHORITY, "body", BODY);
         // A specific mail body
-        matcher.addURI(EMAIL_AUTHORITY, "body/#", BODY_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "body/#", BODY_ID);
 
         // All hostauth records
-        matcher.addURI(EMAIL_AUTHORITY, "hostauth", HOSTAUTH);
+        matcher.addURI(EmailContent.AUTHORITY, "hostauth", HOSTAUTH);
         // A specific hostauth
-        matcher.addURI(EMAIL_AUTHORITY, "hostauth/#", HOSTAUTH_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "hostauth/#", HOSTAUTH_ID);
 
         // Atomically a constant value to a particular field of a mailbox/account
-        matcher.addURI(EMAIL_AUTHORITY, "mailboxIdAddToField/#", MAILBOX_ID_ADD_TO_FIELD);
-        matcher.addURI(EMAIL_AUTHORITY, "accountIdAddToField/#", ACCOUNT_ID_ADD_TO_FIELD);
+        matcher.addURI(EmailContent.AUTHORITY, "mailboxIdAddToField/#",
+                MAILBOX_ID_ADD_TO_FIELD);
+        matcher.addURI(EmailContent.AUTHORITY, "accountIdAddToField/#",
+                ACCOUNT_ID_ADD_TO_FIELD);
 
         /**
          * THIS URI HAS SPECIAL SEMANTICS
          * ITS USE IS INTENDED FOR THE UI APPLICATION TO MARK CHANGES THAT NEED TO BE SYNCED BACK
          * TO A SERVER VIA A SYNC ADAPTER
          */
-        matcher.addURI(EMAIL_AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "syncedMessage/#", SYNCED_MESSAGE_ID);
 
         /**
          * THE URIs BELOW THIS POINT ARE INTENDED TO BE USED BY SYNC ADAPTERS ONLY
@@ -297,14 +296,14 @@ public class EmailProvider extends ContentProvider {
          * BY THE UI APPLICATION
          */
         // All deleted messages
-        matcher.addURI(EMAIL_AUTHORITY, "deletedMessage", DELETED_MESSAGE);
+        matcher.addURI(EmailContent.AUTHORITY, "deletedMessage", DELETED_MESSAGE);
         // A specific deleted message
-        matcher.addURI(EMAIL_AUTHORITY, "deletedMessage/#", DELETED_MESSAGE_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "deletedMessage/#", DELETED_MESSAGE_ID);
 
         // All updated messages
-        matcher.addURI(EMAIL_AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
+        matcher.addURI(EmailContent.AUTHORITY, "updatedMessage", UPDATED_MESSAGE);
         // A specific updated message
-        matcher.addURI(EMAIL_AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "updatedMessage/#", UPDATED_MESSAGE_ID);
 
         CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT = new ContentValues();
         CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT.put(Account.NEW_MESSAGE_COUNT, 0);

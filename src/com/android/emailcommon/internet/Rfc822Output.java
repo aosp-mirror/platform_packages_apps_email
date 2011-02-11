@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.android.email.mail.transport;
+package com.android.emailcommon.internet;
 
-import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Attachment;

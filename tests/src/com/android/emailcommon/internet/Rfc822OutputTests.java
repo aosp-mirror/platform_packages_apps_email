@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.android.email.mail.transport;
+package com.android.emailcommon.internet;
 
 import com.android.email.R;
 import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.internet.Rfc822Output;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
 
 import org.apache.james.mime4j.field.Field;
-import org.apache.james.mime4j.message.Body;
 import org.apache.james.mime4j.message.BodyPart;
 import org.apache.james.mime4j.message.Entity;
 import org.apache.james.mime4j.message.Header;
@@ -61,7 +62,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
     private String mReplyBody;
 
     public Rfc822OutputTests () {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override

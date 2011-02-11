@@ -20,15 +20,17 @@ import com.android.email.Clock;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
+import com.android.email.MessagingExceptionStrings;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
-import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -147,7 +149,7 @@ public class MessageListXL extends Activity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onCreate");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onCreate");
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.message_list_xl);
@@ -200,7 +202,7 @@ public class MessageListXL extends Activity implements
         final long mailboxId = i.getLongExtra(EXTRA_MAILBOX_ID, -1);
         final long messageId = i.getLongExtra(EXTRA_MESSAGE_ID, -1);
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, String.format("initFromIntent: %d %d", accountId, mailboxId));
+            Log.d(Logging.LOG_TAG, String.format("initFromIntent: %d %d", accountId, mailboxId));
         }
 
         if (accountId != -1) {
@@ -211,7 +213,7 @@ public class MessageListXL extends Activity implements
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageListXL onSaveInstanceState");
+            Log.d(Logging.LOG_TAG, "MessageListXL onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
         mFragmentManager.onSaveInstanceState(outState);
@@ -219,7 +221,7 @@ public class MessageListXL extends Activity implements
 
     @Override
     protected void onStart() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onStart");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onStart");
         super.onStart();
 
         mFragmentManager.onStart();
@@ -230,7 +232,7 @@ public class MessageListXL extends Activity implements
 
     @Override
     protected void onResume() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onResume");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onResume");
         super.onResume();
         mFragmentManager.onResume();
 
@@ -243,14 +245,14 @@ public class MessageListXL extends Activity implements
 
     @Override
     protected void onPause() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onPause");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onPause");
         super.onPause();
         mFragmentManager.onPause();
     }
 
     @Override
     protected void onStop() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onStop");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onStop");
         super.onStop();
 
         mFragmentManager.onStop();
@@ -259,7 +261,7 @@ public class MessageListXL extends Activity implements
 
     @Override
     protected void onDestroy() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Email.LOG_TAG, "MessageListXL onDestroy");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onDestroy");
         mIsCreated = false;
         mController.removeResultCallback(mControllerResult);
         Utility.cancelTaskInterrupt(mRefreshTask);
@@ -271,7 +273,7 @@ public class MessageListXL extends Activity implements
     @Override
     public void onBackPressed() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Email.LOG_TAG, "MessageListXL onBackPressed");
+            Log.d(Logging.LOG_TAG, "MessageListXL onBackPressed");
         }
         onBackPressed(true);
     }
@@ -677,7 +679,7 @@ public class MessageListXL extends Activity implements
         @Override
         public boolean onNavigationItemSelected(int itemPosition, long accountId) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Email.LOG_TAG, "Account selected: accountId=" + accountId);
+                Log.d(Logging.LOG_TAG, "Account selected: accountId=" + accountId);
             }
             mFragmentManager.selectAccount(accountId, -1, -1, true);
             return true;
@@ -928,7 +930,9 @@ public class MessageListXL extends Activity implements
                 }
             } else {
                 // Connection error.
-                showErrorMessage(result.getUiErrorMessage(MessageListXL.this), accountId);
+                showErrorMessage(
+                        MessagingExceptionStrings.getErrorString(MessageListXL.this, result),
+                        accountId);
             }
         }
     }

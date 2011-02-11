@@ -51,7 +51,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
 
 
     public ControllerProviderOpsTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override

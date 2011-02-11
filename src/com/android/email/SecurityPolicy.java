@@ -18,6 +18,7 @@ package com.android.email;
 
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.service.EmailBroadcastProcessorService;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -491,7 +492,7 @@ public class SecurityPolicy {
         if (dpm.isAdminActive(mAdminName)) {
             dpm.wipeData(0);
         } else {
-            Log.d(Email.LOG_TAG, "Could not remote wipe because not device admin.");
+            Log.d(Logging.LOG_TAG, "Could not remote wipe because not device admin.");
         }
     }
     /**

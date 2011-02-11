@@ -16,14 +16,10 @@
 
 package com.android.email.mail.store.imap;
 
-import static com.android.email.mail.store.imap.ImapTestUtils.*;
+import static com.android.email.mail.store.imap.ImapTestUtils.createFixedLengthInputStream;
 
-import com.android.email.Email;
-import com.android.email.Utility;
-import com.android.email.mail.store.imap.ImapMemoryLiteral;
-import com.android.email.mail.store.imap.ImapSimpleString;
-import com.android.email.mail.store.imap.ImapString;
-import com.android.email.mail.store.imap.ImapTempFileLiteral;
+import com.android.emailcommon.TempDirectory;
+import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
 
@@ -44,7 +40,7 @@ public class ImapStringTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Email.setTempDirectory(getContext());
+        TempDirectory.setTempDirectory(getContext());
     }
 
     public void testEmpty() throws Exception {

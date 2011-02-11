@@ -16,8 +16,8 @@
 
 package com.android.email.mail;
 
-import com.android.email.Email;
 import com.android.email.R;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -53,7 +53,7 @@ public abstract class Sender {
                 c.getMethod("newInstance", Context.class, String.class);
             o = m.invoke(null, context, uri);
         } catch (Exception e) {
-            Log.d(Email.LOG_TAG, String.format(
+            Log.d(Logging.LOG_TAG, String.format(
                     "exception %s invoking %s.newInstance.(Context, String) method for %s",
                     e.toString(), className, uri));
             throw new MessagingException("can not instantiate Sender object for " + uri);

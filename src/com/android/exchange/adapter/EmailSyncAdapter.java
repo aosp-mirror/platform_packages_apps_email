@@ -17,8 +17,6 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.Utility;
-import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.internet.MimeMessage;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.mail.Address;
@@ -39,6 +37,7 @@ import com.android.emailcommon.service.AccountServiceProxy;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.ConversionUtilities;
+import com.android.emailcommon.utility.Utility;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.MessageMoveRequest;
@@ -805,7 +804,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             synchronized (mService.getSynchronizer()) {
                 if (mService.isStopped()) return;
                 try {
-                    mContentResolver.applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                    mContentResolver.applyBatch(EmailContent.AUTHORITY, ops);
                     userLog(mMailbox.mDisplayName, " SyncKey saved as: ", mMailbox.mSyncKey);
                 } catch (RemoteException e) {
                     // There is nothing to be done here; fail by returning null
@@ -863,7 +862,7 @@ public class EmailSyncAdapter extends AbstractSyncAdapter {
             addCleanupOps(ops);
             try {
                 mContext.getContentResolver()
-                    .applyBatch(EmailProvider.EMAIL_AUTHORITY, ops);
+                    .applyBatch(EmailContent.AUTHORITY, ops);
             } catch (RemoteException e) {
                 // There is nothing to be done here; fail by returning null
             } catch (OperationApplicationException e) {

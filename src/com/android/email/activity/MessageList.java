@@ -19,8 +19,9 @@ package com.android.email.activity;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
+import com.android.email.MessagingExceptionStrings;
+import com.android.email.FolderProperties;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.mail.MessagingException;
@@ -29,6 +30,7 @@ import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -494,7 +496,7 @@ public class MessageList extends Activity implements OnClickListener,
                     new String[] { Long.toString(mMailboxKey) }, null);
             try {
                 if (c.moveToFirst()) {
-                    mailboxName = Utility.FolderProperties.getInstance(MessageList.this)
+                    mailboxName = FolderProperties.getInstance(MessageList.this)
                             .getDisplayName(c.getInt(MAILBOX_NAME_COLUMN_TYPE));
                     if (mailboxName == null) {
                         mailboxName = c.getString(MAILBOX_NAME_COLUMN_ID);
@@ -640,7 +642,8 @@ public class MessageList extends Activity implements OnClickListener,
                 return;
             }
             if (result != null) {
-                showErrorBanner(result.getUiErrorMessage(MessageList.this));
+                showErrorBanner(
+                        MessagingExceptionStrings.getErrorString(MessageList.this, result));
             } else if (progress > 0) {
                 showErrorBanner(null);
             }

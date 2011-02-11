@@ -16,7 +16,8 @@
 
 package com.android.email.activity;
 
-import com.android.email.Utility;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.AsyncTaskLoader;
 import android.content.ContentUris;
@@ -128,8 +129,7 @@ public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Res
                 try {
                     photo = BitmapFactory.decodeByteArray(photoData, 0, photoData.length, null);
                 } catch (OutOfMemoryError e) {
-                    Log.d(com.android.email.Email.LOG_TAG,
-                            "Decoding bitmap failed with " + e.getMessage());
+                    Log.d(Logging.LOG_TAG, "Decoding bitmap failed with " + e.getMessage());
                 }
             }
         }

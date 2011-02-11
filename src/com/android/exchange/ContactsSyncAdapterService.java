@@ -105,9 +105,6 @@ public class ContactsSyncAdapterService extends Service {
             String authority, ContentProviderClient provider, SyncResult syncResult)
             throws OperationCanceledException {
         ContentResolver cr = context.getContentResolver();
-        if (Email.DEBUG) {
-            Log.d(TAG, "performSync");
-        }
 
         // If we've been asked to do an upload, make sure we've got work to do
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD)) {

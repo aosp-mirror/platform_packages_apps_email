@@ -18,6 +18,7 @@ package com.android.email.service;
 
 import com.android.email.Email;
 import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.provider.EmailContent;
 
 import android.accounts.AbstractAccountAuthenticator;
@@ -31,7 +32,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Calendar;
 import android.provider.ContactsContract;
 
 /**
@@ -75,7 +75,7 @@ public class PopImapAuthenticatorService extends Service {
                 ContentResolver.setIsSyncable(account, EmailContent.AUTHORITY, 1);
                 ContentResolver.setSyncAutomatically(account, EmailContent.AUTHORITY, syncEmail);
                 ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 0);
-                ContentResolver.setIsSyncable(account, Calendar.AUTHORITY, 0);
+                ContentResolver.setIsSyncable(account, CalendarProviderStub.AUTHORITY, 0);
 
                 Bundle b = new Bundle();
                 b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));

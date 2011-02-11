@@ -17,16 +17,16 @@
 package com.android.email.activity.setup;
 
 import com.android.email.Controller;
-import com.android.email.Email;
 import com.android.email.NotificationController;
 import com.android.email.R;
-import com.android.email.Utility;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -594,7 +594,7 @@ public class AccountSettingsXL extends PreferenceActivity {
                 }
             }
         } catch (Exception e) {
-            Log.d(Email.LOG_TAG, "Error while trying to invoke store settings.", e);
+            Log.d(Logging.LOG_TAG, "Error while trying to invoke store settings.", e);
         }
     }
 
@@ -618,7 +618,7 @@ public class AccountSettingsXL extends PreferenceActivity {
                 }
             }
         } catch (Exception e) {
-            Log.d(Email.LOG_TAG, "Error while trying to invoke sender settings.", e);
+            Log.d(Logging.LOG_TAG, "Error while trying to invoke sender settings.", e);
         }
     }
 

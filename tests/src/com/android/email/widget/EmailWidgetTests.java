@@ -35,7 +35,7 @@ public class EmailWidgetTests extends ProviderTestCase2<EmailProvider> {
     private Context mMockContext;
 
     public EmailWidgetTests() {
-        super(EmailProvider.class, EmailProvider.EMAIL_AUTHORITY);
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override
