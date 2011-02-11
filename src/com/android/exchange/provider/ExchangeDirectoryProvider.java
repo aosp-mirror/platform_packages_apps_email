@@ -18,11 +18,12 @@ package com.android.exchange.provider;
 
 import com.android.email.R;
 import com.android.email.Utility;
-import com.android.email.VendorPolicyLoader;
+import com.android.emailcommon.Configuration;
 import com.android.emailcommon.mail.PackedString;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.service.AccountServiceProxy;
 import com.android.exchange.EasSyncService;
 import com.android.exchange.provider.GalResult.GalData;
 
@@ -35,15 +36,17 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
+import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds;
-import android.provider.ContactsContract.Contacts;
-import android.provider.ContactsContract.Directory;
-import android.provider.ContactsContract.RawContacts;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
+import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Contacts.Data;
+import android.provider.ContactsContract.Directory;
+import android.provider.ContactsContract.RawContacts;
 import android.text.TextUtils;
 
 import java.util.HashMap;
@@ -217,12 +220,23 @@ public class ExchangeDirectoryProvider extends ContentProvider {
                             } else if (column.equals(Directory.ACCOUNT_TYPE)) {
                                 row[i] = account.type;
                             } else if (column.equals(Directory.TYPE_RESOURCE_ID)) {
-                                if (VendorPolicyLoader.getInstance(getContext())
-                                        .useAlternateExchangeStrings()) {
-                                    row[i] = R.string.exchange_name_alternate;
-                                } else {
-                                    row[i] = R.string.exchange_name;
+                                Bundle bundle = null;
+                                try {
+                                    String accountType =
+                                        com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE;
+                                    bundle = new AccountServiceProxy(getContext())
+                                        .getConfigurationData(accountType);
+                                } catch (RemoteException e) {
+                                    // Ignore; bundle will be null
                                 }
+                                // Default to the alternative name, erring on the conservative side
+                                int exchangeName = R.string.exchange_name_alternate;
+                                if (bundle != null && !bundle.getBoolean(
+                                        Configuration.EXCHANGE_CONFIGURATION_USE_ALTERNATE_STRINGS,
+                                        true)) {
+                                    exchangeName = R.string.exchange_name;
+                                }
+                                row[i] = exchangeName;
                             } else if (column.equals(Directory.DISPLAY_NAME)) {
                                 // If the account name is an email address, extract
                                 // the domain name and use it as the directory display name

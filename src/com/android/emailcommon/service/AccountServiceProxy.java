@@ -18,6 +18,7 @@ package com.android.emailcommon.service;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -99,6 +100,20 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
             return DEFAULT_ACCOUNT_COLOR;
         } else {
             return (Integer)mReturn;
+        }
+    }
+
+    public Bundle getConfigurationData(final String accountType) throws RemoteException {
+        setTask(new ProxyTask() {
+            public void run() throws RemoteException{
+                mReturn = mService.getConfigurationData(accountType);
+            }
+        }, "getConfigurationData");
+        waitForCompletion();
+        if (mReturn == null) {
+            return null;
+        } else {
+            return (Bundle)mReturn;
         }
     }
 }

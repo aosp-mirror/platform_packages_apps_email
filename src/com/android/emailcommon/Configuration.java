@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.emailcommon.service;
+package com.android.emailcommon;
 
-import android.os.Bundle;
-
-interface IAccountService {
-    oneway void notifyLoginFailed(long accountId);
-    oneway void notifyLoginSucceeded(long accountId);
-    oneway void notifyNewMessages(long accountId);
-
-    void accountDeleted();
-    void restoreAccountsIfNeeded();
-
-    int getAccountColor(long accountId);
-
-    Bundle getConfigurationData(String accountType);
+public class Configuration {
+    // Bundle key for Exchange configuration (boolean value)
+    public static final String EXCHANGE_CONFIGURATION_USE_ALTERNATE_STRINGS =
+        "com.android.email.EXCHANGE_CONFIGURATION_USE_ALTERNATE_STRINGS";
 }

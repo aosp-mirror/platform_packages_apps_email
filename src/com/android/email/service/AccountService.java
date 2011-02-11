@@ -19,11 +19,14 @@ package com.android.email.service;
 import com.android.email.AccountBackupRestore;
 import com.android.email.NotificationController;
 import com.android.email.ResourceHelper;
+import com.android.email.VendorPolicyLoader;
+import com.android.emailcommon.Configuration;
 import com.android.emailcommon.service.IAccountService;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -61,6 +64,14 @@ public class AccountService extends Service {
         @Override
         public int getAccountColor(long accountId) throws RemoteException {
             return ResourceHelper.getInstance(mContext).getAccountColor(accountId);
+        }
+
+        @Override
+        public Bundle getConfigurationData(String accountType) throws RemoteException {
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(Configuration.EXCHANGE_CONFIGURATION_USE_ALTERNATE_STRINGS,
+                    VendorPolicyLoader.getInstance(mContext).useAlternateExchangeStrings());
+            return bundle;
         }
     };
 
