@@ -17,7 +17,7 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.Email;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.exchange.Eas;
@@ -79,7 +79,7 @@ public abstract class AbstractSyncAdapter {
         mContext = service.mContext;
         mAccount = service.mAccount;
         mAccountManagerAccount = new android.accounts.Account(mAccount.mEmailAddress,
-                Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                AccountManagerTypes.TYPE_EXCHANGE);
         mContentResolver = mContext.getContentResolver();
     }
 

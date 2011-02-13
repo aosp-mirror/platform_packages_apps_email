@@ -19,6 +19,7 @@ package com.android.email.provider;
 import com.android.email.Email;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.service.AttachmentDownloadService;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -785,7 +786,7 @@ public class EmailProvider extends ContentProvider {
             // Versions >= 5 require that data be preserved!
             if (oldVersion < 5) {
                 android.accounts.Account[] accounts = AccountManager.get(mContext)
-                        .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                        .getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
                 for (android.accounts.Account account: accounts) {
                     AccountManager.get(mContext).removeAccount(account, null, null);
                 }

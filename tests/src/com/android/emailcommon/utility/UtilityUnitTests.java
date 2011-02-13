@@ -22,7 +22,6 @@ import com.android.email.R;
 import com.android.email.TestUtils;
 import com.android.email.UiUtilities;
 import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
@@ -38,13 +37,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.telephony.TelephonyManager;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -205,21 +202,6 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals("\r\n", Utility.replaceBareLfWithCrlf("\n"));
         assertEquals("\r\n\r\n\r\n", Utility.replaceBareLfWithCrlf("\n\n\n"));
         assertEquals("A\r\nB\r\nC\r\nD", Utility.replaceBareLfWithCrlf("A\nB\r\nC\nD"));
-    }
-
-    public void testGetConsistentDeviceId() {
-        TelephonyManager tm =
-                (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
-        if (tm == null) {
-            Log.w(Logging.LOG_TAG, "TelephonyManager not supported.  Skipping.");
-            return;
-        }
-
-        // Note null is a valid return value.  But still it should be consistent.
-        final String deviceId = Utility.getConsistentDeviceId(getContext());
-        final String deviceId2 = Utility.getConsistentDeviceId(getContext());
-        // Should be consistent.
-        assertEquals(deviceId, deviceId2);
     }
 
     public void testGetSmallHash() {

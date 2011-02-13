@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
@@ -543,7 +544,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         mSyncEmail = (CheckBoxPreference) findPreference(PREFERENCE_SYNC_EMAIL);
         if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
             android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
-                    Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                    AccountManagerTypes.TYPE_EXCHANGE);
             mSyncContacts.setChecked(ContentResolver
                     .getSyncAutomatically(acct, ContactsContract.AUTHORITY));
             mSyncContacts.setOnPreferenceChangeListener(mPreferenceChangeListener);
@@ -630,7 +631,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
         if (mAccount.mHostAuthRecv.mProtocol.equals("eas")) {
             android.accounts.Account acct = new android.accounts.Account(mAccount.mEmailAddress,
-                    Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                    AccountManagerTypes.TYPE_EXCHANGE);
             ContentResolver.setSyncAutomatically(acct, ContactsContract.AUTHORITY,
                     mSyncContacts.isChecked());
             ContentResolver.setSyncAutomatically(acct, CalendarProviderStub.AUTHORITY,

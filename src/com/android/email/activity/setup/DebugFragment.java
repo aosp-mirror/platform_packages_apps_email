@@ -17,12 +17,11 @@
 package com.android.email.activity.setup;
 
 import com.android.email.Email;
+import com.android.email.ExchangeUtils;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
-import com.android.exchange.Eas;
-import com.android.exchange.utility.FileLogger;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -34,8 +33,8 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.TextView;
 
 public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         View.OnClickListener {
@@ -66,19 +65,23 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         mEnableDebugLoggingView = (CheckBox) view.findViewById(R.id.debug_logging);
         mEnableDebugLoggingView.setChecked(Email.DEBUG);
 
-        //EXCHANGE-REMOVE-SECTION-START
         mEnableExchangeLoggingView = (CheckBox) view.findViewById(R.id.exchange_logging);
-        mEnableExchangeFileLoggingView = (CheckBox) view.findViewById(R.id.exchange_file_logging);
-        mEnableExchangeLoggingView.setChecked(Eas.PARSER_LOG);
-        mEnableExchangeFileLoggingView.setChecked(Eas.FILE_LOG);
-        //EXCHANGE-REMOVE-SECTION-END
+        mEnableExchangeFileLoggingView =
+            (CheckBox) view.findViewById(R.id.exchange_file_logging);
 
         // Note:  To prevent recursion while presetting checkboxes, assign all listeners last
         mEnableDebugLoggingView.setOnCheckedChangeListener(this);
-        //EXCHANGE-REMOVE-SECTION-START
-        mEnableExchangeLoggingView.setOnCheckedChangeListener(this);
-        mEnableExchangeFileLoggingView.setOnCheckedChangeListener(this);
-        //EXCHANGE-REMOVE-SECTION-END
+
+        boolean exchangeAvailable = ExchangeUtils.isExchangeAvailable(context);
+        if (exchangeAvailable) {
+            mEnableExchangeLoggingView.setChecked(Email.DEBUG_EXCHANGE_VERBOSE);
+            mEnableExchangeFileLoggingView.setChecked(Email.DEBUG_EXCHANGE_FILE);
+            mEnableExchangeLoggingView.setOnCheckedChangeListener(this);
+            mEnableExchangeFileLoggingView.setOnCheckedChangeListener(this);
+        } else {
+            mEnableExchangeLoggingView.setVisibility(View.GONE);
+            mEnableExchangeFileLoggingView.setVisibility(View.GONE);
+        }
 
         view.findViewById(R.id.clear_webview_cache).setOnClickListener(this);
 
@@ -99,21 +102,19 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
             case R.id.debug_logging:
+                mPreferences.setEnableDebugLogging(isChecked);
                 Email.DEBUG = isChecked;
-                mPreferences.setEnableDebugLogging(Email.DEBUG);
+                Email.DEBUG_EXCHANGE = isChecked;
                 break;
-            //EXCHANGE-REMOVE-SECTION-START
-            case R.id.exchange_logging:
+             case R.id.exchange_logging:
                 mPreferences.setEnableExchangeLogging(isChecked);
+                Email.DEBUG_EXCHANGE_VERBOSE = isChecked;
                 break;
             case R.id.exchange_file_logging:
                 mPreferences.setEnableExchangeFileLogging(isChecked);
-                if (!isChecked) {
-                    FileLogger.close();
-                }
+                Email.DEBUG_EXCHANGE_FILE = isChecked;
                 break;
-            //EXCHANGE-REMOVE-SECTION-END
-            case R.id.debug_disable_graphics_acceleration:
+           case R.id.debug_disable_graphics_acceleration:
                 Email.sDebugInhibitGraphicsAcceleration = isChecked;
                 mPreferences.setInhibitGraphicsAcceleration(isChecked);
                 break;

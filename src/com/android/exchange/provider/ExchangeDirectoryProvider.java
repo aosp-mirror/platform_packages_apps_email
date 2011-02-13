@@ -17,6 +17,7 @@
 package com.android.exchange.provider;
 
 import com.android.email.R;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.mail.PackedString;
 import com.android.emailcommon.provider.EmailContent;
@@ -119,7 +120,7 @@ public class ExchangeDirectoryProvider extends ContentProvider {
             // TODO alternative display name
             put(Contacts.DISPLAY_NAME_ALTERNATIVE, displayName);
 
-            put(RawContacts.ACCOUNT_TYPE, com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+            put(RawContacts.ACCOUNT_TYPE, AccountManagerTypes.TYPE_EXCHANGE);
             put(RawContacts.ACCOUNT_NAME, accountName);
             put(RawContacts.RAW_CONTACT_IS_READ_ONLY, 1);
             put(Data.IS_READ_ONLY, 1);
@@ -207,7 +208,7 @@ public class ExchangeDirectoryProvider extends ContentProvider {
             case GAL_DIRECTORIES: {
                 // Assuming that GAL can be used with all exchange accounts
                 android.accounts.Account[] accounts = AccountManager.get(getContext())
-                        .getAccountsByType(com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                        .getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
                 cursor = new MatrixCursor(projection);
                 if (accounts != null) {
                     for (android.accounts.Account account : accounts) {
@@ -223,7 +224,7 @@ public class ExchangeDirectoryProvider extends ContentProvider {
                                 Bundle bundle = null;
                                 try {
                                     String accountType =
-                                        com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE;
+                                        AccountManagerTypes.TYPE_EXCHANGE;
                                     bundle = new AccountServiceProxy(getContext())
                                         .getConfigurationData(accountType);
                                 } catch (RemoteException e) {

@@ -17,11 +17,10 @@
 package com.android.email.service;
 
 import com.android.email.AttachmentInfo;
+import com.android.email.Controller.ControllerService;
 import com.android.email.Email;
 import com.android.email.EmailConnectivityManager;
 import com.android.email.NotificationController;
-import com.android.email.Controller.ControllerService;
-import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -31,7 +30,6 @@ import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.Utility;
-import com.android.exchange.ExchangeService;
 
 import android.accounts.AccountManager;
 import android.app.AlarmManager;
@@ -99,8 +97,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
     /*package*/ final DownloadSet mDownloadSet = new DownloadSet(new DownloadComparator());
 
-    private final HashMap<Long, Class<? extends Service>> mAccountServiceMap =
-        new HashMap<Long, Class<? extends Service>>();
+    private final HashMap<Long, Intent> mAccountServiceMap = new HashMap<Long, Intent>();
     // A map of attachment storage used per account
     // NOTE: This map is not kept current in terms of deletions (i.e. it stores the last calculated
     // amount plus the size of any new attachments laoded).  If and when we reach the per-account
@@ -350,11 +347,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     while (c.moveToNext()) {
                         long accountKey = c.getLong(AttachmentInfo.COLUMN_ACCOUNT_KEY);
                         long id = c.getLong(AttachmentInfo.COLUMN_ID);
-                        if (getServiceClassForAccount(accountKey) == null) {
+                        Account account = Account.restoreAccountWithId(mContext, accountKey);
+                        if (account == null) {
                             // Clean up this orphaned attachment; there's no point in keeping it
                             // around; then try to find another one
                             EmailContent.delete(mContext, Attachment.CONTENT_URI, id);
-                        } else if (canPrefetchForAccount(accountKey, cacheDir)) {
+                        } else if (canPrefetchForAccount(account, cacheDir)) {
                             // Check that the attachment meets system requirements for download
                             AttachmentInfo info = new AttachmentInfo(mContext, c);
                             if (info.isEligibleForDownload()) {
@@ -418,6 +416,37 @@ public class AttachmentDownloadService extends Service implements Runnable {
         }
 
         /**
+         * Attempt to execute the DownloadRequest, enforcing the maximum downloads per account
+         * parameter
+         * @param req the DownloadRequest
+         * @return whether or not the download was started
+         */
+        /*package*/ synchronized boolean tryStartDownload(DownloadRequest req) {
+            Intent intent = getServiceIntentForAccount(req.accountId);
+            if (intent == null) return false;
+
+            // Do not download the same attachment multiple times
+            boolean alreadyInProgress = mDownloadsInProgress.get(req.attachmentId) != null;
+            if (alreadyInProgress) return false;
+
+            try {
+                if (Email.DEBUG) {
+                    Log.d(TAG, ">> Starting download for attachment #" + req.attachmentId);
+                }
+                startDownload(intent, req);
+            } catch (RemoteException e) {
+                // TODO: Consider whether we need to do more in this case...
+                // For now, fix up our data to reflect the failure
+                cancelDownload(req);
+            }
+            return true;
+        }
+
+        private synchronized DownloadRequest getDownloadInProgress(long attachmentId) {
+            return mDownloadsInProgress.get(attachmentId);
+        }
+
+        /**
          * Do the work of starting an attachment download using the EmailService interface, and
          * set our watchdog alarm
          *
@@ -425,17 +454,15 @@ public class AttachmentDownloadService extends Service implements Runnable {
          * @param req the DownloadRequest
          * @throws RemoteException
          */
-        private void startDownload(Class<? extends Service> serviceClass, DownloadRequest req)
+        private void startDownload(Intent intent, DownloadRequest req)
                 throws RemoteException {
             File file = AttachmentUtilities.getAttachmentFilename(mContext, req.accountId,
                     req.attachmentId);
             req.startTime = System.currentTimeMillis();
             req.inProgress = true;
             mDownloadsInProgress.put(req.attachmentId, req);
-            if (serviceClass.equals(NullEmailService.class)) return;
-            // Now, call the service
             EmailServiceProxy proxy =
-                new EmailServiceProxy(mContext, serviceClass, mServiceCallback);
+                new EmailServiceProxy(mContext, intent, mServiceCallback);
             proxy.loadAttachment(req.attachmentId, file.getAbsolutePath(),
                     AttachmentUtilities.getAttachmentUri(req.accountId, req.attachmentId)
                     .toString(), req.priority != PRIORITY_FOREGROUND);
@@ -449,37 +476,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
             mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                     System.currentTimeMillis() + WATCHDOG_CHECK_INTERVAL, WATCHDOG_CHECK_INTERVAL,
                     mWatchdogPendingIntent);
-        }
-
-        private synchronized DownloadRequest getDownloadInProgress(long attachmentId) {
-            return mDownloadsInProgress.get(attachmentId);
-        }
-
-        /**
-         * Attempt to execute the DownloadRequest, enforcing the maximum downloads per account
-         * parameter
-         * @param req the DownloadRequest
-         * @return whether or not the download was started
-         */
-        /*package*/ synchronized boolean tryStartDownload(DownloadRequest req) {
-            Class<? extends Service> serviceClass = getServiceClassForAccount(req.accountId);
-            if (serviceClass == null) return false;
-
-            // Do not download the same attachment multiple times
-            boolean alreadyInProgress = mDownloadsInProgress.get(req.attachmentId) != null;
-            if (alreadyInProgress) return false;
-
-            try {
-                if (Email.DEBUG) {
-                    Log.d(TAG, ">> Starting download for attachment #" + req.attachmentId);
-                }
-                startDownload(serviceClass, req);
-            } catch (RemoteException e) {
-                // TODO: Consider whether we need to do more in this case...
-                // For now, fix up our data to reflect the failure
-                cancelDownload(req);
-            }
-            return true;
         }
 
         private void cancelDownload(DownloadRequest req) {
@@ -670,31 +666,28 @@ public class AttachmentDownloadService extends Service implements Runnable {
     }
 
     /**
-     * Return the class of the service used by the account type of the provided account id.  We
+     * Return an Intent to be used used based on the account type of the provided account id.  We
      * cache the results to avoid repeated database access
      * @param accountId the id of the account
-     * @return the service class for the account or null (if the account no longer exists)
+     * @return the Intent to be used for the account or null (if the account no longer exists)
      */
-    private synchronized Class<? extends Service> getServiceClassForAccount(long accountId) {
-        // TODO: We should have some more data-driven way of determining the service class. I'd
-        // suggest adding an attribute in the stores.xml file
-        Class<? extends Service> serviceClass = mAccountServiceMap.get(accountId);
-        if (serviceClass == null) {
+    private synchronized Intent getServiceIntentForAccount(long accountId) {
+        // TODO: We should have some more data-driven way of determining the service intent.
+        Intent serviceIntent = mAccountServiceMap.get(accountId);
+        if (serviceIntent == null) {
             String protocol = Account.getProtocol(mContext, accountId);
             if (protocol == null) return null;
-            serviceClass = ControllerService.class;
-            // EXCHANGE-REMOVE-SECTION-START
+            serviceIntent = new Intent(mContext, ControllerService.class);
             if (protocol.equals("eas")) {
-                serviceClass = ExchangeService.class;
+                serviceIntent = new Intent(EmailServiceProxy.EXCHANGE_INTENT);
             }
-            // EXCHANGE-REMOVE-SECTION-END
-            mAccountServiceMap.put(accountId, serviceClass);
+            mAccountServiceMap.put(accountId, serviceIntent);
         }
-        return serviceClass;
+        return serviceIntent;
     }
 
-    /*protected*/ void addServiceClass(long accountId, Class<? extends Service> serviceClass) {
-        mAccountServiceMap.put(accountId, serviceClass);
+    /*package*/ void addServiceIntentForTest(long accountId, Intent intent) {
+        mAccountServiceMap.put(accountId, intent);
     }
 
     /*package*/ void onChange(Attachment att) {
@@ -792,8 +785,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
      * Determine whether an attachment can be prefetched for the given account
      * @return true if download is allowed, false otherwise
      */
-    /*package*/ boolean canPrefetchForAccount(long accountId, File dir) {
-        Account account = Account.restoreAccountWithId(mContext, accountId);
+    public boolean canPrefetchForAccount(Account account, File dir) {
         // Check account, just in case
         if (account == null) return false;
         // First, check preference and quickly return if prefetch isn't allowed
@@ -815,7 +807,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         // Retrieve our idea of currently used attachment storage; since we don't track deletions,
         // this number is the "worst case".  If the number is greater than what's allowed per
         // account, we walk the directory to determine the actual number
-        Long accountStorage = mAttachmentStorageMap.get(accountId);
+        Long accountStorage = mAttachmentStorageMap.get(account.mId);
         if (accountStorage == null || (accountStorage > perAccountMaxStorage)) {
             // Calculate the exact figure for attachment storage for this account
             accountStorage = 0L;
@@ -826,7 +818,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 }
             }
             // Cache the value
-            mAttachmentStorageMap.put(accountId, accountStorage);
+            mAttachmentStorageMap.put(account.mId, accountStorage);
         }
 
         // Return true if we're using less than the maximum per account
@@ -834,7 +826,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             return true;
         } else {
             if (Email.DEBUG) {
-                Log.d(TAG, ">> Prefetch not allowed for account " + accountId + "; used " +
+                Log.d(TAG, ">> Prefetch not allowed for account " + account.mId + "; used " +
                         accountStorage + ", limit " + perAccountMaxStorage);
             }
             return false;

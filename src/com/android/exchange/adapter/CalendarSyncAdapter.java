@@ -17,7 +17,7 @@
 
 package com.android.exchange.adapter;
 
-import com.android.email.Email;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.Utility;
@@ -166,7 +166,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         mEmailAddress = mAccount.mEmailAddress;
         Cursor c = mService.mContentResolver.query(Calendars.CONTENT_URI,
                 new String[] {Calendars._ID}, CALENDAR_SELECTION,
-                new String[] {mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE}, null);
+                new String[] {mEmailAddress, AccountManagerTypes.TYPE_EXCHANGE}, null);
         if (c == null) return;
         try {
             if (c.moveToFirst()) {
@@ -197,7 +197,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         mContentResolver.delete(Calendars.CONTENT_URI, Calendars._SYNC_ACCOUNT +
                 "=" + DatabaseUtils.sqlEscapeString(mEmailAddress) + " AND " +
                 Calendars._SYNC_ACCOUNT_TYPE + "=" +
-                DatabaseUtils.sqlEscapeString(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE), null);
+                DatabaseUtils.sqlEscapeString(AccountManagerTypes.TYPE_EXCHANGE), null);
     }
 
     @Override
@@ -387,7 +387,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             ContentValues cv = new ContentValues();
             cv.put(Events.CALENDAR_ID, mCalendarId);
             cv.put(Events._SYNC_ACCOUNT, mEmailAddress);
-            cv.put(Events._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+            cv.put(Events._SYNC_ACCOUNT_TYPE, AccountManagerTypes.TYPE_EXCHANGE);
             cv.put(Events._SYNC_ID, serverId);
             cv.put(Events.HAS_ATTENDEE_DATA, 1);
             cv.put(Events._SYNC_DATA, "0");
@@ -782,7 +782,7 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
             ContentValues cv = new ContentValues();
             cv.put(Events.CALENDAR_ID, mCalendarId);
             cv.put(Events._SYNC_ACCOUNT, mEmailAddress);
-            cv.put(Events._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+            cv.put(Events._SYNC_ACCOUNT_TYPE, AccountManagerTypes.TYPE_EXCHANGE);
 
             // It appears that these values have to be copied from the parent if they are to appear
             // Note that they can be overridden below

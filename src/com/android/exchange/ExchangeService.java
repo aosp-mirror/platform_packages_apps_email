@@ -18,9 +18,9 @@
 package com.android.exchange;
 
 import com.android.email.Email;
-import com.android.email.mail.transport.SSLUtils;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.Api;
-import com.android.emailcommon.Logging;
+import com.android.emailcommon.Device;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -35,6 +35,7 @@ import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AccountReconciler;
+import com.android.emailcommon.utility.SSLUtils;
 import com.android.emailcommon.utility.Utility;
 import com.android.exchange.adapter.CalendarSyncAdapter;
 import com.android.exchange.adapter.ContactsSyncAdapter;
@@ -84,11 +85,6 @@ import android.provider.Calendar.Events;
 import android.provider.ContactsContract;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -635,7 +631,8 @@ public class ExchangeService extends Service implements Runnable {
                         stopAccountSyncs(account.mId, true);
                         // Delete this from AccountManager...
                         android.accounts.Account acct = new android.accounts.Account(
-                                account.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                                account.mEmailAddress,
+                                AccountManagerTypes.TYPE_EXCHANGE);
                         AccountManager.get(ExchangeService.this)
                         .removeAccount(acct, null, null);
                         mSyncableEasMailboxSelector = null;
@@ -779,7 +776,8 @@ public class ExchangeService extends Service implements Runnable {
             Cursor c = mResolver.query(Calendars.CONTENT_URI,
                     new String[] {Calendars._ID, Calendars.SYNC_EVENTS},
                     CalendarSyncAdapter.CALENDAR_SELECTION,
-                    new String[] {account.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE},
+                    new String[] {account.mEmailAddress,
+                        AccountManagerTypes.TYPE_EXCHANGE},
                     null);
             if (c != null) {
                 // Save its id and its sync events status
@@ -1039,7 +1037,7 @@ public class ExchangeService extends Service implements Runnable {
      */
     private void runAccountReconcilerSync(Context context) {
         android.accounts.Account[] accountMgrList = AccountManager.get(context)
-                .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                .getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
         // Make sure we have an up-to-date sAccountList.  If not (for example, if the
         // service has been destroyed), we would be reconciling against an empty account
         // list, which would cause the deletion of all of our accounts
@@ -1075,61 +1073,6 @@ public class ExchangeService extends Service implements Runnable {
         } else {
             log(str);
         }
-    }
-
-    /**
-     * EAS requires a unique device id, so that sync is possible from a variety of different
-     * devices (e.g. the syncKey is specific to a device)  If we're on an emulator or some other
-     * device that doesn't provide one, we can create it as droid<n> where <n> is system time.
-     * This would work on a real device as well, but it would be better to use the "real" id if
-     * it's available
-     */
-    static public String getDeviceId() throws IOException {
-        return getDeviceId(null);
-    }
-
-    static public synchronized String getDeviceId(Context context) throws IOException {
-        if (sDeviceId == null) {
-            sDeviceId = getDeviceIdInternal(context);
-        }
-        return sDeviceId;
-    }
-
-    static private String getDeviceIdInternal(Context context) throws IOException {
-        if (INSTANCE == null && context == null) {
-            throw new IOException("No context for getDeviceId");
-        } else if (context == null) {
-            context = INSTANCE;
-        }
-
-        File f = context.getFileStreamPath("deviceName");
-        BufferedReader rdr = null;
-        String id;
-        if (f.exists()) {
-            if (f.canRead()) {
-                rdr = new BufferedReader(new FileReader(f), 128);
-                id = rdr.readLine();
-                rdr.close();
-                return id;
-            } else {
-                Log.w(Logging.LOG_TAG, f.getAbsolutePath() + ": File exists, but can't read?" +
-                        "  Trying to remove.");
-                if (!f.delete()) {
-                    Log.w(Logging.LOG_TAG, "Remove failed. Tring to overwrite.");
-                }
-            }
-        }
-        BufferedWriter w = new BufferedWriter(new FileWriter(f), 128);
-        final String consistentDeviceId = Utility.getConsistentDeviceId(context);
-        if (consistentDeviceId != null) {
-            // Use different prefix from random IDs.
-            id = "androidc" + consistentDeviceId;
-        } else {
-            id = "android" + System.currentTimeMillis();
-        }
-        w.write(id);
-        w.close();
-        return id;
     }
 
     @Override
@@ -1488,7 +1431,7 @@ public class ExchangeService extends Service implements Runnable {
             // Create an AccountManager style Account
             android.accounts.Account acct =
                 new android.accounts.Account(providerAccount.mEmailAddress,
-                        Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                        AccountManagerTypes.TYPE_EXCHANGE);
             // Get the mailbox; this happens rarely so it's ok to get it all
             Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
             if (mailbox == null) return;
@@ -1739,7 +1682,7 @@ public class ExchangeService extends Service implements Runnable {
             }
             if (sDeviceId == null) {
                 try {
-                    getDeviceId(this);
+                    Device.getDeviceId(this);
                 } catch (IOException e) {
                     // We can't run in this situation
                     throw new RuntimeException(e);
@@ -2076,7 +2019,7 @@ public class ExchangeService extends Service implements Runnable {
                     // TODO: Don't rebuild this account manager account each time through
                     android.accounts.Account accountManagerAccount =
                         new android.accounts.Account(account.mEmailAddress,
-                                Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                                AccountManagerTypes.TYPE_EXCHANGE);
 
                     if (type == Mailbox.TYPE_CONTACTS || type == Mailbox.TYPE_CALENDAR) {
                         // We don't sync these automatically if master auto sync is off

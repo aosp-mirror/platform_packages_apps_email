@@ -1,11 +1,11 @@
 # keep names that are used by reflection.
--keep class com.android.email.provider.EmailContent$Account
+-keep class com.android.emailcommon.provider.EmailContent$Account
 -keepclasseswithmembers class * {
-  public static void actionEditIncomingSettings(android.app.Activity, int, com.android.email.provider.EmailContent$Account);
+  public static void actionEditIncomingSettings(android.app.Activity, int, com.android.emailcommon.provider.EmailContent$Account);
 }
 
 -keepclasseswithmembers class * {
-  public static void actionEditOutgoingSettings(android.app.Activity, int, com.android.email.provider.EmailContent$Account);
+  public static void actionEditOutgoingSettings(android.app.Activity, int, com.android.emailcommon.provider.EmailContent$Account);
 }
 
 -keepclasseswithmembers class * {
@@ -48,7 +48,7 @@
 }
 
 -keepclasseswithmembers class com.android.emailcommon.service.PolicySet {
-  <init>(com.android.email.provider.EmailContent$Account);
+  <init>(com.android.emailcommon.provider.EmailContent$Account);
   <init>(int, int, int, int, boolean, int, int, boolean);
 }
 
@@ -64,11 +64,11 @@
   *** log(android.database.Cursor);
 }
 
--keepclasseswithmembers class com.android.email.provider.EmailProvider {
+-keepclasseswithmembers class com.android.emailcommon.provider.EmailProvider {
   *** getReadableDatabase(android.content.Context);
 }
 
--keepclasseswithmembers class com.android.email.provider.EmailContent$Attachment {
+-keepclasseswithmembers class com.android.emailcommon.provider.EmailContent$Attachment {
   *** createUniqueFile(java.lang.String);
 }
 
@@ -162,7 +162,7 @@
   *** size();
 }
 
--keepclasseswithmembers class com.android.email.provider.EmailContent$Account {
+-keepclasseswithmembers class com.android.emailcommon.provider.EmailContent$Account {
   *** getShortcutSafeUri();
 }
 

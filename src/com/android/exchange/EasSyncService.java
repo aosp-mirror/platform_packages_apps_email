@@ -17,6 +17,7 @@
 
 package com.android.exchange;
 
+import com.android.emailcommon.Device;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.MeetingInfo;
 import com.android.emailcommon.mail.MessagingException;
@@ -853,7 +854,7 @@ public class EasSyncService extends AbstractSyncService {
                 svc.mPassword = ha.mPassword;
                 svc.mSsl = (ha.mFlags & HostAuth.FLAG_SSL) != 0;
                 svc.mTrustSsl = (ha.mFlags & HostAuth.FLAG_TRUST_ALL_CERTIFICATES) != 0;
-                svc.mDeviceId = ExchangeService.getDeviceId();
+                svc.mDeviceId = Device.getDeviceId(context);
                 svc.mAccount = acct;
                 Serializer s = new Serializer();
                 s.start(Tags.SEARCH_SEARCH).start(Tags.SEARCH_STORE);
@@ -2386,7 +2387,7 @@ public class EasSyncService extends AbstractSyncService {
 
         // Whether or not we're the account mailbox
         try {
-            mDeviceId = ExchangeService.getDeviceId();
+            mDeviceId = Device.getDeviceId(mContext);
             if ((mMailbox == null) || (mAccount == null)) {
                 return;
             } else if (mMailbox.mType == Mailbox.TYPE_EAS_ACCOUNT_MAILBOX) {

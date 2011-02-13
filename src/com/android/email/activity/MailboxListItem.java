@@ -18,7 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.R;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
-import com.android.internal.util.ArrayUtils;
+import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -73,7 +73,7 @@ public class MailboxListItem extends RelativeLayout {
         if ((mMailboxId < 0) || (itemMailbox == mMailboxId)) {
             return false;
         }
-        return !ArrayUtils.contains(Mailbox.INVALID_DROP_TARGETS, mMailboxType);
+        return !Utility.arrayContains(Mailbox.INVALID_DROP_TARGETS, mMailboxType);
     }
 
     public void setDropTargetBackground(boolean dragInProgress, long itemMailbox) {

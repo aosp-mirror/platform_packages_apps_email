@@ -16,8 +16,8 @@
 
 package com.android.exchange.utility;
 
-import com.android.email.Email;
 import com.android.email.R;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -1208,7 +1208,7 @@ public class CalendarUtilities {
         // TODO How will this change if the user changes his account display name?
         cv.put(Calendars.DISPLAY_NAME, account.mDisplayName);
         cv.put(Calendars._SYNC_ACCOUNT, account.mEmailAddress);
-        cv.put(Calendars._SYNC_ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+        cv.put(Calendars._SYNC_ACCOUNT_TYPE, AccountManagerTypes.TYPE_EXCHANGE);
         cv.put(Calendars.SYNC_EVENTS, 1);
         cv.put(Calendars.SELECTED, 1);
         // Don't show attendee status if we're the organizer

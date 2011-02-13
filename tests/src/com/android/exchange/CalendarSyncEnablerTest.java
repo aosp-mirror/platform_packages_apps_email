@@ -17,8 +17,8 @@
 package com.android.exchange;
 
 import com.android.email.AccountTestCase;
-import com.android.email.Email;
 import com.android.email.NotificationController;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.Logging;
 
 import android.accounts.Account;
@@ -38,9 +38,6 @@ import java.util.HashMap;
 public class CalendarSyncEnablerTest extends AccountTestCase {
 
     private HashMap<Account, Boolean> origCalendarSyncStates = new HashMap<Account, Boolean>();
-
-    // To make the rest of the code shorter thus more readable...
-    private static final String EAT = Email.EXCHANGE_ACCOUNT_MANAGER_TYPE;
 
     public CalendarSyncEnablerTest() {
         super();
@@ -157,7 +154,7 @@ public class CalendarSyncEnablerTest extends AccountTestCase {
             boolean enabled = ContentResolver.getSyncAutomatically(account, Calendar.AUTHORITY);
             int syncable = ContentResolver.getIsSyncable(account, Calendar.AUTHORITY);
 
-            if (EAT.equals(account.type)) {
+            if (AccountManagerTypes.TYPE_EXCHANGE.equals(account.type)) {
                 // Should be enabled.
                 // assertEquals(message, Boolean.TRUE, (Boolean) enabled);
                 // assertEquals(message, 1, syncable);
@@ -172,7 +169,8 @@ public class CalendarSyncEnablerTest extends AccountTestCase {
         // This test can only meaningfully run when there's no exchange accounts
         // set up on the device.  Otherwise there'll be no difference from
         // testEnableEasCalendarSync.
-        if (AccountManager.get(getContext()).getAccountsByType(EAT).length > 0) {
+        if (AccountManager.get(getContext()).getAccountsByType(
+                AccountManagerTypes.TYPE_EXCHANGE).length > 0) {
             Log.w(Logging.LOG_TAG, "testEnableEasCalendarSyncWithNoExchangeAccounts skipped:"
                     + " It only runs when there's no Exchange account on the device.");
             return;

@@ -23,8 +23,8 @@ import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.Utility;
-import com.android.exchange.Eas;
 
 import android.app.Application;
 import android.content.ComponentName;
@@ -67,6 +67,11 @@ public class Email extends Application {
      */
     public static final boolean LOGD = false;
 
+    // Exchange debugging flags (passed to Exchange, when available, via EmailServiceProxy)
+    public static boolean DEBUG_EXCHANGE = false;
+    public static boolean DEBUG_EXCHANGE_VERBOSE = false;
+    public static boolean DEBUG_EXCHANGE_FILE = false;
+
     /**
      * If true, inhibit hardware graphics acceleration in UI (for a/b testing)
      */
@@ -89,9 +94,6 @@ public class Email extends Application {
      * the accounts list (e.g. deleting accounts in the Account Manager preferences.)
      */
     private static boolean sAccountsChangedNotification = false;
-
-    public static final String EXCHANGE_ACCOUNT_MANAGER_TYPE = "com.android.exchange";
-    public static final String POP_IMAP_ACCOUNT_MANAGER_TYPE = "com.android.email";
 
     private static String sMessageDecodeErrorString;
 
@@ -213,14 +215,14 @@ public class Email extends Application {
      * Load enabled debug flags from the preferences and update the EAS debug flag.
      */
     public static void updateLoggingFlags(Context context) {
-        //EXCHANGE-REMOVE-SECTION-START
         Preferences prefs = Preferences.getPreferences(context);
-        int debugLogging = prefs.getEnableDebugLogging() ? Eas.DEBUG_BIT : 0;
-        int exchangeLogging = prefs.getEnableExchangeLogging() ? Eas.DEBUG_EXCHANGE_BIT : 0;
-        int fileLogging = prefs.getEnableExchangeFileLogging() ? Eas.DEBUG_FILE_BIT : 0;
-        int debugBits = debugLogging | exchangeLogging | fileLogging;
+        int debugLogging = prefs.getEnableDebugLogging() ? EmailServiceProxy.DEBUG_BIT : 0;
+        int verboseLogging =
+            prefs.getEnableExchangeLogging() ? EmailServiceProxy.DEBUG_VERBOSE_BIT : 0;
+        int fileLogging =
+            prefs.getEnableExchangeFileLogging() ? EmailServiceProxy.DEBUG_FILE_BIT : 0;
+        int debugBits = debugLogging | verboseLogging | fileLogging;
         Controller.getInstance(context).serviceLogging(debugBits);
-        //EXCHANGE-REMOVE-SECTION-END
     }
 
     /**

@@ -18,6 +18,7 @@ package com.android.email;
 
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 
@@ -46,11 +47,11 @@ public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
 
     protected android.accounts.Account[] getExchangeAccounts() {
         return AccountManager.get(getContext())
-                .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                .getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
     }
 
     protected android.accounts.Account makeAccountManagerAccount(String username) {
-        return new android.accounts.Account(username, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+        return new android.accounts.Account(username, AccountManagerTypes.TYPE_EXCHANGE);
     }
 
     protected void createAccountManagerAccount(String username) {

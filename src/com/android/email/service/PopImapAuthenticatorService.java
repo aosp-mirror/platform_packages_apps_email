@@ -16,8 +16,8 @@
 
 package com.android.email.service;
 
-import com.android.email.Email;
 import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.provider.EmailContent;
 
@@ -62,7 +62,7 @@ public class PopImapAuthenticatorService extends Service {
             if (options != null && options.containsKey(OPTIONS_PASSWORD)
                     && options.containsKey(OPTIONS_USERNAME)) {
                 final Account account = new Account(options.getString(OPTIONS_USERNAME),
-                        Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
+                        AccountManagerTypes.TYPE_POP_IMAP);
                 AccountManager.get(PopImapAuthenticatorService.this).addAccountExplicitly(
                             account, options.getString(OPTIONS_PASSWORD), null);
 
@@ -79,7 +79,7 @@ public class PopImapAuthenticatorService extends Service {
 
                 Bundle b = new Bundle();
                 b.putString(AccountManager.KEY_ACCOUNT_NAME, options.getString(OPTIONS_USERNAME));
-                b.putString(AccountManager.KEY_ACCOUNT_TYPE, Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
+                b.putString(AccountManager.KEY_ACCOUNT_TYPE, AccountManagerTypes.TYPE_POP_IMAP);
                 return b;
             // 2) The other case is that we're creating a new account from an Account manager
             //    activity.  In this case, we add an intent that will be used to gather the

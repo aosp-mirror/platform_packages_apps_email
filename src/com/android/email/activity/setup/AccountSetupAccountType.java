@@ -16,6 +16,7 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.ActivityHelper;
@@ -63,14 +64,15 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         ((Button)findViewById(R.id.pop)).setOnClickListener(this);
         ((Button)findViewById(R.id.imap)).setOnClickListener(this);
         final Button exchangeButton = (Button) findViewById(R.id.exchange);
-        exchangeButton.setOnClickListener(this);
+        exchangeButton.setVisibility(View.INVISIBLE);
         final Button previousButton = (Button) findViewById(R.id.previous);
         if (previousButton != null) previousButton.setOnClickListener(this);
 
         // TODO If we decide to exclude the Exchange option in POP_IMAP mode, use the following line
         // instead of the line that follows it
-        //if (isExchangeAvailable() && flowMode != SetupData.FLOW_MODE_POP_IMAP) {
-        if (isExchangeAvailable()) {
+        //if (ExchangeUtils.isExchangeAvailable(this) && flowMode != SetupData.FLOW_MODE_POP_IMAP) {
+        if (ExchangeUtils.isExchangeAvailable(this)) {
+            exchangeButton.setOnClickListener(this);
             exchangeButton.setVisibility(View.VISIBLE);
             if (VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()) {
                 exchangeButton.setText(
@@ -139,25 +141,6 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         SetupData.setCheckSettingsMode(SetupData.CHECK_AUTODISCOVER);
         AccountSetupExchange.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
-    }
-
-    /**
-     * Determine if we can show the "exchange" option
-     *
-     * TODO: This should be dynamic and data-driven for all account types, not just hardcoded
-     * like this.
-     */
-    private boolean isExchangeAvailable() {
-        //EXCHANGE-REMOVE-SECTION-START
-        try {
-            URI uri = new URI(SetupData.getAccount().getStoreUri(this));
-            uri = new URI("eas", uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
-            Store.StoreInfo storeInfo = Store.StoreInfo.getStoreInfo(uri.toString(), this);
-            return (storeInfo != null && checkAccountInstanceLimit(storeInfo));
-        } catch (URISyntaxException e) {
-        }
-        //EXCHANGE-REMOVE-SECTION-END
-        return false;
     }
 
     /**

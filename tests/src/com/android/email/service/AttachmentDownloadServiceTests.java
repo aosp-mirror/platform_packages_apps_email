@@ -29,6 +29,7 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.service.EmailServiceStatus;
 
 import android.content.Context;
+import android.content.Intent;
 
 import java.io.File;
 import java.util.Iterator;
@@ -69,7 +70,8 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         // Use the NullEmailService so that the loadAttachment calls become no-ops
         mService = new AttachmentDownloadService();
         mService.mContext = mMockContext;
-        mService.addServiceClass(mAccountId, NullEmailService.class);
+        mService.addServiceIntentForTest(mAccountId, new Intent(mMockContext,
+                NullEmailService.class));
         mAccountManagerStub = new AttachmentDownloadService.AccountManagerStub(null);
         mService.mAccountManagerStub = mAccountManagerStub;
         mService.mConnectivityManager = new MockConnectivityManager(getContext(), "mock");
@@ -236,11 +238,11 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         // Mock 2 accounts in total
         mAccountManagerStub.setNumberOfAccounts(2);
         // With 26% available, we should be ok to prefetch
-        assertTrue(mService.canPrefetchForAccount(mAccountId, mMockDirectory));
+        assertTrue(mService.canPrefetchForAccount(mAccount, mMockDirectory));
         // Now change to 24 available
         mMockDirectory.setTotalAndUsableSpace(100L, 24L);
         // With 24% available, we should NOT be ok to prefetch
-        assertFalse(mService.canPrefetchForAccount(mAccountId, mMockDirectory));
+        assertFalse(mService.canPrefetchForAccount(mAccount, mMockDirectory));
 
         // Now, test per-account storage
         // Mock storage @ 100 total and 50 available
@@ -249,12 +251,12 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         mService.mAttachmentStorageMap.remove(mAccountId);
         mMockDirectory.setFileLength(11);
         // We can prefetch since 11 < 50/4
-        assertTrue(mService.canPrefetchForAccount(mAccountId, mMockDirectory));
+        assertTrue(mService.canPrefetchForAccount(mAccount, mMockDirectory));
         // Mock a file of length 13, but need to uncache previous amount first
         mService.mAttachmentStorageMap.remove(mAccountId);
         mMockDirectory.setFileLength(13);
         // We can't prefetch since 13 > 50/4
-        assertFalse(mService.canPrefetchForAccount(mAccountId, mMockDirectory));
+        assertFalse(mService.canPrefetchForAccount(mAccount, mMockDirectory));
     }
 
     public void testCanPrefetchForAccountNoBackgroundDownload() {
@@ -271,6 +273,6 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
 
         // With 26% available, we should be ok to prefetch,
         // *but* bg download is disabled on the account.
-        assertFalse(mService.canPrefetchForAccount(account.mId, mMockDirectory));
+        assertFalse(mService.canPrefetchForAccount(account, mMockDirectory));
     }
 }

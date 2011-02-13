@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.email.mail.transport;
+package com.android.emailcommon.utility;
 
 import android.net.SSLCertificateSocketFactory;
 

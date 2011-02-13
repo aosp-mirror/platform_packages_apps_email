@@ -21,8 +21,8 @@ import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.emailcommon.Api;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
-import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Folder.MessageRetrievalListener;
+import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -273,18 +273,18 @@ public class Controller {
     }
 
     /**
-     * Enable/disable logging for external sync services
+     * Set logging flags for external sync services
      *
      * Generally this should be called by anybody who changes Email.DEBUG
      */
-    public void serviceLogging(int debugEnabled) {
+    public void serviceLogging(int debugFlags) {
         IEmailService service = ExchangeUtils.getExchangeService(mContext, mServiceCallback);
         try {
-            service.setLogging(debugEnabled);
+            service.setLogging(debugFlags);
         } catch (RemoteException e) {
             // TODO Change exception handling to be consistent with however this method
             // is implemented for other protocols
-            Log.d("updateMailboxList", "RemoteException" + e);
+            Log.d("setLogging", "RemoteException" + e);
         }
     }
 

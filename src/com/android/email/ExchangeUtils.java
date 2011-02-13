@@ -20,8 +20,6 @@ import com.android.emailcommon.Api;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
-import com.android.exchange.CalendarSyncEnabler;
-import com.android.exchange.ExchangeService;
 
 import android.app.Service;
 import android.content.Context;
@@ -38,9 +36,7 @@ public class ExchangeUtils {
      * Starts the service for Exchange, if supported.
      */
     public static void startExchangeService(Context context) {
-        //EXCHANGE-REMOVE-SECTION-START
-        context.startService(new Intent(context, ExchangeService.class));
-        //EXCHANGE-REMOVE-SECTION-END
+        context.startService(new Intent(EmailServiceProxy.EXCHANGE_INTENT));
     }
 
     /**
@@ -52,23 +48,25 @@ public class ExchangeUtils {
      */
     public static IEmailService getExchangeService(Context context,
             IEmailServiceCallback callback) {
-        IEmailService ret = null;
-        //EXCHANGE-REMOVE-SECTION-START
-        ret = new EmailServiceProxy(context, ExchangeService.class, callback);
-        //EXCHANGE-REMOVE-SECTION-END
-        if (ret == null) {
-            ret = NullEmailService.INSTANCE;
-        }
-        return ret;
+        return new EmailServiceProxy(context, EmailServiceProxy.EXCHANGE_INTENT, callback);
+    }
+
+    /**
+     * Determine if the Exchange package is loaded
+     *
+     * TODO: This should be dynamic and data-driven for all account types, not just hardcoded
+     * like this.
+     */
+    public static boolean isExchangeAvailable(Context context) {
+        return new EmailServiceProxy(context, EmailServiceProxy.EXCHANGE_INTENT, null).test();
     }
 
     /**
      * Enable calendar sync for all the existing exchange accounts, and post a notification if any.
      */
     public static void enableEasCalendarSync(Context context) {
-        //EXCHANGE-REMOVE-SECTION-START
-        new CalendarSyncEnabler(context).enableEasCalendarSync();
-        //EXCHANGE-REMOVE-SECTION-END
+        // *** TODO: Is this still necessary?
+        //new CalendarSyncEnabler(context).enableEasCalendarSync();
     }
 
     /**
@@ -82,6 +80,10 @@ public class ExchangeUtils {
      */
     public static class NullEmailService extends Service implements IEmailService {
         public static final NullEmailService INSTANCE = new NullEmailService();
+
+        public int getApiLevel() {
+            return Api.LEVEL;
+        }
 
         public Bundle autoDiscover(String userName, String password) throws RemoteException {
             return Bundle.EMPTY;
@@ -141,11 +143,6 @@ public class ExchangeUtils {
 
         public IBinder asBinder() {
             return null;
-        }
-
-        @Override
-        public int getApiLevel() throws RemoteException {
-            return Api.LEVEL;
         }
 
         @Override

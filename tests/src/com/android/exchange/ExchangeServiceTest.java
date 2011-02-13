@@ -16,6 +16,8 @@
 
 package com.android.exchange;
 
+import com.android.emailcommon.Device;
+
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.test.AndroidTestCase;
@@ -40,7 +42,7 @@ public class ExchangeServiceTest extends AndroidTestCase {
     public void testGetDeviceId() throws Exception {
         final MyContext context = new MyContext(getContext());
 
-        final String id = ExchangeService.getDeviceId(context);
+        final String id = Device.getDeviceId(context);
 
         // Consists of alpha-numeric
         assertTrue(id.matches("^[a-zA-Z0-9]+$"));
@@ -49,7 +51,7 @@ public class ExchangeServiceTest extends AndroidTestCase {
         // isGetFileStreamPathCalled here.
 
         context.isGetFileStreamPathCalled = false;
-        final String cachedId = ExchangeService.getDeviceId(context);
+        final String cachedId = Device.getDeviceId(context);
 
         // Should be the same.
         assertEquals(id, cachedId);

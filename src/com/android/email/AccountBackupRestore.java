@@ -17,6 +17,7 @@
 package com.android.email;
 
 import com.android.email.service.MailService;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
@@ -117,7 +118,7 @@ public class AccountBackupRestore {
                 // Determine if contacts are also synced, and if so, record that
                 if (fromAccount.isEasAccount(context)) {
                     android.accounts.Account acct = new android.accounts.Account(
-                            fromAccount.mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                            fromAccount.mEmailAddress, AccountManagerTypes.TYPE_EXCHANGE);
                     boolean syncContacts = ContentResolver.getSyncAutomatically(acct,
                             ContactsContract.AUTHORITY);
                     if (syncContacts) {

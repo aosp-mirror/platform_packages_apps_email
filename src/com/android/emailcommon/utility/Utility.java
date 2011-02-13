@@ -45,7 +45,6 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.OpenableColumns;
-import android.telephony.TelephonyManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -505,29 +504,7 @@ public class Utility {
         }
     }
 
-    /**
-     * @return Device's unique ID if available.  null if the device has no unique ID.
-     */
-    public static String getConsistentDeviceId(Context context) {
-        final String deviceId;
-        try {
-            TelephonyManager tm =
-                    (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (tm == null) {
-                return null;
-            }
-            deviceId = tm.getDeviceId();
-            if (deviceId == null) {
-                return null;
-            }
-        } catch (Exception e) {
-            Log.d(Logging.LOG_TAG, "Error in TelephonyManager.getDeviceId(): " + e.getMessage());
-            return null;
-        }
-        return getSmallHash(deviceId);
-    }
-
-    /* package */ static String getSmallHash(final String value) {
+    public static String getSmallHash(final String value) {
         final MessageDigest sha;
         try {
             sha = MessageDigest.getInstance("SHA-1");

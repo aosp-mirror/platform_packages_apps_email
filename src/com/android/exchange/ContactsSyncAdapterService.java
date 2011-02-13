@@ -16,7 +16,7 @@
 
 package com.android.exchange;
 
-import com.android.email.Email;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
@@ -110,7 +110,8 @@ public class ContactsSyncAdapterService extends Service {
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_UPLOAD)) {
             Uri uri = RawContacts.CONTENT_URI.buildUpon()
                 .appendQueryParameter(RawContacts.ACCOUNT_NAME, account.name)
-                .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE)
+                .appendQueryParameter(RawContacts.ACCOUNT_TYPE,
+                        AccountManagerTypes.TYPE_EXCHANGE)
                 .build();
             // See if we've got dirty contacts or dirty groups containing our contacts
             boolean changed = hasDirtyRows(cr, uri, RawContacts.DIRTY);
@@ -118,7 +119,7 @@ public class ContactsSyncAdapterService extends Service {
                 uri = Groups.CONTENT_URI.buildUpon()
                     .appendQueryParameter(RawContacts.ACCOUNT_NAME, account.name)
                     .appendQueryParameter(RawContacts.ACCOUNT_TYPE,
-                            Email.EXCHANGE_ACCOUNT_MANAGER_TYPE)
+                            AccountManagerTypes.TYPE_EXCHANGE)
                     .build();
                 changed = hasDirtyRows(cr, uri, Groups.DIRTY);
             }

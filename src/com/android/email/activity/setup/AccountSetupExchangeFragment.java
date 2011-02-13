@@ -20,11 +20,11 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
+import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.utility.Utility;
-import com.android.exchange.ExchangeService;
 
 import android.app.Activity;
 import android.content.Context;
@@ -122,15 +122,12 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         mPasswordView.addTextChangedListener(validationTextWatcher);
         mServerView.addTextChangedListener(validationTextWatcher);
 
-        //EXCHANGE-REMOVE-SECTION-START
-        // Show device ID
         try {
-            String deviceId = ExchangeService.getDeviceId(context);
+            String deviceId = Device.getDeviceId(context);
             ((TextView) view.findViewById(R.id.device_id)).setText(deviceId);
-        } catch (IOException ignore) {
-            // There's nothing we can do here...
+        } catch (IOException e) {
+            // Not required
         }
-        //EXCHANGE-REMOVE-SECTION-END
 
         // Additional setup only used while in "settings" mode
         onCreateViewSettingsMode(view);

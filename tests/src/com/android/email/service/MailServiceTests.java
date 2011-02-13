@@ -18,10 +18,10 @@ package com.android.email.service;
 
 import com.android.email.AccountTestCase;
 import com.android.email.Controller;
-import com.android.email.Email;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.service.MailService.AccountSyncReport;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
@@ -87,7 +87,7 @@ public class MailServiceTests extends AccountTestCase {
                 context.getContentResolver().delete(firstAccount.getUri(), null, null);
                 // delete the account manager account
                 android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
-                        .getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                        .getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
                 for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
                     if ((TEST_USER_ACCOUNT + TEST_ACCOUNT_SUFFIX)
                             .equals(accountManagerAccount.name)) {
@@ -112,7 +112,7 @@ public class MailServiceTests extends AccountTestCase {
         // Capture the baseline (account manager accounts) so we can measure the changes
         // we're making, irrespective of the number of actual accounts, and not destroy them
         android.accounts.Account[] baselineAccounts =
-            AccountManager.get(context).getAccountsByType(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+            AccountManager.get(context).getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
 
         // Set up three accounts, both in AccountManager and in EmailProvider
         Account firstAccount = setupProviderAndAccountManagerAccount(getTestAccountName("1"));

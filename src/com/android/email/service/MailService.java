@@ -23,6 +23,7 @@ import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.SingleRunningTask;
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -652,7 +653,7 @@ public class MailService extends Service {
                 // See if the account is enabled for sync in AccountManager
                 android.accounts.Account accountManagerAccount =
                     new android.accounts.Account(account.mEmailAddress,
-                            Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
+                            AccountManagerTypes.TYPE_POP_IMAP);
                 report.syncEnabled = ContentResolver.getSyncAutomatically(accountManagerAccount,
                         EmailContent.AUTHORITY);
 
@@ -836,7 +837,7 @@ public class MailService extends Service {
                 @Override
                 protected void runInternal(Context context) {
                     android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
-                            .getAccountsByType(Email.POP_IMAP_ACCOUNT_MANAGER_TYPE);
+                            .getAccountsByType(AccountManagerTypes.TYPE_POP_IMAP);
                     ArrayList<Account> providerAccounts = getPopImapAccountList(context);
                     MailService.reconcileAccountsWithAccountManager(context, providerAccounts,
                             accountManagerAccounts, false, context.getContentResolver());
@@ -896,8 +897,8 @@ public class MailService extends Service {
         options.putBoolean(EasAuthenticatorService.OPTIONS_CALENDAR_SYNC_ENABLED, calendar);
         options.putBoolean(EasAuthenticatorService.OPTIONS_EMAIL_SYNC_ENABLED, email);
         String accountType = hostAuthRecv.mProtocol.equals("eas") ?
-                Email.EXCHANGE_ACCOUNT_MANAGER_TYPE :
-                Email.POP_IMAP_ACCOUNT_MANAGER_TYPE;
+                AccountManagerTypes.TYPE_EXCHANGE :
+                AccountManagerTypes.TYPE_POP_IMAP;
         AccountManager.get(context).addAccount(accountType, null, null, options, null, callback,
                 null);
     }

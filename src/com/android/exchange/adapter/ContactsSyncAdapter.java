@@ -17,6 +17,7 @@
 
 package com.android.exchange.adapter;
 
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.exchange.Eas;
 import com.android.exchange.EasSyncService;
 
@@ -188,8 +189,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
                     // Make sure ungrouped contacts for Exchange are defaultly visible
                     ContentValues cv = new ContentValues();
                     cv.put(Groups.ACCOUNT_NAME, mAccount.mEmailAddress);
-                    cv.put(Groups.ACCOUNT_TYPE,
-                            com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE);
+                    cv.put(Groups.ACCOUNT_TYPE, AccountManagerTypes.TYPE_EXCHANGE);
                     cv.put(Settings.UNGROUPED_VISIBLE, true);
                     client.insert(addCallerIsSyncAdapterParameter(Settings.CONTENT_URI), cv);
                     return "0";
@@ -903,7 +903,7 @@ public class ContactsSyncAdapter extends AbstractSyncAdapter {
         return uri.buildUpon()
             .appendQueryParameter(RawContacts.ACCOUNT_NAME, mAccount.mEmailAddress)
             .appendQueryParameter(RawContacts.ACCOUNT_TYPE,
-                    com.android.email.Email.EXCHANGE_ACCOUNT_MANAGER_TYPE)
+                    AccountManagerTypes.TYPE_EXCHANGE)
             .appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
             .build();
     }
