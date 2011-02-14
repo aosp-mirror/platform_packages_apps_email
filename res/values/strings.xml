@@ -37,7 +37,7 @@
     <!-- Do Not Translate.  Unused string. -->
     <string name="general_preference_background_attachments_summary"></string>
     <!-- Do Not Translate.  Unused string. -->
-    <string name="upgrade_accounts_title"></string>
+    <string name="upgrade_accounts_title"/>
     <!-- Do Not Translate.  Unused string. -->
     <string name="upgrade_accounts_error"></string>
     <!-- Do Not Translate.  Unused string. -->
@@ -48,6 +48,24 @@
     <string name="password_expire_warning_content_text_fmt"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="password_expired_content_text"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="meeting_accepted"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="meeting_declined"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="meeting_canceled"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="meeting_when"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="meeting_where"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="meeting_recurring"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="exception_cancel"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="exception_updated"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="notification_exchange_calendar_added"/>
 
     <!-- Name of application on Home screen -->
     <string name="app_name">Email</string>
@@ -944,59 +962,14 @@ save attachment.</string>
     <!-- Name of Microsoft Exchange account type; used by AccountManager -->
     <string name="exchange_name_alternate">Microsoft Exchange ActiveSync</string>
 
-    <!-- Message subject for meeting accepted response.  This will be followed by a colon
-         and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
-         the message that's sent) -->
-    <string name="meeting_accepted">Accepted: <xliff:g id="subject">%s</xliff:g></string>
-    <!-- Message subject for meeting declined response. This is followed by a colon
-         and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
-         the message that's sent) -->
-    <string name="meeting_declined">Declined: <xliff:g id="subject">%s</xliff:g></string>
-    <!-- Message subject for meeting tentative response.  This is followed by a colon
-         and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
-         the message that's sent) -->
-    <string name="meeting_tentative">Tentative: <xliff:g id="subject">%s</xliff:g></string>
-    <!-- Message subject for a canceled meeting email.  This is followed by a colon
-         and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
-         the message that's sent) -->
-    <string name="meeting_canceled">Canceled: <xliff:g id="subject">%s</xliff:g></string>
-    <!-- Message subject for an updated meeting email.  This is followed by a colon
-         and the title of the meeting (i.e. the title of the meeting becomes part of the subject of
-         the message that's sent) -->
-    <string name="meeting_updated">Updated: <xliff:g id="subject">%s</xliff:g></string>
-
-    <!-- Indicate when a meeting takes place.  This is presented in in bullet form, as
-         in, "When: xxx" followed by "Where: xxx" -->
-    <string name="meeting_when">When: <xliff:g id="when">%s</xliff:g></string>
-    <!--  Indicate where a meeting takes place.  This is presented in in bullet form, as
-         in, "When: xxx" followed by "Where: xxx" -->
-    <string name="meeting_where">Where: <xliff:g id="where">%s</xliff:g></string>
-    <!--  Indicate that a meeting is recurring.  This would normally be presented after
-         "When: xxx", e.g. "When: Tue, Mar 10, 2010 at 2:30pm (recurring)" -->
-    <string name="meeting_recurring">When: <xliff:g id="eventdate"
-         example="Tue, Mar 10, 2010 at 2:30 pm">%s</xliff:g> (recurring)</string>
-
-    <!-- Used as the body text of a message reporting to an attendee that a specific instance
-         of a recurring meeting has been canceled -->
-    <string name="exception_cancel">This event has been canceled
-         for: <xliff:g id="date">%s</xliff:g></string>
-    <!-- Used as the body text of a message reporting to an attendee that a specific instance
-         of a recurring meeting has been changed -->
-    <string name="exception_updated">The details of this event have been changed
-         for: <xliff:g id="date">%s</xliff:g></string>
-
     <!-- Message that appears if the AccountManager cannot create the system Account -->
-    <string name="system_account_create_failed">The account could not be created.</string>
+    <string name="system_account_create_failed">The AccountManager could not create the Account; please try again.</string>
 
     <!-- Strings that support the DeviceAdmin / DevicePolicyManager API -->
     <!-- Name of the DeviceAdmin (seen in settings & in user confirmation screen) -->
     <string name="device_admin_label">Email</string>
     <!-- Long-form description of the DeviceAdmin (2nd line in settings & in user conf. screen) -->
     <string name="device_admin_description">Enables server-specified security policies</string>
-
-    <!-- Notification message in notifications window when calendar sync is
-         automatically enabled for pre-existing Exchange accounts on upgrade -->
-    <string name="notification_exchange_calendar_added">Exchange calendar added</string>
 
     <!-- Strings used for GAL access -->
 

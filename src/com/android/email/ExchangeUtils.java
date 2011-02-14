@@ -100,8 +100,7 @@ public class ExchangeUtils {
         public void hostChanged(long accountId) throws RemoteException {
         }
 
-        public void loadAttachment(long attachmentId, String destinationFile,
-                String contentUriString, boolean background) throws RemoteException {
+        public void loadAttachment(long attachmentId, boolean background) throws RemoteException {
         }
 
         public void loadMore(long messageId) throws RemoteException {

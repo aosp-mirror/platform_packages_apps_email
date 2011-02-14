@@ -28,8 +28,7 @@ interface IEmailService {
     oneway void stopSync(long mailboxId);
 
     oneway void loadMore(long messageId);
-    oneway void loadAttachment(long attachmentId, String destinationFile, String contentUriString,
-        boolean background);
+    oneway void loadAttachment(long attachmentId, boolean background);
 
     oneway void updateFolderList(long accountId);
 

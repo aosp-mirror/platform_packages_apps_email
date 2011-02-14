@@ -24,7 +24,7 @@ LOCAL_JAVA_LIBRARIES := android.test.runner
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 # Notice that we don't have to include the src files of Email because, by
-# running the tests using an instrumentation targeting Eamil, we
+# running the tests using an instrumentation targeting Email, we
 # automatically get all of its classes loaded into our environment.
 
 LOCAL_PACKAGE_NAME := EmailTests

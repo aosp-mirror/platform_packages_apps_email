@@ -1614,14 +1614,14 @@ public class Controller {
             public void stopSync(long mailboxId) throws RemoteException {
             }
 
-            public void loadAttachment(long attachmentId, String destinationFile,
-                    String contentUriString, boolean background) throws RemoteException {
-                if (Email.DEBUG) {
-                    Log.d(TAG, "loadAttachment: " + attachmentId + " to " + destinationFile);
-                }
+            public void loadAttachment(long attachmentId, boolean background)
+                    throws RemoteException {
                 Attachment att = Attachment.restoreAttachmentWithId(ControllerService.this,
                         attachmentId);
                 if (att != null) {
+                    if (Email.DEBUG) {
+                        Log.d(TAG, "loadAttachment " + attachmentId + ": " + att.mFileName);
+                    }
                     Message msg = Message.restoreMessageWithId(ControllerService.this,
                             att.mMessageKey);
                     if (msg != null) {

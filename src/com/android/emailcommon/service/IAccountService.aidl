@@ -29,4 +29,6 @@ interface IAccountService {
     int getAccountColor(long accountId);
 
     Bundle getConfigurationData(String accountType);
+
+    String getDeviceId();
 }

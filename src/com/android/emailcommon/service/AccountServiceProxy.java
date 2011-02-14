@@ -116,5 +116,19 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
             return (Bundle)mReturn;
         }
     }
+
+    public String getDeviceId() throws RemoteException {
+        setTask(new ProxyTask() {
+            public void run() throws RemoteException{
+                mReturn = mService.getDeviceId();
+            }
+        }, "getDeviceId");
+        waitForCompletion();
+        if (mReturn == null) {
+            return null;
+        } else {
+            return (String)mReturn;
+        }
+    }
 }
 

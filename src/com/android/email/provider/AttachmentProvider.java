@@ -18,6 +18,7 @@ package com.android.email.provider;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeUtility;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.utility.AttachmentUtilities;
@@ -26,12 +27,15 @@ import com.android.emailcommon.utility.AttachmentUtilities.Columns;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Debug;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
@@ -123,18 +127,39 @@ public class AttachmentProvider extends ContentProvider {
     }
 
     /**
-     * Open an attachment file.  There are two "modes" - "raw", which returns an actual file,
+     * Open an attachment file.  There are two "formats" - "raw", which returns an actual file,
      * and "thumbnail", which attempts to generate a thumbnail image.
      *
      * Thumbnails are cached for easy space recovery and cleanup.
      *
-     * TODO:  The thumbnail mode returns null for its failure cases, instead of throwing
+     * TODO:  The thumbnail format returns null for its failure cases, instead of throwing
      * FileNotFoundException, and should be fixed for consistency.
      *
      *  @throws FileNotFoundException
      */
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
+        // If this is a write, the caller must have the EmailProvider permission, which is
+        // based on signature only
+        if (mode.equals("w")) {
+            Context context = getContext();
+            if (context.checkCallingPermission(EmailContent.PROVIDER_PERMISSION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                throw new FileNotFoundException();
+            }
+            List<String> segments = uri.getPathSegments();
+            String accountId = segments.get(0);
+            String id = segments.get(1);
+            File saveIn =
+                AttachmentUtilities.getAttachmentDirectory(context, Long.parseLong(accountId));
+            if (!saveIn.exists()) {
+                saveIn.mkdirs();
+            }
+            File newFile = new File(saveIn, id);
+            return ParcelFileDescriptor.open(
+                    newFile, ParcelFileDescriptor.MODE_READ_WRITE |
+                        ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_TRUNCATE);
+        }
         long callingId = Binder.clearCallingIdentity();
         try {
             List<String> segments = uri.getPathSegments();

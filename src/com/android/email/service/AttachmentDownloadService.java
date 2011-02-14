@@ -456,16 +456,12 @@ public class AttachmentDownloadService extends Service implements Runnable {
          */
         private void startDownload(Intent intent, DownloadRequest req)
                 throws RemoteException {
-            File file = AttachmentUtilities.getAttachmentFilename(mContext, req.accountId,
-                    req.attachmentId);
             req.startTime = System.currentTimeMillis();
             req.inProgress = true;
             mDownloadsInProgress.put(req.attachmentId, req);
             EmailServiceProxy proxy =
                 new EmailServiceProxy(mContext, intent, mServiceCallback);
-            proxy.loadAttachment(req.attachmentId, file.getAbsolutePath(),
-                    AttachmentUtilities.getAttachmentUri(req.accountId, req.attachmentId)
-                    .toString(), req.priority != PRIORITY_FOREGROUND);
+            proxy.loadAttachment(req.attachmentId, req.priority != PRIORITY_FOREGROUND);
             // Lazily initialize our (reusable) pending intent
             if (mWatchdogPendingIntent == null) {
                 createWatchdogPendingIntent(mContext);

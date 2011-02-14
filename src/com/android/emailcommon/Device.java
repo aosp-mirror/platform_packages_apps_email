@@ -59,6 +59,8 @@ public class Device {
                 rdr = new BufferedReader(new FileReader(f), 128);
                 id = rdr.readLine();
                 rdr.close();
+                // STOPSHIP Remove logging
+                Log.w(Logging.LOG_TAG, "deviceId read as: " + id);
                 return id;
             } else {
                 Log.w(Logging.LOG_TAG, f.getAbsolutePath() + ": File exists, but can't read?" +
@@ -78,6 +80,8 @@ public class Device {
         }
         w.write(id);
         w.close();
+        // STOPSHIP Remove logging
+        Log.w(Logging.LOG_TAG, "deviceId written as: " + id);
         return id;
     }
 

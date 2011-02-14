@@ -17,6 +17,7 @@
 package com.android.emailcommon.service;
 
 import com.android.emailcommon.Api;
+import com.android.emailcommon.Device;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
 
@@ -26,6 +27,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+
+import java.io.IOException;
 
 /**
  * The EmailServiceProxy class provides a simple interface for the UI to call into the various
@@ -80,11 +83,19 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     // a known action or by a prebuilt intent
     public EmailServiceProxy(Context _context, Intent _intent, IEmailServiceCallback _callback) {
         super(_context, _intent);
+        try {
+            Device.getDeviceId(_context);
+        } catch (IOException e) {
+        }
         mCallback = _callback;
     }
 
     public EmailServiceProxy(Context _context, String _action, IEmailServiceCallback _callback) {
         super(_context, new Intent(_action));
+        try {
+            Device.getDeviceId(_context);
+        } catch (IOException e) {
+        }
         mCallback = _callback;
     }
 
@@ -98,14 +109,13 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         return Api.LEVEL;
     }
 
-    public void loadAttachment(final long attachmentId, final String destinationFile,
-            final String contentUriString, final boolean background) throws RemoteException {
+    public void loadAttachment(final long attachmentId, final boolean background)
+            throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
                 try {
                     if (mCallback != null) mService.setCallback(mCallback);
-                    mService.loadAttachment(
-                            attachmentId, destinationFile, contentUriString, background);
+                    mService.loadAttachment(attachmentId, background);
                 } catch (RemoteException e) {
                     try {
                         // Try to send a callback (if set)
@@ -155,8 +165,7 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
             return bundle;
         } else {
             Bundle bundle = (Bundle) mReturn;
-            // STOPSHIP The following line will be necessary when Email and Exchange are split
-            //bundle.setClassLoader(PolicySet.class.getClassLoader());
+            bundle.setClassLoader(PolicySet.class.getClassLoader());
             Log.v(TAG, "validate returns " + bundle.getInt(VALIDATE_BUNDLE_RESULT_CODE));
             return bundle;
         }

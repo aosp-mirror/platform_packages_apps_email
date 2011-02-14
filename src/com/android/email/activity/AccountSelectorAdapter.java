@@ -73,6 +73,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
             EmailContent.Account.IS_DEFAULT + " desc, " + EmailContent.Account.RECORD_ID;
 
     private final LayoutInflater mInflater;
+    private final Context mContext;
 
     public static Loader<Cursor> createLoader(Context context) {
         return new AccountsLoader(context);
@@ -80,6 +81,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
     public AccountSelectorAdapter(Context context, Cursor c) {
         super(context, c, 0 /* no auto-requery */);
+        mContext = context;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 

@@ -21,6 +21,7 @@ import com.android.email.NotificationController;
 import com.android.email.ResourceHelper;
 import com.android.email.VendorPolicyLoader;
 import com.android.emailcommon.Configuration;
+import com.android.emailcommon.Device;
 import com.android.emailcommon.service.IAccountService;
 
 import android.app.Service;
@@ -30,8 +31,11 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import java.io.IOException;
+
 public class AccountService extends Service {
 
+    // Save context
     private Context mContext;
 
     private final IAccountService.Stub mBinder = new IAccountService.Stub() {
@@ -73,12 +77,26 @@ public class AccountService extends Service {
                     VendorPolicyLoader.getInstance(mContext).useAlternateExchangeStrings());
             return bundle;
         }
+
+        @Override
+        public String getDeviceId() throws RemoteException {
+            try {
+                return Device.getDeviceId(mContext);
+            } catch (IOException e) {
+                return null;
+            }
+        }
     };
 
     @Override
     public IBinder onBind(Intent intent) {
         if (mContext == null) {
             mContext = this;
+        }
+        // Make sure we have a valid deviceId (just retrieves a static String except first time)
+        try {
+            Device.getDeviceId(this);
+        } catch (IOException e) {
         }
         return mBinder;
     }

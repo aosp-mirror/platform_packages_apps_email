@@ -49,13 +49,10 @@
     <uses-permission
         android:name="android.permission.WRITE_SYNC_SETTINGS" />
 
-    <!--  For EAS purposes; could be removed when EAS has a permanent home -->
     <uses-permission
         android:name="android.permission.WRITE_CONTACTS"/>
     <uses-permission
-        android:name="android.permission.WRITE_CALENDAR"/>
-    <uses-permission
-        android:name="android.permission.READ_CALENDAR"/>
+        android:name="android.permission.READ_CONTACTS"/>
 
     <!-- Only required if a store implements push mail and needs to keep network open -->
     <uses-permission
@@ -76,7 +73,7 @@
     <!-- Grant permission to system apps to access provider (see provider below) -->
     <permission
         android:name="com.android.email.permission.ACCESS_PROVIDER"
-        android:protectionLevel="signatureOrSystem"
+        android:protectionLevel="signature"
         android:label="@string/permission_access_provider_label"
         android:description="@string/permission_access_provider_desc"/>
     <uses-permission
@@ -132,13 +129,11 @@
             android:label="@string/account_setup_outgoing_title"
             >
         </activity>
-        <!--EXCHANGE-REMOVE-SECTION-START-->
         <activity
             android:name=".activity.setup.AccountSetupExchange"
             android:label="@string/account_setup_exchange_title"
             >
         </activity>
-        <!--EXCHANGE-REMOVE-SECTION-END-->
         <activity
             android:name=".activity.setup.AccountSetupOptions"
             android:label="@string/account_setup_options_title"
@@ -259,12 +254,6 @@
                     android:name="com.android.email.intent.action.REPLY" />
             </intent-filter>
         </activity>
-        <!--EXCHANGE-REMOVE-SECTION-START-->
-        <receiver
-            android:name="com.android.exchange.EmailSyncAlarmReceiver"/>
-        <receiver
-            android:name="com.android.exchange.MailboxAlarmReceiver"/>
-        <!--EXCHANGE-REMOVE-SECTION-END-->
 
         <receiver
             android:name=".service.AttachmentDownloadService$Watchdog"
@@ -329,7 +318,6 @@
             >
         </service>
 
-        <!--EXCHANGE-REMOVE-SECTION-START-->
         <!--Required stanza to register the PopImapAuthenticatorService with AccountManager -->
         <service
             android:name=".service.PopImapAuthenticatorService"
@@ -381,54 +369,6 @@
             </intent-filter>
         </service>
 
-        <!--EXCHANGE-REMOVE-SECTION-START-->
-        <!--Required stanza to register the EAS EmailSyncAdapterService with SyncManager -->
-        <service
-            android:name="com.android.exchange.EmailSyncAdapterService"
-            android:exported="true">
-            <intent-filter>
-                <action
-                    android:name="android.content.SyncAdapter" />
-            </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                       android:resource="@xml/syncadapter_email" />
-        </service>
-
-        <!--Required stanza to register the EAS ContactsSyncAdapterService with SyncManager -->
-        <service
-            android:name="com.android.exchange.ContactsSyncAdapterService"
-            android:exported="true">
-            <intent-filter>
-                <action
-                    android:name="android.content.SyncAdapter" />
-            </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                       android:resource="@xml/syncadapter_contacts" />
-        </service>
-
-        <!--Required stanza to register the EAS CalendarSyncAdapterService with SyncManager -->
-        <service
-            android:name="com.android.exchange.CalendarSyncAdapterService"
-            android:exported="true">
-            <intent-filter>
-                <action
-                    android:name="android.content.SyncAdapter" />
-            </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                       android:resource="@xml/syncadapter_calendar" />
-        </service>
-
-        <!-- Add android:process=":remote" below to enable ExchangeService as a separate process -->
-        <service
-            android:name="com.android.exchange.ExchangeService"
-            android:enabled="true"
-            >
-            <intent-filter>
-                <action
-                    android:name="com.android.email.EXCHANGE_INTENT" />
-            </intent-filter>
-        </service>
-
         <!--Required stanza to register the EasAuthenticatorService with AccountManager -->
         <service
             android:name=".service.EasAuthenticatorService"
@@ -462,7 +402,6 @@
                 android:resource="@xml/authenticator_alternate"
                 />
         </service>
-        <!--EXCHANGE-REMOVE-SECTION-END-->
 
         <provider
             android:name=".provider.AttachmentProvider"
@@ -481,19 +420,6 @@
             android:permission="com.android.email.permission.ACCESS_PROVIDER"
             android:label="@string/app_name"
             />
-
-        <!--EXCHANGE-REMOVE-SECTION-START-->
-        <provider
-            android:name="com.android.exchange.provider.ExchangeDirectoryProvider"
-            android:authorities="com.android.exchange.directory.provider"
-            android:readPermission="android.permission.READ_CONTACTS"
-            android:multiprocess="false"
-            >
-          <meta-data
-              android:name="android.content.ContactDirectory"
-              android:value="true"/>
-        </provider>
-        <!--EXCHANGE-REMOVE-SECTION-END-->
 
         <!-- Email AppWidget definitions -->
         <service

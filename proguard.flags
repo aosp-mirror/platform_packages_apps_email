@@ -178,21 +178,6 @@
   *** getShortcutSafeUri();
 }
 
--keepclasseswithmembers class com.android.exchange.CalendarSyncEnabler {
-  <init>(android.content.Context);
-  *** enableEasCalendarSyncInternal();
-  *** showNotification(java.lang.String);
-}
-
--keepclasseswithmembers class com.android.exchange.adapter.Parser {
-  *** resetInput(java.io.InputStream);
-}
-
--keepclasseswithmembers class com.android.exchange.provider.GalResult {
-  *** addGalData(com.android.exchange.provider.GalResult$GalData);
-  *** addGalData(long, java.lang.String, java.lang.String);
-}
-
 -keep class org.apache.james.mime4j.field.Field {
   *** getBody(...);
 }

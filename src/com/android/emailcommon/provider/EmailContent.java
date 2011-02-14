@@ -75,6 +75,8 @@ public abstract class EmailContent {
 
     public static final Uri CONTENT_NOTIFIER_URI = Uri.parse("content://" + NOTIFIER_AUTHORITY);
 
+    public static final String PROVIDER_PERMISSION = "com.android.email.permission.ACCESS_PROVIDER";
+
     // All classes share this
     public static final String RECORD_ID = "_id";
 
