@@ -423,6 +423,10 @@
             android:name="com.android.exchange.ExchangeService"
             android:enabled="true"
             >
+            <intent-filter>
+                <action
+                    android:name="com.android.email.EXCHANGE_INTENT" />
+            </intent-filter>
         </service>
 
         <!--Required stanza to register the EasAuthenticatorService with AccountManager -->
