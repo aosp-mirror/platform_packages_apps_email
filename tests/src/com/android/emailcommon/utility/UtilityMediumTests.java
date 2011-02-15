@@ -255,10 +255,10 @@ public class UtilityMediumTests extends ProviderTestCase2<EmailProvider> {
                 Mailbox.TYPE_DRAFTS);
 
         final String FLAG_LOADED_TEST =
-                " AND ("
+                " AND "
                 + MessageColumns.FLAG_LOADED + " IN ("
                 + Message.FLAG_LOADED_PARTIAL + "," + Message.FLAG_LOADED_COMPLETE
-                + "))";
+                + ")";
 
         // Test!
 
