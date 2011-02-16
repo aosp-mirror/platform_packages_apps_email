@@ -289,13 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"اتصال به سرور باز نمی شود."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"آدرس سرور را اشتباه وارد کرده اید یا سرور به نسخه پروتکلی احتیاج دارد که ایمیل پشتیبانی نمی کند."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"مدیریت امنیت راه دور"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی دستگاه Android شما را به صورت خودکار کنترل کند. آیا می خواهید تنظیم این حساب را به پایان برسانید؟"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی دستگاه Android شما را از راه دور کنترل کند. آیا می خواهید تنظیم این حساب را به پایان برسانید؟"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"این سرور به ویژگی های امنیتی نیاز دارد که دستگاه Android شما پشتیبانی نمی کند."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"اخطار: غیرفعال کردن قدرت برنامه ایمیل جهت مدیریت سیستم خود، همه حسابهای ایمیلی که به آن احتیاج دارند، به همراه ایمیل، مخاطبین، رویدادهای تقویم و سایر داده های آنها را حذف می کند."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"تنظیمات امنیتی حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" باید به روزرسانی شود."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"به روزرسانی تنظیمات امنیتی"</string>
     <string name="account_security_title" msgid="4441470647344315196">"امنیت دستگاه"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی دستگاه Android شما را به صورت خودکار کنترل کند."</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی دستگاه Android شما را از راه دور کنترل کند."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"ویرایش جزئیات"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" از شما می خواهد که کد بازکردن قفل صفحه نمایش خود را به روز کنید."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"کد جدید باز کردن قفل صفحه نمایش مورد نیاز است"</string>
@@ -394,7 +394,6 @@
     <string name="widget_unread" msgid="4404711399009077833">"خوانده نشده"</string>
     <string name="widget_starred" msgid="8290352707134011791">"ستاره دار"</string>
     <string name="widget_loading" msgid="2340962056927255554">"در حال بارگیری..."</string>
-    <string name="widget_touch_to_configure" msgid="3272115577715211268">"لمس برای پیکربندی"</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"برای پیکربندی لمس کنید"</string>
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

@@ -151,7 +151,7 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Bu daveti reddettiniz"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Ayrıntıları göster"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"İleti Ayrıntıları"</string>
-    <string name="message_decode_error" msgid="7812862491622388416">"Mesajın kodu dönüştürülürken hata oluştu."</string>
+    <string name="message_decode_error" msgid="7812862491622388416">"Mesajın kodu çözülürken hata oluştu."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g> görüntüleniyor"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"İletiyi sil"</string>
   <plurals name="message_delete_confirm">
@@ -208,7 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Lütfen geçerli bir e-posta adresi ve şifre girin."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Yinelenen Hesap"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Bu giriş, \"<xliff:g id="DUPLICATE">%s</xliff:g>\" hesabı için zaten kullanılıyor."</string>
-    <string name="account_password_spaces_error" msgid="8928309156658903257">"Şifre bir veya daha fazla boşluk karakteriyle başlıyor ya da bitiyor."</string>
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Şifre bir veya daha fazla boşluk karakteriyle başlıyor ya da bitiyor. Birçok sunucu boşluk içeren şifreleri desteklemez."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Hesap bilgileri alınıyor..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Gelen sunucu ayarları denetleniyor..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Giden sunucu ayarları denetleniyor..."</string>
@@ -395,6 +395,5 @@
     <string name="widget_starred" msgid="8290352707134011791">"Yıldızlı"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Yükleniyor…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Yapılandırmak için dokunun"</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

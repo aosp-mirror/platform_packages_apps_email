@@ -395,6 +395,5 @@
     <string name="widget_starred" msgid="8290352707134011791">"Са звездицом"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Учитавање…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Додирните да бисте конфигурисали"</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="more_than_999" msgid="8704425397397918798">"&gt;999"</string>
 </resources>

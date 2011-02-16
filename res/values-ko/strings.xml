@@ -208,7 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"올바른 이메일 주소와 비밀번호를 입력하세요."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"중복 계정"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"이 로그인은 이미 \'<xliff:g id="DUPLICATE">%s</xliff:g>\' 계정에서 사용 중입니다."</string>
-    <string name="account_password_spaces_error" msgid="8928309156658903257">"비밀번호의 처음 또는 끝에 하나 이상의 공백 문자가 있습니다. 일부 서버에서는 공백이 포함된 비밀번호를 지원하지 않습니다."</string>
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"비밀번호의 시작 또는 끝에 하나 이상의 공백 문자가 있습니다. 서버 중에는 공백이 포함된 비밀번호를 지원하지 않는 것이 많습니다."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"계정 정보 검색 중..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"받는 서버 설정 확인 중..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"발신 서버 설정 확인 중..."</string>
@@ -216,7 +216,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"계정이 설정되었으며 이메일을 사용할 수 있습니다."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"계정 이름 지정(선택사항)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"이름(발신 메시지에 표시)"</string>
-    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"필수 입력란입니다."</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"입력란은 비워 둘 수 없습니다."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"계정 설정"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"계정 유형"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"계정 유형이 무엇입니까?"</string>
@@ -290,7 +290,7 @@
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"입력한 서버 주소가 잘못되었거나, 서버에 이메일 지원이 되지 않는 프로토콜 버전이 필요합니다."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"원격 보안 관리"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 서버가 Android 기기의 몇 가지 보안 기능을 원격으로 제어할 수 있도록 해야 합니다. 이 계정 설정을 완료하시겠습니까?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Android 기기에서 서버에 필요한 보안 기능을 지원하지 않습니다."</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"서버에 필요한 보안 기능 중 Android 기기에서 지원하지 않는 것이 있습니다."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"경고: 이메일 애플리케이션의 기기 관리 권한을 비활성화하면 관련된 모든 이메일 계정의 이메일, 주소록, 캘린더 일정 및 기타 데이터가  모두 삭제됩니다."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"\'<xliff:g id="ACCOUNT">%s</xliff:g>\' 계정을 사용하려면 보안 설정을 업데이트해야 합니다."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"보안 설정 업데이트"</string>
@@ -394,7 +394,6 @@
     <string name="widget_unread" msgid="4404711399009077833">"읽지않음"</string>
     <string name="widget_starred" msgid="8290352707134011791">"중요편지함"</string>
     <string name="widget_loading" msgid="2340962056927255554">"로드 중..."</string>
-    <string name="widget_touch_to_configure" msgid="3272115577715211268">"설정하려면 터치하세요."</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"구성하려면 터치하세요."</string>
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

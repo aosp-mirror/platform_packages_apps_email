@@ -289,13 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"無法連線至伺服器。"</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"您輸入的伺服器位址不正確，或是電子郵件不支援伺服器所需的通訊協定版本。"</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"遠端安全性管理"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的某些安全性功能，您要結束這個帳戶的設定程序嗎？"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的一些安全性功能，您要結束這個帳戶的設定程序嗎？"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"您的 Android 裝置不支援這個伺服器所需的安全性功能。"</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"警告：如果停用「電子郵件」應用程式的裝置管理權限，系統將刪除所有需要使用這項權限的「電子郵件」帳戶，以及帳戶中的所有電子郵件、聯絡人、日曆活動和其他資料。"</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"「<xliff:g id="ACCOUNT">%s</xliff:g>」帳戶必須進行安全性設定更新。"</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"更新安全性設定"</string>
     <string name="account_security_title" msgid="4441470647344315196">"裝置安全性"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的某些安全性功能。"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的一些安全性功能。"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"請編輯資料"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"帳戶「<xliff:g id="ACCOUNT">%s</xliff:g>」需要您更新螢幕解鎖碼。"</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"需要新的螢幕解鎖"</string>
@@ -394,7 +394,6 @@
     <string name="widget_unread" msgid="4404711399009077833">"未讀取"</string>
     <string name="widget_starred" msgid="8290352707134011791">"已加星號"</string>
     <string name="widget_loading" msgid="2340962056927255554">"載入中..."</string>
-    <string name="widget_touch_to_configure" msgid="3272115577715211268">"輕觸即可設定"</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"輕觸即可進行設定"</string>
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

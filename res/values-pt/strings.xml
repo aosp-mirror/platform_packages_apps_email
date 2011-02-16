@@ -311,7 +311,7 @@
     <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Fazer download de anexos automaticamente ao conectar ao Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificações de e-mail"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Frequência de sincronização, notificações etc."</string>
-    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notificar na barra de sistema a chegada de e-mails"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notificar sobre chegada de e-mails na barra de sistema"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Frequência de verificação da caixa de entrada"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configurações recebidas"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Configurações enviadas"</string>
@@ -395,6 +395,5 @@
     <string name="widget_starred" msgid="8290352707134011791">"Com estrela"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Carregando…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Toque para configurar"</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

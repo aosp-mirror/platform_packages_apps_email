@@ -289,13 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Neįmanoma užmegzti ryšio su serveriu."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Įvedėte neteisingą serverio adresą arba serveriui reikalinga el. pašto nepalaikoma protokolo versija."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Nuotolinis saugos administravimas"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"„<xliff:g id="SERVER">%s</xliff:g>“ serveris reikalauja leisti jam nuotoliniu būdu valdyti kai kurias „Android“ įrenginio saugos funkcijas. Ar norite užbaigti šios paskyros nustatymą?"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Serveris „<xliff:g id="SERVER">%s</xliff:g>“ reikalauja leisti jam nuotoliniu būdu valdyti kai kurias „Android“ įrenginio saugos funkcijas. Ar norite užbaigti šios paskyros nustatymą?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Šis serveris reikalauja saugos funkcijų, kurios „Android“ įrenginyje nepalaikomos."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ĮSPĖJIMAS: išaktyvinus el. pašto programos leidimą administruoti įrenginį, bus ištrintos visos el. pašto paskyros, kurioms jis reikalingas, įskaitant el. laiškus, kontaktus, kalendorių įvykius ir kitus duomenis."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Reikalingas paskyros „<xliff:g id="ACCOUNT">%s</xliff:g>“ saugos nustatymų atnaujinimas."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Atnaujinti saugos nustatymus"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Įrenginio sauga"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"„<xliff:g id="SERVER">%s</xliff:g>“ serveris reikalauja leisti jam nuotoliniu būdu valdyti kai kurias „Android“ įrenginio saugos funkcijas."</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Serveris „<xliff:g id="SERVER">%s</xliff:g>“ reikalauja leisti jam nuotoliniu būdu valdyti kai kurias „Android“ įrenginio saugos funkcijas."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Redaguoti išsamią informaciją"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Paskyroje „<xliff:g id="ACCOUNT">%s</xliff:g>“ reikia atnaujinti ekrano atrakinimo kodą."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Reikia naujo ekrano atrakinimo kodo"</string>
@@ -395,6 +395,5 @@
     <string name="widget_starred" msgid="8290352707134011791">"Pažymėta žvaigždute"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Įkeliama…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Jei norite konfigūruoti, palieskite"</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

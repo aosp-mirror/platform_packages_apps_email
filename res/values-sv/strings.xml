@@ -151,8 +151,7 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Du har tackat nej till inbjudan"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Visa information"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Information om meddelandet"</string>
-    <!-- no translation found for message_decode_error (7812862491622388416) -->
-    <skip />
+    <string name="message_decode_error" msgid="7812862491622388416">"Det gick inte att avkoda meddelandet."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Visar <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Släng meddelande"</string>
   <plurals name="message_delete_confirm">
@@ -209,8 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Ange en giltig e-postadress och lösenord."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Dubblettkonto"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Inloggningsuppgifterna används redan för kontot \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
-    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
-    <skip />
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Det här lösenordet inleds eller avslutas med ett eller flera mellanslag. Många servrar saknar stöd för lösenord med mellanslag."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Hämtar kontoinformation…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Kontrollerar inkommande serverinställningar…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Kontrollerar utgående serverinställningar…"</string>
@@ -218,8 +216,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Ditt konto är färdigt och snart kan du skicka och ta emot e-postmeddelanden."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Ge kontot ett namn (valfritt)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ditt namn (visas för utgående meddelanden)"</string>
-    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
-    <skip />
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"Fältet får inte vara tomt."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Kontoinställningar"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Kontotyp"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Vilken typ av konto är det här?"</string>
@@ -271,8 +268,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Synkronisera kontakter från det här kontot."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Synkronisera kalendrar från det här kontot."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Synkronisera e-post från det här kontot."</string>
-    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
-    <skip />
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Hämta bilagor automatiskt när enheten är ansluten till Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Det gick inte att slutföra installationen"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Antal att synkronisera"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"En dag"</string>
@@ -293,15 +289,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Det gick inte att ansluta till servern."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Du angav en felaktig serveradress, eller så kräver servern en protokollversion som inte stöds av e-postklienten."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Fjärradministrera säkerhet"</string>
-    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
-    <skip />
-    <!-- outdated translation 1713516289134348405 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Den här servern kräver säkerhetsfunktioner som din telefon inte stöder."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Servern <xliff:g id="SERVER">%s</xliff:g> måste kunna fjärrkontrollera vissa säkerhetsfunktioner i din Android-enhet. Vill du slutföra konfigurationen av kontot?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Den här servern kräver säkerhetsfunktioner som din Android-enhet inte stöder."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"VARNING! Om du inaktiverar e-postprogrammets behörighet att administrera enheten, raderas alla e-postkonton som behöver behörigheten tillsammans med e-post, kontakter, kalenderhändelser och andra data."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Kontot \"<xliff:g id="ACCOUNT">%s</xliff:g>\" kräver att säkerhetsinställningarna uppdateras."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Uppdatera säkerhetsinställningar"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Säkerhet för enhet"</string>
-    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
-    <skip />
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Servern <xliff:g id="SERVER">%s</xliff:g> måste kunna fjärrkontrollera vissa säkerhetsfunktioner i din Android-enhet."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Redigera information"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Kontot \"<xliff:g id="ACCOUNT">%s</xliff:g>\" kräver att du uppdaterar din skärmupplåsningskod."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Ny skärmupplåsning krävs"</string>
@@ -314,11 +308,10 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Skicka e-post från det här kontot som standard"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Hämta bilagor automatiskt"</string>
-    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
-    <skip />
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Hämta bilagor automatiskt när enheten är ansluten till Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-postaviseringar"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkroniseringsfrekvens, aviseringar osv."</string>
-    <!-- outdated translation 8178740946150413222 -->     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Meddelande i statusfältet vid e-postmeddelande"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Avisera i systemfältet vid e-postmeddelande"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Intervall för e-postkontroll"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Inkommande inställningar"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Utgående inställningar"</string>
@@ -401,8 +394,6 @@
     <string name="widget_unread" msgid="4404711399009077833">"Olästa"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Stjärnmärkt"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Läser in..."</string>
-    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
-    <skip />
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Tryck om du vill konfigurera"</string>
+    <string name="more_than_999" msgid="8704425397397918798">"&gt;999"</string>
 </resources>
