@@ -332,7 +332,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Només quan està en silenci"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Mai"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibra"</string>
-    <string name="account_settings_ringtone" msgid="7922187231467500404">"Selecció del so de trucada"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Selecció del to"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Configuració del servidor"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Elimina el compte"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"El compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" s\'eliminarà del correu electrònic."</string>
@@ -395,6 +395,5 @@
     <string name="widget_starred" msgid="8290352707134011791">"Destacats"</string>
     <string name="widget_loading" msgid="2340962056927255554">"S\'està carregant…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Toca per configurar"</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

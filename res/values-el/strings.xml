@@ -394,7 +394,6 @@
     <string name="widget_unread" msgid="4404711399009077833">"Μη αναγνωσμένα"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Με αστέρι"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Φόρτωση…"</string>
-    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Αγγίξτε για να γίνει διαμόρφωση"</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Αγγίξτε για διαμόρφωση"</string>
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

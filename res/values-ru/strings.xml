@@ -208,7 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Введите действительный адрес электронной почты и пароль."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Копия аккаунта"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Это имя пользователя уже используется в аккаунте <xliff:g id="DUPLICATE">%s</xliff:g>."</string>
-    <string name="account_password_spaces_error" msgid="8928309156658903257">"Пароль начинается или заканчивается пробелом. Многие серверы не поддерживают пароли с пробелами."</string>
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Пароль начинается или заканчивается пробелом. Некоторые серверы не поддерживают пароли с пробелами."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Получение информации аккаунта..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Проверка настроек сервера входящих сообщений..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Проверка настроек сервера исходящих сообщений..."</string>
@@ -268,7 +268,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Синхронизировать контакты из этого аккаунта."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Синхронизировать календарь из этого аккаунта."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Синхронизировать почту из этого аккаунта"</string>
-    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Автоматически загружать вложения при подключении к Wi-Fi"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Автоматически загружать прикрепленные файлы при подключении к Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Не удается завершить настройку"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Количество сообщений для синхронизации"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Один день"</string>
@@ -308,7 +308,7 @@
     <string name="account_settings_default_label" msgid="3575963379680943640">"Аккаунт по умолчанию"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Сделать аккаунтом электронной почты по умолчанию для отправки сообщений"</string>
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Автозагрузка прикрепленных файлов"</string>
-    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Автоматически загружать вложения при подключении к Wi-Fi"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Автоматически загружать прикрепленные файлы при подключении к Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Уведомления электронной почты"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Частота синхронизации, уведомления и другие настройки"</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"При получении почты показывать оповещение в строке состояния системы"</string>
@@ -395,6 +395,5 @@
     <string name="widget_starred" msgid="8290352707134011791">"Помеченные"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Загрузка..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Нажмите для настройки"</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

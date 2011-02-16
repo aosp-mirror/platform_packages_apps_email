@@ -208,7 +208,7 @@
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Indtast en gyldig e-mail-adresse og adgangskode."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Dobbeltforekomst af konto"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Dette login bruges allerede til kontoen \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
-    <string name="account_password_spaces_error" msgid="8928309156658903257">"Denne adgangskode starter eller slutter med ét eller flere tomme tegn. Mange servere understøtter ikke adgangskoder med mellemrum."</string>
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Denne adgangskode starter eller slutter med ét eller flere mellemrum. Mange servere understøtter ikke adgangskoder med mellemrum."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Henter kontooplysninger ..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Kontrollerer indstillinger for indgående server ..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Kontrollerer indstillinger for udgående server ..."</string>
@@ -395,6 +395,5 @@
     <string name="widget_starred" msgid="8290352707134011791">"Stjernemarkeret"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Indlæser..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Tryk for at konfigurere"</string>
-    <!-- no translation found for more_than_999 (8704425397397918798) -->
-    <skip />
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>
