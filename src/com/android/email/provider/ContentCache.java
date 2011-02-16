@@ -24,11 +24,10 @@ import android.database.CursorWrapper;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.util.Log;
-
+import android.util.LruCache;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -84,23 +83,7 @@ public final class ContentCache {
     // A map of queries that aren't cacheable (debug only)
     private static final CounterMap<String> sNotCacheableMap = new CounterMap<String>();
 
-    private final Map<String, Cursor> mMap = new LinkedHashMap<String, Cursor>() {
-        @Override
-        public boolean removeEldestEntry(Map.Entry<String, Cursor> entry) {
-            synchronized (ContentCache.this) {
-                // If we're above the maximum size for this cache, remove the LRU cache entry
-                if (size() > mMaxSize) {
-                    Cursor cursor = entry.getValue();
-                    // Close this cursor if it's no longer being used
-                    if (!sActiveCursors.contains(cursor)) {
-                        cursor.close();
-                    }
-                    return true;
-                }
-                return false;
-            }
-        }
-    };
+    private final LruCache<String, Cursor> mLruCache;
 
     // All defined caches
     private static final ArrayList<ContentCache> sContentCaches = new ArrayList<ContentCache>();
@@ -118,8 +101,6 @@ public final class ContentCache {
     // The base projection (only queries in which all columns exist in this projection will be
     // able to avoid a cache miss)
     private final String[] mBaseProjection;
-    // The number of items (cursors) to cache
-    private final int mMaxSize;
     // The tag used for logging
     private final String mLogTag;
     // Cache statistics
@@ -295,16 +276,18 @@ public final class ContentCache {
         private final Cursor mCursor;
         // The cache which generated this cursor
         private final ContentCache mCache;
+        private final String mId;
         // The current position of the cursor (can only be 0 or 1)
         private int mPosition = -1;
         // The number of rows in this cursor (-1 = not determined)
         private int mCount = -1;
         private boolean isClosed = false;
 
-        public CachedCursor(Cursor cursor, ContentCache cache, String name) {
+        public CachedCursor(Cursor cursor, ContentCache cache, String id) {
             super(cursor);
             mCursor = cursor;
             mCache = cache;
+            mId = id;
             // Add this to our set of active cursors
             sActiveCursors.add(cursor);
         }
@@ -318,7 +301,7 @@ public final class ContentCache {
         public void close() {
             synchronized(mCache) {
                 int count = sActiveCursors.subtract(mCursor);
-                if ((count == 0) && !mCache.mMap.containsValue(mCursor)) {
+                if ((count == 0) && mCache.mLruCache.get(mId) != (mCursor)) {
                     super.close();
                 }
             }
@@ -405,7 +388,15 @@ public final class ContentCache {
      */
     public ContentCache(String name, String[] baseProjection, int maxSize) {
         mName = name;
-        mMaxSize = maxSize;
+        mLruCache = new LruCache<String, Cursor>(maxSize) {
+            @Override
+            protected void entryEvicted(String key, Cursor cursor) {
+                // Close this cursor if it's no longer being used
+                if (!sActiveCursors.contains(cursor)) {
+                    cursor.close();
+                }
+            }
+        };
         mBaseProjection = baseProjection;
         mLogTag = "ContentCache-" + name;
         sContentCaches.add(this);
@@ -439,11 +430,11 @@ public final class ContentCache {
     }
 
     public int size() {
-        return mMap.size();
+        return mLruCache.size();
     }
 
     private Cursor get(String id) {
-        return mMap.get(id);
+        return mLruCache.get(id);
     }
 
     /**
@@ -482,7 +473,7 @@ public final class ContentCache {
                 if (existingCursor != null) {
                    unlockImpl(id, null, false);
                 }
-                mMap.put(id, c);
+                mLruCache.put(id, c);
                 return new CachedCursor(c, this, id);
             }
             return c;
@@ -626,12 +617,12 @@ public final class ContentCache {
                         Log.d(mLogTag, "=========== Recaching with new values: " + id);
                     }
                     cursor.moveToFirst();
-                    mMap.put(id, cursor);
+                    mLruCache.put(id, cursor);
                 } else {
-                    mMap.remove(id);
+                    mLruCache.remove(id);
                 }
             } else {
-                mMap.remove(id);
+                mLruCache.remove(id);
             }
             // If there are no cursors using the old cached cursor, close it
             if (!sActiveCursors.contains(c)) {
@@ -665,12 +656,7 @@ public final class ContentCache {
         }
         mStats.mInvalidateCount++;
         // Close all cached cursors that are no longer in use
-        for (Cursor c: mMap.values()) {
-            if (!sActiveCursors.contains(c)) {
-                c.close();
-            }
-        }
-        mMap.clear();
+        mLruCache.evictAll();
         // Invalidate all current tokens
         mTokenList.invalidate();
     }
