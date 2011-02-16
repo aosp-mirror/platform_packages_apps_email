@@ -56,15 +56,15 @@
   *** injectMockController(com.android.email.MessagingController);
 }
 
--keepclasseswithmembers class com.android.email.Utility {
+-keepclasseswithmembers class com.android.emailcommon.utility.Utility {
   *** dumpCursor(android.database.Cursor);
 }
--keepclasseswithmembers class com.android.email.Utility$CloseTraceCursorWrapper {
+-keepclasseswithmembers class com.android.emailcommon.utility.Utility$CloseTraceCursorWrapper {
   *** getTraceIfAvailable(android.database.Cursor);
   *** log(android.database.Cursor);
 }
 
--keepclasseswithmembers class com.android.emailcommon.provider.EmailProvider {
+-keepclasseswithmembers class com.android.email.provider.EmailProvider {
   *** getReadableDatabase(android.content.Context);
 }
 
@@ -101,7 +101,6 @@
   *** setExtendedHeader(java.lang.String, java.lang.String);
   *** getExtendedHeaders();
   *** setExtendedHeaders(java.lang.String);
-  *** writeToString();
 }
 
 -keepclasseswithmembers class com.android.emailcommon.internet.MimeUtility {
