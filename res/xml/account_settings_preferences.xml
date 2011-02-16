@@ -105,11 +105,13 @@
     
         <PreferenceScreen
             android:key="incoming"
-            android:title="@string/account_settings_incoming_label" />
+            android:title="@string/account_settings_incoming_label"
+            android:summary="@string/account_settings_incoming_summary" />
 
         <PreferenceScreen
             android:key="outgoing"
-            android:title="@string/account_settings_outgoing_label" />
+            android:title="@string/account_settings_outgoing_label"
+            android:summary="@string/account_settings_outgoing_summary" />
 
         <CheckBoxPreference
             android:key="account_sync_email"

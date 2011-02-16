@@ -792,8 +792,14 @@ save attachment.</string>
     <string name="account_settings_mail_check_frequency_label">Inbox check frequency</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_incoming_label">Incoming settings</string>
+   <!-- On Settings screen, setting option summary [CHAR LIMIT=64] -->
+    <string name="account_settings_incoming_summary">
+        Username, password, and other incoming server settings</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_outgoing_label">Outgoing settings</string>
+   <!-- On Settings screen, setting option summary [CHAR LIMIT=64] -->
+    <string name="account_settings_outgoing_summary">
+        Username, password, and other outgoing server settings</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_description_label">Account name</string>
     <!-- On Settings screen, setting option name -->
