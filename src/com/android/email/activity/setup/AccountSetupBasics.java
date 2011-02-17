@@ -431,6 +431,7 @@ public class AccountSetupBasics extends AccountSetupActivity
             Account account = SetupData.getAccount();
             HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
             Utility.setHostAuthFromString(recvAuth, mProvider.incomingUriTemplate);
+            recvAuth.setLogin(incomingUsername, password);
 
             String outgoingUsername = mProvider.outgoingUsernameTemplate;
             outgoingUsername = outgoingUsername.replaceAll("\\$email", email);
@@ -439,6 +440,7 @@ public class AccountSetupBasics extends AccountSetupActivity
 
             HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
             Utility.setHostAuthFromString(sendAuth, mProvider.outgoingUriTemplate);
+            sendAuth.setLogin(outgoingUsername, password);
 
             // Populate the setup data, assuming that the duplicate account check will succeed
             populateSetupData(getOwnerName(), email, mDefaultView.isChecked());
