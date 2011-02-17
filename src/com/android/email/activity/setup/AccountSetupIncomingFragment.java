@@ -344,14 +344,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             updatePortFromSecurityType();
         }
 
-        // TODO See how to get rid of this. Maybe define an "equals()" for HostAuth?
-        // used to determine if these settings have changed
-        try {
-            mLoadedUri = getUri();
-        } catch (URISyntaxException ignore) {
-            // ignore; should not happen
-        }
-
+        mLoadedRecvAuth = recvAuth;
         mLoaded = true;
         validateFields();
     }

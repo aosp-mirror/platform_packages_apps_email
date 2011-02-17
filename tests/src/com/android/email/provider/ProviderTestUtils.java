@@ -86,14 +86,14 @@ public class ProviderTestUtils extends Assert {
      */
     public static HostAuth setupHostAuth(String name, long accountId, boolean saveIt,
             Context context) {
-        return setupHostAuth("protocol", name, accountId, saveIt, context);
+        return setupHostAuth("protocol", name, saveIt, context);
     }
 
     /**
      * Create a hostauth record for test purposes
      */
-    public static HostAuth setupHostAuth(String protocol, String name, long accountId,
-            boolean saveIt, Context context) {
+    public static HostAuth setupHostAuth(String protocol, String name, boolean saveIt,
+            Context context) {
         HostAuth hostAuth = new HostAuth();
 
         hostAuth.mProtocol = protocol;
@@ -103,7 +103,6 @@ public class ProviderTestUtils extends Assert {
         hostAuth.mLogin = "login-" + name;
         hostAuth.mPassword = "password-" + name;
         hostAuth.mDomain = "domain-" + name;
-        hostAuth.mAccountKey = accountId;
 
         if (saveIt) {
             hostAuth.save(context);

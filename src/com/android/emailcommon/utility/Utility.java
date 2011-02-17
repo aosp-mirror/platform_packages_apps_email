@@ -109,15 +109,10 @@ public class Utility {
     }
 
     /**
-     * Combines the given array of Objects into a single string using the
-     * seperator character and each Object's toString() method. between each
-     * part.
-     *
-     * @param parts
-     * @param seperator
-     * @return
+     * Returns a concatenated string containing the output of every Object's
+     * toString() method, each separated by the given separator character.
      */
-    public static String combine(Object[] parts, char seperator) {
+    public static String combine(Object[] parts, char separator) {
         if (parts == null) {
             return null;
         }
@@ -125,7 +120,7 @@ public class Utility {
         for (int i = 0; i < parts.length; i++) {
             sb.append(parts[i].toString());
             if (i < parts.length - 1) {
-                sb.append(seperator);
+                sb.append(separator);
             }
         }
         return sb.toString();
@@ -178,8 +173,6 @@ public class Utility {
      * "sa"mp"le" -> "sa"mp"le"
      * (empty string) -> ""
      * " -> ""
-     * @param s
-     * @return
      */
     public static String quoteString(String s) {
         if (s == null) {
@@ -389,7 +382,7 @@ public class Utility {
 
     /**
      * Generate a time in milliseconds from a date string that represents a date/time in GMT
-     * @param DateTime date string in format 20090211T180303Z (rfc2445, iCalendar).
+     * @param date string in format 20090211T180303Z (rfc2445, iCalendar).
      * @return the time in milliseconds (since Jan 1, 1970)
      */
     public static long parseDateTimeToMillis(String date) {
@@ -399,7 +392,7 @@ public class Utility {
 
     /**
      * Generate a GregorianCalendar from a date string that represents a date/time in GMT
-     * @param DateTime date string in format 20090211T180303Z (rfc2445, iCalendar).
+     * @param date string in format 20090211T180303Z (rfc2445, iCalendar).
      * @return the GregorianCalendar
      */
     public static GregorianCalendar parseDateTimeToCalendar(String date) {
@@ -413,7 +406,7 @@ public class Utility {
 
     /**
      * Generate a time in milliseconds from an email date string that represents a date/time in GMT
-     * @param Email style DateTime string in format 2010-02-23T16:00:00.000Z (ISO 8601, rfc3339)
+     * @param date string in format 2010-02-23T16:00:00.000Z (ISO 8601, rfc3339)
      * @return the time in milliseconds (since Jan 1, 1970)
      */
     public static long parseEmailDateTimeToMillis(String date) {
@@ -1120,10 +1113,19 @@ public class Utility {
             throws URISyntaxException {
         URI uri = new URI(uriString);
         String path = uri.getPath();
+        String domain = null;
         if (path != null && path.length() > 0) {
-            auth.mDomain = path.substring(1);
+            domain = path.substring(1);
         }
+        auth.mDomain = domain;
         auth.setLogin(uri.getUserInfo());
         auth.setConnection(uri.getScheme(), uri.getHost(), uri.getPort());
+    }
+
+    /**
+     * Test that the given strings are equal in a null-pointer safe fashion.
+     */
+    public static boolean areStringsEqual(String s1, String s2) {
+        return (s1 != null && s1.equals(s2)) || (s1 == null && s2 == null);
     }
 }

@@ -36,8 +36,8 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
     private long createAccount(boolean isEas) {
         Account acct = ProviderTestUtils.setupAccount("acct1", false, mProviderContext);
         String proto = isEas ? "eas" : "non-eas";
-        acct.mHostAuthRecv = ProviderTestUtils.setupHostAuth(proto, "hostauth", -1, true,
-                mProviderContext);
+        acct.mHostAuthRecv =
+                ProviderTestUtils.setupHostAuth(proto, "hostauth", true, mProviderContext);
         acct.mHostAuthKeyRecv = acct.mHostAuthRecv.mId;
         acct.save(mProviderContext);
         return acct.mId;

@@ -53,9 +53,8 @@ public abstract class AccountServerBaseFragment extends Fragment
     protected Context mContext;
     protected Callback mCallback = EmptyCallback.INSTANCE;
     protected boolean mSettingsMode;
-    // TODO See how to get rid of this. Maybe define an "equals()" for HostAuth?
-    // The URI that represents this account's currently saved settings
-    protected URI mLoadedUri;
+    /*package*/ HostAuth mLoadedSendAuth;
+    /*package*/ HostAuth mLoadedRecvAuth;
 
     // This is null in the setup wizard screens, and non-null in AccountSettings mode
     public Button mProceedButton;
@@ -301,15 +300,15 @@ public abstract class AccountServerBaseFragment extends Fragment
      * Returns whether or not any settings have changed.
      */
     public boolean haveSettingsChanged() {
-        URI newUri = null;
+        Account account = SetupData.getAccount();
 
-        try {
-            newUri = getUri();
-        } catch (URISyntaxException ignore) {
-            // ignore
-        }
+        HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
+        boolean sendChanged = (mLoadedSendAuth != null && !mLoadedSendAuth.equals(sendAuth));
 
-        return (mLoadedUri == null) || !mLoadedUri.equals(newUri);
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+        boolean recvChanged = (mLoadedRecvAuth != null && !mLoadedRecvAuth.equals(recvAuth));
+
+        return sendChanged || recvChanged;
     }
 
     /**

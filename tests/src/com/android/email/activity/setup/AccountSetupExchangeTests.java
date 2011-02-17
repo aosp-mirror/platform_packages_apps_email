@@ -190,7 +190,7 @@ public class AccountSetupExchangeTests extends
         Account account =
             ProviderTestUtils.setupAccount("account", false, mActivity.getBaseContext());
         account.mHostAuthRecv = ProviderTestUtils.setupHostAuth(
-                "eas", "hostauth", 1, false, mActivity.getBaseContext());
+                "eas", "hostauth", false, mActivity.getBaseContext());
         account.mHostAuthRecv.mFlags |= HostAuth.FLAG_SSL;
         account.mHostAuthRecv.mFlags &= ~HostAuth.FLAG_TRUST_ALL;
         mActivity.mFragment.mLoaded = false;

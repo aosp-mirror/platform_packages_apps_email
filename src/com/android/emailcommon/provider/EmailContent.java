@@ -2569,8 +2569,6 @@ public abstract class EmailContent {
         public String mLogin;
         public String mPassword;
         public String mDomain;
-        // TODO Remove all vestiges of this
-        public long mAccountKey;        // DEPRECATED - Will not be set or stored
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_PROTOCOL_COLUMN = 1;
@@ -2580,13 +2578,11 @@ public abstract class EmailContent {
         public static final int CONTENT_LOGIN_COLUMN = 5;
         public static final int CONTENT_PASSWORD_COLUMN = 6;
         public static final int CONTENT_DOMAIN_COLUMN = 7;
-        public static final int CONTENT_ACCOUNT_KEY_COLUMN = 8;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, HostAuthColumns.PROTOCOL, HostAuthColumns.ADDRESS, HostAuthColumns.PORT,
             HostAuthColumns.FLAGS, HostAuthColumns.LOGIN,
-            HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN,
-            HostAuthColumns.ACCOUNT_KEY
+            HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN
         };
 
         /**
@@ -2678,7 +2674,6 @@ public abstract class EmailContent {
             mLogin = cursor.getString(CONTENT_LOGIN_COLUMN);
             mPassword = cursor.getString(CONTENT_PASSWORD_COLUMN);
             mDomain = cursor.getString(CONTENT_DOMAIN_COLUMN);
-            mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
         }
 
         @Override
@@ -2691,7 +2686,7 @@ public abstract class EmailContent {
             values.put(HostAuthColumns.LOGIN, mLogin);
             values.put(HostAuthColumns.PASSWORD, mPassword);
             values.put(HostAuthColumns.DOMAIN, mDomain);
-            values.put(HostAuthColumns.ACCOUNT_KEY, mAccountKey);
+            values.put(HostAuthColumns.ACCOUNT_KEY, 0); // Need something to satisfy the DB
             return values;
         }
 
@@ -2832,7 +2827,6 @@ public abstract class EmailContent {
             dest.writeString(mLogin);
             dest.writeString(mPassword);
             dest.writeString(mDomain);
-            dest.writeLong(mAccountKey);
         }
 
         /**
@@ -2848,7 +2842,6 @@ public abstract class EmailContent {
             mLogin = in.readString();
             mPassword = in.readString();
             mDomain = in.readString();
-            mAccountKey = in.readLong();
         }
 
         /**
@@ -2857,6 +2850,21 @@ public abstract class EmailContent {
         @Override
         public String toString() {
             return getStoreUri();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof HostAuth)) {
+                return false;
+            }
+            HostAuth that = (HostAuth)o;
+            return mPort == that.mPort
+                    && mFlags == that.mFlags
+                    && Utility.areStringsEqual(mProtocol, that.mProtocol)
+                    && Utility.areStringsEqual(mAddress, that.mAddress)
+                    && Utility.areStringsEqual(mLogin, that.mLogin)
+                    && Utility.areStringsEqual(mPassword, that.mPassword)
+                    && Utility.areStringsEqual(mDomain, that.mDomain);
         }
     }
 }

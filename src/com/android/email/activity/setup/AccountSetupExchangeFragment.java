@@ -229,7 +229,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      *
      * @return true if the loaded values pass validation
      */
-    /* package */ boolean loadSettings(Account account) {
+    /*package*/ boolean loadSettings(Account account) {
         if (mLoaded) return validateFields();
 
         HostAuth hostAuth = account.mHostAuthRecv;
@@ -263,14 +263,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         mTrustCertificatesView.setChecked(trustCertificates);
         showTrustCertificates(ssl);
 
-        // TODO See how to get rid of this. Maybe define an "equals()" for HostAuth?
-        // used to determine if these settings have changed
-        try {
-            mLoadedUri = getUri();
-        } catch (URISyntaxException ignore) {
-            // ignore; should not happen
-        }
-
+        mLoadedRecvAuth = hostAuth;
         mLoaded = true;
         return validateFields();
     }

@@ -502,6 +502,32 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals(moreThan999, UiUtilities.getMessageCountForUi(c, 1001, false));
     }
 
+    public void testAreStringsEqual() {
+        String s1;
+        String s2;
+
+        s1 = new String("Foo");
+        s2 = s1;
+        assertTrue(Utility.areStringsEqual(s1, s2));
+
+        s2 = new String("Foo");
+        assertTrue(Utility.areStringsEqual(s1, s2));
+
+        s2 = "Bar";
+        assertFalse(Utility.areStringsEqual(s1, s2));
+
+        s2 = null;
+        assertFalse(Utility.areStringsEqual(s1, s2));
+
+        s1 = null;
+        s2 = "Bar";
+        assertFalse(Utility.areStringsEqual(s1, s2));
+
+        s1 = null;
+        s2 = null;
+        assertTrue(Utility.areStringsEqual(s1, s2));
+    }
+
     /**
      * A {@link ListView} used by {@link #testListStateSaver}.
      */
@@ -543,6 +569,7 @@ public class UtilityUnitTests extends AndroidTestCase {
                 mCustomData = out.readInt();
             }
 
+            @SuppressWarnings({"hiding", "unused"})
             public static final Parcelable.Creator<SavedState> CREATOR
                     = new Parcelable.Creator<SavedState>() {
                 public SavedState createFromParcel(Parcel in) {

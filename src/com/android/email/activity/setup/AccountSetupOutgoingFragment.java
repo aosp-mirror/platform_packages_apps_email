@@ -256,43 +256,36 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     private void loadSettings() {
         if (mLoaded) return;
 
-        HostAuth senderAuth = SetupData.getAccount().getOrCreateHostAuthSend(mContext);
-        if ((senderAuth.mFlags & HostAuth.FLAG_AUTHENTICATE) != 0) {
-            String username = senderAuth.mLogin;
+        HostAuth sendAuth = SetupData.getAccount().getOrCreateHostAuthSend(mContext);
+        if ((sendAuth.mFlags & HostAuth.FLAG_AUTHENTICATE) != 0) {
+            String username = sendAuth.mLogin;
             if (username != null) {
                 mUsernameView.setText(username);
                 mRequireLoginView.setChecked(true);
             }
 
-            String password = senderAuth.mPassword;
+            String password = sendAuth.mPassword;
             if (password != null) {
                 mPasswordView.setText(password);
             }
         }
 
-        int flags = senderAuth.mFlags & ~HostAuth.FLAG_AUTHENTICATE;
+        int flags = sendAuth.mFlags & ~HostAuth.FLAG_AUTHENTICATE;
         SpinnerOption.setSpinnerOptionValue(mSecurityTypeView, flags);
 
-        String hostname = senderAuth.mAddress;
+        String hostname = sendAuth.mAddress;
         if (hostname != null) {
             mServerView.setText(hostname);
         }
 
-        int port = senderAuth.mPort;
+        int port = sendAuth.mPort;
         if (port != -1) {
             mPortView.setText(Integer.toString(port));
         } else {
             updatePortFromSecurityType();
         }
 
-        // TODO See how to get rid of this. Maybe define an "equals()" for HostAuth?
-        // used to determine if these settings have changed
-        try {
-            mLoadedUri = getUri();
-        } catch (URISyntaxException ignore) {
-            // ignore; should not happen
-        }
-
+        mLoadedSendAuth = sendAuth;
         mLoaded = true;
         validateFields();
     }
