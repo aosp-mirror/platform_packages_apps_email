@@ -83,6 +83,7 @@ public class NotificationController {
 
     /**
      * Generic notifier for any account.  Uses notification rules from account.
+     * NOTE:  Ticker is not shown in Holo XL notifications.
      *
      * @param account The account for which the notification is posted
      * @param ticker String for ticker
@@ -95,8 +96,11 @@ public class NotificationController {
             String contentText, Intent intent, int notificationId) {
 
         // Pending Intent
-        PendingIntent pending =
-            PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pending = null;
+        if (intent != null) {
+            pending =
+                PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
         // Ringtone & Vibration
         String ringtoneString = account.getRingtone();
@@ -294,36 +298,19 @@ public class NotificationController {
     }
 
     /**
-     * Generic warning notification
-     */
-    public void showWarningNotification(int id, String tickerText, String notificationText,
-            Intent intent) {
-        PendingIntent pendingIntent = null;
-        if (intent != null) {
-            pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-        }
-        Builder b = new Builder(mContext);
-        b.setSmallIcon(android.R.drawable.stat_notify_error)
-            .setTicker(tickerText)
-            .setWhen(mClock.getTime())
-            .setContentTitle(tickerText)
-            .setContentText(notificationText)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true);
-        Notification n = b.getNotification();
-        mNotificationManager.notify(id, n);
-    }
-
-    /**
      * Alert the user that an attachment couldn't be forwarded.  This is a very unusual case, and
      * perhaps we shouldn't even send a notification. For now, it's helpful for debugging.
+     * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
-    public void showDownloadForwardFailedNotification(Attachment att) {
-        showWarningNotification(NOTIFICATION_ID_ATTACHMENT_WARNING,
+    public void showDownloadForwardFailedNotification(Attachment attachment) {
+        final Account account = Account.restoreAccountWithId(mContext, attachment.mAccountKey);
+        if (account == null) return;
+        postAccountNotification(account,
                 mContext.getString(R.string.forward_download_failed_ticker),
-                mContext.getString(R.string.forward_download_failed_notification,
-                        att.mFileName), null);
+                mContext.getString(R.string.forward_download_failed_title),
+                attachment.mFileName,
+                null,
+                NOTIFICATION_ID_ATTACHMENT_WARNING);
     }
 
     /**
@@ -333,14 +320,19 @@ public class NotificationController {
         return NOTIFICATION_ID_BASE_LOGIN_WARNING + (int)accountId;
     }
 
-    // NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
+    /**
+     * Alert the user that login failed on a particular account.
+     * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
+     */
     public void showLoginFailedNotification(long accountId) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
-        showWarningNotification(getLoginFailedNotificationId(accountId),
+        postAccountNotification(account,
                 mContext.getString(R.string.login_failed_ticker, account.mDisplayName),
-                mContext.getString(R.string.login_failed_notification),
-                AccountSettingsXL.createAccountSettingsIntent(mContext, accountId));
+                mContext.getString(R.string.login_failed_title),
+                account.getDisplayName(),
+                AccountSettingsXL.createAccountSettingsIntent(mContext, accountId),
+                getLoginFailedNotificationId(accountId));
     }
 
     public void cancelLoginFailedNotification(long accountId) {

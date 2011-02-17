@@ -40,6 +40,14 @@
     <string name="upgrade_accounts_title"></string>
     <!-- Do Not Translate.  Unused string. -->
     <string name="upgrade_accounts_error"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="forward_download_failed_notification"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="login_failed_notification"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="password_expire_warning_content_text_fmt"></string>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="password_expired_content_text"></string>
 
     <!-- Name of application on Home screen -->
     <string name="app_name">Email</string>
@@ -413,16 +421,17 @@ save attachment.</string>
         <item quantity="other"  ><xliff:g id="num_message" example="5" >%1$d</xliff:g>
         messages moved to <xliff:g id="mailbox_name" example="Inbox" >%2$s</xliff:g></item>
     </plurals>
+
     <!-- Notification ticker when a forwarded attachment couldn't be sent [CHAR LIMIT=none] -->
     <string name="forward_download_failed_ticker">Could not forward one or more attachments</string>
-    <!-- Notification text when a forwarded attachment couldn't be sent [CHAR LIMIT=30]-->
-    <string name="forward_download_failed_notification">Could not forward <xliff:g id="filename">
-        %s</xliff:g></string>
-    <!-- Notification ticker when email account authentication fails [CHAR LIMIT=20] -->
-    <string name="login_failed_ticker"><xliff:g id="account_name">%s
-        </xliff:g> sign-in failed</string>
-    <!-- Notification text when email account authentication fails [CHAR LIMIT=75]-->
-    <string name="login_failed_notification">Touch to change account settings</string>
+    <!-- Notification title when a forwarded attachment couldn't be sent [CHAR LIMIT=30]-->
+    <string name="forward_download_failed_title">Attachment not forwarded</string>
+
+    <!-- Notification ticker when email account authentication fails [CHAR LIMIT=none] -->
+    <string name="login_failed_ticker">
+        <xliff:g id="account_name">%s</xliff:g> sign-in failed</string>
+    <!-- Notification title when email account authentication fails [CHAR LIMIT=30]-->
+    <string name="login_failed_title">Sign-in failed</string>
 
     <!-- Size unit for bytes for attachments [CHAR LIMIT=10] -->
     <plurals name="message_view_attachment_bytes">
@@ -726,12 +735,12 @@ save attachment.</string>
          to administer your device will delete all Email accounts that require it, along with their
          email, contacts, calendar events, and other data.</string>
 
-    <!-- Notification ticker  when device security required -->
+    <!-- Notification ticker when device security required (note: unused in Holo XL) -->
     <string name="security_notification_ticker_fmt">
             Account \"<xliff:g id="account">%s</xliff:g>\" requires security settings update.
     </string>
-    <!-- Notification content title when device security required -->
-    <string name="security_notification_content_title">Update Security Settings</string>
+    <!-- Notification content title when device security required [CHAR_LIMIT=30] -->
+    <string name="security_notification_content_title">Security update required</string>
     <!-- Title of the activity that dispatches changes to device security.  Not normally seen. -->
     <string name="account_security_title">Device Security</string>
     <!-- Additional diagnostic text when the email app asserts control of the phone.
@@ -745,24 +754,16 @@ save attachment.</string>
 
     <!-- Notification ticker when device password is getting ready to expire [CHAR_LIMIT=80] -->
     <string name="password_expire_warning_ticker_fmt">
-            Account \"<xliff:g id="account">%s</xliff:g>\" requires you to update your screen
-            unlock code.</string>
+            \"<xliff:g id="account">%s</xliff:g>\" requires you to change your lock screen
+            PIN or password.</string>
     <!-- Notification content title when device password is getting ready to expire
-            [CHAR_LIMIT=28] -->
-    <string name="password_expire_warning_content_title">New screen unlock required</string>
-    <!-- Notification content text when device password is getting ready to expire
-            [CHAR_LIMIT=2 lines] -->
-    <string name="password_expire_warning_content_text_fmt">
-            Account \"<xliff:g id="account">%s</xliff:g>\" requires you to update your screen
-            unlock code.  Touch here to update it.</string>
+            [CHAR_LIMIT=30] -->
+    <string name="password_expire_warning_content_title">Lock screen password expiring</string>
 
     <!-- Notification ticker when device password has expired [CHAR_LIMIT=80] -->
-    <string name="password_expired_ticker">Your screen unlock code has expired.</string>
+    <string name="password_expired_ticker">Your lock screen PIN or password has expired.</string>
     <!-- Notification content title when device password has expired [CHAR_LIMIT=28] -->
-    <string name="password_expired_content_title">New screen unlock required</string>
-    <!-- Notification content text when device password has expired [CHAR_LIMIT=2 lines] -->
-    <string name="password_expired_content_text">
-            Your screen unlock code has expired.  Touch here to update it.</string>
+    <string name="password_expired_content_title">Lock screen password expired</string>
 
     <!-- On AccountSettingsXL, dialog text if you try to exit in/out/eas fragment (server settings)
          without checking/saving [CHAR LIMIT=none]-->

@@ -586,8 +586,7 @@ public class SecurityPolicy {
                     R.string.password_expire_warning_ticker_fmt, account.getDisplayName());
             String contentTitle = context.getString(
                     R.string.password_expire_warning_content_title);
-            String contentText = context.getString(
-                    R.string.password_expire_warning_content_text_fmt, account.getDisplayName());
+            String contentText = account.getDisplayName();
             NotificationController nc = NotificationController.getInstance(mContext);
             nc.postAccountNotification(account, ticker, contentTitle, contentText, intent,
                     NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRING);
@@ -598,11 +597,10 @@ public class SecurityPolicy {
                 // Post notification
                 Account account = Account.restoreAccountWithId(context, nextExpiringAccountId);
                 if (account == null) return;
-                Intent intent =
-                    new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
+                Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
                 String ticker = context.getString(R.string.password_expired_ticker);
                 String contentTitle = context.getString(R.string.password_expired_content_title);
-                String contentText = context.getString(R.string.password_expired_content_text);
+                String contentText = account.getDisplayName();
                 NotificationController nc = NotificationController.getInstance(mContext);
                 nc.postAccountNotification(account, ticker, contentTitle,
                         contentText, intent,
