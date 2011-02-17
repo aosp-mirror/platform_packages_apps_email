@@ -52,27 +52,22 @@
     <string name="move_action" msgid="3059189775933985898">"Siirrä"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Kopio/piilok."</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Lisää liitetiedosto"</string>
-    <!-- no translation found for close_action (533058985745238100) -->
-    <skip />
+    <string name="close_action" msgid="533058985745238100">"Sulje"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Vedosasetukset"</string>
+    <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Lähetä kaikki viestit"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Valitse liite"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Siirrä kansioon"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Ladataan viestejä..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Yhteysvirhe"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Uutta sähköpostia"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Viestin tekstiä ladattaessa tapahtui odottamaton virhe. Viesti voi olla liian suuri näytettäväksi."</string>
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
-    <skip />
-    <!-- no translation found for move_messages:one (320885379869442589) -->
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
-    <skip />
-    <!-- no translation found for move_messages:other (371256717624461324) -->
-    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
-    <skip />
-    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
-    <skip />
-    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
-    <skip />
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"Siirrä viesti"</item>
+    <item quantity="other" msgid="371256717624461324">"Siirrä viestit"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"POP3-tilit eivät tue siirtoa."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"Ei voi siirtää. Valinta sisältää useita tilejä."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"Luonnokset-, Lähtevät- ja Lähetetyt-kansioissa olevia viestejä ei voi siirtää."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> lukematon (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> lukematonta (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -130,8 +125,9 @@
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kopio:"</string>
     <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
     <skip />
-    <!-- no translation found for message_view_date_label (7033814961837313339) -->
-    <skip />
+    <string name="message_view_date_label" msgid="7033814961837313339">"Päiväys:"</string>
+    <string name="message_view_from_label" msgid="6055076379282772675">"Lähettäjä:"</string>
+    <string name="message_view_subject_label" msgid="3731022187530000852">"Aihe:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Näytä"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Lataa"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Tallenna"</string>
@@ -155,10 +151,9 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Hyväksyit tämän kutsun"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Olet vastannut tähän kutsuun \"ehkä\""</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Hylkäsit tämän kutsun"</string>
-    <!-- no translation found for message_view_show_details (6287415596441037095) -->
-    <skip />
-    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
-    <skip />
+    <string name="message_view_show_details" msgid="6287415596441037095">"Näytä tiedot"</string>
+    <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Viestin tiedot"</string>
+    <string name="message_decode_error" msgid="7812862491622388416">"Virhe purettaessa viestin koodausta."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Avoinna <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Hylkää viesti"</string>
   <plurals name="message_delete_confirm">
@@ -198,8 +193,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> Gt"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> Gt"</item>
   </plurals>
-    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
-    <skip />
+    <string name="message_view_move_to_newer" msgid="2190862552581773765">"Uudemmat"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Vanhemmat"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" – "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Tilin asetukset"</string>
@@ -209,15 +203,14 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"Voit määrittää useimpien sähköpostitilien asetukset helposti."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Voit määrittää Exchange-tilin asetukset helposti."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Voit määrittää Exchange ActiveSync -tilin asetukset helposti."</string>
-    <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
-    <skip />
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"Sähköpostiosoite"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Salasana"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"Lähetä sähköposti oletuksena tältä tililtä."</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuaalinen määritys"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Anna kelvollinen sähköpostiosoite ja salasana."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Päällekkäiset tilit"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Nämä kirjautumistiedot ovat jo käytössä tilillä \"<xliff:g id="DUPLICATE">%s</xliff:g>\"."</string>
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Tämän salasanan alussa tai lopussa on välilyönti. Monet palvelimet eivät tue välilyöntejä sisältäviä salasanoja."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Noudetaan tilin tietoja…"</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Tarkistetaan saapuvan postin palvelimen asetuksia…"</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Tarkistetaan lähtevän postin palvelimen asetuksia…"</string>
@@ -225,6 +218,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Tili on määritetty ja sähköposteja noudetaan."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Anna tilille nimi (valinnainen)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Oma nimi (näytetään lähtevissä viesteissä)"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"Kenttä ei voi olla tyhjä"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Tilin asetukset"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Tilin tyyppi"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Millainen tili tämä on?"</string>
@@ -276,6 +270,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Synkronoi tämän tilin yhteystiedot."</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Synkronoi tämän tilin kalenteri."</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Synkronoi tämän tilin lähetetyt sähköpostit."</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Lataa liitteet automaattisesti wifi-yhteyden ollessa käytössä."</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Määrityksiä ei voitu suorittaa loppuun"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Synkronoitava määrä"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Yksi päivä"</string>
@@ -296,13 +291,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Palvelinyhteyttä ei voi muodostaa."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Annoit virheellisen palvelimen osoitteen tai palvelin edellyttää protokollaversiota, jota sähköposti ei tue."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Suojauksen etähallinta"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Palvelin <xliff:g id="SERVER">%s</xliff:g> vaatii, että sen sallitaan hallita joitakin puhelimen suojaustoiminnoista. Haluatko määrittää tämän tilin loppuun?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Palvelin vaatii suojausominaisuuksia, joita puhelimesi ei tue."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Palvelin <xliff:g id="SERVER">%s</xliff:g> vaatii, että sen sallitaan hallita joitakin Android-laitteen suojaustoiminnoista. Haluatko määrittää tämän tilin loppuun?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Palvelin vaatii suojausominaisuuksia, joita Android-laitteesi ei tue."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"VAROITUS: poistamalla sähköpostisovellukselta oikeuden hallinnoida laitettasi poistetaan kaikki sovellukseen liittyvät sähköpostitilit sekä niiden sähköpostit, yhteystiedot, kalenteritapahtumat ja muut tiedot."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Tili \"<xliff:g id="ACCOUNT">%s</xliff:g>\" edellyttää, että suojausasetukset päivitetään."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Päivitä suojausasetukset"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Laitteen suojaus"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Palvelin <xliff:g id="SERVER">%s</xliff:g> vaatii, että sen sallitaan hallita joitakin puhelimen suojaustoiminnoista."</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Palvelin <xliff:g id="SERVER">%s</xliff:g> vaatii, että sen sallitaan hallita joitakin Android-laitteen suojaustoiminnoista."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Muokkaa tietoja"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Tili <xliff:g id="ACCOUNT">%s</xliff:g> pyytää päivittämään ruudunlukituksen poistokoodin ."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Uusi lukit. poisto tarvitaan"</string>
@@ -314,12 +309,18 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Yleiset asetukset"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Oletustili"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Lähetä sähköposti oletuksena tältä tililtä"</string>
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Lataa liitetiedostot automaattisesti"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Lataa liitteet automaattisesti wifi-yhteyden ollessa käytössä."</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Sähköposti-ilmoitukset"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synkronoinnin tiheys, ilmoitukset jne."</string>
-    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Ilmoita tilarivillä saapuneesta sähköpostista"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Ilmoita tilarivissä, kun sähköpostiviesti saapuu"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Uusien viestien tarkistustiheys"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Saapuvan postin asetukset"</string>
+    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
+    <skip />
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Lähtevän postin asetukset"</string>
+    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
+    <skip />
     <string name="account_settings_description_label" msgid="8894815221204511715">"Tilin nimi"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Oma nimi"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Allekirjoitus"</string>
@@ -345,8 +346,6 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Poista tili"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Sähköpostitili"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Valitse tili"</string>
-    <string name="upgrade_accounts_title" msgid="5444140226380754014">"Tilien päivitys"</string>
-    <string name="upgrade_accounts_error" msgid="7241661832029255715">"Tilin päivitys epäonnistui"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Vain joihinkin Plus-tileihin sisältyy POP-käyttö, joka sallii tämän ohjelman muodostaa yhteyden. Jos et pysty kirjautumaan tiliisi sähköpostiosoitteellasi ja salasanallasi, sinulla ei ehkä ole maksullista Plus-tiliä. Pääset käyttämään näitä sähköpostitilejä käynnistämällä verkkoselaimen."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Käy ennen tämän sähköpostitilin luomista T-Onlinen sivustossa ja luo salasana sähköpostin POP3-käyttöä varten."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Yritys"</string>
@@ -393,12 +392,12 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normaali"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Suuri"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Hyvin suuri"</string>
-    <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"Hae liitetiedostot autom."</string>
-    <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"Lataa Saapuneet-kansion viestien liitetiedostot. (Ei POP3)."</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="widget_other_views" msgid="2265335608760083337">"Muuta: napauta kuvak."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Yhd. postilaatikko"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Lukemattomat"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Tähdelliset"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Ladataan…"</string>
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Kosketa ja tee määritykset"</string>
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

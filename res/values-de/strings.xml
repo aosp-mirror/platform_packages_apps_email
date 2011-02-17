@@ -30,7 +30,7 @@
     <string name="forward_action" msgid="669174181042344116">"Weiterleiten"</string>
     <string name="done_action" msgid="7497990549515580249">"Fertig"</string>
     <string name="discard_action" msgid="6532206074859505968">"Verwerfen"</string>
-    <string name="save_draft_action" msgid="6413714270991417223">"Entwurf sp."</string>
+    <string name="save_draft_action" msgid="6413714270991417223">"Speichern"</string>
     <string name="read_unread_action" msgid="4721446664849165077">"Gelesen/ungelesen"</string>
     <string name="read_action" msgid="4701484794504781686">"Als gelesen markieren"</string>
     <string name="unread_action" msgid="6280399049357552826">"Als ungelesen markieren"</string>
@@ -52,27 +52,22 @@
     <string name="move_action" msgid="3059189775933985898">"Verschieben"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Anhang hinzufügen"</string>
-    <!-- no translation found for close_action (533058985745238100) -->
-    <skip />
+    <string name="close_action" msgid="533058985745238100">"Schließen"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Einstellungen für Speicherauszug"</string>
+    <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Alle senden"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Anhang auswählen"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Verschieben"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Nachrichten werden geladen..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Verbindungsfehler"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"Neue E-Mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Unerwarteter Fehler beim Laden des Nachrichtentextes aufgetreten. Die Nachricht ist möglicherweise zu lang, um angezeigt zu werden."</string>
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
-    <skip />
-    <!-- no translation found for move_messages:one (320885379869442589) -->
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
-    <skip />
-    <!-- no translation found for move_messages:other (371256717624461324) -->
-    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
-    <skip />
-    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
-    <skip />
-    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
-    <skip />
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"Nachricht verschieben"</item>
+    <item quantity="other" msgid="371256717624461324">"Nachrichten verschieben"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"Verschieben wird für POP3-Konten nicht unterstützt."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"Verschieben nicht möglich. Auswahl enthält mehrere Konten."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"Nachrichten in \"Entwürfe\", dem Postausgang und \"Gesendet\" können nicht verschoben werden."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -129,8 +124,9 @@
     <string name="message_view_to_label" msgid="6485191743265527381">"An:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
-    <!-- no translation found for message_view_date_label (7033814961837313339) -->
-    <skip />
+    <string name="message_view_date_label" msgid="7033814961837313339">"Datum:"</string>
+    <string name="message_view_from_label" msgid="6055076379282772675">"Von:"</string>
+    <string name="message_view_subject_label" msgid="3731022187530000852">"Betreff:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Anzeigen"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Laden"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Speichern"</string>
@@ -154,10 +150,9 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Sie haben die Einladung angenommen."</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Sie haben auf diese Einladung mit \"Vielleicht\" geantwortet."</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Sie haben die Einladung abgelehnt."</string>
-    <!-- no translation found for message_view_show_details (6287415596441037095) -->
-    <skip />
-    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
-    <skip />
+    <string name="message_view_show_details" msgid="6287415596441037095">"Details anzeigen"</string>
+    <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Nachrichtendetails"</string>
+    <string name="message_decode_error" msgid="7812862491622388416">"Fehler beim Entschlüsseln der Nachricht"</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Anzeige von <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Nachr. verwerfen"</string>
   <plurals name="message_delete_confirm">
@@ -197,8 +192,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g> GB"</item>
   </plurals>
-    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
-    <skip />
+    <string name="message_view_move_to_newer" msgid="2190862552581773765">"Neuer"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"Älter"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" - "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"Kontoeinrichtung"</string>
@@ -208,15 +202,14 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"Bei den meisten Konten können Sie die E-Mail-Adresse in nur wenigen Schritten konfigurieren."</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Sie können ein Exchange-Konto in nur wenigen Schritten konfigurieren."</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Sie können ein Exchange ActiveSync-Konto in nur wenigen Schritten konfigurieren."</string>
-    <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
-    <skip />
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"E-Mail-Adresse"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"Passwort"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"E-Mails standardmäßig von diesem Konto senden"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"Manuelle Einrichtung"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Geben Sie eine gültige E-Mail-Adresse und ein gültiges Passwort ein."</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"Konto duplizieren"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Dieses Login wird bereits für das Konto \"<xliff:g id="DUPLICATE">%s</xliff:g>\" verwendet."</string>
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"Dieses Passwort beginnt oder endet mit einem oder mehreren Leerzeichen. Viele Server unterstützen keine Passwörter mit Leerzeichen."</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"Kontoinformationen werden abgerufen..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"Einstellungen des Eingangsservers werden überprüft..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Einstellungen des Ausgangsservers werden überprüft..."</string>
@@ -224,6 +217,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Ihr Konto ist nun eingerichtet."</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Konto benennen (optional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Ihr Name (wird für ausgehende Nachrichten angezeigt)"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"Dieses Feld darf nicht leer sein."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Kontoeinrichtung"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"Kontotyp"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"Um welchen Kontotyp handelt es sich hierbei?"</string>
@@ -275,6 +269,7 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Kontakte dieses Kontos synchronisieren"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Kalender dieses Kontos synchronisieren"</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"E-Mails dieses Kontos synchronisieren"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Anhänge bei WLAN-Verbindung automatisch herunterladen"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Einrichtung konnte nicht abgeschlossen werden"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Umfang der Synchronisation"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Ein Tag"</string>
@@ -295,13 +290,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Verbindung zu Server kann nicht geöffnet werden"</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Sie haben eine falsche Serveradresse eingegeben, oder der Server erfordert eine Protokollversion, die derzeit nicht unterstützt wird."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Remote-Sicherheitsverwaltung"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Der Server <xliff:g id="SERVER">%s</xliff:g> erfordert die Erlaubnis zur Remote-Steuerung einiger Sicherheitsfunktionen auf Ihrem Telefon. Möchten Sie die Einrichtung dieses Kontos abschließen?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Für diesen Server sind Sicherheitsfunktionen erforderlich, die von Ihrem Telefon nicht unterstützt werden."</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Der Server <xliff:g id="SERVER">%s</xliff:g> fordert die Erlaubnis zur Remote-Steuerung einiger Sicherheitsfunktionen auf Ihrem Android-Gerät an. Möchten Sie die Einrichtung dieses Kontos abschließen?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Für diesen Server sind Sicherheitsfunktionen erforderlich, die von Ihrem Android-Gerät nicht unterstützt werden."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"Warnung: Wenn Sie die Berechtigung der E-Mail-Anwendung zur Verwaltung Ihres Geräts deaktivieren, werden alle E-Mail-Konten, die diese Berechtigung benötigen, mit allen zugehörigen E-Mail-Nachrichten, Kontakten, Terminen und anderen Daten gelöscht."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" erfordert eine Aktualisierung der Sicherheitseinstellungen."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Sicherheitseinstellungen aktualisieren"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Gerätesicherheit"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Der Server <xliff:g id="SERVER">%s</xliff:g> erfordert die Erlaubnis zur Remote-Steuerung einiger Sicherheitsfunktionen auf Ihrem Telefon."</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Der Server <xliff:g id="SERVER">%s</xliff:g> fordert die Erlaubnis zur Remote-Steuerung einiger Sicherheitsfunktionen auf Ihrem Android-Gerät an."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bearbeiten"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Bitte aktualisieren Sie den Code zur Bildschirmentsperrung für das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Neue Bildschirmentsperrung"</string>
@@ -313,12 +308,18 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Allgemeine Einstellungen"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"E-Mails standardmäßig von diesem Konto senden"</string>
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Anhänge autom. herunterladen"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Anhänge bei WLAN-Verbindung automatisch herunterladen"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"E-Mail-Benachrichtigung"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Synchronisierungshäufigkeit, Benachrichtigungen usw."</string>
-    <string name="account_settings_notify_summary" msgid="6609224590300639887">"Bei E-Mail-Eingang Benachrichtigung in der Statusleiste"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"Bei E-Mail-Eingang Benachrichtigung in der Systemleiste"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Häufigkeit des E-Mail-Abrufs"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Eingehende Nachrichten"</string>
+    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
+    <skip />
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Ausgehende Nachrichten"</string>
+    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
+    <skip />
     <string name="account_settings_description_label" msgid="8894815221204511715">"Kontoname"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Ihr Name"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>
@@ -344,8 +345,6 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Konto entfernen"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-Mail-Konto"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Konto auswählen"</string>
-    <string name="upgrade_accounts_title" msgid="5444140226380754014">"Upgrade für Konten"</string>
-    <string name="upgrade_accounts_error" msgid="7241661832029255715">"Konto-Upgrade nicht durchführbar"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Nur einige \"Plus\"-Konten ermöglichen einen POP-Zugang und damit diesem Programm, eine Verbindung aufzubauen. Sollten Sie nicht dazu in der Lage sein, sich mit Ihrer korrekten E-Mail-Adresse und dem richtigen Password anzumelden, verfügen Sie möglicherweise nicht über ein kostenpflichtiges \"Plus\"-Konto. Starten Sie Ihren Webbrowser, um Zugriff auf diese Konten zu erlangen."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Vor Erstellung des E-Mail Kontos bitte \\\"eMail-Passwort\\\" für den POP3-Zugang auf der T-Online-Startseite einrichten."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Geschäftlich"</string>
@@ -392,12 +391,12 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Groß"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Sehr groß"</string>
-    <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"Anhänge automatisch abrufen"</string>
-    <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"Download von Posteingang-E-Mail-Anhängen (nicht für POP3-Konten)"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> von <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="widget_other_views" msgid="2265335608760083337">"Zum Ändern auf Symbol tippen"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Kombinierter Posteingang"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Ungelesen"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Markiert"</string>
     <string name="widget_loading" msgid="2340962056927255554">"Wird geladen…"</string>
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"Zum Konfigurieren berühren"</string>
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>

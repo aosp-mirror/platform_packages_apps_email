@@ -52,27 +52,22 @@
     <string name="move_action" msgid="3059189775933985898">"移動"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"Cc/Bccを追加"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"添付ファイルを追加"</string>
-    <!-- no translation found for close_action (533058985745238100) -->
-    <skip />
+    <string name="close_action" msgid="533058985745238100">"閉じる"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"ダンプ設定"</string>
+    <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"全メッセージを送信"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"添付ファイルの選択"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"移動先"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"メッセージを読み込み中..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"接続エラー"</string>
     <string name="notification_new_title" msgid="2200257910380529139">"新着メール"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"メッセージテキストの読み込み中に予期しないエラーが発生しました。メッセージが表示できないほど大きい可能性があります。"</string>
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:one -->
-    <skip />
-    <!-- no translation found for move_messages:one (320885379869442589) -->
-    <!-- unknown placeholder NUM_MESSAGE in move_messages:other -->
-    <skip />
-    <!-- no translation found for move_messages:other (371256717624461324) -->
-    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
-    <skip />
-    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
-    <skip />
-    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
-    <skip />
+  <plurals name="move_messages">
+    <item quantity="one" msgid="320885379869442589">"メッセージを移動"</item>
+    <item quantity="other" msgid="371256717624461324">"メッセージを移動"</item>
+  </plurals>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"POP3アカウントでは移動はサポートされません。"</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"移動できません。複数のアカウントを選択しています。"</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"[下書き]、[送信トレイ]、[送信済み]のメッセージは移動できません。"</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"未読<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g>件 (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
@@ -129,8 +124,9 @@
     <string name="message_view_to_label" msgid="6485191743265527381">"To:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
     <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
-    <!-- no translation found for message_view_date_label (7033814961837313339) -->
-    <skip />
+    <string name="message_view_date_label" msgid="7033814961837313339">"日付:"</string>
+    <string name="message_view_from_label" msgid="6055076379282772675">"From:"</string>
+    <string name="message_view_subject_label" msgid="3731022187530000852">"件名:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"表示"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"読み込み"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"保存"</string>
@@ -154,10 +150,9 @@
     <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"この招待を承諾しました"</string>
     <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"この案内を仮承諾しました"</string>
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"この招待を辞退しました"</string>
-    <!-- no translation found for message_view_show_details (6287415596441037095) -->
-    <skip />
-    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
-    <skip />
+    <string name="message_view_show_details" msgid="6287415596441037095">"詳細を表示"</string>
+    <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"メッセージの詳細"</string>
+    <string name="message_decode_error" msgid="7812862491622388416">"メッセージのデコード中にエラーが発生しました。"</string>
     <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g>を表示"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"メッセージの破棄"</string>
   <plurals name="message_delete_confirm">
@@ -197,8 +192,7 @@
     <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
     <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
   </plurals>
-    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
-    <skip />
+    <string name="message_view_move_to_newer" msgid="2190862552581773765">"次"</string>
     <string name="message_view_move_to_older" msgid="4993043091356700890">"前"</string>
     <string name="message_list_subject_snippet_divider" msgid="1783589062530679520">" — "</string>
     <string name="account_setup_basics_title" msgid="3578333196594678422">"アカウント設定"</string>
@@ -208,15 +202,14 @@
     <string name="accounts_welcome" msgid="5901437782383439370">"ほとんどのメールアカウントを簡単な操作で設定できます。"</string>
     <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Exchangeアカウントのメール設定は簡単な操作で完了します。"</string>
     <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Exchange ActiveSyncアカウントの設定は簡単な操作で完了します。"</string>
-    <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
-    <skip />
-    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
-    <skip />
+    <string name="account_setup_basics_email_label" msgid="3454164053624112047">"メールアドレス"</string>
+    <string name="account_setup_basics_password_label" msgid="9133549799291519298">"パスワード"</string>
     <string name="account_setup_basics_default_label" msgid="5924790142029806711">"いつもこのアカウントでメールを送信"</string>
     <string name="account_setup_basics_manual_setup_action" msgid="8053852205391155912">"手動セットアップ"</string>
     <string name="account_setup_username_password_toast" msgid="4441448542557889481">"有効なメールアドレスとパスワードを入力してください。"</string>
     <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"重複するアカウント"</string>
     <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"このログインはアカウント「<xliff:g id="DUPLICATE">%s</xliff:g>」によって既に使用されています。"</string>
+    <string name="account_password_spaces_error" msgid="8928309156658903257">"このパスワードは先頭または末尾にスペースがあります。多くのサーバーはスペースを含むパスワードに対応していません。"</string>
     <string name="account_setup_check_settings_retr_info_msg" msgid="4121970450267725664">"アカウント情報を取得中..."</string>
     <string name="account_setup_check_settings_check_incoming_msg" msgid="5356212700221438863">"受信サーバーの設定を確認中..."</string>
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"送信サーバーの設定を確認中..."</string>
@@ -224,6 +217,7 @@
     <string name="account_setup_names_headline" msgid="2413440250372658881">"アカウントの設定が完了しました。"</string>
     <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"このアカウントに名前を付ける (省略可):"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"あなたの名前（送信メールに表示されます）"</string>
+    <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"このフィールドは必須です"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"アカウント設定"</string>
     <string name="account_setup_account_type_headline" msgid="3574102329184831086">"アカウントの種類"</string>
     <string name="account_setup_account_type_instructions" msgid="114515540798408760">"このアカウントのタイプ"</string>
@@ -275,8 +269,9 @@
     <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"このアカウントから連絡先を同期します。"</string>
     <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"このアカウントからカレンダーを同期"</string>
     <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"このアカウントからメールを同期する"</string>
+    <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Wi-Fiへの接続時に添付ファイルを自動的にダウンロードする"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"セットアップできません"</string>
-    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"同期する量"</string>
+    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"同期する期間"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"1日"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"3日間"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"1週間"</string>
@@ -295,13 +290,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"サーバーに接続できません。"</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"入力したサーバーアドレスが間違っているか、サーバーで必要なプロトコルバージョンにメールが対応していません。"</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"セキュリティのリモート管理"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"携帯電話のセキュリティ機能の一部に対するリモートコントロールをサーバー<xliff:g id="SERVER">%s</xliff:g>に許可する必要があります。アカウントのセットアップを終了しますか？"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"このサーバーにはお使いの携帯電話でサポートされていないセキュリティ機能が必要です。"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Android搭載携帯のセキュリティ機能の一部に対するリモートコントロールをサーバー<xliff:g id="SERVER">%s</xliff:g>に許可する必要があります。アカウントの設定を終了しますか？"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"このサーバーには、お使いのAndroid搭載携帯でサポートされていないセキュリティ機能が必要です。"</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"警告: メールアプリケーションの端末管理権限を無効にすると、権限を必要とするすべてのメールアカウントが削除されます。また、そのアカウントのメール、連絡先、カレンダーの予定などのデータも削除されます。"</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"アカウント「<xliff:g id="ACCOUNT">%s</xliff:g>」でセキュリティ設定の更新が必要です。"</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"セキュリティ設定を更新"</string>
     <string name="account_security_title" msgid="4441470647344315196">"携帯電話のセキュリティ"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"携帯電話のセキュリティ機能の一部に対するリモートコントロールをサーバー<xliff:g id="SERVER">%s</xliff:g>に許可する必要があります。"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Android搭載携帯のセキュリティ機能の一部に対するリモートコントロールをサーバー<xliff:g id="SERVER">%s</xliff:g>に許可する必要があります。"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"設定を編集"</string>
     <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"アカウント「<xliff:g id="ACCOUNT">%s</xliff:g>」の画面ロック解除コードを更新する必要があります。"</string>
     <string name="password_expire_warning_content_title" msgid="4602564325906174785">"画面ロック解除の更新が必要"</string>
@@ -313,12 +308,18 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"全般設定"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"優先アカウントにする"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"いつもこのアカウントでメールを送信"</string>
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"添付ファイルの自動ダウンロード"</string>
+    <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Wi-Fiへの接続時に添付ファイルを自動的にダウンロードする"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"メール着信通知"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"同期頻度、通知、その他"</string>
-    <string name="account_settings_notify_summary" msgid="6609224590300639887">"メール受信: ステータスバーで通知"</string>
+    <string name="account_settings_notify_summary" msgid="6301122709602752038">"メール受信: システムバーで通知"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"受信トレイの確認頻度"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"受信設定"</string>
+    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
+    <skip />
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"送信設定"</string>
+    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
+    <skip />
     <string name="account_settings_description_label" msgid="8894815221204511715">"アカウント名"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"名前"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"署名"</string>
@@ -344,8 +345,6 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"アカウントを削除"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"メール"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"アカウントを選択"</string>
-    <string name="upgrade_accounts_title" msgid="5444140226380754014">"アカウントをアップグレード"</string>
-    <string name="upgrade_accounts_error" msgid="7241661832029255715">"アカウントをアップグレードできません"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"このプログラムでPOPアクセスが許可されているのは一部の「Plus」アカウントだけです。有料の「Plus」アカウントがなければ、正しいメールアドレスとパスワードを入力してもログインできません。これらのアカウントにはブラウザからアクセスしてください。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"このメールアカウントを設定する前にT-Onlineサイトにアクセスして、POP3メールアクセス用のパスワードを作成してください。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"コーポレート"</string>
@@ -392,12 +391,12 @@
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"標準"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"極大"</string>
-    <string name="general_preference_background_attachments_label" msgid="5740568133528931495">"添付ファイルを自動的に取得"</string>
-    <string name="general_preference_background_attachments_summary" msgid="2745557569280394897">"受信トレイメッセージの添付をダウンロードする（POP3アカウントでは使用不可)。"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="widget_other_views" msgid="2265335608760083337">"タップで変更"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"統合受信トレイ"</string>
     <string name="widget_unread" msgid="4404711399009077833">"未読"</string>
     <string name="widget_starred" msgid="8290352707134011791">"スター付き"</string>
     <string name="widget_loading" msgid="2340962056927255554">"読み込み中..."</string>
+    <string name="widget_touch_to_configure" msgid="3272115577715211268">"タップして設定してください"</string>
+    <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
 </resources>
