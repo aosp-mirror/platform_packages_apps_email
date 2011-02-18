@@ -39,6 +39,7 @@ import com.android.emailcommon.utility.Utility;
 import org.apache.commons.io.IOUtils;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.Fragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ActivityNotFoundException;
@@ -52,6 +53,7 @@ import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
+import android.media.MediaScannerConnection.OnScanCompletedListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -698,10 +700,18 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             Utility.showToast(getActivity(), String.format(
                     mContext.getString(R.string.message_view_status_attachment_saved),
                     file.getName()));
-            // Run the attachment through the media scanner; adds supported types to the media
-            // content provider
+
+            // Although the download manager can scan media files, scanning only happens after the
+            // user clicks on the item in the Downloads app. So, we run the attachment through
+            // the media scanner ourselves so it gets added to gallery / music immediately.
             MediaScannerConnection.scanFile(mContext, new String[] {file.getAbsolutePath()},
                     null, null);
+
+            DownloadManager dm =
+                    (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+            dm.completedDownload(info.mName, info.mName, false /* do not use media scanner */,
+                    info.mContentType, file.getAbsolutePath(), info.mSize,
+                    true /* show notification */);
         } catch (IOException ioe) {
             Utility.showToast(getActivity(), R.string.message_view_status_attachment_not_saved);
         }
