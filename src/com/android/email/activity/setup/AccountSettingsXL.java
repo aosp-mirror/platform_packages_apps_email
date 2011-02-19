@@ -94,7 +94,6 @@ public class AccountSettingsXL extends PreferenceActivity {
     private Header mRequestedAccountHeader;
     private Header[] mAccountListHeaders;
     private Header mAppPreferencesHeader;
-    private int mCurrentHeaderPosition;
     /* package */ Fragment mCurrentFragment;
     private long mDeletingAccountId = -1;
     private boolean mShowDebugMenu;
@@ -474,7 +473,6 @@ public class AccountSettingsXL extends PreferenceActivity {
         }
 
         // Process header click normally
-        mCurrentHeaderPosition = position;
         super.onHeaderClick(header, position);
     }
 
@@ -484,7 +482,6 @@ public class AccountSettingsXL extends PreferenceActivity {
      * with a dialog, and the user OK'd it.
      */
     private void forceSwitchHeader(int position) {
-        mCurrentHeaderPosition = position;
         // Clear the current fragment; we're navigating away
         mCurrentFragment = null;
         // Ensure the UI visually shows the correct header selected
@@ -526,6 +523,9 @@ public class AccountSettingsXL extends PreferenceActivity {
      * Callbacks for AccountSettingsFragment
      */
     private class AccountSettingsFragmentCallback implements AccountSettingsFragment.Callback {
+        public void onSettingsChanged(Account account, String preference, Object value) {
+            AccountSettingsXL.this.onSettingsChanged(account, preference, value);
+        }
         public void onIncomingSettings(Account account) {
             AccountSettingsXL.this.onIncomingSettings(account);
         }
@@ -566,6 +566,23 @@ public class AccountSettingsXL extends PreferenceActivity {
                 // Settings checked & saved; clear current fragment
                 mCurrentFragment = null;
                 onBackPressed();
+            }
+        }
+    }
+
+    /**
+     * Some of the settings have changed. Update internal state as necessary.
+     */
+    public void onSettingsChanged(Account account, String preference, Object value) {
+        if (AccountSettingsFragment.PREFERENCE_DESCRIPTION.equals(preference)) {
+            for (Header header : mAccountListHeaders) {
+                if (header.id == account.mId) {
+                    // Manually tweak the header title. We cannot rebuild the header list from
+                    // an account cursor as the account database has not been saved yet.
+                    header.title = value.toString();
+                    invalidateHeaders();
+                    break;
+                }
             }
         }
     }

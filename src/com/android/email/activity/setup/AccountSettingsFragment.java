@@ -68,7 +68,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private static final String BUNDLE_KEY_ACCOUNT_ID = "AccountSettingsFragment.AccountId";
 
     private static final String PREFERENCE_CATEGORY_TOP = "account_settings";
-    private static final String PREFERENCE_DESCRIPTION = "account_description";
+    public static final String PREFERENCE_DESCRIPTION = "account_description";
     private static final String PREFERENCE_NAME = "account_name";
     private static final String PREFERENCE_SIGNATURE = "account_signature";
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
@@ -122,6 +122,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
      * Callback interface that owning activities must provide
      */
     public interface Callback {
+        public void onSettingsChanged(Account account, String preference, Object value);
         public void onIncomingSettings(Account account);
         public void onOutgoingSettings(Account account);
         public void abandonEdit();
@@ -130,10 +131,11 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onIncomingSettings(Account account) { }
-        @Override public void onOutgoingSettings(Account account) { }
-        @Override public void abandonEdit() { }
-        @Override public void deleteAccount(Account account) { }
+        @Override public void onSettingsChanged(Account account, String preference, Object value) {}
+        @Override public void onIncomingSettings(Account account) {}
+        @Override public void onOutgoingSettings(Account account) {}
+        @Override public void abandonEdit() {}
+        @Override public void deleteAccount(Account account) {}
     }
 
     /**
@@ -372,7 +374,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     }
                     mAccountDescription.setSummary(summary);
                     mAccountDescription.setText(summary);
-                    onPreferenceChanged();
+                    onPreferenceChanged(PREFERENCE_DESCRIPTION, summary);
                     return false;
                 }
             }
@@ -387,7 +389,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                 if (!TextUtils.isEmpty(summary)) {
                     mAccountName.setSummary(summary);
                     mAccountName.setText(summary);
-                    onPreferenceChanged();
+                    onPreferenceChanged(PREFERENCE_NAME, summary);
                 }
                 return false;
             }
@@ -407,7 +409,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                         signature = "";
                     }
                     mAccountSignature.setText(signature);
-                    onPreferenceChanged();
+                    onPreferenceChanged(PREFERENCE_SIGNATURE, signature);
                     return false;
                 }
             });
@@ -430,7 +432,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                 int index = mCheckFrequency.findIndexOfValue(summary);
                 mCheckFrequency.setSummary(mCheckFrequency.getEntries()[index]);
                 mCheckFrequency.setValue(summary);
-                onPreferenceChanged();
+                onPreferenceChanged(PREFERENCE_FREQUENCY, newValue);
                 return false;
             }
         });
@@ -451,7 +453,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                     int index = mSyncWindow.findIndexOfValue(summary);
                     mSyncWindow.setSummary(mSyncWindow.getEntries()[index]);
                     mSyncWindow.setValue(summary);
-                    onPreferenceChanged();
+                    onPreferenceChanged(preference.getKey(), newValue);
                     return false;
                 }
             });
@@ -584,7 +586,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private Preference.OnPreferenceChangeListener mPreferenceChangeListener =
         new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                onPreferenceChanged();
+                onPreferenceChanged(preference.getKey(), newValue);
                 return true;
             }
     };
@@ -592,7 +594,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
     /**
      * Called any time a preference is changed.
      */
-    private void onPreferenceChanged() {
+    private void onPreferenceChanged(String preference, Object value) {
+        mCallback.onSettingsChanged(mAccount, preference, value);
         mSaveOnExit = true;
     }
 
