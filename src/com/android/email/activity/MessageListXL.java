@@ -534,7 +534,7 @@ public class MessageListXL extends Activity implements
 
     @Override
     public void onAccountSecurityHold(long accountId) {
-        startActivity(AccountSecurity.actionUpdateSecurityIntent(this, accountId));
+        startActivity(AccountSecurity.actionUpdateSecurityIntent(this, accountId, true));
     }
 
     @Override

@@ -735,6 +735,16 @@ save attachment.</string>
          to administer your device will delete all Email accounts that require it, along with their
          email, contacts, calendar events, and other data.</string>
 
+    <!-- Dialog shown when the account requires some amount of device security provisioning,
+         just before jumping into system settings such as Device Policy grant, PIN/password,
+         or encryption setup.  [CHAR_LIMIT=40] -->
+    <string name="account_security_dialog_title">Security update required</string>
+    <!-- Additional diagnostic text when the account requires some amount of device security
+         provisioning, just before jumping into system settings such as Device Policy grant,
+         PIN/password, or encryption setup.  [CHAR LIMIT=none] -->
+    <string name="account_security_dialog_content_fmt">
+         <xliff:g id="account">%s</xliff:g> requires you to update your security settings.</string>
+
     <!-- Notification ticker when device security required (note: unused in Holo XL) -->
     <string name="security_notification_ticker_fmt">
             Account \"<xliff:g id="account">%s</xliff:g>\" requires security settings update.
@@ -765,9 +775,32 @@ save attachment.</string>
     <!-- Notification content title when device password has expired [CHAR_LIMIT=28] -->
     <string name="password_expired_content_title">Lock screen password expired</string>
 
+    <!-- Dialog title if device pin/password is going to expire soon. [CHAR_LIMIT=40] -->
+    <string name="password_expire_warning_dialog_title">Lock screen password expiring</string>
+    <!-- Dialog content device pin/password is going to expire soon. [CHAR_LIMIT=none] -->
+    <string name="password_expire_warning_dialog_content_fmt">
+         You must change your lock screen PIN or password soon, or the data for
+         <xliff:g id="account">%s</xliff:g> will be erased. Change it now?</string>
+
+    <!-- Dialog title if device pin/password has already expired. [CHAR_LIMIT=40] -->
+    <string name="password_expired_dialog_title">Lock screen password expired</string>
+    <!-- Dialog content device pin/password has already expired. [CHAR_LIMIT=none] -->
+    <string name="password_expired_dialog_content_fmt">
+         The data for <xliff:g id="account">%s</xliff:g> is being erased from your device.
+         You can restore it by changing your lock screen PIN or password. Change it now?</string>
+
     <!-- On AccountSettingsXL, dialog text if you try to exit in/out/eas fragment (server settings)
          without checking/saving [CHAR LIMIT=none]-->
     <string name="account_settings_exit_server_settings">Discard unsaved changes?</string>
+
+    <!-- On AccountSettingsXL, dialog title if you were brought here due to a login failure.
+        [CHAR_LIMIT=40] -->
+    <string name="account_settings_login_dialog_title">Sign-in failed</string>
+    <!-- On AccountSettingsXL, dialog content if you were brought here due to a login failure.
+        [CHAR_LIMIT=none] -->
+    <string name="account_settings_login_dialog_content_fmt">
+         The username or password for <xliff:g id="account">%s</xliff:g> is incorrect.
+         Update them now?</string>
 
     <!-- On Settings screen, section heading -->
     <string name="account_settings_title_fmt">General settings</string>
