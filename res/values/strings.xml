@@ -327,10 +327,16 @@
     <string name="message_view_from_label">From:</string>
     <!-- Label for the subject field. [CHAR LIMIT=20]-->
     <string name="message_view_subject_label">Subject:</string>
-    <!-- Button name to view an attachment (in another activity) [CHAR LIMIT=10]-->
+    <!-- Button name to view an attachment [CHAR LIMIT=10]-->
     <string name="message_view_attachment_view_action">View</string>
+    <!-- Button name to install an .apk attachment [CHAR LIMIT=10]-->
+    <string name="message_view_attachment_install_action">Install</string>
+    <!-- Button name to play a media (i.e. audio/video) attachment [CHAR LIMIT=10]-->
+    <string name="message_view_attachment_play_action">Play</string>
     <!-- Button name, to load an attachment from the mail server [CHAR LIMIT=10]-->
     <string name="message_view_attachment_load_action">Load</string>
+    <!-- Button name, to show info about an attachment from the mail server [CHAR LIMIT=10]-->
+    <string name="message_view_attachment_info_action">Info</string>
     <!-- Button name, to save the attachment to SD card [CHAR LIMIT=10]-->
     <string name="message_view_attachment_save_action">Save</string>
     <!-- Button name, to cancel a queued attachment download [CHAR LIMIT=10]-->
@@ -382,6 +388,37 @@ save attachment.</string>
     <string name="message_view_show_details">Show details</string>
     <!-- Title of the dialog box to show to/cc/bcc of the message.  [CHAR LIMIT=32] -->
     <string name="message_view_message_details_dialog_title">Message Details</string>
+
+    <!-- Title for most attachment info dialogs [CHAR LIMIT=32] -->
+    <string name="attachment_info_dialog_default_title">Attachment info</string>
+    <!-- Title when Wi-Fi settings prevent attachments from downloading [CHAR LIMIT=32] -->
+    <string name="attachment_info_dialog_wifi_title">Wi-Fi connection required</string>
+    <!-- Text of button to launch the Wi-Fi settings activity [CHAR LIMIT=24] -->
+    <string name="attachment_info_wifi_settings">Wi-Fi settings</string>
+    <!-- Text of button to launch the application settings activity [CHAR LIMIT=24] -->
+    <string name="attachment_info_application_settings">Application settings</string>
+    <!-- Message body when we don't know exactly why an attachment can't be shown -->
+    <string name="attachment_info_unknown">Can\'t open attachment.</string>
+    <!-- Message body when the attachment is suspected of being malware -->
+    <string name="attachment_info_malware">
+            Because this type of attachment may contain malicious software,
+            you can\'t save or open it.</string>
+    <!-- Message body when the attachment can only be downloaded over Wi-Fi -->
+    <string name="attachment_info_wifi_only">
+            This attachment is too large to download over a mobile network.
+            You can download it the next time you connect to a Wi-Fi network.</string>
+    <!-- Message body when no activities can open the attachment -->
+    <string name="attachment_info_no_intent">
+            There is no installed application that can open this attachment.
+            Try downloading an appropriate application from Android Market.</string>
+    <!-- Message body when the attachment is an application, but, side loading is disabled -->
+    <string name="attachment_info_sideload_disabled">
+            This attachment is an application. You must check "Unknown sources"
+            in Settings, under Applications, before you can install it.</string>
+    <!-- Message body when the attachment is an application, and side loading is enabled -->
+    <string name="attachment_info_apk_install_disabled">
+            Applications can\'t be installed directly from Email. First save
+            this application and then install it using the Downloads application.</string>
 
     <!-- String used in place of a message that could not be properly decoded (e.g. bad base64
          data was received.) [CHAR LIMIT=none] -->
@@ -948,8 +985,8 @@ save attachment.</string>
     <string name="exception_updated">The details of this event have been changed
          for: <xliff:g id="date">%s</xliff:g></string>
 
-	<!-- Message that appears if the AccountManager cannot create the system Account -->
-	<string name="system_account_create_failed">The AccountManager could not create the Account; please try again.</string>
+    <!-- Message that appears if the AccountManager cannot create the system Account -->
+    <string name="system_account_create_failed">The account could not be created.</string>
 
     <!-- Strings that support the DeviceAdmin / DevicePolicyManager API -->
     <!-- Name of the DeviceAdmin (seen in settings & in user confirmation screen) -->

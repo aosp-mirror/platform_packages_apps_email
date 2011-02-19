@@ -49,13 +49,34 @@ public class AttachmentInfo {
     public static final int COLUMN_MIME_TYPE = 3;
     public static final int COLUMN_ACCOUNT_KEY = 4;
 
+    /** Attachment not denied */
+    public static final int ALLOW           = 0x00;
+    /** Attachment suspected of being malware */
+    public static final int DENY_MALWARE    = 0x01;
+    /** Attachment too large; must download over wi-fi */
+    public static final int DENY_WIFIONLY   = 0x02;
+    /** No receiving intent to handle attachment type */
+    public static final int DENY_NOINTENT   = 0x04;
+    /** Side load of applications is disabled */
+    public static final int DENY_NOSIDELOAD = 0x08;
+    // TODO Remove DENY_APKINSTALL when we can install directly from the Email activity
+    /** Unable to install any APK */
+    public static final int DENY_APKINSTALL = 0x10;
+
     public final long mId;
     public final long mSize;
     public final String mName;
     public final String mContentType;
     public final long mAccountKey;
+
+    /** Whether or not this attachment can be viewed */
     public final boolean mAllowView;
+    /** Whether or not this attachment can be saved */
     public final boolean mAllowSave;
+    /** Whether or not this attachment can be installed [only true for APKs] */
+    public final boolean mAllowInstall;
+    /** Reason(s) why this attachment is denied from being viewed */
+    public final int mDenyFlags;
 
     public AttachmentInfo(Context context, Attachment attachment) {
         this(context, attachment.mId, attachment.mSize, attachment.mFileName, attachment.mMimeType,
@@ -67,6 +88,10 @@ public class AttachmentInfo {
                 c.getString(COLUMN_MIME_TYPE), c.getLong(COLUMN_ACCOUNT_KEY));
     }
 
+    public AttachmentInfo(Context context, AttachmentInfo info) {
+        this(context, info.mId, info.mSize, info.mName, info.mContentType, info.mAccountKey);
+    }
+
     public AttachmentInfo(Context context, long id, long size, String fileName, String mimeType,
             long accountKey) {
         mSize = size;
@@ -76,6 +101,13 @@ public class AttachmentInfo {
         mAccountKey = accountKey;
         boolean canView = true;
         boolean canSave = true;
+        boolean canInstall = false;
+        int denyFlags = ALLOW;
+
+        // Don't enable the "save" button if we've got no place to save the file
+        if (!Utility.isExternalStorageMounted()) {
+            canSave = false;
+        }
 
         // Check for acceptable / unacceptable attachments by MIME-type
         if ((!MimeUtility.mimeTypeMatches(mContentType,
@@ -92,6 +124,7 @@ public class AttachmentInfo {
                         extension)) {
             canView = false;
             canSave = false;
+            denyFlags |= DENY_MALWARE;
         }
 
         // Check for installable attachments by filename extension
@@ -99,11 +132,20 @@ public class AttachmentInfo {
         if (!TextUtils.isEmpty(extension) &&
                 Utility.arrayContains(AttachmentUtilities.INSTALLABLE_ATTACHMENT_EXTENSIONS,
                         extension)) {
-            int sideloadEnabled;
+            boolean sideloadEnabled;
             sideloadEnabled = Settings.Secure.getInt(context.getContentResolver(),
-                    Settings.Secure.INSTALL_NON_MARKET_APPS, 0 /* sideload disabled */);
+                    Settings.Secure.INSTALL_NON_MARKET_APPS, 0 /* sideload disabled */) == 1;
+            // NOTE: Currently we prevent viewing (or installing) any application attachment
+            // from within Email. When we support installing directly from view, save and
+            // install should all be following sideloadEnabled.
             canView = false;
-            canSave &= (sideloadEnabled == 1);
+            canSave &= sideloadEnabled;
+            if (!sideloadEnabled) {
+                denyFlags |= DENY_NOSIDELOAD;
+            } else {
+                denyFlags |= DENY_APKINSTALL;
+            }
+            canInstall = canView;
         }
 
         // Check for file size exceeded
@@ -115,6 +157,7 @@ public class AttachmentInfo {
             if (network == null || network.getType() != ConnectivityManager.TYPE_WIFI) {
                 canView = false;
                 canSave = false;
+                denyFlags |= DENY_WIFIONLY;
             }
         }
 
@@ -125,10 +168,13 @@ public class AttachmentInfo {
         if (activityList.isEmpty()) {
             canView = false;
             canSave = false;
+            denyFlags |= DENY_NOINTENT;
         }
 
         mAllowView = canView;
         mAllowSave = canSave;
+        mAllowInstall = canInstall;
+        mDenyFlags = denyFlags;
     }
 
     /**

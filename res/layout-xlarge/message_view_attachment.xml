@@ -134,7 +134,25 @@
                 android:visibility="gone"
                 />
             <Button
-                android:id="@+id/view"
+                android:id="@+id/info"
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="16dip"
+                style="@android:style/Widget.Holo.Button.Borderless"
+                android:padding="0dip"
+                android:text="@string/message_view_attachment_info_action"
+                android:textSize="14dip"
+                android:textColor="@color/text_primary_color"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:visibility="gone"
+                />
+            <Button
+                android:id="@+id/open"
                 android:layout_width="0dip"
                 android:layout_weight="1"
                 android:layout_height="match_parent"

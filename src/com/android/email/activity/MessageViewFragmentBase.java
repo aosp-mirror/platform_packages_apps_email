@@ -194,17 +194,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     protected static final int TAB_ATTACHMENT = 103;
 
     /**
-     * Currently visible tab.  Any of {@link #TAB_MESSAGE}, {@link #TAB_INVITE} or
-     * {@link #TAB_ATTACHMENT}.
-     *
-     * Note we don't retain this value through configuration changes, as restoring the current tab
-     * would be clumsy with the current implementation where we load Message/Body/Attachments
-     * separately.  (e.g. # of attachments can't be obtained quickly enough to update the UI
-     * after screen rotation.)
-     */
-    private int mCurrentTab;
-
-    /**
      * Zoom scales for webview.  Values correspond to {@link Preferences#TEXT_ZOOM_TINY}..
      * {@link Preferences#TEXT_ZOOM_HUGE}.
      */
@@ -349,12 +338,15 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mResumed = true;
         if (isMessageSpecified()) {
             if (mLoadWhenResumed) {
+                // Load content which resets all view state; including WebView zoom/pan and
+                // the current tab.
                 loadMessageIfResumed();
             } else {
-                // This means, the user comes back from other (full-screen) activities.
-                // In this case we've already loaded the content, so don't load it again,
-                // which results in resetting all view state, including WebView zoom/pan
-                // and the current tab.
+                // We've comes back from other (full-screen) activities. Content has already
+                // been loaded, so don't load it again. However, we need to update the
+                // attachment tab as system settings may have been updated that affect which
+                // options are available to the user.
+                updateAttachmentTab();
             }
         }
     }
@@ -575,7 +567,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * @param tab any of {@link #TAB_MESSAGE}, {@link #TAB_ATTACHMENT} or {@link #TAB_INVITE}.
      */
     private void setCurrentTab(int tab) {
-        mCurrentTab = tab;
         if (mMessageContentView != null) {
             makeVisible(mMessageContentView, tab == TAB_MESSAGE);
         }
@@ -726,6 +717,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
     }
 
+    private void onInfoAttachment(final MessageViewAttachmentInfo attachment) {
+        AttachmentInfoDialog dialog =
+            AttachmentInfoDialog.newInstance(getActivity(), attachment.mDenyFlags);
+        dialog.show(getActivity().getFragmentManager(), null);
+    }
 
     private void onLoadAttachment(final MessageViewAttachmentInfo attachment) {
         attachment.loadButton.setVisibility(View.GONE);
@@ -784,10 +780,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             info.loadButton.setVisibility(View.GONE);
             info.cancelButton.setVisibility(View.GONE);
 
-            boolean showSave = info.enableSave && !TextUtils.isEmpty(info.mName);
-            boolean showView = info.enableView;
+            boolean showSave = info.mAllowSave && !TextUtils.isEmpty(info.mName);
+            boolean showView = info.mAllowView;
             info.saveButton.setVisibility(showSave ? View.VISIBLE : View.GONE);
-            info.viewButton.setVisibility(showView ? View.VISIBLE : View.GONE);
+            info.openButton.setVisibility(showView ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -834,10 +830,13 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             case R.id.load:
                 onLoadAttachment((MessageViewAttachmentInfo) view.getTag());
                 break;
+            case R.id.info:
+                onInfoAttachment((MessageViewAttachmentInfo) view.getTag());
+                break;
             case R.id.save:
                 onSaveAttachment((MessageViewAttachmentInfo) view.getTag());
                 break;
-            case R.id.view:
+            case R.id.open:
                 onViewAttachment((MessageViewAttachmentInfo) view.getTag());
                 break;
             case R.id.cancel:
@@ -1118,21 +1117,137 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * a viewer app) and saving (based upon the presence of external storage)
      */
     static class MessageViewAttachmentInfo extends AttachmentInfo {
-        Button viewButton;
+        Button openButton;
         Button saveButton;
         Button loadButton;
+        Button infoButton;
         Button cancelButton;
         ImageView iconView;
         ProgressBar progressView;
-        boolean enableView;
-        boolean enableSave;
         boolean loaded;
 
         private MessageViewAttachmentInfo(Context context, Attachment attachment) {
             super(context, attachment);
-            enableView = mAllowView;
-            enableSave = mAllowSave;
         }
+
+        /**
+         * Create a new attachment info based upon an existing attachment info. Display
+         * related fields (such as views and buttons) are copied from old to new.
+         */
+        private MessageViewAttachmentInfo(Context context, MessageViewAttachmentInfo oldInfo) {
+            super(context, oldInfo);
+            openButton = oldInfo.openButton;
+            saveButton = oldInfo.saveButton;
+            loadButton = oldInfo.loadButton;
+            infoButton = oldInfo.infoButton;
+            cancelButton = oldInfo.cancelButton;
+            iconView = oldInfo.iconView;
+            progressView = oldInfo.progressView;
+            loaded = oldInfo.loaded;
+        }
+    }
+
+    /**
+     * Updates all current attachments on the attachment tab.
+     */
+    private void updateAttachmentTab() {
+        for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
+            View view = mAttachments.getChildAt(i);
+            MessageViewAttachmentInfo oldInfo = (MessageViewAttachmentInfo)view.getTag();
+            MessageViewAttachmentInfo newInfo =
+                    new MessageViewAttachmentInfo(getActivity(), oldInfo);
+            updateAttachmentButtons(newInfo);
+            view.setTag(newInfo);
+        }
+    }
+
+    /**
+     * Updates the attachment buttons. Adjusts the visibility of the buttons as well
+     * as updating any tag information associated with the buttons.
+     */
+    private void updateAttachmentButtons(MessageViewAttachmentInfo attachmentInfo) {
+        ImageView attachmentIcon = attachmentInfo.iconView;
+        Button openButton = attachmentInfo.openButton;
+        Button saveButton = attachmentInfo.saveButton;
+        Button loadButton = attachmentInfo.loadButton;
+        Button infoButton = attachmentInfo.infoButton;
+        Button cancelButton = attachmentInfo.cancelButton;
+        ProgressBar attachmentProgress = attachmentInfo.progressView;
+
+        if (!attachmentInfo.mAllowView) {
+            openButton.setVisibility(View.GONE);
+        }
+        if (!attachmentInfo.mAllowSave) {
+            saveButton.setVisibility(View.GONE);
+        }
+
+        if (!attachmentInfo.mAllowView && !attachmentInfo.mAllowSave) {
+            // This attachment may never be viewed or saved, so block everything
+            attachmentProgress.setVisibility(View.GONE);
+            openButton.setVisibility(View.GONE);
+            saveButton.setVisibility(View.GONE);
+            loadButton.setVisibility(View.GONE);
+            cancelButton.setVisibility(View.GONE);
+            infoButton.setVisibility(View.VISIBLE);
+        } else if (attachmentInfo.loaded) {
+            // If the attachment is loaded, show 100% progress
+            // Note that for POP3 messages, the user will only see "Open" and "Save",
+            // because the entire message is loaded before being shown.
+            // Hide "Load" and "Info", show "View" and "Save"
+            attachmentProgress.setVisibility(View.VISIBLE);
+            attachmentProgress.setProgress(100);
+            if (attachmentInfo.mAllowSave) {
+                saveButton.setVisibility(View.VISIBLE);
+            }
+            if (attachmentInfo.mAllowView) {
+                // Set the attachment action button text accordingly
+                if (attachmentInfo.mContentType.startsWith("audio/") ||
+                        attachmentInfo.mContentType.startsWith("video/")) {
+                    openButton.setText(R.string.message_view_attachment_play_action);
+                } else if (attachmentInfo.mAllowInstall) {
+                    openButton.setText(R.string.message_view_attachment_install_action);
+                } else {
+                    openButton.setText(R.string.message_view_attachment_view_action);
+                }
+                openButton.setVisibility(View.VISIBLE);
+            }
+            if (attachmentInfo.mDenyFlags == AttachmentInfo.ALLOW) {
+                infoButton.setVisibility(View.GONE);
+            } else {
+                infoButton.setVisibility(View.VISIBLE);
+            }
+            loadButton.setVisibility(View.GONE);
+            cancelButton.setVisibility(View.GONE);
+
+            Bitmap previewIcon = getPreviewIcon(attachmentInfo);
+            if (previewIcon != null) {
+                attachmentIcon.setImageBitmap(previewIcon);
+            }
+        } else {
+            // The attachment is not loaded, so present UI to start downloading it
+
+            // Show "Load"; hide "View", "Save" and "Info"
+            saveButton.setVisibility(View.GONE);
+            openButton.setVisibility(View.GONE);
+            infoButton.setVisibility(View.GONE);
+
+            // If the attachment is queued, show the indeterminate progress bar.  From this point,.
+            // any progress changes will cause this to be replaced by the normal progress bar
+            if (AttachmentDownloadService.isAttachmentQueued(attachmentInfo.mId)) {
+                attachmentProgress.setVisibility(View.VISIBLE);
+                attachmentProgress.setIndeterminate(true);
+                loadButton.setVisibility(View.GONE);
+                cancelButton.setVisibility(View.VISIBLE);
+            } else {
+                loadButton.setVisibility(View.VISIBLE);
+                cancelButton.setVisibility(View.GONE);
+            }
+        }
+        openButton.setTag(attachmentInfo);
+        saveButton.setTag(attachmentInfo);
+        loadButton.setTag(attachmentInfo);
+        infoButton.setTag(attachmentInfo);
+        cancelButton.setTag(attachmentInfo);
     }
 
     /**
@@ -1150,10 +1265,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         TextView attachmentName = (TextView)view.findViewById(R.id.attachment_name);
         TextView attachmentInfoView = (TextView)view.findViewById(R.id.attachment_info);
         ImageView attachmentIcon = (ImageView)view.findViewById(R.id.attachment_icon);
-        Button attachmentView = (Button)view.findViewById(R.id.view);
-        Button attachmentSave = (Button)view.findViewById(R.id.save);
-        Button attachmentLoad = (Button)view.findViewById(R.id.load);
-        Button attachmentCancel = (Button)view.findViewById(R.id.cancel);
+        Button openButton = (Button)view.findViewById(R.id.open);
+        Button saveButton = (Button)view.findViewById(R.id.save);
+        Button loadButton = (Button)view.findViewById(R.id.load);
+        Button infoButton = (Button)view.findViewById(R.id.info);
+        Button cancelButton = (Button)view.findViewById(R.id.cancel);
         ProgressBar attachmentProgress = (ProgressBar)view.findViewById(R.id.progress);
 
         // Check whether the attachment already exists
@@ -1161,82 +1277,22 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             attachmentInfo.loaded = true;
         }
 
-        // Don't enable the "save" button if we've got no place to save the file
-        if (!Utility.isExternalStorageMounted()) {
-            attachmentInfo.enableSave = false;
-        }
-
-        if (!attachmentInfo.enableView) {
-            attachmentView.setVisibility(View.GONE);
-        }
-        if (!attachmentInfo.enableSave) {
-            attachmentSave.setVisibility(View.GONE);
-        }
-
-        attachmentInfo.viewButton = attachmentView;
-        attachmentInfo.saveButton = attachmentSave;
-        attachmentInfo.loadButton = attachmentLoad;
-        attachmentInfo.cancelButton = attachmentCancel;
+        attachmentInfo.openButton = openButton;
+        attachmentInfo.saveButton = saveButton;
+        attachmentInfo.loadButton = loadButton;
+        attachmentInfo.infoButton = infoButton;
+        attachmentInfo.cancelButton = cancelButton;
         attachmentInfo.iconView = attachmentIcon;
         attachmentInfo.progressView = attachmentProgress;
 
-        if (!attachmentInfo.enableView && !attachmentInfo.enableSave) {
-            // This attachment may never be viewed or saved, so block everything
-            attachmentProgress.setVisibility(View.GONE);
-            attachmentView.setVisibility(View.GONE);
-            attachmentSave.setVisibility(View.GONE);
-            attachmentLoad.setVisibility(View.GONE);
-            attachmentCancel.setVisibility(View.GONE);
-            // TODO: Maybe show a little icon to denote blocked download
-        } else if (attachmentInfo.loaded) {
-            // If the attachment is loaded, show 100% progress
-            // Note that for POP3 messages, the user will only see "Open" and "Save",
-            // because the entire message is loaded before being shown.
-            // Hide "Load", show "View" and "Save"
-            attachmentProgress.setVisibility(View.VISIBLE);
-            attachmentProgress.setProgress(100);
-            if (attachmentInfo.enableSave) {
-                attachmentSave.setVisibility(View.VISIBLE);
-            }
-            if (attachmentInfo.enableView) {
-                attachmentView.setVisibility(View.VISIBLE);
-            }
-            attachmentLoad.setVisibility(View.GONE);
-            attachmentCancel.setVisibility(View.GONE);
-
-            Bitmap previewIcon = getPreviewIcon(attachmentInfo);
-            if (previewIcon != null) {
-                attachmentIcon.setImageBitmap(previewIcon);
-            }
-        } else {
-            // The attachment is not loaded, so present UI to start downloading it
-
-            // Show "Load"; hide "View" and "Save"
-            attachmentSave.setVisibility(View.GONE);
-            attachmentView.setVisibility(View.GONE);
-
-            // If the attachment is queued, show the indeterminate progress bar.  From this point,.
-            // any progress changes will cause this to be replaced by the normal progress bar
-            if (AttachmentDownloadService.isAttachmentQueued(attachment.mId)){
-                attachmentProgress.setVisibility(View.VISIBLE);
-                attachmentProgress.setIndeterminate(true);
-                attachmentLoad.setVisibility(View.GONE);
-                attachmentCancel.setVisibility(View.VISIBLE);
-            } else {
-                attachmentLoad.setVisibility(View.VISIBLE);
-                attachmentCancel.setVisibility(View.GONE);
-            }
-        }
+        updateAttachmentButtons(attachmentInfo);
 
         view.setTag(attachmentInfo);
-        attachmentView.setOnClickListener(this);
-        attachmentView.setTag(attachmentInfo);
-        attachmentSave.setOnClickListener(this);
-        attachmentSave.setTag(attachmentInfo);
-        attachmentLoad.setOnClickListener(this);
-        attachmentLoad.setTag(attachmentInfo);
-        attachmentCancel.setOnClickListener(this);
-        attachmentCancel.setTag(attachmentInfo);
+        openButton.setOnClickListener(this);
+        saveButton.setOnClickListener(this);
+        loadButton.setOnClickListener(this);
+        infoButton.setOnClickListener(this);
+        cancelButton.setOnClickListener(this);
 
         attachmentName.setText(attachmentInfo.mName);
         attachmentInfoView.setText(UiUtilities.formatSize(mContext, attachmentInfo.mSize));
