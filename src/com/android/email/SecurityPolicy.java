@@ -468,7 +468,7 @@ public class SecurityPolicy {
                 account.getDisplayName());
         String contentTitle = mContext.getString(R.string.security_notification_content_title);
         String contentText = account.getDisplayName();
-        Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, accountId);
+        Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, accountId, true);
         NotificationController.getInstance(mContext).postAccountNotification(
                 account, tickerText, contentTitle, contentText, intent,
                 NotificationController.NOTIFICATION_ID_SECURITY_NEEDED);
@@ -581,7 +581,8 @@ public class SecurityPolicy {
             // the shortest-expiring account.
             Account account = Account.restoreAccountWithId(context, nextExpiringAccountId);
             if (account == null) return;
-            Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
+            Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(context,
+                    nextExpiringAccountId, false);
             String ticker = context.getString(
                     R.string.password_expire_warning_ticker_fmt, account.getDisplayName());
             String contentTitle = context.getString(
@@ -597,7 +598,8 @@ public class SecurityPolicy {
                 // Post notification
                 Account account = Account.restoreAccountWithId(context, nextExpiringAccountId);
                 if (account == null) return;
-                Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
+                Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(context,
+                        nextExpiringAccountId, true);
                 String ticker = context.getString(R.string.password_expired_ticker);
                 String contentTitle = context.getString(R.string.password_expired_content_title);
                 String contentText = account.getDisplayName();

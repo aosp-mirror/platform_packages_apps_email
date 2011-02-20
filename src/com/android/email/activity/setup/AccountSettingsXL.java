@@ -37,6 +37,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -68,6 +69,7 @@ public class AccountSettingsXL extends PreferenceActivity {
     // Intent extras for our internal activity launch
     /* package */ static final String EXTRA_ACCOUNT_ID = "AccountSettingsXL.account_id";
     private static final String EXTRA_ENABLE_DEBUG = "AccountSettingsXL.enable_debug";
+    private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettingsXL.for_account";
 
     // Intent extras for launch directly from system account manager
     // NOTE: This string must match the one in res/xml/account_preferences.xml
@@ -121,11 +123,14 @@ public class AccountSettingsXL extends PreferenceActivity {
 
     /**
      * Create and return an intent to display (and edit) settings for a specific account, or -1
-     * for any/all accounts
+     * for any/all accounts.  If an account name string is provided, a warning dialog will be
+     * displayed as well.
      */
-    public static Intent createAccountSettingsIntent(Context context, long accountId) {
+    public static Intent createAccountSettingsIntent(Context context, long accountId,
+            String loginWarningAccountName) {
         Intent i = new Intent(context, AccountSettingsXL.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        i.putExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT, loginWarningAccountName);
         return i;
     }
 
@@ -154,8 +159,14 @@ public class AccountSettingsXL extends PreferenceActivity {
                 mGetAccountIdFromAccountTask =
                     (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask().execute(i);
             } else {
-                // Otherwise, we're called from within the Email app and look for our extra
+                // Otherwise, we're called from within the Email app and look for our extras
                 mRequestedAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+                String loginWarningAccount = i.getStringExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT);
+                if (loginWarningAccount != null) {
+                    // Show dialog (first time only - don't re-show on a rotation)
+                    LoginWarningDialog dialog = LoginWarningDialog.newInstance(loginWarningAccount);
+                    dialog.show(getFragmentManager(), "loginwarning");
+                }
             }
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
@@ -758,4 +769,48 @@ public class AccountSettingsXL extends PreferenceActivity {
         }
     }
 
+    /**
+     * Dialog briefly shown in some cases, to indicate the user that login failed.  If the user
+     * clicks OK, we simply dismiss the dialog, leaving the user in the account settings for
+     * that account;  If the user clicks "cancel", we exit account settings.
+     */
+    public static class LoginWarningDialog extends DialogFragment
+            implements DialogInterface.OnClickListener {
+        private static final String BUNDLE_KEY_ACCOUNT_NAME = "account_name";
+
+        /**
+         * Create a new dialog.
+         */
+        public static LoginWarningDialog newInstance(String accountName) {
+            final LoginWarningDialog dialog = new LoginWarningDialog();
+            Bundle b = new Bundle();
+            b.putString(BUNDLE_KEY_ACCOUNT_NAME, accountName);
+            dialog.setArguments(b);
+            return dialog;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final String accountName = getArguments().getString(BUNDLE_KEY_ACCOUNT_NAME);
+
+            final Context context = getActivity();
+            final Resources res = context.getResources();
+            final AlertDialog.Builder b = new AlertDialog.Builder(context);
+            b.setTitle(R.string.account_settings_login_dialog_title);
+            b.setIconAttribute(android.R.attr.alertDialogIcon);
+            b.setMessage(res.getString(R.string.account_settings_login_dialog_content_fmt,
+                    accountName));
+            b.setPositiveButton(R.string.okay_action, this);
+            b.setNegativeButton(R.string.cancel_action, this);
+            return b.create();
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            dismiss();
+            if (which == DialogInterface.BUTTON_NEGATIVE) {
+                getActivity().finish();
+            }
+        }
+    }
 }

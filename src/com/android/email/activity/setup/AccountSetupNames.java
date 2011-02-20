@@ -22,7 +22,6 @@ import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.Welcome;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -234,7 +233,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
             if (!isCancelled()) {
                 if (isSecurityHold) {
                     Intent i = AccountSecurity.actionUpdateSecurityIntent(
-                            AccountSetupNames.this, mAccount.mId);
+                            AccountSetupNames.this, mAccount.mId, false);
                     AccountSetupNames.this.startActivityForResult(i, REQUEST_SECURITY);
                 } else {
                     finishActivity();

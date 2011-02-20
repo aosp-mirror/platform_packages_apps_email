@@ -674,7 +674,7 @@ public class MessageList extends Activity implements OnClickListener,
         public void onAccountSecurityHold(long accountId) {
             // launch the security setup activity
             Intent i = AccountSecurity.actionUpdateSecurityIntent(
-                    MessageList.this, accountId);
+                    MessageList.this, accountId, true);
             MessageList.this.startActivityForResult(i, REQUEST_SECURITY);
         }
     }

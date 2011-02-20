@@ -27,7 +27,6 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Notification;
-import android.app.Notification.Builder;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -331,7 +330,8 @@ public class NotificationController {
                 mContext.getString(R.string.login_failed_ticker, account.mDisplayName),
                 mContext.getString(R.string.login_failed_title),
                 account.getDisplayName(),
-                AccountSettingsXL.createAccountSettingsIntent(mContext, accountId),
+                AccountSettingsXL.createAccountSettingsIntent(mContext, accountId,
+                        account.mDisplayName),
                 getLoginFailedNotificationId(accountId));
     }
 

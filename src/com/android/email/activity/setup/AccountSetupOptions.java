@@ -326,7 +326,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         // If we've got policies for this account, ask the user to accept.
         Account account = SetupData.getAccount();
         if ((account.mFlags & Account.FLAGS_SECURITY_HOLD) != 0) {
-            Intent intent = AccountSecurity.actionUpdateSecurityIntent(this, account.mId);
+            Intent intent = AccountSecurity.actionUpdateSecurityIntent(this, account.mId, false);
             startActivityForResult(intent, AccountSetupOptions.REQUEST_CODE_ACCEPT_POLICIES);
             return;
         }
