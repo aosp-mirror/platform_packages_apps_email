@@ -103,6 +103,11 @@ public class MessageListFragment extends ListFragment
     private static final int LOADER_ID_MAILBOX_LOADER = 1;
     private static final int LOADER_ID_MESSAGES_LOADER = 2;
 
+    // Controller access
+    private Controller mController;
+    private RefreshManager mRefreshManager;
+    private RefreshListener mRefreshListener = new RefreshListener();
+
     // UI Support
     private Activity mActivity;
     private Callback mCallback = EmptyCallback.INSTANCE;
@@ -130,15 +135,13 @@ public class MessageListFragment extends ListFragment
     private boolean mIsRefreshable;
     private int mCountTotalAccounts;
 
-    // Controller access
-    private Controller mController;
-    private RefreshManager mRefreshManager;
-    private RefreshListener mRefreshListener = new RefreshListener();
-
     // Misc members
     private boolean mDoAutoRefresh;
 
     private boolean mOpenRequested;
+
+    /** Whether "Send all messages" should be shown. */
+    private boolean mShowSendCommand;
 
     /**
      * Visibility.  On XL, message list is normally visible, except when message view is shown
@@ -156,9 +159,6 @@ public class MessageListFragment extends ListFragment
      */
     private ActionMode mSelectionMode;
     private SelectionModeCallback mLastSelectionModeCallback;
-
-    /** Whether "Send all messages" should be shown. */
-    private boolean mShowSendCommand;
 
     private Utility.ListStateSaver mSavedListState;
 
@@ -370,6 +370,17 @@ public class MessageListFragment extends ListFragment
      */
     public void clearContent() {
         mMailboxId = -1;
+        mLastLoadedMailboxId = -1;
+        mSelectedMessageId = -1;
+        mAccount = null;
+        mMailbox = null;
+        mIsEasAccount = false;
+        mIsRefreshable = false;
+        mCountTotalAccounts = 0;
+        mDoAutoRefresh = false;
+        mOpenRequested = false;
+        mShowSendCommand = false;
+
         stopLoaders();
         onDeselectAll();
         if (mListAdapter != null) {
@@ -395,10 +406,11 @@ public class MessageListFragment extends ListFragment
             return;
         }
 
+        clearContent();
+
         mOpenRequested = true;
         mMailboxId = mailboxId;
 
-        onDeselectAll();
         if (mResumed) {
             startLoading();
         }

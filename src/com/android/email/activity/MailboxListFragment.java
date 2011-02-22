@@ -28,6 +28,7 @@ import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.app.ListFragment;
+import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -74,14 +75,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     // The amount of time to scroll by one pixel, in ms
     private static final int SCROLL_SPEED = 4;
 
-    // Colors used for drop targets
-    private static Integer sDropTrashColor;
-    private static Drawable sDropActiveDrawable;
-
-    private long mLastLoadedAccountId = -1;
-    private long mAccountId = -1;
-    private long mSelectedMailboxId = -1;
-
     private RefreshManager mRefreshManager;
 
     // UI Support
@@ -91,8 +84,17 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private ListView mListView;
 
-    private boolean mOpenRequested;
     private boolean mResumed;
+
+    // Colors used for drop targets
+    private static Integer sDropTrashColor;
+    private static Drawable sDropActiveDrawable;
+
+    private long mLastLoadedAccountId = -1;
+    private long mAccountId = -1;
+    private long mSelectedMailboxId = -1;
+
+    private boolean mOpenRequested;
 
     // True if a drag is currently in progress
     private boolean mDragInProgress = false;
@@ -194,6 +196,21 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
     }
 
+    private void clearContent() {
+        mLastLoadedAccountId = -1;
+        mAccountId = -1;
+        mSelectedMailboxId = -1;
+
+        mOpenRequested = false;
+        mDragInProgress = false;
+
+        stopLoader();
+        if (mListAdapter != null) {
+            mListAdapter.swapCursor(null);
+        }
+        setListShownNoAnimation(false);
+    }
+
     /**
      * @param accountId the account we're looking at
      */
@@ -207,6 +224,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (mAccountId == accountId) {
             return;
         }
+        clearContent();
         mOpenRequested = true;
         mAccountId = accountId;
         if (mResumed) {
@@ -320,6 +338,11 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         getLoaderManager().initLoader(LOADER_ID_MAILBOX_LIST, null,
                 new MailboxListLoaderCallbacks(accountChanging));
+    }
+
+    private void stopLoader() {
+        final LoaderManager lm = getLoaderManager();
+        lm.destroyLoader(LOADER_ID_MAILBOX_LIST);
     }
 
     private class MailboxListLoaderCallbacks implements LoaderCallbacks<Cursor> {
