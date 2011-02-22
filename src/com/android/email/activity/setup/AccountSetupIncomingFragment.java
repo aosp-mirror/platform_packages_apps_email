@@ -312,17 +312,21 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             mPasswordView.setText(password);
         }
 
-        if (Store.STORE_SCHEME_POP3.equals(recvAuth.mProtocol)) {
-            mLoadedDeletePolicy = account.getDeletePolicy();
-            SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, mLoadedDeletePolicy);
-        } else if (Store.STORE_SCHEME_IMAP.equals(recvAuth.mProtocol)) {
+        if (Store.STORE_SCHEME_IMAP.equals(recvAuth.mProtocol)) {
             String prefix = recvAuth.mDomain;
             if (prefix != null && prefix.length() > 0) {
                 mImapPathPrefixView.setText(prefix.substring(1));
             }
-        } else {
+        } else if (!Store.STORE_SCHEME_POP3.equals(recvAuth.mProtocol)) {
+            // Account must either be IMAP or POP3
             throw new Error("Unknown account type: " + account.getStoreUri(mContext));
         }
+
+        // The delete policy is set for all legacy accounts. For POP3 accounts, the user sets
+        // the policy explicitly. For IMAP accounts, the policy is set when the Account object
+        // is created. @see AccountSetupBasics#populateSetupData
+        mLoadedDeletePolicy = account.getDeletePolicy();
+        SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, mLoadedDeletePolicy);
 
         int flags = recvAuth.mFlags;
         flags &= ~HostAuth.FLAG_AUTHENTICATE;
