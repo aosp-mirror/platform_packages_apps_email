@@ -615,7 +615,8 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
             } else {
                 long accountId = mCursor.getLong(WIDGET_COLUMN_ACCOUNT_KEY);
                 int colorId = mResourceHelper.getAccountColorId(accountId);
-                if (colorId != ResourceHelper.UNDEFINED_RESOURCE_ID) {
+                // Don't show the chip if we have 1 or fewer accounts
+                if (mAccountCount > 1 && colorId != ResourceHelper.UNDEFINED_RESOURCE_ID) {
                     // Color defined by resource ID, so, use it
                     views.setViewVisibility(R.id.color_chip, View.VISIBLE);
                     views.setImageViewResource(R.id.color_chip, colorId);
