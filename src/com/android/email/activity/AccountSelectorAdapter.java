@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.R;
+import com.android.email.UiUtilities;
 import com.android.email.data.ClosingMatrixCursor;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.provider.EmailContent;
@@ -96,11 +97,15 @@ public class AccountSelectorAdapter extends CursorAdapter {
         displayNameView.setText(displayName);
 
         // Show the email address only when it's different from the display name.
-        // If same, show " " instead of "", so that the text view won't get completely
-        // collapsed. (TextView's height will be 0px if it's "match_content" and the
-        // content is "".)
-        emailAddressView.setText(emailAddress.equals(displayName) ? " " : emailAddress);
-        unreadCountView.setText(Integer.toString(getAccountUnreadCount(position)));
+        if (emailAddress.equals(displayName)) {
+            emailAddressView.setVisibility(View.GONE);
+        } else {
+            emailAddressView.setVisibility(View.VISIBLE);
+            emailAddressView.setText(emailAddress);
+        }
+
+        unreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
+                getAccountUnreadCount(position), false));
         return view;
     }
 

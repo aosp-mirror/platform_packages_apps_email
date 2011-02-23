@@ -113,4 +113,25 @@
         <item name="android:layout_height">48dip</item>
         <item name="android:padding">8dip</item>
     </style>
+
+    <style name="action_bar_account_name">
+        <item name="android:textSize">18dip</item>
+        <item name="android:textColor">@color/text_primary_color</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="action_bar_account_name_secondary">
+        <item name="android:textSize">14dip</item>
+        <item name="android:textColor">@color/text_ternary_color</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="action_bar_unread_count">
+        <item name="android:textSize">36dip</item>
+        <item name="android:textColor">@color/text_ternary_color</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
 </resources>

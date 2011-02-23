@@ -15,51 +15,46 @@
 -->
 
 <!--
-    The width set here will be ignored.  The actual width will be the same as the dropdown view.
+    Not a RelativeLayout - we want to hide @id/email_address at runtime and then @id/display_name
+    should be center-vertical
 -->
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:orientation="horizontal"
     >
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:maxWidth="@dimen/account_spinner_dropdown_account_name_max_width"
+        android:orientation="vertical"
+        android:gravity="center|left"
+        >
+        <TextView
+            android:id="@+id/display_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxWidth="@dimen/account_spinner_dropdown_account_name_max_width"
+            style="@style/action_bar_account_name"
+            />
+        <TextView
+            android:id="@+id/email_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxWidth="@dimen/account_spinner_dropdown_account_name_max_width"
+            style="@style/action_bar_account_name_secondary"
+            />
+    </LinearLayout>
     <TextView
         android:id="@+id/unread_count"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:singleLine="true"
-        android:paddingTop="12dip"
-        android:paddingLeft="12dip"
-        android:paddingRight="12dip"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
+        android:layout_height="match_parent"
+        android:layout_marginRight="16dp"
+        android:gravity="center|right"
+        style="@style/action_bar_unread_count"
         />
-    <TextView
-        android:id="@+id/display_name"
-        android:layout_width="@dimen/action_bar_account_dropdown_width"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@id/unread_count"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:paddingTop="12dip"
-        android:paddingLeft="12dip"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
-        />
-    <TextView
-        android:id="@+id/email_address"
-        android:layout_width="@dimen/action_bar_account_dropdown_width"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@id/display_name"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:paddingLeft="12dip"
-        android:paddingBottom="12dip"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorSecondary"
-        />
-</RelativeLayout>
+</LinearLayout>

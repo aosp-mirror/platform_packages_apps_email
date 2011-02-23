@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.UiUtilities;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
@@ -29,6 +30,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.security.InvalidParameterException;
@@ -151,7 +153,12 @@ class MessageListXLFragmentManager {
         final LayoutInflater inflater = LayoutInflater.from(mContext);
         mActionBarMailboxNameView = inflater.inflate(R.layout.action_bar_current_mailbox, null);
         mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
-        mActionBar.setCustomView(mActionBarMailboxNameView);
+        final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
+                ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.MATCH_PARENT);
+        customViewLayout.setMargins(mContext.getResources().getDimensionPixelSize(
+                        R.dimen.action_bar_mailbox_name_left_margin) , 0, 0, 0);
+        mActionBar.setCustomView(mActionBarMailboxNameView, customViewLayout);
 
         mActionBarMailboxName =
                 (TextView) mActionBarMailboxNameView.findViewById(R.id.mailbox_name);
@@ -323,13 +330,11 @@ class MessageListXLFragmentManager {
 
     public void setCurrentMailboxName(String mailboxName, int unreadCount) {
         mActionBarMailboxName.setText(mailboxName);
-        if (unreadCount == 0) {
-            // No unread messages, or it's the mailbox doesn't have the idea of "unread".
-            // (e.g. outbox)
-            mActionBarUnreadCount.setText("");
-        } else {
-            mActionBarUnreadCount.setText(Integer.toString(unreadCount));
-        }
+
+        // Note on action bar, we show only "unread count".  Some mailboxes such as Outbox don't
+        // have the idea of "unread count", in which case we just omit the count.
+        mActionBarUnreadCount.setText(
+                UiUtilities.getMessageCountForUi(mContext, unreadCount, true));
     }
 
     /**
