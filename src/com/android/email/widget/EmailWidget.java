@@ -17,28 +17,23 @@
 package com.android.email.widget;
 
 import com.android.email.Email;
-import com.android.email.UiUtilities;
 import com.android.email.R;
 import com.android.email.ResourceHelper;
+import com.android.email.UiUtilities;
 import com.android.email.activity.MessageCompose;
 import com.android.email.activity.Welcome;
-import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.provider.WidgetProvider.WidgetService;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.Loader.OnLoadCompleteListener;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Typeface;
@@ -59,11 +54,17 @@ import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import junit.framework.Assert;
-
-public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
+/**
+ * The email widget.
+ *
+ * Threading notes:
+ * - All methods must be called on the UI thread, except for {@link WidgetUpdater#doInBackground}.
+ * - {@link WidgetUpdater#doInBackground} must not read/write any members of {@link EmailWidget}.
+ * - (So no synchronizations are required in this class)
+ */
+public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
+        OnLoadCompleteListener<Cursor> {
     public static final String TAG = "EmailWidget";
 
     /**
@@ -96,15 +97,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
     private static final Uri COMMAND_URI_VIEW_MESSAGE =
             COMMAND_URI.buildUpon().appendPath(COMMAND_NAME_VIEW_MESSAGE).build();
 
-
-    private static final int TOTAL_COUNT_UNKNOWN = -1;
     private static final int MAX_MESSAGE_LIST_COUNT = 25;
-
-    private static final String SORT_TIMESTAMP_DESCENDING = MessageColumns.TIMESTAMP + " DESC";
-    private static final String SORT_ID_ASCENDING = AccountColumns.ID + " ASC";
-    private static final String[] ID_NAME_PROJECTION = {Account.RECORD_ID, Account.DISPLAY_NAME};
-    private static final int ID_NAME_COLUMN_ID = 0;
-    private static final int ID_NAME_COLUMN_NAME = 1;
 
     private static String sSubjectSnippetDivider;
     private static String sConfigureText;
@@ -115,48 +108,25 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
     private static int sLightTextColor;
 
     private final Context mContext;
-    private final ContentResolver mResolver;
     private final AppWidgetManager mWidgetManager;
 
     // The widget identifier
     private final int mWidgetId;
 
-    // The cursor underlying the message list for this widget; this must only be modified while
-    // holding mCursorLock
-    private volatile Cursor mCursor;
-    // A lock on our cursor, which is used in the UI thread while inflating views, and by
-    // our Loader in the background
-    private final Object mCursorLock = new Object();
-    // Number of records in the cursor
-    private int mCursorCount = TOTAL_COUNT_UNKNOWN;
     // The widget's loader (derived from ThrottlingCursorLoader)
-    private ViewCursorLoader mLoader;
+    private final EmailWidgetLoader mLoader;
     private final ResourceHelper mResourceHelper;
-    // Number of defined accounts
-    private int mAccountCount = TOTAL_COUNT_UNKNOWN;
 
-    // The current view type (all mail, unread, or starred for now)
-    /*package*/ ViewType mViewType = ViewType.STARRED;
+    /**
+     * The cursor for the messages, with some extra info such as the number of accounts.
+     *
+     * Note this cursor can be closed any time by the loader.  Always use {@link #isCursorValid()}
+     * before touching its contents.
+     */
+    private EmailWidgetLoader.CursorWithCounts mCursor;
 
-    // The projection to be used by the WidgetLoader
-    private static final String[] WIDGET_PROJECTION = new String[] {
-            EmailContent.RECORD_ID, MessageColumns.DISPLAY_NAME, MessageColumns.TIMESTAMP,
-            MessageColumns.SUBJECT, MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE,
-            MessageColumns.FLAG_ATTACHMENT, MessageColumns.MAILBOX_KEY, MessageColumns.SNIPPET,
-            MessageColumns.ACCOUNT_KEY, MessageColumns.FLAGS
-            };
-    private static final int WIDGET_COLUMN_ID = 0;
-    private static final int WIDGET_COLUMN_DISPLAY_NAME = 1;
-    private static final int WIDGET_COLUMN_TIMESTAMP = 2;
-    private static final int WIDGET_COLUMN_SUBJECT = 3;
-    private static final int WIDGET_COLUMN_FLAG_READ = 4;
-    @SuppressWarnings("unused")
-    private static final int WIDGET_COLUMN_FLAG_FAVORITE = 5;
-    private static final int WIDGET_COLUMN_FLAG_ATTACHMENT = 6;
-    private static final int WIDGET_COLUMN_MAILBOX_KEY = 7;
-    private static final int WIDGET_COLUMN_SNIPPET = 8;
-    private static final int WIDGET_COLUMN_ACCOUNT_KEY = 9;
-    private static final int WIDGET_COLUMN_FLAGS = 10;
+    /** The current view type */
+    /* package */ WidgetView mWidgetView = WidgetView.UNINITIALIZED_VIEW;
 
     public EmailWidget(Context context, int _widgetId) {
         super();
@@ -164,11 +134,11 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
             Log.d(TAG, "Creating EmailWidget with id = " + _widgetId);
         }
         mContext = context.getApplicationContext();
-        mResolver = mContext.getContentResolver();
         mWidgetManager = AppWidgetManager.getInstance(mContext);
 
         mWidgetId = _widgetId;
-        mLoader = new ViewCursorLoader();
+        mLoader = new EmailWidgetLoader(mContext);
+        mLoader.registerListener(0, this);
         if (sSubjectSnippetDivider == null) {
             // Initialize string, color, dimension resources
             Resources res = mContext.getResources();
@@ -185,169 +155,38 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
         mResourceHelper = ResourceHelper.getInstance(mContext);
     }
 
-    public void updateWidget(boolean validateView) {
-        new WidgetUpdateTask().execute(validateView);
+    public void start() {
+        // The default view is UNINITIALIZED_VIEW, and we switch to the next one, which should
+        // be the initial view.  (the first view shown to the user.)
+        switchView();
+    }
+
+    private boolean isCursorValid() {
+        return mCursor != null && !mCursor.isClosed();
     }
 
     /**
-     *  Task for updating widget data (eg: the header, view list items, etc...)
-     *  If parameter to {@link #execute(Boolean...)} is <code>true</code>, the current
-     *  view is validated against the current set of accounts. And if the current view
-     *  is determined to be invalid, the view will automatically progress to the next
-     *  valid view.
+     * Called when the loader finished loading data.  Update the widget.
      */
-    private final class WidgetUpdateTask extends AsyncTask<Boolean, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(Boolean... validateView) {
-            mAccountCount = EmailContent.count(mContext, EmailContent.Account.CONTENT_URI);
-            // If displaying invalid view, switch to the next view
-            return !validateView[0] || isViewValid();
-        }
+    @Override
+    public void onLoadComplete(Loader<Cursor> loader, Cursor cursor) {
+        // Save away the cursor
+        mCursor = (EmailWidgetLoader.CursorWithCounts) cursor;
+        mWidgetView = mLoader.getLoadingWidgetView();
 
-        @Override
-        protected void onPostExecute(Boolean isValidView) {
-            updateHeader();
-            if (!isValidView) {
-                switchView();
-            }
-        }
+        RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.widget);
+        updateHeader();
+        setupTitleAndCount(views);
+        mWidgetManager.partiallyUpdateAppWidget(mWidgetId, views);
+        mWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
     }
 
     /**
-     * The ThrottlingCursorLoader does all of the heavy lifting in managing the data loading
-     * task; all we need is to register a listener so that we're notified when the load is
-     * complete.
+     * Start loading the data.  At this point nothing on the widget changes -- the current view
+     * will remain valid until the loader loads the latest data.
      */
-    private final class ViewCursorLoader extends ThrottlingCursorLoader {
-        protected ViewCursorLoader() {
-            super(mContext, Message.CONTENT_URI, WIDGET_PROJECTION, mViewType.selection,
-                    mViewType.selectionArgs, SORT_TIMESTAMP_DESCENDING);
-            registerListener(0, new OnLoadCompleteListener<Cursor>() {
-                @Override
-                public void onLoadComplete(Loader<Cursor> loader, Cursor cursor) {
-                    synchronized (mCursorLock) {
-                        // Save away the cursor
-                        mCursor = cursor;
-                        // Reset the notification Uri to our Message table notifier URI
-                        mCursor.setNotificationUri(mResolver, Message.NOTIFIER_URI);
-                        // Save away the count (for display)
-                        mCursorCount = mCursor.getCount();
-                        if (Email.DEBUG) {
-                            Log.d(TAG, "onLoadComplete, count = " + cursor.getCount());
-                        }
-                    }
-                    RemoteViews views =
-                        new RemoteViews(mContext.getPackageName(), R.layout.widget);
-                    setupTitleAndCount(views);
-                    mWidgetManager.partiallyUpdateAppWidget(mWidgetId, views);
-                    mWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
-                }
-            });
-        }
-
-        /**
-         * Stop any pending load, reset selection parameters, and start loading
-         * Must be called from the UI thread
-         * @param viewType the current ViewType
-         */
-        private void load(ViewType viewType) {
-            reset();
-            setSelection(viewType.selection);
-            setSelectionArgs(viewType.selectionArgs);
-            startLoading();
-        }
-    }
-
-    /**
-     * Initialize to first appropriate view (depending on the number of accounts)
-     */
-    public void init() {
-        // Just update the account count & header; no need to validate the view
-        updateWidget(false);
-        switchView(); // TODO Do we really need this??
-    }
-
-    /**
-     * Reset cursor and cursor count, notify widget that list data is invalid, and start loading
-     * with our current ViewType
-     */
-    private void loadView() {
-        synchronized(mCursorLock) {
-            mCursorCount = TOTAL_COUNT_UNKNOWN;
-            mCursor = null;
-            mWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
-            mLoader.load(mViewType);
-        }
-    }
-
-    /**
-     * Switch to the next widget view (all -> account1 -> ... -> account n -> unread -> starred)
-     *
-     * This must be called on a background thread.  Use {@link #switchView} on the UI thread.
-     */
-    private synchronized void switchToNextView() {
-        switch(mViewType) {
-            // If we're in starred and there is more than one account, go to "all mail"
-            // Otherwise, fall through to the accounts themselves
-            case STARRED:
-                if (EmailContent.count(mContext, Account.CONTENT_URI) > 1) {
-                    mViewType = ViewType.ALL_INBOX;
-                    break;
-                }
-                //$FALL-THROUGH$
-            case ALL_INBOX:
-                ViewType.ACCOUNT.selectionArgs[0] = "0";
-                //$FALL-THROUGH$
-            case ACCOUNT:
-                // Find the next account (or, if none, default to UNREAD)
-                String idString = ViewType.ACCOUNT.selectionArgs[0];
-                Cursor c = mResolver.query(Account.CONTENT_URI, ID_NAME_PROJECTION, "_id>?",
-                        new String[] {idString}, SORT_ID_ASCENDING);
-                try {
-                    if (c.moveToFirst()) {
-                        mViewType = ViewType.ACCOUNT;
-                        mViewType.selectionArgs[0] = c.getString(ID_NAME_COLUMN_ID);
-                        mViewType.setTitle(c.getString(ID_NAME_COLUMN_NAME));
-                    } else {
-                        mViewType = ViewType.UNREAD;
-                    }
-                } finally {
-                    c.close();
-                }
-                break;
-            case UNREAD:
-                mViewType = ViewType.STARRED;
-                break;
-        }
-    }
-
-    /**
-     * Returns whether the current view is valid. The following rules determine if a view is
-     * considered valid:
-     * 1. If the view is either {@link ViewType#STARRED} or {@link ViewType#UNREAD}, always
-     * returns <code>true</code>.
-     * 2. If the view is {@link ViewType#ALL_INBOX}, returns <code>true</code> if more than
-     * one account is defined. Otherwise, returns <code>false</code>.
-     * 3. If the view is {@link ViewType#ACCOUNT}, returns <code>true</code> if the account
-     * is defined. Otherwise, returns <code>false</code>.
-     */
-    private boolean isViewValid() {
-        switch(mViewType) {
-            case ALL_INBOX:
-                // "all inbox" is valid only if there is more than one account
-                return (EmailContent.count(mContext, Account.CONTENT_URI) > 1);
-            case ACCOUNT:
-                // Ensure current account still exists
-                String idString = ViewType.ACCOUNT.selectionArgs[0];
-                Cursor c = mResolver.query(Account.CONTENT_URI, ID_NAME_PROJECTION, "_id=?",
-                        new String[] {idString}, SORT_ID_ASCENDING);
-                try {
-                    return c.moveToFirst();
-                } finally {
-                    c.close();
-                }
-        }
-        return true;
+    private void loadView(WidgetView view) {
+        mLoader.load(view);
     }
 
     /**
@@ -451,11 +290,11 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
 
     private void setupTitleAndCount(RemoteViews views) {
         // Set up the title (view type + count of messages)
-        views.setTextViewText(R.id.widget_title, mViewType.getTitle(mContext));
+        views.setTextViewText(R.id.widget_title, mWidgetView.getTitle(mContext));
         views.setTextViewText(R.id.widget_tap, sConfigureText);
         String count = "";
-        if (mCursorCount != TOTAL_COUNT_UNKNOWN) {
-            count = UiUtilities.getMessageCountForUi(mContext, mCursor.getCount(), false);
+        if (isCursorValid()) {
+            count = UiUtilities.getMessageCountForUi(mContext, mCursor.getMessageCount(), false);
         }
         views.setTextViewText(R.id.widget_count, count);
     }
@@ -463,7 +302,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
      * Update the "header" of the widget (i.e. everything that doesn't include the scrolling
      * message list)
      */
-    public void updateHeader() {
+    private void updateHeader() {
         if (Email.DEBUG) {
             Log.d(TAG, "updateWidget " + mWidgetId);
         }
@@ -480,7 +319,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
 
         setupTitleAndCount(views);
 
-        if (mAccountCount == 0) {
+        if (!isCursorValid() || mCursor.getAccountCount() == 0) {
             // Hide compose icon & show "touch to configure" text
             views.setViewVisibility(R.id.widget_compose, View.INVISIBLE);
             views.setViewVisibility(R.id.message_list, View.GONE);
@@ -566,79 +405,78 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
     @Override
     public RemoteViews getViewAt(int position) {
         // Use the cursor to set up the widget
-        synchronized (mCursorLock) {
-            if (mCursor == null || mCursor.isClosed() || !mCursor.moveToPosition(position)) {
-                return getLoadingView();
-            }
-            RemoteViews views =
-                new RemoteViews(mContext.getPackageName(), R.layout.widget_list_item);
-            boolean isUnread = mCursor.getInt(WIDGET_COLUMN_FLAG_READ) != 1;
-            int drawableId = R.drawable.widget_read_conversation_selector;
-            if (isUnread) {
-                drawableId = R.drawable.widget_unread_conversation_selector;
-            }
-            views.setInt(R.id.widget_message, "setBackgroundResource", drawableId);
-
-            // Add style to sender
-            SpannableStringBuilder from =
-                new SpannableStringBuilder(mCursor.getString(WIDGET_COLUMN_DISPLAY_NAME));
-            from.setSpan(
-                    isUnread ? new StyleSpan(Typeface.BOLD) : new StyleSpan(Typeface.NORMAL), 0,
-                    from.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            CharSequence styledFrom = addStyle(from, sSenderFontSize, sDefaultTextColor);
-            views.setTextViewText(R.id.widget_from, styledFrom);
-
-            long timestamp = mCursor.getLong(WIDGET_COLUMN_TIMESTAMP);
-            // Get a nicely formatted date string (relative to today)
-            String date = DateUtils.getRelativeTimeSpanString(mContext, timestamp).toString();
-            // Add style to date
-            CharSequence styledDate = addStyle(date, sDateFontSize, sDefaultTextColor);
-            views.setTextViewText(R.id.widget_date, styledDate);
-
-            // Add style to subject/snippet
-            String subject = mCursor.getString(WIDGET_COLUMN_SUBJECT);
-            String snippet = mCursor.getString(WIDGET_COLUMN_SNIPPET);
-            CharSequence subjectAndSnippet =
-                getStyledSubjectSnippet(subject, snippet, !isUnread);
-            views.setTextViewText(R.id.widget_subject, subjectAndSnippet);
-
-            int messageFlags = mCursor.getInt(WIDGET_COLUMN_FLAGS);
-            boolean hasInvite = (messageFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
-            views.setViewVisibility(R.id.widget_invite, hasInvite ? View.VISIBLE : View.GONE);
-
-            boolean hasAttachment = mCursor.getInt(WIDGET_COLUMN_FLAG_ATTACHMENT) != 0;
-            views.setViewVisibility(R.id.widget_attachment,
-                    hasAttachment ? View.VISIBLE : View.GONE);
-
-            if (mViewType == ViewType.ACCOUNT) {
-                views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
-            } else {
-                long accountId = mCursor.getLong(WIDGET_COLUMN_ACCOUNT_KEY);
-                int colorId = mResourceHelper.getAccountColorId(accountId);
-                // Don't show the chip if we have 1 or fewer accounts
-                if (mAccountCount > 1 && colorId != ResourceHelper.UNDEFINED_RESOURCE_ID) {
-                    // Color defined by resource ID, so, use it
-                    views.setViewVisibility(R.id.color_chip, View.VISIBLE);
-                    views.setImageViewResource(R.id.color_chip, colorId);
-                } else {
-                    // Color not defined by resource ID, nothing we can do, so, hide the chip
-                    views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
-                }
-            }
-
-            // Set button intents for view, reply, and delete
-            String messageId = mCursor.getString(WIDGET_COLUMN_ID);
-            String mailboxId = mCursor.getString(WIDGET_COLUMN_MAILBOX_KEY);
-            setFillInIntent(views, R.id.widget_message, COMMAND_URI_VIEW_MESSAGE,
-                    messageId, mailboxId);
-
-            return views;
+        if (!isCursorValid() || !mCursor.moveToPosition(position)) {
+            return getLoadingView();
         }
+        RemoteViews views =
+            new RemoteViews(mContext.getPackageName(), R.layout.widget_list_item);
+        boolean isUnread = mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAG_READ) != 1;
+        int drawableId = R.drawable.widget_read_conversation_selector;
+        if (isUnread) {
+            drawableId = R.drawable.widget_unread_conversation_selector;
+        }
+        views.setInt(R.id.widget_message, "setBackgroundResource", drawableId);
+
+        // Add style to sender
+        SpannableStringBuilder from =
+            new SpannableStringBuilder(mCursor.getString(
+                    EmailWidgetLoader.WIDGET_COLUMN_DISPLAY_NAME));
+        from.setSpan(
+                isUnread ? new StyleSpan(Typeface.BOLD) : new StyleSpan(Typeface.NORMAL), 0,
+                from.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        CharSequence styledFrom = addStyle(from, sSenderFontSize, sDefaultTextColor);
+        views.setTextViewText(R.id.widget_from, styledFrom);
+
+        long timestamp = mCursor.getLong(EmailWidgetLoader.WIDGET_COLUMN_TIMESTAMP);
+        // Get a nicely formatted date string (relative to today)
+        String date = DateUtils.getRelativeTimeSpanString(mContext, timestamp).toString();
+        // Add style to date
+        CharSequence styledDate = addStyle(date, sDateFontSize, sDefaultTextColor);
+        views.setTextViewText(R.id.widget_date, styledDate);
+
+        // Add style to subject/snippet
+        String subject = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_SUBJECT);
+        String snippet = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_SNIPPET);
+        CharSequence subjectAndSnippet =
+            getStyledSubjectSnippet(subject, snippet, !isUnread);
+        views.setTextViewText(R.id.widget_subject, subjectAndSnippet);
+
+        int messageFlags = mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAGS);
+        boolean hasInvite = (messageFlags & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
+        views.setViewVisibility(R.id.widget_invite, hasInvite ? View.VISIBLE : View.GONE);
+
+        boolean hasAttachment =
+                mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAG_ATTACHMENT) != 0;
+        views.setViewVisibility(R.id.widget_attachment,
+                hasAttachment ? View.VISIBLE : View.GONE);
+
+        if (mCursor.getAccountCount() <= 1 || mWidgetView.isPerAccount()) {
+            views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
+        } else {
+            long accountId = mCursor.getLong(EmailWidgetLoader.WIDGET_COLUMN_ACCOUNT_KEY);
+            int colorId = mResourceHelper.getAccountColorId(accountId);
+            if (colorId != ResourceHelper.UNDEFINED_RESOURCE_ID) {
+                // Color defined by resource ID, so, use it
+                views.setViewVisibility(R.id.color_chip, View.VISIBLE);
+                views.setImageViewResource(R.id.color_chip, colorId);
+            } else {
+                // Color not defined by resource ID, nothing we can do, so, hide the chip
+                views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
+            }
+        }
+
+        // Set button intents for view, reply, and delete
+        String messageId = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_ID);
+        String mailboxId = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_MAILBOX_KEY);
+        setFillInIntent(views, R.id.widget_message, COMMAND_URI_VIEW_MESSAGE,
+                messageId, mailboxId);
+
+        return views;
     }
 
     @Override
     public int getCount() {
-        if (mCursor == null) return 0;
+        if (!isCursorValid()) return 0;
         return Math.min(mCursor.getCount(), MAX_MESSAGE_LIST_COUNT);
     }
 
@@ -671,7 +509,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
 
     public void onDeleted() {
         if (mLoader != null) {
-            mLoader.stopLoading();
+            mLoader.reset();
         }
         WidgetManager.getInstance().remove(mWidgetId);
     }
@@ -679,7 +517,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
     @Override
     public void onDestroy() {
         if (mLoader != null) {
-            mLoader.stopLoading();
+            mLoader.reset();
         }
         WidgetManager.getInstance().remove(mWidgetId);
     }
@@ -689,59 +527,45 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory {
     }
 
     /**
+     * Update the widget.  If the current view is invalid, switch to the next view, then update.
+     */
+    /* package */ void validateAndUpdate() {
+        new WidgetUpdater(false).execute();
+    }
+
+    /**
      * Switch to the next view.
      */
     /* package */ void switchView() {
-        switchView(false);
-    }
-
-    private WidgetViewSwitcher switchView(boolean disableLoadAfterSwitchForTest) {
-        WidgetViewSwitcher switcher = new WidgetViewSwitcher(this, disableLoadAfterSwitchForTest);
-        switcher.execute();
-        return switcher;
+        new WidgetUpdater(true).execute();
     }
 
     /**
-     * Switch views synchronously without loading
+     * Update the widget.  If {@code switchToNextView} is set true, or the current view is invalid,
+     * switch to the next view.
      */
-    /* package */ void switchViewSyncForTest() {
-        WidgetViewSwitcher switcher = switchView(true);
-        try {
-            switcher.get();
-        } catch (InterruptedException e) {
-            Assert.fail();
-        } catch (ExecutionException e) {
-            Assert.fail();
-        }
-    }
+    private class WidgetUpdater extends AsyncTask<Void, Void, WidgetView> {
+        private final WidgetView mCurrentView;
+        private final boolean mSwitchToNextView;
 
-    /**
-     * Utility class to handle switching widget views; in the background, we access the database
-     * to determine account status, etc.  In the foreground, we start up the Loader with new
-     * parameters
-     */
-    private static class WidgetViewSwitcher extends AsyncTask<Void, Void, Void> {
-        private final EmailWidget mWidget;
-        private final boolean mDisableLoadAfterSwitchForTest;
-
-        public WidgetViewSwitcher(EmailWidget widget, boolean disableLoadAfterSwitchForTest) {
-            mWidget = widget;
-            mDisableLoadAfterSwitchForTest = disableLoadAfterSwitchForTest;
+        public WidgetUpdater(boolean switchToNextView) {
+            mCurrentView = mWidgetView;
+            mSwitchToNextView = switchToNextView;
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
-            mWidget.switchToNextView();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void param) {
-            if (isCancelled()) {
-                return;
+        protected WidgetView doInBackground(Void... params) {
+            if (mSwitchToNextView || !mCurrentView.isValid(mContext)) {
+                return mCurrentView.getNext(mContext);
+            } else {
+                return mCurrentView; // Reload the same view.
             }
-            if (!mDisableLoadAfterSwitchForTest) {
-                mWidget.loadView();
+        }
+
+        @Override
+        protected void onPostExecute(WidgetView nextView) {
+            if (nextView != null) {
+                loadView(nextView);
             }
         }
     }
