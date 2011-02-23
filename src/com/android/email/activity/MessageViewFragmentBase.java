@@ -751,9 +751,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         } else {
             attachment.cancelButton.setVisibility(View.VISIBLE);
         }
-        ProgressBar bar = attachment.progressView;
-        bar.setVisibility(View.VISIBLE);
-        bar.setIndeterminate(true);
+        attachment.showProgressIndeterminate();
         mController.loadAttachment(attachment.mId, mMessageId, mAccountId);
     }
 
@@ -762,8 +760,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (AttachmentDownloadService.cancelQueuedAttachment(attachment.mId)) {
             attachment.loadButton.setVisibility(View.VISIBLE);
             attachment.cancelButton.setVisibility(View.GONE);
-            ProgressBar bar = attachment.progressView;
-            bar.setVisibility(View.INVISIBLE);
+            attachment.hideProgress();
         }
     }
 
@@ -1116,18 +1113,22 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * handling, as well as our determination of suitability for viewing (based on availability of
      * a viewer app) and saving (based upon the presence of external storage)
      */
-    static class MessageViewAttachmentInfo extends AttachmentInfo {
-        Button openButton;
-        Button saveButton;
-        Button loadButton;
-        Button infoButton;
-        Button cancelButton;
-        ImageView iconView;
-        ProgressBar progressView;
-        boolean loaded;
+    private static class MessageViewAttachmentInfo extends AttachmentInfo {
+        private Button openButton;
+        private Button saveButton;
+        private Button loadButton;
+        private Button infoButton;
+        private Button cancelButton;
+        private ImageView iconView;
 
-        private MessageViewAttachmentInfo(Context context, Attachment attachment) {
+        // Don't touch it directly from the outer class.
+        private ProgressBar mProgressView;
+        private boolean loaded;
+
+        private MessageViewAttachmentInfo(Context context, Attachment attachment,
+                ProgressBar progressView) {
             super(context, attachment);
+            mProgressView = progressView;
         }
 
         /**
@@ -1142,8 +1143,34 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             infoButton = oldInfo.infoButton;
             cancelButton = oldInfo.cancelButton;
             iconView = oldInfo.iconView;
-            progressView = oldInfo.progressView;
+            mProgressView = oldInfo.mProgressView;
             loaded = oldInfo.loaded;
+        }
+
+        public void hideProgress() {
+            // Don't use GONE, which'll break the layout.
+            if (mProgressView.getVisibility() != View.INVISIBLE) {
+                mProgressView.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        public void showProgress(int progress) {
+            if (mProgressView.getVisibility() != View.VISIBLE) {
+                mProgressView.setVisibility(View.VISIBLE);
+            }
+            if (mProgressView.isIndeterminate()) {
+                mProgressView.setIndeterminate(false);
+            }
+            mProgressView.setProgress(progress);
+        }
+
+        public void showProgressIndeterminate() {
+            if (mProgressView.getVisibility() != View.VISIBLE) {
+                mProgressView.setVisibility(View.VISIBLE);
+            }
+            if (!mProgressView.isIndeterminate()) {
+                mProgressView.setIndeterminate(true);
+            }
         }
     }
 
@@ -1172,7 +1199,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         Button loadButton = attachmentInfo.loadButton;
         Button infoButton = attachmentInfo.infoButton;
         Button cancelButton = attachmentInfo.cancelButton;
-        ProgressBar attachmentProgress = attachmentInfo.progressView;
 
         if (!attachmentInfo.mAllowView) {
             openButton.setVisibility(View.GONE);
@@ -1183,7 +1209,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         if (!attachmentInfo.mAllowView && !attachmentInfo.mAllowSave) {
             // This attachment may never be viewed or saved, so block everything
-            attachmentProgress.setVisibility(View.GONE);
+            attachmentInfo.hideProgress();
             openButton.setVisibility(View.GONE);
             saveButton.setVisibility(View.GONE);
             loadButton.setVisibility(View.GONE);
@@ -1194,8 +1220,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             // Note that for POP3 messages, the user will only see "Open" and "Save",
             // because the entire message is loaded before being shown.
             // Hide "Load" and "Info", show "View" and "Save"
-            attachmentProgress.setVisibility(View.VISIBLE);
-            attachmentProgress.setProgress(100);
+            attachmentInfo.showProgress(100);
             if (attachmentInfo.mAllowSave) {
                 saveButton.setVisibility(View.VISIBLE);
             }
@@ -1234,8 +1259,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             // If the attachment is queued, show the indeterminate progress bar.  From this point,.
             // any progress changes will cause this to be replaced by the normal progress bar
             if (AttachmentDownloadService.isAttachmentQueued(attachmentInfo.mId)) {
-                attachmentProgress.setVisibility(View.VISIBLE);
-                attachmentProgress.setIndeterminate(true);
+                attachmentInfo.showProgressIndeterminate();
                 loadButton.setVisibility(View.GONE);
                 cancelButton.setVisibility(View.VISIBLE);
             } else {
@@ -1256,9 +1280,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * @param attachment A single attachment loaded from the provider
      */
     private void addAttachment(Attachment attachment) {
-        MessageViewAttachmentInfo attachmentInfo =
-            new MessageViewAttachmentInfo(mContext, attachment);
-
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.message_view_attachment, null);
 
@@ -1272,6 +1293,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         Button cancelButton = (Button)view.findViewById(R.id.cancel);
         ProgressBar attachmentProgress = (ProgressBar)view.findViewById(R.id.progress);
 
+        MessageViewAttachmentInfo attachmentInfo = new MessageViewAttachmentInfo(
+                mContext, attachment, attachmentProgress);
+
         // Check whether the attachment already exists
         if (Utility.attachmentExists(mContext, attachment)) {
             attachmentInfo.loaded = true;
@@ -1283,7 +1307,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         attachmentInfo.infoButton = infoButton;
         attachmentInfo.cancelButton = cancelButton;
         attachmentInfo.iconView = attachmentIcon;
-        attachmentInfo.progressView = attachmentProgress;
 
         updateAttachmentButtons(attachmentInfo);
 
@@ -1568,7 +1591,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                     }
                     attachment.cancelButton.setVisibility(View.GONE);
                     attachment.loadButton.setVisibility(View.VISIBLE);
-                    attachment.progressView.setVisibility(View.INVISIBLE);
+                    attachment.hideProgress();
 
                     final String error;
                     if (result.getCause() instanceof IOException) {
@@ -1586,15 +1609,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         private void showAttachmentProgress(long attachmentId, int progress) {
             MessageViewAttachmentInfo attachment = findAttachmentInfo(attachmentId);
             if (attachment != null) {
-                ProgressBar bar = attachment.progressView;
                 if (progress == 0) {
-                    // When the download starts, we can get rid of the indeterminate bar
-                    bar.setVisibility(View.VISIBLE);
-                    bar.setIndeterminate(false);
-                    // And we're not implementing stop of in-progress downloads
                     attachment.cancelButton.setVisibility(View.GONE);
                 }
-                bar.setProgress(progress);
+                attachment.showProgress(progress);
             }
         }
     }
