@@ -468,16 +468,18 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     .toString(), req.priority != PRIORITY_FOREGROUND);
             // Lazily initialize our (reusable) pending intent
             if (mWatchdogPendingIntent == null) {
-                Intent alarmIntent = new Intent(mContext, Watchdog.class);
-                mWatchdogPendingIntent = PendingIntent.getBroadcast(mContext, 0, alarmIntent, 0);
-                mAlarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+                createWatchdogPendingIntent(mContext);
             }
             // Set the alarm
             mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                     System.currentTimeMillis() + WATCHDOG_CHECK_INTERVAL, WATCHDOG_CHECK_INTERVAL,
                     mWatchdogPendingIntent);
         }
-
+        /*package*/ void createWatchdogPendingIntent(Context context) {
+            Intent alarmIntent = new Intent(context, Watchdog.class);
+            mWatchdogPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+            mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        }
         private void cancelDownload(DownloadRequest req) {
             mDownloadsInProgress.remove(req.attachmentId);
             req.inProgress = false;

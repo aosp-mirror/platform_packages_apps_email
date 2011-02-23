@@ -70,11 +70,11 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
         // Use the NullEmailService so that the loadAttachment calls become no-ops
         mService = new AttachmentDownloadService();
         mService.mContext = mMockContext;
-        mService.addServiceIntentForTest(mAccountId, new Intent(mMockContext,
+        mService.addServiceIntentForTest(mAccountId, new Intent(mContext,
                 NullEmailService.class));
         mAccountManagerStub = new AttachmentDownloadService.AccountManagerStub(null);
         mService.mAccountManagerStub = mAccountManagerStub;
-        mService.mConnectivityManager = new MockConnectivityManager(getContext(), "mock");
+        mService.mConnectivityManager = new MockConnectivityManager(mContext, "mock");
         mDownloadSet = mService.mDownloadSet;
         mMockDirectory =
             new MockDirectory(mService.mContext.getCacheDir().getAbsolutePath());
@@ -119,6 +119,7 @@ public class AttachmentDownloadServiceTests extends AccountTestCase {
 
         // Process the queue; attachment 1 should be marked "in progress", and should be in
         // the in-progress map
+        mDownloadSet.createWatchdogPendingIntent(mContext);
         mDownloadSet.processQueue();
         DownloadRequest req = mDownloadSet.findDownloadRequest(att1.mId);
         assertNotNull(req);
