@@ -29,8 +29,8 @@ public class AccountSetupActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         SetupData.restore(savedInstanceState);
+        super.onCreate(savedInstanceState);
         if (DEBUG_SETUP_FLOWS) {
             Log.d(getClass().getName(), SetupData.debugString());
         }
