@@ -103,8 +103,13 @@ import android.database.CursorWrapper;
 
         final int accountCount = EmailContent.count(mContext, Account.CONTENT_URI);
 
-        // TODO Use correct count -- e.g. unread count for inboxes, not total count.
-        final int messageCount = messagesCursor.getCount();
+        final int messageCount;
+        if (mLoadingWidgetView.useUnreadCount()) {
+            messageCount = mLoadingWidgetView.getUnreadCount(mContext);
+        } else {
+            // Just use the number of all messages shown.
+            messageCount = messagesCursor.getCount();
+        }
 
         return new CursorWithCounts(messagesCursor, accountCount, messageCount);
     }
@@ -119,7 +124,7 @@ import android.database.CursorWrapper;
     public void load(WidgetView view) {
         reset();
         mLoadingWidgetView = view;
-        setSelection(view.getSelection(mContext));
+        setSelection(view.getSelection());
         setSelectionArgs(view.getSelectionArgs());
         startLoading();
     }

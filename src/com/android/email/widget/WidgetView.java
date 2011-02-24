@@ -21,6 +21,7 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentUris;
@@ -40,10 +41,10 @@ import android.net.Uri;
     private static final int ID_NAME_COLUMN_NAME = 1;
 
     private static enum ViewType {
-        TYPE_ALL_UNREAD(false, Message.UNREAD_SELECTION, R.string.widget_unread),
-        TYPE_ALL_STARRED(false, Message.ALL_FAVORITE_SELECTION, R.string.widget_starred),
-        TYPE_ALL_INBOX(false, Message.INBOX_SELECTION, R.string.widget_all_mail),
-        TYPE_ACCOUNT_INBOX(true, Message.PER_ACCOUNT_INBOX_SELECTION, 0) {
+        TYPE_ALL_UNREAD(false, Message.UNREAD_SELECTION, R.string.widget_unread, false),
+        TYPE_ALL_STARRED(false, Message.ALL_FAVORITE_SELECTION, R.string.widget_starred, false),
+        TYPE_ALL_INBOX(false, Message.INBOX_SELECTION, R.string.widget_all_mail, true),
+        TYPE_ACCOUNT_INBOX(true, Message.PER_ACCOUNT_INBOX_SELECTION, 0, true) {
             @Override public String getTitle(Context context, String accountName) {
                 return accountName;
             }
@@ -56,11 +57,14 @@ import android.net.Uri;
         private final boolean mIsPerAccount;
         private final String mSelection;
         private final int mTitleResource;
+        private final boolean mUseUnreadCount;
 
-        ViewType(boolean isPerAccount, String selection, int titleResource) {
+        ViewType(boolean isPerAccount, String selection, int titleResource,
+                boolean useUnreadCount) {
             mIsPerAccount = isPerAccount;
             mSelection = selection;
             mTitleResource = titleResource;
+            mUseUnreadCount = useUnreadCount;
         }
 
         public String getTitle(Context context, String accountName) {
@@ -109,7 +113,11 @@ import android.net.Uri;
         return mViewType.getTitle(context, mAccountName);
     }
 
-    public String getSelection(Context context) {
+    public boolean useUnreadCount() {
+        return mViewType.mUseUnreadCount;
+    }
+
+    public String getSelection() {
         return mViewType.getSelection();
     }
 
@@ -188,6 +196,15 @@ import android.net.Uri;
                         EmailContent.ID_PROJECTION_COLUMN, null) != null;
         }
         return true;
+    }
+
+    /**
+     * @return unread message count using the selection.
+     */
+    public int getUnreadCount(Context context) {
+        String selection = "(" + getSelection() + " ) AND " + MessageColumns.FLAG_READ + " = 0";
+        return EmailContent.count(context, Message.CONTENT_URI, selection,
+                getSelectionArgs());
     }
 
     @Override

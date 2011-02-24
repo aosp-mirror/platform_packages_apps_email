@@ -51,7 +51,11 @@ public class WidgetViewTests extends ProviderTestCase2<EmailProvider> {
 
     private int getMessageCount(WidgetView view) {
         return EmailContent.count(mMockContext, Message.CONTENT_URI,
-                view.getSelection(mMockContext), view.getSelectionArgs());
+                view.getSelection(), view.getSelectionArgs());
+    }
+
+    private int getUnreadCount(WidgetView view) {
+        return view.getUnreadCount(mMockContext);
     }
 
     private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read,
@@ -179,15 +183,16 @@ public class WidgetViewTests extends ProviderTestCase2<EmailProvider> {
                 "box2T", a2.mId, true, mMockContext, Mailbox.TYPE_TRASH);
 
         // Create some messages
-        // b11 (account 1, inbox): 2 messages, including 1 starred, 1 unloaded
+        // b11 (account 1, inbox): 2 messages
+        //                                              star  read
         Message m11a = createMessage(mMockContext, b11, true, false, Message.FLAG_LOADED_COMPLETE);
         Message m11b = createMessage(mMockContext, b11, false, false, Message.FLAG_LOADED_UNLOADED);
 
-        // b12 (account 1, outbox): 2 messages, including 1 starred
+        // b12 (account 1, outbox): 2 messages
         Message m12a = createMessage(mMockContext, b12, false, false, Message.FLAG_LOADED_COMPLETE);
         Message m12b = createMessage(mMockContext, b12, true, true, Message.FLAG_LOADED_COMPLETE);
 
-        // b21 (account 2, inbox): 4 messages, including 1 starred, 1 unloaded
+        // b21 (account 2, inbox): 4 messages
         Message m21a = createMessage(mMockContext, b21, false, false, Message.FLAG_LOADED_COMPLETE);
         Message m21b = createMessage(mMockContext, b21, false, true, Message.FLAG_LOADED_COMPLETE);
         Message m21c = createMessage(mMockContext, b21, true, true, Message.FLAG_LOADED_COMPLETE);
@@ -195,21 +200,28 @@ public class WidgetViewTests extends ProviderTestCase2<EmailProvider> {
 
         // b22 (account 2, outbox) has no messages.
 
-        // bt (account 2, trash): 3 messages, including 2 starred
+        // bt (account 2, trash): 3 messages
         Message mt1 = createMessage(mMockContext, b2t, true, false, Message.FLAG_LOADED_COMPLETE);
         Message mt2 = createMessage(mMockContext, b2t, true, true, Message.FLAG_LOADED_COMPLETE);
         Message mt3 = createMessage(mMockContext, b2t, false, false, Message.FLAG_LOADED_COMPLETE);
 
         assertEquals(4, getMessageCount(WidgetView.ALL_INBOX));
+        assertEquals(2, getUnreadCount(WidgetView.ALL_INBOX));
+
         assertEquals(3, getMessageCount(WidgetView.ALL_STARRED));
+        assertEquals(1, getUnreadCount(WidgetView.ALL_STARRED));
+
         assertEquals(2, getMessageCount(WidgetView.ALL_UNREAD));
+        assertEquals(2, getUnreadCount(WidgetView.ALL_UNREAD));
 
         final WidgetView account1View = WidgetView.ALL_INBOX.getNext(mMockContext);
         assertEquals(Long.toString(a1.mId), account1View.getSelectionArgs()[0]);
         assertEquals(1, getMessageCount(account1View));
+        assertEquals(1, getUnreadCount(account1View));
 
         final WidgetView account2View = account1View.getNext(mMockContext);
         assertEquals(Long.toString(a2.mId), account2View.getSelectionArgs()[0]);
         assertEquals(3, getMessageCount(account2View));
+        assertEquals(1, getUnreadCount(account2View));
     }
 }
