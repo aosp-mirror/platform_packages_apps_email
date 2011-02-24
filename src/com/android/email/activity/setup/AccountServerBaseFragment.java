@@ -60,7 +60,7 @@ public abstract class AccountServerBaseFragment extends Fragment
     // This is null in the setup wizard screens, and non-null in AccountSettings mode
     public Button mProceedButton;
     // This is used to debounce multiple clicks on the proceed button (which does async work)
-    public boolean mProceedButtonPressed;
+    private boolean mProceedButtonPressed;
     /*package*/ String mBaseScheme = "protocol";
 
     /**
@@ -130,8 +130,6 @@ public abstract class AccountServerBaseFragment extends Fragment
         if (getArguments() != null) {
             mSettingsMode = getArguments().getBoolean(BUNDLE_KEY_SETTINGS);
         }
-
-        mProceedButtonPressed = false;
     }
 
     /**
@@ -198,6 +196,7 @@ public abstract class AccountServerBaseFragment extends Fragment
         if (mProceedButton != null) {
             mProceedButton.setEnabled(enable);
         }
+        clearButtonBounce();
 
         // TODO: This supports the phone UX activities and will be removed
         mCallback.onEnableProceedButtons(enable);
@@ -212,6 +211,13 @@ public abstract class AccountServerBaseFragment extends Fragment
     protected void startDuplicateTaskCheck(long accountId, String checkHost, String checkLogin,
             int checkSettingsMode) {
         new DuplicateCheckTask(accountId, checkHost, checkLogin, checkSettingsMode).execute();
+    }
+
+    /**
+     * Clears the "next" button de-bounce flags and allows the "next" button to activate.
+     */
+    private void clearButtonBounce() {
+        mProceedButtonPressed = false;
     }
 
     private class DuplicateCheckTask extends AsyncTask<Void, Void, Account> {
@@ -249,7 +255,7 @@ public abstract class AccountServerBaseFragment extends Fragment
                 // Otherwise, proceed with the save/check
                 mCallback.onProceedNext(mCheckSettingsMode, fragment);
             }
-            mProceedButtonPressed = false;
+            clearButtonBounce();
         }
     }
 
