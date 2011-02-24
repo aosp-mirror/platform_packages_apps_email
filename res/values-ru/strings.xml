@@ -389,7 +389,7 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Крупный"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Огромный"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> из <xliff:g id="ID_2">%2$s</xliff:g>"</string>
-    <string name="widget_other_views" msgid="2265335608760083337">"Нажмите на значок, чтобы изменить"</string>
+    <string name="widget_other_views" msgid="2265335608760083337">"Нажмите значок, чтобы изменить"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Все входящие"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Непрочитанные"</string>
     <string name="widget_starred" msgid="8290352707134011791">"Помеченные"</string>
