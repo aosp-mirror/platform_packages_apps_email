@@ -90,7 +90,7 @@
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Nevyžiadaná pošta"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Verzia: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Účty"</string>
-    <!-- outdated translation 5790553737870057607 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Všetky priečinky Doručenej pošty"</string>
+    <!-- outdated translation 8551686380750629387 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Doručená pošta"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Označené hviezdičkou"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Koncepty"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Pošta na odoslanie"</string>
@@ -123,13 +123,18 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> a ešte <xliff:g id="NUMBER">%2$d</xliff:g> ďalších"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Komu:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kópia:"</string>
-    <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
-    <skip />
+    <!-- outdated translation 3004740137987424936 -->     <string name="message_view_bcc_label" msgid="7577479221285310198">"Skrytá kópia:"</string>
     <string name="message_view_date_label" msgid="7033814961837313339">"Dátum:"</string>
     <string name="message_view_from_label" msgid="6055076379282772675">"Od:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Predmet:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Zobraziť"</string>
+    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
+    <skip />
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Načítať"</string>
+    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
+    <skip />
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Uložiť"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Zastaviť"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Príloha uložená ako <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -153,6 +158,26 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Odmietli ste túto pozvánku"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Zobraziť podrobnosti"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Podrobnosti správy"</string>
+    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
+    <skip />
+    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
+    <skip />
+    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
+    <skip />
+    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
+    <skip />
+    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
+    <skip />
+    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
+    <skip />
+    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
+    <skip />
+    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
+    <skip />
+    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
+    <skip />
+    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"Počas dekódovania správy sa vyskytla chyba."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Zobraz. súbor: <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Zahodiť správu"</string>
@@ -174,9 +199,11 @@
     <item quantity="other" msgid="2286739630865943494">"Správy (<xliff:g id="NUM_MESSAGE">%1$d</xliff:g>) boli presunuté do schránky <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Nepodarilo sa poslať ďalej jednu alebo viac príloh"</string>
-    <string name="forward_download_failed_notification" msgid="3122309797954781752">"Súbor <xliff:g id="FILENAME"> %s</xliff:g> sa nepodarilo poslať ďalej"</string>
-    <string name="login_failed_ticker" msgid="7452091306512654139">"Prih. <xliff:g id="ACCOUNT_NAME">%s </xliff:g> zlyhalo"</string>
-    <string name="login_failed_notification" msgid="2405086379065472222">"Dotykom zmeníte nastavenia účtu"</string>
+    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
+    <skip />
+    <string name="login_failed_ticker" msgid="7452091306512654139">"Prih. <xliff:g id="ACCOUNT_NAME">%s</xliff:g> zlyhalo"</string>
+    <!-- no translation found for login_failed_title (6948780582524747622) -->
+    <skip />
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -294,18 +321,33 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Server <xliff:g id="SERVER">%s</xliff:g> vyžaduje povolenie, aby mohol vzdialene ovládať niektoré funkcie zabezpečenia vášho zariadenia so systémom Android. Chcete dokončiť nastavenie tohto účtu?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Tento server vyžaduje funkcie zabezpečenia, ktoré vaše zariadenie so systémom Android nepodporuje."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"UPOZORNENIE: Ak deaktivujete oprávnenia aplikácie E-mail spravovať toto zariadenie, budú odstránené všetky účty aplikácie E-mail, ktoré toto oprávnenie vyžadujú. Spoločne s týmito účtami budú odstránené aj všetky ich e-maily, kontakty, udalosti kalendára a ďalšie údaje."</string>
+    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
+    <skip />
+    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
+    <skip />
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> požaduje aktualizáciu nastavení zabezpečenia."</string>
-    <string name="security_notification_content_title" msgid="8096231937552848281">"Aktualizácia nastavení zabezpečenia"</string>
+    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Aktualizácia nastavení zabezpečenia"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Zabezpečenie zariadenia"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Server <xliff:g id="SERVER">%s</xliff:g> vyžaduje povolenie, aby mohol vzdialene ovládať niektoré funkcie zabezpečenia vášho zariadenia so systémom Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Upraviť podrobnosti"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Účet „<xliff:g id="ACCOUNT">%s</xliff:g>“ vyžaduje aktualizáciu kódu na uzamknutie obrazovky."</string>
-    <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Vyžad. odomk. novej obraz."</string>
-    <string name="password_expire_warning_content_text_fmt" msgid="4302557343790365263">"Účet <xliff:g id="ACCOUNT">%s</xliff:g> vyžaduje aktualizáciu kódu na uzamknutie obrazovky. Ak ho chcete aktualizovať, dotknite sa tu."</string>
-    <string name="password_expired_ticker" msgid="5698508544187945595">"Vypršala platnosť kódu na uzamknutie obrazovky"</string>
-    <string name="password_expired_content_title" msgid="8417027276177867305">"Vyžad. odomk. novej obraz."</string>
-    <string name="password_expired_content_text" msgid="741999155767783375">"Platnosť kódu na uzamknutie obrazovky vypršala. Ak ho chcete aktualizovať, dotknite sa tu."</string>
+    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
+    <skip />
+    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Vyžaduje odomknutie novej obrazovky"</string>
+    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"Vypršala platnosť kódu na uzamknutie obrazovky"</string>
+    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"Vyžaduje odomknutie novej obrazovky"</string>
+    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
+    <skip />
+    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
+    <skip />
+    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
+    <skip />
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Zahodiť neuložené zmeny?"</string>
+    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
+    <skip />
+    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
+    <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Všeobecné nastavenia"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Predvolený účet"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"V predvolenom nastavení odosielať e-maily z tohto účtu"</string>
@@ -360,7 +402,7 @@
     <string name="meeting_recurring" msgid="3134262212606714023">"Kedy: <xliff:g id="EVENTDATE">%s</xliff:g> (pravidelne)"</string>
     <string name="exception_cancel" msgid="6160117429428313805">"Táto udalosť bola zrušená pre termín: <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="exception_updated" msgid="3397583105901142050">"Došlo k zmene podrobností tejto udalosti pre termín: <xliff:g id="DATE">%s</xliff:g>"</string>
-    <string name="system_account_create_failed" msgid="4917162302393971752">"Správcovi účtov sa nepodarilo vytvoriť účet. Skúste to prosím znova."</string>
+    <!-- outdated translation 2957855430954881406 -->     <string name="system_account_create_failed" msgid="3054850402122007715">"Správcovi účtov sa nepodarilo vytvoriť účet. Skúste to znova."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Poslať e-mail"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Povoľuje pravidlá zabezpečenia určené serverom"</string>
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Kalendár Exchange bol pridaný"</string>
