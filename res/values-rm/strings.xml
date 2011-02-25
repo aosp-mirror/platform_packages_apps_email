@@ -143,7 +143,13 @@
     <!-- no translation found for message_view_subject_label (3731022187530000852) -->
     <skip />
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Far ir"</string>
+    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
+    <skip />
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Chargiar"</string>
+    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
+    <skip />
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Memorisar"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Fermar"</string>
     <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
@@ -170,6 +176,26 @@
     <skip />
     <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
     <skip />
+    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
+    <skip />
+    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
+    <skip />
+    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
+    <skip />
+    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
+    <skip />
+    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
+    <skip />
+    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
+    <skip />
+    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
+    <skip />
+    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
+    <skip />
+    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
+    <skip />
+    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
+    <skip />
     <!-- no translation found for message_decode_error (7812862491622388416) -->
     <skip />
     <!-- no translation found for eml_view_title (8827210108543430336) -->
@@ -190,11 +216,11 @@
     <!-- no translation found for message_moved_toast:one (3098493230185412871) -->
     <!-- no translation found for message_moved_toast:other (2286739630865943494) -->
     <!-- outdated translation 6654377128589312623 -->     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Ina agiunta n\'ha betg pudì vegnir renviada"</string>
-    <!-- no translation found for forward_download_failed_notification (3122309797954781752) -->
+    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
     <skip />
     <!-- no translation found for login_failed_ticker (7452091306512654139) -->
     <skip />
-    <!-- no translation found for login_failed_notification (2405086379065472222) -->
+    <!-- no translation found for login_failed_title (6948780582524747622) -->
     <skip />
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -332,25 +358,37 @@
     <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Quest server dovra funcziuns da segirezza che Voss telefonin na sustegna betg."</string>
     <!-- no translation found for disable_admin_warning (4940147098039352135) -->
     <skip />
+    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
+    <skip />
+    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
+    <skip />
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Il conto «<xliff:g id="ACCOUNT">%s</xliff:g>» basegna ina actualisaziun dals parameters da segirezza."</string>
-    <string name="security_notification_content_title" msgid="8096231937552848281">"Actualisar ils parameters da segirezza"</string>
+    <!-- outdated translation 8096231937552848281 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Actualisar ils parameters da segirezza"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Protecziun da l\'apparat"</string>
     <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
     <skip />
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifitgar ils detagls"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (950001176659814912) -->
+    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
     <skip />
-    <!-- no translation found for password_expire_warning_content_title (4602564325906174785) -->
+    <!-- no translation found for password_expire_warning_content_title (7174669014074849304) -->
     <skip />
-    <!-- no translation found for password_expire_warning_content_text_fmt (4302557343790365263) -->
+    <!-- no translation found for password_expired_ticker (4230570412974108968) -->
     <skip />
-    <!-- no translation found for password_expired_ticker (5698508544187945595) -->
+    <!-- no translation found for password_expired_content_title (4349518706602252979) -->
     <skip />
-    <!-- no translation found for password_expired_content_title (8417027276177867305) -->
+    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
     <skip />
-    <!-- no translation found for password_expired_content_text (741999155767783375) -->
+    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
+    <skip />
+    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
+    <skip />
+    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
     <skip />
     <!-- no translation found for account_settings_exit_server_settings (8006323251094711431) -->
+    <skip />
+    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
+    <skip />
+    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
     <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Parameters generals"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Conto predefinì"</string>
@@ -410,7 +448,7 @@
     <string name="meeting_recurring" msgid="3134262212606714023">"Cura: <xliff:g id="EVENTDATE">%s</xliff:g> (periodic)"</string>
     <string name="exception_cancel" msgid="6160117429428313805">"Questa occurrenza è vegnida annullada: <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="exception_updated" msgid="3397583105901142050">"Ils detagls da questa occurrenza èn vegnids modifitgads: <xliff:g id="DATE">%s</xliff:g>"</string>
-    <string name="system_account_create_failed" msgid="4917162302393971752">"Impussibel da crear il conto cun l\'administratur da contos. Empruvai anc ina giada."</string>
+    <!-- outdated translation 4917162302393971752 -->     <string name="system_account_create_failed" msgid="3054850402122007715">"Impussibel da crear il conto cun l\'administratur da contos. Empruvai anc ina giada."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Activescha las directivas da segirezza specificas per il server"</string>
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Agiuntà in chalender Exchange"</string>

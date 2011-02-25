@@ -90,7 +90,7 @@
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Thư rác"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Phiên bản: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Tài khoản"</string>
-    <!-- outdated translation 5790553737870057607 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Hộp thư đến Kết hợp"</string>
+    <!-- outdated translation 8551686380750629387 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Hộp thư đến"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Được gắn dấu sao"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Tin nháp"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Hộp thư đi"</string>
@@ -123,13 +123,18 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> và <xliff:g id="NUMBER">%2$d</xliff:g> người khác"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Tới:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
-    <!-- no translation found for message_view_bcc_label (7577479221285310198) -->
-    <skip />
+    <!-- outdated translation 3004740137987424936 -->     <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
     <string name="message_view_date_label" msgid="7033814961837313339">"Ngày:"</string>
     <string name="message_view_from_label" msgid="6055076379282772675">"Từ:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Chủ đề:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Xem"</string>
+    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
+    <skip />
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Tải"</string>
+    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
+    <skip />
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Lưu"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Dừng"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Đã lưu tệp đính kèm với tên <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -153,6 +158,26 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Bạn đã từ chối thư mời này"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Hiển thị chi tiết"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Chi tiết thư"</string>
+    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
+    <skip />
+    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
+    <skip />
+    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
+    <skip />
+    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
+    <skip />
+    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
+    <skip />
+    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
+    <skip />
+    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
+    <skip />
+    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
+    <skip />
+    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
+    <skip />
+    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"Lỗi khi giải mã thư."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Đang xem <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Hủy thư"</string>
@@ -174,9 +199,11 @@
     <item quantity="other" msgid="2286739630865943494">"Đã di chuyển <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> thư tới <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Không thể chuyển tiếp một hoặc nhiều tệp đính kèm"</string>
-    <string name="forward_download_failed_notification" msgid="3122309797954781752">"Không thể chuyển tiếp <xliff:g id="FILENAME"> %s</xliff:g>"</string>
-    <string name="login_failed_ticker" msgid="7452091306512654139">"Đăng nhập vào <xliff:g id="ACCOUNT_NAME">%s </xliff:g> lỗi"</string>
-    <string name="login_failed_notification" msgid="2405086379065472222">"Chạm để thay đổi cài đặt tài khoản"</string>
+    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
+    <skip />
+    <string name="login_failed_ticker" msgid="7452091306512654139">"Đăng nhập vào <xliff:g id="ACCOUNT_NAME">%s</xliff:g> lỗi"</string>
+    <!-- no translation found for login_failed_title (6948780582524747622) -->
+    <skip />
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -294,18 +321,33 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Máy chủ <xliff:g id="SERVER">%s</xliff:g> yêu cầu bạn cho phép kiểm soát từ xa một số tính năng bảo mật của điện thoại Android của bạn. Bạn có muốn hoàn tất việc thiết lập tài khoản này không?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Máy chủ này yêu cầu tính năng bảo mật mà điện thoại Android của bạn không hỗ trợ."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"CẢNH BÁO: Vô hiệu hóa quyền quản lý điện thoại của bạn của ứng dụng Email sẽ xóa tất cả tài khoản Email yêu cầu quyền đó, cùng với email, địa chỉ liên hệ, sự kiện lịch và các dữ liệu khác."</string>
+    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
+    <skip />
+    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
+    <skip />
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Tài khoản \"<xliff:g id="ACCOUNT">%s</xliff:g>\" yêu cầu cập nhật cài đặt bảo mật."</string>
-    <string name="security_notification_content_title" msgid="8096231937552848281">"Cập nhật Cài đặt Bảo mật"</string>
+    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Cập nhật Cài đặt Bảo mật"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Bảo mật của Thiết bị"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Máy chủ <xliff:g id="SERVER">%s</xliff:g> yêu cầu bạn cho phép kiểm soát từ xa một số tính năng bảo mật của điện thoại Android của bạn."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Chỉnh sửa chi tiết"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Tài khoản \"<xliff:g id="ACCOUNT">%s</xliff:g>\" yêu cầu bạn cập nhật mã mở khóa màn hình của mình."</string>
-    <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Yêu cầu mã mở khóa màn hình mới"</string>
-    <string name="password_expire_warning_content_text_fmt" msgid="4302557343790365263">"Tài khoản \"<xliff:g id="ACCOUNT">%s</xliff:g>\" yêu cầu bạn cập nhật mã mở khóa màn hình của mình. Chạm vào đây để cập nhật mã."</string>
-    <string name="password_expired_ticker" msgid="5698508544187945595">"Mã mở khóa màn hình của bạn đã hết hạn."</string>
-    <string name="password_expired_content_title" msgid="8417027276177867305">"Yêu cầu mã mở khóa màn hình mới"</string>
-    <string name="password_expired_content_text" msgid="741999155767783375">"Mã mở khóa màn hình của bạn đã hết hạn. Chạm vào đây để cập nhật mã."</string>
+    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
+    <skip />
+    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Yêu cầu mã mở khóa màn hình mới"</string>
+    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"Mã mở khóa màn hình của bạn đã hết hạn."</string>
+    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"Yêu cầu mã mở khóa màn hình mới"</string>
+    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
+    <skip />
+    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
+    <skip />
+    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
+    <skip />
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Hủy những thay đổi chưa lưu?"</string>
+    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
+    <skip />
+    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
+    <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Cài đặt chung"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Tài khoản mặc định"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Gửi email từ tài khoản này theo mặc định"</string>
@@ -360,7 +402,7 @@
     <string name="meeting_recurring" msgid="3134262212606714023">"Thời gian: <xliff:g id="EVENTDATE">%s</xliff:g> (lặp lại)"</string>
     <string name="exception_cancel" msgid="6160117429428313805">"Sự kiện này đã bị huỷ cho: <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="exception_updated" msgid="3397583105901142050">"Chi tiết về sự kiện này đã được thay đổi cho: <xliff:g id="DATE">%s</xliff:g>"</string>
-    <string name="system_account_create_failed" msgid="4917162302393971752">"Trình quản lý Tài khoản không thể tạo Tài khoản; vui lòng thử lại."</string>
+    <!-- outdated translation 2957855430954881406 -->     <string name="system_account_create_failed" msgid="3054850402122007715">"Trình quản lý tài khoản không thể tạo Tài khoản; vui lòng thử lại."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Email"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Cho phép chính sách bảo mật được máy chủ chỉ định"</string>
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Đã thêm lịch Exchange"</string>

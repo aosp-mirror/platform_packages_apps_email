@@ -128,8 +128,14 @@
     <string name="message_view_from_label" msgid="6055076379282772675">"De :"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Objet :"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Afficher"</string>
+    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
+    <skip />
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Charger"</string>
-    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Enreg."</string>
+    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
+    <skip />
+    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Enregistrer"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Arrêter"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"PJ enregistrée sous <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Impossible d\'enregistrer la pièce jointe."</string>
@@ -152,6 +158,26 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Vous avez refusé cette invitation."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Afficher détails"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Détails du message"</string>
+    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
+    <skip />
+    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
+    <skip />
+    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
+    <skip />
+    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
+    <skip />
+    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
+    <skip />
+    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
+    <skip />
+    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
+    <skip />
+    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
+    <skip />
+    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
+    <skip />
+    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"Une erreur s\'est produite lors du décodage du message."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Affichage de <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Supprimer message"</string>
@@ -173,9 +199,11 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> messages déplacés vers <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Impossible de transférer une ou plusieurs pièces jointes."</string>
-    <string name="forward_download_failed_notification" msgid="3122309797954781752">"Impossible de transférer <xliff:g id="FILENAME"> %s</xliff:g>."</string>
-    <string name="login_failed_ticker" msgid="7452091306512654139">"Échec connexion <xliff:g id="ACCOUNT_NAME">%s </xliff:g>"</string>
-    <string name="login_failed_notification" msgid="2405086379065472222">"Appuyez ici pour modifier les paramètres du compte."</string>
+    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
+    <skip />
+    <string name="login_failed_ticker" msgid="7452091306512654139">"Échec connexion <xliff:g id="ACCOUNT_NAME">%s</xliff:g>"</string>
+    <!-- no translation found for login_failed_title (6948780582524747622) -->
+    <skip />
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> O"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> O"</item>
@@ -293,18 +321,33 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre mobile Android. Voulez-vous terminer la configuration de ce compte ?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Ce serveur nécessite des fonctionnalités de sécurité non compatibles avec votre mobile Android."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"AVERTISSEMENT : Si vous désactivez la gestion de votre appareil par l\'application de messagerie électronique, tous les comptes de messagerie électronique qui y sont associés seront supprimés, de même que leurs données (e-mails, contacts, événements d\'agenda, etc.)."</string>
+    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
+    <skip />
+    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
+    <skip />
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" nécessite une mise à jour de ses paramètres de sécurité."</string>
-    <string name="security_notification_content_title" msgid="8096231937552848281">"Mettre à jour les paramètres de sécurité"</string>
+    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Mettre à jour les paramètres de sécurité"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Sécurité du périphérique"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre mobile Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifier les infos"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requiert la mise à jour du code de déverrouillage de l\'écran."</string>
-    <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Nouvel écran de déverrouillage requis"</string>
-    <string name="password_expire_warning_content_text_fmt" msgid="4302557343790365263">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requiert la mise à jour du code de déverrouillage de l\'écran. Appuyez ici pour le mettre à jour."</string>
-    <string name="password_expired_ticker" msgid="5698508544187945595">"Votre code de déverrouillage d\'écran a expiré."</string>
-    <string name="password_expired_content_title" msgid="8417027276177867305">"Nouvel écran de déverrouillage requis"</string>
-    <string name="password_expired_content_text" msgid="741999155767783375">"Votre code de déverrouillage d\'écran a expiré. Appuyez ici pour le mettre à jour."</string>
+    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
+    <skip />
+    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Nouveau déverrouillage d\'écran requis"</string>
+    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"Votre code de déverrouillage d\'écran a expiré."</string>
+    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"Nouvel écran de déverrouillage requis"</string>
+    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
+    <skip />
+    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
+    <skip />
+    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
+    <skip />
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Annuler les modifications non enregistrées ?"</string>
+    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
+    <skip />
+    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
+    <skip />
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Paramètres généraux"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Compte par défaut"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Par défaut, envoyer les e-mails avec ce compte"</string>
@@ -359,7 +402,7 @@
     <string name="meeting_recurring" msgid="3134262212606714023">"Date : <xliff:g id="EVENTDATE">%s</xliff:g> (périodique)"</string>
     <string name="exception_cancel" msgid="6160117429428313805">"Cet événement a été annulé pour : <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="exception_updated" msgid="3397583105901142050">"Les détails de cet événement ont été modifiés pour : <xliff:g id="DATE">%s</xliff:g>"</string>
-    <string name="system_account_create_failed" msgid="4917162302393971752">"Le gestionnaire de comptes n\'a pas pu créer le compte ; veuillez réessayer."</string>
+    <!-- outdated translation 2957855430954881406 -->     <string name="system_account_create_failed" msgid="3054850402122007715">"Le gestionnaire de comptes n\'a pas pu créer le compte. Veuillez réessayer."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-mail"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Active les stratégies de sécurité spécifiées par le serveur."</string>
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Agenda Exchange ajouté"</string>
