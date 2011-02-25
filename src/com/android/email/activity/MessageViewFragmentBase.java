@@ -53,7 +53,6 @@ import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
-import android.media.MediaScannerConnection.OnScanCompletedListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -88,7 +87,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // TODO Better handling of config changes.
-// - Restore "Show pictures" state, scroll position and current tab
 // - Retain the content; don't kick 3 async tasks every time
 
 /**
@@ -97,6 +95,8 @@ import java.util.regex.Pattern;
  * See {@link MessageViewBase} for the class relation diagram.
  */
 public abstract class MessageViewFragmentBase extends Fragment implements View.OnClickListener {
+    private static final String BUNDLE_KEY_CURRENT_TAB = "MessageViewFragmentBase.currentTab";
+    private static final String BUNDLE_KEY_PICTURE_LOADED = "MessageViewFragmentBase.pictureLoaded";
     private static final int PHOTO_LOADER_ID = 1;
     private Context mContext;
 
@@ -192,6 +192,17 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     protected static final int TAB_MESSAGE = 101;
     protected static final int TAB_INVITE = 102;
     protected static final int TAB_ATTACHMENT = 103;
+    private static final int TAB_NONE = 0;
+
+    /** Current tab */
+    private int mCurrentTab = TAB_NONE;
+    /**
+     * Tab that was selected in the previous activity instance.
+     * Used to restore the current tab after screen rotation.
+     */
+    private int mRestoredTab = TAB_NONE;
+
+    private boolean mRestoredPictureLoaded;
 
     /**
      * Zoom scales for webview.  Values correspond to {@link Preferences#TEXT_ZOOM_TINY}..
@@ -259,6 +270,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         mController = Controller.getInstance(mContext);
         mMessageObserver = new MessageObserver(new Handler(), mContext);
+
+        if (savedInstanceState != null) {
+            restoreInstanceState(savedInstanceState);
+        }
     }
 
     @Override
@@ -304,7 +319,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mInviteScroll = view.findViewById(R.id.invite_scroll);
 
         WebSettings webSettings = mMessageContentView.getSettings();
-        webSettings.setBlockNetworkLoads(true);
         webSettings.setSupportZoom(true);
         webSettings.setBuiltInZoomControls(true);
         mMessageContentView.setWebViewClient(new CustomWebViewClient());
@@ -387,6 +401,16 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             Log.d(Logging.LOG_TAG, "MessageViewFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
+        outState.putInt(BUNDLE_KEY_CURRENT_TAB, mCurrentTab);
+        outState.putBoolean(BUNDLE_KEY_PICTURE_LOADED, (mTabFlags & TAB_FLAGS_PICTURE_LOADED) != 0);
+    }
+
+    private void restoreInstanceState(Bundle state) {
+        // At this point (in onCreate) no tabs are visible (because we don't know if the message has
+        // an attachment or invite before loading it).  We just remember the tab here.
+        // We'll make it current when the tab first becomes visible in updateTabs().
+        mRestoredTab = state.getInt(BUNDLE_KEY_CURRENT_TAB);
+        mRestoredPictureLoaded = state.getBoolean(BUNDLE_KEY_PICTURE_LOADED);
     }
 
     public void setCallback(Callback callback) {
@@ -470,10 +494,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     protected void resetView() {
         showContent(false, false);
+        updateTabs(0);
         setCurrentTab(TAB_MESSAGE);
-        updateTabFlags(0);
         if (mMessageContentView != null) {
-            mMessageContentView.getSettings().setBlockNetworkLoads(true);
+            blockNetworkLoads(true);
             mMessageContentView.scrollTo(0, 0);
             mMessageContentView.clearView();
 
@@ -513,11 +537,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     protected final void addTabFlags(int tabFlags) {
-        updateTabFlags(mTabFlags | tabFlags);
+        updateTabs(mTabFlags | tabFlags);
     }
 
     private final void clearTabFlags(int tabFlags) {
-        updateTabFlags(mTabFlags & ~tabFlags);
+        updateTabs(mTabFlags & ~tabFlags);
     }
 
     private void setAttachmentCount(int count) {
@@ -530,17 +554,20 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     private static void makeVisible(View v, boolean visible) {
-        v.setVisibility(visible ? View.VISIBLE : View.GONE);
+        final int visibility = visible ? View.VISIBLE : View.GONE;
+        if ((v != null) && (v.getVisibility() != visibility)) {
+            v.setVisibility(visibility);
+        }
     }
 
     private static boolean isVisible(View v) {
-        return v.getVisibility() == View.VISIBLE;
+        return (v != null) && (v.getVisibility() == View.VISIBLE);
     }
 
     /**
      * Update the visual of the tabs.  (visibility, text, etc)
      */
-    private void updateTabFlags(int tabFlags) {
+    private void updateTabs(int tabFlags) {
         mTabFlags = tabFlags;
         boolean messageTabVisible = (tabFlags & (TAB_FLAGS_HAS_INVITE | TAB_FLAGS_HAS_ATTACHMENT))
                 != 0;
@@ -559,6 +586,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         // Hide the entire section if no tabs are visible.
         makeVisible(mTabSection, isVisible(mMessageTab) || isVisible(mInviteTab)
                 || isVisible(mAttachmentTab) || isVisible(mShowPicturesTab));
+
+        // Restore previously selected tab after rotation
+        if (mRestoredTab != TAB_NONE && isVisible(getTabViewForFlag(mRestoredTab))) {
+            setCurrentTab(mRestoredTab);
+            mRestoredTab = TAB_NONE;
+        }
     }
 
     /**
@@ -567,16 +600,57 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * @param tab any of {@link #TAB_MESSAGE}, {@link #TAB_ATTACHMENT} or {@link #TAB_INVITE}.
      */
     private void setCurrentTab(int tab) {
-        if (mMessageContentView != null) {
-            makeVisible(mMessageContentView, tab == TAB_MESSAGE);
+        mCurrentTab = tab;
+
+        // Hide & unselect all tabs
+        makeVisible(getTabContentViewForFlag(TAB_MESSAGE), false);
+        makeVisible(getTabContentViewForFlag(TAB_ATTACHMENT), false);
+        makeVisible(getTabContentViewForFlag(TAB_INVITE), false);
+        getTabViewForFlag(TAB_MESSAGE).setSelected(false);
+        getTabViewForFlag(TAB_ATTACHMENT).setSelected(false);
+        getTabViewForFlag(TAB_INVITE).setSelected(false);
+
+        makeVisible(getTabContentViewForFlag(mCurrentTab), true);
+        getTabViewForFlag(mCurrentTab).setSelected(true);
+    }
+
+    private View getTabViewForFlag(int tabFlag) {
+        switch (tabFlag) {
+            case TAB_MESSAGE:
+                return mMessageTab;
+            case TAB_ATTACHMENT:
+                return mAttachmentTab;
+            case TAB_INVITE:
+                return mInviteTab;
         }
-        mMessageTab.setSelected(tab == TAB_MESSAGE);
+        throw new IllegalArgumentException();
+    }
 
-        makeVisible(mAttachmentsScroll, tab == TAB_ATTACHMENT);
-        mAttachmentTab.setSelected(tab == TAB_ATTACHMENT);
+    private View getTabContentViewForFlag(int tabFlag) {
+        switch (tabFlag) {
+            case TAB_MESSAGE:
+                return mMessageContentView;
+            case TAB_ATTACHMENT:
+                return mAttachmentsScroll;
+            case TAB_INVITE:
+                return mInviteScroll;
+        }
+        throw new IllegalArgumentException();
+    }
 
-        makeVisible(mInviteScroll, tab == TAB_INVITE);
-        mInviteTab.setSelected(tab == TAB_INVITE);
+    private void blockNetworkLoads(boolean block) {
+        if (mMessageContentView != null) {
+            mMessageContentView.getSettings().setBlockNetworkLoads(false);
+        }
+    }
+
+    private void setMessageHtml(String html) {
+        if (html == null) {
+            html = "";
+        }
+        if (mMessageContentView != null) {
+            mMessageContentView.loadDataWithBaseURL("email://", html, "text/html", "utf-8", null);
+        }
     }
 
     /**
@@ -786,11 +860,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     private void onShowPicturesInHtml() {
         if (mMessageContentView != null) {
-            mMessageContentView.getSettings().setBlockNetworkLoads(false);
-            if (mHtmlTextWebView != null) {
-                mMessageContentView.loadDataWithBaseURL("email://", mHtmlTextWebView,
-                                                        "text/html", "utf-8", null);
-            }
+            blockNetworkLoads(false);
+            setMessageHtml(mHtmlTextWebView);
             addTabFlags(TAB_FLAGS_PICTURE_LOADED);
         }
     }
@@ -1070,9 +1141,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 setAttachmentCount(numDisplayedAttachments);
                 mHtmlTextWebView = mHtmlTextRaw;
                 mHtmlTextRaw = null;
-                if (htmlChanged && mMessageContentView != null) {
-                    mMessageContentView.loadDataWithBaseURL("email://", mHtmlTextWebView,
-                                                            "text/html", "utf-8", null);
+                if (htmlChanged) {
+                    setMessageHtml(mHtmlTextWebView);
                 }
             } finally {
                 showContent(true, false);
@@ -1479,11 +1549,18 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         // - If images are attached to the email and small enough, we download them at once,
         //   and won't need network access when they're shown.
         if (hasImages) {
-            addTabFlags(TAB_FLAGS_HAS_PICTURES);
+            if (mRestoredPictureLoaded) {
+                blockNetworkLoads(false);
+                addTabFlags(TAB_FLAGS_PICTURE_LOADED); // Set for next onSaveInstanceState
+
+                // Make sure to reset the flag -- otherwise this will keep taking effect even after
+                // moving to another message.
+                mRestoredPictureLoaded = false;
+            } else {
+                addTabFlags(TAB_FLAGS_HAS_PICTURES);
+            }
         }
-        if (mMessageContentView != null) {
-            mMessageContentView.loadDataWithBaseURL("email://", text, "text/html", "utf-8", null);
-        }
+        setMessageHtml(text);
 
         // Ask for attachments after body
         mLoadAttachmentsTask = new LoadAttachmentsTask();
