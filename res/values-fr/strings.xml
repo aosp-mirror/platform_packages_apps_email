@@ -128,7 +128,7 @@
     <string name="message_view_subject_label" msgid="3731022187530000852">"Objet :"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Afficher"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Charger"</string>
-    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Enreg."</string>
+    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Enregistrer"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Arrêter"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"PJ enregistrée sous <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Impossible d\'enregistrer la pièce jointe."</string>
