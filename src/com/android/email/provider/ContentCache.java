@@ -390,10 +390,11 @@ public final class ContentCache {
         mName = name;
         mLruCache = new LruCache<String, Cursor>(maxSize) {
             @Override
-            protected void entryEvicted(String key, Cursor cursor) {
+            protected void entryRemoved(
+                    boolean evicted, String key, Cursor oldValue, Cursor newValue) {
                 // Close this cursor if it's no longer being used
-                if (!sActiveCursors.contains(cursor)) {
-                    cursor.close();
+                if (evicted && !sActiveCursors.contains(oldValue)) {
+                    oldValue.close();
                 }
             }
         };
