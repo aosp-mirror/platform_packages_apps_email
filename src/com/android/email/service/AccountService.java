@@ -17,12 +17,15 @@
 package com.android.email.service;
 
 import com.android.email.AccountBackupRestore;
+import com.android.email.Email;
+import com.android.email.ExchangeUtils;
 import com.android.email.NotificationController;
 import com.android.email.ResourceHelper;
 import com.android.email.VendorPolicyLoader;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.service.IAccountService;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.Service;
 import android.content.Context;
@@ -81,6 +84,14 @@ public class AccountService extends Service {
         @Override
         public String getDeviceId() throws RemoteException {
             try {
+                Utility.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Make sure the service is properly running (re: lifecycle)
+                        ExchangeUtils.startExchangeService(mContext);
+                        // Send current logging flags
+                        Email.updateLoggingFlags(mContext);
+                    }});
                 return Device.getDeviceId(mContext);
             } catch (IOException e) {
                 return null;
