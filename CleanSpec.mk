@@ -49,6 +49,9 @@ $(call add-clean-step, rm -rf $(OUT_DIR)/out/target/common/obj/APPS/Exchange*)
 $(call add-clean-step, rm -rf $(PRODUCT_OUT)/obj/JAVA_LIBRARIES/com.android.emailcommon*)
 $(call add-clean-step, rm -rf $(OUT_DIR)/out/target/common/obj/JAVA_LIBRARIES/android_stubs_current_intermediates/classes/com/android/emailcommon*)
 $(call add-clean-step, rm -rf $(OUT_DIR)/out/target/common/obj/JAVA_LIBRARIES/com.android.emailcommon*)
+$(call add-clean-step, rm -rf $(OUT_DIR)/target/common/obj/APPS/EmailGoogle_intermediates)
+$(call add-clean-step, rm -rf $(OUT_DIR)/target/common/obj/APPS/Email_intermediates)
+$(call add-clean-step, rm -rf $(OUT_DIR)/target/common/obj/JAVA_LIBRARIES/com.android.emailcommon_intermediates)
 
 # ************************************************
 # NEWER CLEAN STEPS MUST BE AT THE END OF THE LIST
