@@ -79,6 +79,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
         }, "accountDeleted");
     }
 
+    // The following call is synchronous, and should not be made from the UI thread
     @Override
     public void restoreAccountsIfNeeded() throws RemoteException {
         setTask(new ProxyTask() {
@@ -86,8 +87,10 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
                 mService.restoreAccountsIfNeeded();
             }
         }, "restoreAccountsIfNeeded");
+        waitForCompletion();
     }
 
+    // The following call is synchronous, and should not be made from the UI thread
     @Override
     public int getAccountColor(final long accountId) throws RemoteException {
         setTask(new ProxyTask() {
@@ -103,6 +106,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
         }
     }
 
+    // The following call is synchronous, and should not be made from the UI thread
     public Bundle getConfigurationData(final String accountType) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException{
@@ -117,6 +121,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
         }
     }
 
+    // The following call is synchronous, and should not be made from the UI thread
     public String getDeviceId() throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException{
