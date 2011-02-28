@@ -206,7 +206,7 @@ public class MessageListXL extends Activity implements
         }
 
         if (accountId != -1) {
-            mFragmentManager.selectAccount(accountId, mailboxId, messageId, true);
+            mFragmentManager.selectAccount(accountId, mailboxId, messageId);
         }
     }
 
@@ -418,12 +418,12 @@ public class MessageListXL extends Activity implements
     private class MailboxListFragmentCallback implements MailboxListFragment.Callback {
         @Override
         public void onMailboxSelected(long accountId, long mailboxId) {
-            mFragmentManager.selectMailbox(mailboxId, -1, true);
+            mFragmentManager.selectMailbox(mailboxId, -1);
         }
 
         @Override
         public void onAccountSelected(long accountId) {
-            mFragmentManager.selectAccount(accountId, -1, -1, true);
+            mFragmentManager.selectAccount(accountId, -1, -1);
             loadAccounts(); // This will update the account spinner, and select the account.
         }
 
@@ -681,7 +681,7 @@ public class MessageListXL extends Activity implements
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, "Account selected: accountId=" + accountId);
             }
-            mFragmentManager.selectAccount(accountId, -1, -1, true);
+            mFragmentManager.selectAccount(accountId, -1, -1);
             return true;
         }
     }

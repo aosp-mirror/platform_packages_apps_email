@@ -136,8 +136,6 @@ public class MessageListFragment extends ListFragment
     private int mCountTotalAccounts;
 
     // Misc members
-    private boolean mDoAutoRefresh;
-
     private boolean mOpenRequested;
 
     /** Whether "Send all messages" should be shown. */
@@ -377,7 +375,6 @@ public class MessageListFragment extends ListFragment
         mIsEasAccount = false;
         mIsRefreshable = false;
         mCountTotalAccounts = 0;
-        mDoAutoRefresh = false;
         mOpenRequested = false;
         mShowSendCommand = false;
 
@@ -935,32 +932,17 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
-     * Called by activity to indicate that the user explicitly opened the
-     * mailbox and it needs auto-refresh when it's first shown. TODO:
-     * {@link MessageList} needs to call this as well.
-     *
-     * TODO It's a bit ugly. We can remove this if this fragment "remembers" the current mailbox ID
-     * through configuration changes.
-     */
-    public void doAutoRefresh() {
-        mDoAutoRefresh = true;
-    }
-
-    /**
      * Implements a timed refresh of "stale" mailboxes.  This should only happen when
      * multiple conditions are true, including:
      *   Only refreshable mailboxes.
-     *   Only when the user explicitly opens the mailbox (not onResume, for example)
      *   Only when the mailbox is "stale" (currently set to 5 minutes since last refresh)
      * Note we do this even if it's a push account; even on Exchange only inbox can be pushed.
      */
     private void autoRefreshStaleMailbox() {
-        if (!mDoAutoRefresh // Not explicitly open
-                || !mIsRefreshable // Not refreshable (special box such as drafts, or magic boxes)
-                ) {
+        if (!mIsRefreshable) {
+            // Not refreshable (special box such as drafts, or magic boxes)
             return;
         }
-        mDoAutoRefresh = false;
         if (!mRefreshManager.isMailboxStale(mMailboxId)) {
             return;
         }
