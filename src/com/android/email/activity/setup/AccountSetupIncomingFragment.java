@@ -20,6 +20,7 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.Utility;
+import com.android.email.mail.Store;
 import com.android.email.provider.EmailContent;
 import com.android.email.provider.EmailContent.Account;
 
@@ -334,16 +335,20 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
                 mPasswordView.setText(password);
             }
 
-            if (uri.getScheme().startsWith("pop3")) {
-                mLoadedDeletePolicy = account.getDeletePolicy();
-                SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, mLoadedDeletePolicy);
-            } else if (uri.getScheme().startsWith("imap")) {
+            if (uri.getScheme().startsWith(Store.STORE_SCHEME_IMAP)) {
                 if (uri.getPath() != null && uri.getPath().length() > 0) {
                     mImapPathPrefixView.setText(uri.getPath().substring(1));
                 }
-            } else {
+            } else if (!uri.getScheme().startsWith(Store.STORE_SCHEME_POP3)) {
+                // Account must either be IMAP or POP3
                 throw new Error("Unknown account type: " + account.getStoreUri(mContext));
             }
+
+            // The delete policy is set for all accounts. For POP3 accounts, the user sets
+            // the policy explicitly. For IMAP accounts, the policy is set when the Account object
+            // is created. @see AccountSetupBasics#populateSetupData
+            mLoadedDeletePolicy = account.getDeletePolicy();
+            SpinnerOption.setSpinnerOptionValue(mDeletePolicyView, mLoadedDeletePolicy);
 
             for (int i = 0; i < mAccountSchemes.length; i++) {
                 if (mAccountSchemes[i].equals(uri.getScheme())) {
