@@ -22,14 +22,23 @@ import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.setup.AccountSettingsXL;
+import com.android.email.mail.Store;
+import com.android.email.provider.EmailContent.Account;
+import com.android.email.provider.EmailContent.AccountColumns;
+import com.android.email.provider.EmailContent.HostAuth;
 import com.android.email.provider.WidgetProvider;
 
 import android.accounts.AccountManager;
 import android.app.IntentService;
 import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 /**
@@ -155,6 +164,12 @@ public class EmailBroadcastProcessorService extends IntentService {
             ExchangeUtils.enableEasCalendarSync(this);
         }
 
+        if (progress < 2) {
+            Log.i(Email.LOG_TAG, "Onetime initialization: 2");
+            progress = 2;
+            setImapDeletePolicy(this);
+        }
+
         // Add your initialization steps here.
         // Use "progress" to skip the initializations that's already done before.
         // Using this preference also makes it safe when a user skips an upgrade.  (i.e. upgrading
@@ -163,6 +178,34 @@ public class EmailBroadcastProcessorService extends IntentService {
         if (progress != initialProgress) {
             pref.setOneTimeInitializationProgress(progress);
             Log.i(Email.LOG_TAG, "Onetime initialization: completed.");
+        }
+    }
+
+    /**
+     * Sets the delete policy to the correct value for all IMAP accounts. This will have no
+     * effect on either EAS or POP3 accounts.
+     */
+    /*package*/ static void setImapDeletePolicy(Context context) {
+        ContentResolver resolver = context.getContentResolver();
+        Cursor c = resolver.query(Account.CONTENT_URI, Account.CONTENT_PROJECTION,
+                null, null, null);
+        try {
+            while (c.moveToNext()) {
+                long recvAuthKey = c.getLong(Account.CONTENT_HOST_AUTH_KEY_RECV_COLUMN);
+                HostAuth recvAuth = HostAuth.restoreHostAuthWithId(context, recvAuthKey);
+                if (Store.STORE_SCHEME_IMAP.equals(recvAuth.mProtocol)) {
+                    int flags = c.getInt(Account.CONTENT_FLAGS_COLUMN);
+                    flags &= ~Account.FLAGS_DELETE_POLICY_MASK;
+                    flags |= Account.DELETE_POLICY_ON_DELETE << Account.FLAGS_DELETE_POLICY_SHIFT;
+                    ContentValues cv = new ContentValues();
+                    cv.put(AccountColumns.FLAGS, flags);
+                    long accountId = c.getLong(Account.CONTENT_ID_COLUMN);
+                    Uri uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
+                    resolver.update(uri, cv, null, null);
+                }
+            }
+        } finally {
+            c.close();
         }
     }
 
