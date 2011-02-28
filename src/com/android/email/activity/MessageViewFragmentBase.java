@@ -48,6 +48,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Bitmap;
@@ -319,6 +320,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mInviteScroll = view.findViewById(R.id.invite_scroll);
 
         WebSettings webSettings = mMessageContentView.getSettings();
+        boolean supportMultiTouch = mContext.getPackageManager()
+                .hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
+        webSettings.setDisplayZoomControls(!supportMultiTouch);
         webSettings.setSupportZoom(true);
         webSettings.setBuiltInZoomControls(true);
         mMessageContentView.setWebViewClient(new CustomWebViewClient());
