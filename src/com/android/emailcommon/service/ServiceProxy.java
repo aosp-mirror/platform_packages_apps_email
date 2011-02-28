@@ -43,7 +43,7 @@ import android.util.Log;
 
 public abstract class ServiceProxy {
     private static final boolean DEBUG_PROXY = true; // STOPSHIP DO NOT CHECK THIS IN SET TO TRUE
-    private static final String TAG = "ServiceProxy";
+    private final String mTag;
 
     private final Context mContext;
     protected final Intent mIntent;
@@ -53,6 +53,7 @@ public abstract class ServiceProxy {
     private final ServiceConnection mConnection = new ProxyConnection();
     // Service call timeout (in seconds)
     private int mTimeout = 45;
+    private long mStartTime;
     private boolean mDead = false;
 
     public abstract void onConnected(IBinder binder);
@@ -60,6 +61,7 @@ public abstract class ServiceProxy {
     public ServiceProxy(Context _context, Intent _intent) {
         mContext = _context;
         mIntent = _intent;
+        mTag = getClass().getSimpleName();
         if (Debug.isDebuggerConnected()) {
             mTimeout <<= 2;
         }
@@ -69,7 +71,7 @@ public abstract class ServiceProxy {
         public void onServiceConnected(ComponentName name, IBinder binder) {
             onConnected(binder);
             if (DEBUG_PROXY) {
-                Log.v(TAG, "Connected: " + name.getShortClassName());
+                Log.v(mTag, "Connected: " + name.getShortClassName());
             }
             // Run our task on a new thread
             new Thread(new Runnable() {
@@ -80,7 +82,7 @@ public abstract class ServiceProxy {
 
         public void onServiceDisconnected(ComponentName name) {
             if (DEBUG_PROXY) {
-                Log.v(TAG, "Disconnected: " + name.getShortClassName());
+                Log.v(mTag, "Disconnected: " + name.getShortClassName());
             }
         }
     }
@@ -119,7 +121,7 @@ public abstract class ServiceProxy {
         mDead = true;
         synchronized(mConnection) {
             if (DEBUG_PROXY) {
-                Log.v(TAG, "Task " + mName + " completed; disconnecting");
+                Log.v(mTag, "Task " + mName + " completed; disconnecting");
             }
             mConnection.notify();
         }
@@ -145,8 +147,9 @@ public abstract class ServiceProxy {
             throw new IllegalStateException();
         }
         mTask = task;
+        mStartTime = System.currentTimeMillis();
         if (DEBUG_PROXY) {
-            Log.v(TAG, "Bind requested for task " + mName);
+            Log.v(mTag, "Bind requested for task " + mName);
         }
         return mContext.bindService(mIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
@@ -156,14 +159,15 @@ public abstract class ServiceProxy {
             long time = System.currentTimeMillis();
             try {
                 if (DEBUG_PROXY) {
-                    Log.v(TAG, "Waiting for task " + mName + " to complete...");
+                    Log.v(mTag, "Waiting for task " + mName + " to complete...");
                 }
                 mConnection.wait(mTimeout * 1000L);
             } catch (InterruptedException e) {
                 // Can be ignored safely
             }
             if (DEBUG_PROXY) {
-                Log.v(TAG, "Wait finished in " + (System.currentTimeMillis() - time) + "ms");
+                Log.v(mTag, "Wait for " + mName + " finished in " +
+                        (System.currentTimeMillis() - time) + "ms");
             }
         }
     }
@@ -184,7 +188,8 @@ public abstract class ServiceProxy {
             return setTask(new ProxyTask() {
                 public void run() throws RemoteException {
                     if (DEBUG_PROXY) {
-                        Log.v(TAG, "Connection test succeeded");
+                        Log.v(mTag, "Connection test succeeded in " +
+                                (System.currentTimeMillis() - mStartTime) + "ms");
                     }
                 }
             }, "test");
