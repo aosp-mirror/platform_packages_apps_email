@@ -110,7 +110,8 @@ public class EmailProvider extends ContentProvider {
     // Version 14: Add snippet to Message table
     // Version 15: Fix upgrade problem in version 14.
     // Version 16: Add accountKey to Attachment table
-    public static final int DATABASE_VERSION = 16;
+    // Version 17: Add parentKey to Mailbox table
+    public static final int DATABASE_VERSION = 17;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -550,6 +551,7 @@ public class EmailProvider extends ContentProvider {
             + MailboxColumns.DISPLAY_NAME + " text, "
             + MailboxColumns.SERVER_ID + " text, "
             + MailboxColumns.PARENT_SERVER_ID + " text, "
+            + MailboxColumns.PARENT_KEY + " integer, "
             + MailboxColumns.ACCOUNT_KEY + " integer, "
             + MailboxColumns.TYPE + " integer, "
             + MailboxColumns.DELIMITER + " integer, "
@@ -931,6 +933,16 @@ public class EmailProvider extends ContentProvider {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 15 to 16 " + e);
                 }
                 oldVersion = 16;
+            }
+            if (oldVersion == 16) {
+                try {
+                    db.execSQL("alter table " + Mailbox.TABLE_NAME
+                            + " add column " + Mailbox.PARENT_KEY + " integer;");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 16 to 17 " + e);
+                }
+                oldVersion = 17;
             }
         }
 
