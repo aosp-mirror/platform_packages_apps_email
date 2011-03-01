@@ -62,7 +62,7 @@ public class Rfc822Output {
         Attachment.FLAG_SMART_FORWARD + ")=0";
 
     /*package*/ static String buildBodyText(Context context, Message message,
-            boolean appendQuotedText) {
+            boolean useSmartReply) {
         Body body = Body.restoreBodyWithMessageId(context, message.mId);
         if (body == null) {
             return null;
@@ -77,8 +77,8 @@ public class Rfc822Output {
             String intro = body.mIntroText == null ? "" : body.mIntroText;
             text += intro;
         }
-        if (!appendQuotedText) {
-            // appendQuotedText is set to false for use by SmartReply/SmartForward in EAS.
+        if (useSmartReply) {
+            // useSmartReply is set to true for use by SmartReply/SmartForward in EAS.
             // SmartForward doesn't put a break between the original and new text, so we add an LF
             if (isForward) {
                 text += "\n";
@@ -112,12 +112,12 @@ public class Rfc822Output {
      * @param context system context for accessing the provider
      * @param messageId the message to write out
      * @param out the output stream to write the message to
-     * @param appendQuotedText whether or not to append quoted text if this is a reply/forward
+     * @param useSmartReply whether or not quoted text is appended to a reply/forward
      *
      * TODO alternative parts (e.g. text+html) are not supported here.
      */
     public static void writeTo(Context context, long messageId, OutputStream out,
-            boolean appendQuotedText, boolean sendBcc) throws IOException, MessagingException {
+            boolean useSmartReply, boolean sendBcc) throws IOException, MessagingException {
         Message message = Message.restoreMessageWithId(context, messageId);
         if (message == null) {
             // throw something?
@@ -149,7 +149,7 @@ public class Rfc822Output {
         writeHeader(writer, "MIME-Version", "1.0");
 
         // Analyze message and determine if we have multiparts
-        String text = buildBodyText(context, message, appendQuotedText);
+        String text = buildBodyText(context, message, useSmartReply);
 
         Uri uri = ContentUris.withAppendedId(Attachment.MESSAGE_ID_URI, messageId);
         Cursor attachmentsCursor = context.getContentResolver().query(uri,
