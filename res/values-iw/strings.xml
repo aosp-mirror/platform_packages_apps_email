@@ -392,20 +392,9 @@
     <string name="provider_note_t_online" msgid="1973701903400232774">"לפני הגדרת חשבון דוא\"ל זה, בקר באתר האינטרנט T-Online וצור סיסמה לגישת דוא\"ל מסוג POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"תאגיד"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <string name="meeting_accepted" msgid="8796609373330400268">"התקבלה: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <string name="meeting_declined" msgid="6707617183246608552">"נדחה: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <string name="meeting_tentative" msgid="8250995722130443785">"טנטטיבי: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <string name="meeting_canceled" msgid="3949893881872084244">"בוטל: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <string name="meeting_updated" msgid="8529675857361702860">"עודכן: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <string name="meeting_when" msgid="2765696159697448656">"מתי: <xliff:g id="WHEN">%s</xliff:g>"</string>
-    <string name="meeting_where" msgid="5992367535856553079">"היכן: <xliff:g id="WHERE">%s</xliff:g>"</string>
-    <string name="meeting_recurring" msgid="3134262212606714023">"מתי: <xliff:g id="EVENTDATE">%s</xliff:g> (אירוע חוזר)"</string>
-    <string name="exception_cancel" msgid="6160117429428313805">"אירוע זה בוטל לתאריך: <xliff:g id="DATE">%s</xliff:g>"</string>
-    <string name="exception_updated" msgid="3397583105901142050">"הפרטים של אירוע זה השתנו עבור: <xliff:g id="DATE">%s</xliff:g>"</string>
-    <!-- outdated translation 2957855430954881406 -->     <string name="system_account_create_failed" msgid="3054850402122007715">"למנהל החשבון לא היתה אפשרות ליצור את החשבון. נסה שוב."</string>
+    <string name="system_account_create_failed" msgid="4917162302393971752">"למנהל החשבון לא הייתה אפשרות ליצור את החשבון. נסה שוב."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"דוא\"ל"</string>
     <string name="device_admin_description" msgid="426727923791430306">"אפשר מדיניות אבטחה המצוינת על ידי שרת"</string>
-    <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"נוסף לוח שנה של Exchange"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"מחפש את <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> תוצאה מ-<xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
