@@ -58,7 +58,7 @@ public class EmailBroadcastProcessorServiceTests extends AccountTestCase {
      * Create a simple HostAuth with protocol
      */
     private HostAuth setupSimpleHostAuth(String protocol) {
-        HostAuth hostAuth = ProviderTestUtils.setupHostAuth(protocol, "name", 1L, false, mContext);
+        HostAuth hostAuth = ProviderTestUtils.setupHostAuth(protocol, "name", false, mContext);
         hostAuth.mProtocol = protocol;
         return hostAuth;
     }
