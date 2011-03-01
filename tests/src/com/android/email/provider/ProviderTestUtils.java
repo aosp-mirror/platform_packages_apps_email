@@ -444,7 +444,7 @@ public class ProviderTestUtils extends Assert {
         File outputFile = File.createTempFile("message", "tmp", directory);
         assertNotNull(outputFile);
         FileOutputStream outputStream = new FileOutputStream(outputFile);
-        Rfc822Output.writeTo(context, msg.mId, outputStream, false, false);
+        Rfc822Output.writeTo(context, msg.mId, outputStream, true, false);
         outputStream.close();
 
         return Uri.fromFile(outputFile);

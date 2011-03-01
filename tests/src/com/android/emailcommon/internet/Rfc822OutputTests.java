@@ -48,10 +48,8 @@ import java.util.List;
  */
 public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
     private static final String SENDER = "sender@android.com";
-    private static final String REPLYTO = "replyto@android.com";
     private static final String RECIPIENT_TO = "recipient-to@android.com";
     private static final String RECIPIENT_CC = "recipient-cc@android.com";
-    private static final String RECIPIENT_BCC = "recipient-bcc@android.com";
     private static final String SUBJECT = "This is the subject";
     private static final String BODY = "This is the body.  This is also the body.";
     private static final String TEXT = "Here is some new text.";
@@ -59,7 +57,6 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
     private Context mMockContext;
     private String mForwardIntro;
     private String mReplyIntro;
-    private String mReplyBody;
 
     public Rfc822OutputTests () {
         super(EmailProvider.class, EmailContent.AUTHORITY);
@@ -72,7 +69,6 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         mForwardIntro = mMockContext.getString(R.string.message_compose_fwd_header_fmt, SUBJECT,
                 SENDER, RECIPIENT_TO, RECIPIENT_CC);
         mReplyIntro = mMockContext.getString(R.string.message_compose_reply_header_fmt, SENDER);
-        mReplyBody = mReplyIntro + ">" + BODY;
     }
 
     // TODO Create more tests here.  Specifically, we should test to make sure that forward works
@@ -86,51 +82,58 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
      * Compare with expected values.
      * Also test the situation where the message has no body.
      */
-    public void testBuildBodyTextWithReply() {
-        // Create the least necessary; sender, flags, and the body of the reply
-        Message msg = new Message();
-        msg.mText = "";
-        msg.mFrom = SENDER;
-        msg.mFlags = Message.FLAG_TYPE_REPLY;
-        msg.mTextReply = BODY;
-        msg.mIntroText = mReplyIntro;
-        msg.save(mMockContext);
+    public void testBuildBodyText() {
+        // Test sending a message *without* using smart reply
+        Message message1 = new Message();
+        message1.mText = "";
+        message1.mFrom = SENDER;
+        message1.mFlags = Message.FLAG_TYPE_REPLY;
+        message1.mTextReply = BODY;
+        message1.mIntroText = mReplyIntro;
+        message1.save(mMockContext);
 
-        String body = Rfc822Output.buildBodyText(mMockContext, msg, true);
-        assertEquals(mReplyBody, body);
+        String body1 = Rfc822Output.buildBodyText(mMockContext, message1, false);
+        assertEquals(mReplyIntro + ">" + BODY, body1);
 
-        // Save a different message with no reply body (so we reset the id)
-        msg.mId = -1;
-        msg.mTextReply = null;
-        msg.save(mMockContext);
-        body = Rfc822Output.buildBodyText(mMockContext, msg, true);
-        assertEquals(mReplyIntro, body);
-    }
+        message1.mId = -1;
+        message1.mText = TEXT;
+        message1.save(mMockContext);
 
-    /**
-     * Test for buildBodyText().
-     * Compare with expected values.
-     * Also test the situation where the message has no body.
-     */
-    public void testBuildBodyTextWithoutReply() {
-        // Create the least necessary; sender, flags, and the body of the reply
-        Message msg = new Message();
-        msg.mText = TEXT;
-        msg.mFrom = SENDER;
-        msg.mFlags = Message.FLAG_TYPE_REPLY;
-        msg.mTextReply = BODY;
-        msg.mIntroText = mReplyIntro;
-        msg.save(mMockContext);
-
-        String body = Rfc822Output.buildBodyText(mMockContext, msg, false);
-        assertEquals(TEXT + mReplyIntro, body);
+        body1 = Rfc822Output.buildBodyText(mMockContext, message1, false);
+        assertEquals(TEXT + mReplyIntro + ">" + BODY, body1);
 
         // Save a different message with no reply body (so we reset the id)
-        msg.mId = -1;
-        msg.mTextReply = null;
-        msg.save(mMockContext);
-        body = Rfc822Output.buildBodyText(mMockContext, msg, false);
-        assertEquals(TEXT + mReplyIntro, body);
+        message1.mId = -1;
+        message1.mTextReply = null;
+        message1.save(mMockContext);
+        body1 = Rfc822Output.buildBodyText(mMockContext, message1, false);
+        assertEquals(TEXT + mReplyIntro, body1);
+
+        // Test sending a message *with* using smart reply
+        Message message2 = new Message();
+        message2.mText = "";
+        message2.mFrom = SENDER;
+        message2.mFlags = Message.FLAG_TYPE_REPLY;
+        message2.mTextReply = BODY;
+        message2.mIntroText = mReplyIntro;
+        message2.save(mMockContext);
+
+        String body2 = Rfc822Output.buildBodyText(mMockContext, message2, true);
+        assertEquals(mReplyIntro, body2);
+
+        message2.mId = -1;
+        message2.mText = TEXT;
+        message2.save(mMockContext);
+
+        body2 = Rfc822Output.buildBodyText(mMockContext, message2, true);
+        assertEquals(TEXT + mReplyIntro, body2);
+
+        // Save a different message with no reply body (so we reset the id)
+        message2.mId = -1;
+        message2.mTextReply = null;
+        message2.save(mMockContext);
+        body2 = Rfc822Output.buildBodyText(mMockContext, message2, true);
+        assertEquals(TEXT + mReplyIntro, body2);
     }
 
     /**
@@ -148,7 +151,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         msg.mTextReply = BODY;
         msg.mIntroText = mForwardIntro;
         msg.save(mMockContext);
-        String body = Rfc822Output.buildBodyText(mMockContext, msg, true);
+        String body = Rfc822Output.buildBodyText(mMockContext, msg, false);
         assertEquals(TEXT + mForwardIntro + BODY, body);
     }
 
@@ -162,7 +165,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
 
         // Write out an Rfc822 message
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, false, false);
+        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, true, false);
 
         // Get the message and create a mime4j message from it
         // We'll take advantage of its parsing capabilities
@@ -196,7 +199,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
 
         // Write out an Rfc822 message
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, false, false);
+        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, true, false);
 
         // Get the message and create a mime4j message from it
         // We'll take advantage of its parsing capabilities
@@ -240,7 +243,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
 
         // Write out an Rfc822 message
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, false, false);
+        Rfc822Output.writeTo(mMockContext, msg.mId, byteStream, true, false);
 
         // Get the message and create a mime4j message from it
         // We'll take advantage of its parsing capabilities
