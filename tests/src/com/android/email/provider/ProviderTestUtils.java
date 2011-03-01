@@ -125,6 +125,7 @@ public class ProviderTestUtils extends Assert {
         box.mDisplayName = name;
         box.mServerId = "serverid-" + name;
         box.mParentServerId = "parent-serverid-" + name;
+        box.mParentKey = 4;
         box.mAccountKey = accountId;
         box.mType = type;
         box.mDelimiter = 1;
@@ -348,6 +349,7 @@ public class ProviderTestUtils extends Assert {
         assertEquals(caller + " mDisplayName", expect.mDisplayName, actual.mDisplayName);
         assertEquals(caller + " mServerId", expect.mServerId, actual.mServerId);
         assertEquals(caller + " mParentServerId", expect.mParentServerId, actual.mParentServerId);
+        assertEquals(caller + " mParentKey", expect.mParentKey, actual.mParentKey);
         assertEquals(caller + " mAccountKey", expect.mAccountKey, actual.mAccountKey);
         assertEquals(caller + " mType", expect.mType, actual.mType);
         assertEquals(caller + " mDelimiter", expect.mDelimiter, actual.mDelimiter);

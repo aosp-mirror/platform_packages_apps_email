@@ -321,6 +321,7 @@ public class MessagingController implements Runnable {
                             box.mDisplayName = remoteNameToAdd;
                             // box.mServerId;
                             // box.mParentServerId;
+                            // box.mParentKey;
                             box.mAccountKey = account.mId;
                             box.mType = LegacyConversions.inferMailboxTypeFromName(
                                     mContext, remoteNameToAdd);
