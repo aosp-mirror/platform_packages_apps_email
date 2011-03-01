@@ -46,6 +46,11 @@
   *** setProviderContext(android.content.Context);
 }
 
+-keepclasseswithmembers class com.android.emailcommon.internet.Rfc822Output {
+  *** getHtmlBody(java.lang.String);
+  *** buildBodyText(android.content.Context, com.android.emailcommon.provider.EmailContent$Message, boolean);
+}
+
 -keepclasseswithmembers class com.android.emailcommon.mail.Address {
   <init>(java.lang.String);
   <init>(java.lang.String,java.lang.String);
@@ -60,7 +65,7 @@
 -keep class com.android.emailcommon.service.PolicySet {
   <init>(com.android.emailcommon.provider.EmailContent$Account);
   <init>(int, int, int, int, boolean, int, int, boolean);
-  *** writeAccount(...);
+  *** writeAccount(com.android.emailcommon.provider.EmailContent$Account, java.lang.String, boolean, android.content.Context);
 }
 
 -keepclasseswithmembers class com.android.email.MessagingController {
@@ -69,7 +74,7 @@
 
 -keepclasseswithmembers class com.android.emailcommon.utility.Utility {
   *** dumpCursor(android.database.Cursor);
-  *** fromUtf8(...);
+  *** fromUtf8(byte[]);
   *** isFirstUtf8Byte(byte);
   *** replaceBareLfWithCrlf(java.lang.String);
 }
@@ -185,7 +190,7 @@
 }
 
 -keep class org.apache.james.mime4j.field.Field {
-  *** getBody(...);
+  *** getBody();
 }
 
 # The following classes are used only by unit tests.
@@ -196,5 +201,8 @@
 }
 
 -keepclasseswithmembers class org.apache.commons.io.IOUtils {
-  *** toByteArray(...);
+  *** toByteArray(java.io.InputStream);
+  *** toByteArray(java.io.Reader);
+  *** toByteArray(java.io.Reader, java.lang.String);
+  *** toByteArray(java.lang.String);
 }
