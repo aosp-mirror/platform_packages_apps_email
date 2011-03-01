@@ -1,5 +1,6 @@
 # keep names that are used by reflection.
 -keep class com.android.emailcommon.provider.EmailContent$Account
+
 -keepclasseswithmembers class * {
   public static void actionEditIncomingSettings(android.app.Activity, int, com.android.emailcommon.provider.EmailContent$Account);
 }
@@ -56,9 +57,10 @@
   *** setContext(android.content.Context);
 }
 
--keepclasseswithmembers class com.android.emailcommon.service.PolicySet {
+-keep class com.android.emailcommon.service.PolicySet {
   <init>(com.android.emailcommon.provider.EmailContent$Account);
   <init>(int, int, int, int, boolean, int, int, boolean);
+  *** writeAccount(...);
 }
 
 -keepclasseswithmembers class com.android.email.MessagingController {
@@ -67,6 +69,9 @@
 
 -keepclasseswithmembers class com.android.emailcommon.utility.Utility {
   *** dumpCursor(android.database.Cursor);
+  *** fromUtf8(...);
+  *** isFirstUtf8Byte(byte);
+  *** replaceBareLfWithCrlf(java.lang.String);
 }
 -keepclasseswithmembers class com.android.emailcommon.utility.Utility$CloseTraceCursorWrapper {
   *** getTraceIfAvailable(android.database.Cursor);
@@ -167,6 +172,7 @@
   <init>();
   <init>(java.lang.String);
   *** get(java.lang.String);
+  *** put(java.lang.String, java.lang.String);
 }
 
 -keepclasseswithmembers class com.android.email.provider.ContentCache$CounterMap {
