@@ -2158,8 +2158,6 @@ public abstract class EmailContent {
         public static final String SERVER_ID = "serverId";
         // The server's identifier for the parent of this mailbox (null = top-level)
         public static final String PARENT_SERVER_ID = "parentServerId";
-        // A foreign key for the parent of this mailbox (-1 = top-level, 0=uninitialized)
-        public static final String PARENT_KEY = "parentKey";
         // A foreign key to the Account that owns this mailbox
         public static final String ACCOUNT_KEY = "accountKey";
         // The type (role) of this mailbox
@@ -2198,7 +2196,6 @@ public abstract class EmailContent {
         public String mDisplayName;
         public String mServerId;
         public String mParentServerId;
-        public long mParentKey;
         public long mAccountKey;
         public int mType;
         public int mDelimiter;
@@ -2226,14 +2223,13 @@ public abstract class EmailContent {
         public static final int CONTENT_FLAGS_COLUMN = 12;
         public static final int CONTENT_VISIBLE_LIMIT_COLUMN = 13;
         public static final int CONTENT_SYNC_STATUS_COLUMN = 14;
-        public static final int CONTENT_PARENT_KEY_COLUMN = 15;
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.SERVER_ID,
             MailboxColumns.PARENT_SERVER_ID, MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
             MailboxColumns.DELIMITER, MailboxColumns.SYNC_KEY, MailboxColumns.SYNC_LOOKBACK,
             MailboxColumns.SYNC_INTERVAL, MailboxColumns.SYNC_TIME,
             MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT,
-            MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY
+            MailboxColumns.SYNC_STATUS
         };
 
         private static final String ACCOUNT_AND_MAILBOX_TYPE_SELECTION =
@@ -2365,7 +2361,6 @@ public abstract class EmailContent {
             mDisplayName = cursor.getString(CONTENT_DISPLAY_NAME_COLUMN);
             mServerId = cursor.getString(CONTENT_SERVER_ID_COLUMN);
             mParentServerId = cursor.getString(CONTENT_PARENT_SERVER_ID_COLUMN);
-            mParentKey = cursor.getLong(CONTENT_PARENT_KEY_COLUMN);
             mAccountKey = cursor.getLong(CONTENT_ACCOUNT_KEY_COLUMN);
             mType = cursor.getInt(CONTENT_TYPE_COLUMN);
             mDelimiter = cursor.getInt(CONTENT_DELIMITER_COLUMN);
@@ -2385,7 +2380,6 @@ public abstract class EmailContent {
             values.put(MailboxColumns.DISPLAY_NAME, mDisplayName);
             values.put(MailboxColumns.SERVER_ID, mServerId);
             values.put(MailboxColumns.PARENT_SERVER_ID, mParentServerId);
-            values.put(MailboxColumns.PARENT_KEY, mParentKey);
             values.put(MailboxColumns.ACCOUNT_KEY, mAccountKey);
             values.put(MailboxColumns.TYPE, mType);
             values.put(MailboxColumns.DELIMITER, mDelimiter);
