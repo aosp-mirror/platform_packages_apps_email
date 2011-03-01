@@ -392,20 +392,9 @@
     <string name="provider_note_t_online" msgid="1973701903400232774">"Før du setter opp denne e-postkontoen, besøk T-Online-nettstedet og velg et passord for e-posttilgang via POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Exchange"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
-    <string name="meeting_accepted" msgid="8796609373330400268">"Godtatt: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <string name="meeting_declined" msgid="6707617183246608552">"Avslått: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <string name="meeting_tentative" msgid="8250995722130443785">"Foreslått: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <string name="meeting_canceled" msgid="3949893881872084244">"Kansellert: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <string name="meeting_updated" msgid="8529675857361702860">"Oppdatert: <xliff:g id="SUBJECT">%s</xliff:g>"</string>
-    <string name="meeting_when" msgid="2765696159697448656">"Når: <xliff:g id="WHEN">%s</xliff:g>"</string>
-    <string name="meeting_where" msgid="5992367535856553079">"Hvor: <xliff:g id="WHERE">%s</xliff:g>"</string>
-    <string name="meeting_recurring" msgid="3134262212606714023">"Når: <xliff:g id="EVENTDATE">%s</xliff:g> (gjentakende)"</string>
-    <string name="exception_cancel" msgid="6160117429428313805">"Denne aktiviteten er kansellert for: <xliff:g id="DATE">%s</xliff:g>"</string>
-    <string name="exception_updated" msgid="3397583105901142050">"Detaljene for denne aktiviteten er endret for: <xliff:g id="DATE">%s</xliff:g>"</string>
-    <!-- outdated translation 2957855430954881406 -->     <string name="system_account_create_failed" msgid="3054850402122007715">"Kontobehandleren kunne ikke opprette noen konto. Prøv på nytt."</string>
+    <string name="system_account_create_failed" msgid="4917162302393971752">"Kontobehandleren kunne ikke opprette noen konto, prøv på nytt."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"E-post"</string>
     <string name="device_admin_description" msgid="426727923791430306">"Aktiverer tjenerspesifikke sikkerhetsinnstillinger"</string>
-    <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Exchange-kalender er lagt til"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Søker <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
