@@ -142,6 +142,15 @@ public class EmailConnectivityManager extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Request current connectivity status
+     * @return whether there is connectivity at this time
+     */
+    public boolean hasConnectivity() {
+        NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
+        return (info != null);
+    }
+
     public void waitForConnectivity() {
         // If we're unregistered, throw an exception
         if (!mRegistered) {

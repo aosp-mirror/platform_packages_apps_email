@@ -308,9 +308,6 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 Log.d(TAG, "== Checking attachment queue, " + mDownloadSet.size() + " entries");
             }
 
-            // Don't run unless/until we have connectivity
-            mConnectivityManager.waitForConnectivity();
-
             Iterator<DownloadRequest> iterator = mDownloadSet.descendingIterator();
             // First, start up any required downloads, in priority order
             while (iterator.hasNext() &&
@@ -412,7 +409,9 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 }
             }
             // Check whether we can start new downloads...
-            processQueue();
+            if (mConnectivityManager.hasConnectivity()) {
+                processQueue();
+            }
         }
 
         /**
@@ -471,6 +470,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     System.currentTimeMillis() + WATCHDOG_CHECK_INTERVAL, WATCHDOG_CHECK_INTERVAL,
                     mWatchdogPendingIntent);
         }
+
         /*package*/ void createWatchdogPendingIntent(Context context) {
             Intent alarmIntent = new Intent(context, Watchdog.class);
             mWatchdogPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
@@ -862,6 +862,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
         // Loop until stopped, with a 30 minute wait loop
         while (!mStop) {
             // Here's where we run our attachment loading logic...
+            mConnectivityManager.waitForConnectivity();
             mDownloadSet.processQueue();
             synchronized(mLock) {
                 try {
