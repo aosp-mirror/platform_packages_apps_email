@@ -647,6 +647,8 @@ public class MessageListXL extends Activity implements
             ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
             ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
             ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(accountsCursor));
+
+            selectAccount(AccountSelectorAdapter.getAccountId(accountsCursor));
             return;
         }
 
@@ -675,13 +677,17 @@ public class MessageListXL extends Activity implements
         ab.setSelectedNavigationItem(defaultSelection);
     }
 
+    private void selectAccount(long accountId) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "Account selected: accountId=" + accountId);
+        }
+        mFragmentManager.selectAccount(accountId, -1, -1);
+    }
+
     private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {
         @Override
         public boolean onNavigationItemSelected(int itemPosition, long accountId) {
-            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "Account selected: accountId=" + accountId);
-            }
-            mFragmentManager.selectAccount(accountId, -1, -1);
+            selectAccount(accountId);
             return true;
         }
     }
