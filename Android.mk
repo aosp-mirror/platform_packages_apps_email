@@ -43,27 +43,6 @@ include $(BUILD_PACKAGE)
 
 # only include rules to build other stuff for the original package, not derived package.
 ifeq ($(strip $(LOCAL_PACKAGE_OVERRIDES)),)
-
-# Build the com.android.emailcommon static library. At the moment, this includes
-# the emailcommon files themselves plus everything under src/org (apache code).  All of our
-# AIDL files are also compiled into the static library
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := com.android.emailcommon
-LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/emailcommon)
-LOCAL_SRC_FILES += $(call all-java-files-under, src/org)
-LOCAL_SRC_FILES += \
-    src/com/android/emailcommon/service/IEmailService.aidl \
-    src/com/android/emailcommon/service/IEmailServiceCallback.aidl \
-    src/com/android/emailcommon/service/IPolicyService.aidl \
-    src/com/android/emailcommon/service/IAccountService.aidl
-
-LOCAL_SDK_VERSION := current
-
-include $(BUILD_STATIC_JAVA_LIBRARY)
-
 # additionally, build unit tests in a separate .apk
 include $(call all-makefiles-under,$(LOCAL_PATH))
-
 endif
