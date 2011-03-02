@@ -219,11 +219,11 @@ public class EmailBroadcastProcessorService extends IntentService {
     }
 
     private void onSystemAccountChanged() {
-        Log.i(Logging.LOG_TAG, "System accouns updated.");
+        Log.i(Logging.LOG_TAG, "System accounts updated.");
         MailService.reconcilePopImapAccountsSync(this);
 
-        // Let ExchangeService reconcile EAS accouts.
-        // The service will stops itself it there's no EAS accounts.
+        // If the exchange service wasn't already running, starting it will cause exchange account
+        // reconciliation to be performed.  The service stops itself it there are no EAS accounts.
         ExchangeUtils.startExchangeService(this);
 
         // Let all of the widgets update
