@@ -40,9 +40,6 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
      */
     private Uri mFileEmailUri;
 
-    /** Lock object to protect {@link #mFileEmailUri} */
-    private final Object mLock = new Object();
-
     /**
      * # of instances of this class.  When it gets 0, and the last one is not destroying for
      * a config change, we delete all the EML files.
@@ -71,28 +68,26 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageFileViewFragment openMessage");
         }
+        if (mFileEmailUri != null) {
+            // Unlike MessageViewFragment, this fragment doesn't support loading another message
+            // once it opens a message, even after clearContent().
+            throw new IllegalStateException();
+        }
         if (fileEmailUri == null) {
             throw new InvalidParameterException();
         }
-        synchronized (mLock) {
-            mFileEmailUri = fileEmailUri;
-        }
+        mFileEmailUri = fileEmailUri;
         loadMessageIfResumed();
     }
 
     @Override
     public void clearContent() {
-        synchronized (mLock) {
-            super.clearContent();
-            mFileEmailUri = null;
-        }
+        super.clearContent();
     }
 
     @Override
     protected boolean isMessageSpecified() {
-        synchronized (mLock) {
-            return mFileEmailUri != null;
-        }
+        return mFileEmailUri != null;
     }
 
     /**
@@ -100,24 +95,22 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
      */
     @Override
     protected Message openMessageSync(Activity activity) {
-        synchronized (mLock) {
-            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "MessageFileViewFragment openMessageSync");
-            }
-            Uri messageUri = mFileEmailUri;
-            if (messageUri == null) {
-                return null; // Called after clearContent().
-            }
-            // Put up a toast; this can take a little while...
-            Utility.showToast(activity, R.string.message_view_parse_message_toast);
-            Message msg = getController().loadMessageFromUri(messageUri);
-            if (msg == null) {
-                // Indicate that the attachment couldn't be loaded
-                Utility.showToast(activity, R.string.message_view_display_attachment_toast);
-                return null;
-            }
-            return msg;
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MessageFileViewFragment openMessageSync");
         }
+        Uri messageUri = mFileEmailUri;
+        if (messageUri == null) {
+            return null; // Called after clearContent().
+        }
+        // Put up a toast; this can take a little while...
+        Utility.showToast(activity, R.string.message_view_parse_message_toast);
+        Message msg = getController().loadMessageFromUri(messageUri);
+        if (msg == null) {
+            // Indicate that the attachment couldn't be loaded
+            Utility.showToast(activity, R.string.message_view_display_attachment_toast);
+            return null;
+        }
+        return msg;
     }
 
     /**
