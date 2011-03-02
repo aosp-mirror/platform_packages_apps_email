@@ -680,9 +680,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
             // Drafts and "forwards" need to include attachments from the original unless the
             // account is marked as supporting smart forward
-            if (ACTION_EDIT_DRAFT.equals(mAction) || ACTION_FORWARD.equals(mAction)) {
-                final boolean draft = ACTION_EDIT_DRAFT.equals(mAction);
-                if (draft) {
+            final boolean isEditDraft = ACTION_EDIT_DRAFT.equals(mAction);
+            final boolean isForward = ACTION_FORWARD.equals(mAction);
+            if (isEditDraft || isForward) {
+                if (isEditDraft) {
                     mDraft = message;
                 } else {
                     mSource = message;
@@ -698,14 +699,23 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         if (attachments == null) {
                             return;
                         }
-                        boolean smartForward =
+                        final boolean supportsSmartForward =
                             (account.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0;
 
                         for (Attachment attachment : attachments) {
-                            if (smartForward && !draft) {
+                            if (supportsSmartForward && isForward) {
                                 attachment.mFlags |= Attachment.FLAG_SMART_FORWARD;
                             }
-                            addAttachment(attachment, !smartForward);
+                            // Note allowDelete is set in two cases:
+                            // 1. First time a message (w/ attachments) is forwarded,
+                            //    where action == ACTION_FORWARD
+                            // 2. 1 -> Save -> Reopen, where action == EDIT_DRAFT,
+                            //    but FLAG_SMART_FORWARD is already set at 1.
+                            // Even if the account supports smart-forward, attachments added
+                            // manually are still removable.
+                            final boolean allowDelete =
+                                    (attachment.mFlags & Attachment.FLAG_SMART_FORWARD) == 0;
+                            addAttachment(attachment, allowDelete);
                         }
                     }
                 }.execute(message.mId);
