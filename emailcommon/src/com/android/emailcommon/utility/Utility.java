@@ -44,6 +44,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.StrictMode;
 import android.provider.OpenableColumns;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -1127,5 +1128,14 @@ public class Utility {
      */
     public static boolean areStringsEqual(String s1, String s2) {
         return (s1 != null && s1.equals(s2)) || (s1 == null && s2 == null);
+    }
+
+    public static void enableStrictMode(boolean enabled) {
+        StrictMode.setThreadPolicy(enabled
+                ? new StrictMode.ThreadPolicy.Builder().detectAll().build()
+                : StrictMode.ThreadPolicy.LAX);
+        StrictMode.setVmPolicy(enabled
+                ? new StrictMode.VmPolicy.Builder().detectAll().build()
+                : StrictMode.VmPolicy.LAX);
     }
 }

@@ -63,4 +63,10 @@
         android:layout_height="wrap_content"
         android:text="@string/debug_force_one_minute_refresh_label"
     />
+    <CheckBox
+        android:id="@+id/debug_enable_strict_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/debug_enable_strict_mode_label"
+    />
 </LinearLayout>

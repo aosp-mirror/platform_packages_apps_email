@@ -197,6 +197,7 @@ public class Email extends Application {
         Preferences prefs = Preferences.getPreferences(this);
         DEBUG = prefs.getEnableDebugLogging();
         sDebugInhibitGraphicsAcceleration = prefs.getInhibitGraphicsAcceleration();
+        enableStrictMode(prefs.getEnableStrictMode());
         TempDirectory.setTempDirectory(this);
 
         // Tie MailRefreshManager to the Controller.
@@ -221,7 +222,9 @@ public class Email extends Application {
             prefs.getEnableExchangeLogging() ? EmailServiceProxy.DEBUG_VERBOSE_BIT : 0;
         int fileLogging =
             prefs.getEnableExchangeFileLogging() ? EmailServiceProxy.DEBUG_FILE_BIT : 0;
-        int debugBits = debugLogging | verboseLogging | fileLogging;
+        int enableStrictMode =
+            prefs.getEnableStrictMode() ? EmailServiceProxy.DEBUG_ENABLE_STRICT_MODE : 0;
+        int debugBits = debugLogging | verboseLogging | fileLogging | enableStrictMode;
         Controller.getInstance(context).serviceLogging(debugBits);
     }
 
@@ -262,5 +265,9 @@ public class Email extends Application {
      */
     public static String getMessageDecodeErrorString() {
         return sMessageDecodeErrorString != null ? sMessageDecodeErrorString : "";
+    }
+
+    public static void enableStrictMode(boolean enabled) {
+        Utility.enableStrictMode(enabled);
     }
 }

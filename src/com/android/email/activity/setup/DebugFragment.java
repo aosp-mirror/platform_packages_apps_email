@@ -44,6 +44,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
     private CheckBox mEnableExchangeFileLoggingView;
     private CheckBox mInhibitGraphicsAccelerationView;
     private CheckBox mForceOneMinuteRefreshView;
+    private CheckBox mEnableStrictModeView;
 
     private Preferences mPreferences;
 
@@ -95,6 +96,11 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         mForceOneMinuteRefreshView.setChecked(mPreferences.getForceOneMinuteRefresh());
         mForceOneMinuteRefreshView.setOnCheckedChangeListener(this);
 
+        mEnableStrictModeView = (CheckBox)
+                view.findViewById(R.id.debug_enable_strict_mode);
+        mEnableStrictModeView.setChecked(mPreferences.getEnableStrictMode());
+        mEnableStrictModeView.setOnCheckedChangeListener(this);
+
         return view;
     }
 
@@ -121,6 +127,10 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
             case R.id.debug_force_one_minute_refresh:
                 mPreferences.setForceOneMinuteRefresh(isChecked);
                 MailService.actionReschedule(getActivity());
+                break;
+            case R.id.debug_enable_strict_mode:
+                mPreferences.setEnableStrictMode(isChecked);
+                Email.enableStrictMode(isChecked);
                 break;
         }
 

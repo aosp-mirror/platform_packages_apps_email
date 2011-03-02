@@ -38,6 +38,7 @@ public class Preferences {
     private static final String ENABLE_EXCHANGE_FILE_LOGGING = "enableExchangeFileLogging";
     private static final String INHIBIT_GRAPHICS_ACCELERATION = "inhibitGraphicsAcceleration";
     private static final String FORCE_ONE_MINUTE_REFRESH = "forceOneMinuteRefresh";
+    private static final String ENABLE_STRICT_MODE = "enableStrictMode";
     private static final String DEVICE_UID = "deviceUID";
     private static final String ONE_TIME_INITIALIZATION_PROGRESS = "oneTimeInitializationProgress";
     private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
@@ -192,6 +193,14 @@ public class Preferences {
 
     public boolean getForceOneMinuteRefresh() {
         return mSharedPreferences.getBoolean(FORCE_ONE_MINUTE_REFRESH, false);
+    }
+
+    public void setEnableStrictMode(boolean value) {
+        mSharedPreferences.edit().putBoolean(ENABLE_STRICT_MODE, value).apply();
+    }
+
+    public boolean getEnableStrictMode() {
+        return mSharedPreferences.getBoolean(ENABLE_STRICT_MODE, false);
     }
 
     /**
