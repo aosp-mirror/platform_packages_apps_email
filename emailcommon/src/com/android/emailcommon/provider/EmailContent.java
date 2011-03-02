@@ -2271,6 +2271,10 @@ public abstract class EmailContent {
         // Push-Hold indicates an EAS push or ping Mailbox shouldn't sync just yet
         public static final int CHECK_INTERVAL_PUSH_HOLD = -4;
 
+        // Sentinels for PARENT_KEY
+        public static final long PARENT_KEY_NONE = -1L;
+        public static final long PARENT_KEY_UNINITIALIZED = 0L;
+
         private static final String WHERE_TYPE_AND_ACCOUNT_KEY =
             MailboxColumns.TYPE + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
 
@@ -2318,10 +2322,20 @@ public abstract class EmailContent {
         // A mailbox that holds Messages that are attachments
         public static final int TYPE_ATTACHMENT = 0x101;
 
-        // Bit field flags
+        // Bit field flags; each is defined below
+        // Warning: Do not read these flags until POP/IMAP/EAS all populate them
+        // This mailbox has children in the mailbox hierarchy
         public static final int FLAG_HAS_CHILDREN = 1<<0;
+        // This mailbox's children are visible in the UI
         public static final int FLAG_CHILDREN_VISIBLE = 1<<1;
+        // This mailbox cannot receive "pushed" mail
         public static final int FLAG_CANT_PUSH = 1<<2;
+        // This mailbox can hold emails (i.e. some parent mailboxes cannot themselves contain mail)
+        public static final int FLAG_HOLDS_MAIL = 1<<3;
+        // This mailbox is a valid target for moving messages within the account
+        public static final int FLAG_ACCEPTS_MOVED_MAIL = 1<<4;
+        // This mailbox is a valid target for appending messages
+        public static final int FLAG_ACCEPTS_APPENDED_MAIL = 1<<5;
 
         // Magic mailbox ID's
         // NOTE:  This is a quick solution for merged mailboxes.  I would rather implement this
