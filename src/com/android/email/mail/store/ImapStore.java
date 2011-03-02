@@ -1641,14 +1641,20 @@ public class ImapStore extends Store {
         /**
          * Sends client identification information to the IMAP server per RFC 2971. If
          * the server does not support the ID command, this will perform no operation.
+         *
+         * Interoperability hack:  Never send ID to *.secureserver.net, which sends back a
+         * malformed response that our parser can't deal with.
          */
         private void doSendId(boolean hasIdCapability, String capabilities)
                 throws MessagingException {
             if (!hasIdCapability) return;
 
+            // Never send ID to *.secureserver.net
+            String host = mRootTransport.getHost();
+            if (host.toLowerCase().endsWith(".secureserver.net")) return;
+
             // Assign user-agent string (for RFC2971 ID command)
-            String mUserAgent =
-                getImapId(mContext, mUsername, mRootTransport.getHost(), capabilities);
+            String mUserAgent = getImapId(mContext, mUsername, host, capabilities);
 
             if (mUserAgent != null) {
                 mIdPhrase = ImapConstants.ID + " (" + mUserAgent + ")";

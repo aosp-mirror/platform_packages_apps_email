@@ -381,6 +381,57 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     }
 
     /**
+     * Confirm that the non-conformant IMAP ID result seen on imap.secureserver.net fails
+     * to properly parse.
+     *   2 ID ("name" "com.google.android.email")
+     *   * ID( "name" "Godaddy IMAP" ... "version" "3.1.0")
+     *   2 OK ID completed
+     */
+    public void testImapIdSecureServerParseFail() {
+        MockTransport mockTransport = openAndInjectMockTransport();
+
+        // configure mock server to return malformed ID response
+        setupOpenFolder(mockTransport, new String[] {
+                "* ID( \"name\" \"Godaddy IMAP\" \"version\" \"3.1.0\")",
+                "oK"}, "rEAD-wRITE");
+        try {
+            mFolder.open(OpenMode.READ_WRITE, null);
+            fail("Expected MessagingException");
+        } catch (MessagingException expected) {
+        }
+    }
+
+    /**
+     * Confirm that the connections to *.secureserver.net never send IMAP ID (see
+     * testImapIdSecureServerParseFail() for the reason why.)
+     */
+    public void testImapIdSecureServerNotSent() throws MessagingException {
+        // Note, this is injected into mStore (which we don't use for this test)
+        MockTransport mockTransport = openAndInjectMockTransport();
+        mockTransport.setMockHost("eMail.sEcurEserVer.nEt");
+
+        // Prime the expects pump as if the server wants IMAP ID, but we should not actually expect
+        // to send it, because the login code in the store should never actually send it (to this
+        // particular server).  This sequence is a minimized version of expectLogin().
+
+        // Respond to the initial connection
+        mockTransport.expect(null, "* oK Imap 2000 Ready To Assist You");
+        // Return "ID" in the capability
+        expectCapability(mockTransport, true);
+        // No TLS
+        // No ID (the special case for this server)
+        // LOGIN
+        mockTransport.expect(getNextTag(false) + " LOGIN user \"password\"",
+                getNextTag(true) + " " + "oK user authenticated (Success)");
+        // SELECT
+        expectSelect(mockTransport, "rEAD-wRITE");
+
+        // Now open the folder.  Although the server indicates ID in the capabilities,
+        // we are not expecting the store to send the ID command (to this particular server).
+        mFolder.open(OpenMode.READ_WRITE, null);
+    }
+
+    /**
      * Test small Folder functions that don't really do anything in Imap
      */
     public void testSmallFolderFunctions() {
@@ -482,6 +533,15 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     private void setupOpenFolder(MockTransport mockTransport, String[] imapIdResponse,
             String readWriteMode) {
         expectLogin(mockTransport, imapIdResponse);
+        expectSelect(mockTransport, readWriteMode);
+    }
+
+    /**
+     * Helper which stuffs the mock with the strings to satisfy a typical SELECT.
+     * @param mockTransport the mock transport we're using
+     * @param readWriteMode "READ-WRITE" or "READ-ONLY"
+     */
+    private void expectSelect(MockTransport mockTransport, String readWriteMode) {
         mockTransport.expect(
                 getNextTag(false) + " SELECT \"" + FOLDER_ENCODED + "\"", new String[] {
                 "* fLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)",
