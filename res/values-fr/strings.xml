@@ -55,7 +55,7 @@
     <string name="close_action" msgid="533058985745238100">"Fermer"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Paramètres d\'image mémoire"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Envoyer tous messages"</string>
-    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir·une·pièce·jointe"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir une pièce jointe"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Déplacer vers"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Chargement des messages..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Erreur de connexion"</string>
@@ -281,7 +281,7 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domaine\\Nom d\'utilisateur"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utiliser une connexion sécurisée (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Accepter tous les certificats SSL"</string>
-    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Numéro de périphérique mobile :"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Numéro d\'appareil mobile :"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Paramètres du compte"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Options de compte"</string>
     <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"Fréquence de consultation de la boîte de réception"</string>
@@ -327,7 +327,7 @@
     <skip />
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" nécessite une mise à jour de ses paramètres de sécurité."</string>
     <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Mettre à jour les paramètres de sécurité"</string>
-    <string name="account_security_title" msgid="4441470647344315196">"Sécurité du périphérique"</string>
+    <string name="account_security_title" msgid="4441470647344315196">"Sécurité de l\'appareil"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre mobile Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifier les infos"</string>
     <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
