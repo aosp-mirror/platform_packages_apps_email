@@ -63,8 +63,10 @@ public class PolicySet implements Parcelable {
     private static final int PASSWORD_COMPLEX_CHARS_SHIFT = 44;
     private static final long PASSWORD_COMPLEX_CHARS_MASK = 31L << PASSWORD_COMPLEX_CHARS_SHIFT;
     public static final int PASSWORD_COMPLEX_CHARS_MAX = 31;
-        // bit 49: requires device encryption
+        // bit 49: requires device encryption (internal)
     private static final long REQUIRE_ENCRYPTION = 1L << 49;
+        // bit 50: requires external storage encryption
+    private static final long REQUIRE_ENCRYPTION_EXTERNAL = 1L << 50;
 
     /* Convert days to mSec (used for password expiration) */
     private static final long DAYS_TO_MSEC = 24 * 60 * 60 * 1000;
@@ -80,6 +82,7 @@ public class PolicySet implements Parcelable {
     public final int mPasswordHistory;
     public final int mPasswordComplexChars;
     public final boolean mRequireEncryption;
+    public final boolean mRequireEncryptionExternal;
 
     public int getMinPasswordLengthForTest() {
         return mMinPasswordLength;
@@ -105,6 +108,10 @@ public class PolicySet implements Parcelable {
         return mRequireEncryption;
     }
 
+    public boolean isRequireEncryptionExternalForTest() {
+        return mRequireEncryptionExternal;
+    }
+
     /**
      * Create from raw values.
      * @param minPasswordLength (0=not enforced)
@@ -115,12 +122,14 @@ public class PolicySet implements Parcelable {
      * @param passwordExpirationDays in days (0=not enforced)
      * @param passwordHistory (0=not enforced)
      * @param passwordComplexChars (0=not enforced)
+     * @param requireEncryption
+     * @param requireEncryptionExternal
      * @throws IllegalArgumentException for illegal arguments.
      */
     public PolicySet(int minPasswordLength, int passwordMode, int maxPasswordFails,
             int maxScreenLockTime, boolean requireRemoteWipe, int passwordExpirationDays,
-            int passwordHistory, int passwordComplexChars, boolean requireEncryption)
-            throws IllegalArgumentException {
+            int passwordHistory, int passwordComplexChars, boolean requireEncryption,
+            boolean requireEncryptionExternal) throws IllegalArgumentException {
         // If we're not enforcing passwords, make sure we clean up related values, since EAS
         // can send non-zero values for any or all of these
         if (passwordMode == PASSWORD_MODE_NONE) {
@@ -171,6 +180,7 @@ public class PolicySet implements Parcelable {
         mPasswordHistory = passwordHistory;
         mPasswordComplexChars = passwordComplexChars;
         mRequireEncryption = requireEncryption;
+        mRequireEncryptionExternal = requireEncryptionExternal;
     }
 
     /**
@@ -201,6 +211,7 @@ public class PolicySet implements Parcelable {
         mPasswordComplexChars =
             (int) ((flags & PASSWORD_COMPLEX_CHARS_MASK) >> PASSWORD_COMPLEX_CHARS_SHIFT);
         mRequireEncryption = 0 != (flags & REQUIRE_ENCRYPTION);
+        mRequireEncryptionExternal = 0 != (flags & REQUIRE_ENCRYPTION_EXTERNAL);
     }
 
     /**
@@ -305,6 +316,7 @@ public class PolicySet implements Parcelable {
         dest.writeInt(mPasswordHistory);
         dest.writeInt(mPasswordComplexChars);
         dest.writeInt(mRequireEncryption ? 1 : 0);
+        dest.writeInt(mRequireEncryptionExternal ? 1 : 0);
     }
 
     /**
@@ -320,6 +332,7 @@ public class PolicySet implements Parcelable {
         mPasswordHistory = in.readInt();
         mPasswordComplexChars = in.readInt();
         mRequireEncryption = in.readInt() == 1;
+        mRequireEncryptionExternal = in.readInt() == 1;
     }
 
     @Override
@@ -339,6 +352,7 @@ public class PolicySet implements Parcelable {
         flags |= (long)mPasswordExpirationDays << PASSWORD_EXPIRATION_SHIFT;
         flags |= (long)mPasswordComplexChars << PASSWORD_COMPLEX_CHARS_SHIFT;
         if (mRequireEncryption) flags |= REQUIRE_ENCRYPTION;
+        if (mRequireEncryptionExternal) flags |= REQUIRE_ENCRYPTION_EXTERNAL;
         return flags;
     }
 
@@ -350,7 +364,8 @@ public class PolicySet implements Parcelable {
                 + " pw-expiration=" + mPasswordExpirationDays
                 + " pw-history=" + mPasswordHistory
                 + " pw-complex-chars=" + mPasswordComplexChars
-                + " require-encryption=" + mRequireEncryption + "}";
+                + " require-encryption=" + mRequireEncryption
+                + " require-encryptionExternal=" + mRequireEncryptionExternal + "}";
     }
 }
 
