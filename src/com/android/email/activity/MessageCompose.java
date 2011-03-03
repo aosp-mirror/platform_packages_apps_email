@@ -141,7 +141,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     private boolean mSourceMessageProcessed = false;
 
-    private ActionBar mActionBar;
     private TextView mFromView;
     private MultiAutoCompleteTextView mToView;
     private MultiAutoCompleteTextView mCcView;
@@ -472,7 +471,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void initViews() {
-        mActionBar = getActionBar();
         mFromView = (TextView)findViewById(R.id.from);
         mToView = (MultiAutoCompleteTextView)findViewById(R.id.to);
         mCcView = (MultiAutoCompleteTextView)findViewById(R.id.cc);
@@ -481,7 +479,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mSubjectView = (EditText)findViewById(R.id.subject);
         mMessageContentView = (EditText)findViewById(R.id.message_content);
         mAttachments = (LinearLayout)findViewById(R.id.attachments);
-        mAttachmentContainer = (LinearLayout)findViewById(R.id.attachment_container);
+        mAttachmentContainer = findViewById(R.id.attachment_container);
         mQuotedTextBar = findViewById(R.id.quoted_text_bar);
         mIncludeQuotedTextCheckBox = (CheckBox) findViewById(R.id.include_quoted_text);
         mQuotedText = (WebView)findViewById(R.id.quoted_text);
@@ -814,6 +812,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     /**
+     * Updates the given message using values from the compose UI.
+     *
      * @param message The message to be updated.
      * @param account the account (used to obtain From: address).
      * @param hasAttachments true if it has one or more attachment.
@@ -840,14 +840,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         // Use the Intent to set flags saying this message is a reply or a forward and save the
         // unique id of the source message
         if (mSource != null && mQuotedTextBar.getVisibility() == View.VISIBLE) {
-            if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)
-                    || ACTION_FORWARD.equals(mAction)) {
-                message.mSourceKey = mSource.mId;
-                // Get the body of the source message here
-                message.mHtmlReply = mSource.mHtml;
-                message.mTextReply = mSource.mText;
-            }
-
+            // If the quote bar is visible; this must either be a reply or forward
+            message.mSourceKey = mSource.mId;
+            // Get the body of the source message here
+            message.mHtmlReply = mSource.mHtml;
+            message.mTextReply = mSource.mText;
             String fromAsString = Address.unpackToString(mSource.mFrom);
             if (ACTION_FORWARD.equals(mAction)) {
                 message.mFlags |= Message.FLAG_TYPE_FORWARD;
@@ -949,7 +946,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // For any unloaded attachment, set the flag saying we need it loaded
                 boolean hasUnloadedAttachments = false;
                 for (Attachment attachment : attachments) {
-
                     if (attachment.mContentUri == null &&
                             ((attachment.mFlags & Attachment.FLAG_SMART_FORWARD) != 0)) {
                         attachment.mFlags |= Attachment.FLAG_DOWNLOAD_FORWARD;
@@ -1481,13 +1477,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return URLDecoder.decode(s, "UTF-8");
     }
 
-    // used by processSourceMessage()
+    /**
+     * Displays quoted text from the original email
+     */
     private void displayQuotedText(String textBody, String htmlBody) {
-        /* Use plain-text body if available, otherwise use HTML body.
-         * This matches the desired behavior for IMAP/POP where we only send plain-text,
-         * and for EAS which sends HTML and has no plain-text body.
-         */
-        boolean plainTextFlag = textBody != null;
+        // Only use plain text if there is no HTML body
+        boolean plainTextFlag = TextUtils.isEmpty(htmlBody);
         String text = plainTextFlag ? textBody : htmlBody;
         if (text != null) {
             text = plainTextFlag ? EmailHtmlUtil.escapeCharacterToDisplay(text) : text;
