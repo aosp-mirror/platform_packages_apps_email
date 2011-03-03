@@ -49,7 +49,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
     private Context mMockContext;
 
     private static final PolicySet EMPTY_POLICY_SET =
-        new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0, false);
+        new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0, false, false);
 
     public SecurityPolicyTests() {
         super(EmailProvider.class, EmailContent.AUTHORITY);
@@ -114,28 +114,29 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         // We know that EMPTY_POLICY_SET doesn't generate an Exception or we wouldn't be here
         // Try some illegal parameters
         try {
-            new PolicySet(100, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, false, 0, 0, 0, false);
+            new PolicySet(100, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, false, 0, 0, 0, false, false);
             fail("Too-long password allowed");
         } catch (IllegalArgumentException e) {
         }
         try {
-            new PolicySet(0, PolicySet.PASSWORD_MODE_STRONG + 1, 0, 0, false, 0, 0, 0, false);
+            new PolicySet(0, PolicySet.PASSWORD_MODE_STRONG + 1, 0, 0, false, 0, 0, 0, false,
+                    false);
             fail("Illegal password mode allowed");
         } catch (IllegalArgumentException e) {
         }
 
         PolicySet ps = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE, 0,
-                PolicySet.SCREEN_LOCK_TIME_MAX + 1, false, 0, 0, 0, false);
+                PolicySet.SCREEN_LOCK_TIME_MAX + 1, false, 0, 0, 0, false, false);
         assertEquals(PolicySet.SCREEN_LOCK_TIME_MAX, ps.getMaxScreenLockTimeForTest());
 
         ps = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE,
-                PolicySet.PASSWORD_MAX_FAILS_MAX + 1, 0, false, 0, 0, 0, false);
+                PolicySet.PASSWORD_MAX_FAILS_MAX + 1, 0, false, 0, 0, 0, false, false);
         assertEquals(PolicySet.PASSWORD_MAX_FAILS_MAX, ps.getMaxPasswordFailsForTest());
         // All password related fields should be zero when password mode is NONE
         // Illegal values for these fields should be ignored
         ps = new PolicySet(999/*length*/, PolicySet.PASSWORD_MODE_NONE,
                 999/*fails*/, 9999/*screenlock*/, false, 999/*expir*/, 999/*history*/,
-                999/*complex*/, false);
+                999/*complex*/, false, false);
         assertEquals(0, ps.mMinPasswordLength);
         assertEquals(0, ps.mMaxScreenLockTime);
         assertEquals(0, ps.mMaxPasswordFails);
@@ -145,7 +146,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
 
         // With a simple password, we should set complex chars to zero
         ps = new PolicySet(4/*length*/, PolicySet.PASSWORD_MODE_SIMPLE,
-                0, 0, false, 0, 0, 3/*complex*/, false);
+                0, 0, false, 0, 0, 3/*complex*/, false, false);
         assertEquals(4, ps.mMinPasswordLength);
         assertEquals(0, ps.mPasswordComplexChars);
     }
@@ -172,7 +173,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         // first test with partially-populated policies
         Account a3 = ProviderTestUtils.setupAccount("sec-3", false, mMockContext);
         PolicySet p3ain = new PolicySet(10, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, false, 0, 0, 0,
-                false);
+                false, false);
         p3ain.writeAccount(a3, null, true, mMockContext);
         PolicySet p3aout = sp.computeAggregatePolicy();
         assertNotNull(p3aout);
@@ -180,7 +181,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
 
         // Repeat that test with fully-populated policies
         PolicySet p3bin = new PolicySet(10, PolicySet.PASSWORD_MODE_SIMPLE, 15, 16, false, 6, 2, 3,
-                false);
+                false, false);
         p3bin.writeAccount(a3, null, true, mMockContext);
         PolicySet p3bout = sp.computeAggregatePolicy();
         assertNotNull(p3bout);
@@ -193,8 +194,9 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         // expiration - will not change because 0 (unspecified)
         // max complex chars - max logic - will change
         // encryption required - OR logic - will *not* change here because false
+        // encryption external req'd - OR logic - will *not* change here because false
         PolicySet p4in = new PolicySet(20, PolicySet.PASSWORD_MODE_STRONG, 25, 26, false, 0, 5, 7,
-                false);
+                false, false);
         Account a4 = ProviderTestUtils.setupAccount("sec-4", false, mMockContext);
         p4in.writeAccount(a4, null, true, mMockContext);
         PolicySet p4out = sp.computeAggregatePolicy();
@@ -208,6 +210,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(7, p4out.mPasswordComplexChars);
         assertFalse(p4out.mRequireRemoteWipe);
         assertFalse(p4out.mRequireEncryption);
+        assertFalse(p4out.mRequireEncryptionExternal);
 
         // add another account which mixes it up (the remaining fields will change)
         // pw length and pw mode - max logic - will *not* change because smaller #s here
@@ -216,8 +219,9 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         // expiration time - min logic - will change because lower here
         // history & complex chars - will not change because 0 (unspecified)
         // encryption required - OR logic - will change here because true
+        // encryption external req'd - OR logic - will *not* change here because false
         PolicySet p5in = new PolicySet(4, PolicySet.PASSWORD_MODE_SIMPLE, 5, 6, true, 1, 0, 0,
-                true);
+                true, false);
         Account a5 = ProviderTestUtils.setupAccount("sec-5", false, mMockContext);
         p5in.writeAccount(a5, null, true, mMockContext);
         PolicySet p5out = sp.computeAggregatePolicy();
@@ -230,7 +234,17 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(5, p5out.mPasswordHistory);
         assertEquals(7, p5out.mPasswordComplexChars);
         assertTrue(p5out.mRequireRemoteWipe);
-        assertTrue(p5out.mRequireEncryption);
+        assertFalse(p5out.mRequireEncryptionExternal);
+
+        // add another account that continues to mutate fields
+        // encryption external req'd - OR logic - will change here because true
+        PolicySet p6in = new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0,
+                false, true);
+        Account a6 = ProviderTestUtils.setupAccount("sec-6", false, mMockContext);
+        p6in.writeAccount(a6, null, true, mMockContext);
+        PolicySet p6out = sp.computeAggregatePolicy();
+        assertNotNull(p6out);
+        assertTrue(p6out.mRequireEncryptionExternal);
     }
 
     /**
@@ -260,7 +274,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
     public void testFieldIsolation() {
         // Check PASSWORD_LENGTH
         PolicySet p = new PolicySet(PolicySet.PASSWORD_LENGTH_MAX, PolicySet.PASSWORD_MODE_SIMPLE,
-                0, 0, false, 0, 0 ,0, false);
+                0, 0, false, 0, 0 ,0, false, false);
         assertEquals(PolicySet.PASSWORD_MODE_SIMPLE, p.mPasswordMode);
         assertEquals(PolicySet.PASSWORD_LENGTH_MAX, p.mMinPasswordLength);
         assertEquals(0, p.mMaxPasswordFails);
@@ -270,9 +284,10 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mPasswordComplexChars);
         assertFalse(p.mRequireRemoteWipe);
         assertFalse(p.mRequireEncryption);
+        assertFalse(p.mRequireEncryptionExternal);
 
         // Check PASSWORD_MODE
-        p = new PolicySet(0, PolicySet.PASSWORD_MODE_STRONG, 0, 0, false, 0, 0, 0, false);
+        p = new PolicySet(0, PolicySet.PASSWORD_MODE_STRONG, 0, 0, false, 0, 0, 0, false, false);
         assertEquals(PolicySet.PASSWORD_MODE_STRONG, p.mPasswordMode);
         assertEquals(0, p.mMinPasswordLength);
         assertEquals(0, p.mMaxPasswordFails);
@@ -282,10 +297,11 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mPasswordComplexChars);
         assertFalse(p.mRequireRemoteWipe);
         assertFalse(p.mRequireEncryption);
+        assertFalse(p.mRequireEncryptionExternal);
 
         // Check PASSWORD_FAILS (note, mode must be set for this to be non-zero)
         p = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE, PolicySet.PASSWORD_MAX_FAILS_MAX, 0,
-                false, 0, 0, 0, false);
+                false, 0, 0, 0, false, false);
         assertEquals(PolicySet.PASSWORD_MODE_SIMPLE, p.mPasswordMode);
         assertEquals(0, p.mMinPasswordLength);
         assertEquals(PolicySet.PASSWORD_MAX_FAILS_MAX, p.mMaxPasswordFails);
@@ -295,10 +311,11 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mPasswordComplexChars);
         assertFalse(p.mRequireRemoteWipe);
         assertFalse(p.mRequireEncryption);
+        assertFalse(p.mRequireEncryptionExternal);
 
         // Check SCREEN_LOCK_TIME (note, mode must be set for this to be non-zero)
         p = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE, 0, PolicySet.SCREEN_LOCK_TIME_MAX,
-                false, 0, 0, 0, false);
+                false, 0, 0, 0, false, false);
         assertEquals(PolicySet.PASSWORD_MODE_SIMPLE, p.mPasswordMode);
         assertEquals(0, p.mMinPasswordLength);
         assertEquals(0, p.mMaxPasswordFails);
@@ -308,9 +325,10 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mPasswordComplexChars);
         assertFalse(p.mRequireRemoteWipe);
         assertFalse(p.mRequireEncryption);
+        assertFalse(p.mRequireEncryptionExternal);
 
         // Check REQUIRE_REMOTE_WIPE
-        p = new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, true, 0, 0, 0, false);
+        p = new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, true, 0, 0, 0, false, false);
         assertEquals(PolicySet.PASSWORD_MODE_NONE, p.mPasswordMode);
         assertEquals(0, p.mMinPasswordLength);
         assertEquals(0, p.mMaxPasswordFails);
@@ -320,10 +338,11 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mPasswordComplexChars);
         assertTrue(p.mRequireRemoteWipe);
         assertFalse(p.mRequireEncryption);
+        assertFalse(p.mRequireEncryptionExternal);
 
         // Check PASSWORD_EXPIRATION (note, mode must be set for this to be non-zero)
         p = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, false,
-                PolicySet.PASSWORD_EXPIRATION_MAX, 0, 0, false);
+                PolicySet.PASSWORD_EXPIRATION_MAX, 0, 0, false, false);
         assertEquals(PolicySet.PASSWORD_MODE_SIMPLE, p.mPasswordMode);
         assertEquals(0, p.mMinPasswordLength);
         assertEquals(0, p.mMaxPasswordFails);
@@ -333,10 +352,11 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mPasswordComplexChars);
         assertFalse(p.mRequireRemoteWipe);
         assertFalse(p.mRequireEncryption);
+        assertFalse(p.mRequireEncryptionExternal);
 
         // Check PASSWORD_HISTORY (note, mode must be set for this to be non-zero)
         p = new PolicySet(0, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, false, 0,
-                PolicySet.PASSWORD_HISTORY_MAX, 0, false);
+                PolicySet.PASSWORD_HISTORY_MAX, 0, false, false);
         assertEquals(PolicySet.PASSWORD_MODE_SIMPLE, p.mPasswordMode);
         assertEquals(0, p.mMinPasswordLength);
         assertEquals(0, p.mMaxPasswordFails);
@@ -346,10 +366,11 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mPasswordComplexChars);
         assertFalse(p.mRequireRemoteWipe);
         assertFalse(p.mRequireEncryption);
+        assertFalse(p.mRequireEncryptionExternal);
 
         // Check PASSWORD_COMPLEX_CHARS (note, mode must be set for this to be non-zero)
         p = new PolicySet(0, PolicySet.PASSWORD_MODE_STRONG, 0, 0, false, 0, 0,
-                PolicySet.PASSWORD_COMPLEX_CHARS_MAX, false);
+                PolicySet.PASSWORD_COMPLEX_CHARS_MAX, false, false);
         assertEquals(PolicySet.PASSWORD_MODE_STRONG, p.mPasswordMode);
         assertEquals(0, p.mMinPasswordLength);
         assertEquals(0, p.mMaxPasswordFails);
@@ -359,9 +380,10 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(PolicySet.PASSWORD_COMPLEX_CHARS_MAX, p.mPasswordComplexChars);
         assertFalse(p.mRequireRemoteWipe);
         assertFalse(p.mRequireEncryption);
+        assertFalse(p.mRequireEncryptionExternal);
 
         // Check REQUIRE_ENCRYPTION
-        p = new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0, true);
+        p = new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0, true, false);
         assertEquals(PolicySet.PASSWORD_MODE_NONE, p.mPasswordMode);
         assertEquals(0, p.mMinPasswordLength);
         assertEquals(0, p.mMaxPasswordFails);
@@ -371,6 +393,20 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, p.mPasswordComplexChars);
         assertFalse(p.mRequireRemoteWipe);
         assertTrue(p.mRequireEncryption);
+        assertFalse(p.mRequireEncryptionExternal);
+
+        // Check REQUIRE_ENCRYPTION_EXTERNAL
+        p = new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0, false, true);
+        assertEquals(PolicySet.PASSWORD_MODE_NONE, p.mPasswordMode);
+        assertEquals(0, p.mMinPasswordLength);
+        assertEquals(0, p.mMaxPasswordFails);
+        assertEquals(0, p.mMaxScreenLockTime);
+        assertEquals(0, p.mPasswordExpirationDays);
+        assertEquals(0, p.mPasswordHistory);
+        assertEquals(0, p.mPasswordComplexChars);
+        assertFalse(p.mRequireRemoteWipe);
+        assertFalse(p.mRequireEncryption);
+        assertTrue(p.mRequireEncryptionExternal);
     }
 
     /**
@@ -378,7 +414,8 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
      */
     @SmallTest
     public void testAccountEncoding() {
-        PolicySet p1 = new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false);
+        PolicySet p1 =
+            new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false, false);
         Account a = new Account();
         final String SYNC_KEY = "test_sync_key";
         p1.writeAccount(a, SYNC_KEY, false, null);
@@ -392,9 +429,12 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
      */
     @SmallTest
     public void testEquals() {
-        PolicySet p1 = new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false);
-        PolicySet p2 = new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false);
-        PolicySet p3 = new PolicySet(2, PolicySet.PASSWORD_MODE_SIMPLE, 5, 6, true, 7, 8, 9, false);
+        PolicySet p1 =
+            new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false, false);
+        PolicySet p2 =
+            new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false, false);
+        PolicySet p3 =
+            new PolicySet(2, PolicySet.PASSWORD_MODE_SIMPLE, 5, 6, true, 7, 8, 9, false, false);
         assertTrue(p1.equals(p2));
         assertFalse(p2.equals(p3));
     }
@@ -444,12 +484,12 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
     public void testDisableAdmin() {
         Account a1 = ProviderTestUtils.setupAccount("disable-1", false, mMockContext);
         PolicySet p1 = new PolicySet(10, PolicySet.PASSWORD_MODE_SIMPLE, 0, 0, false, 0, 0, 0,
-                false);
+                false, false);
         p1.writeAccount(a1, "sync-key-1", true, mMockContext);
 
         Account a2 = ProviderTestUtils.setupAccount("disable-2", false, mMockContext);
         PolicySet p2 = new PolicySet(20, PolicySet.PASSWORD_MODE_STRONG, 25, 26, false, 0, 0, 0,
-                false);
+                false, false);
         p2.writeAccount(a2, "sync-key-2", true, mMockContext);
 
         Account a3 = ProviderTestUtils.setupAccount("disable-3", false, mMockContext);
@@ -494,42 +534,40 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
      * Test the scanner that finds expiring accounts
      */
     public void testFindExpiringAccount() {
-        SecurityPolicy sp = getSecurityPolicy();
-
         Account a1 = ProviderTestUtils.setupAccount("expiring-1", true, mMockContext);
 
         // With no expiring accounts, this should return null.
-        long nextExpiringAccountId = sp.findShortestExpiration(mMockContext);
+        long nextExpiringAccountId = SecurityPolicy.findShortestExpiration(mMockContext);
         assertEquals(-1, nextExpiringAccountId);
 
         // Add a single expiring account
         Account a2 = ProviderTestUtils.setupAccount("expiring-2", false, mMockContext);
         PolicySet p2 = new PolicySet(20, PolicySet.PASSWORD_MODE_STRONG, 25, 26, false, 30, 0, 0,
-                false);
+                false, false);
         p2.writeAccount(a2, "sync-key-2", true, mMockContext);
 
         // The expiring account should be returned
-        nextExpiringAccountId = sp.findShortestExpiration(mMockContext);
+        nextExpiringAccountId = SecurityPolicy.findShortestExpiration(mMockContext);
         assertEquals(a2.mId, nextExpiringAccountId);
 
         // Add an account with a longer expiration
         Account a3 = ProviderTestUtils.setupAccount("expiring-3", false, mMockContext);
         PolicySet p3 = new PolicySet(20, PolicySet.PASSWORD_MODE_STRONG, 25, 26, false, 60, 0, 0,
-                false);
+                false, false);
         p3.writeAccount(a3, "sync-key-3", true, mMockContext);
 
         // The original expiring account (a2) should be returned
-        nextExpiringAccountId = sp.findShortestExpiration(mMockContext);
+        nextExpiringAccountId = SecurityPolicy.findShortestExpiration(mMockContext);
         assertEquals(a2.mId, nextExpiringAccountId);
 
         // Add an account with a shorter expiration
         Account a4 = ProviderTestUtils.setupAccount("expiring-4", false, mMockContext);
         PolicySet p4 = new PolicySet(20, PolicySet.PASSWORD_MODE_STRONG, 25, 26, false, 15, 0, 0,
-                false);
+                false, false);
         p4.writeAccount(a4, "sync-key-4", true, mMockContext);
 
         // The new expiring account (a4) should be returned
-        nextExpiringAccountId = sp.findShortestExpiration(mMockContext);
+        nextExpiringAccountId = SecurityPolicy.findShortestExpiration(mMockContext);
         assertEquals(a4.mId, nextExpiringAccountId);
     }
 
@@ -555,7 +593,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a1 = ProviderTestUtils.setupAccount("expired-1", true, mMockContext);
         Account a2 = ProviderTestUtils.setupAccount("expired-2", false, mMockContext);
         PolicySet p2 = new PolicySet(20, PolicySet.PASSWORD_MODE_STRONG, 25, 26, false, 0, 0, 0,
-                false);
+                false, false);
         p2.writeAccount(a2, "sync-key-2", true, mMockContext);
 
         // Add a mailbox & messages to each account
@@ -581,7 +619,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         // Add 3rd account that really expires
         Account a3 = ProviderTestUtils.setupAccount("expired-3", false, mMockContext);
         PolicySet p3 = new PolicySet(20, PolicySet.PASSWORD_MODE_STRONG, 25, 26, false, 30, 0, 0,
-                false);
+                false, false);
         p3.writeAccount(a3, "sync-key-3", true, mMockContext);
 
         // Add mailbox & messages to 3rd account
@@ -618,8 +656,12 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
      * TODO inject a mock DPM so we can directly control & test all cases, no matter what device
      */
     public void testClearUnsupportedPolicies() {
-        PolicySet p1 = new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false);
-        PolicySet p2 = new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, true);
+        PolicySet p1 =
+            new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false, false);
+        PolicySet p2 =
+            new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, true, false);
+        PolicySet p3 =
+            new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false, true);
 
         SecurityPolicy sp = getSecurityPolicy();
         DevicePolicyManager dpm = sp.getDPM();
@@ -628,16 +670,22 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
 
         PolicySet p1Result = sp.clearUnsupportedPolicies(p1);
         PolicySet p2Result = sp.clearUnsupportedPolicies(p2);
+        PolicySet p3Result = sp.clearUnsupportedPolicies(p3);
 
-        // No changes expected when encryptionRequested was false
+        // No changes expected when encryptionRequested bits were false
         assertEquals(p1, p1Result);
         if (hasEncryption) {
             // No changes expected
+            // NOTE:  TODO: Modify to check for external encryption cleared on devices that
+            // won't support it (e.g. having only unencrypted, removable storage.)
             assertEquals(p2, p2Result);
+            assertEquals(p3, p3Result);
         } else {
-            PolicySet p2Expect =
-                new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false);
-            assertEquals(p2Expect, p2Result);
+            // If encryption is unsupported, encryption policy bits are cleared
+            PolicySet policyExpect =
+                new PolicySet(1, PolicySet.PASSWORD_MODE_STRONG, 3, 4, true, 7, 8, 9, false, false);
+            assertEquals(policyExpect, p2Result);
+            assertEquals(policyExpect, p3Result);
         }
     }
 }
