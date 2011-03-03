@@ -34,6 +34,7 @@ import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
@@ -204,6 +205,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private int mRestoredTab = TAB_NONE;
 
     private boolean mRestoredPictureLoaded;
+
+    private final EmailAsyncTask.Tracker mUpdatePreviewIconTaskTracker
+            = new EmailAsyncTask.Tracker();
 
     /**
      * Zoom scales for webview.  Values correspond to {@link Preferences#TEXT_ZOOM_TINY}..
@@ -423,6 +427,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     private void cancelAllTasks() {
         mMessageObserver.unregister();
+        mUpdatePreviewIconTaskTracker.cancellAllInterrupt();
         Utility.cancelTaskInterrupt(mLoadMessageTask);
         mLoadMessageTask = null;
         Utility.cancelTaskInterrupt(mReloadMessageTask);
@@ -1154,31 +1159,17 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
     }
 
-    private Bitmap getPreviewIcon(AttachmentInfo attachment) {
+    private static Bitmap getPreviewIcon(Context context, AttachmentInfo attachment) {
         try {
             return BitmapFactory.decodeStream(
-                    mContext.getContentResolver().openInputStream(
+                    context.getContentResolver().openInputStream(
                             AttachmentUtilities.getAttachmentThumbnailUri(
-                                    mAccountId, attachment.mId,
+                                    attachment.mAccountKey, attachment.mId,
                                     PREVIEW_ICON_WIDTH,
                                     PREVIEW_ICON_HEIGHT)));
         } catch (Exception e) {
             Log.d(Logging.LOG_TAG, "Attachment preview failed with exception " + e.getMessage());
             return null;
-        }
-    }
-
-    private void updateAttachmentThumbnail(long attachmentId) {
-        for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
-            MessageViewAttachmentInfo attachment =
-                (MessageViewAttachmentInfo) mAttachments.getChildAt(i).getTag();
-            if (attachment.mId == attachmentId) {
-                Bitmap previewIcon = getPreviewIcon(attachment);
-                if (previewIcon != null) {
-                    attachment.iconView.setImageBitmap(previewIcon);
-                }
-                return;
-            }
         }
     }
 
@@ -1318,10 +1309,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             loadButton.setVisibility(View.GONE);
             cancelButton.setVisibility(View.GONE);
 
-            Bitmap previewIcon = getPreviewIcon(attachmentInfo);
-            if (previewIcon != null) {
-                attachmentIcon.setImageBitmap(previewIcon);
-            }
+            updatePreviewIcon(attachmentInfo);
         } else {
             // The attachment is not loaded, so present UI to start downloading it
 
@@ -1396,6 +1384,17 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         mAttachments.addView(view);
         mAttachments.setVisibility(View.VISIBLE);
+    }
+
+    private MessageViewAttachmentInfo findAttachmentInfoFromView(long attachmentId) {
+        for (int i = 0, count = mAttachments.getChildCount(); i < count; i++) {
+            MessageViewAttachmentInfo attachmentInfo =
+                    (MessageViewAttachmentInfo) mAttachments.getChildAt(i).getTag();
+            if (attachmentInfo.mId == attachmentId) {
+                return attachmentInfo;
+            }
+        }
+        return null;
     }
 
     /**
@@ -1656,7 +1655,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                     showAttachmentProgress(attachmentId, progress);
                     switch (progress) {
                         case 100:
-                            updateAttachmentThumbnail(attachmentId);
+                            final MessageViewAttachmentInfo attachmentInfo =
+                                    findAttachmentInfoFromView(attachmentId);
+                            if (attachmentInfo != null) {
+                                updatePreviewIcon(attachmentInfo);
+                            }
                             doFinishLoadAttachment(attachmentId);
                             break;
                         default:
@@ -1754,6 +1757,35 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             Utility.cancelTaskInterrupt(mReloadMessageTask);
             mReloadMessageTask = new ReloadMessageTask();
             mReloadMessageTask.execute();
+        }
+    }
+
+    private void updatePreviewIcon(MessageViewAttachmentInfo attachmentInfo) {
+        new UpdatePreviewIconTask(attachmentInfo).execute();
+    }
+
+    private class UpdatePreviewIconTask extends EmailAsyncTask<Void, Void, Bitmap> {
+        @SuppressWarnings("hiding")
+        private final Context mContext;
+        private final MessageViewAttachmentInfo mAttachmentInfo;
+
+        public UpdatePreviewIconTask(MessageViewAttachmentInfo attachmentInfo) {
+            super(mUpdatePreviewIconTaskTracker);
+            mContext = getActivity();
+            mAttachmentInfo = attachmentInfo;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            return getPreviewIcon(mContext, mAttachmentInfo);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            if (result == null) {
+                return;
+            }
+            mAttachmentInfo.iconView.setImageBitmap(result);
         }
     }
 
