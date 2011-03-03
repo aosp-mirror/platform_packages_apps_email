@@ -269,6 +269,25 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         assertNotNull(header.getField("content-disposition"));
     }
 
+    private static String BODY_TEST1 = "<html><head><title>MyTitle</title></head>"
+            + "<body bgcolor=\"#ffffff\" text=\"#000000\">test1</body></html>";
+    private static String BODY_RESULT1 = "test1";
+    private static String BODY_TEST2 = "<body bgcolor=\"#ffffff\" text=\"#000000\">test2<br>test2</body>";
+    private static String BODY_RESULT2 = "test2<br>test2";
+    private static String BODY_TEST3 = "<a href=\"google.com\">test3</a>";
+    private static String BODY_RESULT3 = "<a href=\"google.com\">test3</a>";
+
+    public void testGetHtmlBody() {
+        String actual;
+
+        actual = Rfc822Output.getHtmlBody(BODY_TEST1);
+        assertEquals(BODY_RESULT1, actual);
+        actual = Rfc822Output.getHtmlBody(BODY_TEST2);
+        assertEquals(BODY_RESULT2, actual);
+        actual = Rfc822Output.getHtmlBody(BODY_TEST3);
+        assertEquals(BODY_RESULT3, actual);
+    }
+
     /**
      * Confirm that the constructed message includes "MIME-VERSION: 1.0"
      */

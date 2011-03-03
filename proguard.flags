@@ -46,6 +46,11 @@
   *** setProviderContext(android.content.Context);
 }
 
+-keepclasseswithmembers class com.android.emailcommon.internet.Rfc822Output {
+  *** getHtmlBody(java.lang.String);
+  *** buildBodyText(android.content.Context, com.android.emailcommon.provider.EmailContent$Message, boolean);
+}
+
 -keepclasseswithmembers class com.android.emailcommon.mail.Address {
   <init>(java.lang.String);
   <init>(java.lang.String,java.lang.String);
