@@ -351,7 +351,7 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Paramètres généraux"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Compte par défaut"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Par défaut, envoyer les e-mails avec ce compte"</string>
-    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Télécharger pièces jointes auto."</string>
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Téléch. pièces jointes automatiquement"</string>
     <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Télécharger automatiquement les pièces jointes une fois connecté au Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notifications"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Fréquence de synchronisation, notifications, etc."</string>

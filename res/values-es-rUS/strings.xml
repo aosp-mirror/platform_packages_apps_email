@@ -94,7 +94,7 @@
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Marcado con asterisco"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Borradores"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Bandeja de salida"</string>
-    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Mantenga presionada una cuenta para actualizarla"</string>
+    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Mantén presionada una cuenta para actualizarla"</string>
     <string name="mailbox_list_title" msgid="8299608543467211089">"Casilla de correo"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Vista combinada"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Cargar más mensajes"</string>
@@ -243,7 +243,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Comprobando configuración saliente de servidor…"</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Configuración de la cuenta"</string>
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Se ha configurado tu cuenta, ¡y el correo electrónico está en camino!"</string>
-    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Coloca un nombre a esta cuenta (opcional)"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Asigna un nombre a esta cuenta (opcional)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tu nombre (mostrado en mensajes salientes)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"Este campo no puede estar en blanco."</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Configuración de la cuenta"</string>
@@ -264,7 +264,7 @@
     <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"TLS"</string>
     <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Suprimir correo electrónico del servidor"</string>
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Nunca"</string>
-    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Cuándo suprimo desde la bandeja de entrada"</string>
+    <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Cuando suprimo desde la bandeja de entrada"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"prefijo de ruta IMAP"</string>
     <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Opcional"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Configuración de la cuenta"</string>
@@ -327,7 +327,7 @@
     <skip />
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"La cuenta \"<xliff:g id="ACCOUNT">%s</xliff:g>\" requiere que se actualice la configuración de seguridad."</string>
     <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Actualizar la configuración de seguridad"</string>
-    <string name="account_security_title" msgid="4441470647344315196">"Dispositivo de seguridad"</string>
+    <string name="account_security_title" msgid="4441470647344315196">"Seguridad del dispositivo"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"El servidor <xliff:g id="SERVER">%s</xliff:g> requiere tu permiso para controlar de forma remota algunas funciones de seguridad en tu dispositivo Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Editar detalles"</string>
     <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
@@ -354,7 +354,7 @@
     <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Descargar archivos adj. automat."</string>
     <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Descargar los archivos adjuntos automáticamente al conectarte a Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Notificaciones de correo electrónico"</string>
-    <string name="account_settings_summary" msgid="8403582255413830007">"Sincronizar frecuencia, notificaciones, etc."</string>
+    <string name="account_settings_summary" msgid="8403582255413830007">"Frecuencia de sincronización, notificaciones, etc."</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Notificar en la barra de estado cuando llegue un correo electrónico"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Frecuencia de verificación de bandeja de entrada"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Configuración entrante"</string>
@@ -377,7 +377,7 @@
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Vibrar"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Vibrar también cuando llegue un correo electrónico"</string>
     <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Siempre"</string>
-    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Sólo cuando esté en silencio"</string>
+    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Solo en modo silencioso"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Nunca"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibrar"</string>
     <string name="account_settings_ringtone" msgid="7922187231467500404">"Seleccionar el tono de timbre"</string>
@@ -407,8 +407,8 @@
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Selecciona qué pantalla mostrar después de eliminar un mensaje"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Avanzar a"</string>
     <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Mensaje más nuevo"</string>
-    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Mensaje antiguo"</string>
-    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Lista de mensaje"</string>
+    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Mensaje anterior"</string>
+    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Lista de mensajes"</string>
     <string name="general_preference_text_zoom_label" msgid="4021955890499565713">"Tamaño del texto del mensaje"</string>
   <string-array name="general_preference_text_zoom_summary_array">
     <item msgid="1728778773460367725">"Mostrar contenido de mensajes en texto de tamaño muy pequeño"</item>
@@ -418,7 +418,7 @@
     <item msgid="235926149071179467">"Mostrar contenido de mensajes en texto de gran tamaño"</item>
   </string-array>
     <string name="general_preference_text_zoom_dialog_title" msgid="7446841758331151643">"Tamaño del texto del mensaje"</string>
-    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Más pequeño"</string>
+    <string name="general_preference_text_zoom_tiny" msgid="2948174583663330937">"Diminuto"</string>
     <string name="general_preference_text_zoom_small" msgid="6618520238223144876">"Pequeño"</string>
     <string name="general_preference_text_zoom_normal" msgid="1765540147950855479">"Normal"</string>
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Grande"</string>
