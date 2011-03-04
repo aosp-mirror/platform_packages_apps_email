@@ -59,9 +59,16 @@ public class Device {
                 rdr = new BufferedReader(new FileReader(f), 128);
                 id = rdr.readLine();
                 rdr.close();
-                // STOPSHIP Remove logging
-                Log.w(Logging.LOG_TAG, "deviceId read as: " + id);
-                return id;
+                if (id == null) {
+                    // It's very bad if we read a null device id; let's delete that file
+                    if (!f.delete()) {
+                        Log.e(Logging.LOG_TAG, "Can't delete null deviceName file; try overwrite.");
+                    }
+                } else {
+                    // STOPSHIP Remove logging
+                    Log.w(Logging.LOG_TAG, "deviceId read as: " + id);
+                    return id;
+                }
             } else {
                 Log.w(Logging.LOG_TAG, f.getAbsolutePath() + ": File exists, but can't read?" +
                     "  Trying to remove.");
