@@ -1151,16 +1151,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         }
 
-        String contentType = contentResolver.getType(uri);
-        if (contentType == null) {
-            contentType = "";
-        }
-
         Attachment attachment = new Attachment();
         attachment.mFileName = name;
         attachment.mContentUri = uri.toString();
         attachment.mSize = size;
-        attachment.mMimeType = contentType;
+        attachment.mMimeType = AttachmentUtilities.inferMimeTypeForUri(this, uri);
         return attachment;
     }
 
@@ -1196,8 +1191,21 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 ? View.GONE : View.VISIBLE);
     }
 
-    private void addAttachment(Uri uri) {
+    private void addAttachmentFromUri(Uri uri) {
         addAttachment(loadAttachmentInfo(uri), true);
+    }
+
+    /**
+     * Same as {@link #addAttachmentFromUri}, but does the mime-type check against
+     * {@link AttachmentUtilities#ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES}.
+     */
+    private void addAttachmentFromSendIntent(Uri uri) {
+        final Attachment attachment = loadAttachmentInfo(uri);
+        final String mimeType = attachment.mMimeType;
+        if (!TextUtils.isEmpty(mimeType) && MimeUtility.mimeTypeMatches(mimeType,
+                AttachmentUtilities.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
+            addAttachment(attachment, true);
+        }
     }
 
     @Override
@@ -1205,7 +1213,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (data == null) {
             return;
         }
-        addAttachment(data.getData());
+        addAttachmentFromUri(data.getData());
         setDraftNeedsSaving(true);
     }
 
@@ -1391,13 +1399,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         // Next, convert EXTRA_STREAM into an attachment
         if (Intent.ACTION_SEND.equals(mAction) && intent.hasExtra(Intent.EXTRA_STREAM)) {
-            String type = intent.getType();
-            Uri stream = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-            if (stream != null && type != null) {
-                if (MimeUtility.mimeTypeMatches(type,
-                        AttachmentUtilities.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
-                    addAttachment(stream);
-                }
+            Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if (uri != null) {
+                addAttachmentFromSendIntent(uri);
             }
         }
 
@@ -1408,11 +1412,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 for (Parcelable parcelable : list) {
                     Uri uri = (Uri) parcelable;
                     if (uri != null) {
-                        Attachment attachment = loadAttachmentInfo(uri);
-                        if (MimeUtility.mimeTypeMatches(attachment.mMimeType,
-                                AttachmentUtilities.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
-                            addAttachment(attachment, true);
-                        }
+                        addAttachmentFromSendIntent(uri);
                     }
                 }
             }

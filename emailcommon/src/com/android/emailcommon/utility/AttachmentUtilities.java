@@ -225,6 +225,23 @@ public class AttachmentUtilities {
     }
 
     /**
+     * @return mime-type for a {@link Uri}.
+     *    - Use {@link ContentResolver#getType} for a content: URI.
+     *    - Use {@link #inferMimeType} for a file: URI.
+     *    - Otherwise throw {@link IllegalArgumentException}.
+     */
+    public static String inferMimeTypeForUri(Context context, Uri uri) {
+        final String scheme = uri.getScheme();
+        if ("content".equals(scheme)) {
+            return context.getContentResolver().getType(uri);
+        } else if ("file".equals(scheme)) {
+            return inferMimeType(uri.getLastPathSegment(), "");
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    /**
      * Extract and return filename's extension, converted to lower case, and not including the "."
      *
      * @return extension, or null if not found (or null/empty filename)
