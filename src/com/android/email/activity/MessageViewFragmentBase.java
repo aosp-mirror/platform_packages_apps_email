@@ -783,7 +783,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
             DownloadManager dm =
                     (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-            dm.completedDownload(info.mName, info.mName, false /* do not use media scanner */,
+            dm.addCompletedDownload(info.mName, info.mName,
+                    false /* do not use media scanner */,
                     info.mContentType, file.getAbsolutePath(), info.mSize,
                     true /* show notification */);
         } catch (IOException ioe) {
