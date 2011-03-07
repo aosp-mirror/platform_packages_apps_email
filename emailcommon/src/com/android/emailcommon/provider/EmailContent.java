@@ -994,6 +994,8 @@ public abstract class EmailContent {
         public static final int FLAGS_VIBRATE_WHEN_SILENT = 64;
         public static final int FLAGS_SUPPORTS_SMART_FORWARD = 128;
         public static final int FLAGS_BACKGROUND_ATTACHMENTS = 256;
+        // Available to sync adapter
+        public static final int FLAGS_SYNC_ADAPTER = 512;
 
         public static final int DELETE_POLICY_NEVER = 0;
         public static final int DELETE_POLICY_7DAYS = 1;        // not supported
