@@ -412,8 +412,17 @@ public class MimeUtility {
             dispositionType = MimeUtility.getHeaderParameter(disposition, null);
             dispositionFilename = MimeUtility.getHeaderParameter(disposition, "filename");
         }
+        // An attachment filename can be defined in either the Content-Disposition header
+        // or the Content-Type header. Content-Disposition is preferred, so we only try
+        // the Content-Type header as a last resort.
+        if (dispositionFilename == null) {
+            String contentType = part.getContentType();
+            dispositionFilename = MimeUtility.getHeaderParameter(contentType, "name");
+        }
         boolean attachmentDisposition = "attachment".equalsIgnoreCase(dispositionType);
-        boolean inlineDisposition = "inline".equalsIgnoreCase(dispositionType);
+        // If a disposition is not specified, default to "inline"
+        boolean inlineDisposition = dispositionType == null
+                || "inline".equalsIgnoreCase(dispositionType);
 
         // A guess that this part is intended to be an attachment
         boolean attachment = attachmentDisposition
