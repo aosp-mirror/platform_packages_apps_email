@@ -215,7 +215,10 @@ public class NotificationController {
             return null; // no message found???
         }
 
-        final String senderName = Address.toFriendly(Address.unpack(message.mFrom));
+        String senderName = Address.toFriendly(Address.unpack(message.mFrom));
+        if (senderName == null) {
+            senderName = ""; // Happens when a message has no from.
+        }
         final String subject = message.mSubject;
         final Bitmap senderPhoto = getSenderPhoto(message);
 
