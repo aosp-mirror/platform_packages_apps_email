@@ -82,7 +82,7 @@
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> חשבון"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> חשבונות"</item>
   </plurals>
-    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"תיבת דואר נכנס"</string>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"דואר נכנס"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"תיבת דואר יוצא"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"טיוטות"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"פח אשפה"</string>
@@ -284,7 +284,7 @@
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"מזהה נייד"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"הגדרות חשבון"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"אפשרויות חשבון"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"תדירות הבדיקה של תיבת דואר נכנס"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"תדירות הבדיקה של דואר נכנס"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"אף פעם"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"אוטומטית (דחיפה)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"כל 5 דקות"</string>
@@ -356,7 +356,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"התראות דוא\"ל"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"סנכרן תדירות, התראות וכדומה"</string>
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"הצג הודעה בשורת המערכת כאשר מגיע דוא\"ל"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"תדירות בדיקה של תיבת דואר נכנס"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"תדירות בדיקה של דואר נכנס"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"הגדרות דואר נכנס"</string>
     <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
     <skip />
@@ -425,7 +425,7 @@
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"ענק"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> מתוך <xliff:g id="ID_2">%2$s</xliff:g>"</string>
     <string name="widget_other_views" msgid="2265335608760083337">"גע בסמל כדי לשנות"</string>
-    <string name="widget_all_mail" msgid="4352573990283094963">"תיבת דואר נכנס משולבת"</string>
+    <string name="widget_all_mail" msgid="4352573990283094963">"דואר נכנס משולב"</string>
     <string name="widget_unread" msgid="4404711399009077833">"לא נקרא"</string>
     <string name="widget_starred" msgid="8290352707134011791">"מסומן בכוכב"</string>
     <string name="widget_loading" msgid="2340962056927255554">"טוען…"</string>
