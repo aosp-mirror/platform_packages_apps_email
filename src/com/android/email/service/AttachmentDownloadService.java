@@ -40,6 +40,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -329,6 +330,10 @@ public class AttachmentDownloadService extends Service implements Runnable {
 
             // Don't prefetch if background downloading is disallowed
             if (!mConnectivityManager.isBackgroundDataAllowed()) return;
+            // Don't prefetch unless we're on a WiFi network
+            if (mConnectivityManager.getActiveNetworkType() != ConnectivityManager.TYPE_WIFI) {
+                return;
+            }
             // Then, try opportunistic download of appropriate attachments
             int backgroundDownloads = MAX_SIMULTANEOUS_DOWNLOADS - mDownloadsInProgress.size();
             // Always leave one slot for user requested download
