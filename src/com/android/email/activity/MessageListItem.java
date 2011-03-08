@@ -395,6 +395,7 @@ public class MessageListItem extends View {
     @Override
     public void draw(Canvas canvas) {
         // Update the background, before View.draw() draws it.
+        setSelected(mAdapter.isSelected(this));
         updateBackground();
         super.draw(canvas);
     }

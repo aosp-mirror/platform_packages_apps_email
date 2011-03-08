@@ -19,7 +19,12 @@
           android:drawable="@drawable/list_message_focused_holo" />
     <item android:state_pressed="true"
           android:drawable="@drawable/list_message_pressed_holo" />
+    <item android:state_selected="true"
+          android:state_activated="true"
+          android:drawable="@drawable/list_arrow_selected_holo" />
     <item android:state_activated="true"
           android:drawable="@drawable/message_list_activated_holo" />
+    <item android:state_selected="true"
+          android:drawable="@drawable/list_selected_holo" />
     <item android:drawable="@drawable/list_message_unread_holo" />
 </selector>
