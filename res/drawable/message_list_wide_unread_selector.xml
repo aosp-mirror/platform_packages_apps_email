@@ -17,5 +17,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true"
           android:drawable="@drawable/list_message_wide_unread_pressed_holo" />
+    <item android:state_selected="true"
+          android:drawable="@drawable/list_conversation_wide_unread_selected_holo" />
     <item android:drawable="@drawable/list_message_wide_unread_normal_holo" />
 </selector>

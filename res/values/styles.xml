@@ -93,4 +93,12 @@
         <item name="android:singleLine">false</item>
         <item name="android:textIsSelectable">true</item>
     </style>
+
+    <style name="message_view_subject">
+        <item name="android:textSize">18dip</item>
+        <item name="android:textColor">@color/text_primary_color</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:enabled">false</item>
+        <item name="android:ellipsize">end</item>
+    </style>
 </resources>
