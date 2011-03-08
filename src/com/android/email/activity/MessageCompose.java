@@ -1243,7 +1243,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         Attachment attachment = (Attachment) attachmentView.getTag();
         mAttachments.removeView(attachmentView);
         updateAttachmentContainer();
-        if (attachment.isSaved()) {
+        if (attachment.mMessageKey == mDraft.mId && attachment.isSaved()) {
             // The following async task for deleting attachments:
             // - can be started multiple times in parallel (to delete multiple attachments).
             // - need not be interrupted on activity exit, instead should run to completion.
