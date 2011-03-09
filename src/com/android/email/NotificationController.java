@@ -39,6 +39,8 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Class that manages notifications.
  *
@@ -97,6 +99,7 @@ public class NotificationController {
         // Pending Intent
         PendingIntent pending = null;
         if (intent != null) {
+            intent = rewriteForPendingIntent(intent);
             pending =
                 PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
@@ -198,6 +201,28 @@ public class NotificationController {
         return ContactStatusLoader.load(mContext, email).mPhoto;
     }
 
+    private static final AtomicInteger sSequenceNumber = new AtomicInteger();
+
+    /**
+     * Rewrite an intent so that it'll always look unique to {@link PendingIntent}.
+     *
+     * TODO This should be removed.  Instead, use URIs which is unique to each account to open
+     * activities.
+     */
+    private static Intent rewriteForPendingIntent(Intent original) {
+        if (original.getComponent() == null) {
+            return original; // Doesn't have a component set -- can't set a URI.
+        }
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme("content");
+        builder.authority("email-dummy");
+        builder.appendEncodedPath(Integer.toString(sSequenceNumber.incrementAndGet()));
+
+        // If a componentName is set, the data part won't be used to resolve an intent.
+        original.setData(builder.build());
+        return original;
+    }
+
     /**
      * Create a notification
      *
@@ -221,8 +246,8 @@ public class NotificationController {
 
         // Intent to open inbox
         PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0,
-                Welcome.createOpenAccountInboxIntent(mContext, accountId),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                rewriteForPendingIntent(Welcome.createOpenAccountInboxIntent(mContext, accountId)),
+                0);
 
         Notification.Builder builder = new Notification.Builder(mContext)
                 .setSmallIcon(R.drawable.stat_notify_email_generic)
