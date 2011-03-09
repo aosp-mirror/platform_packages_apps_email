@@ -947,7 +947,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 boolean hasUnloadedAttachments = false;
                 for (Attachment attachment : attachments) {
                     if (attachment.mContentUri == null &&
-                            ((attachment.mFlags & Attachment.FLAG_SMART_FORWARD) != 0)) {
+                            ((attachment.mFlags & Attachment.FLAG_SMART_FORWARD) == 0)) {
                         attachment.mFlags |= Attachment.FLAG_DOWNLOAD_FORWARD;
                         hasUnloadedAttachments = true;
                         if (Email.DEBUG){
