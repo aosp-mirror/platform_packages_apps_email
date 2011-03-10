@@ -128,13 +128,10 @@
     <string name="message_view_from_label" msgid="6055076379282772675">"Από:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Θέμα:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Προβολή"</string>
-    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
-    <skip />
+    <string name="message_view_attachment_install_action" msgid="381211378884166381">"Εγκατάστ."</string>
+    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"Αναπαραγ."</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Φόρτωση"</string>
-    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
-    <skip />
+    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Πληροφ."</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Αποθήκευση"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Διακοπή"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Αποθήκευση επισύναψης ως <xliff:g id="FILENAME">%s</xliff:g>"</string>
@@ -158,26 +155,16 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Απορρίψατε την πρόσκληση"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Εμφάνιση λεπττομερειών"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Λεπτομέρειες μηνύματος"</string>
-    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
-    <skip />
-    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
-    <skip />
-    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
-    <skip />
-    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
-    <skip />
-    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
-    <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
-    <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
-    <skip />
+    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Πληροφορίες επισύναψης"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Απαιτείται σύνδεση Wi-Fi"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Ρυθμίσεις Wi-Fi"</string>
+    <string name="attachment_info_application_settings" msgid="9128108769497191200">"Ρυθμίσεις εφαρμογών"</string>
+    <string name="attachment_info_unknown" msgid="8342655396805943320">"Δεν είναι δυνατό το άνοιγμα της επισύναψης."</string>
+    <string name="attachment_info_malware" msgid="1478505616946912328">"Επειδή αυτός ο τύπος επισύναψης ενδέχεται να περιέχει κακόβουλο λογισμικό, δεν μπορείτε να την αποθηκεύσετε ή να την ανοίξετε."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Το μέγεθος αυτής της επισύναψης είναι πολύ μεγάλο για τη λήψη μέσω δικτύου κινητής τηλεφωνίας. Μπορείτε να πραγματοποιήσετε λήψη της επισύναψης την επόμενη φορά που θα συνδεθείτε σε δίκτυο Wi-Fi."</string>
+    <string name="attachment_info_no_intent" msgid="5277484372596654977">"Δεν υπάρχει εγκατεστημένη εφαρμογή που να μπορεί να ανοίξει αυτήν την επισύναψη. Δοκιμάστε να πραγματοποιήσετε λήψη μιας κατάλληλης εφαρμογής από το Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Αυτή η επισύναψη είναι εφαρμογή. Για να μπορέσετε να την εγκαταστήσετε, θα πρέπει να επιλέξετε το στοιχείο \"Άγνωστες πηγές\" από τις Ρυθμίσεις της ενότητας Εφαρμογές."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Δεν είναι δυνατή η εγκατάσταση εφαρμογών απευθείας από το ηλεκτρονικό ταχυδρομείο. Αποθηκεύστε πρώτα την εφαρμογή και, στη συνέχεια, εγκαταστήστε την χρησιμοποιώντας την εφαρμογή \"Λήψεις\"."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Σφάλμα κατά την αποκωδικοποίηση του μηνύματος."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Προβολή <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Απόρριψη μηνύμ."</string>
@@ -199,11 +186,9 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> μηνύματα μετακινήθηκαν σε <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Δεν ήταν δυνατή η προώθηση μίας ή περισσότερων επισυνάψεων"</string>
-    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
-    <skip />
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"Η επισύναψη δεν προωθήθηκε"</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"Αποτ. σύνδεσης <xliff:g id="ACCOUNT_NAME">%s</xliff:g>"</string>
-    <!-- no translation found for login_failed_title (6948780582524747622) -->
-    <skip />
+    <string name="login_failed_title" msgid="6948780582524747622">"Η σύνδεση απέτυχε"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -321,33 +306,24 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Ο διακομιστής <xliff:g id="SERVER">%s</xliff:g> χρειάζεται την άδειά σας για να πραγματοποιήσει απομακρυσμένο έλεγχο ορισμένων λειτουργιών ασφαλείας της συσκευής σας Android. Θέλετε να ολοκληρωθεί η ρύθμιση αυτού του λογαριασμού;"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Αυτός ο διακομιστής απαιτεί λειτουργίες ασφαλείας που δεν υποστηρίζονται από τη συσκευή σας Android."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Η απενεργοποίηση της αρμοδιότητας της εφαρμογής Μήνυμα ηλεκτρονικού ταχυδρομείου για διαχείριση της συσκευής σας θα διαγράψει όλους τους λογαριασμούς ηλεκτρονικού ταχυδρομείου που το απαιτούν, καθώς και τα μηνύματα ηλεκτρονικού ταχυδρομείου, τις επαφές, τα συμβάντα ημερολογίου και άλλα δεδομένα."</string>
-    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
-    <skip />
-    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
-    <skip />
+    <string name="account_security_dialog_title" msgid="1340675800634074043">"Απαιτείται ενημέρωση ασφαλείας"</string>
+    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"Ο λογαριασμός <xliff:g id="ACCOUNT">%s</xliff:g> απαιτεί την ενημέρωση των ρυθμίσεων ασφαλείας."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Από το λογαριασμό \"<xliff:g id="ACCOUNT">%s</xliff:g>\" απαιτείται ενημέρωση ρυθμίσεων ασφαλείας."</string>
-    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Ενημέρωση ρυθμίσεων ασφαλείας"</string>
+    <string name="security_notification_content_title" msgid="3352841884304076235">"Απαιτείται ενημέρωση ασφαλείας"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Ασφάλεια συσκευής"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Ο διακομιστής <xliff:g id="SERVER">%s</xliff:g> χρειάζεται την άδειά σας για να πραγματοποιήσει απομακρυσμένο έλεγχο ορισμένων λειτουργιών ασφαλείας της συσκευής σας Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Επεξεργασία λεπτομερειών"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
-    <skip />
-    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Απαιτείται νέο ξεκλείδωμα οθόνης"</string>
-    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"Ο κωδικός ξεκλειδώματος της οθόνης έχει λήξει."</string>
-    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"Απαιτείται νέο ξεκλείδωμα οθόνης"</string>
-    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"Ο λογαριασμός \"<xliff:g id="ACCOUNT">%s</xliff:g>\" απαιτεί να αλλάξετε το PIN ή τον κωδικό κλειδώματος οθόνης."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Λήγει ο κωδικός κλειδ. οθόνης"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"Το PIN ή ο κωδικός πρόσβασης κλειδώματος οθόνης έχουν λήξει."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"Ο κωδ. κλειδ. οθόνης έληξε"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Λήγει ο κωδικός κλειδώματος οθόνης"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Πρέπει να αλλάξετε σύντομα το PIN ή τον κωδικό πρόσβασης κλειδώματος οθόνης, διαφορετικά τα δεδομένα του λογαριασμού <xliff:g id="ACCOUNT">%s</xliff:g> θα διαγραφούν. Θέλετε να το αλλάξετε τώρα;"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"Ο κωδικός κλειδώματος οθόνης έληξε"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Τα δεδομένα του λογαριασμού <xliff:g id="ACCOUNT">%s</xliff:g> διαγράφονται από τη συσκευή σας. Μπορείτε να τα επαναφέρετε αλλάζοντας το PIN ή τον κωδικό πρόσβασης κλειδώματος οθόνης. Θέλετε να τα αλλάξετε τώρα;"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Απόρριψη μη αποθηκευμένων αλλαγών;"</string>
-    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
-    <skip />
-    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
-    <skip />
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Η σύνδεση απέτυχε"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Το όνομα χρήστη ή ο κωδικός πρόσβασης για τον λογαριασμό <xliff:g id="ACCOUNT">%s</xliff:g> είναι λανθασμένα. Θέλετε να τα ενημερώσετε τώρα;"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Γενικές ρυθμίσεις"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Προεπιλεγμένος λογαριασμός"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Αποστολή μηνυμάτων ηλεκτρονικού ταχυδρομείου από αυτόν τον λογαριασμό από προεπιλογή"</string>
@@ -358,11 +334,9 @@
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Εμφάνιση ειδοποίησης στη γραμμή συστήματος κατά τη λήψη μηνύματος ηλεκτρονικού ταχυδρομείου"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Συχνότητα ελέγχου εισερχομένων"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Ρυθμίσεις εισερχομένων"</string>
-    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
-    <skip />
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Όνομα χρήστη, κωδ. πρόσβ. και άλλες ρυθμίσεις διακομιστή εισερχ."</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Ρυθμίσεις εξερχομένων"</string>
-    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
-    <skip />
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Όνομα χρήστη, κωδ. πρόσβ. και άλλες ρυθμίσεις διακομιστή εξερχ."</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Όνομα λογαριασμού"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Το όνομά σας"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Υπογραφή"</string>
