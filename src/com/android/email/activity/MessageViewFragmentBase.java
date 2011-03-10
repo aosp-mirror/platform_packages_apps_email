@@ -183,7 +183,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     /**
      * Flags to control the tabs.
-     * @see #updateTabFlags(int)
+     * @see #updateTabs(int)
      */
     private int mTabFlags;
 
@@ -857,14 +857,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         MessageViewAttachmentInfo info = findAttachmentInfo(attachmentId);
         if (info != null) {
             info.loaded = true;
-
-            info.loadButton.setVisibility(View.GONE);
-            info.cancelButton.setVisibility(View.GONE);
-
-            boolean showSave = info.mAllowSave && !TextUtils.isEmpty(info.mName);
-            boolean showView = info.mAllowView;
-            info.saveButton.setVisibility(showSave ? View.VISIBLE : View.GONE);
-            info.openButton.setVisibility(showView ? View.VISIBLE : View.GONE);
+            updateAttachmentButtons(info);
         }
     }
 
