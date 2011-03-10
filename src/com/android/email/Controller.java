@@ -868,8 +868,11 @@ public class Controller {
      */
     public void loadAttachment(final long attachmentId, final long messageId,
             final long accountId) {
-
         Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);
+        if (attachInfo == null) {
+            return;
+        }
+
         if (Utility.attachmentExists(mProviderContext, attachInfo)) {
             // The attachment has already been downloaded, so we will just "pretend" to download it
             // This presumably is for POP3 messages
