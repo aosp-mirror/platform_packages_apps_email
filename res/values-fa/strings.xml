@@ -128,13 +128,10 @@
     <string name="message_view_from_label" msgid="6055076379282772675">"از:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"موضوع:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"مشاهده"</string>
-    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
-    <skip />
+    <string name="message_view_attachment_install_action" msgid="381211378884166381">"نصب"</string>
+    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"پخش"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"بارگیری"</string>
-    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
-    <skip />
+    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"اطلاعات"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"ذخیره"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"توقف"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"پیوست به عنوان <xliff:g id="FILENAME">%s</xliff:g> ذخیره شد."</string>
@@ -158,26 +155,16 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"شما این دعوتنامه را رد کرده اید"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"نمایش جزئیات"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"جزئیات پیام"</string>
-    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
-    <skip />
-    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
-    <skip />
-    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
-    <skip />
-    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
-    <skip />
-    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
-    <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
-    <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
-    <skip />
+    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"اطلاعات پیوست"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"اتصال Wi-Fi مورد نیاز است"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"تنظیمات Wi-Fi"</string>
+    <string name="attachment_info_application_settings" msgid="9128108769497191200">"تنظیمات برنامه کاربردی"</string>
+    <string name="attachment_info_unknown" msgid="8342655396805943320">"پیوست باز نمی شود."</string>
+    <string name="attachment_info_malware" msgid="1478505616946912328">"چون این نوع پیوست ممکن است حاوی بد افزار باشد، نمیتوانید آن را ذخیره یا باز کنید."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"این پیوست برای دانلود از طریق شبکه تلفن همراه خیلی بزرگ است. می توانید دفعه دیگر که به یک شبکه Wi-Fi متصل می شوید، آنرا دانلود کنید."</string>
+    <string name="attachment_info_no_intent" msgid="5277484372596654977">"هیچ برنامه کاربردی نصب شده ای در دستگاه شما وجود ندارد که بتواند این پیوست را باز کند. یک برنامه مناسب را از Android Market دانلود کنید."</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"این پیوست یک برنامه کاربردی است. قبل از نصب آن، باید منابع ناشناس را در تنظیمات، زیر برنامه های کاربردی بررسی کنید."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"برنامه های کاربردی مستقیماً از ایمیل نصب نمی شوند. ابتدا این برنامه کاربردی را ذخیره کنید و سپس با استفاده از برنامه کاربردی دانلودها آن را نصب کنید."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"خطا در رمزگشایی پیام."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"مشاهده <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"صرفنظر کردن از پیام"</string>
@@ -199,11 +186,9 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> پیام به <xliff:g id="MAILBOX_NAME">%2$s</xliff:g> انتقال یافت"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"یک یا چند پیوست هدایت نشد"</string>
-    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
-    <skip />
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"پیوست هدایت نشد"</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> ورود به سیستم ناموفق بود"</string>
-    <!-- no translation found for login_failed_title (6948780582524747622) -->
-    <skip />
+    <string name="login_failed_title" msgid="6948780582524747622">"ورود به سیستم ناموفق بود"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> بایت"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> بایت"</item>
@@ -321,33 +306,24 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی دستگاه Android شما را از راه دور کنترل کند. آیا می خواهید تنظیم این حساب را به پایان برسانید؟"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"این سرور به ویژگی های امنیتی نیاز دارد که دستگاه Android شما پشتیبانی نمی کند."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"اخطار: غیرفعال کردن قدرت برنامه ایمیل جهت مدیریت سیستم خود، همه حسابهای ایمیلی که به آن احتیاج دارند، به همراه ایمیل، مخاطبین، رویدادهای تقویم و سایر داده های آنها را حذف می کند."</string>
-    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
-    <skip />
-    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
-    <skip />
+    <string name="account_security_dialog_title" msgid="1340675800634074043">"به روزرسانی امنیتی لازم است"</string>
+    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> از شما می خواهد تنظیمات امنیتی خود را به روزرسانی کنید."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"تنظیمات امنیتی حساب \"<xliff:g id="ACCOUNT">%s</xliff:g>\" باید به روزرسانی شود."</string>
-    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"به روزرسانی تنظیمات امنیتی"</string>
+    <string name="security_notification_content_title" msgid="3352841884304076235">"به روزرسانی امنیتی لازم است"</string>
     <string name="account_security_title" msgid="4441470647344315196">"امنیت دستگاه"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"سرور <xliff:g id="SERVER">%s</xliff:g> از شما می خواهد که به آن اجازه دهید برخی از ویژگی های امنیتی دستگاه Android شما را از راه دور کنترل کند."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"ویرایش جزئیات"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
-    <skip />
-    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"کد جدید باز کردن قفل صفحه نمایش مورد نیاز است"</string>
-    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"کد باز کردن قفل صفحه نمایش شما منقضی شده است."</string>
-    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"کد جدید باز کردن قفل صفحه مورد نیاز است"</string>
-    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" از شما می خواهد کد پین یا رمز ورود قفل صفحه را تغییر دهید."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"رمز ورود قفل صفحه در حال انقضا"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"کد پین یا رمز ورود قفل صفحه منقضی شده است."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"رمز ورود قفل صفحه منقضی شده است"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"رمز ورود قفل صفحه در حال انقضا"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"شما باید به زودی کد پین یا رمز ورود قفل صفحه را تغییر دهید، در غیر این صورت داده های <xliff:g id="ACCOUNT">%s</xliff:g> پاک می شود. اکنون تغییر می دهید؟"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"رمز ورود قفل صفحه منقضی شده است"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"داده های <xliff:g id="ACCOUNT">%s</xliff:g> از دستگاه شما حذف می شوند. می توانید با تغییر کد پین یا رمز ورود صفحه قفل خود آنها را بازیابی کنید. اکنون آنرا تغییر می دهید؟"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"از تغییرات ذخیره نشده صرفنظر شود؟"</string>
-    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
-    <skip />
-    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
-    <skip />
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"ورود به سیستم ناموفق بود"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"نام کاربری یا رمز ورود <xliff:g id="ACCOUNT">%s</xliff:g> نادرست است. اکنون آنها را به روزرسانی می کنید؟"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"تنظیمات عمومی"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"حساب پیش فرض"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"ارسال ایمیل از این حساب به صورت پیش فرض"</string>
@@ -358,11 +334,9 @@
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"ورود ایمیل در نوار سیستم اعلام شود"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"دفعات بررسی صندوق دریافت"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"تنظیمات ورودی"</string>
-    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
-    <skip />
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"نام کاربری، رمز ورود و سایر تنظیمات سرور ورودی"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"تنظیمات خروجی"</string>
-    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
-    <skip />
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"نام کاربری، رمز ورود و سایر تنظیمات سرور خروجی"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"نام حساب"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"نام شما"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"امضا"</string>

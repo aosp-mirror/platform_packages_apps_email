@@ -128,13 +128,10 @@
     <string name="message_view_from_label" msgid="6055076379282772675">"От:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Тема:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Преглед"</string>
-    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
-    <skip />
+    <string name="message_view_attachment_install_action" msgid="381211378884166381">"Инсталация"</string>
+    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"Пускане"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Зареждане"</string>
-    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
-    <skip />
+    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Информация"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Запазване"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Стоп"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Запазен прикачен файл: <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -158,26 +155,16 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Отклонихте тази покана"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Показване на подробностите"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Подробности за съобщението"</string>
-    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
-    <skip />
-    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
-    <skip />
-    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
-    <skip />
-    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
-    <skip />
-    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
-    <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
-    <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
-    <skip />
+    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Информация за прикачения файл"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Изисква се връзка с Wi-Fi"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Настройки за Wi-Fi"</string>
+    <string name="attachment_info_application_settings" msgid="9128108769497191200">"Настройки на приложение"</string>
+    <string name="attachment_info_unknown" msgid="8342655396805943320">"Прикаченият файл не може да се отвори."</string>
+    <string name="attachment_info_malware" msgid="1478505616946912328">"Не можете да запазите или да отворите този тип прикачен файл, защото може да съдържа зловреден софтуер."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Прикаченият файл е твърде голям за изтегляне през мобилна мрежа. Можете да го изтеглите при следващото си свързване с Wi-Fi."</string>
+    <string name="attachment_info_no_intent" msgid="5277484372596654977">"Няма инсталирано приложение, което може да отвори този прикачен файл. Опитайте да изтеглите подходящо от Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Този прикачен файл е приложение. Трябва да отметнете „Неизвестни източници“ в „Настройки“ в „Приложения“, преди да можете да го инсталирате."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Приложенията не могат да бъдат инсталирани директно от електронната поща. Първо запазете това приложение и след това го инсталирайте посредством „Изтегляния“."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"При декодирането на съобщението възникна грешка."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Преглед на <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Отхвърляне"</string>
@@ -199,11 +186,9 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> съобщения са преместени в/ъв <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Един или повече прикачени файла не можаха да се препратят"</string>
-    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
-    <skip />
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"Прикаченото не бе препратено"</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"Не влязохте: <xliff:g id="ACCOUNT_NAME">%s</xliff:g>"</string>
-    <!-- no translation found for login_failed_title (6948780582524747622) -->
-    <skip />
+    <string name="login_failed_title" msgid="6948780582524747622">"Влизането не бе успешно"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> Б"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> Б"</item>
@@ -321,33 +306,24 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Сървърът <xliff:g id="SERVER">%s</xliff:g> изисква отдалечен контрол над някои от защитните функции на устройството ви с Android. Искате ли да завършите настройването на този профил?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Този сървър изисква защитни функции, които устройството ви с Android не поддържа."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ПРЕДУПРЕЖДЕНИЕ: Деактивирането на възможността приложението за електронна поща да администрира устройството ви ще изтрие всички имейл профили, които го изискват, заедно с имейлите, контактите, календарните събития и други данни в тях."</string>
-    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
-    <skip />
-    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
-    <skip />
+    <string name="account_security_dialog_title" msgid="1340675800634074043">"Изисква се актуализация на защитата"</string>
+    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> изисква да актуализирате защитните си настройки."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Профилът „<xliff:g id="ACCOUNT">%s</xliff:g>“ изисква актуализация на защитните настройки."</string>
-    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Актуализиране на защитни настройки"</string>
+    <string name="security_notification_content_title" msgid="3352841884304076235">"Изисква се актуална защита"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Сигурност на устройство"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Сървърът <xliff:g id="SERVER">%s</xliff:g> изисква отдалечен контрол над някои от защитните функции на устройството ви с Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Редактиране на подробностите"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
-    <skip />
-    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Изисква се ново отключване на екрана"</string>
-    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"Кодът ви за отключване на екрана е изтекъл."</string>
-    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"Изисква се ново отключване на екрана"</string>
-    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"„<xliff:g id="ACCOUNT">%s</xliff:g>“ изисква да промените PIN кода или паролата си за заключен екран."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Паролата при заключване изтича"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"PIN кодът или паролата за заключен екран изтече."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"Паролата изтече"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Паролата за заключен екран изтича"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Трябва скоро да промените PIN кода или паролата си за заключен екран или данните за <xliff:g id="ACCOUNT">%s</xliff:g> ще бъдат изтрити. Искате ли да извършите промяната сега?"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"Паролата за заключен екран изтече"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Данните за <xliff:g id="ACCOUNT">%s</xliff:g> се изтриват от устройството ви. Можете да ги възстановите, като промените PIN кода или паролата си за заключен екран. Искате ли да извършите промяната сега?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Да се отхвърлят ли незапазените промени?"</string>
-    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
-    <skip />
-    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
-    <skip />
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Влизането не бе успешно"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Потребителското име или паролата за <xliff:g id="ACCOUNT">%s</xliff:g> не са правилни. Искате ли да ги актуализирате сега?"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Общи настройки"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Основен профил"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Изпращане на имейл от този профил по подразбиране"</string>
@@ -358,11 +334,9 @@
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Известие в системната лента при получаване на имейл"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Честота на проверяване за входяща поща"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Входящи настройки"</string>
-    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
-    <skip />
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Потребителско име, парола и други настройки на входящия сървър"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Изходящи настройки"</string>
-    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
-    <skip />
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Потребителско име, парола и други настройки на изходящия сървър"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Име на профила"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Името ви"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Подпис"</string>
