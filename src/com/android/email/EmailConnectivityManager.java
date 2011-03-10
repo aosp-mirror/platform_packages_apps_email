@@ -45,6 +45,9 @@ public class EmailConnectivityManager extends BroadcastReceiver {
     // Loop time while waiting (stopgap in case we don't get a broadcast)
     private static final int CONNECTIVITY_WAIT_TIME = 10*60*1000;
 
+    // Sentinel value for "no active network"
+    public static final int NO_ACTIVE_NETWORK = -1;
+
     // The name of this manager (used for logging)
     private final String mName;
     // The monitor lock we use while waiting for connectivity
@@ -149,6 +152,26 @@ public class EmailConnectivityManager extends BroadcastReceiver {
     public boolean hasConnectivity() {
         NetworkInfo info = mConnectivityManager.getActiveNetworkInfo();
         return (info != null);
+    }
+
+    /**
+     * Get the type of the currently active data network
+     * @return the type of the active network (or NO_ACTIVE_NETWORK)
+     */
+    public int getActiveNetworkType() {
+        return getActiveNetworkType(mConnectivityManager);
+    }
+
+    static public int getActiveNetworkType(Context context) {
+        ConnectivityManager cm =
+            (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return getActiveNetworkType(cm);
+    }
+
+    static public int getActiveNetworkType(ConnectivityManager cm) {
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        if (info == null) return NO_ACTIVE_NETWORK;
+        return info.getType();
     }
 
     public void waitForConnectivity() {
