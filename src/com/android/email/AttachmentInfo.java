@@ -151,10 +151,8 @@ public class AttachmentInfo {
         // Check for file size exceeded
         // The size limit is overridden when on a wifi connection - any size is OK
         if (mSize > AttachmentUtilities.MAX_ATTACHMENT_DOWNLOAD_SIZE) {
-            ConnectivityManager cm = (ConnectivityManager)
-                    context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo network = cm.getActiveNetworkInfo();
-            if (network == null || network.getType() != ConnectivityManager.TYPE_WIFI) {
+            int networkType = EmailConnectivityManager.getActiveNetworkType(context);
+            if (networkType != ConnectivityManager.TYPE_WIFI) {
                 canView = false;
                 canSave = false;
                 denyFlags |= DENY_WIFIONLY;
