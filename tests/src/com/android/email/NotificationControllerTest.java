@@ -224,6 +224,24 @@ public class NotificationControllerTest extends AndroidTestCase {
         // TODO Add 2 account test, if we find a way to check content
     }
 
+    public void testCreateNewMessageNotificationWithEmptyFrom() {
+        final Context c = mProviderContext;
+        Notification n;
+
+        // Message with no from fields.
+        Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
+        Mailbox b1 = ProviderTestUtils.setupMailbox("inbox", a1.mId, true, c, Mailbox.TYPE_INBOX);
+        Message m1 = ProviderTestUtils.setupMessage("message", a1.mId, b1.mId, true, false, c);
+        m1.mFrom = null;
+        m1.save(c);
+
+        // This shouldn't crash.
+        n = mTarget.createNewMessageNotification(a1.mId, 1);
+
+        // Minimum test for the result
+        assertEquals(R.drawable.stat_notify_email_generic, n.icon);
+    }
+
     public void testGetNotificationTitle() {
         final Context c = mProviderContext;
 
