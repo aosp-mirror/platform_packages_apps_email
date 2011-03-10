@@ -210,6 +210,10 @@ public class Email extends Application {
 
         // Get a helper string used deep inside message decoders (which don't have context)
         sMessageDecodeErrorString = getString(R.string.message_decode_error);
+
+        // Make sure all required services are running when the app is started (can prevent
+        // issues after an adb sync/install)
+        setServicesEnabledAsync(this);
     }
 
     /**
