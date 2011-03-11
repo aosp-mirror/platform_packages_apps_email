@@ -24,7 +24,8 @@
     android:layout_marginBottom="17dip"
     android:layout_marginLeft="12dip"
     android:layout_marginRight="12dip"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/gradient_bg_email_widget_holo">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="42sp"
@@ -39,6 +40,7 @@
             android:id="@+id/widget_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="1sp"
             android:paddingRight="8dip"
             android:src="@drawable/ic_email_email_widget_holo" />
         <LinearLayout
@@ -51,7 +53,7 @@
                 android:id="@+id/widget_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-2sp"
+                android:layout_marginTop="-1sp"
                 android:text="@string/widget_all_mail"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -63,7 +65,7 @@
                 android:id="@+id/widget_tap"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-2sp"
+                android:layout_marginTop="-5sp"
                 android:singleLine="true"
                 android:text="@string/widget_other_views"
                 android:textSize="14sp"
