@@ -325,6 +325,7 @@ public class AccountCheckSettingsFragment extends Fragment {
      * settings) or return to its own parent (e.g. enter new credentials).
      */
     private void onErrorDialogEditButton() {
+        // 1. handle "edit" - notify callback that we had a problem with the test
         Callbacks callbackTarget = getCallbackTarget();
         if (mState == STATE_AUTODISCOVER_AUTH_DIALOG) {
             // report auth error to target fragment or activity
@@ -333,7 +334,11 @@ public class AccountCheckSettingsFragment extends Fragment {
             // report check settings failure to target fragment or activity
             callbackTarget.onCheckSettingsComplete(CHECK_SETTINGS_SERVER_ERROR);
         }
-        getFragmentManager().popBackStack();
+        // 2. kill self if not already killed by callback
+        FragmentManager fm = getFragmentManager();
+        if (fm != null) {
+            fm.popBackStack();
+        }
     }
 
     /**
