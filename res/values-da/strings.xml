@@ -128,13 +128,10 @@
     <string name="message_view_from_label" msgid="6055076379282772675">"Fra:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Emne:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Vis"</string>
-    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
-    <skip />
+    <string name="message_view_attachment_install_action" msgid="381211378884166381">"Installer"</string>
+    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"Afspil"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Indlæs"</string>
-    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
-    <skip />
+    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Info"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Gem"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Stop"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Vedhæftelse gemmes som <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -158,26 +155,16 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Du har afvist denne invitation"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Vis detaljer"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Meddelelsesdetaljer"</string>
-    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
-    <skip />
-    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
-    <skip />
-    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
-    <skip />
-    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
-    <skip />
-    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
-    <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
-    <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
-    <skip />
+    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Oplysninger om vedhæftet fil"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Wi-Fi-forbindelse kræves"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Indstillinger for Wi-Fi"</string>
+    <string name="attachment_info_application_settings" msgid="9128108769497191200">"Indstillinger for programmer"</string>
+    <string name="attachment_info_unknown" msgid="8342655396805943320">"Vedhæftet fil kan ikke åbnes."</string>
+    <string name="attachment_info_malware" msgid="1478505616946912328">"Du kan ikke gemme eller åbne denne type vedhæftet fil, da den kan indeholde ondsindet software."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Denne vedhæftede fil er for stor til at blive downloadet via mobilnetværket. Du kan downloade den, næste gang du har forbindelse til et Wi-Fi-netværk."</string>
+    <string name="attachment_info_no_intent" msgid="5277484372596654977">"Du har ikke noget program, der kan åbne denne vedhæftede fil. Prøv at downloade et passende program på Android Marked."</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Denne vedhæftede fil er et program. Du skal markere Ukendte kilder i Indstillinger under Programmer, før du kan installere den."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Programmer kan ikke installeres direkte i E-mail. Gem først programmet, og installer det derefter ved hjælp af programmet Downloads."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Der opstod en fejl ved afkodning af beskeden."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Viser <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Kassér beskeden?"</string>
@@ -199,11 +186,9 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> beskeder er flyttet til <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"En eller flere vedhæftede filer kunne ikke videresendes"</string>
-    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
-    <skip />
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"Vedhæftet fil er ikke sendt"</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> ikke logget ind"</string>
-    <!-- no translation found for login_failed_title (6948780582524747622) -->
-    <skip />
+    <string name="login_failed_title" msgid="6948780582524747622">"Login mislykkedes"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> b"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> b"</item>
@@ -321,33 +306,24 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Serveren <xliff:g id="SERVER">%s</xliff:g> kræver, at du giver den tilladelse til eksternt at kontrollere nogle af Android-enhedens sikkerhedsfunktioner. Vil du afslutte opsætning af denne konto?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Denne server kræver sikkerhedsfunktioner, som Android-enheden ikke understøtter."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ADVARSEL: Hvis du deaktiverer programmet E-mails tilladelse til at administrere din enhed, slettes alle konti i E-mail, der kræver dette, sammen med alle e-mails, kontaktpersoner, kalenderbegivenheder og andre data på disse konti."</string>
-    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
-    <skip />
-    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
-    <skip />
+    <string name="account_security_dialog_title" msgid="1340675800634074043">"Sikkerhedsopdatering kræves"</string>
+    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> kræver, at du opdaterer dine sikkerhedsindstillinger."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" kræver opdatering af sikkerhedsindstillingerne."</string>
-    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Opdater sikkerhedsindstillinger"</string>
+    <string name="security_notification_content_title" msgid="3352841884304076235">"Sikkerhedsopdatering kræves"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Enhedssikkerhed"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Serveren <xliff:g id="SERVER">%s</xliff:g> kræver, at du giver den tilladelse til eksternt at kontrollere nogle af Android-enhedens sikkerhedsfunktioner."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Rediger detaljer"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
-    <skip />
-    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Ny skærmlås kræves"</string>
-    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"Din skærmoplåsningskode er udløbet."</string>
-    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"Ny skærmlås kræves"</string>
-    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"\"<xliff:g id="ACCOUNT">%s</xliff:g>\" kræver, at du ændrer skærmlåsens pinkode eller adgangskode."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Skærmlåskoden er ved at udløbe"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"Pinkoden eller adgangskoden til skærmlåsen er udløbet."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"Skærmlåskoden er udløbet"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Skærmlåskoden er ved at udløbe"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Du skal snart ændre skærmlåsens pinkode eller adgangskode, ellers vil dataene på <xliff:g id="ACCOUNT">%s</xliff:g> blive slettet. Vil du ændre den nu?"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"Skærmlåskoden er udløbet"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Dataene for <xliff:g id="ACCOUNT">%s</xliff:g> slettes på din enhed. Du kan gendanne dem ved at ændre skærmlåsens pinkode eller adgangskode. Vil du ændre den nu?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Vil du kassere ændringer, som ikke er gemt?"</string>
-    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
-    <skip />
-    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
-    <skip />
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Login mislykkedes"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Brugernavn eller adgangskode for <xliff:g id="ACCOUNT">%s</xliff:g> er forkert. Vil du opdatere dem nu?"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Generelle indstillinger"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Send e-mail fra denne konto som standard"</string>
@@ -358,11 +334,9 @@
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Underret i statuslinjen, når der kommer e-mail"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Kontrolfrekvens for indbakke"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Indgående indstillinger"</string>
-    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
-    <skip />
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Brugernavn, adgangskode og indstillinger for indgående server"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Udgående indstillinger"</string>
-    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
-    <skip />
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Brugernavn, adgangskode og indstillinger for udgående server"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Kontonavn"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Dit navn"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Signatur"</string>

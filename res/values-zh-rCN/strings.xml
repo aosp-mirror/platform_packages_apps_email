@@ -128,13 +128,10 @@
     <string name="message_view_from_label" msgid="6055076379282772675">"发件人："</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"主题："</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"查看"</string>
-    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
-    <skip />
+    <string name="message_view_attachment_install_action" msgid="381211378884166381">"安装"</string>
+    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"播放"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"载入"</string>
-    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
-    <skip />
+    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"信息"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"保存"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"停止"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"附件已另存为“<xliff:g id="FILENAME">%s</xliff:g>”。"</string>
@@ -158,26 +155,16 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"您已拒绝此邀请"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"显示详情"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"邮件详情"</string>
-    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
-    <skip />
-    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
-    <skip />
-    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
-    <skip />
-    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
-    <skip />
-    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
-    <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
-    <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
-    <skip />
+    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"附件信息"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"需要使用 Wi-Fi 连接"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Wi-Fi 设置"</string>
+    <string name="attachment_info_application_settings" msgid="9128108769497191200">"应用程序设置"</string>
+    <string name="attachment_info_unknown" msgid="8342655396805943320">"无法打开附件。"</string>
+    <string name="attachment_info_malware" msgid="1478505616946912328">"该类型的附件中可能包含恶意软件，因此您无法保存或打开此附件。"</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"附件过大，无法通过移动网络下载。您可以在下次连接到 Wi-Fi 网络时下载。"</string>
+    <string name="attachment_info_no_intent" msgid="5277484372596654977">"已安装的应用程序都无法打开此附件。请尝试从“Android 电子市场”下载一个合适的应用程序。"</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"此附件是应用程序。要想安装该应用程序，您需要先在“设置”中的“应用程序”下选中“未知来源”。"</string>
+    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"无法直接从电子邮件中安装应用程序。请先保存此应用程序，然后使用“下载内容”应用程序进行安装。"</string>
     <string name="message_decode_error" msgid="7812862491622388416">"解码电子邮件时出现错误。"</string>
     <string name="eml_view_title" msgid="8827210108543430336">"查看 <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"舍弃邮件"</string>
@@ -199,11 +186,9 @@
     <item quantity="other" msgid="2286739630865943494">"已将 <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> 封邮件移至<xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"一个或多个附件无法转发"</string>
-    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
-    <skip />
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"无法转发附件"</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"<xliff:g id="ACCOUNT_NAME">%s</xliff:g> 登录失败"</string>
-    <!-- no translation found for login_failed_title (6948780582524747622) -->
-    <skip />
+    <string name="login_failed_title" msgid="6948780582524747622">"登录失败"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -321,33 +306,24 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"“<xliff:g id="SERVER">%s</xliff:g>”服务器要求您允许其远程控制您 Android 设备的某些安全功能。您想要完成此帐户设置吗？"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"您的 Android 设备不支持此服务器要求使用的安全功能。"</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"警告：撤消电子邮件应用程序管理您设备的权限会删除所有需要此权限的电子邮件帐户，以及这些帐户的电子邮件、联系人、日历活动和其他数据。"</string>
-    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
-    <skip />
-    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
-    <skip />
+    <string name="account_security_dialog_title" msgid="1340675800634074043">"需要进行安全更新"</string>
+    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> 要求更新您的安全设置。"</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"帐户“<xliff:g id="ACCOUNT">%s</xliff:g>”要求更新安全设置。"</string>
-    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"更新安全设置"</string>
+    <string name="security_notification_content_title" msgid="3352841884304076235">"需要进行安全更新"</string>
     <string name="account_security_title" msgid="4441470647344315196">"设备安全性"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"“<xliff:g id="SERVER">%s</xliff:g>”服务器要求您允许其远程控制您 Android 设备的某些安全功能。"</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"编辑详情"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
-    <skip />
-    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"需要新屏幕解锁码"</string>
-    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"您的屏幕解锁码已过期。"</string>
-    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"需要新屏幕解锁码"</string>
-    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"“<xliff:g id="ACCOUNT">%s</xliff:g>”要求更改锁定屏幕 PIN 或密码。"</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"锁定屏幕密码即将过期"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"您的锁定屏幕 PIN 或密码已过期。"</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"锁定屏幕密码已过期"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"锁定屏幕密码即将过期"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"您必须尽快更改锁定屏幕 PIN 或密码，否则系统会清除 <xliff:g id="ACCOUNT">%s</xliff:g> 的数据。要立即更改吗？"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"锁定屏幕密码已过期"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"<xliff:g id="ACCOUNT">%s</xliff:g> 的数据已从设备中清除。您可以通过更改锁定屏幕 PIN 或密码还原这些数据。要立即更改吗？"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"要舍弃未保存的更改？"</string>
-    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
-    <skip />
-    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
-    <skip />
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"登录失败"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"<xliff:g id="ACCOUNT">%s</xliff:g> 的用户名或密码错误。要立即更新吗？"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"常规设置"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"默认帐户"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"默认情况下从此帐户发送电子邮件"</string>
@@ -358,11 +334,9 @@
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"收到电子邮件时在系统栏中显示通知"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"收件箱检查频率"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"接收设置"</string>
-    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
-    <skip />
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"用户名、密码和其他接收服务器设置"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"外发设置"</string>
-    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
-    <skip />
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"用户名、密码和其他外发服务器设置"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"帐户名称"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"您的姓名"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"签名"</string>
