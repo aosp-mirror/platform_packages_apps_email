@@ -90,7 +90,7 @@
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Basura"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Bersyon: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Mga Account"</string>
-    <!-- outdated translation 8551686380750629387 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Inbox"</string>
+    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Inbox"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Naka-star"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Mga Draft"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Outbox"</string>
@@ -123,7 +123,7 @@
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> at <xliff:g id="NUMBER">%2$d</xliff:g> iba pa"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Para kay:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
-    <!-- outdated translation 3004740137987424936 -->     <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
+    <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
     <string name="message_view_date_label" msgid="7033814961837313339">"Petsa:"</string>
     <string name="message_view_from_label" msgid="6055076379282772675">"Mula kay:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Paksa:"</string>
