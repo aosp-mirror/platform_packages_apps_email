@@ -383,7 +383,7 @@ public class MimeUtility {
         try {
             IOUtils.copy(in, out);
         } catch (Base64DataException bde) {
-            // STOPSHIP Need to fix this somehow
+            // TODO Need to fix this somehow
             //String warning = "\n\n" + Email.getMessageDecodeErrorString();
             //out.write(warning.getBytes());
         } finally {
