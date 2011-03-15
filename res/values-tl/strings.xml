@@ -128,13 +128,10 @@
     <string name="message_view_from_label" msgid="6055076379282772675">"Mula kay:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Paksa:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Tingnan"</string>
-    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
-    <skip />
+    <string name="message_view_attachment_install_action" msgid="381211378884166381">"I-install"</string>
+    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"I-play"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"I-load"</string>
-    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
-    <skip />
+    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Info"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"I-save"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Huminto"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Na-save attachment na <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -158,26 +155,16 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Tinanggihan mo ang imbitasyong ito"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Ipakita ang mga detalye"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Mga Detalye ng Mensahe"</string>
-    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
-    <skip />
-    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
-    <skip />
-    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
-    <skip />
-    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
-    <skip />
-    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
-    <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
-    <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
-    <skip />
+    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Impormasyon ng attachment"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Kailangan ng koneksyon sa Wi-Fi"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Mga setting ng Wi-Fi"</string>
+    <string name="attachment_info_application_settings" msgid="9128108769497191200">"Setting ng application"</string>
+    <string name="attachment_info_unknown" msgid="8342655396805943320">"Hindi mabuksan ang attachment."</string>
+    <string name="attachment_info_malware" msgid="1478505616946912328">"Dahil maaaring maglaman ang uri ng attachment na ito ng nakapanghahamak na software, hindi mo ito maaaring i-save o buksan."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Masyadong malaki ang attachment na ito upang i-download sa isang mobile network. Maaari mo itong i-download sa susunod na oras na kumonekta ka sa isang Wi-Fi network."</string>
+    <string name="attachment_info_no_intent" msgid="5277484372596654977">"Walang mga naka-install na application na maaaring magbukas sa attachment na ito. Subukang mag-download ng naaangkop na application mula sa Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Application ang attachment na ito. Dapat mong suriin ang Mga Hindi kilalang pinagmulan sa Mga Setting, sa ilalim ng Mga Application, bago mo ito maaaring i-install."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Hindi ma-install ang mga application nang direkta mula sa Email. I-save muna ang application na ito at pagkatapos ay i-install ito gamit ang application na Mga Download."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Error habang dine-decode ang mensahe."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Tinitingnan <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Itapon mensahe"</string>
@@ -199,11 +186,9 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> (na) mensahe ang nailipat sa <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Hindi maipasa ang isa o higit pang mga attachment"</string>
-    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
-    <skip />
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"Hindi napasa ang attachment"</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"Bigo sign-in <xliff:g id="ACCOUNT_NAME">%s</xliff:g>"</string>
-    <!-- no translation found for login_failed_title (6948780582524747622) -->
-    <skip />
+    <string name="login_failed_title" msgid="6948780582524747622">"Nabigo ang pag-sign-in"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
@@ -321,33 +306,24 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Kinakailangan ng server na <xliff:g id="SERVER">%s</xliff:g> na payagan mo itong malayuang kontrolin ang ilang tampok sa seguridad ng iyong Android device. Gusto mo bang tapusing i-set up ang account na ito?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Kinakailangan ng server na ito ng mga tampok sa seguridad na hindi sinusuportahan ng iyong Android device."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"BABALA: Tatanggalin ng pag-deactivate ng awtoridad ng Email application na pangasiwaan ang iyong device ang lahat ng mga Email account na ngangailangan nito, kasama ang mga email, contact, kaganapan sa kalendaryo, at iba pang data ng mga ito."</string>
-    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
-    <skip />
-    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
-    <skip />
+    <string name="account_security_dialog_title" msgid="1340675800634074043">"Kailangan update sa seguridad"</string>
+    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"Hinihiling ng <xliff:g id="ACCOUNT">%s</xliff:g> na i-update mo ang mga setting ng iyong seguridad."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Nangangailangan ang account na \"<xliff:g id="ACCOUNT">%s</xliff:g>\" ng pag-update ng mga setting ng seguridad."</string>
-    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"I-update ang Mga Setting ng Seguridad"</string>
+    <string name="security_notification_content_title" msgid="3352841884304076235">"Kailangan update sa seguridad"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Seguridad ng Device"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Kinakailangan ng server na <xliff:g id="SERVER">%s</xliff:g> na payagan mo itong malayuang kontrolin ang ilang tampok sa seguridad ng iyong Android device."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"I-edit ang mga detalye"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
-    <skip />
-    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Kinakailangan ang bagong unlock ng screen"</string>
-    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"Nag-expire na ang iyong screen unlock code."</string>
-    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"Kinakailangan ang bagong unlock ng screen"</string>
-    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"Hinihiling sa iyo ng \"<xliff:g id="ACCOUNT">%s</xliff:g>\" na palitan ang PIN o password sa pag-lock ng screen."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Expire passw. pag-lock screen"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"Nag-expire na ang iyong PIN o password sa pag-lock ng screen."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"Expire na passw. pg-lock scr"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Nag-e-expire password pag-lock ng screen"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Dapat mong palitan ang iyong PIN o password sa pag-lock ng screen, o mabubura ang data para sa <xliff:g id="ACCOUNT">%s</xliff:g>. Palitan ito ngayon?"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"Nag-expire na password pag-lock screen"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Binubura ang data para sa <xliff:g id="ACCOUNT">%s</xliff:g> mula sa iyong device. Maaari mo itong ibalik sa pamamagitan ng pagbabago ng iyong PIN o password sa pag-lock ng screen. Palitan ito ngayon?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Itapon ang hindi naka-save na mga pagbabago?"</string>
-    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
-    <skip />
-    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
-    <skip />
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Nabigo ang pag-sign-in"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Hindi tama ang username o password para sa <xliff:g id="ACCOUNT">%s</xliff:g>. I-update ang mga ito ngayon?"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Mga pangkalahatang setting"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Default na account"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Magpadala ng email mula sa account na ito bilang default"</string>
@@ -358,11 +334,9 @@
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"I-notify sa System bar kapag dumating ang email"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Dalas ng pagtingin sa inbox"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Mga setting ng papasok"</string>
-    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
-    <skip />
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Mga setting ng username, password, at ibang papasok na server"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Mga setting ng papalabas"</string>
-    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
-    <skip />
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Mga setting ng username, password, at ibang papalabas na server"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Pangalan ng account"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Iyong pangalan"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Lagda"</string>

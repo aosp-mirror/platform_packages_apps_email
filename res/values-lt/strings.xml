@@ -128,13 +128,10 @@
     <string name="message_view_from_label" msgid="6055076379282772675">"Nuo:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Tema:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Žiūrėti"</string>
-    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
-    <skip />
+    <string name="message_view_attachment_install_action" msgid="381211378884166381">"Įdiegti"</string>
+    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"Paleisti"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Įkelti"</string>
-    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
-    <skip />
+    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Inform."</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Išsaugoti"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Sustabdyti"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Priedas išsaugotas kaip <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -158,26 +155,16 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Atmetėte šį kvietimą"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Rodyti išsamią informaciją"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Išsami pranešimo informacija"</string>
-    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
-    <skip />
-    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
-    <skip />
-    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
-    <skip />
-    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
-    <skip />
-    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
-    <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
-    <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
-    <skip />
+    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Priedo informacija"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Reikalingas „Wi-Fi“ ryšys"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"„Wi-Fi“ nustatymai"</string>
+    <string name="attachment_info_application_settings" msgid="9128108769497191200">"Programos nustatymai"</string>
+    <string name="attachment_info_unknown" msgid="8342655396805943320">"Nepavyksta atidaryti priedo."</string>
+    <string name="attachment_info_malware" msgid="1478505616946912328">"Negalite išsaugoti ar atidaryti šio priedo, nes tokio tipo prieduose gali būti kenkėjiškos programinės įrangos."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Šis priedas yra per didelis, todėl jo atsisiųsti mobiliuoju tinklu negalima. Jį atsisiųsti galėsite, kai kitą kartą prisijungsite prie „Wi-Fi“ tinklo."</string>
+    <string name="attachment_info_no_intent" msgid="5277484372596654977">"Nėra įdiegtos programos, kurią naudojant būtų galima atidaryti šį priedą. Pabandykite atsisiųsti tinkamą programą iš „Android“ prekyvietės."</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Šis priedas yra programa. Prieš ją įdiegdami turite pažymėti „Nežinomi šaltiniai“ „Programų“ skiltyje „Nustatymai“."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Tiesiogiai iš el. pašto programų įdiegti negalima. Pirmiausia išsaugokite šią programą ir įdiekite ją naudodami programą „Atsisiuntimai“."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Iššifruojant pranešimą įvyko klaida."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Peržiūrimas <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Atmesti praneš."</string>
@@ -199,11 +186,9 @@
     <item quantity="other" msgid="2286739630865943494">"Į <xliff:g id="MAILBOX_NAME">%2$s</xliff:g> perkelti pranešimai: <xliff:g id="NUM_MESSAGE">%1$d</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Nepavyko persiųsti mažiausiai vieno priedo"</string>
-    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
-    <skip />
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"Priedas nepersiųstas"</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"Nepavyko „<xliff:g id="ACCOUNT_NAME">%s</xliff:g>“ prisij."</string>
-    <!-- no translation found for login_failed_title (6948780582524747622) -->
-    <skip />
+    <string name="login_failed_title" msgid="6948780582524747622">"Nepavyko prisijungti"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -321,33 +306,24 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Serveris „<xliff:g id="SERVER">%s</xliff:g>“ reikalauja leisti jam nuotoliniu būdu valdyti kai kurias „Android“ įrenginio saugos funkcijas. Ar norite užbaigti šios paskyros nustatymą?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Šis serveris reikalauja saugos funkcijų, kurios „Android“ įrenginyje nepalaikomos."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ĮSPĖJIMAS: išaktyvinus el. pašto programos leidimą administruoti įrenginį, bus ištrintos visos el. pašto paskyros, kurioms jis reikalingas, įskaitant el. laiškus, kontaktus, kalendorių įvykius ir kitus duomenis."</string>
-    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
-    <skip />
-    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
-    <skip />
+    <string name="account_security_dialog_title" msgid="1340675800634074043">"Būtina atnaujinti saugumą"</string>
+    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"„<xliff:g id="ACCOUNT">%s</xliff:g>“ reikia atnaujinti saugumo nustatymus."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Reikalingas paskyros „<xliff:g id="ACCOUNT">%s</xliff:g>“ saugos nustatymų atnaujinimas."</string>
-    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Atnaujinti saugos nustatymus"</string>
+    <string name="security_notification_content_title" msgid="3352841884304076235">"Būtina atnaujinti saugumą"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Įrenginio sauga"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Serveris „<xliff:g id="SERVER">%s</xliff:g>“ reikalauja leisti jam nuotoliniu būdu valdyti kai kurias „Android“ įrenginio saugos funkcijas."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Redaguoti išsamią informaciją"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
-    <skip />
-    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Reikia naujo ekrano atrakinimo kodo"</string>
-    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"Ekrano atrakinimo kodo galiojimo laikas baigėsi."</string>
-    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"Reikia naujo ekrano atrakinimo kodo"</string>
-    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"„<xliff:g id="ACCOUNT">%s</xliff:g>“ reikia pakeisti ekrano užrakto PIN kodą arba slaptažodį."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Baigiasi ekr. užr. slapt. galioj. laikas"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"Baigėsi ekrano užrakto PIN kodo ar slaptažodžio galiojimo laikas."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"Baig. ekr. užr. slapt. galioj. laikas"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Baigiasi ekr. užr. slapt. galioj. laikas"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Būtina greitai pakeisti ekrano užrakto PIN kodą ar slaptažodį, nes bus ištrinti „<xliff:g id="ACCOUNT">%s</xliff:g>“ duomenys. Pakeisti dabar?"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"Baig. ekr. užr. slapt. galioj. laikas"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Iš jūsų įrenginio ištrinami „<xliff:g id="ACCOUNT">%s</xliff:g>“ duomenys. Atkurti juos galite pakeisdami ekrano užrakto PIN kodą ar slaptažodį. Pakeisti dabar?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Atmesti neišsaugotus pakeitimus?"</string>
-    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
-    <skip />
-    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
-    <skip />
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Nepavyko prisijungti"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"„<xliff:g id="ACCOUNT">%s</xliff:g>“ naudotojo vardas ar slaptažodis neteisingas. Atnaujinti juos dabar?"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Bendri nustatymai"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Numatytoji paskyra"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Pagal numatytuosius nustatymus siųsti el. laišką iš šios paskyros"</string>
@@ -358,11 +334,9 @@
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Kai atsiunčiamas el. laiškas, pranešti sistemos juostoje"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Gautųjų tikrinimo dažnumas"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Gaunamų laiškų nustatymai"</string>
-    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
-    <skip />
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Naudotojo vardas, slaptažodis ir kiti gavimo serverio nustatymai"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Siunčiamų laiškų nustatymai"</string>
-    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
-    <skip />
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Naudotojo vardas, slaptažodis ir kiti siuntimo serv. nustatymai"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Paskyros pavadinimas"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Jūsų vardas ir pavardė"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Parašas"</string>

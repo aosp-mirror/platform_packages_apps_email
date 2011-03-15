@@ -128,13 +128,10 @@
     <string name="message_view_from_label" msgid="6055076379282772675">"No:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Temats:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Skatīt"</string>
-    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
-    <skip />
+    <string name="message_view_attachment_install_action" msgid="381211378884166381">"Instalēt"</string>
+    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"Atskaņot"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Ielādēt"</string>
-    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
-    <skip />
+    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Informāc."</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Saglabāt"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Apturēt"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Pielikums saglabāts kā <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -158,26 +155,16 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Jūs esat noraidījis šo ielūgumu."</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Rādīt informāciju"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Informācija par ziņojumu"</string>
-    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
-    <skip />
-    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
-    <skip />
-    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
-    <skip />
-    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
-    <skip />
-    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
-    <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
-    <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
-    <skip />
+    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Informācija par pielikumu"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Nepieciešams Wi-Fi savienojums"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Wi-Fi iestatījumi"</string>
+    <string name="attachment_info_application_settings" msgid="9128108769497191200">"Lietojumpr. iestatījumi"</string>
+    <string name="attachment_info_unknown" msgid="8342655396805943320">"Nevar atvērt pielikumu."</string>
+    <string name="attachment_info_malware" msgid="1478505616946912328">"Tā kā šāda veida pielikums var saturēt ļaunprātīgu programmatūru, to nevar saglabāt vai atvērt."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Šis pielikums ir pārāk liels, lai to lejupielādētu mobilajā tīklā. Varat to lejupielādēt nākamreiz, kad pievienosieties Wi-Fi tīklam."</string>
+    <string name="attachment_info_no_intent" msgid="5277484372596654977">"Nav instalēta lietojumprogramma, ar kuru var atvērt šo pielikumu. Lejupielādējiet atbilstošu lietojumprogrammu no platformas Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Šis pielikums ir lietojumprogramma. Pirms tās instalēšanas ir jānoņem atzīme no vienuma Nezināmi avoti, kas atrodas sadaļas Iestatījumi apakšsadaļā Lietojumprogrammas."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Lietojumprogrammas nevar instalēt tieši no e-pasta. Vispirms saglabājiet šo lietojumprogrammu un pēc tam instalējiet to, izmantojot lietojumprogrammu Lejupielādes."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Kļūda, dekodējot ziņojumu."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Tiek skat.: <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Ziņoj. atmešana"</string>
@@ -199,11 +186,9 @@
     <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> ziņojumi pārvietoti uz <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Nevarēja pārsūtīt vienu vai vairākus pielikumus."</string>
-    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
-    <skip />
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"Pielikums netika nosūtīts."</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"Pierakst. kļ.: <xliff:g id="ACCOUNT_NAME">%s</xliff:g>"</string>
-    <!-- no translation found for login_failed_title (6948780582524747622) -->
-    <skip />
+    <string name="login_failed_title" msgid="6948780582524747622">"Pierakstīšanās kļūda"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -321,33 +306,24 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Serveris <xliff:g id="SERVER">%s</xliff:g> pieprasa, lai jūs tam atļautu attālināti vadīt dažas jūsu Android ierīces drošības funkcijas. Vai vēlaties pabeigt konta iestatīšanu?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Šis serveris pieprasa drošības funkcijas, ko jūsu Android ierīce neatbalsta."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"BRĪDINĀJUMS: deaktivizējot e-pasta lietojumprogrammas tiesības administrēt jūsu ierīci, tiks dzēsti visi e-pasta konti, kuriem šī funkcionalitāte ir nepieciešama, kā arī šo kontu e-pasts, kontaktpersonas, kalendāra notikumi un citi dati."</string>
-    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
-    <skip />
-    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
-    <skip />
+    <string name="account_security_dialog_title" msgid="1340675800634074043">"Nepieciešams drošības atjauninājums"</string>
+    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"Kontā <xliff:g id="ACCOUNT">%s</xliff:g> ir jāatjaunina drošības iestatījumi."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Kontā “<xliff:g id="ACCOUNT">%s</xliff:g>” nepieciešams atjaunināt drošības iestatījumus."</string>
-    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Drošības iestatījumu atjaunināšana"</string>
+    <string name="security_notification_content_title" msgid="3352841884304076235">"Nepiecieš. droš. atjauninājums"</string>
     <string name="account_security_title" msgid="4441470647344315196">"Ierīces drošība"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Serveris <xliff:g id="SERVER">%s</xliff:g> pieprasa, lai jūs tam atļautu attālināti vadīt dažas jūsu Android ierīces drošības funkcijas."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Rediģēt datus"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
-    <skip />
-    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Nepieciešams jauns ekrāna atbloķēšanas kods"</string>
-    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"Ekrāna atbloķēšanas koda derīgums ir beidzies."</string>
-    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"Nepieciešams jauns ekrāna atbloķēšanas kods"</string>
-    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"Kontā <xliff:g id="ACCOUNT">%s</xliff:g> ir jāmaina ekrāna bloķēšanas PIN vai parole."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Ekr. bloķ. par. term. tuv. b."</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"Ekrāna bloķēšanas PIN vai paroles derīguma termiņš ir beidzies."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"Ekr. bloķ. paroles term. b."</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Ekr. bloķ. paroles term. tuvojas beigām"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Jums drīzumā ir jāmaina ekrāna bloķēšanas PIN vai parole, pretējā gadījumā konta <xliff:g id="ACCOUNT">%s</xliff:g> dati tiks dzēsti. Vai mainīt tūlīt?"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"Ekrāna bloķēš. paroles termiņa beigas"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Konta <xliff:g id="ACCOUNT">%s</xliff:g> dati tiek dzēsti no šīs ierīces. Varat tos atjaunot, nomainot ekrāna bloķēšanas PIN vai paroli. Vai mainīt tūlīt?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Vai atmest nesaglabātās izmaiņas?"</string>
-    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
-    <skip />
-    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
-    <skip />
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Pierakstīšanās kļūda"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Konta <xliff:g id="ACCOUNT">%s</xliff:g> lietotājvārds un parole nav pareizi. Vai atjaunināt tos tūlīt?"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Vispārīgi iestatījumi"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Noklusējuma konts"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Pēc noklusējuma sūtīt e-pasta ziņojumus no šī konta"</string>
@@ -358,11 +334,9 @@
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Rādīt paziņojumu statusa joslā, kad tiek saņemts e-pasta ziņojums"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Iesūtnes pārbaudes biežums"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Ienākošo datu iestatījumi"</string>
-    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
-    <skip />
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Lietotājvārds, parole u.c. ienākošā pasta servera iestatījumi"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Izejošo datu iestatījumi"</string>
-    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
-    <skip />
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Lietotājvārds, parole un citi izejošā pasta servera iestatījumi"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Konta nosaukums"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Jūsu vārds"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Paraksts"</string>

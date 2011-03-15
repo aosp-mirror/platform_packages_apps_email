@@ -128,13 +128,10 @@
     <string name="message_view_from_label" msgid="6055076379282772675">"Od:"</string>
     <string name="message_view_subject_label" msgid="3731022187530000852">"Temat:"</string>
     <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Wyświetl"</string>
-    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
-    <skip />
-    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
-    <skip />
+    <string name="message_view_attachment_install_action" msgid="381211378884166381">"Zainstaluj"</string>
+    <string name="message_view_attachment_play_action" msgid="5214215414665114061">"Odtwórz"</string>
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Wczytaj"</string>
-    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
-    <skip />
+    <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Informacje"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Zapisz"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Zatrzymaj"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Załącznik zapisany jako <xliff:g id="FILENAME">%s</xliff:g>."</string>
@@ -158,26 +155,16 @@
     <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Odrzucono to zaproszenie"</string>
     <string name="message_view_show_details" msgid="6287415596441037095">"Pokaż szczegóły"</string>
     <string name="message_view_message_details_dialog_title" msgid="5306529501287351018">"Szczegóły wiadomości"</string>
-    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
-    <skip />
-    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
-    <skip />
-    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
-    <skip />
-    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
-    <skip />
-    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
-    <skip />
-    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
-    <skip />
-    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
-    <skip />
-    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
-    <skip />
-    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
-    <skip />
+    <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Informacje o załączniku"</string>
+    <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Wymagane połączenie Wi-Fi"</string>
+    <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Ustawienia Wi-Fi"</string>
+    <string name="attachment_info_application_settings" msgid="9128108769497191200">"Ustawienia aplikacji"</string>
+    <string name="attachment_info_unknown" msgid="8342655396805943320">"Nie można otworzyć załącznika."</string>
+    <string name="attachment_info_malware" msgid="1478505616946912328">"Ponieważ załącznik tego typu może zawierać złośliwe oprogramowanie, nie można go zapisać ani otworzyć."</string>
+    <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Ten załącznik jest za duży, aby go pobrać przez sieć komórkową. Możesz go pobrać po następnym połączeniu z siecią Wi-Fi."</string>
+    <string name="attachment_info_no_intent" msgid="5277484372596654977">"Żadna z zainstalowanych aplikacji nie może otworzyć tego załącznika. Spróbuj pobrać odpowiednią aplikację z usługi Android Market."</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Ten załącznik jest aplikacją. Należy zaznaczyć opcję Nieznane źródła w sekcji Aplikacje w Ustawieniach, aby możliwe było jej zainstalowanie."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Nie można instalować aplikacji bezpośrednio z aplikacji E-mail. Najpierw zapisz aplikację, a następnie zainstaluj ją przy użyciu aplikacji Pobrane pliki."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Błąd podczas dekodowania komunikatu."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Wyświetlanie pliku <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Odrzuć wiadomość"</string>
@@ -199,11 +186,9 @@
     <item quantity="other" msgid="2286739630865943494">"Przeniesiono <xliff:g id="NUM_MESSAGE">%1$d</xliff:g> wiadomości do <xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
   </plurals>
     <string name="forward_download_failed_ticker" msgid="328380505427633405">"Co najmniej jednego załącznika nie można przekazać dalej"</string>
-    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
-    <skip />
+    <string name="forward_download_failed_title" msgid="6139701848515572511">"Nie przekazano załącznika"</string>
     <string name="login_failed_ticker" msgid="7452091306512654139">"Błąd logowania (<xliff:g id="ACCOUNT_NAME">%s</xliff:g>)"</string>
-    <!-- no translation found for login_failed_title (6948780582524747622) -->
-    <skip />
+    <string name="login_failed_title" msgid="6948780582524747622">"Błąd logowania"</string>
   <plurals name="message_view_attachment_bytes">
     <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
     <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g> B"</item>
@@ -321,33 +306,24 @@
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Serwer <xliff:g id="SERVER">%s</xliff:g> wymaga udzielenia zezwolenia na zdalną kontrolę niektórych funkcji zabezpieczeń tego urządzenia z systemem Android. Czy chcesz zakończyć konfigurowanie tego konta?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Serwer wymaga funkcji zabezpieczeń, których to urządzenie z systemem Android nie obsługuje."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"OSTRZEŻENIE: cofnięcie uprawnienia aplikacji pocztowej do administrowania urządzeniem spowoduje usunięcie wszystkich kont e-mail, które wymagają tego uprawnienia, wraz z wiadomościami, kontaktami, wydarzeniami w kalendarzu i innymi danymi."</string>
-    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
-    <skip />
-    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
-    <skip />
+    <string name="account_security_dialog_title" msgid="1340675800634074043">"Wymagana aktualizacja zabezpieczeń"</string>
+    <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"Konto <xliff:g id="ACCOUNT">%s</xliff:g> wymaga aktualizacji ustawień zabezpieczeń."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Konto „<xliff:g id="ACCOUNT">%s</xliff:g>” wymaga aktualizacji ustawień zabezpieczeń."</string>
-    <!-- outdated translation 9118357427821409190 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Aktualizuj ustawienia zabezpieczeń"</string>
+    <string name="security_notification_content_title" msgid="3352841884304076235">"Wymagana aktualizacja zabezp."</string>
     <string name="account_security_title" msgid="4441470647344315196">"Zabezpieczenia urządzenia"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Serwer <xliff:g id="SERVER">%s</xliff:g> wymaga udzielenia zezwolenia na zdalną kontrolę niektórych funkcji zabezpieczeń tego urządzenia z systemem Android."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Edytuj szczegóły"</string>
-    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
-    <skip />
-    <!-- outdated translation 1361500931857142643 -->     <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Wymagany nowy kod odblokowania ekranu"</string>
-    <!-- outdated translation 1017484950107140594 -->     <string name="password_expired_ticker" msgid="4230570412974108968">"Kod odblokowania ekranu wygasł."</string>
-    <!-- outdated translation 3744162462033902515 -->     <string name="password_expired_content_title" msgid="4349518706602252979">"Wymagany nowy kod odblokowania ekranu"</string>
-    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
-    <skip />
-    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
-    <skip />
-    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
-    <skip />
+    <string name="password_expire_warning_ticker_fmt" msgid="7367710094579526056">"Konto „<xliff:g id="ACCOUNT">%s</xliff:g>” wymaga zmiany kodu PIN lub hasła ekranu blokady."</string>
+    <string name="password_expire_warning_content_title" msgid="7174669014074849304">"Hasło ekranu blokady wkrótce wygaśnie"</string>
+    <string name="password_expired_ticker" msgid="4230570412974108968">"Kod PIN lub hasło ekranu blokady wygasły."</string>
+    <string name="password_expired_content_title" msgid="4349518706602252979">"Hasło ekranu blokady wygasło"</string>
+    <string name="password_expire_warning_dialog_title" msgid="1687074175399798189">"Hasło ekranu blokady wkrótce wygaśnie"</string>
+    <string name="password_expire_warning_dialog_content_fmt" msgid="4595246020880351045">"Należy wkrótce zmienić kod PIN lub hasło ekranu blokady, albo dane konta <xliff:g id="ACCOUNT">%s</xliff:g> zostaną wymazane. Zmienić teraz?"</string>
+    <string name="password_expired_dialog_title" msgid="2186547998125938084">"Hasło ekranu blokady wygasło"</string>
+    <string name="password_expired_dialog_content_fmt" msgid="5982207349002500211">"Trwa wymazywanie z urządzenia danych konta <xliff:g id="ACCOUNT">%s</xliff:g>. Można je przywrócić, zmieniając kod PIN lub hasło ekranu blokady. Zmienić je teraz?"</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Odrzucić niezapisane zmiany?"</string>
-    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
-    <skip />
-    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
-    <skip />
+    <string name="account_settings_login_dialog_title" msgid="3348853165458574221">"Błąd logowania"</string>
+    <string name="account_settings_login_dialog_content_fmt" msgid="3492735234999710234">"Nazwa użytkownika lub hasło dla konta <xliff:g id="ACCOUNT">%s</xliff:g> są niepoprawne. Zaktualizować je teraz?"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Ustawienia ogólne"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Domyślne konto"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Domyślnie wysyłaj wiadomości e-mail z tego konta"</string>
@@ -358,11 +334,9 @@
     <string name="account_settings_notify_summary" msgid="6301122709602752038">"Powiadamiaj na pasku systemu o otrzymaniu wiadomości e-mail"</string>
     <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"Sprawdzaj pocztę"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"Poczta przychodząca"</string>
-    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
-    <skip />
+    <string name="account_settings_incoming_summary" msgid="2923044634831881068">"Użytkownik, hasło i inne ustawienia serwera poczty przychodzącej"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"Poczta wychodząca"</string>
-    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
-    <skip />
+    <string name="account_settings_outgoing_summary" msgid="3572093624332724311">"Użytkownik, hasło i inne ustawienia serwera poczty wychodzącej"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nazwa konta"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Imię i nazwisko"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Podpis"</string>
