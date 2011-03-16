@@ -300,7 +300,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     getFragmentManager().findFragmentByTag(CheckingDialog.TAG);
         }
         if (mCheckingDialog != null) {
-            mCheckingDialog.dismiss();
+            mCheckingDialog.dismissAllowingStateLoss();
             mCheckingDialog = null;
         }
     }

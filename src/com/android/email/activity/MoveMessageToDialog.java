@@ -140,15 +140,16 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     }
 
     /**
-     * Delay-call {@link #dismiss()} using a {@link Handler}.  Calling {@link #dismiss()} from
-     * {@link LoaderManager.LoaderCallbacks#onLoadFinished} is not allowed, so we use it instead.
+     * Delay-call {@link #dismissAllowingStateLoss()} using a {@link Handler}.  Calling
+     * {@link #dismissAllowingStateLoss()} from {@link LoaderManager.LoaderCallbacks#onLoadFinished}
+     * is not allowed, so we use it instead.
      */
     private void dismissAsync() {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
                 if (!mDestroyed) {
-                    dismiss();
+                    dismissAllowingStateLoss();
                 }
             }
         });
