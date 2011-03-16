@@ -439,7 +439,13 @@ public class SecurityPolicy {
                     policies.getDPManagerPasswordExpirationTimeout());
             // password history length (number of previous passwords that may not be reused)
             dpm.setPasswordHistoryLength(mAdminName, policies.mPasswordHistory);
-            // password minimum complex characters
+            // password minimum complex characters.
+            // Note, in Exchange, "complex chars" simply means "non alpha", but in the DPM,
+            // setting the quality to complex also defaults min symbols=1 and min numeric=1.
+            // We always / safely clear minSymbols & minNumeric to zero (there is no policy
+            // configuration in which we explicitly require a minimum number of digits or symbols.)
+            dpm.setPasswordMinimumSymbols(mAdminName, 0);
+            dpm.setPasswordMinimumNumeric(mAdminName, 0);
             dpm.setPasswordMinimumNonLetter(mAdminName, policies.mPasswordComplexChars);
             // encryption required
             dpm.setStorageEncryption(mAdminName, policies.mRequireEncryption);

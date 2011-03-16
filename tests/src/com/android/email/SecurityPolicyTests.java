@@ -688,4 +688,33 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
             assertEquals(policyExpect, p3Result);
         }
     }
+
+    /**
+     * Test the code that converts from exchange-style quality to DPM/Lockscreen style quality.
+     */
+    public void testGetDPManagerPasswordQuality() {
+        // PolicySet.PASSWORD_MODE_NONE -> DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED
+        PolicySet p1 = new PolicySet(0, PolicySet.PASSWORD_MODE_NONE,
+                0, 0, false, 0, 0, 0, false, false);
+        assertEquals(DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED,
+                p1.getDPManagerPasswordQuality());
+
+        // PASSWORD_MODE_SIMPLE -> PASSWORD_QUALITY_NUMERIC
+        PolicySet p2 = new PolicySet(4, PolicySet.PASSWORD_MODE_SIMPLE,
+                0, 0, false, 0, 0, 0, false, false);
+        assertEquals(DevicePolicyManager.PASSWORD_QUALITY_NUMERIC,
+                p2.getDPManagerPasswordQuality());
+
+        // PASSWORD_MODE_STRONG -> PASSWORD_QUALITY_ALPHANUMERIC
+        PolicySet p3 = new PolicySet(4, PolicySet.PASSWORD_MODE_STRONG,
+                0, 0, false, 0, 0, 0, false, false);
+        assertEquals(DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC,
+                p3.getDPManagerPasswordQuality());
+
+        // PASSWORD_MODE_STRONG + complex chars -> PASSWORD_QUALITY_COMPLEX
+        PolicySet p4 = new PolicySet(4, PolicySet.PASSWORD_MODE_STRONG,
+                0, 0, false, 0, 0 , 2, false, false);
+        assertEquals(DevicePolicyManager.PASSWORD_QUALITY_COMPLEX,
+                p4.getDPManagerPasswordQuality());
+    }
 }
