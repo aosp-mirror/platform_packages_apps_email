@@ -65,6 +65,10 @@
     <dimen name="settings_buttons_padding_top">48dip</dimen>
     <dimen name="settings_buttons_padding_bottom">48dip</dimen>
 
+    <!-- In setup screens, the inset for all items below the headline+hairline -->
+    <dimen name="setup_item_inset_left">0dip</dimen>
+    <dimen name="setup_item_inset_right">0dip</dimen>
+
     <dimen name="account_spinner_dropdown_account_name_max_width">352dip</dimen>
 
 </resources>
