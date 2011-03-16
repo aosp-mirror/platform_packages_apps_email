@@ -222,7 +222,11 @@ public class PolicySet implements Parcelable {
             case PASSWORD_MODE_SIMPLE:
                 return DevicePolicyManager.PASSWORD_QUALITY_NUMERIC;
             case PASSWORD_MODE_STRONG:
-                return DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC;
+                if (mPasswordComplexChars == 0) {
+                    return DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC;
+                } else {
+                    return DevicePolicyManager.PASSWORD_QUALITY_COMPLEX;
+                }
             default:
                 return DevicePolicyManager .PASSWORD_QUALITY_UNSPECIFIED;
         }
