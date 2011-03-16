@@ -225,7 +225,19 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     }
 
     /**
-     * Load the current settings into the UI
+     * Force the given account settings to be loaded using {@link #loadSettings(Account)}.
+     *
+     * @return true if the loaded values pass validation
+     */
+    /*package*/ boolean forceLoadSettings(Account account) {
+        mLoaded = false;
+        return loadSettings(account);
+    }
+
+    /**
+     * Load the given account settings into the UI and then ensure the settings are valid.
+     * As an optimization, if the settings have already been loaded, the UI will not be
+     * updated, but, the account fields will still be validated.
      *
      * @return true if the loaded values pass validation
      */
@@ -345,7 +357,8 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         Account account = SetupData.getAccount();
         account.mHostAuthSend = newHostAuth;
         account.mHostAuthRecv = newHostAuth;
-        return loadSettings(account);
+        // Auto discovery may have changed the auth settings; force load them
+        return forceLoadSettings(account);
     }
 
     /**
