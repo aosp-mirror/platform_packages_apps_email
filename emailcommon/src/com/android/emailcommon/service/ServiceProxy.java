@@ -42,7 +42,7 @@ import android.util.Log;
  */
 
 public abstract class ServiceProxy {
-    private static final boolean DEBUG_PROXY = true; // STOPSHIP DO NOT CHECK THIS IN SET TO TRUE
+    private static final boolean DEBUG_PROXY = false; // DO NOT CHECK THIS IN SET TO TRUE
     private final String mTag;
 
     private final Context mContext;

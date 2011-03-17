@@ -85,8 +85,6 @@ public class Device {
         }
         w.write(id);
         w.close();
-        // STOPSHIP Remove logging
-        Log.w(Logging.LOG_TAG, "deviceId written as: " + id);
         return id;
     }
 
