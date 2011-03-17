@@ -65,9 +65,9 @@
     <item quantity="one" msgid="320885379869442589">"Переместить сообщение"</item>
     <item quantity="other" msgid="371256717624461324">"Переместить сообщения"</item>
   </plurals>
-    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"Перемещение не поддерживается для аккаунтов POP3."</string>
-    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"Перемещение невозможно. Выбрано сразу несколько аккаунтов."</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"Сообщения из папок \"Черновики\", \"Исходящие\" и \"Отправленные\" не могут быть перемещены."</string>
+    <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"Перемещение не поддерживается в аккаунтах с включенным протоколом POP3."</string>
+    <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"Перемещение невозможно, так как выбрано несколько аккаунтов."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"Нельзя переместить сообщения из папок \"Черновики\", \"Исходящие\" и \"Отправленные\"."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"Непрочитанных: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"Непрочитанных: <xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
