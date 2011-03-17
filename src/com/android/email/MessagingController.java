@@ -1247,6 +1247,11 @@ public class MessagingController implements Runnable {
                         }
                         // upsync the message
                         long id = upsyncs2.getLong(EmailContent.Message.ID_PROJECTION_COLUMN);
+                        EmailContent.Message newMessage =
+                            EmailContent.Message.restoreMessageWithId(mContext, id);
+                        if (newMessage != null && newMessage.mMailboxKey != mailboxId) {
+                            continue; // The message moved to a different mailbox; skip it
+                        }
                         lastMessageId = id;
                         processUploadMessage(resolver, remoteStore, account, mailbox, id);
                     }
