@@ -25,7 +25,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
-    private static final boolean DEBUG_PROXY = true; // STOPSHIP DO NOT CHECK THIS IN SET TO TRUE
+    private static final boolean DEBUG_PROXY = false; // DO NOT CHECK THIS IN SET TO TRUE
     private static final String TAG = "PolicyServiceProxy";
 
     // The intent used by sync adapter services to connect to the PolicyService
