@@ -21,7 +21,7 @@
     <string name="permission_access_provider_label" msgid="4274353114641168675">"E-posta sağlayıcı verilerine eriş"</string>
     <string name="permission_access_provider_desc" msgid="1513898266889541617">"Alınan iletiler, gönderilen iletiler, kullanıcı adları ve şifreler de dahil olmak üzere E-posta veritabanınıza erişmek için bu uygulamaya izin verir."</string>
     <string name="app_name" msgid="5815426892327290362">"E-posta"</string>
-    <string name="compose_title" msgid="427986915662706899">"Oluştur"</string>
+    <string name="compose_title" msgid="427986915662706899">"E-Posta Yaz"</string>
     <string name="debug_title" msgid="5175710493691536719">"Hata Ayıklama"</string>
     <string name="next_action" msgid="3931301986364184415">"İleri"</string>
     <string name="okay_action" msgid="8365197396795675617">"Tamam"</string>
@@ -43,7 +43,7 @@
     <string name="refresh_action" msgid="5951383001436708175">"Yenile"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Hesap ekle"</string>
     <string name="deselect_all_action" msgid="253663239459688238">"Tüm seçimleri iptal et"</string>
-    <string name="compose_action" msgid="4045702519637388045">"Oluştur"</string>
+    <string name="compose_action" msgid="4045702519637388045">"E-Posta Yaz"</string>
     <string name="search_action" msgid="6325101454876682308">"Ara"</string>
     <string name="open_action" msgid="936766723989190816">"Aç"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Hesap ayarları"</string>
@@ -90,7 +90,7 @@
     <string name="message_compose_cc_hint" msgid="8481884461031434144">"Cc"</string>
     <string name="message_compose_bcc_hint" msgid="9177337492358841680">"Bcc"</string>
     <string name="message_compose_subject_hint" msgid="6993487234024160782">"Konu"</string>
-    <string name="message_compose_body_hint" msgid="7575406246484103697">"Posta Oluştur"</string>
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"E-Posta Yaz"</string>
     <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Orijinal İleti --------"\n"Konu: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Gönderen: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Alıcı:<xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
     <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g> şunu yazdı:"\n\n</string>
     <string name="message_compose_quoted_text_label" msgid="5722467956990009520">"Alıntılanan metin"</string>

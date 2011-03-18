@@ -70,7 +70,7 @@
     <item quantity="few" msgid="1991747245324120305">"ב-<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> חשבונות"</item>
     <item quantity="other" msgid="2723797835410343458">"ב-<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> חשבונות"</item>
   </plurals>
-    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"תיבת דואר נכנס"</string>
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"דואר נכנס"</string>
     <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"תיבת דואר יוצא"</string>
     <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"טיוטות"</string>
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"פח אשפה"</string>
@@ -78,7 +78,7 @@
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"דואר זבל"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"גרסה: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"חשבונות"</string>
-    <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"תיבת דואר נכנס משולבת"</string>
+    <string name="account_folder_list_summary_inbox" msgid="5790553737870057607">"דואר נכנס משולב"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"מסומן בכוכב"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"טיוטות"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"תיבת דואר יוצא"</string>
@@ -178,7 +178,7 @@
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"השתמש בחיבור מאובטח (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"קבל את כל אישורי SSL"</string>
     <string name="account_setup_options_title" msgid="8995162193118880993">"אפשרויות חשבון"</string>
-    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"תדירות הבדיקה של תיבת דואר נכנס"</string>
+    <string name="account_setup_options_mail_check_frequency_label" msgid="4824859792882810053">"תדירות הבדיקה של דואר נכנס"</string>
     <string name="account_setup_options_mail_check_frequency_never" msgid="287951859480505416">"אף פעם"</string>
     <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"אוטומטית (דחיפה)"</string>
     <string name="account_setup_options_mail_check_frequency_5min" msgid="6388939895878539307">"כל 5 דקות"</string>
@@ -221,7 +221,7 @@
     <string name="account_settings_notify_label" msgid="1630001017303007974">"התראות דוא\"ל"</string>
     <string name="account_settings_exchange_summary" msgid="8498451479029626317">"תדירות סנכרון, התראות וכדומה"</string>
     <string name="account_settings_notify_summary" msgid="6609224590300639887">"הצג הודעה בשורת המצב כאשר מגיע דוא\"ל"</string>
-    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"תדירות בדיקה של תיבת דואר נכנס"</string>
+    <string name="account_settings_mail_check_frequency_label" msgid="8271462919214560616">"תדירות בדיקה של דואר נכנס"</string>
     <string name="account_settings_incoming_label" msgid="7858928031806297542">"הגדרות דואר נכנס"</string>
     <string name="account_settings_outgoing_label" msgid="4464829249980026745">"הגדרות דואר יוצא"</string>
     <string name="account_settings_description_label" msgid="8894815221204511715">"שם חשבון"</string>

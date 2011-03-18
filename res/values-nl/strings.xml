@@ -17,9 +17,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="read_attachment_label" msgid="1162255191991555285">"Bijlagen van e-mail lezen"</string>
-    <string name="read_attachment_desc" msgid="7594746717616308643">"Staat deze toepassing toe om uw e-mailbijlagen te lezen."</string>
+    <string name="read_attachment_desc" msgid="7594746717616308643">"Staat deze app toe uw e-mailbijlagen te lezen."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Gegevens e-mailprovider openen"</string>
-    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Hiermee geeft u deze toepassing toegang tot uw e-maildatabase, inclusief ontvangen berichten, verzonden berichten, gebruikersnamen en wachtwoorden."</string>
+    <string name="permission_access_provider_desc" msgid="1513898266889541617">"Hiermee geeft u deze app toegang tot uw e-maildatabase, inclusief ontvangen berichten, verzonden berichten, gebruikersnamen en wachtwoorden."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Opstellen"</string>
     <string name="debug_title" msgid="5175710493691536719">"Foutopsporing"</string>

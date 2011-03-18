@@ -55,7 +55,7 @@
     <string name="add_cc_bcc_action" msgid="5569074812077509737">"Ajouter Cc/CCi"</string>
     <string name="add_attachment_action" msgid="2696013743130573897">"Ajouter une pièce jointe"</string>
     <string name="dump_settings_action" msgid="4478192525236169829">"Paramètres d\'image mémoire"</string>
-    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir·une·pièce·jointe"</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir une pièce jointe"</string>
     <string name="status_loading_more" msgid="1580386959044617884">"Chargement des messages..."</string>
     <string name="status_sending_messages" msgid="3971880826111264523">"Envoi des messages en cours"</string>
     <string name="status_network_error" msgid="6045933332005067021">"Erreur de connexion"</string>
@@ -212,7 +212,7 @@
     <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Ce serveur nécessite des fonctionnalités de sécurité que votre téléphone ne prend pas en charge."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Le compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" nécessite une mise à jour de ses paramètres de sécurité."</string>
     <string name="security_notification_content_title" msgid="8096231937552848281">"Mettre à jour les paramètres de sécurité"</string>
-    <string name="account_security_title" msgid="4441470647344315196">"Sécurité du périphérique"</string>
+    <string name="account_security_title" msgid="4441470647344315196">"Sécurité de l\'appareil"</string>
     <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre téléphone."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifier les infos"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Paramètres généraux"</string>
