@@ -154,7 +154,7 @@
     <string name="account_setup_incoming_pop_server_label" msgid="4917504440057879152">"Server POP3"</string>
     <string name="account_setup_incoming_imap_server_label" msgid="8685076830847734322">"Server IMAP"</string>
     <string name="account_setup_incoming_port_label" msgid="8214738923690447796">"Porta"</string>
-    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo di protezione"</string>
+    <string name="account_setup_incoming_security_label" msgid="2110260791086007424">"Tipo di sicurezza"</string>
     <string name="account_setup_incoming_security_none_label" msgid="8300169413118264895">"Nessuna"</string>
     <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"SSL (Accetta tutti i certificati)"</string>
     <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"SSL"</string>
@@ -168,7 +168,7 @@
     <string name="account_setup_outgoing_title" msgid="7437215562885986394">"Impostazioni server posta in uscita"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Server SMTP"</string>
     <string name="account_setup_outgoing_port_label" msgid="7573207437835827876">"Porta"</string>
-    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Tipo di protezione"</string>
+    <string name="account_setup_outgoing_security_label" msgid="911398071120720589">"Tipo di sicurezza"</string>
     <string name="account_setup_outgoing_require_login_label" msgid="6371514297854287948">"Richiedi accesso"</string>
     <string name="account_setup_outgoing_username_label" msgid="3309680794731596981">"Nome utente"</string>
     <string name="account_setup_outgoing_password_label" msgid="227844585493317550">"Password"</string>
@@ -205,15 +205,15 @@
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Impossibile connettersi al server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_tls_required" msgid="307030406688611327">"TLS richiesto ma non supportato dal server."</string>
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"I metodi di autenticazione non sono supportati dal server."</string>
-    <string name="account_setup_failed_security" msgid="6142264248671379943">"Impossibile aprire la connessione al server a causa di un errore di protezione."</string>
+    <string name="account_setup_failed_security" msgid="6142264248671379943">"Impossibile aprire la connessione al server a causa di un errore di sicurezza."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impossibile aprire la connessione al server."</string>
-    <string name="account_setup_security_required_title" msgid="1850321535870447468">"Amministrazione protezione da remoto"</string>
-    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Il server <xliff:g id="SERVER">%s</xliff:g> richiede che tu consenta il controllo remoto di alcune funzionalità di protezione del tuo telefono. Completare la configurazione dell\'account?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Per questo server sono richieste funzionalità di protezione non supportate dal tuo telefono."</string>
-    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"È richiesto l\'aggiornamento delle impostazioni di protezione per l\'account \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
-    <string name="security_notification_content_title" msgid="8096231937552848281">"Aggiorna impostazioni di protezione"</string>
-    <string name="account_security_title" msgid="4441470647344315196">"Protezione dispositivo"</string>
-    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Il server <xliff:g id="SERVER">%s</xliff:g> richiede che tu consenta il controllo remoto di alcune funzionalità di protezione del tuo telefono."</string>
+    <string name="account_setup_security_required_title" msgid="1850321535870447468">"Amministrazione sicurezza da remoto"</string>
+    <string name="account_setup_security_policies_required_fmt" msgid="8146309611870795951">"Il server <xliff:g id="SERVER">%s</xliff:g> richiede che tu consenta il controllo remoto di alcune funzionalità di sicurezza del tuo telefono. Completare la configurazione dell\'account?"</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="4093832822988053758">"Per questo server sono richieste funzionalità di sicurezza non supportate dal tuo telefono."</string>
+    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"È richiesto l\'aggiornamento delle impostazioni di sicurezza per l\'account \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
+    <string name="security_notification_content_title" msgid="8096231937552848281">"Aggiorna impostazioni di sicurezza"</string>
+    <string name="account_security_title" msgid="4441470647344315196">"sicurezza dispositivo"</string>
+    <string name="account_security_policy_explanation_fmt" msgid="5153981166755002718">"Il server <xliff:g id="SERVER">%s</xliff:g> richiede che tu consenta il controllo remoto di alcune funzionalità di sicurezza del tuo telefono."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Modifica dettagli"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Impostazioni generali"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Account predefinito"</string>
@@ -261,7 +261,7 @@
     <string name="exception_updated" msgid="3397583105901142050">"I dettagli di questo evento sono cambiati per la data: <xliff:g id="DATE">%s</xliff:g>"</string>
     <string name="system_account_create_failed" msgid="4917162302393971752">"Impossibile creare l\'account con AccountManager. Riprova."</string>
     <string name="device_admin_label" msgid="8680224994637869414">"Posta"</string>
-    <string name="device_admin_description" msgid="426727923791430306">"Abilita norme di protezione specificate dal server"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"Abilita norme di sicurezza specificate dal server"</string>
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"Calendario Exchange aggiunto"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"Ricerca in <xliff:g id="DOMAIN">%s</xliff:g> in corso..."</string>
   <plurals name="gal_completed_fmt">

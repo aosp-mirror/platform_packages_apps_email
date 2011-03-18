@@ -239,7 +239,7 @@
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Només quan està en silenci"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Mai"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Vibra"</string>
-    <string name="account_settings_ringtone" msgid="7922187231467500404">"Selecció del so de trucada"</string>
+    <string name="account_settings_ringtone" msgid="7922187231467500404">"Selecció del to"</string>
     <string name="account_settings_servers" msgid="4925493817981624242">"Configuració del servidor"</string>
     <string name="account_delete_dlg_title" msgid="6806087520856396608">"Elimina el compte"</string>
     <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"El compte \"<xliff:g id="ACCOUNT">%s</xliff:g>\" s\'eliminarà del correu electrònic."</string>
