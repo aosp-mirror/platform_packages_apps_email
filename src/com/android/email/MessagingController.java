@@ -1479,6 +1479,8 @@ public class MessagingController implements Runnable {
             if (!remoteFolder.exists()) {
                 return;
             }
+            // We may need the message id to search for the message in the destination folder
+            remoteMessage.setMessageId(newMessage.mMessageId);
             // Copy the message to its new folder
             remoteFolder.copyMessages(messages, toFolder, new MessageUpdateCallbacks() {
                 @Override

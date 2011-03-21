@@ -608,39 +608,7 @@ public class ImapStore extends Store {
                 // * OK [UIDNEXT 57576] Predicted next UID
                 // 2 OK [READ-WRITE] Select completed.
                 try {
-                    List<ImapResponse> responses = mConnection.executeSimpleCommand(
-                            String.format(ImapConstants.SELECT + " \"%s\"",
-                                    encodeFolderName(mName, mStore.mPathPrefix)));
-                    /*
-                     * If the command succeeds we expect the folder has been opened read-write
-                     * unless we are notified otherwise in the responses.
-                     */
-                    mMode = OpenMode.READ_WRITE;
-
-                    int messageCount = -1;
-                    for (ImapResponse response : responses) {
-                        if (response.isDataResponse(1, ImapConstants.EXISTS)) {
-                            messageCount = response.getStringOrEmpty(0).getNumberOrZero();
-
-                        } else if (response.isOk()) {
-                            final ImapString responseCode = response.getResponseCodeOrEmpty();
-                            if (responseCode.is(ImapConstants.READ_ONLY)) {
-                                mMode = OpenMode.READ_ONLY;
-                            } else if (responseCode.is(ImapConstants.READ_WRITE)) {
-                                mMode = OpenMode.READ_WRITE;
-                            }
-                        } else if (response.isTagged()) { // Not OK
-                            throw new MessagingException("Can't open mailbox: "
-                                    + response.getStatusResponseTextOrEmpty());
-                        }
-                    }
-
-                    if (messageCount == -1) {
-                        throw new MessagingException("Did not find message count during select");
-                    }
-                    mMessageCount = messageCount;
-                    mExists = true;
-
+                    doSelect();
                 } catch (IOException ioe) {
                     throw ioExceptionHandler(mConnection, ioe);
                 } finally {
@@ -772,12 +740,9 @@ public class ImapStore extends Store {
                         String.format(ImapConstants.UID_COPY + " %s \"%s\"",
                                 joinMessageUids(messages),
                                 encodeFolderName(folder.getName(), mStore.mPathPrefix)));
-                if (!mConnection.isCapable(ImapConnection.CAPABILITY_UIDPLUS)) {
-                    // TODO Implement alternate way to fetch UIDs (e.g. perform a query)
-                    return;
-                }
                 // Build a message map for faster UID matching
                 HashMap<String, Message> messageMap = new HashMap<String, Message>();
+                boolean handledUidPlus = false;
                 for (Message m : messages) {
                     messageMap.put(m.getUid(), m);
                 }
@@ -800,6 +765,7 @@ public class ImapStore extends Store {
                     ImapList copyResponse = response.getListOrEmpty(1);
                     String responseCode = copyResponse.getStringOrEmpty(0).getString();
                     if (ImapConstants.COPYUID.equals(responseCode)) {
+                        handledUidPlus = true;
                         String origIdSet = copyResponse.getStringOrEmpty(2).getString();
                         String newIdSet = copyResponse.getStringOrEmpty(3).getString();
                         String[] origIdArray = ImapUtility.getImapSequenceValues(origIdSet);
@@ -817,6 +783,29 @@ public class ImapStore extends Store {
                             }
                         }
                     }
+                }
+                // If the server doesn't support UIDPLUS, try a different way to get the new UID(s)
+                if (callbacks != null && !handledUidPlus) {
+                    ImapFolder newFolder = (ImapFolder)folder;
+                    try {
+                        // Temporarily select the destination folder
+                        newFolder.open(OpenMode.READ_WRITE, null);
+                        // Do the search(es) ...
+                        for (Message m : messages) {
+                            String searchString = "HEADER Message-Id \"" + m.getMessageId() + "\"";
+                            String[] newIdArray = newFolder.searchForUids(searchString);
+                            if (newIdArray.length == 1) {
+                                callbacks.onMessageUidChange(m, newIdArray[0]);
+                            }
+                        }
+                    } catch (MessagingException e) {
+                        // Log, but, don't abort; failures here don't need to be propagated
+                        Log.d(Logging.LOG_TAG, "Failed to find message", e);
+                    } finally {
+                        newFolder.close(false);
+                    }
+                    // Re-select the original folder
+                    doSelect();
                 }
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
@@ -1476,6 +1465,40 @@ public class ImapStore extends Store {
             } finally {
                 destroyResponses();
             }
+        }
+
+        /**
+         * Selects the folder for use. Before performing any operations on this folder, it
+         * must be selected.
+         */
+        private void doSelect() throws IOException, MessagingException {
+            List<ImapResponse> responses = mConnection.executeSimpleCommand(
+                    String.format(ImapConstants.SELECT + " \"%s\"",
+                            encodeFolderName(mName, mStore.mPathPrefix)));
+
+            // Assume the folder is opened read-write; unless we are notified otherwise
+            mMode = OpenMode.READ_WRITE;
+            int messageCount = -1;
+            for (ImapResponse response : responses) {
+                if (response.isDataResponse(1, ImapConstants.EXISTS)) {
+                    messageCount = response.getStringOrEmpty(0).getNumberOrZero();
+                } else if (response.isOk()) {
+                    final ImapString responseCode = response.getResponseCodeOrEmpty();
+                    if (responseCode.is(ImapConstants.READ_ONLY)) {
+                        mMode = OpenMode.READ_ONLY;
+                    } else if (responseCode.is(ImapConstants.READ_WRITE)) {
+                        mMode = OpenMode.READ_WRITE;
+                    }
+                } else if (response.isTagged()) { // Not OK
+                    throw new MessagingException("Can't open mailbox: "
+                            + response.getStatusResponseTextOrEmpty());
+                }
+            }
+            if (messageCount == -1) {
+                throw new MessagingException("Did not find message count during select");
+            }
+            mMessageCount = messageCount;
+            mExists = true;
         }
 
         private void checkOpen() throws MessagingException {

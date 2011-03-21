@@ -428,7 +428,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         mockTransport.expect(getNextTag(false) + " LOGIN user \"password\"",
                 getNextTag(true) + " " + "oK user authenticated (Success)");
         // SELECT
-        expectSelect(mockTransport, "rEAD-wRITE");
+        expectSelect(mockTransport, FOLDER_ENCODED, "rEAD-wRITE");
 
         // Now open the folder.  Although the server indicates ID in the capabilities,
         // we are not expecting the store to send the ID command (to this particular server).
@@ -542,7 +542,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     private void setupOpenFolder(MockTransport mockTransport, String[] imapIdResponse,
             String readWriteMode, boolean withUidPlus) {
         expectLogin(mockTransport, imapIdResponse, withUidPlus);
-        expectSelect(mockTransport, readWriteMode);
+        expectSelect(mockTransport, FOLDER_ENCODED, readWriteMode);
     }
 
     /**
@@ -550,9 +550,9 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      * @param mockTransport the mock transport we're using
      * @param readWriteMode "READ-WRITE" or "READ-ONLY"
      */
-    private void expectSelect(MockTransport mockTransport, String readWriteMode) {
+    private void expectSelect(MockTransport mockTransport, String folder, String readWriteMode) {
         mockTransport.expect(
-                getNextTag(false) + " SELECT \"" + FOLDER_ENCODED + "\"", new String[] {
+                getNextTag(false) + " SELECT \"" + folder + "\"", new String[] {
                 "* fLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen)",
                 "* oK [pERMANENTFLAGS (\\Answered \\Flagged \\Draft \\Deleted \\Seen \\*)]",
                 "* 0 eXISTS",
@@ -560,7 +560,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                 "* OK [uNSEEN 0]",
                 "* OK [uIDNEXT 1]",
                 getNextTag(true) + " oK [" + readWriteMode + "] " +
-                        FOLDER_ENCODED + " selected. (Success)"});
+                        folder + " selected. (Success)"});
     }
 
     private void expectLogin(MockTransport mockTransport) {
@@ -1470,17 +1470,31 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         mFolder.open(OpenMode.READ_WRITE, null);
 
         mCopyToFolder = mStore.getFolder("\u65E5\u672C\u8A9E");
-        mCopyMessages = new Message[] {
-                mFolder.createMessage("11"),
-                mFolder.createMessage("12"),
-                };
+        Message m1 = mFolder.createMessage("11");
+        m1.setMessageId("<4D8978AE.0000005D@m58.foo.com>");
+        Message m2 = mFolder.createMessage("12");
+        m2.setMessageId("<549373104MSOSI1:145OSIMS@bar.com>");
+        mCopyMessages = new Message[] { m1, m2 };
     }
 
+    /**
+     * Returns the pattern for the IMAP request to copy messages.
+     */
     private String getCopyMessagesPattern() {
         return getNextTag(false) + " UID COPY 11\\,12 \\\"&ZeVnLIqe-\\\"";
     }
 
-    private static class CopyMessagesCallback implements Folder.MessageUpdateCallbacks {
+    /**
+     * Returns the pattern for the IMAP request to search for messages based on Message-Id.
+     */
+    private String getSearchMessagesPattern(String messageId) {
+        return getNextTag(false) + " UID SEARCH HEADER Message-Id \"" + messageId + "\"";
+    }
+
+    /**
+     * Counts the number of times the callback methods are invoked.
+     */
+    private static class MessageUpdateCallbackCounter implements Folder.MessageUpdateCallbacks {
         int messageNotFoundCalled;
         int messageUidChangeCalled;
 
@@ -1504,7 +1518,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                     getNextTag(true) + " oK [COPYUID 777 11,12 45,46] UID COPY completed"
                 });
 
-        CopyMessagesCallback cb = new CopyMessagesCallback();
+        MessageUpdateCallbackCounter cb = new MessageUpdateCallbackCounter();
         mFolder.copyMessages(mCopyMessages, mCopyToFolder, cb);
 
         assertEquals(0, cb.messageNotFoundCalled);
@@ -1520,7 +1534,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                     getNextTag(true) + " oK [COPYUID 777 11,12 45,46] UID COPY completed"
                 });
 
-        CopyMessagesCallback cb = new CopyMessagesCallback();
+        MessageUpdateCallbackCounter cb = new MessageUpdateCallbackCounter();
         mFolder.copyMessages(mCopyMessages, mCopyToFolder, cb);
 
         assertEquals(0, cb.messageNotFoundCalled);
@@ -1566,14 +1580,108 @@ public class ImapStoreUnitTests extends AndroidTestCase {
             setupCopyMessages(false);
             mCopyMock.expect(getCopyMessagesPattern(),
                     new String[] {
-                getNextTag(true) + " BaD copy completed"
-            });
+                        getNextTag(true) + " BaD copy completed"
+                    });
 
             mFolder.copyMessages(mCopyMessages, mCopyToFolder, null);
 
             fail("MessagingException expected.");
         } catch (MessagingException expected) {
         }
+    }
+
+    // Golden case; successful copy getting UIDs via search
+    public void testCopyMessages6() throws Exception {
+        setupCopyMessages(false);
+        mCopyMock.expect(getCopyMessagesPattern(),
+                new String[] {
+                    getNextTag(true) + " oK UID COPY completed",
+                });
+        // New connection, so, we need to login again
+        expectLogin(mCopyMock, new String[] {"* iD nIL", "oK"}, false);
+        // Select destination folder
+        expectSelect(mCopyMock, "&ZeVnLIqe-", "rEAD-wRITE");
+        // Perform searches
+        mCopyMock.expect(getSearchMessagesPattern("<4D8978AE.0000005D@m58.foo.com>"),
+                new String[] {
+                    "* SeArCh 777",
+                    getNextTag(true) + " oK UID SEARCH completed (1 msgs in 3.14159 secs)",
+                });
+        mCopyMock.expect(getSearchMessagesPattern("<549373104MSOSI1:145OSIMS@bar.com>"),
+                new String[] {
+                    "* sEaRcH 1818",
+                    getNextTag(true) + " oK UID SEARCH completed (1 msgs in 2.71828 secs)",
+                });
+        // Select the original folder
+        expectSelect(mCopyMock, FOLDER_ENCODED, "rEAD-wRITE");
+
+        MessageUpdateCallbackCounter cb = new MessageUpdateCallbackCounter();
+        mFolder.copyMessages(mCopyMessages, mCopyToFolder, cb);
+
+        assertEquals(0, cb.messageNotFoundCalled);
+        assertEquals(2, cb.messageUidChangeCalled);
+    }
+
+    // Degenerate case; searches turn up nothing
+    public void testCopyMessages7() throws Exception {
+        setupCopyMessages(false);
+        mCopyMock.expect(getCopyMessagesPattern(),
+                new String[] {
+                    getNextTag(true) + " oK UID COPY completed",
+                });
+        // New connection, so, we need to login again
+        expectLogin(mCopyMock, new String[] {"* iD nIL", "oK"}, false);
+        // Select destination folder
+        expectSelect(mCopyMock, "&ZeVnLIqe-", "rEAD-wRITE");
+        // Perform searches
+        mCopyMock.expect(getSearchMessagesPattern("<4D8978AE.0000005D@m58.foo.com>"),
+                new String[] {
+                    "* SeArCh",
+                    getNextTag(true) + " oK UID SEARCH completed (0 msgs in 6.02214 secs)",
+                });
+        mCopyMock.expect(getSearchMessagesPattern("<549373104MSOSI1:145OSIMS@bar.com>"),
+                new String[] {
+                    "* sEaRcH",
+                    getNextTag(true) + " oK UID SEARCH completed (0 msgs in 2.99792 secs)",
+                });
+        // Select the original folder
+        expectSelect(mCopyMock, FOLDER_ENCODED, "rEAD-wRITE");
+
+        MessageUpdateCallbackCounter cb = new MessageUpdateCallbackCounter();
+        mFolder.copyMessages(mCopyMessages, mCopyToFolder, cb);
+
+        assertEquals(0, cb.messageNotFoundCalled);
+        assertEquals(0, cb.messageUidChangeCalled);
+    }
+
+    // Degenerate case; search causes an exception; must be eaten
+    public void testCopyMessages8() throws Exception {
+        setupCopyMessages(false);
+        mCopyMock.expect(getCopyMessagesPattern(),
+                new String[] {
+                    getNextTag(true) + " oK UID COPY completed",
+                });
+        // New connection, so, we need to login again
+        expectLogin(mCopyMock, new String[] {"* iD nIL", "oK"}, false);
+        // Select destination folder
+        expectSelect(mCopyMock, "&ZeVnLIqe-", "rEAD-wRITE");
+        // Perform searches
+        mCopyMock.expect(getSearchMessagesPattern("<4D8978AE.0000005D@m58.foo.com>"),
+                new String[] {
+                    getNextTag(true) + " BaD search failed"
+                });
+        mCopyMock.expect(getSearchMessagesPattern("<549373104MSOSI1:145OSIMS@bar.com>"),
+                new String[] {
+                    getNextTag(true) + " BaD search failed"
+                });
+        // Select the original folder
+        expectSelect(mCopyMock, FOLDER_ENCODED, "rEAD-wRITE");
+
+        MessageUpdateCallbackCounter cb = new MessageUpdateCallbackCounter();
+        mFolder.copyMessages(mCopyMessages, mCopyToFolder, cb);
+
+        assertEquals(0, cb.messageNotFoundCalled);
+        assertEquals(0, cb.messageUidChangeCalled);
     }
 
     public void testGetUnreadMessageCount() throws Exception {
