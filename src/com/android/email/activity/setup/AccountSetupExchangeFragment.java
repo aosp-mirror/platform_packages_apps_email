@@ -229,7 +229,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      *
      * @return true if the loaded values pass validation
      */
-    /*package*/ boolean forceLoadSettings(Account account) {
+    private boolean forceLoadSettings(Account account) {
         mLoaded = false;
         return loadSettings(account);
     }
