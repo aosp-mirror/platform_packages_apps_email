@@ -28,6 +28,7 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.android.emailcommon.utility.Utility.ListStateSaver;
 
@@ -42,13 +43,11 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -160,7 +159,7 @@ public class MessageListFragment extends ListFragment
 
     private Utility.ListStateSaver mSavedListState;
 
-    private MessageOpenTask mMessageOpenTask;
+    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     /**
      * Callback interface that owning activities must implement
@@ -306,8 +305,7 @@ public class MessageListFragment extends ListFragment
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment onDestroy");
         }
-        Utility.cancelTaskInterrupt(mMessageOpenTask);
-        mMessageOpenTask = null;
+        mTaskTracker.cancellAllInterrupt();
         mRefreshManager.unregisterListener(mRefreshListener);
         super.onDestroy();
     }
@@ -637,19 +635,18 @@ public class MessageListFragment extends ListFragment
      * @param messageId ID of the msesage to open.
      */
     private void onMessageOpen(final long messageMailboxId, final long messageId) {
-        Utility.cancelTaskInterrupt(mMessageOpenTask);
-        mMessageOpenTask = new MessageOpenTask(messageMailboxId, messageId);
-        mMessageOpenTask.execute();
+        new MessageOpenTask(messageMailboxId, messageId).cancelPreviousAndExecuteParallel();
     }
 
     /**
      * Task to look up the mailbox type for a message, and kicks the callback.
      */
-    private class MessageOpenTask extends AsyncTask<Void, Void, Integer> {
+    private class MessageOpenTask extends EmailAsyncTask<Void, Void, Integer> {
         private final long mMessageMailboxId;
         private final long mMessageId;
 
         public MessageOpenTask(long messageMailboxId, long messageId) {
+            super(mTaskTracker);
             mMessageMailboxId = messageMailboxId;
             mMessageId = messageId;
         }

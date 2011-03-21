@@ -18,14 +18,16 @@ package com.android.emailcommon.utility;
 
 import android.os.AsyncTask;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 
 /**
  * {@link AsyncTask} substitution for the email app.
  *
  * Modeled after {@link AsyncTask}; the basic usage is the same, with extra features:
- * - Bulk cancellation of multiple tasks.  This is mainly used by UI to cancell pending tasks
+ * - Bulk cancellation of multiple tasks.  This is mainly used by UI to cancel pending tasks
  *   in onDestroy() or similar places.
  * - More features to come...
  *
@@ -33,6 +35,9 @@ import java.util.concurrent.ExecutionException;
  * {@link AsyncTask#onProgressUpdate}.  Add these when necessary.
  */
 public abstract class EmailAsyncTask<Params, Progress, Result> {
+    private static final Executor SERIAL_EXECUTOR = AsyncTask.SERIAL_EXECUTOR;
+    private static final Executor PARALLEL_EXECUTOR = AsyncTask.THREAD_POOL_EXECUTOR;
+
     /**
      * Tracks {@link EmailAsyncTask}.
      *
@@ -66,8 +71,33 @@ public abstract class EmailAsyncTask<Params, Progress, Result> {
             }
         }
 
+        /**
+         * Cancel all instances of the same class as {@code current} other than
+         * {@code current} itself.
+         */
+        /* package */ void cancelOthers(EmailAsyncTask<?, ?, ?> current) {
+            final Class<?> clazz = current.getClass();
+            synchronized (mTasks) {
+                final ArrayList<EmailAsyncTask<?, ?, ?>> toRemove =
+                        new ArrayList<EmailAsyncTask<?, ?, ?>>();
+                for (EmailAsyncTask<?, ?, ?> task : mTasks) {
+                    if ((task != current) && task.getClass().equals(clazz)) {
+                        task.cancel(true);
+                        toRemove.add(task);
+                    }
+                }
+                for (EmailAsyncTask<?, ?, ?> task : toRemove) {
+                    mTasks.remove(task);
+                }
+            }
+        }
+
         /* package */ int getTaskCountForTest() {
             return mTasks.size();
+        }
+
+        /* package */ boolean containsTaskForTest(EmailAsyncTask<?, ?, ?> task) {
+            return mTasks.contains(task);
         }
     }
 
@@ -109,46 +139,127 @@ public abstract class EmailAsyncTask<Params, Progress, Result> {
         mInnerTask = new InnerTask<Params, Progress, Result>(this);
     }
 
-    /* package */ void unregisterSelf() {
+    /* package */ final void unregisterSelf() {
         if (mTracker != null) {
             mTracker.remove(this);
         }
     }
 
+    /** @see AsyncTask#doInBackground */
     protected abstract Result doInBackground(Params... params);
 
+
+    /** @see AsyncTask#cancel(boolean) */
     public final boolean cancel(boolean mayInterruptIfRunning) {
         return mInnerTask.cancel(mayInterruptIfRunning);
     }
 
+    /** @see AsyncTask#onCancelled */
     protected void onCancelled(Result result) {
     }
 
+    /** @see AsyncTask#onPostExecute */
     protected void onPostExecute(Result result) {
     }
 
-    public final EmailAsyncTask<Params, Progress, Result> execute(Params... params) {
-        mInnerTask.execute(params);
+    /**
+     * execute on {@link #PARALLEL_EXECUTOR}
+     *
+     * @see AsyncTask#execute
+     */
+    public final EmailAsyncTask<Params, Progress, Result> executeParallel(Params... params) {
+        return executeInternal(PARALLEL_EXECUTOR, false, params);
+    }
+
+    /**
+     * execute on {@link #SERIAL_EXECUTOR}
+     *
+     * @see AsyncTask#execute
+     */
+    public final EmailAsyncTask<Params, Progress, Result> executeSerial(Params... params) {
+        return executeInternal(SERIAL_EXECUTOR, false, params);
+    }
+
+    /**
+     * Cancel all previously created instances of the same class tracked by the same
+     * {@link Tracker}, and then {@link #executeParallel}.
+     */
+    public final EmailAsyncTask<Params, Progress, Result> cancelPreviousAndExecuteParallel(
+            Params... params) {
+        return executeInternal(PARALLEL_EXECUTOR, true, params);
+    }
+
+    /**
+     * Cancel all previously created instances of the same class tracked by the same
+     * {@link Tracker}, and then {@link #executeSerial}.
+     */
+    public final EmailAsyncTask<Params, Progress, Result> cancelPreviousAndExecuteSerial(
+            Params... params) {
+        return executeInternal(SERIAL_EXECUTOR, true, params);
+    }
+
+    private final EmailAsyncTask<Params, Progress, Result> executeInternal(Executor executor,
+            boolean cancelPrevious, Params... params) {
+        if (cancelPrevious) {
+            if (mTracker == null) {
+                throw new IllegalStateException();
+            } else {
+                mTracker.cancelOthers(this);
+            }
+        }
+        mInnerTask.executeOnExecutor(executor, params);
         return this;
     }
 
-    public final Result get() throws InterruptedException, ExecutionException {
-        return mInnerTask.get();
+    /**
+     * Runs a {@link Runnable} in a bg thread, using {@link #PARALLEL_EXECUTOR}.
+     */
+    public static EmailAsyncTask<Void, Void, Void> runAsyncParallel(Runnable runnable) {
+        return runAsyncInternal(PARALLEL_EXECUTOR, runnable);
     }
 
+    /**
+     * Runs a {@link Runnable} in a bg thread, using {@link #SERIAL_EXECUTOR}.
+     */
+    public static EmailAsyncTask<Void, Void, Void> runAsyncSerial(Runnable runnable) {
+        return runAsyncInternal(SERIAL_EXECUTOR, runnable);
+    }
+
+    private static EmailAsyncTask<Void, Void, Void> runAsyncInternal(Executor executor,
+            final Runnable runnable) {
+        EmailAsyncTask<Void, Void, Void> task = new EmailAsyncTask<Void, Void, Void>(null) {
+            @Override
+            protected Void doInBackground(Void... params) {
+                runnable.run();
+                return null;
+            }
+        };
+        return task.executeInternal(executor, false, (Void[]) null);
+    }
+
+    /**
+     * Wait until {@link #doInBackground} finishes.
+     *
+     * @see AsyncTask#get
+     */
+    public final void waitForFinish() throws InterruptedException, ExecutionException {
+        mInnerTask.get();
+    }
+
+    /** @see AsyncTask#isCancelled */
     public final boolean isCancelled() {
         return mInnerTask.isCancelled();
     }
 
-    /* package */ Result callDoInBackgroundForTest(Params... params) {
+    /* package */ final Result callDoInBackgroundForTest(Params... params) {
         return mInnerTask.doInBackground(params);
     }
 
-    /* package */ void callOnCancelledForTest(Result result) {
+    /* package */ final void callOnCancelledForTest(Result result) {
         mInnerTask.onCancelled(result);
     }
 
-    /* package */ void callOnPostExecuteForTest(Result result) {
+    /* package */ final void callOnPostExecuteForTest(Result result) {
         mInnerTask.onPostExecute(result);
     }
 }
