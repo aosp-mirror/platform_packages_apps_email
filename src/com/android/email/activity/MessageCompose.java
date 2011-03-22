@@ -593,6 +593,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mMessageContentView.setOnFocusChangeListener(this);
 
         updateAttachmentContainer();
+        mToView.requestFocus();
     }
 
     /**
