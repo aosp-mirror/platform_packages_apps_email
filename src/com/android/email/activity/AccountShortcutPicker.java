@@ -19,12 +19,11 @@ package com.android.email.activity;
 import com.android.email.R;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.utility.Utility;
+import com.android.emailcommon.utility.EmailAsyncTask;
 
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
@@ -43,7 +42,7 @@ import android.widget.SimpleCursorAdapter;
 public class AccountShortcutPicker extends ListActivity
         implements OnClickListener, OnItemClickListener {
 
-    private AccountTask mAccountTask;
+    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     /**
      * Support for list adapter
@@ -74,16 +73,14 @@ public class AccountShortcutPicker extends ListActivity
         listView.setOnItemClickListener(this);
         listView.setItemsCanFocus(false);
 
-        mAccountTask = new AccountTask();
-        mAccountTask.execute();
+        new AccountTask().executeParallel();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         // Cleanup running async task (if any)
-        Utility.cancelTaskInterrupt(mAccountTask);
-        mAccountTask = null;
+        mTaskTracker.cancellAllInterrupt();
         // Cleanup accounts cursor (if any)
         SimpleCursorAdapter adapter = (SimpleCursorAdapter) getListAdapter();
         if (adapter != null) {
@@ -114,7 +111,10 @@ public class AccountShortcutPicker extends ListActivity
     /**
      * Load the accounts and create the adapter.
      */
-    private class AccountTask extends AsyncTask<Void, Void, Cursor> {
+    private class AccountTask extends EmailAsyncTask<Void, Void, Cursor> {
+        public AccountTask() {
+            super(mTaskTracker);
+        }
 
         @Override
         protected Cursor doInBackground(Void... params) {

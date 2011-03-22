@@ -16,6 +16,8 @@
 
 package com.android.emailcommon.utility;
 
+import com.android.emailcommon.utility.EmailAsyncTask.Tracker;
+
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 
@@ -82,6 +84,37 @@ public class EmailAsyncTaskTests extends AndroidTestCase {
         task1.unregisterSelf();
     }
 
+    /**
+     * Test for {@link EmailAsyncTask.Tracker#cancelOthers}
+     */
+    public void testCancellOthers() {
+        final EmailAsyncTask.Tracker tracker = new EmailAsyncTask.Tracker();
+
+        final MyTask task1 = new MyTask(tracker);
+        final MyTask task2 = new MyTask(tracker);
+        final MyTask task3 = new MyTask(tracker);
+
+        final MyTask sub1 = new MyTaskSubClass(tracker);
+        final MyTask sub2 = new MyTaskSubClass(tracker);
+        final MyTask sub3 = new MyTaskSubClass(tracker);
+
+        // All should be in the tracker.
+        assertEquals(6, tracker.getTaskCountForTest());
+
+        // This should remove task1, task2, but not task3 itself.
+        tracker.cancelOthers(task3);
+
+        assertEquals(4, tracker.getTaskCountForTest());
+        assertTrue(tracker.containsTaskForTest(task3));
+
+        // Same for sub1.
+        tracker.cancelOthers(sub1);
+
+        assertEquals(2, tracker.getTaskCountForTest());
+        assertTrue(tracker.containsTaskForTest(task3));
+        assertTrue(tracker.containsTaskForTest(sub1));
+    }
+
     private static class MyTask extends EmailAsyncTask<String, String, String> {
         public String[] mDoInBackgroundArg;
         public String mDoInBackgroundResult;
@@ -106,6 +139,12 @@ public class EmailAsyncTaskTests extends AndroidTestCase {
         @Override
         protected void onPostExecute(String result) {
             mOnPostExecuteArg = result;
+        }
+    }
+
+    private static class MyTaskSubClass extends MyTask {
+        public MyTaskSubClass(Tracker tracker) {
+            super(tracker);
         }
     }
 }

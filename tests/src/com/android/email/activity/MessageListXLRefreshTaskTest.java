@@ -57,8 +57,8 @@ public class MessageListXLRefreshTaskTest extends AndroidTestCase {
         final long ACCOUNT_ID = 5;
         final long MAILBOX_ID = 10;
 
-        MessageListXL.RefreshTask task = new MessageListXL.RefreshTask(getContext(), ACCOUNT_ID,
-                MAILBOX_ID, mClock, mRefreshManager);
+        MessageListXL.RefreshTask task = new MessageListXL.RefreshTask(null, getContext(),
+                ACCOUNT_ID, MAILBOX_ID, mClock, mRefreshManager);
 
         mRefreshManager.mExpectedAccountId = ACCOUNT_ID;
 
@@ -100,8 +100,8 @@ public class MessageListXLRefreshTaskTest extends AndroidTestCase {
         final long ACCOUNT_ID = 5;
         final long MAILBOX_ID = 10;
 
-        MessageListXL.RefreshTask task = new MessageListXL.RefreshTask(getContext(), ACCOUNT_ID,
-                MAILBOX_ID, mClock, mRefreshManager);
+        MessageListXL.RefreshTask task = new MessageListXL.RefreshTask(null, getContext(),
+                ACCOUNT_ID, MAILBOX_ID, mClock, mRefreshManager);
 
         mRefreshManager.mExpectedAccountId = ACCOUNT_ID;
 

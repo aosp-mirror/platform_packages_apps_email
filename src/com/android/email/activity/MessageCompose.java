@@ -34,6 +34,7 @@ import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
@@ -48,7 +49,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.OpenableColumns;
@@ -157,8 +157,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private Controller mController;
     private boolean mDraftNeedsSaving;
     private boolean mMessageLoaded;
-    private AsyncTask<Long, Void, Attachment[]> mLoadAttachmentsTask;
-    private AsyncTask<Void, Void, Object[]> mLoadMessageTask;
+    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     private EmailAddressAdapter mAddressAdapterTo;
     private EmailAddressAdapter mAddressAdapterCc;
@@ -336,7 +335,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
             long messageId = draftId != -1 ? draftId : intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
             if (messageId != -1) {
-                mLoadMessageTask = new LoadMessageTask(messageId).execute();
+                new LoadMessageTask(messageId).executeParallel();
             } else {
                 setAccount(intent);
                 // Since this is a new message, we don't need to call LoadMessageTask.
@@ -394,10 +393,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mQuotedText.destroy();
         mQuotedText = null;
 
-        Utility.cancelTaskInterrupt(mLoadAttachmentsTask);
-        mLoadAttachmentsTask = null;
-        Utility.cancelTaskInterrupt(mLoadMessageTask);
-        mLoadMessageTask = null;
+        mTaskTracker.cancellAllInterrupt();
 
         if (mAddressAdapterTo != null) {
             mAddressAdapterTo.close();
@@ -608,10 +604,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mAddressAdapterBcc = new EmailAddressAdapter(this);
     }
 
-    private class LoadMessageTask extends AsyncTask<Void, Void, Object[]> {
+    private class LoadMessageTask extends EmailAsyncTask<Void, Void, Object[]> {
         private final long mMessageId;
 
         public LoadMessageTask(long messageId) {
+            super(mTaskTracker);
             mMessageId = messageId;
         }
 
@@ -686,7 +683,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 } else {
                     mSource = message;
                 }
-                mLoadAttachmentsTask = new AsyncTask<Long, Void, Attachment[]>() {
+                new EmailAsyncTask<Long, Void, Attachment[]>(mTaskTracker) {
                     @Override
                     protected Attachment[] doInBackground(Long... messageIds) {
                         return Attachment.restoreAttachmentsWithMessageId(MessageCompose.this,
@@ -716,7 +713,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                             addAttachment(attachment, allowDelete);
                         }
                     }
-                }.execute(message.mId);
+                }.executeParallel(message.mId);
             } else if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
                 mSource = message;
             } else if (Email.LOGD) {
@@ -909,10 +906,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private class SendOrSaveMessageTask extends AsyncTask<Void, Void, Void> {
+    private class SendOrSaveMessageTask extends EmailAsyncTask<Void, Void, Void> {
         private final boolean mSend;
 
         public SendOrSaveMessageTask(boolean send) {
+            super(null /* DO NOT cancel in onDestroy */);
             if (send && ActivityManager.isUserAMonkey()) {
                 Log.d(Logging.LOG_TAG, "Inhibiting send while monkey is in charge.");
                 send = false;
@@ -994,9 +992,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 sSaveInProgress = false;
                 sSaveInProgressCondition.notify();
             }
-            if (isCancelled()) {
-                return;
-            }
             // Don't display the toast if the user is just changing the orientation
             if (!mSend && (getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
                 Toast.makeText(MessageCompose.this, R.string.message_saved_toast,
@@ -1020,7 +1015,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         synchronized (sSaveInProgressCondition) {
             sSaveInProgress = true;
         }
-        new SendOrSaveMessageTask(send).execute();
+        new SendOrSaveMessageTask(send).executeParallel();
    }
 
     private void saveIfNeeded() {
@@ -1252,16 +1247,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mAttachments.removeView(attachmentView);
         updateAttachmentContainer();
         if (attachment.mMessageKey == mDraft.mId && attachment.isSaved()) {
-            // The following async task for deleting attachments:
-            // - can be started multiple times in parallel (to delete multiple attachments).
-            // - need not be interrupted on activity exit, instead should run to completion.
-            new AsyncTask<Long, Void, Void>() {
+            final long attachmentId = attachment.mId;
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
                 @Override
-                protected Void doInBackground(Long... attachmentIds) {
-                    mController.deleteAttachment(attachmentIds[0]);
-                    return null;
+                public void run() {
+                    mController.deleteAttachment(attachmentId);
                 }
-            }.execute(attachment.mId);
+            });
         }
         setDraftNeedsSaving(true);
     }

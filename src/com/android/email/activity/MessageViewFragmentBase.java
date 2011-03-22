@@ -56,7 +56,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -137,11 +136,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private long mMessageId = -1;
     private Message mMessage;
 
-    private LoadMessageTask mLoadMessageTask;
-    private ReloadMessageTask mReloadMessageTask;
-    private LoadBodyTask mLoadBodyTask;
-    private LoadAttachmentsTask mLoadAttachmentsTask;
-
     private Controller mController;
     private ControllerResultUiThreadWrapper<ControllerResults> mControllerCallback;
 
@@ -206,8 +200,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     private boolean mRestoredPictureLoaded;
 
-    private final EmailAsyncTask.Tracker mUpdatePreviewIconTaskTracker
-            = new EmailAsyncTask.Tracker();
+    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     /**
      * Zoom scales for webview.  Values correspond to {@link Preferences#TEXT_ZOOM_TINY}..
@@ -427,15 +420,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     private void cancelAllTasks() {
         mMessageObserver.unregister();
-        mUpdatePreviewIconTaskTracker.cancellAllInterrupt();
-        Utility.cancelTaskInterrupt(mLoadMessageTask);
-        mLoadMessageTask = null;
-        Utility.cancelTaskInterrupt(mReloadMessageTask);
-        mReloadMessageTask = null;
-        Utility.cancelTaskInterrupt(mLoadBodyTask);
-        mLoadBodyTask = null;
-        Utility.cancelTaskInterrupt(mLoadAttachmentsTask);
-        mLoadAttachmentsTask = null;
+        mTaskTracker.cancellAllInterrupt();
     }
 
     /**
@@ -483,8 +468,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mLoadWhenResumed = false;
         cancelAllTasks();
         resetView();
-        mLoadMessageTask = new LoadMessageTask(true);
-        mLoadMessageTask.execute();
+        new LoadMessageTask(true).executeParallel();
     }
 
     /**
@@ -816,7 +800,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             // assume the download won't start right away, and we make the cancel button visible
             attachment.cancelButton.setVisibility(View.GONE);
             // Create the timed task that will change the button state
-            new AsyncTask<Void, Void, Void>() {
+            new EmailAsyncTask<Void, Void, Void>(mTaskTracker) {
                 @Override
                 protected Void doInBackground(Void... params) {
                     try {
@@ -831,7 +815,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                         attachment.cancelButton.setVisibility(View.VISIBLE);
                     }
                 }
-            }.execute();
+            }.executeParallel();
         } else {
             attachment.cancelButton.setVisibility(View.VISIBLE);
         }
@@ -966,7 +950,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     /**
      * Async task for loading a single message outside of the UI thread
      */
-    private class LoadMessageTask extends AsyncTask<Void, Void, Message> {
+    private class LoadMessageTask extends EmailAsyncTask<Void, Void, Message> {
 
         private final boolean mOkToFetch;
         private int mMailboxType;
@@ -975,6 +959,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
          * Special constructor to cache some local info
          */
         public LoadMessageTask(boolean okToFetch) {
+            super(mTaskTracker);
             mOkToFetch = okToFetch;
         }
 
@@ -1015,7 +1000,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     /**
      * Kicked by {@link MessageObserver}.  Reload the message and update the views.
      */
-    private class ReloadMessageTask extends AsyncTask<Void, Void, Message> {
+    private class ReloadMessageTask extends EmailAsyncTask<Void, Void, Message> {
+        public ReloadMessageTask() {
+            super(mTaskTracker);
+        }
+
         @Override
         protected Message doInBackground(Void... params) {
             if (!isMessageSpecified()) { // just in case
@@ -1060,7 +1049,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     /**
      * Async task for loading a single message body outside of the UI thread
      */
-    private class LoadBodyTask extends AsyncTask<Void, Void, String[]> {
+    private class LoadBodyTask extends EmailAsyncTask<Void, Void, String[]> {
 
         private long mId;
         private boolean mErrorLoadingMessageBody;
@@ -1069,6 +1058,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
          * Special constructor to cache some local info
          */
         public LoadBodyTask(long messageId) {
+            super(mTaskTracker);
             mId = messageId;
         }
 
@@ -1112,7 +1102,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * this implementation is incomplete, as it will fail to refresh properly if the message is
      * partially loaded at this time.
      */
-    private class LoadAttachmentsTask extends AsyncTask<Long, Void, Attachment[]> {
+    private class LoadAttachmentsTask extends EmailAsyncTask<Long, Void, Attachment[]> {
+        public LoadAttachmentsTask() {
+            super(mTaskTracker);
+        }
+
         @Override
         protected Attachment[] doInBackground(Long... messageIds) {
             return Attachment.restoreAttachmentsWithMessageId(mContext, messageIds[0]);
@@ -1419,8 +1413,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         } else {
             mControllerCallback.getWrappee().setWaitForLoadMessageId(-1);
             // Ask for body
-            mLoadBodyTask = new LoadBodyTask(message.mId);
-            mLoadBodyTask.execute();
+            new LoadBodyTask(message.mId).executeParallel();
         }
     }
 
@@ -1560,8 +1553,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         setMessageHtml(text);
 
         // Ask for attachments after body
-        mLoadAttachmentsTask = new LoadAttachmentsTask();
-        mLoadAttachmentsTask.execute(mMessage.mId);
+        new LoadAttachmentsTask().executeParallel(mMessage.mId);
 
         mIsMessageLoadedForTest = true;
     }
@@ -1626,8 +1618,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                         // reload UI and reload everything else too
                         // pass false to LoadMessageTask to prevent looping here
                         cancelAllTasks();
-                        mLoadMessageTask = new LoadMessageTask(false);
-                        mLoadMessageTask.execute();
+                        new LoadMessageTask(false).executeParallel();
                         break;
                     default:
                         // do nothing - we don't have a progress bar at this time
@@ -1748,14 +1739,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             if (!isMessageSpecified()) {
                 return;
             }
-            Utility.cancelTaskInterrupt(mReloadMessageTask);
-            mReloadMessageTask = new ReloadMessageTask();
-            mReloadMessageTask.execute();
+            new ReloadMessageTask().cancelPreviousAndExecuteParallel();
         }
     }
 
     private void updatePreviewIcon(MessageViewAttachmentInfo attachmentInfo) {
-        new UpdatePreviewIconTask(attachmentInfo).execute();
+        new UpdatePreviewIconTask(attachmentInfo).executeParallel();
     }
 
     private class UpdatePreviewIconTask extends EmailAsyncTask<Void, Void, Bitmap> {
@@ -1764,7 +1753,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         private final MessageViewAttachmentInfo mAttachmentInfo;
 
         public UpdatePreviewIconTask(MessageViewAttachmentInfo attachmentInfo) {
-            super(mUpdatePreviewIconTaskTracker);
+            super(mTaskTracker);
             mContext = getActivity();
             mAttachmentInfo = attachmentInfo;
         }

@@ -30,6 +30,7 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
@@ -39,7 +40,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -88,7 +88,7 @@ public class MessageListXL extends Activity implements
     private final MessageOrderManagerCallback mMessageOrderManagerCallback
             = new MessageOrderManagerCallback();
 
-    private RefreshTask mRefreshTask;
+    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     private BannerController mBannerController;
     private TextView mErrorMessageView;
@@ -264,7 +264,7 @@ public class MessageListXL extends Activity implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onDestroy");
         mIsCreated = false;
         mController.removeResultCallback(mControllerResult);
-        Utility.cancelTaskInterrupt(mRefreshTask);
+        mTaskTracker.cancellAllInterrupt();
         mRefreshManager.unregisterListener(mMailRefreshManagerListener);
         mFragmentManager.onDestroy();
         super.onDestroy();
@@ -561,7 +561,7 @@ public class MessageListXL extends Activity implements
      * Call this when getting a connection error.
      */
     private void showErrorMessage(final String rawMessage, final long accountId) {
-        new AsyncTask<Void, Void, String>() {
+        new EmailAsyncTask<Void, Void, String>(mTaskTracker) {
             @Override
             protected String doInBackground(Void... params) {
                 Account account = Account.restoreAccountWithId(MessageListXL.this, accountId);
@@ -570,9 +570,6 @@ public class MessageListXL extends Activity implements
 
             @Override
             protected void onPostExecute(String accountName) {
-                if (!mIsCreated) {
-                    return; // activity destroyed.
-                }
                 final String message;
                 if (TextUtils.isEmpty(accountName)) {
                     message = rawMessage;
@@ -585,8 +582,7 @@ public class MessageListXL extends Activity implements
                     mLastErrorAccountId = accountId;
                 }
             }
-        }.execute();
-
+        }.executeParallel();
     }
 
     /**
@@ -776,10 +772,8 @@ public class MessageListXL extends Activity implements
 
     private void onRefresh() {
         // Cancel previously running instance if any.
-        Utility.cancelTaskInterrupt(mRefreshTask);
-        mRefreshTask = new RefreshTask(this, mFragmentManager.getActualAccountId(),
-                mFragmentManager.getMailboxId());
-        mRefreshTask.execute();
+        new RefreshTask(mTaskTracker, this, mFragmentManager.getActualAccountId(),
+                mFragmentManager.getMailboxId()).cancelPreviousAndExecuteParallel();
     }
 
     /**
@@ -795,7 +789,7 @@ public class MessageListXL extends Activity implements
      *       {@link #INBOX_AUTO_REFRESH_MIN_INTERVAL}.
      * </ul>
      */
-    /* package */ static class RefreshTask extends AsyncTask<Void, Void, Boolean> {
+    /* package */ static class RefreshTask extends EmailAsyncTask<Void, Void, Boolean> {
         private final Clock mClock;
         private final Context mContext;
         private final long mAccountId;
@@ -803,13 +797,15 @@ public class MessageListXL extends Activity implements
         private final RefreshManager mRefreshManager;
         /* package */ long mInboxId;
 
-        public RefreshTask(Context context, long accountId, long mailboxId) {
-            this(context, accountId, mailboxId, Clock.INSTANCE,
+        public RefreshTask(EmailAsyncTask.Tracker tracker, Context context, long accountId,
+                long mailboxId) {
+            this(tracker, context, accountId, mailboxId, Clock.INSTANCE,
                     RefreshManager.getInstance(context));
         }
 
-        /* package */ RefreshTask(Context context, long accountId, long mailboxId, Clock clock,
-                RefreshManager refreshManager) {
+        /* package */ RefreshTask(EmailAsyncTask.Tracker tracker, Context context, long accountId,
+                long mailboxId, Clock clock, RefreshManager refreshManager) {
+            super(tracker);
             mClock = clock;
             mContext = context;
             mRefreshManager = refreshManager;
