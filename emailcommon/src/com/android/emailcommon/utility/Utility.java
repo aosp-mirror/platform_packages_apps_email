@@ -34,7 +34,6 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.graphics.Typeface;
@@ -1093,19 +1092,6 @@ public class Utility {
         /* package */ static CloseTraceCursorWrapper alwaysCreateForTest(Cursor original) {
             return new CloseTraceCursorWrapper(original);
         }
-    }
-
-    /**
-     * Create an {@link Intent} to launch an activity as the main entry point.  Existing activities
-     * will all be closed.
-     */
-    public static Intent createRestartAppIntent(Context context, Class<? extends Activity> clazz) {
-        Intent i = new Intent(context, clazz);
-        i.setAction(Intent.ACTION_MAIN);
-        i.addCategory(Intent.CATEGORY_LAUNCHER);
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        return i;
     }
 
     /**

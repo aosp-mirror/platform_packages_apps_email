@@ -31,7 +31,6 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -103,7 +102,7 @@ public class MessageListXL extends Activity implements
      * @param accountId If -1, default account will be used.
      */
     public static void actionOpenAccount(Activity fromActivity, long accountId) {
-        Intent i = Utility.createRestartAppIntent(fromActivity, MessageListXL.class);
+        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, MessageListXL.class);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         }
@@ -121,7 +120,7 @@ public class MessageListXL extends Activity implements
         if (accountId == -1 || mailboxId == -1) {
             throw new InvalidParameterException();
         }
-        Intent i = Utility.createRestartAppIntent(fromActivity, MessageListXL.class);
+        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, MessageListXL.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         fromActivity.startActivity(i);
@@ -140,7 +139,7 @@ public class MessageListXL extends Activity implements
         if (accountId == -1 || mailboxId == -1 || messageId == -1) {
             throw new InvalidParameterException();
         }
-        Intent i = Utility.createRestartAppIntent(fromActivity, MessageListXL.class);
+        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, MessageListXL.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);

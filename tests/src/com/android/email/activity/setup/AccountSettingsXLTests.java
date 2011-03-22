@@ -16,6 +16,7 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.activity.IntentUtilities;
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.utility.Utility;
@@ -169,9 +170,7 @@ public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<Acc
         mAccount.save(mContext);
         mAccountId = mAccount.mId;
 
-        Intent i = new Intent(Intent.ACTION_MAIN);
-        i.putExtra(AccountSettingsXL.EXTRA_ACCOUNT_ID, mAccountId);
-        return i;
+        return AccountSettingsXL.createAccountSettingsIntent(mContext, mAccountId, null);
     }
 
 }

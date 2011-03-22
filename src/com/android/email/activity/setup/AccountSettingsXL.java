@@ -20,6 +20,7 @@ import com.android.email.Controller;
 import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.IntentUtilities;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
@@ -39,6 +40,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
@@ -66,8 +68,13 @@ import java.util.List;
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
 public class AccountSettingsXL extends PreferenceActivity {
+    /*
+     * Intent to open account settings for account=1
+        adb shell am start -a android.intent.action.EDIT \
+            -d '"content://ui.email.android.com/settings?ACCOUNT_ID=1"'
+     */
+
     // Intent extras for our internal activity launch
-    /* package */ static final String EXTRA_ACCOUNT_ID = "AccountSettingsXL.account_id";
     private static final String EXTRA_ENABLE_DEBUG = "AccountSettingsXL.enable_debug";
     private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettingsXL.for_account";
 
@@ -116,9 +123,7 @@ public class AccountSettingsXL extends PreferenceActivity {
      * Display (and edit) settings for a specific account, or -1 for any/all accounts
      */
     public static void actionSettings(Activity fromActivity, long accountId) {
-        Intent i = new Intent(fromActivity, AccountSettingsXL.class);
-        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
-        fromActivity.startActivity(i);
+        fromActivity.startActivity(createAccountSettingsIntent(fromActivity, accountId, null));
     }
 
     /**
@@ -128,9 +133,12 @@ public class AccountSettingsXL extends PreferenceActivity {
      */
     public static Intent createAccountSettingsIntent(Context context, long accountId,
             String loginWarningAccountName) {
-        Intent i = new Intent(context, AccountSettingsXL.class);
-        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
-        i.putExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT, loginWarningAccountName);
+        final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder("settings");
+        IntentUtilities.setAccountId(b, accountId);
+        Intent i = new Intent(Intent.ACTION_EDIT, b.build());
+        if (loginWarningAccountName != null) {
+            i.putExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT, loginWarningAccountName);
+        }
         return i;
     }
 
@@ -160,7 +168,7 @@ public class AccountSettingsXL extends PreferenceActivity {
                     (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask().execute(i);
             } else {
                 // Otherwise, we're called from within the Email app and look for our extras
-                mRequestedAccountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
+                mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
                 String loginWarningAccount = i.getStringExtra(EXTRA_LOGIN_WARNING_FOR_ACCOUNT);
                 if (loginWarningAccount != null) {
                     // Show dialog (first time only - don't re-show on a rotation)

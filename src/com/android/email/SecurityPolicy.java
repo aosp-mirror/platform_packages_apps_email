@@ -502,14 +502,7 @@ public class SecurityPolicy {
         setAccountHoldFlag(mContext, account, true);
 
         // Put up a notification
-        String tickerText = mContext.getString(R.string.security_notification_ticker_fmt,
-                account.getDisplayName());
-        String contentTitle = mContext.getString(R.string.security_notification_content_title);
-        String contentText = account.getDisplayName();
-        Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, accountId, true);
-        NotificationController.getInstance(mContext).postAccountNotification(
-                account, tickerText, contentTitle, contentText, intent,
-                NotificationController.NOTIFICATION_ID_SECURITY_NEEDED);
+        NotificationController.getInstance(mContext).showSecurityNeededNotification(account);
     }
 
     /**
@@ -517,8 +510,7 @@ public class SecurityPolicy {
      * cleared now.
      */
     public void clearNotification(long accountId) {
-        NotificationController.getInstance(mContext).cancelNotification(
-                NotificationController.NOTIFICATION_ID_SECURITY_NEEDED);
+        NotificationController.getInstance(mContext).cancelSecurityNeededNotification();
     }
 
     /**
@@ -617,34 +609,14 @@ public class SecurityPolicy {
         if (!expired) {
             // 4.  If warning, simply put up a generic notification and report that it came from
             // the shortest-expiring account.
-            Account account = Account.restoreAccountWithId(context, nextExpiringAccountId);
-            if (account == null) return;
-            Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(context,
-                    nextExpiringAccountId, false);
-            String ticker = context.getString(
-                    R.string.password_expire_warning_ticker_fmt, account.getDisplayName());
-            String contentTitle = context.getString(
-                    R.string.password_expire_warning_content_title);
-            String contentText = account.getDisplayName();
-            NotificationController nc = NotificationController.getInstance(mContext);
-            nc.postAccountNotification(account, ticker, contentTitle, contentText, intent,
-                    NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRING);
+            NotificationController.getInstance(mContext).showPasswordExpiringNotification(
+                    nextExpiringAccountId);
         } else {
             // 5.  Actually expired - find all accounts that expire passwords, and wipe them
             boolean wiped = wipeExpiredAccounts(context, Controller.getInstance(context));
             if (wiped) {
-                // Post notification
-                Account account = Account.restoreAccountWithId(context, nextExpiringAccountId);
-                if (account == null) return;
-                Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(context,
-                        nextExpiringAccountId, true);
-                String ticker = context.getString(R.string.password_expired_ticker);
-                String contentTitle = context.getString(R.string.password_expired_content_title);
-                String contentText = account.getDisplayName();
-                NotificationController nc = NotificationController.getInstance(mContext);
-                nc.postAccountNotification(account, ticker, contentTitle,
-                        contentText, intent,
-                        NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRED);
+                NotificationController.getInstance(mContext).showPasswordExpiredNotification(
+                        nextExpiringAccountId);
             }
         }
     }
@@ -732,9 +704,7 @@ public class SecurityPolicy {
                 // Clear security holds (if any)
                 Account.clearSecurityHoldOnAllAccounts(context);
                 // Cancel any active notifications (if any are posted)
-                NotificationController nc = NotificationController.getInstance(context);
-                nc.cancelNotification(NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRING);
-                nc.cancelNotification(NotificationController.NOTIFICATION_ID_PASSWORD_EXPIRED);
+                NotificationController.getInstance(context).cancelPasswordExpirationNotifications();
                 break;
             case DEVICE_ADMIN_MESSAGE_PASSWORD_EXPIRING:
                 instance.onPasswordExpiring(instance.mContext);
