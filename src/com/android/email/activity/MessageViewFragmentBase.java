@@ -633,7 +633,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     private void blockNetworkLoads(boolean block) {
         if (mMessageContentView != null) {
-            mMessageContentView.getSettings().setBlockNetworkLoads(false);
+            mMessageContentView.getSettings().setBlockNetworkLoads(block);
         }
     }
 
