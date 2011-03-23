@@ -4,9 +4,9 @@
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
-  
+
           http://www.apache.org/licenses/LICENSE-2.0
-  
+
      Unless required by applicable law or agreed to in writing, software
      distributed under the License is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,19 +35,28 @@
             android:id="@+id/account_check_frequency"
             android:layout_height="wrap_content"
             android:layout_width="match_parent" />
-        <TextView
-            android:id="@+id/account_sync_window_label"
-            android:text="@string/account_setup_options_mail_window_label"
-            android:visibility="gone"
-            android:layout_height="wrap_content"
+        <!-- TODO quick fix - phone UX still TBD  -->
+        <LinearLayout
+            android:id="@+id/account_sync_window_row"
             android:layout_width="match_parent"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorPrimary" />
-        <Spinner
-            android:id="@+id/account_sync_window"
-            android:visibility="gone"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent" />
+            android:orientation="vertical"
+            android:visibility="gone"
+            >
+            <TextView
+                android:id="@+id/account_sync_window_label"
+                android:text="@string/account_setup_options_mail_window_label"
+                android:visibility="gone"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorPrimary" />
+            <Spinner
+                android:id="@+id/account_sync_window"
+                android:visibility="gone"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent" />
+        </LinearLayout>
         <CheckBox
             android:id="@+id/account_default"
             android:layout_height="wrap_content"
@@ -76,8 +85,12 @@
             android:layout_width="match_parent"
             android:text="@string/account_setup_options_sync_email_label" />
 
-        <!-- Buttons below -->
         <!-- TODO - quick placeholder - phone UX still TBD -->
+        <CheckBox
+            android:id="@+id/account_background_attachments"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/account_setup_options_background_attachments_label" />
         <Button
             android:id="@+id/previous"
             android:layout_marginTop="16dip"
