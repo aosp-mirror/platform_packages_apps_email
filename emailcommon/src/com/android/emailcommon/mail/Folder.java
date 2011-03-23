@@ -43,8 +43,7 @@ public abstract class Folder {
     /**
      * Callback for each message retrieval.
      *
-     * Not all {@link Folder} implementation won't call it.
-     * (Currently {@link com.android.email.mail.store.LocalStore.LocalFolder} won't.)
+     * Not all {@link Folder} implementations may invoke it.
      */
     public interface MessageRetrievalListener {
         public void messageRetrieved(Message message);
@@ -79,9 +78,8 @@ public abstract class Folder {
     public abstract boolean isOpen();
 
     /**
-     * Get the mode the folder was opened with. This may be different than the mode the open
+     * Returns the mode the folder was opened with. This may be different than the mode the open
      * was requested with.
-     * @return
      */
     public abstract OpenMode getMode() throws MessagingException;
 
@@ -95,7 +93,6 @@ public abstract class Folder {
 
     /**
      * Attempt to create the given folder remotely using the given type.
-     * @param type
      * @return true if created, false if cannot create (e.g. server side)
      */
     public abstract boolean create(FolderType type) throws MessagingException;
@@ -103,7 +100,7 @@ public abstract class Folder {
     public abstract boolean exists() throws MessagingException;
 
     /**
-     * @return A count of the messages in the selected folder.
+     * Returns the number of messages in the selected folder.
      */
     public abstract int getMessageCount() throws MessagingException;
 
@@ -119,9 +116,6 @@ public abstract class Folder {
      * each fetch completes. Messages are downloaded as (as) lightweight (as
      * possible) objects to be filled in with later requests. In most cases this
      * means that only the UID is downloaded.
-     *
-     * @param uids
-     * @param listener
      */
     public abstract Message[] getMessages(MessageRetrievalListener listener)
             throws MessagingException;
@@ -146,6 +140,9 @@ public abstract class Folder {
 
     public abstract void appendMessages(Message[] messages) throws MessagingException;
 
+    /**
+     * Copies the given messages to the destination folder.
+     */
     public abstract void copyMessages(Message[] msgs, Folder folder,
             MessageUpdateCallbacks callbacks) throws MessagingException;
 

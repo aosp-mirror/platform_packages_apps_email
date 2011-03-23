@@ -27,6 +27,7 @@ import com.android.email.mail.store.imap.ImapList;
 import com.android.email.mail.store.imap.ImapResponse;
 import com.android.email.mail.store.imap.ImapResponseParser;
 import com.android.email.mail.store.imap.ImapString;
+import com.android.email.mail.store.imap.ImapUtility;
 import com.android.email.mail.transport.CountingOutputStream;
 import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.EOLConvertingOutputStream;
@@ -106,7 +107,6 @@ public class ImapStore extends Store {
     private static final int COPY_BUFFER_SIZE = 16*1024;
 
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
-
     private final Context mContext;
     private Transport mRootTransport;
     private String mUsername;
@@ -198,7 +198,7 @@ public class ImapStore extends Store {
                 // build the LOGIN string once (instead of over-and-over again.)
                 // apply the quoting here around the built-up password
                 mLoginPhrase = ImapConstants.LOGIN + " " + mUsername + " "
-                        + Utility.imapQuoted(mPassword);
+                        + ImapUtility.imapQuoted(mPassword);
             }
         }
 
@@ -768,10 +768,56 @@ public class ImapStore extends Store {
                 MessageUpdateCallbacks callbacks) throws MessagingException {
             checkOpen();
             try {
-                mConnection.executeSimpleCommand(
+                List<ImapResponse> responseList = mConnection.executeSimpleCommand(
                         String.format(ImapConstants.UID_COPY + " %s \"%s\"",
                                 joinMessageUids(messages),
                                 encodeFolderName(folder.getName(), mStore.mPathPrefix)));
+                if (!mConnection.isCapable(ImapConnection.CAPABILITY_UIDPLUS)) {
+                    // TODO Implement alternate way to fetch UIDs (e.g. perform a query)
+                    return;
+                }
+                // Build a message map for faster UID matching
+                HashMap<String, Message> messageMap = new HashMap<String, Message>();
+                for (Message m : messages) {
+                    messageMap.put(m.getUid(), m);
+                }
+                // Process response to get the new UIDs
+                for (ImapResponse response : responseList) {
+                    // All "BAD" responses are bad. Only "NO", tagged responses are bad.
+                    if (response.isBad() || (response.isNo() && response.isTagged())) {
+                        String responseText = response.getStatusResponseTextOrEmpty().getString();
+                        throw new MessagingException(responseText);
+                    }
+                    // Skip untagged responses; they're just status
+                    if (!response.isTagged()) {
+                        continue;
+                    }
+                    // No callback provided to report of UID changes; nothing more to do here
+                    // NOTE: We check this here to catch any server errors
+                    if (callbacks == null) {
+                        continue;
+                    }
+                    ImapList copyResponse = response.getListOrEmpty(1);
+                    String responseCode = copyResponse.getStringOrEmpty(0).getString();
+                    if (ImapConstants.COPYUID.equals(responseCode)) {
+                        String origIdSet = copyResponse.getStringOrEmpty(2).getString();
+                        String newIdSet = copyResponse.getStringOrEmpty(3).getString();
+                        String[] origIdArray = ImapUtility.getImapSequenceValues(origIdSet);
+                        String[] newIdArray = ImapUtility.getImapSequenceValues(newIdSet);
+                        // There has to be a 1:1 mapping between old and new IDs
+                        if (origIdArray.length != newIdArray.length) {
+                            throw new MessagingException("Set length mis-match; orig IDs \"" +
+                                    origIdSet + "\"  new IDs \"" + newIdSet + "\"");
+                        }
+                        for (int i = 0; i < origIdArray.length; i++) {
+                            final String id = origIdArray[i];
+                            final Message m = messageMap.get(id);
+                            if (m != null) {
+                                callbacks.onMessageUidChange(m, newIdArray[i]);
+                            }
+                        }
+                    }
+                }
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
             } finally {
@@ -1469,6 +1515,17 @@ public class ImapStore extends Store {
      * A cacheable class that stores the details for a single IMAP connection.
      */
     class ImapConnection {
+        /** ID capability per RFC 2971*/
+        public static final int CAPABILITY_ID        = 1 << 0;
+        /** NAMESPACE capability per RFC 2342 */
+        public static final int CAPABILITY_NAMESPACE = 1 << 1;
+        /** STARTTLS capability per RFC 3501 */
+        public static final int CAPABILITY_STARTTLS  = 1 << 2;
+        /** UIDPLUS capability per RFC 4315 */
+        public static final int CAPABILITY_UIDPLUS   = 1 << 3;
+
+        /** The capabilities supported; a set of CAPABILITY_* values. */
+        private int mCapabilities;
         private static final String IMAP_DEDACTED_LOG = "[IMAP command redacted]";
         private Transport mTransport;
         private ImapResponseParser mParser;
@@ -1510,20 +1567,17 @@ public class ImapStore extends Store {
                 // NOTE: An IMAP response MUST be processed before issuing any new IMAP
                 // requests. Subsequent requests may destroy previous response data. As
                 // such, we save away capability information here for future use.
-                boolean hasIdCapability =
-                    capabilities.contains(ImapConstants.ID);
-                boolean hasNamespaceCapability =
-                    capabilities.contains(ImapConstants.NAMESPACE);
+                setCapabilities(capabilities);
                 String capabilityString = capabilities.flatten();
 
                 // ID
-                doSendId(hasIdCapability, capabilityString);
+                doSendId(isCapable(CAPABILITY_ID), capabilityString);
 
                 // LOGIN
                 doLogin();
 
                 // NAMESPACE (only valid in the Authenticated state)
-                doGetNamespace(hasNamespaceCapability);
+                doGetNamespace(isCapable(CAPABILITY_NAMESPACE));
 
                 // Gets the path separator from the server
                 doGetPathSeparator();
@@ -1551,6 +1605,33 @@ public class ImapStore extends Store {
             if (mTransport != null) {
                 mTransport.close();
                 mTransport = null;
+            }
+        }
+
+        /**
+         * Returns whether or not the specified capability is supported by the server.
+         */
+        public boolean isCapable(int capability) {
+            return (mCapabilities & capability) != 0;
+        }
+
+        /**
+         * Sets the capability flags according to the response provided by the server.
+         * Note: We only set the capability flags that we are interested in. There are many IMAP
+         * capabilities that we do not track.
+         */
+        private void setCapabilities(ImapResponse capabilities) {
+            if (capabilities.contains(ImapConstants.ID)) {
+                mCapabilities |= CAPABILITY_ID;
+            }
+            if (capabilities.contains(ImapConstants.NAMESPACE)) {
+                mCapabilities |= CAPABILITY_NAMESPACE;
+            }
+            if (capabilities.contains(ImapConstants.UIDPLUS)) {
+                mCapabilities |= CAPABILITY_UIDPLUS;
+            }
+            if (capabilities.contains(ImapConstants.STARTTLS)) {
+                mCapabilities |= CAPABILITY_STARTTLS;
             }
         }
 

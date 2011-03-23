@@ -40,6 +40,7 @@ public final class ImapConstants {
     public static final String CHECK = "CHECK";
     public static final String CLOSE = "CLOSE";
     public static final String COPY = "COPY";
+    public static final String COPYUID = "COPYUID";
     public static final String CREATE = "CREATE";
     public static final String DELETE = "DELETE";
     public static final String EXAMINE = "EXAMINE";
@@ -85,6 +86,7 @@ public final class ImapConstants {
     public static final String UID_SEARCH = "UID SEARCH";
     public static final String UID_STORE = "UID STORE";
     public static final String UIDNEXT = "UIDNEXT";
+    public static final String UIDPLUS = "UIDPLUS";
     public static final String UIDVALIDITY = "UIDVALIDITY";
     public static final String UNSEEN = "UNSEEN";
     public static final String UNSUBSCRIBE = "UNSUBSCRIBE";

@@ -188,36 +188,6 @@ public class Utility {
     }
 
     /**
-     * Apply quoting rules per IMAP RFC,
-     * quoted          = DQUOTE *QUOTED-CHAR DQUOTE
-     * QUOTED-CHAR     = <any TEXT-CHAR except quoted-specials> / "\" quoted-specials
-     * quoted-specials = DQUOTE / "\"
-     *
-     * This is used primarily for IMAP login, but might be useful elsewhere.
-     *
-     * NOTE:  Not very efficient - you may wish to preflight this, or perhaps it should check
-     * for trouble chars before calling the replace functions.
-     *
-     * @param s The string to be quoted.
-     * @return A copy of the string, having undergone quoting as described above
-     */
-    public static String imapQuoted(String s) {
-
-        // First, quote any backslashes by replacing \ with \\
-        // regex Pattern:  \\    (Java string const = \\\\)
-        // Substitute:     \\\\  (Java string const = \\\\\\\\)
-        String result = s.replaceAll("\\\\", "\\\\\\\\");
-
-        // Then, quote any double-quotes by replacing " with \"
-        // regex Pattern:  "    (Java string const = \")
-        // Substitute:     \\"  (Java string const = \\\\\")
-        result = result.replaceAll("\"", "\\\\\"");
-
-        // return string with quotes around it
-        return "\"" + result + "\"";
-    }
-
-    /**
      * A fast version of  URLDecoder.decode() that works only with UTF-8 and does only two
      * allocations. This version is around 3x as fast as the standard one and I'm using it
      * hundreds of times in places that slow down the UI, so it helps.

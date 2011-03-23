@@ -56,6 +56,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import libcore.util.EmptyArray;
+
 /**
  * This is a series of unit tests for the Utility class.  These tests must be locally
  * complete - no server(s) required.
@@ -65,22 +67,6 @@ import java.util.Set;
  */
 @SmallTest
 public class UtilityUnitTests extends AndroidTestCase {
-
-    /**
-     * Tests of the IMAP quoting rules function.
-     */
-    public void testImapQuote() {
-
-        // Simple strings should come through with simple quotes
-        assertEquals("\"abcd\"", Utility.imapQuoted("abcd"));
-
-        // Quoting internal double quotes with \
-        assertEquals("\"ab\\\"cd\"", Utility.imapQuoted("ab\"cd"));
-
-        // Quoting internal \ with \\
-        assertEquals("\"ab\\\\cd\"", Utility.imapQuoted("ab\\cd"));
-    }
-
     /**
      * Tests of the syncronization of array and types of the display folder names
      */

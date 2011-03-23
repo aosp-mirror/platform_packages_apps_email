@@ -63,6 +63,20 @@ public class ImapResponse extends ImapList {
     }
 
     /**
+     * @return whether it's an BAD response.
+     */
+    public boolean isBad() {
+        return is(0, ImapConstants.BAD);
+    }
+
+    /**
+     * @return whether it's an NO response.
+     */
+    public boolean isNo() {
+        return is(0, ImapConstants.NO);
+    }
+
+    /**
      * @return whether it's an {@code responseType} data response.  (i.e. not tagged).
      * @param index where {@code responseType} should appear.  e.g. 1 for "FETCH"
      * @param responseType e.g. "FETCH"

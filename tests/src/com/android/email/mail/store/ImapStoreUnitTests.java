@@ -87,6 +87,10 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     private ImapStore.ImapFolder mFolder = null;
 
     private int mNextTag;
+    // Fields specific to the CopyMessages tests
+    private MockTransport mCopyMock;
+    private Folder mCopyToFolder;
+    private Message[] mCopyMessages;
 
     /**
      * Setup code.  We generate a lightweight ImapStore and ImapStore.ImapFolder.
@@ -133,7 +137,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      */
     public void testLoginFailure() throws Exception {
         MockTransport mockTransport = openAndInjectMockTransport();
-        expectLogin(mockTransport, false, false, new String[] {"* iD nIL", "oK"},
+        expectLogin(mockTransport, false, false, false, new String[] {"* iD nIL", "oK"},
                 "nO authentication failed");
 
         try {
@@ -152,7 +156,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                 false);
 
         // try to open it, with STARTTLS
-        expectLogin(mockTransport, true, false,
+        expectLogin(mockTransport, true, false, false,
                 new String[] {"* iD nIL", "oK"}, "oK user authenticated (Success)");
         mockTransport.expect(
                 getNextTag(false) + " SELECT \"" + FOLDER_ENCODED + "\"", new String[] {
@@ -417,7 +421,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // Respond to the initial connection
         mockTransport.expect(null, "* oK Imap 2000 Ready To Assist You");
         // Return "ID" in the capability
-        expectCapability(mockTransport, true);
+        expectCapability(mockTransport, true, false);
         // No TLS
         // No ID (the special case for this server)
         // LOGIN
@@ -515,7 +519,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      */
     private void setupOpenFolder(MockTransport mockTransport, String readWriteMode) {
         setupOpenFolder(mockTransport, new String[] {
-                "* iD nIL", "oK"}, readWriteMode);
+                "* iD nIL", "oK"}, readWriteMode, false);
     }
 
     /**
@@ -532,7 +536,12 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      */
     private void setupOpenFolder(MockTransport mockTransport, String[] imapIdResponse,
             String readWriteMode) {
-        expectLogin(mockTransport, imapIdResponse);
+        setupOpenFolder(mockTransport, imapIdResponse, readWriteMode, false);
+    }
+
+    private void setupOpenFolder(MockTransport mockTransport, String[] imapIdResponse,
+            String readWriteMode, boolean withUidPlus) {
+        expectLogin(mockTransport, imapIdResponse, withUidPlus);
         expectSelect(mockTransport, readWriteMode);
     }
 
@@ -555,20 +564,21 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     }
 
     private void expectLogin(MockTransport mockTransport) {
-        expectLogin(mockTransport, new String[] {"* iD nIL", "oK"});
+        expectLogin(mockTransport, new String[] {"* iD nIL", "oK"}, false);
     }
 
-    private void expectLogin(MockTransport mockTransport, String[] imapIdResponse) {
-        expectLogin(mockTransport, false, (imapIdResponse != null), imapIdResponse,
+    private void expectLogin(MockTransport mockTransport, String[] imapIdResponse,
+            boolean withUidPlus) {
+        expectLogin(mockTransport, false, (imapIdResponse != null), withUidPlus, imapIdResponse,
                 "oK user authenticated (Success)");
     }
 
     private void expectLogin(MockTransport mockTransport, boolean startTls, boolean withId,
-            String[] imapIdResponse, String loginResponse) {
+            boolean withUidPlus, String[] imapIdResponse, String loginResponse) {
         // inject boilerplate commands that match our typical login
         mockTransport.expect(null, "* oK Imap 2000 Ready To Assist You");
 
-        expectCapability(mockTransport, withId);
+        expectCapability(mockTransport, withId, withUidPlus);
 
         // TLS (if expected)
         if (startTls) {
@@ -576,7 +586,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                 getNextTag(true) + " Ok starting TLS");
             mockTransport.expectStartTls();
             // After switching to TLS the client must re-query for capability
-            expectCapability(mockTransport, withId);
+            expectCapability(mockTransport, withId, withUidPlus);
         }
 
         // ID
@@ -595,10 +605,11 @@ public class ImapStoreUnitTests extends AndroidTestCase {
                 getNextTag(true) + " " + loginResponse);
     }
 
-    private void expectCapability(MockTransport mockTransport, boolean withId) {
-        String capabilityList = withId
-                ? "* cAPABILITY iMAP4rev1 sTARTTLS aUTH=gSSAPI lOGINDISABLED iD"
-                : "* cAPABILITY iMAP4rev1 sTARTTLS aUTH=gSSAPI lOGINDISABLED";
+    private void expectCapability(MockTransport mockTransport, boolean withId,
+            boolean withUidPlus) {
+        String capabilityList = "* cAPABILITY iMAP4rev1 sTARTTLS aUTH=gSSAPI lOGINDISABLED";
+        capabilityList += withId ? " iD" : "";
+        capabilityList += withUidPlus ? " UiDPlUs" : "";
 
         mockTransport.expect(getNextTag(false) + " CAPABILITY", new String[] {
             capabilityList,
@@ -1453,25 +1464,116 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         assertFalse(folder.create(FolderType.HOLDS_MESSAGES));
     }
 
-    public void testCopy() throws Exception {
-        MockTransport mock = openAndInjectMockTransport();
-        setupOpenFolder(mock);
+    private void setupCopyMessages(boolean withUidPlus) throws Exception {
+        mCopyMock = openAndInjectMockTransport();
+        setupOpenFolder(mCopyMock, new String[] {"* iD nIL", "oK"}, "rEAD-wRITE", withUidPlus);
         mFolder.open(OpenMode.READ_WRITE, null);
 
-        Folder folderTo = mStore.getFolder("\u65E5\u672C\u8A9E");
-        Message[] messages = new Message[] {
+        mCopyToFolder = mStore.getFolder("\u65E5\u672C\u8A9E");
+        mCopyMessages = new Message[] {
                 mFolder.createMessage("11"),
                 mFolder.createMessage("12"),
                 };
+    }
 
-        mock.expect(getNextTag(false) + " UID COPY 11\\,12 \\\"&ZeVnLIqe-\\\"",
+    private String getCopyMessagesPattern() {
+        return getNextTag(false) + " UID COPY 11\\,12 \\\"&ZeVnLIqe-\\\"";
+    }
+
+    private static class CopyMessagesCallback implements Folder.MessageUpdateCallbacks {
+        int messageNotFoundCalled;
+        int messageUidChangeCalled;
+
+        @Override
+        public void onMessageNotFound(Message message) {
+            ++messageNotFoundCalled;
+        }
+        @Override
+        public void onMessageUidChange(Message message, String newUid) {
+            ++messageUidChangeCalled;
+        }
+    }
+
+    // TODO Test additional degenerate cases; src msg not found, ...
+    // Golden case; successful copy with UIDCOPY result
+    public void testCopyMessages1() throws Exception {
+        setupCopyMessages(true);
+        mCopyMock.expect(getCopyMessagesPattern(),
                 new String[] {
-                getNextTag(true) + " oK copy completed"
+                    "* Ok COPY in progress",
+                    getNextTag(true) + " oK [COPYUID 777 11,12 45,46] UID COPY completed"
                 });
 
-        mFolder.copyMessages(messages, folderTo, null);
+        CopyMessagesCallback cb = new CopyMessagesCallback();
+        mFolder.copyMessages(mCopyMessages, mCopyToFolder, cb);
 
-        // TODO: Test NO response. (src message not found)
+        assertEquals(0, cb.messageNotFoundCalled);
+        assertEquals(2, cb.messageUidChangeCalled);
+    }
+
+    // Degenerate case; NO, un-tagged response works
+    public void testCopyMessages2() throws Exception {
+        setupCopyMessages(true);
+        mCopyMock.expect(getCopyMessagesPattern(),
+                new String[] {
+                    "* No Some error occured during the copy",
+                    getNextTag(true) + " oK [COPYUID 777 11,12 45,46] UID COPY completed"
+                });
+
+        CopyMessagesCallback cb = new CopyMessagesCallback();
+        mFolder.copyMessages(mCopyMessages, mCopyToFolder, cb);
+
+        assertEquals(0, cb.messageNotFoundCalled);
+        assertEquals(2, cb.messageUidChangeCalled);
+    }
+
+    // Degenerate case; NO, tagged response throws MessagingException
+    public void testCopyMessages3() throws Exception {
+        try {
+            setupCopyMessages(false);
+            mCopyMock.expect(getCopyMessagesPattern(),
+                    new String[] {
+                        getNextTag(true) + " No copy did not finish"
+                    });
+
+            mFolder.copyMessages(mCopyMessages, mCopyToFolder, null);
+
+            fail("MessagingException expected.");
+        } catch (MessagingException expected) {
+        }
+    }
+
+    // Degenerate case; BAD, un-tagged response throws MessagingException
+    public void testCopyMessages4() throws Exception {
+        try {
+            setupCopyMessages(true);
+            mCopyMock.expect(getCopyMessagesPattern(),
+                    new String[] {
+                        "* BAD failed for some reason",
+                        getNextTag(true) + " Ok copy completed"
+                    });
+
+            mFolder.copyMessages(mCopyMessages, mCopyToFolder, null);
+
+            fail("MessagingException expected.");
+        } catch (MessagingException expected) {
+        }
+    }
+
+    // Degenerate case; BAD, tagged response throws MessagingException
+    public void testCopyMessages5() throws Exception {
+        try {
+            setupCopyMessages(false);
+            mCopyMock.expect(getCopyMessagesPattern(),
+                    new String[] {
+                getNextTag(true) + " BaD copy completed"
+            });
+
+            mFolder.copyMessages(mCopyMessages, mCopyToFolder, null);
+
+            fail("MessagingException expected.");
+        } catch (MessagingException expected) {
+        }
     }
 
     public void testGetUnreadMessageCount() throws Exception {
@@ -1755,7 +1857,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         expectLogin(mock);
         mStore.checkSettings();
 
-        expectLogin(mock, false, false,
+        expectLogin(mock, false, false, false,
                 new String[] {"* iD nIL", "oK"}, "nO authentication failed");
         try {
             mStore.checkSettings();

@@ -28,12 +28,13 @@ import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.FetchProfile;
 import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Folder;
+import com.android.emailcommon.mail.Folder.FolderType;
+import com.android.emailcommon.mail.Folder.MessageRetrievalListener;
+import com.android.emailcommon.mail.Folder.MessageUpdateCallbacks;
+import com.android.emailcommon.mail.Folder.OpenMode;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
-import com.android.emailcommon.mail.Folder.FolderType;
-import com.android.emailcommon.mail.Folder.MessageRetrievalListener;
-import com.android.emailcommon.mail.Folder.OpenMode;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
@@ -566,6 +567,7 @@ public class MessagingController implements Runnable {
             int remoteStart = Math.max(0, remoteMessageCount - visibleLimit) + 1;
             int remoteEnd = remoteMessageCount;
             remoteMessages = remoteFolder.getMessages(remoteStart, remoteEnd, null);
+            // TODO Why are we running through the list twice? Combine w/ for loop below
             for (Message message : remoteMessages) {
                 remoteUidMap.put(message.getUid(), message);
             }
@@ -1417,8 +1419,8 @@ public class MessagingController implements Runnable {
      */
     private void processPendingDataChange(Store remoteStore, Mailbox mailbox, boolean changeRead,
             boolean changeFlagged, boolean changeMailbox, EmailContent.Message oldMessage,
-            EmailContent.Message newMessage) throws MessagingException {
-        Mailbox newMailbox = null;;
+            final EmailContent.Message newMessage) throws MessagingException {
+        Mailbox newMailbox = null;
 
         // 0. No remote update if the message is local-only
         if (newMessage.mServerId == null || newMessage.mServerId.equals("")
@@ -1478,15 +1480,23 @@ public class MessagingController implements Runnable {
                 return;
             }
             // Copy the message to its new folder
-            remoteFolder.copyMessages(messages, toFolder, null);
+            remoteFolder.copyMessages(messages, toFolder, new MessageUpdateCallbacks() {
+                @Override
+                public void onMessageUidChange(Message message, String newUid) {
+                    ContentValues cv = new ContentValues();
+                    cv.put(EmailContent.Message.SERVER_ID, newUid);
+                    // We only have one message, so, any updates _must_ be for it. Otherwise,
+                    // we'd have to cycle through to find the one with the same server ID.
+                    mContext.getContentResolver().update(ContentUris.withAppendedId(
+                            EmailContent.Message.CONTENT_URI, newMessage.mId), cv, null, null);
+                }
+                @Override
+                public void onMessageNotFound(Message message) {
+                }
+            });
             // Delete the message from the remote source folder
             remoteMessage.setFlag(Flag.DELETED, true);
             remoteFolder.expunge();
-            // Set the serverId to 0, since we don't know what the new server id will be
-            ContentValues cv = new ContentValues();
-            cv.put(EmailContent.Message.SERVER_ID, "0");
-            mContext.getContentResolver().update(ContentUris.withAppendedId(
-                    EmailContent.Message.CONTENT_URI, newMessage.mId), cv, null, null);
         }
         remoteFolder.close(false);
     }

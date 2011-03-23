@@ -32,7 +32,7 @@ public class MockFolder extends Folder {
     }
 
     @Override
-    public void copyMessages(Message[] msgs, Folder folder, 
+    public void copyMessages(Message[] msgs, Folder folder,
             MessageUpdateCallbacks callbacks) {
     }
 
