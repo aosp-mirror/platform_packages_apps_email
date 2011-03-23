@@ -18,6 +18,7 @@ package com.android.email;
 
 import com.android.email.activity.ContactStatusLoader;
 import com.android.email.activity.Welcome;
+import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.EmailContent;
@@ -43,15 +44,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class that manages notifications.
- *
- * TODO Gather all notification related code here
  */
 public class NotificationController {
-    public static final int NOTIFICATION_ID_SECURITY_NEEDED = 1;
-    public static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 2;
-    public static final int NOTIFICATION_ID_ATTACHMENT_WARNING = 3;
-    public static final int NOTIFICATION_ID_PASSWORD_EXPIRING = 4;
-    public static final int NOTIFICATION_ID_PASSWORD_EXPIRED = 5;
+    private static final int NOTIFICATION_ID_SECURITY_NEEDED = 1;
+
+    // ID reserved for CalendarSyncEnabler
+    private static final int PLACEHOLDER_NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 2;
+    private static final int NOTIFICATION_ID_ATTACHMENT_WARNING = 3;
+    private static final int NOTIFICATION_ID_PASSWORD_EXPIRING = 4;
+    private static final int NOTIFICATION_ID_PASSWORD_EXPIRED = 5;
 
     private static final int NOTIFICATION_ID_BASE_NEW_MESSAGES = 0x10000000;
     private static final int NOTIFICATION_ID_BASE_LOGIN_WARNING = 0x20000000;
@@ -93,13 +94,12 @@ public class NotificationController {
      * @param intent The intent to launch from the notification
      * @param notificationId The notification id
      */
-    public void postAccountNotification(Account account, String ticker, String contentTitle,
+    private void showAccountNotification(Account account, String ticker, String contentTitle,
             String contentText, Intent intent, int notificationId) {
 
         // Pending Intent
         PendingIntent pending = null;
         if (intent != null) {
-            intent = rewriteForPendingIntent(intent);
             pending =
                 PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
@@ -137,7 +137,7 @@ public class NotificationController {
      * Generic notification canceler.
      * @param notificationId The notification id
      */
-    public void cancelNotification(int notificationId) {
+    private void cancelNotification(int notificationId) {
         mNotificationManager.cancel(notificationId);
     }
 
@@ -204,26 +204,6 @@ public class NotificationController {
     private static final AtomicInteger sSequenceNumber = new AtomicInteger();
 
     /**
-     * Rewrite an intent so that it'll always look unique to {@link PendingIntent}.
-     *
-     * TODO This should be removed.  Instead, use URIs which is unique to each account to open
-     * activities.
-     */
-    private static Intent rewriteForPendingIntent(Intent original) {
-        if (original.getComponent() == null) {
-            return original; // Doesn't have a component set -- can't set a URI.
-        }
-        Uri.Builder builder = new Uri.Builder();
-        builder.scheme("content");
-        builder.authority("email-dummy");
-        builder.appendEncodedPath(Integer.toString(sSequenceNumber.incrementAndGet()));
-
-        // If a componentName is set, the data part won't be used to resolve an intent.
-        original.setData(builder.build());
-        return original;
-    }
-
-    /**
      * Create a notification
      *
      * Don't call it on the UI thread.
@@ -249,7 +229,7 @@ public class NotificationController {
 
         // Intent to open inbox
         PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0,
-                rewriteForPendingIntent(Welcome.createOpenAccountInboxIntent(mContext, accountId)),
+                Welcome.createOpenAccountInboxIntent(mContext, accountId),
                 0);
 
         Notification.Builder builder = new Notification.Builder(mContext)
@@ -332,7 +312,7 @@ public class NotificationController {
     public void showDownloadForwardFailedNotification(Attachment attachment) {
         final Account account = Account.restoreAccountWithId(mContext, attachment.mAccountKey);
         if (account == null) return;
-        postAccountNotification(account,
+        showAccountNotification(account,
                 mContext.getString(R.string.forward_download_failed_ticker),
                 mContext.getString(R.string.forward_download_failed_title),
                 attachment.mFileName,
@@ -354,7 +334,7 @@ public class NotificationController {
     public void showLoginFailedNotification(long accountId) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
-        postAccountNotification(account,
+        showAccountNotification(account,
                 mContext.getString(R.string.login_failed_ticker, account.mDisplayName),
                 mContext.getString(R.string.login_failed_title),
                 account.getDisplayName(),
@@ -365,5 +345,70 @@ public class NotificationController {
 
     public void cancelLoginFailedNotification(long accountId) {
         mNotificationManager.cancel(getLoginFailedNotificationId(accountId));
+    }
+
+    /**
+     * Show "password expiring" notification.
+     *
+     * Note all accounts share the same notification ID.
+     */
+    public void showPasswordExpiringNotification(long accountId) {
+        Account account = Account.restoreAccountWithId(mContext, accountId);
+        if (account == null) return;
+        Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
+                accountId, false);
+        String ticker = mContext.getString(
+                R.string.password_expire_warning_ticker_fmt, account.getDisplayName());
+        String contentTitle = mContext.getString(
+                R.string.password_expire_warning_content_title);
+        String contentText = account.getDisplayName();
+        showAccountNotification(account, ticker, contentTitle, contentText, intent,
+                NOTIFICATION_ID_PASSWORD_EXPIRING);
+    }
+
+    /**
+     * Show "password expired" notification.
+     *
+     * Note all accounts share the same notification ID.
+     */
+    public void showPasswordExpiredNotification(long accountId) {
+        Account account = Account.restoreAccountWithId(mContext, accountId);
+        if (account == null) return;
+        Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
+                accountId, true);
+        String ticker = mContext.getString(R.string.password_expired_ticker);
+        String contentTitle = mContext.getString(R.string.password_expired_content_title);
+        String contentText = account.getDisplayName();
+        showAccountNotification(account, ticker, contentTitle,
+                contentText, intent, NOTIFICATION_ID_PASSWORD_EXPIRED);
+    }
+
+    /**
+     * Cancel both "password expired/expiring" notifications.
+     */
+    public void cancelPasswordExpirationNotifications() {
+        cancelNotification(NOTIFICATION_ID_PASSWORD_EXPIRING);
+        cancelNotification(NOTIFICATION_ID_PASSWORD_EXPIRED);
+    }
+
+    /**
+     * Show "security needed" notification.
+     */
+    public void showSecurityNeededNotification(Account account) {
+        String tickerText = mContext.getString(R.string.security_notification_ticker_fmt,
+                account.getDisplayName());
+        String contentTitle = mContext.getString(R.string.security_notification_content_title);
+        String contentText = account.getDisplayName();
+        Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, account.mId, true);
+        showAccountNotification(
+                account, tickerText, contentTitle, contentText, intent,
+                NOTIFICATION_ID_SECURITY_NEEDED);
+    }
+
+    /**
+     * Cancel "security needed" notification.
+     */
+    public void cancelSecurityNeededNotification() {
+        cancelNotification(NOTIFICATION_ID_SECURITY_NEEDED);
     }
 }

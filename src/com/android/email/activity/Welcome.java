@@ -24,15 +24,14 @@ import com.android.email.service.MailService;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
-import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 
 /**
  * The Welcome activity initializes the application and decides what Activity
@@ -47,38 +46,32 @@ public class Welcome extends Activity {
      * Commands for testing...
      *  Open 1 pane
         adb shell am start -a android.intent.action.MAIN \
-            -n com.google.android.email/com.android.email.activity.Welcome \
+            -d '"content://ui.email.android.com/view/mailbox"' \
             -e DEBUG_PANE_MODE 1
 
      *  Open 2 pane
         adb shell am start -a android.intent.action.MAIN \
-            -n com.google.android.email/com.android.email.activity.Welcome \
+            -d '"content://ui.email.android.com/view/mailbox"' \
             -e DEBUG_PANE_MODE 2
 
-     *  Open an account (ID=2) in 2 pane
+     *  Open an account (ID=1) in 2 pane
         adb shell am start -a android.intent.action.MAIN \
-            -n com.google.android.email/com.android.email.activity.Welcome \
-            -e DEBUG_PANE_MODE 2 --el ACCOUNT_ID 2
+            -d '"content://ui.email.android.com/view/mailbox?ACCOUNT_ID=1"' \
+            -e DEBUG_PANE_MODE 2
 
      *  Open a message (account id=1, mailbox id=2, message id=3)
         adb shell am start -a android.intent.action.MAIN \
-            -n com.google.android.email/com.android.email.activity.Welcome \
+            -d '"content://ui.email.android.com/view/mailbox?ACCOUNT_ID=1&MAILBOX_ID=2&MESSAGE_ID=3"' \
             -e DEBUG_PANE_MODE 2 \
-            --el ACCOUNT_ID 1 \
-            --el MAILBOX_ID 2 \
-            --el MESSAGE_ID 3
 
      */
-    private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
-    private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
-    private static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
 
     /**
      * Extra for debugging.  Set 1 to force one-pane.  Set 2 to force two-pane.
      */
     private static final String EXTRA_DEBUG_PANE_MODE = "DEBUG_PANE_MODE";
 
-    private Handler mHandler = new Handler();
+    private static final String VIEW_MAILBOX_INTENT_URL_PATH = "/view/mailbox";
 
     /**
      * @return true if the two-pane activity should be used on the current configuration.
@@ -94,7 +87,7 @@ public class Welcome extends Activity {
      * which will drop any other activities on the stack (e.g. AccountFolderList or MessageList).
      */
     public static void actionStart(Activity fromActivity) {
-        Intent i = Utility.createRestartAppIntent(fromActivity, Welcome.class);
+        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, Welcome.class);
         fromActivity.startActivity(i);
     }
 
@@ -103,11 +96,10 @@ public class Welcome extends Activity {
      * specified account will be automatically be opened when the activity starts.
      */
     public static Intent createOpenAccountInboxIntent(Context context, long accountId) {
-        Intent i = Utility.createRestartAppIntent(context, Welcome.class);
-        if (accountId != -1) {
-            i.putExtra(EXTRA_ACCOUNT_ID, accountId);
-        }
-        return i;
+        final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder(
+                VIEW_MAILBOX_INTENT_URL_PATH);
+        IntentUtilities.setAccountId(b, accountId);
+        return IntentUtilities.createRestartAppIntent(b.build());
     }
 
     /**
@@ -115,13 +107,12 @@ public class Welcome extends Activity {
      */
     public static Intent createOpenMessageIntent(Context context, long accountId,
             long mailboxId, long messageId) {
-        Intent i = Utility.createRestartAppIntent(context, Welcome.class);
-        if (accountId != -1) {
-            i.putExtra(EXTRA_ACCOUNT_ID, accountId);
-            i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
-            i.putExtra(EXTRA_MESSAGE_ID, messageId);
-        }
-        return i;
+        final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder(
+                VIEW_MAILBOX_INTENT_URL_PATH);
+        IntentUtilities.setAccountId(b, accountId);
+        IntentUtilities.setMailboxId(b, mailboxId);
+        IntentUtilities.setMessageId(b, messageId);
+        return IntentUtilities.createRestartAppIntent(b.build());
     }
 
     /**
@@ -170,9 +161,10 @@ public class Welcome extends Activity {
         // TODO More completely separate ExchangeService from Email app
         ExchangeUtils.startExchangeService(this);
 
-        final long accountId = getIntent().getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        final long mailboxId = getIntent().getLongExtra(EXTRA_MAILBOX_ID, -1);
-        final long messageId = getIntent().getLongExtra(EXTRA_MESSAGE_ID, -1);
+        final Intent intent = getIntent();
+        final long accountId = IntentUtilities.getAccountIdFromIntent(intent);
+        final long mailboxId = IntentUtilities.getMailboxIdFromIntent(intent);
+        final long messageId = IntentUtilities.getMessageIdFromIntent(intent);
         final int debugPaneMode = getDebugPaneMode(getIntent());
         new MainActivityLauncher(this, accountId, mailboxId, messageId, debugPaneMode).execute();
     }
