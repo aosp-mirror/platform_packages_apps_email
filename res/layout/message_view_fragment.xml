@@ -148,6 +148,21 @@
                 android:layout_alignParentRight="true"
                 android:src="@drawable/btn_star_off_normal_email_holo_light" />
         </LinearLayout>
+
+        <!-- TODO Just to prevent NPE - Phone UI is TBD  -->
+        <Button
+            android:id="@+id/show_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="0dip"
+            android:gravity="center_vertical"
+            android:text="@string/message_view_show_details"
+            android:textSize="14dip"
+            android:textColor="@color/text_ternary_color"
+            android:textStyle="bold"
+            android:singleLine="true"
+            />
+
     </LinearLayout>
     <!-- end of header area -->
     <!-- tab area -->
