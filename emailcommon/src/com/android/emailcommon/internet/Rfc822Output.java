@@ -29,6 +29,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 
@@ -88,17 +89,21 @@ public class Rfc822Output {
     /**
      * Returns an HTML encoded message alternate
      */
-    private static String getHtmlAlternate(Body body) {
+    /*package*/ static String getHtmlAlternate(Body body, boolean useSmartReply) {
         if (body.mHtmlReply == null) {
             return null;
         }
         StringBuffer altMessage = new StringBuffer();
-        altMessage.append(body.mTextContent.replaceAll("\\r?\\n", "<br>"));
+        String htmlContent = TextUtils.htmlEncode(body.mTextContent); // Escape HTML reserved chars
+        altMessage.append(htmlContent.replaceAll("\\r?\\n", "<br>"));
         if (body.mIntroText != null) {
-            altMessage.append(body.mIntroText.replaceAll("\\r?\\n", "<br>"));
+            String htmlIntro = TextUtils.htmlEncode(body.mIntroText);
+            altMessage.append(htmlIntro.replaceAll("\\r?\\n", "<br>"));
         }
-        String htmlBody = getHtmlBody(body.mHtmlReply);
-        altMessage.append(htmlBody);
+        if (!useSmartReply) {
+            String htmlBody = getHtmlBody(body.mHtmlReply);
+            altMessage.append(htmlBody);
+        }
         return altMessage.toString();
     }
 
@@ -156,7 +161,7 @@ public class Rfc822Output {
             }
         }
         messageBody[TEXT_BODY_IDX] = text;
-        messageBody[HTML_BODY_IDX] = getHtmlAlternate(body);
+        messageBody[HTML_BODY_IDX] = getHtmlAlternate(body, useSmartReply);
         return messageBody;
     }
 
@@ -167,13 +172,7 @@ public class Rfc822Output {
      * @param context system context for accessing the provider
      * @param messageId the message to write out
      * @param out the output stream to write the message to
-<<<<<<< HEAD:emailcommon/src/com/android/emailcommon/internet/Rfc822Output.java
-     * @param useSmartReply whether or not quoted text is appended to a reply/forward
-     *
-     * TODO alternative parts (e.g. text+html) are not supported here.
-=======
      * @param useSmartReply whether or not to append quoted text if this is a reply/forward
->>>>>>> 5912e7c... Attach original HTML message on forward/reply:src/com/android/emailcommon/internet/Rfc822Output.java
      */
     public static void writeTo(Context context, long messageId, OutputStream out,
             boolean useSmartReply, boolean sendBcc) throws IOException, MessagingException {
