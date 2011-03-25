@@ -1337,10 +1337,10 @@ public class MessagingController implements Runnable {
     private void processUploadMessage(ContentResolver resolver, Store remoteStore,
             EmailContent.Account account, Mailbox mailbox, long messageId)
             throws MessagingException {
-        EmailContent.Message message =
+        EmailContent.Message newMessage =
             EmailContent.Message.restoreMessageWithId(mContext, messageId);
         boolean deleteUpdate = false;
-        if (message == null) {
+        if (newMessage == null) {
             deleteUpdate = true;
             Log.d(Email.LOG_TAG, "Upsync failed for null message, id=" + messageId);
         } else if (mailbox.mType == Mailbox.TYPE_DRAFTS) {
@@ -1352,9 +1352,12 @@ public class MessagingController implements Runnable {
         } else if (mailbox.mType == Mailbox.TYPE_TRASH) {
             deleteUpdate = false;
             Log.d(Email.LOG_TAG, "Upsync skipped for mailbox=trash, id=" + messageId);
+        } else if (newMessage != null && newMessage.mMailboxKey != mailbox.mId) {
+            deleteUpdate = false;
+            Log.d(Email.LOG_TAG, "Upsync skipped; mailbox changed, id=" + messageId);
         } else {
             Log.d(Email.LOG_TAG, "Upsyc triggered for message id=" + messageId);
-            deleteUpdate = processPendingAppend(remoteStore, account, mailbox, message);
+            deleteUpdate = processPendingAppend(remoteStore, account, mailbox, newMessage);
         }
         if (deleteUpdate) {
             // Finally, delete the update (if any)
