@@ -350,8 +350,13 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         Body body = createTestBody(message);
         String html;
 
-        html = Rfc822Output.getHtmlAlternate(body);
+        // Generic case
+        html = Rfc822Output.getHtmlAlternate(body, false);
         assertEquals(TEXT + REPLY_INTRO_HTML + BODY_HTML_REPLY, html);
+
+        // "smart reply" enabled; html body should not be added
+        html = Rfc822Output.getHtmlAlternate(body, true);
+        assertEquals(TEXT + REPLY_INTRO_HTML, html);
 
         // HTML special characters; dependent upon TextUtils#htmlEncode()
         message.mId = -1;          // Changing the message; need to reset the id
@@ -359,7 +364,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         message.save(mMockContext);
         body = createTestBody(message);
 
-        html = Rfc822Output.getHtmlAlternate(body);
+        html = Rfc822Output.getHtmlAlternate(body, false);
         assertEquals("&lt;&gt;&amp;&apos;&quot;" + REPLY_INTRO_HTML + BODY_HTML_REPLY, html);
 
         // Newlines in user text
@@ -368,7 +373,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         message.save(mMockContext);
         body = createTestBody(message);
 
-        html = Rfc822Output.getHtmlAlternate(body);
+        html = Rfc822Output.getHtmlAlternate(body, false);
         assertEquals("dos<br>unix<br>three<br><br><br>" + REPLY_INTRO_HTML + BODY_HTML_REPLY, html);
 
         // Null HTML reply
@@ -377,7 +382,7 @@ public class Rfc822OutputTests extends ProviderTestCase2<EmailProvider> {
         message.save(mMockContext);
         body = createTestBody(message);
 
-        html = Rfc822Output.getHtmlAlternate(body);
+        html = Rfc822Output.getHtmlAlternate(body, false);
         assertNull(html);
     }
 

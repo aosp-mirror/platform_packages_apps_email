@@ -98,7 +98,7 @@ public class Rfc822Output {
     /**
      * Returns an HTML encoded message alternate
      */
-    /*package*/ static String getHtmlAlternate(Body body) {
+    /*package*/ static String getHtmlAlternate(Body body, boolean useSmartReply) {
         if (body.mHtmlReply == null) {
             return null;
         }
@@ -111,8 +111,10 @@ public class Rfc822Output {
             htmlIntro = NEWLINE_PATTERN.matcher(htmlIntro).replaceAll(NEWLINE_HTML);
             altMessage.append(htmlIntro);
         }
-        String htmlBody = getHtmlBody(body.mHtmlReply);
-        altMessage.append(htmlBody);
+        if (!useSmartReply) {
+            String htmlBody = getHtmlBody(body.mHtmlReply);
+            altMessage.append(htmlBody);
+        }
         return altMessage.toString();
     }
 
@@ -161,7 +163,7 @@ public class Rfc822Output {
             }
         }
         messageBody[INDEX_BODY_TEXT] = text;
-        messageBody[INDEX_BODY_HTML] = getHtmlAlternate(body);
+        messageBody[INDEX_BODY_HTML] = getHtmlAlternate(body, useSmartReply);
         return messageBody;
     }
 
