@@ -150,8 +150,11 @@ public class AccountSettings extends PreferenceActivity {
         });
 
         mAccountName = (EditTextPreference) findPreference(PREFERENCE_NAME);
-        mAccountName.setSummary(mAccount.getSenderName());
-        mAccountName.setText(mAccount.getSenderName());
+        String senderName = mAccount.getSenderName();
+        // In rare cases, sendername will be null;  Change this to empty string to avoid NPE's
+        if (senderName == null) senderName = "";
+        mAccountName.setSummary(senderName);
+        mAccountName.setText(senderName);
         mAccountName.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 final String summary = newValue.toString();
