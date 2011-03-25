@@ -746,6 +746,9 @@ public class Controller {
         File saveToFile = AttachmentProvider.getAttachmentFilename(mProviderContext,
                 accountId, attachmentId);
         Attachment attachInfo = Attachment.restoreAttachmentWithId(mProviderContext, attachmentId);
+        if (attachInfo == null) {
+            return;
+        }
 
         if (saveToFile.exists() && attachInfo.mContentUri != null) {
             // The attachment has already been downloaded, so we will just "pretend" to download it
