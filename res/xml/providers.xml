@@ -172,6 +172,228 @@
         <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
     </provider>
 
+    <!-- Roadrunner variants -->
+    <provider id="rr-roadrunner" label="RoadRunner" domain="roadrunner.com">
+        <incoming uri="pop3://pop-server.roadrunner.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-austin" label="RoadRunner" domain="austin.rr.com">
+        <incoming uri="pop3://pop-server.austin.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-bak" label="RoadRunner" domain="bak.rr.com">
+        <incoming uri="pop3://pop-server.bak.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-berkshire" label="RoadRunner" domain="berkshire.rr.com">
+        <incoming uri="pop3://pop-server.berkshire.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-bham" label="RoadRunner" domain="bham.rr.com">
+        <incoming uri="pop3://pop-server.bham.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-ca" label="RoadRunner" domain="ca.rr.com">
+        <incoming uri="pop3://pop-server.ca.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-carolina" label="RoadRunner" domain="carolina.rr.com">
+        <incoming uri="pop3://pop-server.carolina.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-cfl" label="RoadRunner" domain="cfl.rr.com">
+        <incoming uri="pop3://pop-server.cfl.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-cinci" label="RoadRunner" domain="cinci.rr.com">
+        <incoming uri="pop3://pop-server.cinci.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-columbus" label="RoadRunner" domain="columbus.rr.com">
+        <incoming uri="pop3://pop-server.columbus.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-dc" label="RoadRunner" domain="dc.rr.com">
+        <incoming uri="pop3://pop-server.dc.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-ec" label="RoadRunner" domain="ec.rr.com">
+        <incoming uri="pop3://pop-server.ec.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-elmore" label="RoadRunner" domain="elmore.rr.com">
+        <incoming uri="pop3://pop-server.elmore.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-elp" label="RoadRunner" domain="elp.rr.com">
+        <incoming uri="pop3://pop-server.elp.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-eufaula" label="RoadRunner" domain="eufaula.rr.com">
+        <incoming uri="pop3://pop-server.eufaula.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-gt" label="RoadRunner" domain="gt.rr.com">
+        <incoming uri="pop3://pop-server.gt.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-hawaii" label="RoadRunner" domain="hawaii.rr.com">
+        <incoming uri="pop3://pop-server.hawaii.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-hot" label="RoadRunner" domain="hot.rr.com">
+        <incoming uri="pop3://pop-server.hot.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-hvc" label="RoadRunner" domain="hvc.rr.com">
+        <incoming uri="pop3://pop-server.hvc.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-indy" label="RoadRunner" domain="indy.rr.com">
+        <incoming uri="pop3://pop-server.indy.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-insight" label="RoadRunner" domain="insight.rr.com">
+        <incoming uri="pop3://pop-server.insight.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-kc" label="RoadRunner" domain="kc.rr.com">
+        <incoming uri="pop3://pop-server.kc.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-ma" label="RoadRunner" domain="ma.rr.com">
+        <incoming uri="pop3://pop-server.ma.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-maine" label="RoadRunner" domain="maine.rr.com">
+        <incoming uri="pop3://pop-server.maine.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-mass" label="RoadRunner" domain="mass.rr.com">
+        <incoming uri="pop3://pop-server.mass.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-mi" label="RoadRunner" domain="mi.rr.com">
+        <incoming uri="pop3://pop-server.mi.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-nc" label="RoadRunner" domain="nc.rr.com">
+        <incoming uri="pop3://pop-server.nc.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-ne" label="RoadRunner" domain="ne.rr.com">
+        <incoming uri="pop3://pop-server.ne.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-neb" label="RoadRunner" domain="neb.rr.com">
+        <incoming uri="pop3://pop-server.neb.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-neo" label="RoadRunner" domain="neo.rr.com">
+        <incoming uri="pop3://pop-server.neo.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-new" label="RoadRunner" domain="new.rr.com">
+        <incoming uri="pop3://pop-server.new.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-nj" label="RoadRunner" domain="nj.rr.com">
+        <incoming uri="pop3://pop-server.nj.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-nyc" label="RoadRunner" domain="nyc.rr.com">
+        <incoming uri="pop3://pop-server.nyc.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-nycap" label="RoadRunner" domain="nycap.rr.com">
+        <incoming uri="pop3://pop-server.nycap.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-oh" label="RoadRunner" domain="oh.rr.com">
+        <incoming uri="pop3://pop-server.oh.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-pa" label="RoadRunner" domain="pa.rr.com">
+        <incoming uri="pop3://pop-server.pa.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-panhandle" label="RoadRunner" domain="panhandle.rr.com">
+        <incoming uri="pop3://pop-server.panhandle.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-rgv" label="RoadRunner" domain="rgv.rr.com">
+        <incoming uri="pop3://pop-server.rgv.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-rochester" label="RoadRunner" domain="rochester.rr.com">
+        <incoming uri="pop3://pop-server.rochester.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-san" label="RoadRunner" domain="san.rr.com">
+        <incoming uri="pop3://pop-server.san.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-satx" label="RoadRunner" domain="satx.rr.com">
+        <incoming uri="pop3://pop-server.satx.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-sc" label="RoadRunner" domain="sc.rr.com">
+        <incoming uri="pop3://pop-server.sc.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-si" label="RoadRunner" domain="si.rr.com">
+        <incoming uri="pop3://pop-server.si.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-socal" label="RoadRunner" domain="socal.rr.com">
+        <incoming uri="pop3://pop-server.socal.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-stny" label="RoadRunner" domain="stny.rr.com">
+        <incoming uri="pop3://pop-server.stny.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-stx" label="RoadRunner" domain="stx.rr.com">
+        <incoming uri="pop3://pop-server.stx.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-sw" label="RoadRunner" domain="sw.rr.com">
+        <incoming uri="pop3://pop-server.sw.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-tampabay" label="RoadRunner" domain="tampabay.rr.com">
+        <incoming uri="pop3://pop-server.tampabay.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-triad" label="RoadRunner" domain="triad.rr.com">
+        <incoming uri="pop3://pop-server.triad.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-twcny" label="RoadRunner" domain="twcny.rr.com">
+        <incoming uri="pop3://pop-server.twcny.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-twmi" label="RoadRunner" domain="twmi.rr.com">
+        <incoming uri="pop3://pop-server.twmi.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-tx" label="RoadRunner" domain="tx.rr.com">
+        <incoming uri="pop3://pop-server.tx.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-we" label="RoadRunner" domain="we.rr.com">
+        <incoming uri="pop3://pop-server.we.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-wi" label="RoadRunner" domain="wi.rr.com">
+        <incoming uri="pop3://pop-server.wi.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-woh" label="RoadRunner" domain="woh.rr.com">
+        <incoming uri="pop3://pop-server.woh.rr.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+
     <!-- USA -->
     <!-- Note, AOL appears to support SSL on both sides, as well -->
     <provider id="aim" label="AIM" domain="aim.com">
