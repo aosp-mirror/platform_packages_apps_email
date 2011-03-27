@@ -14,38 +14,39 @@
  * limitations under the License.
  */
 
-package com.android.emailcommon.mail;
+package com.android.emailcommon.utility;
 
+import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.BackgroundColorSpan;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
-/**
- * Class to generate a short 'snippet' from either plain text or html text
- *
- * If the sync protocol can get plain text, that's great, but we'll still strip out extraneous
- * whitespace.  If it's HTML, we'll 1) strip out tags, 2) turn entities into the appropriate
- * characters, and 3) strip out extraneous whitespace, all in one pass
- *
- * Why not use an existing class?  The best answer is performance; yet another answer is
- * correctness (e.g. Html.textFromHtml simply doesn't generate well-stripped text).  But performance
- * is key; we frequently sync text that is 10K or (much) longer, yet we really only care about a
- * small amount of text for the snippet.  So it's critically important that we just stop when we've
- * gotten enough; existing methods that exist will go through the entire incoming string, at great
- * (and useless) expense.
- */
-public class Snippet {
+public class TextUtilities {
+    // Highlight color is yellow, as in other apps.
+    // TODO Push for this to be a global (style-related?) constant
+    private static final int HIGHLIGHT_COLOR_INT = Color.YELLOW;
+    /*package*/ static final String HIGHLIGHT_COLOR_STRING =
+        '#' + Integer.toHexString(HIGHLIGHT_COLOR_INT);
+
     // This is how many chars we'll allow in a snippet
-    private static final int MAX_PLAIN_TEXT_SCAN_LENGTH = 200;
+    private static final int MAX_SNIPPET_LENGTH = 200;
     // For some reason, isWhitespace() returns false with the following...
     /*package*/ static final char NON_BREAKING_SPACE_CHARACTER = (char)160;
 
     // Tags whose content must be stripped as well
     static final String[] STRIP_TAGS =
         new String[] {"title", "script", "style", "applet", "head"};
-    // The number of characters we peel off for testing against STRIP_TAGS
-    static final int STRIP_TAG_LENGTH = 6;
+    // The number of characters we peel off for testing against STRIP_TAGS; this should be the
+    // maximum size of the strings in STRIP_TAGS
+    static final int MAX_STRIP_TAG_LENGTH = 6;
 
     static final Map<String, Character> ESCAPE_STRINGS;
     static {
@@ -307,12 +308,27 @@ public class Snippet {
         ESCAPE_STRINGS.put("&euro", '\u20AC');
     }
 
-    public static String fromHtmlText(String text) {
-        return fromText(text, true);
+    /**
+     * Code to generate a short 'snippet' from either plain text or html text
+     *
+     * If the sync protocol can get plain text, that's great, but we'll still strip out extraneous
+     * whitespace.  If it's HTML, we'll 1) strip out tags, 2) turn entities into the appropriate
+     * characters, and 3) strip out extraneous whitespace, all in one pass
+     *
+     * Why not use an existing class?  The best answer is performance; yet another answer is
+     * correctness (e.g. Html.textFromHtml simply doesn't generate well-stripped text).  But
+     * performance is key; we frequently sync text that is 10K or (much) longer, yet we really only
+     * care about a small amount of text for the snippet.  So it's critically important that we just
+     * stop when we've gotten enough; existing methods that exist will go through the entire
+     * incoming string, at great (and useless, in this case) expense.
+     */
+
+    public static String makeSnippetFromHtmlText(String text) {
+        return makeSnippetFromText(text, true);
     }
 
-    public static String fromPlainText(String text) {
-        return fromText(text, false);
+    public static String makeSnippetFromPlainText(String text) {
+        return makeSnippetFromText(text, false);
     }
 
     /**
@@ -342,13 +358,13 @@ public class Snippet {
         return htmlText.indexOf("/" + tag, startPos);
     }
 
-    public static String fromText(String text, boolean stripHtml) {
+    public static String makeSnippetFromText(String text, boolean stripHtml) {
         // Handle null and empty string
         if (TextUtils.isEmpty(text)) return "";
 
         final int length = text.length();
         // Use char[] instead of StringBuilder purely for performance; fewer method calls, etc.
-        char[] buffer = new char[MAX_PLAIN_TEXT_SCAN_LENGTH];
+        char[] buffer = new char[MAX_SNIPPET_LENGTH];
         // skipCount is an array of a single int; that int is set inside stripHtmlEntity and is
         // used to determine how many characters can be "skipped" due to the transformation of the
         // entity to a single character.  When Java allows multiple return values, we can make this
@@ -361,7 +377,7 @@ public class Snippet {
         boolean inTag = false;
 
         // Walk through the text until we're done with the input OR we've got a large enough snippet
-        for (int i = 0; i < length && bufferCount < MAX_PLAIN_TEXT_SCAN_LENGTH; i++) {
+        for (int i = 0; i < length && bufferCount < MAX_SNIPPET_LENGTH; i++) {
             char c = text.charAt(i);
             if (stripHtml && !inTag && (c == '<')) {
                 // Find tags to strip; they will begin with <! or !- or </ or <letter
@@ -370,8 +386,8 @@ public class Snippet {
                     if (peek == '!' || peek == '-' || peek == '/' || Character.isLetter(peek)) {
                         inTag = true;
                         // Strip content of title, script, style and applet tags
-                        if (i < (length - (STRIP_TAG_LENGTH + 2))) {
-                            String tag = text.substring(i + 1, i + STRIP_TAG_LENGTH + 1);
+                        if (i < (length - (MAX_STRIP_TAG_LENGTH + 2))) {
+                            String tag = text.substring(i + 1, i + MAX_STRIP_TAG_LENGTH + 1);
                             String tagLowerCase = tag.toLowerCase();
                             boolean stripContent = false;
                             for (String stripTag: STRIP_TAGS) {
@@ -484,4 +500,214 @@ public class Snippet {
         return '&';
     }
 
+    /**
+     * Given a string of HTML text and a query containing any number of search terms, returns
+     * an HTML string in which those search terms are highlighted (intended for use in a WebView)
+     *
+     * @param text the HTML text to process
+     * @param query the search terms
+     * @return HTML text with the search terms highlighted
+     */
+    public static String highlightTermsInHtml(String text, String query) {
+        try {
+            return highlightTerms(text, query, true).toString();
+        } catch (IOException e) {
+            // Can't happen, but we must catch this
+            return text;
+        }
+    }
+
+    /**
+     * Given a string of plain text and a query containing any number of search terms, returns
+     * a CharSequence in which those search terms are highlighted (intended for use in a TextView)
+     *
+     * @param text the text to process
+     * @param query the search terms
+     * @return a CharSequence with the search terms highlighted
+     */
+    public static CharSequence highlightTermsInText(String text, String query) {
+        try {
+            return highlightTerms(text, query, false);
+        } catch (IOException e) {
+            // Can't happen, but we must catch this
+            return text;
+        }
+    }
+
+    static class SearchTerm {
+        final String mTerm;
+        final String mTermLowerCase;
+        final int mLength;
+        int mMatchLength = 0;
+        int mMatchStart = -1;
+
+        SearchTerm(String term, boolean html) {
+            mTerm = term;
+            mTermLowerCase = term.toLowerCase();
+            mLength = term.length();
+        }
+    }
+
+    /**
+     * Generate a version of the incoming text in which all search terms in a query are highlighted.
+     * If the input is HTML, we return a StringBuilder with additional markup as required
+     * If the input is text, we return a SpannableStringBuilder with additional spans as required
+     *
+     * @param text the text to be processed
+     * @param query the query, which can contain multiple terms separated by whitespace
+     * @param html whether or not the text to be processed is HTML
+     * @return highlighted text
+     *
+     * @throws IOException as Appendable requires this
+     */
+    public static CharSequence highlightTerms(String text, String query, boolean html)
+            throws IOException {
+        // Handle null and empty string
+        if (TextUtils.isEmpty(text)) return "";
+        final int length = text.length();
+
+        // Break up the query into search terms
+        ArrayList<SearchTerm> terms = new ArrayList<SearchTerm>();
+        if (query != null) {
+            StringTokenizer st = new StringTokenizer(query);
+            while (st.hasMoreTokens()) {
+                terms.add(new SearchTerm(st.nextToken(), html));
+            }
+        }
+
+        // Our appendable depends on whether we're building HTML text (for webview) or spannable
+        // text (for UI)
+        final Appendable sb = html ? new StringBuilder() : new SpannableStringBuilder();
+        // Indicates whether we're in the middle of an HTML tag
+        boolean inTag = false;
+        // The position of the last input character copied to output
+        int lastOut = -1;
+
+        // Walk through the text until we're done with the input
+        // Just copy any HTML tags directly into the output; search for terms in the remaining text
+        for (int i = 0; i < length; i++) {
+            char chr = text.charAt(i);
+            if (html) {
+                if (!inTag && (chr == '<')) {
+                    // Find tags; they will begin with <! or !- or </ or <letter
+                    if (i < (length - 1)) {
+                        char peek = text.charAt(i + 1);
+                        if (peek == '!' || peek == '-' || peek == '/' || Character.isLetter(peek)) {
+                            inTag = true;
+                            // Skip content of title, script, style and applet tags
+                            if (i < (length - (MAX_STRIP_TAG_LENGTH + 2))) {
+                                String tag = text.substring(i + 1, i + MAX_STRIP_TAG_LENGTH + 1);
+                                String tagLowerCase = tag.toLowerCase();
+                                boolean stripContent = false;
+                                for (String stripTag: STRIP_TAGS) {
+                                    if (tagLowerCase.startsWith(stripTag)) {
+                                        stripContent = true;
+                                        tag = tag.substring(0, stripTag.length());
+                                        break;
+                                    }
+                                }
+                                if (stripContent) {
+                                    // Look for the end of this tag
+                                    int endTagPosition = findTagEnd(text, tag, i);
+                                    if (endTagPosition < 0) {
+                                        sb.append(text.substring(i));
+                                        break;
+                                    } else {
+                                        sb.append(text.substring(i, endTagPosition - 1));
+                                        i = endTagPosition - 1;
+                                        chr = text.charAt(i);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if (inTag && (chr == '>')) {
+                    inTag = false;
+                }
+
+                if (inTag) {
+                    sb.append(chr);
+                    continue;
+                }
+            }
+
+            // After all that, we've got some "body" text
+            char chrLowerCase = Character.toLowerCase(chr);
+            // Whether or not the current character should be appended to the output; we inhibit
+            // this while any search terms match
+            boolean appendNow = true;
+            // Look through search terms for matches
+            for (SearchTerm t: terms) {
+                if (chrLowerCase == t.mTermLowerCase.charAt(t.mMatchLength)) {
+                    if (t.mMatchLength++ == 0) {
+                        // New match start
+                        t.mMatchStart = i;
+                    }
+                    if (t.mMatchLength == t.mLength) {
+                        String matchText = text.substring(t.mMatchStart, t.mMatchStart + t.mLength);
+                        // Completed match; add highlight and reset term
+                        if (t.mMatchStart <= lastOut) {
+                            matchText = text.substring(lastOut + 1, i + 1);
+                        }
+                        /*else*/
+                        if (matchText.length() == 0) {} else
+                        if (html) {
+                            sb.append("<span style=\"background-color: " + HIGHLIGHT_COLOR_STRING +
+                                    "\">");
+                            sb.append(matchText);
+                            sb.append("</span>");
+                        } else {
+                            SpannableString highlightSpan = new SpannableString(matchText);
+                            highlightSpan.setSpan(new BackgroundColorSpan(HIGHLIGHT_COLOR_INT), 0,
+                                    highlightSpan.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            sb.append(highlightSpan);
+                        }
+                        lastOut = t.mMatchStart + t.mLength - 1;
+                        t.mMatchLength = 0;
+                        t.mMatchStart = -1;
+                    }
+                    appendNow = false;
+                } else {
+                    if (t.mMatchStart >= 0) {
+                        // We're no longer matching; check for other matches in progress
+                        int leastOtherStart = -1;
+                        for (SearchTerm ot: terms) {
+                            // Save away the lowest match start for other search terms
+                            if ((ot != t) && (ot.mMatchStart >= 0) && ((leastOtherStart < 0) ||
+                                    (ot.mMatchStart <= leastOtherStart))) {
+                                leastOtherStart = ot.mMatchStart;
+                            }
+                        }
+                        int matchEnd = t.mMatchStart + t.mMatchLength;
+                        if (leastOtherStart < 0 || leastOtherStart > matchEnd) {
+                            // Append the whole thing
+                            if (t.mMatchStart > lastOut) {
+                                sb.append(text.substring(t.mMatchStart, matchEnd));
+                                lastOut = matchEnd;
+                            }
+                        } else if (leastOtherStart == t.mMatchStart) {
+                            // Ok to append the current char
+                        } else if (leastOtherStart < t.mMatchStart) {
+                            // We're already covered by another search term, so don't append
+                            appendNow = false;
+                        } else if (t.mMatchStart > lastOut) {
+                            // Append the piece of our term that's not already covered
+                            sb.append(text.substring(t.mMatchStart, leastOtherStart));
+                            lastOut = leastOtherStart;
+                        }
+                    }
+                    // Reset this term
+                    t.mMatchLength = 0;
+                    t.mMatchStart = -1;
+                }
+            }
+
+            if (appendNow) {
+                sb.append(chr);
+                lastOut = i;
+            }
+        }
+
+        return (CharSequence)sb;
+   }
 }
