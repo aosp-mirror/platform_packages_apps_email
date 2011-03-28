@@ -25,6 +25,7 @@ import com.android.email.provider.EmailContent.Message;
 import com.android.exchange.Eas;
 import com.android.exchange.EasOutboxService;
 import com.android.exchange.EasSyncService;
+import com.android.exchange.SyncManager;
 import com.android.exchange.utility.CalendarUtilities;
 import com.android.exchange.utility.Duration;
 
@@ -35,14 +36,14 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Entity;
+import android.content.Entity.NamedContentValues;
 import android.content.EntityIterator;
 import android.content.OperationApplicationException;
-import android.content.Entity.NamedContentValues;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.Calendar;
-import android.provider.SyncStateContract;
 import android.provider.Calendar.Attendees;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
@@ -51,6 +52,7 @@ import android.provider.Calendar.ExtendedProperties;
 import android.provider.Calendar.Reminders;
 import android.provider.Calendar.SyncState;
 import android.provider.ContactsContract.RawContacts;
+import android.provider.SyncStateContract;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -59,10 +61,10 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.Map.Entry;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 /**
  * Sync adapter class for EAS calendars
@@ -282,9 +284,13 @@ public class CalendarSyncAdapter extends AbstractSyncAdapter {
         @Override
         public void wipe() {
             // Delete the calendar associated with this account
-            // TODO Make sure the Events, etc. are also deleted
-            mContentResolver.delete(Calendars.CONTENT_URI, CALENDAR_SELECTION,
-                    new String[] {mEmailAddress, Email.EXCHANGE_ACCOUNT_MANAGER_TYPE});
+            // CalendarProvider2 does NOT handle selection arguments in deletions
+            mContentResolver.delete(Calendars.CONTENT_URI, Calendars._SYNC_ACCOUNT +
+                    "=" + DatabaseUtils.sqlEscapeString(mEmailAddress) + " AND " +
+                    Calendars._SYNC_ACCOUNT_TYPE + "=" +
+                    DatabaseUtils.sqlEscapeString(Email.EXCHANGE_ACCOUNT_MANAGER_TYPE), null);
+            // Invalidate our calendar observers
+            SyncManager.unregisterCalendarObservers();
         }
 
         private void addOrganizerToAttendees(CalendarOperations ops, long eventId,
