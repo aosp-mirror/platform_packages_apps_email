@@ -87,7 +87,7 @@
         Often times a hosting company will have multiple mail server addresses. Often
         times used for load balancing or based upon geographical boundaries. In these
         cases, it would be unwieldy to maintain a list of 2-dozen providers that all
-        point the essentially the same mail server. To alleviate this, domains may
+        point to essentially the same mail server. To alleviate this, domains may
         contain pattern matching characters that can be used to match user entered
         domains without knowing the exact domain.
 
@@ -95,9 +95,9 @@
         global character matches zero or more characters. This is a very greedy wild
         card and may lead to unexpected matches.
 
-        The alternate is the wild card character - a '?'. The wide card character
+        The alternate is the wild card character - a '?'. The wild card character
         matches any single character. This is very useful when the number of characters
-        is know (such as the country code in the domain).
+        is known (such as the country code in the domain).
 
         ==== TEMPLATES ====
 
