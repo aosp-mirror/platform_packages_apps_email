@@ -20,43 +20,26 @@ import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.MessagingExceptionStrings;
-import com.android.email.FolderProperties;
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-// TODO Rework the menu for the phone UI
-// Menu won't show up on the phone UI -- not sure if it's a framework issue or our bug.
-
-public class MessageList extends Activity implements OnClickListener,
-        AnimationListener, MessageListFragment.Callback {
+public class MessageList extends Activity implements MessageListFragment.Callback {
     // Intent extras (internal to this activity)
     private static final String EXTRA_ACCOUNT_ID = "com.android.email.activity._ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_TYPE = "com.android.email.activity.MAILBOX_TYPE";
@@ -66,37 +49,13 @@ public class MessageList extends Activity implements OnClickListener,
 
     // UI support
     private MessageListFragment mListFragment;
-    private View mMultiSelectPanel;
-    private Button mReadUnreadButton;
-    private Button mFavoriteButton;
-    private Button mDeleteButton;
     private TextView mErrorBanner;
 
     private final Controller mController = Controller.getInstance(getApplication());
     private ControllerResultUiThreadWrapper<ControllerResults> mControllerCallback;
 
-    private TextView mLeftTitle;
-    private ProgressBar mProgressIcon;
-
-    // DB access
-    private ContentResolver mResolver;
-    private SetTitleTask mSetTitleTask;
-
     private MailboxFinder mMailboxFinder;
-    private MailboxFinderCallback mMailboxFinderCallback = new MailboxFinderCallback();
-
-    private static final int MAILBOX_NAME_COLUMN_ID = 0;
-    private static final int MAILBOX_NAME_COLUMN_ACCOUNT_KEY = 1;
-    private static final int MAILBOX_NAME_COLUMN_TYPE = 2;
-    private static final String[] MAILBOX_NAME_PROJECTION = new String[] {
-            MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY,
-            MailboxColumns.TYPE};
-
-    private static final int ACCOUNT_DISPLAY_NAME_COLUMN_ID = 0;
-    private static final String[] ACCOUNT_NAME_PROJECTION = new String[] {
-            AccountColumns.DISPLAY_NAME };
-
-    private static final String ID_SELECTION = EmailContent.RECORD_ID + "=?";
+    private final MailboxFinderCallback mMailboxFinderCallback = new MailboxFinderCallback();
 
     /* package */ MessageListFragment getListFragmentForTest() {
         return mListFragment;
@@ -179,22 +138,9 @@ public class MessageList extends Activity implements OnClickListener,
                 new Handler(), new ControllerResults());
         mListFragment = (MessageListFragment) getFragmentManager()
                 .findFragmentById(R.id.message_list_fragment);
-        mMultiSelectPanel = findViewById(R.id.footer_organize);
-        mReadUnreadButton = (Button) findViewById(R.id.btn_read_unread);
-        mFavoriteButton = (Button) findViewById(R.id.btn_multi_favorite);
-        mDeleteButton = (Button) findViewById(R.id.btn_multi_delete);
-        mLeftTitle = (TextView) findViewById(R.id.title_left_text);
-        mProgressIcon = (ProgressBar) findViewById(R.id.title_progress_icon);
         mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
 
-        mReadUnreadButton.setOnClickListener(this);
-        mFavoriteButton.setOnClickListener(this);
-        mDeleteButton.setOnClickListener(this);
-        ((Button) findViewById(R.id.account_title_button)).setOnClickListener(this);
-
         mListFragment.setCallback(this);
-
-        mResolver = getContentResolver();
 
         // Show the appropriate account/mailbox specified by an {@link Intent}.
         selectAccountAndMailbox(getIntent());
@@ -206,9 +152,6 @@ public class MessageList extends Activity implements OnClickListener,
     private void selectAccountAndMailbox(Intent intent) {
         long mailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, -1);
         if (mailboxId != -1) {
-            // Specific mailbox ID was provided - go directly to it
-            mSetTitleTask = new SetTitleTask(mailboxId);
-            mSetTitleTask.execute();
             mListFragment.openMailbox(mailboxId);
         } else {
             int mailboxType = intent.getIntExtra(EXTRA_MAILBOX_TYPE, Mailbox.TYPE_INBOX);
@@ -227,7 +170,6 @@ public class MessageList extends Activity implements OnClickListener,
                     mMailboxFinderCallback);
             mMailboxFinder.startLookup();
         }
-        // TODO set title to "account > mailbox (#unread)"
     }
 
     @Override
@@ -257,8 +199,6 @@ public class MessageList extends Activity implements OnClickListener,
             mMailboxFinder.cancel();
             mMailboxFinder = null;
         }
-        Utility.cancelTaskInterrupt(mSetTitleTask);
-        mSetTitleTask = null;
     }
 
 
@@ -291,60 +231,15 @@ public class MessageList extends Activity implements OnClickListener,
     public void onEnterSelectionMode(boolean enter) {
     }
 
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_read_unread:
-                mListFragment.onMultiToggleRead();
-                break;
-            case R.id.btn_multi_favorite:
-                mListFragment.onMultiToggleFavorite();
-                break;
-            case R.id.btn_multi_delete:
-                mListFragment.onMultiDelete();
-                break;
-            case R.id.account_title_button:
-                onAccounts();
-                break;
-        }
-    }
-
-    public void onAnimationEnd(Animation animation) {
-        // TODO: If the button panel hides the only selected item, scroll the list to make it
-        // visible again.
-    }
-
-    public void onAnimationRepeat(Animation animation) {
-    }
-
-    public void onAnimationStart(Animation animation) {
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        return true; // Tell the framework it has the menu
+        getMenuInflater().inflate(R.menu.message_list_option, menu);
+        return true;
     }
-
-    private boolean mMenuCreated;
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (mListFragment == null) {
-            // Activity not initialized.
-            // This method indirectly gets called from MessageListFragment.onCreate()
-            // due to the setHasOptionsMenu() call, at which point this.onCreate() hasn't been
-            // called -- thus mListFragment == null.
-            return false;
-        }
-        if (!mMenuCreated) {
-            mMenuCreated = true;
-            if (mListFragment.isMagicMailbox()) {
-                getMenuInflater().inflate(R.menu.message_list_option_smart_folder, menu);
-            } else {
-                getMenuInflater().inflate(R.menu.message_list_option, menu);
-            }
-        }
-        boolean showDeselect = mListFragment.getSelectedCount() > 0;
-        menu.setGroupVisible(R.id.deselect_all_group, showDeselect);
+        // TODO Disable "refresh" for combined mailboxes
         return true;
     }
 
@@ -365,9 +260,6 @@ public class MessageList extends Activity implements OnClickListener,
                 return true;
             case R.id.account_settings:
                 onEditAccount();
-                return true;
-            case R.id.deselect_all:
-                mListFragment.onDeselectAll();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -399,56 +291,6 @@ public class MessageList extends Activity implements OnClickListener,
     }
 
     /**
-     * Show multi-selection panel, if one or more messages are selected.   Button labels will be
-     * updated too.
-     *
-     * @deprecated not used any longer.  remove them.
-     */
-    public void onSelectionChanged() {
-        showMultiPanel(mListFragment.getSelectedCount() > 0);
-    }
-
-    /**
-     * @deprecated not used any longer.  remove them.  (with associated resources, strings,
-     * members, etc)
-     */
-    private void updateFooterButtonNames () {
-        // Show "unread_action" when one or more read messages are selected.
-        if (mListFragment.doesSelectionContainReadMessage()) {
-            mReadUnreadButton.setText(R.string.unread_action);
-        } else {
-            mReadUnreadButton.setText(R.string.read_action);
-        }
-        // Show "set_star_action" when one or more un-starred messages are selected.
-        if (mListFragment.doesSelectionContainNonStarredMessage()) {
-            mFavoriteButton.setText(R.string.set_star_action);
-        } else {
-            mFavoriteButton.setText(R.string.remove_star_action);
-        }
-    }
-
-    /**
-     * Show or hide the panel of multi-select options
-     *
-     * @deprecated not used any longer.  remove them.
-     */
-    private void showMultiPanel(boolean show) {
-        if (show && mMultiSelectPanel.getVisibility() != View.VISIBLE) {
-            mMultiSelectPanel.setVisibility(View.VISIBLE);
-            Animation animation = AnimationUtils.loadAnimation(this, R.anim.footer_appear);
-            animation.setAnimationListener(this);
-            mMultiSelectPanel.startAnimation(animation);
-        } else if (!show && mMultiSelectPanel.getVisibility() != View.GONE) {
-            mMultiSelectPanel.setVisibility(View.GONE);
-            mMultiSelectPanel.startAnimation(
-                        AnimationUtils.loadAnimation(this, R.anim.footer_disappear));
-        }
-        if (show) {
-            updateFooterButtonNames();
-        }
-    }
-
-    /**
      * Handle the eventual result from the security update activity
      *
      * Note, this is extremely coarse, and it simply returns the user to the Accounts list.
@@ -463,99 +305,8 @@ public class MessageList extends Activity implements OnClickListener,
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private class SetTitleTask extends AsyncTask<Void, Void, Object[]> {
-
-        private long mMailboxKey;
-
-        public SetTitleTask(long mailboxKey) {
-            mMailboxKey = mailboxKey;
-        }
-
-        @Override
-        protected Object[] doInBackground(Void... params) {
-            // Check special Mailboxes
-            int resIdSpecialMailbox = 0;
-            if (mMailboxKey == Mailbox.QUERY_ALL_INBOXES) {
-                resIdSpecialMailbox = R.string.account_folder_list_summary_inbox;
-            } else if (mMailboxKey == Mailbox.QUERY_ALL_FAVORITES) {
-                resIdSpecialMailbox = R.string.account_folder_list_summary_starred;
-            } else if (mMailboxKey == Mailbox.QUERY_ALL_DRAFTS) {
-                resIdSpecialMailbox = R.string.account_folder_list_summary_drafts;
-            } else if (mMailboxKey == Mailbox.QUERY_ALL_OUTBOX) {
-                resIdSpecialMailbox = R.string.account_folder_list_summary_outbox;
-            }
-            if (resIdSpecialMailbox != 0) {
-                return new Object[] {null, getString(resIdSpecialMailbox), 0};
-            }
-
-            String accountName = null;
-            String mailboxName = null;
-            String accountKey = null;
-            Cursor c = MessageList.this.mResolver.query(Mailbox.CONTENT_URI,
-                    MAILBOX_NAME_PROJECTION, ID_SELECTION,
-                    new String[] { Long.toString(mMailboxKey) }, null);
-            try {
-                if (c.moveToFirst()) {
-                    mailboxName = FolderProperties.getInstance(MessageList.this)
-                            .getDisplayName(c.getInt(MAILBOX_NAME_COLUMN_TYPE));
-                    if (mailboxName == null) {
-                        mailboxName = c.getString(MAILBOX_NAME_COLUMN_ID);
-                    }
-                    accountKey = c.getString(MAILBOX_NAME_COLUMN_ACCOUNT_KEY);
-                }
-            } finally {
-                c.close();
-            }
-            if (accountKey != null) {
-                c = MessageList.this.mResolver.query(Account.CONTENT_URI,
-                        ACCOUNT_NAME_PROJECTION, ID_SELECTION, new String[] { accountKey },
-                        null);
-                try {
-                    if (c.moveToFirst()) {
-                        accountName = c.getString(ACCOUNT_DISPLAY_NAME_COLUMN_ID);
-                    }
-                } finally {
-                    c.close();
-                }
-            }
-            int nAccounts = EmailContent.count(MessageList.this, Account.CONTENT_URI, null, null);
-            return new Object[] {accountName, mailboxName, nAccounts};
-        }
-
-        @Override
-        protected void onPostExecute(Object[] result) {
-            if (result == null) {
-                return;
-            }
-
-            final int nAccounts = (Integer) result[2];
-            if (result[0] != null) {
-                setTitleAccountName((String) result[0], nAccounts > 1);
-            }
-
-            if (result[1] != null) {
-                mLeftTitle.setText((String) result[1]);
-            }
-        }
-    }
-
-    private void setTitleAccountName(String accountName, boolean showAccountsButton) {
-        TextView accountsButton = (TextView) findViewById(R.id.account_title_button);
-        TextView textPlain = (TextView) findViewById(R.id.title_right_text);
-        if (showAccountsButton) {
-            accountsButton.setVisibility(View.VISIBLE);
-            textPlain.setVisibility(View.GONE);
-            accountsButton.setText(accountName);
-        } else {
-            accountsButton.setVisibility(View.GONE);
-            textPlain.setVisibility(View.VISIBLE);
-            textPlain.setText(accountName);
-        }
-    }
-
     private void showProgressIcon(boolean show) {
-        int visibility = show ? View.VISIBLE : View.GONE;
-        mProgressIcon.setVisibility(visibility);
+        // TODO Show "refreshing" icon somewhere. (It's on the action bar on xlarge.)
     }
 
     private void showErrorBanner(String message) {
@@ -579,6 +330,9 @@ public class MessageList extends Activity implements OnClickListener,
     }
 
     /**
+     * TODO This should probably be removed -- use RefreshManager instead to update the progress
+     * icon and the error banner.
+     *
      * Controller results listener.  We wrap it with {@link ControllerResultUiThreadWrapper},
      * so all methods are called on the UI thread.
      */
@@ -653,8 +407,6 @@ public class MessageList extends Activity implements OnClickListener,
     private class MailboxFinderCallback implements MailboxFinder.Callback {
         @Override
         public void onMailboxFound(long accountId, long mailboxId) {
-            mSetTitleTask = new SetTitleTask(mailboxId);
-            mSetTitleTask.execute();
             mListFragment.openMailbox(mailboxId);
         }
 
