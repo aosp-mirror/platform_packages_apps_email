@@ -16,8 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.android.email"
-    android:versionCode="230000"
-    android:versionName="2.3"
+    android:versionCode="234000"
+    android:versionName="2.3.4"
     >
 
     <original-package android:name="com.android.email" />
