@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.UiUtilities;
 import com.android.emailcommon.provider.EmailContent.Account;
 
 import android.app.Activity;
@@ -59,9 +60,9 @@ public class AccountSetupIncoming extends AccountSetupActivity
         // Configure fragment
         mFragment.setCallback(this);
 
-        mNextButton = (Button) findViewById(R.id.next);
+        mNextButton = (Button) UiUtilities.getView(this, R.id.next);
         mNextButton.setOnClickListener(this);
-        findViewById(R.id.previous).setOnClickListener(this);
+        UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
    }
 
     /**

@@ -20,7 +20,6 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
-import com.android.email.UiUtilities;
 import com.android.email.R;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.emailcommon.Logging;

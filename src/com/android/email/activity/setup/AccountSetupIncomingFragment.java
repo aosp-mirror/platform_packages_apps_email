@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.activity.UiUtilities;
 import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -110,16 +111,17 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         View view = inflater.inflate(layoutId, container, false);
         Context context = getActivity();
 
-        mUsernameView = (EditText) view.findViewById(R.id.account_username);
-        mPasswordView = (EditText) view.findViewById(R.id.account_password);
-        mServerLabelView = (TextView) view.findViewById(R.id.account_server_label);
-        mServerView = (EditText) view.findViewById(R.id.account_server);
-        mPortView = (EditText) view.findViewById(R.id.account_port);
-        mSecurityTypeView = (Spinner) view.findViewById(R.id.account_security_type);
-        mDeletePolicyLabelView = (TextView) view.findViewById(R.id.account_delete_policy_label);
-        mDeletePolicyView = (Spinner) view.findViewById(R.id.account_delete_policy);
-        mImapPathPrefixSectionView = view.findViewById(R.id.imap_path_prefix_section);
-        mImapPathPrefixView = (EditText) view.findViewById(R.id.imap_path_prefix);
+        mUsernameView = (EditText) UiUtilities.getView(view, R.id.account_username);
+        mPasswordView = (EditText) UiUtilities.getView(view, R.id.account_password);
+        mServerLabelView = (TextView) UiUtilities.getView(view, R.id.account_server_label);
+        mServerView = (EditText) UiUtilities.getView(view, R.id.account_server);
+        mPortView = (EditText) UiUtilities.getView(view, R.id.account_port);
+        mSecurityTypeView = (Spinner) UiUtilities.getView(view, R.id.account_security_type);
+        mDeletePolicyLabelView = (TextView) UiUtilities.getView(view,
+                R.id.account_delete_policy_label);
+        mDeletePolicyView = (Spinner) UiUtilities.getView(view, R.id.account_delete_policy);
+        mImapPathPrefixSectionView = UiUtilities.getView(view, R.id.imap_path_prefix_section);
+        mImapPathPrefixView = (EditText) UiUtilities.getView(view, R.id.imap_path_prefix);
 
         // Set up spinners
         SpinnerOption securityTypes[] = {

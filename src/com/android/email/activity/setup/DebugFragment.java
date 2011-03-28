@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.activity.UiUtilities;
 import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 
@@ -59,16 +60,16 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
         Context context = getActivity();
         mPreferences = Preferences.getPreferences(context);
 
-        mVersionView = (TextView) view.findViewById(R.id.version);
+        mVersionView = (TextView) UiUtilities.getView(view, R.id.version);
         mVersionView.setText(String.format(context.getString(R.string.debug_version_fmt).toString(),
                 context.getString(R.string.build_number)));
 
-        mEnableDebugLoggingView = (CheckBox) view.findViewById(R.id.debug_logging);
+        mEnableDebugLoggingView = (CheckBox) UiUtilities.getView(view, R.id.debug_logging);
         mEnableDebugLoggingView.setChecked(Email.DEBUG);
 
-        mEnableExchangeLoggingView = (CheckBox) view.findViewById(R.id.exchange_logging);
+        mEnableExchangeLoggingView = (CheckBox) UiUtilities.getView(view, R.id.exchange_logging);
         mEnableExchangeFileLoggingView =
-            (CheckBox) view.findViewById(R.id.exchange_file_logging);
+            (CheckBox) UiUtilities.getView(view, R.id.exchange_file_logging);
 
         // Note:  To prevent recursion while presetting checkboxes, assign all listeners last
         mEnableDebugLoggingView.setOnCheckedChangeListener(this);
@@ -84,20 +85,20 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
             mEnableExchangeFileLoggingView.setVisibility(View.GONE);
         }
 
-        view.findViewById(R.id.clear_webview_cache).setOnClickListener(this);
+        UiUtilities.getView(view, R.id.clear_webview_cache).setOnClickListener(this);
 
         mInhibitGraphicsAccelerationView = (CheckBox)
-                view.findViewById(R.id.debug_disable_graphics_acceleration);
+                UiUtilities.getView(view, R.id.debug_disable_graphics_acceleration);
         mInhibitGraphicsAccelerationView.setChecked(Email.sDebugInhibitGraphicsAcceleration);
         mInhibitGraphicsAccelerationView.setOnCheckedChangeListener(this);
 
         mForceOneMinuteRefreshView = (CheckBox)
-                view.findViewById(R.id.debug_force_one_minute_refresh);
+                UiUtilities.getView(view, R.id.debug_force_one_minute_refresh);
         mForceOneMinuteRefreshView.setChecked(mPreferences.getForceOneMinuteRefresh());
         mForceOneMinuteRefreshView.setOnCheckedChangeListener(this);
 
         mEnableStrictModeView = (CheckBox)
-                view.findViewById(R.id.debug_enable_strict_mode);
+                UiUtilities.getView(view, R.id.debug_enable_strict_mode);
         mEnableStrictModeView.setChecked(mPreferences.getEnableStrictMode());
         mEnableStrictModeView.setOnCheckedChangeListener(this);
 

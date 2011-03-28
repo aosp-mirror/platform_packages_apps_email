@@ -20,6 +20,7 @@ import com.android.email.EmailAddressValidator;
 import com.android.email.R;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.UiUtilities;
 import com.android.email.activity.Welcome;
 import com.android.email.activity.setup.AccountSettingsUtils.Provider;
 import com.android.email.mail.Store;
@@ -198,10 +199,10 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         setContentView(R.layout.account_setup_basics);
 
-        mWelcomeView = (TextView) findViewById(R.id.instructions);
-        mEmailView = (EditText) findViewById(R.id.account_email);
-        mPasswordView = (EditText) findViewById(R.id.account_password);
-        mDefaultView = (CheckBox) findViewById(R.id.account_default);
+        mWelcomeView = (TextView) UiUtilities.getView(this, R.id.instructions);
+        mEmailView = (EditText) UiUtilities.getView(this, R.id.account_email);
+        mPasswordView = (EditText) UiUtilities.getView(this, R.id.account_password);
+        mDefaultView = (CheckBox) UiUtilities.getView(this, R.id.account_default);
 
         mEmailView.addTextChangedListener(this);
         mPasswordView.addTextChangedListener(this);
@@ -226,8 +227,8 @@ public class AccountSetupBasics extends AccountSetupActivity
         }
 
         // Configure buttons
-        mManualButton = (Button) findViewById(R.id.manual_setup);
-        mNextButton = (Button) findViewById(R.id.next);
+        mManualButton = (Button) UiUtilities.getView(this, R.id.manual_setup);
+        mNextButton = (Button) UiUtilities.getView(this, R.id.next);
         mManualButton.setVisibility(manualButtonDisplayed ? View.VISIBLE : View.INVISIBLE);
         mManualButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
@@ -665,10 +666,10 @@ public class AccountSetupBasics extends AccountSetupActivity
         @Override
         protected void onPostExecute(Integer numAccounts) {
             if (numAccounts > 0) {
-                Activity activity = AccountSetupBasics.this;
-                activity.findViewById(R.id.account_default_divider_1).setVisibility(View.VISIBLE);
-                mDefaultView.setVisibility(View.VISIBLE);
-                activity.findViewById(R.id.account_default_divider_2).setVisibility(View.VISIBLE);
+                Activity a = AccountSetupBasics.this;
+                UiUtilities.setVisibilitySafe(mDefaultView, View.VISIBLE);
+                UiUtilities.setVisibilitySafe(a, R.id.account_default_divider_1, View.VISIBLE);
+                UiUtilities.setVisibilitySafe(a, R.id.account_default_divider_2, View.VISIBLE);
             }
         }
     }

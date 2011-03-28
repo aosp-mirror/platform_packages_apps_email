@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.UiUtilities;
 import com.android.email.mail.Store;
 import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
@@ -63,6 +64,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     private CheckBox mSyncCalendarView;
     private CheckBox mSyncEmailView;
     private CheckBox mBackgroundAttachmentsView;
+    private View mAccountSyncWindowRow;
     private boolean mDonePressed = false;
 
     public static final int REQUEST_CODE_ACCEPT_POLICIES = 1;
@@ -80,18 +82,20 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.account_setup_options);
 
-        mCheckFrequencyView = (Spinner)findViewById(R.id.account_check_frequency);
-        mSyncWindowView = (Spinner) findViewById(R.id.account_sync_window);
-        mDefaultView = (CheckBox)findViewById(R.id.account_default);
-        mNotifyView = (CheckBox)findViewById(R.id.account_notify);
-        mSyncContactsView = (CheckBox) findViewById(R.id.account_sync_contacts);
-        mSyncCalendarView = (CheckBox) findViewById(R.id.account_sync_calendar);
-        mSyncEmailView = (CheckBox) findViewById(R.id.account_sync_email);
+        mCheckFrequencyView = (Spinner) UiUtilities.getView(this, R.id.account_check_frequency);
+        mSyncWindowView = (Spinner) UiUtilities.getView(this, R.id.account_sync_window);
+        mDefaultView = (CheckBox) UiUtilities.getView(this, R.id.account_default);
+        mNotifyView = (CheckBox) UiUtilities.getView(this, R.id.account_notify);
+        mSyncContactsView = (CheckBox) UiUtilities.getView(this, R.id.account_sync_contacts);
+        mSyncCalendarView = (CheckBox) UiUtilities.getView(this, R.id.account_sync_calendar);
+        mSyncEmailView = (CheckBox) UiUtilities.getView(this, R.id.account_sync_email);
         mSyncEmailView.setChecked(true);
-        mBackgroundAttachmentsView = (CheckBox) findViewById(R.id.account_background_attachments);
+        mBackgroundAttachmentsView = (CheckBox) UiUtilities.getView(this,
+                R.id.account_background_attachments);
         mBackgroundAttachmentsView.setChecked(true);
-        findViewById(R.id.previous).setOnClickListener(this);
-        findViewById(R.id.next).setOnClickListener(this);
+        UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
+        UiUtilities.getView(this, R.id.next).setOnClickListener(this);
+        mAccountSyncWindowRow = UiUtilities.getView(this, R.id.account_sync_window_row);
 
         // Generate spinner entries using XML arrays used by the preferences
         int frequencyValuesId;
@@ -142,14 +146,15 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             mSyncCalendarView.setVisibility(View.VISIBLE);
             mSyncCalendarView.setChecked(true);
             // Show the associated dividers
-            findViewById(R.id.account_sync_contacts_divider).setVisibility(View.VISIBLE);
-            findViewById(R.id.account_sync_calendar_divider).setVisibility(View.VISIBLE);
+            UiUtilities.setVisibilitySafe(this, R.id.account_sync_contacts_divider, View.VISIBLE);
+            UiUtilities.setVisibilitySafe(this, R.id.account_sync_calendar_divider, View.VISIBLE);
         }
 
         // If we are in POP3, hide the "Background Attachments" mode
         if ("pop3".equals(info.mScheme)) {
             mBackgroundAttachmentsView.setVisibility(View.GONE);
-            findViewById(R.id.account_background_attachments_divider).setVisibility(View.GONE);
+            UiUtilities.setVisibilitySafe(this, R.id.account_background_attachments_divider,
+                    View.GONE);
         }
 
         // If we are just visiting here to fill in details, exit immediately
@@ -213,7 +218,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         account.setFlags(newFlags);
         account.setSyncInterval((Integer)((SpinnerOption)mCheckFrequencyView
                 .getSelectedItem()).value);
-        if (findViewById(R.id.account_sync_window_row).getVisibility() == View.VISIBLE) {
+        if (mAccountSyncWindowRow.getVisibility() == View.VISIBLE) {
             int window = (Integer)((SpinnerOption)mSyncWindowView.getSelectedItem()).value;
             account.setSyncLookback(window);
         }
@@ -373,7 +378,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
      */
     private void enableEASSyncWindowSpinner() {
         // Show everything
-        findViewById(R.id.account_sync_window_row).setVisibility(View.VISIBLE);
+        mAccountSyncWindowRow.setVisibility(View.VISIBLE);
 
         // Generate spinner entries using XML arrays used by the preferences
         CharSequence[] windowValues = getResources().getTextArray(

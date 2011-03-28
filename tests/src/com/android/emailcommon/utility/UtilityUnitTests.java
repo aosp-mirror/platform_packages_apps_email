@@ -20,7 +20,6 @@ import com.android.email.DBTestHelper;
 import com.android.email.FolderProperties;
 import com.android.email.R;
 import com.android.email.TestUtils;
-import com.android.email.UiUtilities;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
@@ -53,10 +52,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
-
-import libcore.util.EmptyArray;
 
 /**
  * This is a series of unit tests for the Utility class.  These tests must be locally
@@ -229,21 +225,6 @@ public class UtilityUnitTests extends AndroidTestCase {
                 Utility.cleanUpMimeDate("Thu, 10 Dec 09 15:08:08 GMT-0700"));
         assertEquals("Thu, 10 Dec 09 15:08:08 -0700",
                 Utility.cleanUpMimeDate("Thu, 10 Dec 09 15:08:08 -0700"));
-    }
-
-    public void testFormatSize() {
-        if (!"en".equalsIgnoreCase(Locale.getDefault().getLanguage())) {
-            return; // Only works on the EN locale.
-        }
-        assertEquals("0B", UiUtilities.formatSize(getContext(), 0));
-        assertEquals("1B", UiUtilities.formatSize(getContext(), 1));
-        assertEquals("1023B", UiUtilities.formatSize(getContext(), 1023));
-        assertEquals("1KB", UiUtilities.formatSize(getContext(), 1024));
-        assertEquals("1023KB", UiUtilities.formatSize(getContext(), 1024 * 1024 - 1));
-        assertEquals("1MB", UiUtilities.formatSize(getContext(), 1024 * 1024));
-        assertEquals("1023MB", UiUtilities.formatSize(getContext(), 1024 * 1024 * 1024 - 1));
-        assertEquals("1GB", UiUtilities.formatSize(getContext(), 1024 * 1024 * 1024));
-        assertEquals("5GB", UiUtilities.formatSize(getContext(), 5L * 1024 * 1024 * 1024));
     }
 
     private static class MyNewFileCreator implements NewFileCreator {
@@ -461,31 +442,6 @@ public class UtilityUnitTests extends AndroidTestCase {
 
         assertEquals("noBO", ssb.toString());
         // TODO check style -- but how?
-    }
-
-    public void testGetMessageCountForUi() {
-        final Context c = getContext();
-
-        // Negavive valeus not really expected, but at least shouldn't crash.
-        assertEquals("-1", UiUtilities.getMessageCountForUi(c, -1, true));
-        assertEquals("-1", UiUtilities.getMessageCountForUi(c, -1, false));
-
-        assertEquals("", UiUtilities.getMessageCountForUi(c, 0, true));
-        assertEquals("0", UiUtilities.getMessageCountForUi(c, 0, false));
-
-        assertEquals("1", UiUtilities.getMessageCountForUi(c, 1, true));
-        assertEquals("1", UiUtilities.getMessageCountForUi(c, 1, false));
-
-        assertEquals("999", UiUtilities.getMessageCountForUi(c, 999, true));
-        assertEquals("999", UiUtilities.getMessageCountForUi(c, 999, false));
-
-        final String moreThan999 = c.getString(R.string.more_than_999);
-
-        assertEquals(moreThan999, UiUtilities.getMessageCountForUi(c, 1000, true));
-        assertEquals(moreThan999, UiUtilities.getMessageCountForUi(c, 1000, false));
-
-        assertEquals(moreThan999, UiUtilities.getMessageCountForUi(c, 1001, true));
-        assertEquals(moreThan999, UiUtilities.getMessageCountForUi(c, 1001, false));
     }
 
     public void testAreStringsEqual() {

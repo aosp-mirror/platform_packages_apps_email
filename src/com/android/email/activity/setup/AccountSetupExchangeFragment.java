@@ -20,6 +20,7 @@ import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
+import com.android.email.activity.UiUtilities;
 import com.android.email.mail.Store;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
@@ -65,7 +66,6 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     private EditText mServerView;
     private CheckBox mSslSecurityView;
     private CheckBox mTrustCertificatesView;
-    private View mTrustCertificatesDivider;
 
     // Support for lifecycle
     private boolean mStarted;
@@ -103,13 +103,13 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         View view = inflater.inflate(layoutId, container, false);
         Context context = getActivity();
 
-        mUsernameView = (EditText) view.findViewById(R.id.account_username);
-        mPasswordView = (EditText) view.findViewById(R.id.account_password);
-        mServerView = (EditText) view.findViewById(R.id.account_server);
-        mSslSecurityView = (CheckBox) view.findViewById(R.id.account_ssl);
+        mUsernameView = (EditText) UiUtilities.getView(view, R.id.account_username);
+        mPasswordView = (EditText) UiUtilities.getView(view, R.id.account_password);
+        mServerView = (EditText) UiUtilities.getView(view, R.id.account_server);
+        mSslSecurityView = (CheckBox) UiUtilities.getView(view, R.id.account_ssl);
         mSslSecurityView.setOnCheckedChangeListener(this);
-        mTrustCertificatesView = (CheckBox) view.findViewById(R.id.account_trust_certificates);
-        mTrustCertificatesDivider = view.findViewById(R.id.account_trust_certificates_divider);
+        mTrustCertificatesView = (CheckBox) UiUtilities.getView(view,
+                R.id.account_trust_certificates);
 
         // Calls validateFields() which enables or disables the Next button
         // based on the fields' validity.
@@ -124,13 +124,13 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         mUsernameView.addTextChangedListener(validationTextWatcher);
         mPasswordView.addTextChangedListener(validationTextWatcher);
         mServerView.addTextChangedListener(validationTextWatcher);
-
+        String deviceId = "";
         try {
-            String deviceId = Device.getDeviceId(context);
-            ((TextView) view.findViewById(R.id.device_id)).setText(deviceId);
+            deviceId = Device.getDeviceId(context);
         } catch (IOException e) {
             // Not required
         }
+        ((TextView) UiUtilities.getView(view, R.id.device_id)).setText(deviceId);
 
         // Additional setup only used while in "settings" mode
         onCreateViewSettingsMode(view);
@@ -318,10 +318,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     public void showTrustCertificates(boolean visible) {
         int mode = visible ? View.VISIBLE : View.GONE;
         mTrustCertificatesView.setVisibility(mode);
-        // Divider is optional (only on XL layouts)
-        if (mTrustCertificatesDivider != null) {
-            mTrustCertificatesDivider.setVisibility(mode);
-        }
+        UiUtilities.setVisibilitySafe(getView(), R.id.account_trust_certificates_divider, mode);
     }
 
     /**

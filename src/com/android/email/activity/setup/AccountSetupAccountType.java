@@ -20,6 +20,7 @@ import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.UiUtilities;
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -32,9 +33,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * Prompts the user to select an account type. The account type, along with the
@@ -61,11 +59,11 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
 
         // Otherwise proceed into this screen
         setContentView(R.layout.account_setup_account_type);
-        ((Button)findViewById(R.id.pop)).setOnClickListener(this);
-        ((Button)findViewById(R.id.imap)).setOnClickListener(this);
-        final Button exchangeButton = (Button) findViewById(R.id.exchange);
+        UiUtilities.getView(this, R.id.pop).setOnClickListener(this);
+        UiUtilities.getView(this, R.id.imap).setOnClickListener(this);
+        final Button exchangeButton = (Button) UiUtilities.getView(this, R.id.exchange);
         exchangeButton.setVisibility(View.INVISIBLE);
-        final Button previousButton = (Button) findViewById(R.id.previous);
+        final Button previousButton = (Button) findViewById(R.id.previous); // xlarge only
         if (previousButton != null) previousButton.setOnClickListener(this);
 
         // TODO If we decide to exclude the Exchange option in POP_IMAP mode, use the following line

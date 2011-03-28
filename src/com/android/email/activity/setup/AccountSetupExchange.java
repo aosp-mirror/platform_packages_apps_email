@@ -18,6 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.UiUtilities;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
 
@@ -91,9 +92,9 @@ public class AccountSetupExchange extends AccountSetupActivity
                 getFragmentManager().findFragmentById(R.id.setup_fragment);
         mFragment.setCallback(this);
 
-        mNextButton = (Button) findViewById(R.id.next);
+        mNextButton = (Button) UiUtilities.getView(this, R.id.next);
         mNextButton.setOnClickListener(this);
-        findViewById(R.id.previous).setOnClickListener(this);
+        UiUtilities.getView(this, R.id.previous).setOnClickListener(this);
 
         // One-shot to launch autodiscovery at the entry to this activity (but not if it restarts)
         mStartedAutoDiscovery = false;
