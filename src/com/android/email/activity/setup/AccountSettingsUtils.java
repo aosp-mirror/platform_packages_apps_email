@@ -31,8 +31,14 @@ import android.util.Log;
 import android.widget.EditText;
 
 import java.io.Serializable;
+import java.util.regex.Pattern;
 
 public class AccountSettingsUtils {
+
+    /** Pattern to match globals in the domain */
+    private final static Pattern DOMAIN_GLOB_PATTERN = Pattern.compile("\\*");
+    /** Will match any, single character */
+    private final static char WILD_CHARACTER = '?';
 
     /**
      * Commits the UI-related settings of an account to the provider.  This is static so that it
@@ -149,32 +155,34 @@ public class AccountSettingsUtils {
     }
 
     /**
-     * Compares the two strings. glob may have at most a single global character ('*') that
-     * will match any number of characters in the input string.
-     * @return true if the strings match. otherwise, false.
-     * @throws IllegalArgumentException if the strings are null or glob has multiple globals.
+     * Returns if the string <code>s1</code> matches the string <code>s2</code>. The string
+     * <code>s2</code> may contain any number of wildcards -- a '?' character -- and/or a
+     * single global character -- a '*' character. Wildcards match any, single character
+     * while a global character matches zero or more characters.
+     * @throws IllegalArgumentException if either string is null or <code>s2</code> has
+     * multiple globals.
      */
-    /*package*/ static boolean globMatchIgnoreCase(String in, String glob)
+    /*package*/ static boolean globMatchIgnoreCase(String s1, String s2)
             throws IllegalArgumentException {
-        if (in == null || glob == null) {
+        if (s1 == null || s2 == null) {
             throw new IllegalArgumentException("one or both strings are null");
         }
 
         // Handle the possible global in the domain name
-        String[] globParts = glob.split("\\*");
-        String inLower = in.toLowerCase();
+        String[] globParts = DOMAIN_GLOB_PATTERN.split(s2);
         switch (globParts.length) {
             case 1:
                 // No globals; test for simple equality
-                if (!inLower.equals(globParts[0].toLowerCase())) {
+                if (!wildEqualsIgnoreCase(s1, globParts[0])) {
                     return false;
                 }
                 break;
             case 2:
                 // Global; test the front & end parts of the domain
-                String d1 = globParts[0].toLowerCase();
-                String d2 = globParts[1].toLowerCase();
-                if (!inLower.startsWith(d1) || !inLower.substring(d1.length()).endsWith(d2)) {
+                String d1 = globParts[0];
+                String d2 = globParts[1];
+                if (!wildStartsWithIgnoreCase(s1, d1) ||
+                        !wildEndsWithIgnoreCase(s1.substring(d1.length()), d2)) {
                     return false;
                 }
                 break;
@@ -182,6 +190,62 @@ public class AccountSettingsUtils {
                 throw new IllegalArgumentException("Multiple globals");
         }
         return true;
+    }
+
+    /**
+     * Returns if the string <code>s1</code> equals the string <code>s2</code>. The string
+     * <code>s2</code> may contain zero or more wildcards -- a '?' character.
+     * @throws IllegalArgumentException if the strings are null.
+     */
+    /*package*/ static boolean wildEqualsIgnoreCase(String s1, String s2)
+            throws IllegalArgumentException {
+        if (s1 == null || s2 == null) {
+            throw new IllegalArgumentException("one or both strings are null");
+        }
+        if (s1.length() != s2.length()) {
+            return false;
+        }
+        char[] charArray1 = s1.toLowerCase().toCharArray();
+        char[] charArray2 = s2.toLowerCase().toCharArray();
+        for (int i = 0; i < charArray2.length; i++) {
+            if (charArray2[i] == WILD_CHARACTER || charArray1[i] == charArray2[i]) continue;
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns if the string <code>s1</code> starts with the string <code>s2</code>. The string
+     * <code>s2</code> may contain zero or more wildcards -- a '?' character.
+     * @throws IllegalArgumentException if the strings are null.
+     */
+    /*package*/ static boolean wildStartsWithIgnoreCase(String s1, String s2)
+            throws IllegalArgumentException {
+        if (s1 == null || s2 == null) {
+            throw new IllegalArgumentException("one or both strings are null");
+        }
+        if (s1.length() < s2.length()) {
+            return false;
+        }
+        s1 = s1.substring(0, s2.length());
+        return wildEqualsIgnoreCase(s1, s2);
+    }
+
+    /**
+     * Returns if the string <code>s1</code> ends with the string <code>s2</code>. The string
+     * <code>s2</code> may contain zero or more wildcards -- a '?' character.
+     * @throws IllegalArgumentException if the strings are null.
+     */
+    /*package*/ static boolean wildEndsWithIgnoreCase(String s1, String s2)
+            throws IllegalArgumentException {
+        if (s1 == null || s2 == null) {
+            throw new IllegalArgumentException("one or both strings are null");
+        }
+        if (s1.length() < s2.length()) {
+            return false;
+        }
+        s1 = s1.substring(s1.length() - s2.length(), s1.length());
+        return wildEqualsIgnoreCase(s1, s2);
     }
 
     /**
@@ -216,6 +280,12 @@ public class AccountSettingsUtils {
         public String outgoingUri;
         public String outgoingUsername;
         public String note;
+
+        /**
+         * Expands templates in all of the  provider fields that support them. Currently,
+         * templates are used in 4 fields -- incoming and outgoing URI and user name.
+         * @param email user-specified data used to replace template values
+         */
         public void expandTemplates(String email) {
             String[] emailParts = email.split("@");
             String user = emailParts[0];
@@ -225,6 +295,11 @@ public class AccountSettingsUtils {
             outgoingUri = expandTemplate(outgoingUriTemplate, email, user);
             outgoingUsername = expandTemplate(outgoingUsernameTemplate, email, user);
         }
+
+        /**
+         * Replaces all parameterized values in the given template. The values replaced are
+         * $domain, $user and $email.
+         */
         private String expandTemplate(String template, String email, String user) {
             String returnString = template;
             returnString = returnString.replaceAll("\\$email", email);

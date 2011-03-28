@@ -50,7 +50,7 @@
         <incoming uri="pop3://pop-server.firstonewins.com" username="$email" />
         <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
     </provider>
-    <provider id="rr-global" label="RoadRunner" domain="*.rr.com">
+    <provider id="rr-global" label="RoadRunner" domain="*.rr.???">
         <incoming uri="pop3://pop-server.$domain" username="$email" />
         <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
     </provider>

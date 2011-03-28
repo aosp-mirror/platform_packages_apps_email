@@ -99,9 +99,40 @@ public class AccountSettingsUtilsTests extends AndroidTestCase {
         assertNull(testProvider);
     }
 
-    public void testGlobMatchIgnoreCase() {
-        boolean testMatch;
+    public void testGlobEndsWithIgnoreCase() {
+        assertTrue(AccountSettingsUtils.wildEndsWithIgnoreCase(
+                "yahoo.com.tw", ".??"));
+        assertTrue(AccountSettingsUtils.wildEndsWithIgnoreCase(
+                "abcd", "a??d"));
+        assertFalse(AccountSettingsUtils.wildEndsWithIgnoreCase(
+                "yahoo.com.tw.foo.com", ".??"));
+        assertFalse(AccountSettingsUtils.wildEndsWithIgnoreCase(
+                "abc", "a??d"));
+    }
 
+    public void testGlobStartsWithIgnoreCase() {
+        assertTrue(AccountSettingsUtils.wildStartsWithIgnoreCase(
+                "tw.yahoo.com", "??."));
+        assertTrue(AccountSettingsUtils.wildStartsWithIgnoreCase(
+                "abcdxyz", "a??d"));
+        assertFalse(AccountSettingsUtils.wildStartsWithIgnoreCase(
+                "abc", "a??d"));
+    }
+
+    public void testGlobEqualsIgnoreCase() {
+        assertTrue(AccountSettingsUtils.wildEqualsIgnoreCase(
+                "tw.yahoo.com", "??.yahoo.com"));
+        assertTrue(AccountSettingsUtils.wildEqualsIgnoreCase(
+                "yahoo.com.tw", "yahoo.com.??"));
+        assertTrue(AccountSettingsUtils.wildEqualsIgnoreCase(
+                "abcdxyz", "a??dxyz"));
+        assertFalse(AccountSettingsUtils.wildEqualsIgnoreCase(
+                "abc", "a??d"));
+        assertFalse(AccountSettingsUtils.wildEqualsIgnoreCase(
+                "abccxyz", "a??d"));
+    }
+
+    public void testGlobMatchIgnoreCase() {
         assertTrue(AccountSettingsUtils.globMatchIgnoreCase(
                 "mail.yahoo.com", "mail*yahoo.com"));
         assertTrue(AccountSettingsUtils.globMatchIgnoreCase(
