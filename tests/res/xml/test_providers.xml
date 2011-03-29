@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2011 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+    <!--
+        This file contains email provider configuration for testing purposes. The complete
+        format specification for this file can be found in res/xml/providers.xml.
+    -->
+
+<providers>
+
+    <!-- Gmail variants -->
+    <provider id="gmail" label="Gmail" domain="gmail.com">
+        <incoming uri="imap+ssl+://imap.gmail.com" username="$email" />
+        <outgoing uri="smtp+ssl+://smtp.gmail.com" username="$email" />
+    </provider>
+
+    <!-- Yahoo! Mail variants -->
+    <provider id="generic" label="Generic Y!" domain="mail*yahoo.com">
+        <incoming uri="pop3://pop-server.$domain" username="$email" />
+        <outgoing uri="smtp://smtp-server.foo.com" username="$email" />
+    </provider>
+    <provider id="yahoo" label="Yahoo!" domain="yahoo.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+    <provider id="yahoo" label="Yahoo!" domain="yahoo.com.yahoo.com">
+        <incoming uri="imap+ssl+://android.imap.mail.yahoo.com" username="$email" />
+        <outgoing uri="smtp+ssl+://android.smtp.mail.yahoo.com" username="$email" />
+    </provider>
+
+    <!-- Roadrunner variants -->
+    <provider id="rr-roadrunner" label="RoadRunner" domain="roadrunner.com">
+        <incoming uri="pop3://pop-server.roadrunner.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-global" label="RoadRunner" domain="leonard.rr.com">
+        <incoming uri="pop3://pop-server.firstonewins.com" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+    <provider id="rr-global" label="RoadRunner" domain="*.rr.com">
+        <incoming uri="pop3://pop-server.$domain" username="$email" />
+        <outgoing uri="smtp://mobile-smtp.roadrunner.com" username="$email" />
+    </provider>
+
+    <!-- USA (other)-->
+    <provider id="tuffmail" label="Tuffmail" domain="tuffmail.com">
+        <incoming uri="imap+ssl+://mail.mxes.net" username="$user_$domain" />
+        <outgoing uri="smtp+ssl+://smtp.mxes.net" username="$user_$domain" />
+    </provider>
+
+</providers>

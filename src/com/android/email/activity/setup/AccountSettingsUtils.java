@@ -31,7 +31,6 @@ import android.util.Log;
 import android.widget.EditText;
 
 import java.io.Serializable;
-import java.net.URI;
 
 public class AccountSettingsUtils {
 
@@ -101,20 +100,28 @@ public class AccountSettingsUtils {
      * @param resourceId Id of the provider resource to scan
      * @return suitable Provider definition, or null if no match found
      */
-    private static Provider findProviderForDomain(Context context, String domain, int resourceId) {
+    /*package*/ static Provider findProviderForDomain(
+            Context context, String domain, int resourceId) {
         try {
             XmlResourceParser xml = context.getResources().getXml(resourceId);
             int xmlEventType;
             Provider provider = null;
             while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
                 if (xmlEventType == XmlResourceParser.START_TAG
-                        && "provider".equals(xml.getName())
-                        && domain.equalsIgnoreCase(getXmlAttribute(context, xml, "domain"))) {
-                    provider = new Provider();
-                    provider.id = getXmlAttribute(context, xml, "id");
-                    provider.label = getXmlAttribute(context, xml, "label");
-                    provider.domain = getXmlAttribute(context, xml, "domain");
-                    provider.note = getXmlAttribute(context, xml, "note");
+                        && "provider".equals(xml.getName())) {
+                    String providerDomain = getXmlAttribute(context, xml, "domain");
+                    try {
+                        if (globMatchIgnoreCase(domain, providerDomain)) {
+                            provider = new Provider();
+                            provider.id = getXmlAttribute(context, xml, "id");
+                            provider.label = getXmlAttribute(context, xml, "label");
+                            provider.domain = domain.toLowerCase();
+                            provider.note = getXmlAttribute(context, xml, "note");
+                        }
+                    } catch (IllegalArgumentException e) {
+                        Log.w(Logging.LOG_TAG, "providers line: " + xml.getLineNumber() +
+                                "; Domain contains multiple globals");
+                    }
                 }
                 else if (xmlEventType == XmlResourceParser.START_TAG
                         && "incoming".equals(xml.getName())
@@ -139,6 +146,42 @@ public class AccountSettingsUtils {
             Log.e(Logging.LOG_TAG, "Error while trying to load provider settings.", e);
         }
         return null;
+    }
+
+    /**
+     * Compares the two strings. glob may have at most a single global character ('*') that
+     * will match any number of characters in the input string.
+     * @return true if the strings match. otherwise, false.
+     * @throws IllegalArgumentException if the strings are null or glob has multiple globals.
+     */
+    /*package*/ static boolean globMatchIgnoreCase(String in, String glob)
+            throws IllegalArgumentException {
+        if (in == null || glob == null) {
+            throw new IllegalArgumentException("one or both strings are null");
+        }
+
+        // Handle the possible global in the domain name
+        String[] globParts = glob.split("\\*");
+        String inLower = in.toLowerCase();
+        switch (globParts.length) {
+            case 1:
+                // No globals; test for simple equality
+                if (!inLower.equals(globParts[0].toLowerCase())) {
+                    return false;
+                }
+                break;
+            case 2:
+                // Global; test the front & end parts of the domain
+                String d1 = globParts[0].toLowerCase();
+                String d2 = globParts[1].toLowerCase();
+                if (!inLower.startsWith(d1) || !inLower.substring(d1.length()).endsWith(d2)) {
+                    return false;
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Multiple globals");
+        }
+        return true;
     }
 
     /**
@@ -168,7 +211,27 @@ public class AccountSettingsUtils {
         public String incomingUsernameTemplate;
         public String outgoingUriTemplate;
         public String outgoingUsernameTemplate;
+        public String incomingUri;
+        public String incomingUsername;
+        public String outgoingUri;
+        public String outgoingUsername;
         public String note;
+        public void expandTemplates(String email) {
+            String[] emailParts = email.split("@");
+            String user = emailParts[0];
+
+            incomingUri = expandTemplate(incomingUriTemplate, email, user);
+            incomingUsername = expandTemplate(incomingUsernameTemplate, email, user);
+            outgoingUri = expandTemplate(outgoingUriTemplate, email, user);
+            outgoingUsername = expandTemplate(outgoingUsernameTemplate, email, user);
+        }
+        private String expandTemplate(String template, String email, String user) {
+            String returnString = template;
+            returnString = returnString.replaceAll("\\$email", email);
+            returnString = returnString.replaceAll("\\$user", user);
+            returnString = returnString.replaceAll("\\$domain", domain);
+            return returnString;
+        }
     }
 
     /**

@@ -418,36 +418,25 @@ public class AccountSetupBasics extends AccountSetupActivity
     private void finishAutoSetup() {
         String email = mEmailView.getText().toString().trim();
         String password = mPasswordView.getText().toString();
-        String[] emailParts = email.split("@");
-        String user = emailParts[0];
-        String domain = emailParts[1];
 
         try {
-            String incomingUsername = mProvider.incomingUsernameTemplate;
-            incomingUsername = incomingUsername.replaceAll("\\$email", email);
-            incomingUsername = incomingUsername.replaceAll("\\$user", user);
-            incomingUsername = incomingUsername.replaceAll("\\$domain", domain);
+            mProvider.expandTemplates(email);
 
             Account account = SetupData.getAccount();
             HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
-            Utility.setHostAuthFromString(recvAuth, mProvider.incomingUriTemplate);
-            recvAuth.setLogin(incomingUsername, password);
-
-            String outgoingUsername = mProvider.outgoingUsernameTemplate;
-            outgoingUsername = outgoingUsername.replaceAll("\\$email", email);
-            outgoingUsername = outgoingUsername.replaceAll("\\$user", user);
-            outgoingUsername = outgoingUsername.replaceAll("\\$domain", domain);
+            Utility.setHostAuthFromString(recvAuth, mProvider.incomingUri);
+            recvAuth.setLogin(mProvider.incomingUsername, password);
 
             HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
-            Utility.setHostAuthFromString(sendAuth, mProvider.outgoingUriTemplate);
-            sendAuth.setLogin(outgoingUsername, password);
+            Utility.setHostAuthFromString(sendAuth, mProvider.outgoingUri);
+            sendAuth.setLogin(mProvider.outgoingUsername, password);
 
             // Populate the setup data, assuming that the duplicate account check will succeed
             populateSetupData(getOwnerName(), email, mDefaultView.isChecked());
 
             // Stop here if the login credentials duplicate an existing account
             // Launch an Async task to do the work
-            new DuplicateCheckTask(this, recvAuth.mAddress, incomingUsername).execute();
+            new DuplicateCheckTask(this, recvAuth.mAddress, mProvider.incomingUsername).execute();
         } catch (URISyntaxException e) {
             /*
              * If there is some problem with the URI we give up and go on to manual setup.
