@@ -297,12 +297,12 @@
     <string name="account_security_title" msgid="4441470647344315196">"Gerätesicherheit"</string>
     <string name="account_security_policy_explanation_fmt" msgid="6932627044314460766">"Der Server <xliff:g id="SERVER">%s</xliff:g> fordert die Erlaubnis zur Remote-Steuerung einiger Sicherheitsfunktionen auf Ihrem Android-Gerät an."</string>
     <string name="account_setup_failed_dlg_edit_details_action" msgid="5355993309841479360">"Details bearbeiten"</string>
-    <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Bitte aktualisieren Sie den Code zur Bildschirmentsperrung für das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
-    <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Neue Bildschirmentsperrung"</string>
-    <string name="password_expire_warning_content_text_fmt" msgid="4302557343790365263">"Für das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" müssen Sie den Code zum Entsperren des Bildschirms aktualisieren. Tippen Sie hier, um den Code zu aktualisieren."</string>
-    <string name="password_expired_ticker" msgid="5698508544187945595">"Ihr Code zum Entsperren des Bildschirms ist abgelaufen."</string>
-    <string name="password_expired_content_title" msgid="8417027276177867305">"Neue Bildschirmentsperrung"</string>
-    <string name="password_expired_content_text" msgid="741999155767783375">"Ihr Code zum Entsperren des Bildschirms ist abgelaufen. Tippen Sie hier, um ihn zu aktualisieren."</string>
+    <string name="password_expire_warning_ticker_fmt" msgid="950001176659814912">"Bitte aktualisieren Sie den Code zur Display-Entsperrung für das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\"."</string>
+    <string name="password_expire_warning_content_title" msgid="4602564325906174785">"Neue Display-Entsperrung"</string>
+    <string name="password_expire_warning_content_text_fmt" msgid="4302557343790365263">"Für das Konto \"<xliff:g id="ACCOUNT">%s</xliff:g>\" müssen Sie den Code zur Display-Entsperrung aktualisieren. Tippen Sie hier, um den Code zu aktualisieren."</string>
+    <string name="password_expired_ticker" msgid="5698508544187945595">"Ihr Code zur Display-Entsperrung ist abgelaufen."</string>
+    <string name="password_expired_content_title" msgid="8417027276177867305">"Neue Display-Entsperrung"</string>
+    <string name="password_expired_content_text" msgid="741999155767783375">"Ihr Code zur Display-Entsperrung ist abgelaufen. Tippen Sie hier, um ihn zu aktualisieren."</string>
     <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Nicht gespeicherte Änderungen verwerfen?"</string>
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Allgemeine Einstellungen"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Standardkonto"</string>
