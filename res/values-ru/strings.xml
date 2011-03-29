@@ -327,7 +327,7 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Общие настройки"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Аккаунт по умолчанию"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Сделать аккаунтом электронной почты по умолчанию для отправки сообщений"</string>
-    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Автозагрузка прикрепленных файлов"</string>
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Автозагрузка прикрепл. файлов"</string>
     <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Автоматически загружать прикрепленные файлы при подключении к Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Уведомления электронной почты"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Частота синхронизации, уведомления и другие настройки"</string>
