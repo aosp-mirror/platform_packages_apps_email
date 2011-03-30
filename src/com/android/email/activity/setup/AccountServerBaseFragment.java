@@ -29,7 +29,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -52,6 +55,12 @@ public abstract class AccountServerBaseFragment extends Fragment
 
     protected Context mContext;
     protected Callback mCallback = EmptyCallback.INSTANCE;
+    /**
+     * Whether or not we are in "settings mode". We re-use the same screens for both the initial
+     * account creation as well as subsequent account modification. If <code>mSettingsMode</code>
+     * if <code>false</code>, we are in account creation mode. Otherwise, we are in account
+     * modification mode.
+     */
     protected boolean mSettingsMode;
     /*package*/ HostAuth mLoadedSendAuth;
     /*package*/ HostAuth mLoadedRecvAuth;
@@ -158,6 +167,15 @@ public abstract class AccountServerBaseFragment extends Fragment
         }
     }
 
+    @Override
+    public void onPause() {
+        // Hide the soft keyboard if we lose focus
+        InputMethodManager imm =
+                (InputMethodManager)mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+        super.onPause();
+    }
+
     /**
      * Implements OnClickListener
      */
@@ -210,6 +228,42 @@ public abstract class AccountServerBaseFragment extends Fragment
     protected void startDuplicateTaskCheck(long accountId, String checkHost, String checkLogin,
             int checkSettingsMode) {
         new DuplicateCheckTask(accountId, checkHost, checkLogin, checkSettingsMode).execute();
+    }
+
+    /**
+     * Make the given text view uneditable. If the text view is ever focused, the specified
+     * error message will be displayed.
+     */
+    protected void makeTextViewUneditable(final TextView view, final String errorMessage) {
+        // We're editing an existing account; don't allow modification of the user name
+        if (mSettingsMode) {
+            view.setKeyListener(null);
+            view.setFocusable(true);
+            view.setOnFocusChangeListener(new OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        // Framework will not auto-hide IME; do it ourselves
+                        InputMethodManager imm = (InputMethodManager)mContext.
+                                getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+                        view.setError(errorMessage);
+                    } else {
+                        view.setError(null);
+                    }
+                }
+            });
+            view.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (view.getError() == null) {
+                        view.setError(errorMessage);
+                    } else {
+                        view.setError(null);
+                    }
+                }
+            });
+        }
     }
 
     /**
