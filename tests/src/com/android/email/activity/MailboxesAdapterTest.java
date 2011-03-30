@@ -79,7 +79,7 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         createMessage(c, b2t, true, true, Message.FLAG_LOADED_UNLOADED);
 
         // Kick the method
-        Cursor cursor = MailboxesAdapter.getSpecialMailboxesCursor(c, null);
+        Cursor cursor = MailboxFragmentAdapter.CombinedMailboxLoader.getCursor(c, null);
 
         // Check the result
         assertEquals(4, cursor.getCount());

@@ -110,8 +110,10 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
                 .setTitle(activity.getResources().getString(R.string.move_to_folder_dialog_title));
 
         mAdapter =
-            new MailboxesAdapter(builder.getContext(), MailboxesAdapter.MODE_MOVE_TO_TARGET,
-                    new MailboxesAdapter.EmptyCallback());
+            new MailboxMoveToAdapter(builder.getContext(),
+                    new MailboxesAdapter.Callback() {
+                        public void onSetDropTargetBackground(MailboxListItem listItem) {}
+                    });
         builder.setSingleChoiceItems(mAdapter, -1, this);
 
         getLoaderManager().initLoader(
@@ -192,8 +194,8 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     private class MailboxesLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            return MailboxesAdapter.createLoader(getActivity().getApplicationContext(), mAccountId,
-                    MailboxesAdapter.MODE_MOVE_TO_TARGET);
+            return MailboxMoveToAdapter.createLoader(getActivity().getApplicationContext(),
+                    mAccountId);
         }
 
         @Override
