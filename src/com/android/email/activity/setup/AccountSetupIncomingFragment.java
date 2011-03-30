@@ -172,6 +172,11 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
         };
+        // We're editing an existing account; don't allow modification of the user name
+        if (mSettingsMode) {
+            makeTextViewUneditable(mUsernameView,
+                    getString(R.string.account_setup_username_uneditable_error));
+        }
         mUsernameView.addTextChangedListener(validationTextWatcher);
         mPasswordView.addTextChangedListener(validationTextWatcher);
         mServerView.addTextChangedListener(validationTextWatcher);
