@@ -69,21 +69,21 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.NetworkInfo.State;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.os.PowerManager.WakeLock;
 import android.provider.Calendar;
-import android.provider.ContactsContract;
 import android.provider.Calendar.Calendars;
 import android.provider.Calendar.Events;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -95,6 +95,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The SyncManager handles all aspects of starting, maintaining, and stopping the various sync
@@ -210,8 +211,9 @@ public class SyncManager extends Service implements Runnable {
     private Object mStatusChangeListener;
     private EasAccountsUpdatedListener mAccountsUpdatedListener;
 
-    private HashMap<Long, CalendarObserver> mCalendarObservers =
-        new HashMap<Long, CalendarObserver>();
+    // Concurrent because CalendarSyncAdapter can modify the map during a wipe
+    private ConcurrentHashMap<Long, CalendarObserver> mCalendarObservers =
+        new ConcurrentHashMap<Long, CalendarObserver>();
 
     private ContentResolver mResolver;
 
@@ -659,11 +661,14 @@ public class SyncManager extends Service implements Runnable {
     /**
      * Unregister all CalendarObserver's
      */
-    private void unregisterCalendarObservers() {
-        for (CalendarObserver observer: mCalendarObservers.values()) {
-            mResolver.unregisterContentObserver(observer);
+    static public void unregisterCalendarObservers() {
+        SyncManager syncManager = INSTANCE;
+        if (syncManager == null) return;
+        ContentResolver resolver = syncManager.mResolver;
+        for (CalendarObserver observer: syncManager.mCalendarObservers.values()) {
+            resolver.unregisterContentObserver(observer);
         }
-        mCalendarObservers.clear();
+        syncManager.mCalendarObservers.clear();
     }
 
     /**
