@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.activity.UiUtilities;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -65,8 +66,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     private EditText mServerView;
     private EditText mPortView;
     private CheckBox mRequireLoginView;
-    private View mRequireLoginSettingsView;
-    private View mRequireLoginSettingsView2;
     private Spinner mSecurityTypeView;
 
     // Support for lifecycle
@@ -103,14 +102,12 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         View view = inflater.inflate(layoutId, container, false);
         Context context = getActivity();
 
-        mUsernameView = (EditText) view.findViewById(R.id.account_username);
-        mPasswordView = (EditText) view.findViewById(R.id.account_password);
-        mServerView = (EditText) view.findViewById(R.id.account_server);
-        mPortView = (EditText) view.findViewById(R.id.account_port);
-        mRequireLoginView = (CheckBox) view.findViewById(R.id.account_require_login);
-        mRequireLoginSettingsView = view.findViewById(R.id.account_require_login_settings);
-        mRequireLoginSettingsView2 = view.findViewById(R.id.account_require_login_settings_2);
-        mSecurityTypeView = (Spinner) view.findViewById(R.id.account_security_type);
+        mUsernameView = (EditText) UiUtilities.getView(view, R.id.account_username);
+        mPasswordView = (EditText) UiUtilities.getView(view, R.id.account_password);
+        mServerView = (EditText) UiUtilities.getView(view, R.id.account_server);
+        mPortView = (EditText) UiUtilities.getView(view, R.id.account_port);
+        mRequireLoginView = (CheckBox) UiUtilities.getView(view, R.id.account_require_login);
+        mSecurityTypeView = (Spinner) UiUtilities.getView(view, R.id.account_security_type);
         mRequireLoginView.setOnCheckedChangeListener(this);
 
         // Note:  Strings are shared with AccountSetupIncomingFragment
@@ -321,10 +318,9 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        mRequireLoginSettingsView.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-        if (mRequireLoginSettingsView2 != null) {
-            mRequireLoginSettingsView2.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-        }
+        final int visibility = isChecked ? View.VISIBLE : View.GONE;
+        UiUtilities.setVisibilitySafe(getView(), R.id.account_require_login_settings, visibility);
+        UiUtilities.setVisibilitySafe(getView(), R.id.account_require_login_settings_2, visibility);
         validateFields();
     }
 

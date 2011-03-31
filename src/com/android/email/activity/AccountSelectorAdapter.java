@@ -17,7 +17,6 @@
 package com.android.email.activity;
 
 import com.android.email.R;
-import com.android.email.UiUtilities;
 import com.android.email.data.ClosingMatrixCursor;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.provider.EmailContent;

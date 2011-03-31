@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2011 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package com.android.email;
+package com.android.email.activity;
 
+import com.android.email.R;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.view.View;
 
 public class UiUtilities {
+    private UiUtilities() {
+    }
 
     /**
      * Formats the given size as a String in bytes, kB, MB or GB.  Ex: 12,315,000 = 11 MB
@@ -58,5 +64,49 @@ public class UiUtilities {
         } else {
             return Integer.toString(count);
         }
+    }
+
+    /**
+     * Same as {@link Activity#findViewById}, but crashes if there's no view.
+     */
+    public static View getView(Activity parent, int viewId) {
+        return checkView(parent.findViewById(viewId));
+    }
+
+    /**
+     * Same as {@link View#findViewById}, but crashes if there's no view.
+     */
+    public static View getView(View parent, int viewId) {
+        return checkView(parent.findViewById(viewId));
+    }
+
+    private static View checkView(View v) {
+        if (v == null) {
+            throw new IllegalArgumentException("View doesn't exist");
+        }
+        return v;
+    }
+
+    /**
+     * Same as {@link View#setVisibility(int)}, but doesn't crash even if {@code view} is null.
+     */
+    public static void setVisibilitySafe(View v, int visibility) {
+        if (v != null) {
+            v.setVisibility(visibility);
+        }
+    }
+
+    /**
+     * Same as {@link View#setVisibility(int)}, but doesn't crash even if {@code view} is null.
+     */
+    public static void setVisibilitySafe(Activity parent, int viewId, int visibility) {
+        setVisibilitySafe(parent.findViewById(viewId), visibility);
+    }
+
+    /**
+     * Same as {@link View#setVisibility(int)}, but doesn't crash even if {@code view} is null.
+     */
+    public static void setVisibilitySafe(View parent, int viewId, int visibility) {
+        setVisibilitySafe(parent.findViewById(viewId), visibility);
     }
 }

@@ -20,7 +20,6 @@ import com.android.email.AttachmentInfo;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
-import com.android.email.UiUtilities;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.Throttle;

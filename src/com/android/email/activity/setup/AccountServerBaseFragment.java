@@ -17,6 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.R;
+import com.android.email.activity.UiUtilities;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
@@ -66,7 +67,7 @@ public abstract class AccountServerBaseFragment extends Fragment
     /*package*/ HostAuth mLoadedRecvAuth;
 
     // This is null in the setup wizard screens, and non-null in AccountSettings mode
-    public Button mProceedButton;
+    private Button mProceedButton;
     // This is used to debounce multiple clicks on the proceed button (which does async work)
     private boolean mProceedButtonPressed;
     /*package*/ String mBaseScheme = "protocol";
@@ -145,8 +146,8 @@ public abstract class AccountServerBaseFragment extends Fragment
      */
     protected void onCreateViewSettingsMode(View view) {
         if (mSettingsMode) {
-            view.findViewById(R.id.cancel).setOnClickListener(this);
-            mProceedButton = (Button) view.findViewById(R.id.done);
+            UiUtilities.getView(view, R.id.cancel).setOnClickListener(this);
+            mProceedButton = (Button) UiUtilities.getView(view, R.id.done);
             mProceedButton.setOnClickListener(this);
             mProceedButton.setEnabled(false);
         }

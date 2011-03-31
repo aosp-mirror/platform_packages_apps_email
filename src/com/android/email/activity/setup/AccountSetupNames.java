@@ -19,6 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.AccountBackupRestore;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.UiUtilities;
 import com.android.email.activity.Welcome;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -47,6 +48,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
 
     private EditText mDescription;
     private EditText mName;
+    private View mAccountNameLabel;
     private Button mNextButton;
     private boolean mNextPressed = false;
     private boolean mEasAccount = false;
@@ -60,9 +62,10 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.account_setup_names);
-        mDescription = (EditText) findViewById(R.id.account_description);
-        mName = (EditText) findViewById(R.id.account_name);
-        mNextButton = (Button) findViewById(R.id.next);
+        mDescription = (EditText) UiUtilities.getView(this, R.id.account_description);
+        mName = (EditText) UiUtilities.getView(this, R.id.account_name);
+        mAccountNameLabel = UiUtilities.getView(this, R.id.account_name_label);
+        mNextButton = (Button) UiUtilities.getView(this, R.id.next);
         mNextButton.setOnClickListener(this);
 
         TextWatcher validationTextWatcher = new TextWatcher() {
@@ -91,7 +94,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         mEasAccount = "eas".equals(account.mHostAuthRecv.mProtocol);
         if (mEasAccount) {
             mName.setVisibility(View.GONE);
-            findViewById(R.id.account_name_label).setVisibility(View.GONE);
+            mAccountNameLabel.setVisibility(View.GONE);
         }
         /*
          * Since this field is considered optional, we don't set this here. If
