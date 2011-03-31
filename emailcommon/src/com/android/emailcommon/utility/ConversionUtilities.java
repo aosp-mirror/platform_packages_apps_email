@@ -20,7 +20,6 @@ import com.android.emailcommon.internet.MimeHeader;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
-import com.android.emailcommon.mail.Snippet;
 import com.android.emailcommon.provider.EmailContent;
 
 import android.text.TextUtils;
@@ -116,13 +115,13 @@ public class ConversionUtilities {
         if (!TextUtils.isEmpty(sbText)) {
             String text = sbText.toString();
             body.mTextContent = text;
-            localMessage.mSnippet = Snippet.fromPlainText(text);
+            localMessage.mSnippet = TextUtilities.makeSnippetFromPlainText(text);
         }
         if (!TextUtils.isEmpty(sbHtml)) {
             String text = sbHtml.toString();
             body.mHtmlContent = text;
             if (localMessage.mSnippet == null) {
-                localMessage.mSnippet = Snippet.fromHtmlText(text);
+                localMessage.mSnippet = TextUtilities.makeSnippetFromHtmlText(text);
             }
         }
         if (sbHtmlReply != null && sbHtmlReply.length() != 0) {

@@ -16,7 +16,7 @@
 
 package com.android.emailcommon.provider;
 
-import com.android.emailcommon.mail.Snippet;
+import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentProviderOperation;
@@ -839,9 +839,9 @@ public abstract class EmailContent {
             ContentProviderOperation.Builder b = ContentProviderOperation.newInsert(mBaseUri);
             // Generate the snippet here, before we create the CPO for Message
             if (mText != null) {
-                mSnippet = Snippet.fromPlainText(mText);
+                mSnippet = TextUtilities.makeSnippetFromPlainText(mText);
             } else if (mHtml != null) {
-                mSnippet = Snippet.fromHtmlText(mHtml);
+                mSnippet = TextUtilities.makeSnippetFromHtmlText(mHtml);
             }
             ops.add(b.withValues(toContentValues()).build());
 

@@ -16,7 +16,6 @@
 
 package com.android.email.provider;
 
-import com.android.emailcommon.mail.Snippet;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -29,6 +28,7 @@ import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentResolver;
@@ -46,7 +46,6 @@ import android.test.ProviderTestCase2;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 /**
@@ -504,7 +503,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         message.save(mMockContext);
         Message restoredMessage = Message.restoreMessageWithId(mMockContext, message.mId);
         // We should have the plain text as the snippet
-        assertEquals(restoredMessage.mSnippet, Snippet.fromPlainText(message.mText));
+        assertEquals(restoredMessage.mSnippet,
+                TextUtilities.makeSnippetFromPlainText(message.mText));
 
         // Start again
         message = ProviderTestUtils.setupMessage("message", account.mId, box.mId, false,
@@ -514,7 +514,8 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         message.save(mMockContext);
         restoredMessage = Message.restoreMessageWithId(mMockContext, message.mId);
         // We should have the plain text as the snippet
-        assertEquals(restoredMessage.mSnippet, Snippet.fromHtmlText(message.mHtml));
+        assertEquals(restoredMessage.mSnippet,
+                TextUtilities.makeSnippetFromHtmlText(message.mHtml));
     }
 
     /**
