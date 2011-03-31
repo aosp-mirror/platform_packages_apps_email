@@ -886,7 +886,7 @@ public class Controller {
             } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method
                 // is implemented for other protocols
-                Log.e("onDownloadAttachment", "RemoteException", e);
+                Log.e("searchMessages", "RemoteException", e);
             }
         }
     }

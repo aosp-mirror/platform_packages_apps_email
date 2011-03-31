@@ -23,6 +23,7 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
@@ -68,6 +69,9 @@ import java.util.Set;
 
     /** If true, show color chips. */
     private boolean mShowColorChips;
+
+    /** If not null, the query represented by this group of messages */
+    private String mQuery;
 
     /**
      * Set of seleced message IDs.
@@ -118,6 +122,10 @@ import java.util.Set;
         mShowColorChips = show;
     }
 
+    public void setQuery(String query) {
+        mQuery = query;
+    }
+
     public Set<Long> getSelectedSet() {
         return mSelectedSet;
     }
@@ -149,6 +157,11 @@ import java.util.Set;
         itemView.mSnippetLineCount = MessageListItem.NEEDS_LAYOUT;
         itemView.mColorChipPaint =
             mShowColorChips ? mResourceHelper.getAccountColorPaint(accountId) : null;
+
+        if (mQuery != null && itemView.mSnippet != null) {
+            itemView.mSnippet =
+                TextUtilities.highlightTermsInText(cursor.getString(COLUMN_SNIPPET), mQuery);
+        }
     }
 
     @Override
@@ -209,7 +222,7 @@ import java.util.Set;
 
     }
 
-    private static class MessagesCursorLoader extends ThrottlingCursorLoader {
+    static private class MessagesCursorLoader extends ThrottlingCursorLoader {
         private final Context mContext;
         private final long mMailboxId;
 

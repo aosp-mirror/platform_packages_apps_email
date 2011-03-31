@@ -32,7 +32,7 @@ import java.util.StringTokenizer;
 public class TextUtilities {
     // Highlight color is yellow, as in other apps.
     // TODO Push for this to be a global (style-related?) constant
-    private static final int HIGHLIGHT_COLOR_INT = Color.YELLOW;
+    public static final int HIGHLIGHT_COLOR_INT = Color.YELLOW;
     // We AND off the "alpha" from the color (i.e. 0xFFFFFF00 -> 0x00FFFF00)
     /*package*/ static final String HIGHLIGHT_COLOR_STRING =
         '#' + Integer.toHexString(HIGHLIGHT_COLOR_INT & 0x00FFFFFF);
