@@ -2311,6 +2311,8 @@ public abstract class EmailContent {
         public static final int TYPE_TRASH = 6;
         // Holds junk mail
         public static final int TYPE_JUNK = 7;
+        // A mailbox that holds search results
+        public static final int TYPE_SEARCH = 8;
 
         // Types after this are used for non-mail mailboxes (as in EAS)
         public static final int TYPE_NOT_EMAIL = 0x40;

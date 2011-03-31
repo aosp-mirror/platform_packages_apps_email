@@ -55,4 +55,8 @@ interface IEmailService {
     void deleteAccountPIMData(long accountId);
 
     int getApiLevel();
+
+    // API level 2
+    int searchMessages(long accountId, long mailboxId, boolean includeSubfolders, String query,
+        int numResults, int firstResult, long destMailboxId);
 }

@@ -18,7 +18,11 @@ package com.android.emailcommon;
 
 /**
  * This class will be used for API-related definitions; for now, just the api "level"
+ *
+ * Level 1: As shipped in HC/MR1
+ * Level 2: Adds searchMessages to EmailService
+ *
  */
 public class Api {
-    public static final int LEVEL = 1;
+    public static final int LEVEL = 2;
 }

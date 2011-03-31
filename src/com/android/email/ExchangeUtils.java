@@ -117,7 +117,7 @@ public class ExchangeUtils {
         public void setCallback(IEmailServiceCallback cb) throws RemoteException {
         }
 
-        public void setLogging(int on) throws RemoteException {
+        public void setLogging(int flags) throws RemoteException {
         }
 
         public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
@@ -138,6 +138,11 @@ public class ExchangeUtils {
         }
 
         public void deleteAccountPIMData(long accountId) throws RemoteException {
+        }
+
+        public int searchMessages(long accountId, long mailboxId, boolean includeSubfolders,
+                String query, int numResults, int firstResult, long destMailboxId) {
+            return 0;
         }
 
         public IBinder asBinder() {
