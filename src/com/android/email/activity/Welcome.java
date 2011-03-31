@@ -24,13 +24,13 @@ import com.android.email.service.MailService;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 /**
@@ -39,7 +39,7 @@ import android.os.Bundle;
  *
  * This class knows which activity should be launched under the current configuration (screen size)
  * and the number of accounts configured.  So if you want to open an account or a mailbox,
- * you should alawys do so via its static methods, such as {@link #actionOpenAccountInbox}.
+ * you should always do so via its static methods, such as {@link #actionOpenAccountInbox}.
  */
 public class Welcome extends Activity {
     /*
@@ -72,6 +72,8 @@ public class Welcome extends Activity {
     private static final String EXTRA_DEBUG_PANE_MODE = "DEBUG_PANE_MODE";
 
     private static final String VIEW_MAILBOX_INTENT_URL_PATH = "/view/mailbox";
+
+    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     /**
      * @return true if the two-pane activity should be used on the current configuration.
@@ -166,11 +168,13 @@ public class Welcome extends Activity {
         final long mailboxId = IntentUtilities.getMailboxIdFromIntent(intent);
         final long messageId = IntentUtilities.getMessageIdFromIntent(intent);
         final int debugPaneMode = getDebugPaneMode(getIntent());
-        new MainActivityLauncher(this, accountId, mailboxId, messageId, debugPaneMode).execute();
+        new MainActivityLauncher(this, accountId, mailboxId, messageId, debugPaneMode)
+                .executeParallel();
     }
 
     @Override
     public void onDestroy() {
+        mTaskTracker.cancellAllInterrupt();
         super.onDestroy();
     }
 
@@ -180,15 +184,16 @@ public class Welcome extends Activity {
      *
      * if {@code account} is -1, open the default account.
      */
-    private static class MainActivityLauncher extends AsyncTask<Void, Void, Void> {
-        private final Activity mFromActivity;
+    private static class MainActivityLauncher extends EmailAsyncTask<Void, Void, Void> {
+        private final Welcome mFromActivity;
         private final int mDebugPaneMode;
         private final long mAccountId;
         private final long mMailboxId;
         private final long mMessageId;
 
-        public MainActivityLauncher(Activity fromActivity, long accountId, long mailboxId,
+        public MainActivityLauncher(Welcome fromActivity, long accountId, long mailboxId,
                 long messageId, int debugPaneMode) {
+            super(fromActivity.mTaskTracker);
             mFromActivity = fromActivity;
             mAccountId = accountId;
             mMailboxId = mailboxId;

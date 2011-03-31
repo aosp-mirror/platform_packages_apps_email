@@ -25,6 +25,7 @@ import com.android.email.activity.Welcome;
 import com.android.email.provider.WidgetProvider.WidgetService;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.PendingIntent;
@@ -39,7 +40,6 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.net.Uri.Builder;
-import android.os.AsyncTask;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -127,6 +127,8 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
 
     /** The current view type */
     /* package */ WidgetView mWidgetView = WidgetView.UNINITIALIZED_VIEW;
+
+    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     public EmailWidget(Context context, int _widgetId) {
         super();
@@ -519,6 +521,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         if (mLoader != null) {
             mLoader.reset();
         }
+        mTaskTracker.cancellAllInterrupt();
         WidgetManager.getInstance().remove(mWidgetId);
     }
 
@@ -530,33 +533,36 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
      * Update the widget.  If the current view is invalid, switch to the next view, then update.
      */
     /* package */ void validateAndUpdate() {
-        new WidgetUpdater(false).execute();
+        new WidgetUpdater(this, false).cancelPreviousAndExecuteParallel();
     }
 
     /**
      * Switch to the next view.
      */
     /* package */ void switchView() {
-        new WidgetUpdater(true).execute();
+        new WidgetUpdater(this, true).cancelPreviousAndExecuteParallel();
     }
 
     /**
      * Update the widget.  If {@code switchToNextView} is set true, or the current view is invalid,
      * switch to the next view.
      */
-    private class WidgetUpdater extends AsyncTask<Void, Void, WidgetView> {
+    private static class WidgetUpdater extends EmailAsyncTask<Void, Void, WidgetView> {
+        private final EmailWidget mParent;
         private final WidgetView mCurrentView;
         private final boolean mSwitchToNextView;
 
-        public WidgetUpdater(boolean switchToNextView) {
-            mCurrentView = mWidgetView;
+        public WidgetUpdater(EmailWidget parent, boolean switchToNextView) {
+            super(parent.mTaskTracker);
+            mParent = parent;
+            mCurrentView = mParent.mWidgetView;
             mSwitchToNextView = switchToNextView;
         }
 
         @Override
         protected WidgetView doInBackground(Void... params) {
-            if (mSwitchToNextView || !mCurrentView.isValid(mContext)) {
-                return mCurrentView.getNext(mContext);
+            if (mSwitchToNextView || !mCurrentView.isValid(mParent.mContext)) {
+                return mCurrentView.getNext(mParent.mContext);
             } else {
                 return mCurrentView; // Reload the same view.
             }
@@ -565,7 +571,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         @Override
         protected void onPostExecute(WidgetView nextView) {
             if (nextView != null) {
-                loadView(nextView);
+                mParent.loadView(nextView);
             }
         }
     }
