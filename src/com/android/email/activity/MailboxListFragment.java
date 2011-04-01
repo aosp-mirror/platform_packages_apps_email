@@ -24,6 +24,7 @@ import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
@@ -160,8 +161,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         mActivity = getActivity();
         mRefreshManager = RefreshManager.getInstance(mActivity);
-        mListAdapter = new MailboxesAdapter(mActivity, MailboxesAdapter.MODE_NORMAL,
-                mMailboxesAdapterCallback);
+        mListAdapter = new MailboxFragmentAdapter(mActivity, mMailboxesAdapterCallback);
         if (savedInstanceState != null) {
             restoreInstanceState(savedInstanceState);
         }
@@ -357,8 +357,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, "MailboxListFragment onCreateLoader");
             }
-            return MailboxesAdapter.createLoader(getActivity(), mAccountId,
-                    MailboxesAdapter.MODE_NORMAL);
+            return MailboxFragmentAdapter.createLoader(getActivity(), mAccountId);
         }
 
         @Override
@@ -452,7 +451,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 if (ensureSelectionVisible) {
                     Utility.listViewSmoothScrollToPosition(getActivity(), mListView, i);
                 }
-                mailboxName = mListAdapter.getDisplayName(i);
+                mailboxName = mListAdapter.getDisplayName(mActivity, i);
                 unreadCount = mListAdapter.getUnreadCount(i);
                 break;
             }
@@ -593,7 +592,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (mDragInProgress) {
             mDragInProgress = false;
             // Reenable updates to the view and redraw (in case it changed)
-            mListAdapter.enableUpdates(true);
+            MailboxesAdapter.enableUpdates(true);
             mListAdapter.notifyDataSetChanged();
             // Stop highlighting targets
             updateChildViews();
@@ -626,7 +625,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 }
                 mDragInProgress = true;
                 // Stop the list from updating
-                mListAdapter.enableUpdates(false);
+                MailboxesAdapter.enableUpdates(false);
                 // Update the backgrounds of our child views to highlight drop targets
                 updateChildViews();
                 return true;
@@ -654,7 +653,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             messageIds[i] = id;
         }
         // Call either deleteMessage or moveMessage, depending on the target
-        Utility.runAsync(new Runnable() {
+        EmailAsyncTask.runAsyncSerial(new Runnable() {
             @Override
             public void run() {
                 if (mDropTargetView.mMailboxType == Mailbox.TYPE_TRASH) {
@@ -668,7 +667,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 } else {
                     controller.moveMessage(messageIds, mDropTargetView.mMailboxId);
                 }
-            }});
+            }
+        });
         return true;
     }
 
