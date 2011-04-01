@@ -62,7 +62,7 @@ import android.widget.TextView;
 
         // Set the background depending on whether we're in drag mode, the mailbox is a valid
         // target, etc.
-        mCallback.onSetDropTargetBackground(listItem);
+        mCallback.onBind(listItem);
 
         // Set mailbox name
         final TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);

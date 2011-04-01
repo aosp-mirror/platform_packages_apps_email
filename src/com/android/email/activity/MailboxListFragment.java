@@ -115,7 +115,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private MailboxesAdapter.Callback mMailboxesAdapterCallback = new MailboxesAdapter.Callback() {
         @Override
-        public void onSetDropTargetBackground(MailboxListItem listItem) {
+        public void onBind(MailboxListItem listItem) {
             listItem.setDropTargetBackground(mDragInProgress, mDragItemMailboxId);
         }
     };

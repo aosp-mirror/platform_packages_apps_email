@@ -48,7 +48,7 @@ import android.widget.CursorAdapter;
      */
     public interface Callback {
         /** Callback for setting background of mailbox list items during a drag */
-        public void onSetDropTargetBackground(MailboxListItem listItem);
+        public void onBind(MailboxListItem listItem);
     }
 
     /**
@@ -95,6 +95,14 @@ import android.widget.CursorAdapter;
             " ELSE 10 END" +
             " ," + MailboxColumns.DISPLAY_NAME;
 
+    /** Do-nothing callback to avoid null tests for <code>mCallback</code>. */
+    private static final class EmptyCallback implements Callback {
+        public static final Callback INSTANCE = new EmptyCallback();
+        @Override
+        public void onBind(MailboxListItem listItem) {
+        }
+    }
+
     static boolean sEnableUpdate = true;
     final LayoutInflater mInflater;
     final ResourceHelper mResourceHelper;
@@ -103,7 +111,7 @@ import android.widget.CursorAdapter;
     /*package*/ MailboxesAdapter(Context context, Callback callback) {
         super(context, null, 0 /* flags; no content observer */);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mCallback = callback;
+        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
         mResourceHelper = ResourceHelper.getInstance(context);
     }
 
