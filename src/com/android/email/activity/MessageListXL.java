@@ -68,8 +68,7 @@ public class MessageListXL extends Activity implements
     private Context mContext;
     private Controller mController;
     private RefreshManager mRefreshManager;
-    private final RefreshListener mMailRefreshManagerListener
-            = new RefreshListener();
+    private final RefreshListener mRefreshListener = new RefreshListener();
     private Controller.Result mControllerResult;
 
     /** True between onCreate() to onDestroy() */
@@ -161,7 +160,7 @@ public class MessageListXL extends Activity implements
         mContext = getApplicationContext();
         mController = Controller.getInstance(this);
         mRefreshManager = RefreshManager.getInstance(this);
-        mRefreshManager.registerListener(mMailRefreshManagerListener);
+        mRefreshManager.registerListener(mRefreshListener);
 
         mFragmentManager.setMailboxListFragmentCallback(new MailboxListFragmentCallback());
         mFragmentManager.setMessageListFragmentCallback(new MessageListFragmentCallback());
@@ -264,7 +263,7 @@ public class MessageListXL extends Activity implements
         mIsCreated = false;
         mController.removeResultCallback(mControllerResult);
         mTaskTracker.cancellAllInterrupt();
-        mRefreshManager.unregisterListener(mMailRefreshManagerListener);
+        mRefreshManager.unregisterListener(mRefreshListener);
         mFragmentManager.onDestroy();
         super.onDestroy();
     }
@@ -433,6 +432,10 @@ public class MessageListXL extends Activity implements
     }
 
     private class MessageListFragmentCallback implements MessageListFragment.Callback {
+        @Override
+        public void onListLoaded() {
+        }
+
         @Override
         public void onMessageOpen(long messageId, long messageMailboxId, long listMailboxId,
                 int type) {
@@ -721,20 +724,14 @@ public class MessageListXL extends Activity implements
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.refresh);
-        if (item != null) {
-            item.setVisible(shouldShowRefreshButton());
-            if (isProgressActive()) {
-                // Turn it into a progress icon.
-                item.setActionView(R.layout.action_bar_indeterminate_progress);
-            } else {
-                item.setActionView(null);
-            }
-        }
+        ActivityHelper.updateRefreshMenuIcon(
+                menu.findItem(R.id.refresh), shouldShowRefreshButton(), isProgressActive());
         return super.onPrepareOptionsMenu(menu);
     }
 
     private boolean shouldShowRefreshButton() {
+        // - Don't show for combined inboxes, but
+        // - Show even for non-refreshable mailboxes, in which case we refresh the mailbox list.
         return -1 != mFragmentManager.getActualAccountId();
     }
 

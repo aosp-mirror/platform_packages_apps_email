@@ -17,13 +17,11 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
-import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
-import com.android.email.MessagingExceptionStrings;
 import com.android.email.R;
+import com.android.email.RefreshManager;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
-import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 
@@ -32,7 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,8 +49,9 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
     private MessageListFragment mListFragment;
     private TextView mErrorBanner;
 
-    private final Controller mController = Controller.getInstance(getApplication());
-    private ControllerResultUiThreadWrapper<ControllerResults> mControllerCallback;
+    private Controller mController;
+    private RefreshManager mRefreshManager;
+    private final RefreshListener mRefreshListener = new RefreshListener();
 
     private MailboxFinder mMailboxFinder;
     private final MailboxFinderCallback mMailboxFinderCallback = new MailboxFinderCallback();
@@ -68,10 +67,10 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
      * accounts/mailboxes (e.g. merged inboxes).
      *
      * @param context
-     * @param id mailbox key
+     * @param mailboxType mailbox key
      */
-    public static void actionHandleMailbox(Context context, long id) {
-        context.startActivity(createIntent(context, -1, id, -1));
+    public static void actionHandleMailbox(Context context, long mailboxType) {
+        context.startActivity(createIntent(context, -1, mailboxType, -1));
     }
 
     /**
@@ -83,16 +82,6 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
      */
     public static void actionHandleAccount(Context context, long accountId, int mailboxType) {
         context.startActivity(createIntent(context, accountId, -1, mailboxType));
-    }
-
-    /**
-     * Open the inbox of the account with a UUID.  It's used to handle old style
-     * (Android <= 1.6) desktop shortcut intents.
-     */
-    public static void actionOpenAccountInboxUuid(Context context, String accountUuid) {
-        Intent i = createIntent(context, -1, -1, Mailbox.TYPE_INBOX);
-        i.setData(Account.getShortcutSafeUriFromUuid(accountUuid));
-        context.startActivity(i);
     }
 
     /**
@@ -113,29 +102,15 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
         return intent;
     }
 
-    /**
-     * Create and return an intent for a desktop shortcut for an account.
-     *
-     * @param context Calling context for building the intent
-     * @param account The account of interest
-     * @param mailboxType The folder name to open (typically Mailbox.TYPE_INBOX)
-     * @return an Intent which can be used to view that account
-     */
-    public static Intent createAccountIntentForShortcut(Context context, Account account,
-            int mailboxType) {
-        Intent i = createIntent(context, -1, -1, mailboxType);
-        i.setData(account.getShortcutSafeUri());
-        return i;
-    }
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.message_list);
 
-        mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
-                new Handler(), new ControllerResults());
+        mController = Controller.getInstance(this);
+        mRefreshManager = RefreshManager.getInstance(this);
+        mRefreshManager.registerListener(mRefreshListener);
         mListFragment = (MessageListFragment) getFragmentManager()
                 .findFragmentById(R.id.message_list_fragment);
         mErrorBanner = (TextView) findViewById(R.id.connection_error_text);
@@ -173,16 +148,8 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        mController.removeResultCallback(mControllerCallback);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
-        mController.addResultCallback(mControllerCallback);
-
         // Exit immediately if the accounts list has changed (e.g. externally deleted)
         if (Email.getNotifyUiAccountsChanged()) {
             Welcome.actionStart(this);
@@ -193,12 +160,12 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
         if (mMailboxFinder != null) {
             mMailboxFinder.cancel();
             mMailboxFinder = null;
         }
+        mRefreshManager.unregisterListener(mRefreshListener);
+        super.onDestroy();
     }
 
 
@@ -207,9 +174,16 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
         finish();
     }
 
+    @Override
+    public void onListLoaded() {
+        // Now we know if the mailbox is refreshable
+        updateProgressIcon();
+    }
+
     /**
      * Called when the list fragment can't find mailbox/account.
      */
+    @Override
     public void onMailboxNotFound() {
         finish();
     }
@@ -220,7 +194,7 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
             MessageCompose.actionEditDraft(this, messageId);
         } else {
             // WARNING: here we pass "listMailboxId", which can be the negative id of
-            // a compound mailbox, instead of the mailboxId of the particular message that
+            // a combined mailbox, instead of the mailboxId of the particular message that
             // is opened.  This is to support the next/prev buttons on the message view
             // properly even for combined mailboxes.
             MessageView.actionView(this, messageId, listMailboxId);
@@ -239,7 +213,12 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        // TODO Disable "refresh" for combined mailboxes
+        // this method can be called in the very early stage of the activity lifecycle, where
+        // mListFragment isn't ready yet.
+        boolean show = (mListFragment != null) && mListFragment.isRefreshable();
+        boolean animate = (mListFragment != null) && mRefreshManager.isMessageListRefreshing(
+                mListFragment.getMailboxId());
+        ActivityHelper.updateRefreshMenuIcon(menu.findItem(R.id.refresh), show, animate);
         return true;
     }
 
@@ -267,13 +246,11 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
     }
 
     private void onFolders() {
-        if (!mListFragment.isMagicMailbox()) { // Magic boxes don't have "folders" option.
-            // TODO smaller projection
-            Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mListFragment.getMailboxId());
-            if (mailbox != null) {
-                MailboxList.actionHandleAccount(this, mailbox.mAccountKey);
-                finish();
-            }
+        long accountId = mListFragment.getAccountId();
+        // accountId will be -1 when a) mailbox is still loading, or for magic mailboxes.
+        if (accountId != -1) {
+            MailboxList.actionHandleAccount(this, accountId);
+            finish();
         }
     }
 
@@ -283,10 +260,12 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
     }
 
     private void onCompose() {
+        // Passing account = -1 is okay -- the default account will be used.
         MessageCompose.actionCompose(this, mListFragment.getAccountId());
     }
 
     private void onEditAccount() {
+        // Passing account = -1 is okay
         AccountSettingsXL.actionSettings(this, mListFragment.getAccountId());
     }
 
@@ -302,16 +281,15 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
             case REQUEST_SECURITY:
                 onAccounts();
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void showProgressIcon(boolean show) {
-        // TODO Show "refreshing" icon somewhere. (It's on the action bar on xlarge.)
+    private void updateProgressIcon() {
+        invalidateOptionsMenu(); // animate/stop refreshing icon
     }
 
     private void showErrorBanner(String message) {
         boolean isVisible = mErrorBanner.getVisibility() == View.VISIBLE;
-        if (message != null) {
+        if (!TextUtils.isEmpty(message)) {
             mErrorBanner.setText(message);
             if (!isVisible) {
                 mErrorBanner.setVisibility(View.VISIBLE);
@@ -329,78 +307,17 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
         }
     }
 
-    /**
-     * TODO This should probably be removed -- use RefreshManager instead to update the progress
-     * icon and the error banner.
-     *
-     * Controller results listener.  We wrap it with {@link ControllerResultUiThreadWrapper},
-     * so all methods are called on the UI thread.
-     */
-    private class ControllerResults extends Controller.Result {
-
-        // This is used to alter the connection banner operation for sending messages
-        private MessagingException mSendMessageException;
-
-        // TODO check accountKey and only react to relevant notifications
+    private class RefreshListener implements RefreshManager.Listener {
         @Override
-        public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int progress, int numNewMessages) {
-            updateBanner(result, progress, mailboxKey);
-            updateProgress(result, progress);
+        public void onMessagingError(long accountId, long mailboxId, String message) {
+            updateProgressIcon();
+            showErrorBanner(message);
         }
 
-        /**
-         * We alter the updateBanner hysteresis here to capture any failures and handle
-         * them just once at the end.  This callback is overly overloaded:
-         *  result == null, messageId == -1, progress == 0:     start batch send
-         *  result == null, messageId == xx, progress == 0:     start sending one message
-         *  result == xxxx, messageId == xx, progress == 0;     failed sending one message
-         *  result == null, messageId == -1, progres == 100;    finish sending batch
-         */
         @Override
-        public void sendMailCallback(MessagingException result, long accountId, long messageId,
-                int progress) {
-            if (mListFragment.isOutbox()) {
-                // reset captured error when we start sending one or more messages
-                if (messageId == -1 && result == null && progress == 0) {
-                    mSendMessageException = null;
-                }
-                // capture first exception that comes along
-                if (result != null && mSendMessageException == null) {
-                    mSendMessageException = result;
-                }
-                // if we're completing the sequence, change the banner state
-                if (messageId == -1 && progress == 100) {
-                    updateBanner(mSendMessageException, progress, mListFragment.getMailboxId());
-                }
-                // always update the spinner, which has less state to worry about
-                updateProgress(result, progress);
-            }
-        }
-
-        private void updateProgress(MessagingException result, int progress) {
-            showProgressIcon(result == null && progress < 100);
-        }
-
-        /**
-         * Show or hide the connection error banner, and convert the various MessagingException
-         * variants into localizable text.  There is hysteresis in the show/hide logic:  Once shown,
-         * the banner will remain visible until some progress is made on the connection.  The
-         * goal is to keep it from flickering during retries in a bad connection state.
-         *
-         * @param result
-         * @param progress
-         */
-        private void updateBanner(MessagingException result, int progress, long mailboxKey) {
-            if (mailboxKey != mListFragment.getMailboxId()) {
-                return;
-            }
-            if (result != null) {
-                showErrorBanner(
-                        MessagingExceptionStrings.getErrorString(MessageList.this, result));
-            } else if (progress > 0) {
-                showErrorBanner(null);
-            }
+        public void onRefreshStatusChanged(long accountId, long mailboxId) {
+            updateProgressIcon();
+            showErrorBanner(null);
         }
     }
 

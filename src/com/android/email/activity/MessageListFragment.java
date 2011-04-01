@@ -169,6 +169,9 @@ public class MessageListFragment extends ListFragment
         public static final int TYPE_DRAFT = 1;
         public static final int TYPE_TRASH = 2;
 
+        /** Called when a mailbox list is loaded.  */
+        public void onListLoaded();
+
         /**
          * Called when the specified mailbox does not exist.
          */
@@ -198,6 +201,10 @@ public class MessageListFragment extends ListFragment
 
     private static final class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
+
+        @Override
+        public void onListLoaded() {
+        }
 
         @Override
         public void onMailboxNotFound() {
@@ -443,6 +450,13 @@ public class MessageListFragment extends ListFragment
      */
     public boolean isMagicMailbox() {
         return mMailboxId < 0;
+    }
+
+    /**
+     * @return true if the mailbox is refreshable.  false otherwise, or unknown yet.
+     */
+    public boolean isRefreshable() {
+        return mIsRefreshable;
     }
 
     /**
@@ -1195,6 +1209,8 @@ public class MessageListFragment extends ListFragment
 
             // Clear this for next reload triggered by content changed events.
             mMailboxChanging = false;
+
+            mCallback.onListLoaded();
         }
 
         @Override

@@ -27,6 +27,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Browser;
+import android.view.MenuItem;
 import android.view.WindowManager;
 
 /**
@@ -136,6 +137,19 @@ public final class ActivityHelper {
             // Set the flag in the activity's window
             activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+        }
+    }
+
+    public static void updateRefreshMenuIcon(MenuItem item, boolean show, boolean animate) {
+        if (show) {
+            item.setVisible(true);
+            if (animate) {
+                item.setActionView(R.layout.action_bar_indeterminate_progress);
+            } else {
+                item.setActionView(null);
+            }
+        } else {
+            item.setVisible(false);
         }
     }
 }
