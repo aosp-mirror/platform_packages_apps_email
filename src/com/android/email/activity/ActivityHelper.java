@@ -20,6 +20,7 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
@@ -107,7 +108,7 @@ public final class ActivityHelper {
     public static void moveMessages(final Activity activity, final long newMailboxId,
             final long[] messageIds) {
         Controller.getInstance(activity).moveMessage(messageIds, newMailboxId);
-        Utility.runAsync(new Runnable() {
+        EmailAsyncTask.runAsyncSerial(new Runnable() {
             @Override
             public void run() {
                 String mailboxName = Mailbox.getDisplayName(activity, newMailboxId);
