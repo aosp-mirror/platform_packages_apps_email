@@ -15,7 +15,6 @@
 -->
 
 <!-- small -->
-<!-- TODO Simplify this.  This layout is way too deep. -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent" android:layout_width="match_parent"
@@ -85,7 +84,7 @@
                     android:layout_marginRight="6dip"
                     android:hint="@string/message_compose_subject_hint"
                     android:inputType
-                        ="textEmailSubject|textAutoCorrect|textCapSentences|textImeMultiLine"
+                        ="textEmailSubject|textAutoCorrect|textCapSentences|textMultiLine"
                     android:imeOptions="actionNext"
                     />
                 <!--
@@ -158,27 +157,4 @@
                 />
         </LinearLayout>
     </ScrollView>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="5dip"
-        android:paddingLeft="4dip"
-        android:paddingRight="4dip"
-        android:paddingBottom="1dip"
-        android:background="@android:drawable/bottom_bar" >
-        <Button
-            android:id="@+id/add_cc_bcc"
-            android:text="@string/add_cc_bcc_action"
-            android:layout_height="match_parent"
-            android:layout_width="0dip"
-            android:layout_weight="1" />
-        <Button
-            android:id="@+id/add_attachment"
-            android:text="@string/add_attachment_action"
-            android:layout_height="match_parent"
-            android:layout_width="0dip"
-            android:layout_weight="1" />
-    </LinearLayout>
 </LinearLayout>
