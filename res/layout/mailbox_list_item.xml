@@ -17,7 +17,7 @@
 <!-- extends RelativeLayout  -->
 <!--
   NOTE: Don't set padding for this.
-  Background of this view will be changed by code, which resets padding.
+  Background of this view will be changed by code for D&D, which resets padding.
 -->
 <com.android.email.activity.MailboxListItem
     xmlns:android="http://schemas.android.com/apk/res/android"

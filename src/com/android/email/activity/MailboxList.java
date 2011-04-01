@@ -44,6 +44,9 @@ import android.view.Window;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
+// TODO: This has a lot in common with MessageList --should we merge them somehow?
+// But maybe we'll need to move to a single activity style anyway -- let's not worry about it too
+// much for now.  We might even completely ditch this activity and switch to a dialog.
 public class MailboxList extends Activity implements MailboxListFragment.Callback {
 
     // Intent extras (internal to this activity)
@@ -155,7 +158,6 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
             finish();
             return;
         }
-        // TODO: may need to clear notifications here
     }
 
     @Override
