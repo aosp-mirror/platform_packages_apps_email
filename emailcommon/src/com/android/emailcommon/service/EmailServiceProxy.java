@@ -36,7 +36,7 @@ import java.io.IOException;
  * process so that the caller need not be concerned with it.
  *
  * Use the class like this:
- *   new EmailServiceClass(context, class).loadAttachment(attachmentId, callback)
+ *   new EmailServiceProxy(context, class).loadAttachment(attachmentId, callback)
  *
  * Methods without a return value return immediately (i.e. are asynchronous); methods with a
  * return value wait for a result from the Service (i.e. they should not be called from the UI
@@ -111,6 +111,16 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         return Api.LEVEL;
     }
 
+    /**
+     * Request an attachment to be loaded; the service MUST give higher priority to
+     * non-background loading.  The service MUST use the loadAttachmentStatus callback when
+     * loading has started and stopped and SHOULD send callbacks with progress information if
+     * possible.
+     *
+     * @param attachmentId the id of the attachment record
+     * @param background whether or not this request corresponds to a background action (i.e.
+     * prefetch) vs a foreground action (user request)
+     */
     public void loadAttachment(final long attachmentId, final boolean background)
             throws RemoteException {
         setTask(new ProxyTask() {
@@ -132,6 +142,14 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "loadAttachment");
     }
 
+    /**
+     * Request the sync of a mailbox; the service MUST send the syncMailboxStatus callback
+     * indicating "starting" and "finished" (or error), regardless of whether the mailbox is
+     * actually syncable.
+     *
+     * @param mailboxId the id of the mailbox record
+     * @param userRequest whether or not the user specifically asked for the sync
+     */
     public void startSync(final long mailboxId, final boolean userRequest) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
@@ -141,6 +159,14 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "startSync");
     }
 
+    /**
+     * Request the immediate termination of a mailbox sync. Although the service is not required to
+     * acknowledge this request, it MUST send a "finished" (or error) syncMailboxStatus callback if
+     * the sync was started via the startSync service call.
+     *
+     * @param mailboxId the id of the mailbox record
+     * @param userRequest whether or not the user specifically asked for the sync
+     */
     public void stopSync(final long mailboxId) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
@@ -150,6 +176,23 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "stopSync");
     }
 
+    /**
+     * Validate a user account, given a protocol, host address, port, ssl status, and credentials.
+     * The result of this call is returned in a Bundle which MUST include a result code and MAY
+     * include a PolicySet that is required by the account. A successful validation implies a host
+     * address that serves the specified protocol and credentials sufficient to be authorized
+     * by the server to do so.
+     *
+     * @param protocol the protocol used by the account (e.g. "imap", "pop3", or "eas)
+     * @param host the address of the host server (in the form x.y.z)
+     * @param userName the username credential for the account
+     * @param password the password credential for the account
+     * @param port the port used to connect to the host server
+     * @param ssl whether or not a secure (SSL) socket should be used for the connection
+     * @param trustCertificates whether or not self-signed or otherwise unverified server
+     * certificates should be allowed when connecting to the host
+     * @return a Bundle as described above
+     */
     public Bundle validate(final String protocol, final String host, final String userName,
             final String password, final int port, final boolean ssl,
             final boolean trustCertificates) throws RemoteException {
@@ -173,6 +216,16 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }
     }
 
+    /**
+     * Attempt to determine a user's host address and credentials from an email address and
+     * password. The result is returned in a Bundle which MUST include an error code and MAY (on
+     * success) include a HostAuth record sufficient to enable the service to validate the user's
+     * account.
+     *
+     * @param userName the user's email address
+     * @param password the user's password
+     * @return a Bundle as described above
+     */
     public Bundle autoDiscover(final String userName, final String password)
             throws RemoteException {
         setTask(new ProxyTask() {
@@ -192,6 +245,12 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }
     }
 
+    /**
+     * Request that the service reload the folder list for the specified account. The service
+     * MUST use the syncMailboxListStatus callback to indicate "starting" and "finished"
+     *
+     * @param accoundId the id of the account whose folder list is to be updated
+     */
     public void updateFolderList(final long accountId) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
@@ -201,15 +260,27 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "updateFolderList");
     }
 
-    public void setLogging(final int on) throws RemoteException {
+    /**
+     * Specify the debug flags selected by the user.  The service SHOULD log debug information as
+     * requested.
+     *
+     * @param flags an integer whose bits represent logging flags as defined in DEBUG_* flags above
+     */
+    public void setLogging(final int flags) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
                 if (mCallback != null) mService.setCallback(mCallback);
-                mService.setLogging(on);
+                mService.setLogging(flags);
             }
         }, "setLogging");
     }
 
+    /**
+     * Set the global callback object to be used by the service; the service MUST always use the
+     * most recently set callback object
+     *
+     * @param cb a callback object through which all service callbacks are executed
+     */
     public void setCallback(final IEmailServiceCallback cb) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
@@ -218,6 +289,13 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "setCallback");
     }
 
+    /**
+     * Alert the sync adapter that the account's host information has (or may have) changed; the
+     * service MUST stop all in-process or pending syncs, clear error states related to the
+     * account and its mailboxes, and restart necessary sync adapters (e.g. pushed mailboxes)
+     *
+     * @param accountId the id of the account whose host information has changed
+     */
     public void hostChanged(final long accountId) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
@@ -226,6 +304,12 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "hostChanged");
     }
 
+    /**
+     * Send a meeting response for the specified message
+     *
+     * @param messageId the id of the message containing the meeting request
+     * @param response the response code, as defined in EmailServiceConstants
+     */
     public void sendMeetingResponse(final long messageId, final int response)
             throws RemoteException {
         setTask(new ProxyTask() {
@@ -236,23 +320,54 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "sendMeetingResponse");
     }
 
+    /**
+     * Not yet used; intended to request the sync adapter to load a complete message
+     *
+     * @param messageId the id of the message to be loaded
+     */
     public void loadMore(long messageId) throws RemoteException {
-        // TODO Auto-generated method stub
     }
 
+    /**
+     * Not yet used
+     *
+     * @param accountId the account in which the folder is to be created
+     * @param name the name of the folder to be created
+    */
     public boolean createFolder(long accountId, String name) throws RemoteException {
         return false;
     }
 
+    /**
+     * Not yet used
+     *
+     * @param accountId the account in which the folder resides
+     * @param name the name of the folder to be deleted
+     */
     public boolean deleteFolder(long accountId, String name) throws RemoteException {
         return false;
     }
 
+    /**
+     * Not yet used
+     *
+     * @param accountId the account in which the folder resides
+     * @param oldName the name of the existing folder
+     * @param newName the new name for the folder
+     */
     public boolean renameFolder(long accountId, String oldName, String newName)
             throws RemoteException {
         return false;
     }
 
+    /**
+     * Deprecated (or at least unused); moves are recognized by sync adapters as messages whose
+     * mailboxKey has changed
+     *
+     * @param messageId the id of the messge to be moved
+     * @param mailboxId the id of the destination mailbox
+     */
+    @Deprecated
     public void moveMessage(final long messageId, final long mailboxId) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
@@ -261,6 +376,14 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "moveMessage");
     }
 
+    /**
+     * Request the service to delete the account's PIM (personal information management) data. This
+     * data includes any data that is 1) associated with the account and 2) created/stored by the
+     * service or its sync adapters and 3) not stored in the EmailProvider database (e.g. contact
+     * and calendar information).
+     *
+     * @param accountId the account whose data is to be deleted
+     */
     public void deleteAccountPIMData(final long accountId) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
@@ -269,6 +392,46 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
         }, "deleteAccountPIMData");
     }
 
+
+    /**
+     * PRELIMINARY
+     * Search for messages given a query string.  The string is interpreted as the logical AND of
+     * terms separated by white space.  The search is performed on the specified mailbox in the
+     * specified account (including subfolders, as specified by the includeSubfolders parameter).
+     * At most numResults messages matching the query term(s) will be added to the mailbox specified
+     * as destMailboxId. If mailboxId is -1, the entire account will be searched. If firstResult is
+     * specified and non-zero, results will be added starting with the firstResult'th match (i.e.
+     * for the continuation of a previous search)
+     *
+     * @param accountId the id of the account to be searched
+     * @param mailboxId the id of the mailbox to be searched; if -1, all mailboxes should be
+     * searched
+     * @param includeSubfolders if true, all subfolders of the specified mailbox should be searched
+     * @param query the terms to be searched (the search MUST find messages whose contents
+     * include all of the search terms in the query
+     * @param numResults specifies the maximum number of results returned in this request
+     * @param firstResult if zero, specifies a "new" query; otherwise, asks for a continuation of
+     * the previous query(ies) starting with the firstResult'th match (0 based)
+     * @param destMailboxId the id of the mailbox into which search results are appended
+     * @return the total number of matches for this search (regardless of how many were requested)
+     */
+    public int searchMessages(final long accountId, final long mailboxId,
+            final boolean includeSubfolders, final String query, final int numResults,
+            final int firstResult, final long destMailboxId) throws RemoteException {
+        setTask(new ProxyTask() {
+            public void run() throws RemoteException{
+                if (mCallback != null) mService.setCallback(mCallback);
+                mReturn = mService.searchMessages(accountId, mailboxId, includeSubfolders, query,
+                        numResults, firstResult, destMailboxId);
+            }
+        }, "searchMessages");
+        waitForCompletion();
+        if (mReturn == null) {
+            return 0;
+        } else {
+            return (Integer)mReturn;
+        }
+    }
     public IBinder asBinder() {
         return null;
     }

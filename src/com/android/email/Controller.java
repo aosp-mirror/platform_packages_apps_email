@@ -82,11 +82,14 @@ public class Controller {
     // Note that 0 is a syntactically valid account key; however there can never be an account
     // with id = 0, so attempts to restore the account will return null.  Null values are
     // handled properly within the code, so this won't cause any issues.
-    private static final long ATTACHMENT_MAILBOX_ACCOUNT_KEY = 0;
+    private static final long GLOBAL_MAILBOX_ACCOUNT_KEY = 0;
     /*package*/ static final String ATTACHMENT_MAILBOX_SERVER_ID = "__attachment_mailbox__";
     /*package*/ static final String ATTACHMENT_MESSAGE_UID_PREFIX = "__attachment_message__";
+    /*package*/ static final String SEARCH_MAILBOX_SERVER_ID = "__search_mailbox__";
     private static final String WHERE_TYPE_ATTACHMENT =
         MailboxColumns.TYPE + "=" + Mailbox.TYPE_ATTACHMENT;
+    private static final String WHERE_TYPE_SEARCH =
+        MailboxColumns.TYPE + "=" + Mailbox.TYPE_SEARCH;
     private static final String WHERE_MAILBOX_KEY = MessageColumns.MAILBOX_KEY + "=?";
 
     private static final String[] MESSAGEID_TO_ACCOUNTID_PROJECTION = new String[] {
@@ -212,13 +215,11 @@ public class Controller {
     }
 
     /**
-     * Returns the attachment Mailbox (where we store eml attachment Emails), creating one
-     * if necessary
-     * @return the account's temporary Mailbox
+     * Get a mailbox based on a sqlite WHERE clause
      */
-    public Mailbox getAttachmentMailbox() {
+    private Mailbox getGlobalMailboxWhere(String where) {
         Cursor c = mProviderContext.getContentResolver().query(Mailbox.CONTENT_URI,
-                Mailbox.CONTENT_PROJECTION, WHERE_TYPE_ATTACHMENT, null, null);
+                Mailbox.CONTENT_PROJECTION, where, null, null);
         try {
             if (c.moveToFirst()) {
                 Mailbox m = new Mailbox();
@@ -228,14 +229,46 @@ public class Controller {
         } finally {
             c.close();
         }
-        Mailbox m = new Mailbox();
-        m.mAccountKey = ATTACHMENT_MAILBOX_ACCOUNT_KEY;
-        m.mServerId = ATTACHMENT_MAILBOX_SERVER_ID;
-        m.mFlagVisible = false;
-        m.mDisplayName = ATTACHMENT_MAILBOX_SERVER_ID;
-        m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
-        m.mType = Mailbox.TYPE_ATTACHMENT;
-        m.save(mProviderContext);
+        return null;
+    }
+
+    /**
+     * Returns the attachment mailbox (where we store eml attachment Emails), creating one
+     * if necessary
+     * @return the global attachment mailbox
+     */
+    public Mailbox getAttachmentMailbox() {
+        Mailbox m = getGlobalMailboxWhere(WHERE_TYPE_ATTACHMENT);
+        if (m == null) {
+            m = new Mailbox();
+            m.mAccountKey = GLOBAL_MAILBOX_ACCOUNT_KEY;
+            m.mServerId = ATTACHMENT_MAILBOX_SERVER_ID;
+            m.mFlagVisible = false;
+            m.mDisplayName = ATTACHMENT_MAILBOX_SERVER_ID;
+            m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
+            m.mType = Mailbox.TYPE_ATTACHMENT;
+            m.save(mProviderContext);
+        }
+        return m;
+    }
+
+    /**
+     * Returns the search mailbox for the specified account, creating one if necessary
+     * @return the search mailbox for the passed in account
+     */
+    public Mailbox getSearchMailbox(long accountId) {
+        Mailbox m = Mailbox.restoreMailboxOfType(mContext, accountId, Mailbox.TYPE_SEARCH);
+        if (m == null) {
+            m = new Mailbox();
+            m.mAccountKey = accountId;
+            m.mServerId = SEARCH_MAILBOX_SERVER_ID;
+            m.mFlagVisible = true;
+            m.mDisplayName = SEARCH_MAILBOX_SERVER_ID;
+            m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
+            m.mType = Mailbox.TYPE_SEARCH;
+            m.mFlags = Mailbox.FLAG_HOLDS_MAIL;
+            m.save(mProviderContext);
+        }
         return m;
     }
 
@@ -835,6 +868,27 @@ public class Controller {
                 }
             }
         });
+    }
+
+    /**
+     * Search for messages on the server; see {@Link EmailServiceProxy#searchMessages(long, long,
+     * boolean, String, int, int, long)} for a complete description of this method's arguments.
+     */
+    public void searchMessages(final long accountId, final long mailboxId,
+            final boolean includeSubfolders, final String query, final int numResults,
+            final int firstResult, final long destMailboxId) {
+        IEmailService service = getServiceForAccount(accountId);
+        if (service != null) {
+            // Service implementation
+            try {
+                service.searchMessages(accountId, mailboxId, includeSubfolders, query, numResults,
+                        firstResult, destMailboxId);
+            } catch (RemoteException e) {
+                // TODO Change exception handling to be consistent with however this method
+                // is implemented for other protocols
+                Log.e("onDownloadAttachment", "RemoteException", e);
+            }
+        }
     }
 
     /**
@@ -1662,7 +1716,7 @@ public class Controller {
             public void hostChanged(long accountId) throws RemoteException {
             }
 
-            public void setLogging(int on) throws RemoteException {
+            public void setLogging(int flags) throws RemoteException {
             }
 
             public void sendMeetingResponse(long messageId, int response) throws RemoteException {
@@ -1693,6 +1747,11 @@ public class Controller {
             }
 
             public void deleteAccountPIMData(long accountId) throws RemoteException {
+            }
+
+            public int searchMessages(long accountId, long mailboxId, boolean includeSubfolders,
+                    String query, int numResults, int firstResult, long destMailboxId) {
+                return 0;
             }
 
             @Override
