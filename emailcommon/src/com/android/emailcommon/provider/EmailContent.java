@@ -1077,7 +1077,7 @@ public abstract class EmailContent {
         public static final String UNREAD_COUNT_SELECTION =
             MessageColumns.MAILBOX_KEY + " =? and " + MessageColumns.FLAG_READ + "= 0";
 
-        public static final String UUID_SELECTION = AccountColumns.COMPATIBILITY_UUID + " =?";
+        private static final String UUID_SELECTION = AccountColumns.COMPATIBILITY_UUID + " =?";
 
         public static final String SECURITY_NONZERO_SELECTION =
             Account.SECURITY_FLAGS + " IS NOT NULL AND " + Account.SECURITY_FLAGS + "!=0";
@@ -1479,9 +1479,16 @@ public abstract class EmailContent {
             }
 
             // Now id is a UUId.
+            return getAccountIdFromUuid(context, id);
+        }
+
+        /**
+         * @return ID of the account with the given UUID.
+         */
+        public static long getAccountIdFromUuid(Context context, String uuid) {
             return Utility.getFirstRowLong(context,
                     CONTENT_URI, ID_PROJECTION,
-                    UUID_SELECTION, new String[] {id}, null, 0, Long.valueOf(-1));
+                    UUID_SELECTION, new String[] {uuid}, null, 0, -1L);
         }
 
         /**

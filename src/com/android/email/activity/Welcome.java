@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 /**
  * The Welcome activity initializes the application and decides what Activity
@@ -125,6 +126,17 @@ public class Welcome extends Activity {
     }
 
     /**
+     * Create an {@link Intent} for account shortcuts.  The returned intent stores the account's
+     * UUID rather than the account ID, which will be changed after account restore.
+     */
+    public static Intent createAccountShortcutIntent(Context context, Account account) {
+        final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder(
+                VIEW_MAILBOX_INTENT_URL_PATH);
+        IntentUtilities.setAccountUuid(b, account.mCompatibilityUuid);
+        return IntentUtilities.createRestartAppIntent(b.build());
+    }
+
+    /**
      * Parse the {@link #EXTRA_DEBUG_PANE_MODE} extra and return 1 or 2, if it's set to "1" or "2".
      * Return 0 otherwise.
      */
@@ -163,13 +175,7 @@ public class Welcome extends Activity {
         // TODO More completely separate ExchangeService from Email app
         ExchangeUtils.startExchangeService(this);
 
-        final Intent intent = getIntent();
-        final long accountId = IntentUtilities.getAccountIdFromIntent(intent);
-        final long mailboxId = IntentUtilities.getMailboxIdFromIntent(intent);
-        final long messageId = IntentUtilities.getMessageIdFromIntent(intent);
-        final int debugPaneMode = getDebugPaneMode(getIntent());
-        new MainActivityLauncher(this, accountId, mailboxId, messageId, debugPaneMode)
-                .executeParallel();
+        new MainActivityLauncher(this, getIntent()).executeParallel();
     }
 
     @Override
@@ -184,21 +190,23 @@ public class Welcome extends Activity {
      *
      * if {@code account} is -1, open the default account.
      */
-    private static class MainActivityLauncher extends EmailAsyncTask<Void, Void, Void> {
+    /* package */ static class MainActivityLauncher extends EmailAsyncTask<Void, Void, Void> {
         private final Welcome mFromActivity;
         private final int mDebugPaneMode;
         private final long mAccountId;
         private final long mMailboxId;
         private final long mMessageId;
+        private final String mAccountUuid;
 
-        public MainActivityLauncher(Welcome fromActivity, long accountId, long mailboxId,
-                long messageId, int debugPaneMode) {
+        public MainActivityLauncher(Welcome fromActivity, Intent intent) {
             super(fromActivity.mTaskTracker);
             mFromActivity = fromActivity;
-            mAccountId = accountId;
-            mMailboxId = mailboxId;
-            mMessageId = messageId;
-            mDebugPaneMode = debugPaneMode;
+
+            mAccountId = IntentUtilities.getAccountIdFromIntent(intent);
+            mMailboxId = IntentUtilities.getMailboxIdFromIntent(intent);
+            mMessageId = IntentUtilities.getMessageIdFromIntent(intent);
+            mAccountUuid = IntentUtilities.getAccountUuidFromIntent(intent);
+            mDebugPaneMode = getDebugPaneMode(intent);
         }
 
         private boolean isMailboxSelected() {
@@ -207,6 +215,16 @@ public class Welcome extends Activity {
 
         private boolean isMessageSelected() {
             return mMessageId != -1;
+        }
+
+        /* package */ static long resolveAccountId(Context context, long accountId, String uuid) {
+            if (!TextUtils.isEmpty(uuid)) {
+                accountId = Account.getAccountIdFromUuid(context, uuid);
+            }
+            if (accountId == -1 || !Account.isValidId(context, accountId)) {
+                accountId = EmailContent.Account.getDefaultAccountId(context);
+            }
+            return accountId;
         }
 
         @Override
@@ -219,10 +237,7 @@ public class Welcome extends Activity {
             if (numAccount == 0) {
                 AccountSetupBasics.actionNewAccount(mFromActivity);
             } else {
-                long accountId = mAccountId;
-                if (accountId == -1 || !Account.isValidId(mFromActivity, accountId)) {
-                    accountId = EmailContent.Account.getDefaultAccountId(mFromActivity);
-                }
+                final long accountId = resolveAccountId(mFromActivity, mAccountId, mAccountUuid);
 
                 final boolean useTwoPane = (mDebugPaneMode == 2)
                         || (useTwoPane(mFromActivity) && mDebugPaneMode == 0);
