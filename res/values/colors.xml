@@ -29,7 +29,7 @@
     <color name="connection_error_banner">#fffff1a8</color>
 
     <!-- Standard text colors -->
-    <color name="text_primary_color">#ffffff</color>
+    <color name="text_primary_color">#000000</color>
     <color name="text_secondary_color">#666666</color>
     <color name="text_ternary_color">#888888</color>
 
