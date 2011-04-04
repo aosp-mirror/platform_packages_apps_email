@@ -320,7 +320,7 @@ public class MessageListXL extends Activity implements
 
     private void onMoveMessage() {
         long messageId = mFragmentManager.getMessageId();
-        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(this, new long[] {messageId},
+        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(new long[] {messageId},
                 null);
         dialog.show(getFragmentManager(), "dialog");
     }

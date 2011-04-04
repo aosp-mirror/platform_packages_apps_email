@@ -703,8 +703,7 @@ public class MessageListFragment extends ListFragment
 
     public void onMultiMove() {
         long[] messageIds = Utility.toPrimitiveLongArray(mListAdapter.getSelectedSet());
-        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(getActivity(), messageIds,
-                this);
+        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(messageIds, this);
         dialog.show(getFragmentManager(), "dialog");
     }
 

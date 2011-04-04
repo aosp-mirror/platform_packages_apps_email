@@ -66,14 +66,12 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     /**
      * Create and return a new instance.
      *
-     * @param parent owner activity.
      * @param messageIds IDs of the messages to be moved.
      * @param callbackFragment Fragment that gets a callback.  The fragment must implement
      * {@link Callback}.  If null is passed, then the owner activity is used instead, in which case
      * it must implement {@link Callback} instead.
      */
-    public static MoveMessageToDialog newInstance(Activity parent,
-            long[] messageIds, Fragment callbackFragment) {
+    public static MoveMessageToDialog newInstance(long[] messageIds, Fragment callbackFragment) {
         if (messageIds.length == 0) {
             throw new InvalidParameterException();
         }
