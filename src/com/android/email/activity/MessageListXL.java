@@ -21,7 +21,6 @@ import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.MessagingExceptionStrings;
-import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.activity.setup.AccountSecurity;
@@ -43,6 +42,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,12 +51,11 @@ import android.widget.TextView;
 import java.security.InvalidParameterException;
 
 /**
- * The main (two-pane) activity for XL devices.
- *
- * TODO Refine "move to".
+ * The main activity for multi-pane UIs. The <code>MessageListXL</code> class is responsible
+ * for managing the "chrome" area of the screen; which primarily includes the action bar.
+ * The rest of the content area is managed by a fragment manager.
  */
-public class MessageListXL extends Activity implements
-        MessageListXLFragmentManager.TargetActivity, MoveMessageToDialog.Callback,
+public class MessageListXL extends Activity implements MessageListXLFragmentManager.TargetActivity,
         View.OnClickListener {
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
@@ -71,28 +70,22 @@ public class MessageListXL extends Activity implements
     private final RefreshListener mRefreshListener = new RefreshListener();
     private Controller.Result mControllerResult;
 
-    /** True between onCreate() to onDestroy() */
-    private boolean mIsCreated;
-
     private AccountSelectorAdapter mAccountsSelectorAdapter;
-    private final ActionBarNavigationCallback mActionBarNavigationCallback
-            = new ActionBarNavigationCallback();
+    private ActionBar mActionBar;
+    private View mActionBarMailboxNameView;
+    private TextView mActionBarMailboxName;
+    private TextView mActionBarUnreadCount;
+    private final ActionBarNavigationCallback mActionBarNavigationCallback =
+        new ActionBarNavigationCallback();
 
-    private MessageOrderManager mOrderManager;
-
-    private final MessageListXLFragmentManager mFragmentManager
-            = new MessageListXLFragmentManager(this);
-
-    private final MessageOrderManagerCallback mMessageOrderManagerCallback
-            = new MessageOrderManagerCallback();
+    private final MessageListXLFragmentManager mFragmentManager =
+        new MessageListXLFragmentManager(this);
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
-    private BannerController mBannerController;
-    private TextView mErrorMessageView;
-    /**
-     * Id of the account that had a messaging exception most recently.
-     */
+    /** Banner to display errors */
+    private BannerController mErrorBanner;
+    /** Id of the account that had a messaging exception most recently. */
     private long mLastErrorAccountId;
 
     /**
@@ -162,10 +155,6 @@ public class MessageListXL extends Activity implements
         mRefreshManager = RefreshManager.getInstance(this);
         mRefreshManager.registerListener(mRefreshListener);
 
-        mFragmentManager.setMailboxListFragmentCallback(new MailboxListFragmentCallback());
-        mFragmentManager.setMessageListFragmentCallback(new MessageListFragmentCallback());
-        mFragmentManager.setMessageViewFragmentCallback(new MessageViewFragmentCallback());
-
         mAccountsSelectorAdapter = new AccountSelectorAdapter(this, null);
 
         if (savedInstanceState != null) {
@@ -178,10 +167,28 @@ public class MessageListXL extends Activity implements
         // Set up views
         // TODO Probably better to extract mErrorMessageView related code into a separate class,
         // so that it'll be easy to reuse for the phone activities.
-        mErrorMessageView = (TextView) findViewById(R.id.error_message);
-        mErrorMessageView.setOnClickListener(this);
-        mBannerController = new BannerController(this, mErrorMessageView,
-                getResources().getDimensionPixelSize(R.dimen.error_message_height));
+        TextView errorMessage = (TextView) findViewById(R.id.error_message);
+        errorMessage.setOnClickListener(this);
+        int errorBannerHeight = getResources().getDimensionPixelSize(R.dimen.error_message_height);
+        mErrorBanner = new BannerController(this, errorMessage, errorBannerHeight);
+
+        mActionBar = getActionBar();
+
+        // Set a view for the current mailbox to the action bar.
+        final LayoutInflater inflater = LayoutInflater.from(mContext);
+        mActionBarMailboxNameView = inflater.inflate(R.layout.action_bar_current_mailbox, null);
+        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
+        final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
+                ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.MATCH_PARENT);
+        customViewLayout.setMargins(mContext.getResources().getDimensionPixelSize(
+                        R.dimen.action_bar_mailbox_name_left_margin) , 0, 0, 0);
+        mActionBar.setCustomView(mActionBarMailboxNameView, customViewLayout);
+
+        mActionBarMailboxName =
+                (TextView) mActionBarMailboxNameView.findViewById(R.id.mailbox_name);
+        mActionBarUnreadCount =
+                (TextView) mActionBarMailboxNameView.findViewById(R.id.unread_count);
 
         // Halt the progress indicator (we'll display it later when needed)
         setProgressBarIndeterminate(true);
@@ -190,8 +197,6 @@ public class MessageListXL extends Activity implements
         mControllerResult = new ControllerResultUiThreadWrapper<ControllerResult>(new Handler(),
                 new ControllerResult());
         mController.addResultCallback(mControllerResult);
-
-        mIsCreated = true;
     }
 
     private void initFromIntent() {
@@ -221,11 +226,7 @@ public class MessageListXL extends Activity implements
     protected void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onStart");
         super.onStart();
-
         mFragmentManager.onStart();
-        if (mFragmentManager.isMessageSelected()) {
-            updateMessageOrderManager();
-        }
     }
 
     @Override
@@ -233,12 +234,12 @@ public class MessageListXL extends Activity implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onResume");
         super.onResume();
         mFragmentManager.onResume();
-
-        // On MessageList.onResume, we go back to Welcome if an account has been added/removed.
-        // We don't need to do that here, because when the activity resumes, the account list loader
-        // will load the latest list.
-        // And if all the accounts have been removed, the loader will detect it and do
-        // appropriate things.
+        /**
+         * In {@link MessageList#onResume()}, we go back to {@link Welcome} if an account
+         * has been added/removed. We don't need to do that here, because we fetch the most
+         * up-to-date account list. Additionally, we detect and do the right thing if all
+         * of the accounts have been removed.
+         */
     }
 
     @Override
@@ -252,15 +253,12 @@ public class MessageListXL extends Activity implements
     protected void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onStop");
         super.onStop();
-
         mFragmentManager.onStop();
-        stopMessageOrderManager();
     }
 
     @Override
     protected void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onDestroy");
-        mIsCreated = false;
         mController.removeResultCallback(mControllerResult);
         mTaskTracker.cancellAllInterrupt();
         mRefreshManager.unregisterListener(mRefreshListener);
@@ -279,8 +277,8 @@ public class MessageListXL extends Activity implements
     /**
      * Performs the back action.
      *
-     * @param isSystemBackKey set true if the system back key is pressed, rather than the home
-     * icon on action bar.
+     * @param isSystemBackKey <code>true</code> if the system back key was pressed. Otherwise,
+     * <code>false</code> [e.g. the home icon on action bar were pressed].
      */
     private boolean onBackPressed(boolean isSystemBackKey) {
         if (mFragmentManager.onBackPressed(isSystemBackKey)) {
@@ -303,237 +301,6 @@ public class MessageListXL extends Activity implements
         }
     }
 
-    private void onCurrentMessageGone() {
-        switch (Preferences.getPreferences(this).getAutoAdvanceDirection()) {
-            case Preferences.AUTO_ADVANCE_NEWER:
-                if (moveToNewer()) return;
-                if (moveToOlder()) return;
-                break;
-            case Preferences.AUTO_ADVANCE_OLDER:
-                if (moveToOlder()) return;
-                if (moveToNewer()) return;
-                break;
-        }
-        // Last message in the box or AUTO_ADVANCE_MESSAGE_LIST.  Go back to message list.
-        mFragmentManager.goBackToMailbox();
-    }
-
-    private void onMoveMessage() {
-        long messageId = mFragmentManager.getMessageId();
-        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(new long[] {messageId},
-                null);
-        dialog.show(getFragmentManager(), "dialog");
-    }
-
-    @Override
-    public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
-        ActivityHelper.moveMessages(this, newMailboxId, messageIds);
-        onCurrentMessageGone();
-    }
-
-    /**
-     * Start {@link MessageOrderManager} if not started, and sync it to the current message.
-     */
-    private void updateMessageOrderManager() {
-        if (!mFragmentManager.isMailboxSelected()) {
-            return;
-        }
-        final long mailboxId = mFragmentManager.getMailboxId();
-        if (mOrderManager == null || mOrderManager.getMailboxId() != mailboxId) {
-            stopMessageOrderManager();
-            mOrderManager = new MessageOrderManager(this, mailboxId, mMessageOrderManagerCallback);
-        }
-        if (mFragmentManager.isMessageSelected()) {
-            mOrderManager.moveTo(mFragmentManager.getMessageId());
-        }
-    }
-
-    private class MessageOrderManagerCallback implements MessageOrderManager.Callback {
-        @Override
-        public void onMessagesChanged() {
-            updateNavigationArrows();
-        }
-
-        @Override
-        public void onMessageNotFound() {
-            // Current message gone.
-            mFragmentManager.goBackToMailbox();
-        }
-    }
-
-    /**
-     * Stop {@link MessageOrderManager}.
-     */
-    private void stopMessageOrderManager() {
-        if (mOrderManager != null) {
-            mOrderManager.close();
-            mOrderManager = null;
-        }
-    }
-
-    /**
-     * Called when the default account is not found, i.e. there's no account set up.
-     */
-    private void onNoAccountFound() {
-        // Open Welcome, which in turn shows the adding a new account screen.
-        Welcome.actionStart(this);
-        finish();
-        return;
-    }
-
-    /**
-     * Disable/enable the move-to-newer/older buttons.
-     */
-    private void updateNavigationArrows() {
-        if (mOrderManager == null) {
-            // shouldn't happen, but just in case
-            mFragmentManager.updateMessageCommandButtons(false, false, 0, 0);
-        } else {
-            mFragmentManager.updateMessageCommandButtons(
-                    mOrderManager.canMoveToNewer(), mOrderManager.canMoveToOlder(),
-                    mOrderManager.getCurrentPosition(), mOrderManager.getTotalMessageCount());
-        }
-    }
-
-    private boolean moveToOlder() {
-        if (mFragmentManager.isMessageSelected() && (mOrderManager != null)
-                && mOrderManager.moveToOlder()) {
-            mFragmentManager.selectMessage(mOrderManager.getCurrentMessageId());
-            return true;
-        }
-        return false;
-    }
-
-    private boolean moveToNewer() {
-        if (mFragmentManager.isMessageSelected() && (mOrderManager != null)
-                && mOrderManager.moveToNewer()) {
-            mFragmentManager.selectMessage(mOrderManager.getCurrentMessageId());
-            return true;
-        }
-        return false;
-    }
-
-    private class MailboxListFragmentCallback implements MailboxListFragment.Callback {
-        @Override
-        public void onMailboxSelected(long accountId, long mailboxId) {
-            mFragmentManager.selectMailbox(mailboxId, -1);
-        }
-
-        @Override
-        public void onAccountSelected(long accountId) {
-            mFragmentManager.selectAccount(accountId, -1, -1);
-            loadAccounts(); // This will update the account spinner, and select the account.
-        }
-
-        @Override
-        public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount) {
-            mFragmentManager.setCurrentMailboxName(mailboxName, unreadCount);
-        }
-    }
-
-    private class MessageListFragmentCallback implements MessageListFragment.Callback {
-        @Override
-        public void onListLoaded() {
-        }
-
-        @Override
-        public void onMessageOpen(long messageId, long messageMailboxId, long listMailboxId,
-                int type) {
-            if (type == MessageListFragment.Callback.TYPE_DRAFT) {
-                MessageCompose.actionEditDraft(MessageListXL.this, messageId);
-            } else {
-                mFragmentManager.selectMessage(messageId);
-            }
-        }
-
-        @Override
-        public void onMailboxNotFound() {
-            // TODO: What to do??
-        }
-
-        @Override
-        public void onEnterSelectionMode(boolean enter) {
-        }
-    }
-
-    private class MessageViewFragmentCallback implements MessageViewFragment.Callback {
-        @Override
-        public void onMessageViewShown(int mailboxType) {
-            updateMessageOrderManager();
-            updateNavigationArrows();
-        }
-
-        @Override
-        public void onMessageViewGone() {
-            stopMessageOrderManager();
-        }
-
-        @Override
-        public boolean onUrlInMessageClicked(String url) {
-            return ActivityHelper.openUrlInMessage(MessageListXL.this, url,
-                    mFragmentManager.getActualAccountId());
-        }
-
-        @Override
-        public void onMessageSetUnread() {
-            mFragmentManager.goBackToMailbox();
-        }
-
-        @Override
-        public void onMessageNotExists() {
-            mFragmentManager.goBackToMailbox();
-        }
-
-        @Override
-        public void onLoadMessageStarted() {
-            // TODO Any nice UI for this?
-        }
-
-        @Override
-        public void onLoadMessageFinished() {
-            // TODO Any nice UI for this?
-        }
-
-        @Override
-        public void onLoadMessageError(String errorMessage) {
-        }
-
-        @Override
-        public void onRespondedToInvite(int response) {
-            onCurrentMessageGone();
-        }
-
-        @Override
-        public void onCalendarLinkClicked(long epochEventStartTime) {
-            ActivityHelper.openCalendar(MessageListXL.this, epochEventStartTime);
-        }
-
-        @Override
-        public void onBeforeMessageDelete() {
-            onCurrentMessageGone();
-        }
-
-        @Override
-        public void onMoveMessage() {
-            MessageListXL.this.onMoveMessage();
-        }
-
-        @Override
-        public void onForward() {
-            MessageCompose.actionForward(MessageListXL.this, mFragmentManager.getMessageId());
-        }
-
-        @Override
-        public void onReply() {
-            MessageCompose.actionReply(MessageListXL.this, mFragmentManager.getMessageId(), false);
-        }
-
-        @Override
-        public void onReplyAll() {
-            MessageCompose.actionReply(MessageListXL.this, mFragmentManager.getMessageId(), true);
-        }
-    }
-
     @Override
     public void onAccountSecurityHold(long accountId) {
         startActivity(AccountSecurity.actionUpdateSecurityIntent(this, accountId, true));
@@ -542,6 +309,7 @@ public class MessageListXL extends Activity implements
     @Override
     public void onAccountChanged(long accountId) {
         invalidateOptionsMenu(); // Update the refresh button
+        loadAccounts(); // This will update the account spinner, and select the account.
     }
 
     @Override
@@ -550,57 +318,20 @@ public class MessageListXL extends Activity implements
     }
 
     @Override
-    public void onMoveToNewer() {
-        moveToNewer();
-    }
+    public void onMailboxNameChanged(String mailboxName, int unreadCount) {
+        mActionBarMailboxName.setText(mailboxName);
 
-    @Override
-    public void onMoveToOlder() {
-        moveToOlder();
-    }
-
-    /**
-     * Call this when getting a connection error.
-     */
-    private void showErrorMessage(final String rawMessage, final long accountId) {
-        new EmailAsyncTask<Void, Void, String>(mTaskTracker) {
-            @Override
-            protected String doInBackground(Void... params) {
-                Account account = Account.restoreAccountWithId(MessageListXL.this, accountId);
-                return (account == null) ? null : account.mDisplayName;
-            }
-
-            @Override
-            protected void onPostExecute(String accountName) {
-                final String message;
-                if (TextUtils.isEmpty(accountName)) {
-                    message = rawMessage;
-                } else {
-                    // TODO Use properly designed layout.  Don't just concat strings, which isn't
-                    // good for I18N either.
-                    message = rawMessage + "   (" + accountName + ")";
-                }
-                if (mBannerController.show(message)) {
-                    mLastErrorAccountId = accountId;
-                }
-            }
-        }.executeParallel();
-    }
-
-    /**
-     * Call this when the connection for an account is considered working.
-     */
-    private void clearErrorMessage(long accountId) {
-        if (mLastErrorAccountId == accountId) {
-            dismissErrorMessage();
-        }
+        // Note on action bar, we show only "unread count".  Some mailboxes such as Outbox don't
+        // have the idea of "unread count", in which case we just omit the count.
+        mActionBarUnreadCount.setText(
+                UiUtilities.getMessageCountForUi(mContext, unreadCount, true));
     }
 
     /**
      * Force dismiss the error banner.
      */
     private void dismissErrorMessage() {
-        mBannerController.dismiss();
+        mErrorBanner.dismiss();
     }
 
     /**
@@ -632,7 +363,9 @@ public class MessageListXL extends Activity implements
     private void updateAccountList(Cursor accountsCursor) {
         final int count = accountsCursor.getCount();
         if (count == 0) {
-            onNoAccountFound();
+            // Open Welcome, which in turn shows the adding a new account screen.
+            Welcome.actionStart(this);
+            finish();
             return;
         }
 
@@ -645,8 +378,6 @@ public class MessageListXL extends Activity implements
             ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
             ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
             ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(accountsCursor));
-
-            selectAccount(AccountSelectorAdapter.getAccountId(accountsCursor));
             return;
         }
 
@@ -770,6 +501,16 @@ public class MessageListXL extends Activity implements
         // Cancel previously running instance if any.
         new RefreshTask(mTaskTracker, this, mFragmentManager.getActualAccountId(),
                 mFragmentManager.getMailboxId()).cancelPreviousAndExecuteParallel();
+    }
+
+    @Override
+    public void onVisiblePanesChanged(int visiblePanes) {
+        // If the left pane (mailbox list pane) is hidden, the back action on action bar will be
+        // enabled, and we also show the current mailbox name.
+        final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
+        mActionBar.setDisplayOptions(leftPaneHidden ? ActionBar.DISPLAY_HOME_AS_UP : 0,
+                ActionBar.DISPLAY_HOME_AS_UP);
+        mActionBarMailboxNameView.setVisibility(leftPaneHidden ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -917,20 +658,42 @@ public class MessageListXL extends Activity implements
             handleError(result, accountId, progress);
         }
 
-        private void handleError(MessagingException result, long accountId, int progress) {
+        private void handleError(final MessagingException result, final long accountId,
+                int progress) {
             if (accountId == -1) {
                 return;
             }
             if (result == null) {
                 if (progress > 0) {
-                    // Connection now working.
-                    clearErrorMessage(accountId);
+                    // Connection now working; clear the error message banner
+                    if (mLastErrorAccountId == accountId) {
+                        dismissErrorMessage();
+                    }
                 }
             } else {
-                // Connection error.
-                showErrorMessage(
-                        MessagingExceptionStrings.getErrorString(MessageListXL.this, result),
-                        accountId);
+                // Connection error; show the error message banner
+                new EmailAsyncTask<Void, Void, String>(mTaskTracker) {
+                    @Override
+                    protected String doInBackground(Void... params) {
+                        Account account =
+                            Account.restoreAccountWithId(MessageListXL.this, accountId);
+                        return (account == null) ? null : account.mDisplayName;
+                    }
+
+                    @Override
+                    protected void onPostExecute(String accountName) {
+                        String message =
+                            MessagingExceptionStrings.getErrorString(MessageListXL.this, result);
+                        if (!TextUtils.isEmpty(accountName)) {
+                            // TODO Use properly designed layout. Don't just concatenate strings;
+                            // which is generally poor for I18N.
+                            message = message + "   (" + accountName + ")";
+                        }
+                        if (mErrorBanner.show(message)) {
+                            mLastErrorAccountId = accountId;
+                        }
+                    }
+                }.executeParallel();
             }
         }
     }

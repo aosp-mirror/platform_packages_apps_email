@@ -17,20 +17,18 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
+import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.security.InvalidParameterException;
 
@@ -42,15 +40,21 @@ import java.security.InvalidParameterException;
  *
  * TODO: Test it.  It's testable if we implement MockFragmentTransaction, which may be too early
  * to do so at this point.  (API may not be stable enough yet.)
+ *
+ * TODO Refine "move to".
  */
-class MessageListXLFragmentManager {
+class MessageListXLFragmentManager implements
+        MoveMessageToDialog.Callback,
+        MailboxFinder.Callback,
+        ThreePaneLayout.Callback,
+        MailboxListFragment.Callback,
+        MessageListFragment.Callback,
+        MessageViewFragment.Callback {
     private static final String BUNDLE_KEY_ACCOUNT_ID = "MessageListXl.state.account_id";
     private static final String BUNDLE_KEY_MAILBOX_ID = "MessageListXl.state.mailbox_id";
     private static final String BUNDLE_KEY_MESSAGE_ID = "MessageListXl.state.message_id";
     private static final String BUNDLE_KEY_MESSAGE_LIST_STATE
             = "MessageListXl.state.message_list_state";
-
-    private final Context mContext;
 
     private boolean mIsActivityResumed;
 
@@ -63,11 +67,7 @@ class MessageListXLFragmentManager {
     /** Current message id. (-1 = not selected) */
     private long mMessageId = -1;
 
-    private ActionBar mActionBar;
     private ThreePaneLayout mThreePane;
-    private View mActionBarMailboxNameView;
-    private TextView mActionBarMailboxName;
-    private TextView mActionBarUnreadCount;
 
     private MailboxListFragment mMailboxListFragment;
     private MessageListFragment mMessageListFragment;
@@ -75,52 +75,216 @@ class MessageListXLFragmentManager {
     private MessageCommandButtonView mMessageCommandButtons;
 
     private MailboxFinder mMailboxFinder;
-    private final MailboxFinderCallback mMailboxFinderCallback = new MailboxFinderCallback();
-    private final ThreePaneLayoutCallback mThreePaneLayoutCallback = new ThreePaneLayoutCallback();
 
-    /**
-     * Save state for the "message list -> message view -[back press]-> message list" transition.
-     */
+    /** Save state for the "message list -> message view -[back press]-> message list" transition */
     private MessageListFragment.State mMessageListFragmentState;
+
+    private MessageOrderManager mOrderManager;
+    private final MessageOrderManagerCallback mMessageOrderManagerCallback =
+        new MessageOrderManagerCallback();
 
     /**
      * The interface that {@link MessageListXL} implements.  We don't call its methods directly,
      * in the hope that it'll make writing tests easier, and make it clear which methods are needed
      * for MessageListXLFragmentManager.
+     * TODO Consider getting rid of this. The fragment manager needs an {@link Activity}, so,
+     * merely passing around an interface is not sufficient.
      */
     public interface TargetActivity {
+        /** Implemented by {@link Activity}, so, signature must match */
         public ActionBar getActionBar();
         public FragmentManager getFragmentManager();
-
-        /**
-         * Called when the selected account is on security-hold.
-         */
-        public void onAccountSecurityHold(long accountId);
-
-        /**
-         * Called when the current account has changed.
-         */
-        public void onAccountChanged(long accountId);
-
-        /**
-         * Called when the current mailbox has changed.
-         */
-        public void onMailboxChanged(long accountId, long newMailboxId);
-
-        /** Called when "move to newer" button is pressed. */
-        public void onMoveToNewer();
-
-        /** Called when "move to older" button is pressed. */
-        public void onMoveToOlder();
-
         public View findViewById(int id);
+
+        /** Called when the selected account is on security-hold. */
+        public void onAccountSecurityHold(long accountId);
+        /** Called when the current account has changed. */
+        public void onAccountChanged(long accountId);
+        /** Called when the current mailbox has changed. */
+        public void onMailboxChanged(long accountId, long newMailboxId);
+        /** Called when the current mailbox name / unread count has changed. */
+        public void onMailboxNameChanged(String mailboxName, int unreadCount);
+        /** Called when the visible panes have changed. */
+        public void onVisiblePanesChanged(int visiblePanes);
     }
 
-    private final TargetActivity mTargetActivity;
+    private final MessageListXL mActivity;
 
     public MessageListXLFragmentManager(MessageListXL activity) {
-        mContext = activity;
-        mTargetActivity = activity;
+        mActivity = activity;
+    }
+
+    // MailboxFinder$Callback
+    @Override
+    public void onAccountNotFound() {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager#onAccountNotFound()");
+        }
+        // Shouldn't happen
+    }
+
+    @Override
+    public void onAccountSecurityHold(long accountId) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager#onAccountSecurityHold()");
+        }
+        mActivity.onAccountSecurityHold(accountId);
+    }
+
+    @Override
+    public void onMailboxFound(long accountId, long mailboxId) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager#onMailboxFound()");
+        }
+        selectMailbox(mailboxId, -1);
+    }
+
+    @Override
+    public void onMailboxNotFound(long accountId) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager#onMailboxNotFound()");
+        }
+        // Shouldn't happen
+    }
+
+    // MoveMessageToDialog$Callback
+    @Override
+    public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
+        ActivityHelper.moveMessages(mActivity, newMailboxId, messageIds);
+        onCurrentMessageGone();
+    }
+
+    // ThreePaneLayoutCallback
+    @Override
+    public void onVisiblePanesChanged(int previousVisiblePanes) {
+        final int visiblePanes = mThreePane.getVisiblePanes();
+        mActivity.onVisiblePanesChanged(visiblePanes);
+        if (((visiblePanes & ThreePaneLayout.PANE_RIGHT) == 0) &&
+                ((previousVisiblePanes & ThreePaneLayout.PANE_RIGHT) != 0)) {
+            // Message view just got hidden
+            mMessageId = -1;
+            mMessageListFragment.setSelectedMessage(-1);
+            mMessageViewFragment.clearContent();
+        }
+        mMessageListFragment.setVisibility((visiblePanes & ThreePaneLayout.PANE_MIDDLE) != 0);
+    }
+
+    // MailboxListFragment$Callback
+    @Override
+    public void onMailboxSelected(long accountId, long mailboxId) {
+        selectMailbox(mailboxId, -1);
+    }
+
+    @Override
+    public void onAccountSelected(long accountId) {
+        selectAccount(accountId, -1, -1);
+    }
+
+    @Override
+    public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount) {
+        mActivity.onMailboxNameChanged(mailboxName, unreadCount);
+    }
+
+    // MessageListFragment$Callback
+    @Override
+    public void onMessageOpen(long messageId, long messageMailboxId, long listMailboxId,
+            int type) {
+        if (type == MessageListFragment.Callback.TYPE_DRAFT) {
+            MessageCompose.actionEditDraft(mActivity, messageId);
+        } else {
+            selectMessage(messageId);
+        }
+    }
+
+    @Override
+    public void onMailboxNotFound() {
+        // TODO: What to do??
+    }
+
+    @Override
+    public void onEnterSelectionMode(boolean enter) {
+    }
+
+    @Override
+    public void onListLoaded() {
+    }
+    
+    // MessageViewFragment$Callback
+    @Override
+    public void onMessageViewShown(int mailboxType) {
+        updateMessageOrderManager();
+        updateNavigationArrows();
+    }
+
+    @Override
+    public void onMessageViewGone() {
+        stopMessageOrderManager();
+    }
+
+    @Override
+    public boolean onUrlInMessageClicked(String url) {
+        return ActivityHelper.openUrlInMessage(mActivity, url, getActualAccountId());
+    }
+
+    @Override
+    public void onMessageSetUnread() {
+        goBackToMailbox();
+    }
+
+    @Override
+    public void onMessageNotExists() {
+        goBackToMailbox();
+    }
+
+    @Override
+    public void onLoadMessageStarted() {
+        // TODO Any nice UI for this?
+    }
+
+    @Override
+    public void onLoadMessageFinished() {
+        // TODO Any nice UI for this?
+    }
+
+    @Override
+    public void onLoadMessageError(String errorMessage) {
+    }
+
+    @Override
+    public void onRespondedToInvite(int response) {
+        onCurrentMessageGone();
+    }
+
+    @Override
+    public void onCalendarLinkClicked(long epochEventStartTime) {
+        ActivityHelper.openCalendar(mActivity, epochEventStartTime);
+    }
+
+    @Override
+    public void onBeforeMessageDelete() {
+        onCurrentMessageGone();
+    }
+
+    @Override
+    public void onMoveMessage() {
+        long messageId = getMessageId();
+        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(new long[] {messageId}, null);
+        dialog.show(mActivity.getFragmentManager(), "dialog");
+    }
+
+    @Override
+    public void onForward() {
+        MessageCompose.actionForward(mActivity, getMessageId());
+    }
+
+    @Override
+    public void onReply() {
+        MessageCompose.actionReply(mActivity, getMessageId(), false);
+    }
+
+    @Override
+    public void onReplyAll() {
+        MessageCompose.actionReply(mActivity, getMessageId(), true);
     }
 
     /**
@@ -133,10 +297,10 @@ class MessageListXLFragmentManager {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager.onActivityViewReady");
         }
-        mThreePane = (ThreePaneLayout) mTargetActivity.findViewById(R.id.three_pane);
-        mThreePane.setCallback(mThreePaneLayoutCallback);
+        mThreePane = (ThreePaneLayout) mActivity.findViewById(R.id.three_pane);
+        mThreePane.setCallback(this);
 
-        FragmentManager fm = mTargetActivity.getFragmentManager();
+        FragmentManager fm = mActivity.getFragmentManager();
         mMailboxListFragment = (MailboxListFragment) fm.findFragmentById(
                 mThreePane.getLeftPaneId());
         mMessageListFragment = (MessageListFragment) fm.findFragmentById(
@@ -146,41 +310,9 @@ class MessageListXLFragmentManager {
         mMessageCommandButtons = mThreePane.getMessageCommandButtons();
         mMessageCommandButtons.setCallback(new CommandButtonCallback());
 
-        mActionBar = mTargetActivity.getActionBar();
-
-        // Set a view for the current mailbox to the action bar.
-        final LayoutInflater inflater = LayoutInflater.from(mContext);
-        mActionBarMailboxNameView = inflater.inflate(R.layout.action_bar_current_mailbox, null);
-        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
-        final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
-                ActionBar.LayoutParams.WRAP_CONTENT,
-                ActionBar.LayoutParams.MATCH_PARENT);
-        customViewLayout.setMargins(mContext.getResources().getDimensionPixelSize(
-                        R.dimen.action_bar_mailbox_name_left_margin) , 0, 0, 0);
-        mActionBar.setCustomView(mActionBarMailboxNameView, customViewLayout);
-
-        mActionBarMailboxName =
-                (TextView) mActionBarMailboxNameView.findViewById(R.id.mailbox_name);
-        mActionBarUnreadCount =
-                (TextView) mActionBarMailboxNameView.findViewById(R.id.unread_count);
-    }
-
-    /** Set callback for fragment. */
-    public void setMailboxListFragmentCallback(
-            MailboxListFragment.Callback mailboxListFragmentCallback) {
-        mMailboxListFragment.setCallback(mailboxListFragmentCallback);
-    }
-
-    /** Set callback for fragment. */
-    public void setMessageListFragmentCallback(
-            MessageListFragment.Callback messageListFragmentCallback) {
-        mMessageListFragment.setCallback(messageListFragmentCallback);
-    }
-
-    /** Set callback for fragment. */
-    public void setMessageViewFragmentCallback(
-            MessageViewFragment.Callback messageViewFragmentCallback) {
-        mMessageViewFragment.setCallback(messageViewFragmentCallback);
+        mMailboxListFragment.setCallback(this);
+        mMessageListFragment.setCallback(this);
+        mMessageViewFragment.setCallback(this);
     }
 
     /**
@@ -225,35 +357,26 @@ class MessageListXLFragmentManager {
         return getMessageId() != -1;
     }
 
-    public MailboxListFragment getMailboxListFragment() {
-        return mMailboxListFragment;
-    }
-
-    public MessageListFragment getMessageListFragment() {
-        return mMessageListFragment;
-    }
-
-    public MessageViewFragment getMessageViewFragment() {
-        return mMessageViewFragment;
-    }
-
     /**
      * Called from {@link MessageListXL#onStart}.
      */
     public void onStart() {
-        // Nothing to do
+        if (isMessageSelected()) {
+            updateMessageOrderManager();
+        }
     }
 
     /**
      * Called from {@link MessageListXL#onResume}.
      */
     public void onResume() {
+        int visiblePanes = mThreePane.getVisiblePanes();
+        mActivity.onVisiblePanesChanged(visiblePanes);
+
         if (mIsActivityResumed) {
             return;
         }
         mIsActivityResumed = true;
-
-        updateActionBar();
     }
 
     /**
@@ -264,14 +387,14 @@ class MessageListXLFragmentManager {
             return;
         }
         mIsActivityResumed = false;
-        saveMessageListFragmentState();
+        mMessageListFragmentState = mMessageListFragment.getState();
     }
 
     /**
      * Called from {@link MessageListXL#onStop}.
      */
     public void onStop() {
-        // Nothing to do
+        stopMessageOrderManager();
     }
 
     /**
@@ -302,38 +425,6 @@ class MessageListXLFragmentManager {
         }
         // selectAccount() calls selectMailbox/Message() if necessary.
         selectAccount(accountId, mailboxId, messageId);
-    }
-
-    private void saveMessageListFragmentState() {
-        if (mMessageListFragment != null) {
-            mMessageListFragmentState = mMessageListFragment.getState();
-        }
-    }
-
-    private void restoreMesasgeListState() {
-        if ((mMessageListFragment != null) && (mMessageListFragmentState != null)) {
-            mMessageListFragmentState.restore(mMessageListFragment);
-            mMessageListFragmentState = null;
-        }
-    }
-
-    private void updateActionBar() {
-        // If the left pane (mailbox list pane) is hidden, the back action on action bar will be
-        // enabled, and we also show the current mailbox name.
-        final int visiblePanes = mThreePane.getVisiblePanes();
-        final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
-        mActionBar.setDisplayOptions(leftPaneHidden ? ActionBar.DISPLAY_HOME_AS_UP : 0,
-                ActionBar.DISPLAY_HOME_AS_UP);
-        mActionBarMailboxNameView.setVisibility(leftPaneHidden ? View.VISIBLE : View.GONE);
-    }
-
-    public void setCurrentMailboxName(String mailboxName, int unreadCount) {
-        mActionBarMailboxName.setText(mailboxName);
-
-        // Note on action bar, we show only "unread count".  Some mailboxes such as Outbox don't
-        // have the idea of "unread count", in which case we just omit the count.
-        mActionBarUnreadCount.setText(
-                UiUtilities.getMessageCountForUi(mContext, unreadCount, true));
     }
 
     /**
@@ -371,11 +462,14 @@ class MessageListXLFragmentManager {
             // When opening the Combined view, the right pane will be "combined inbox".
             selectMailbox(Mailbox.QUERY_ALL_INBOXES, -1);
         } else if (mailboxId == -1) {
-            startInboxLookup();
+            // Try to find the inbox for the account
+            closeMailboxFinder();
+            mMailboxFinder = new MailboxFinder(mActivity, mAccountId, Mailbox.TYPE_INBOX, this);
+            mMailboxFinder.startLookup();
         } else {
             selectMailbox(mailboxId, messageId);
         }
-        mTargetActivity.onAccountChanged(mAccountId);
+        mActivity.onAccountChanged(mAccountId);
     }
 
     /**
@@ -389,59 +483,61 @@ class MessageListXLFragmentManager {
     }
 
     /**
-     * If the current view is MessageView, go back to MessageList.
+     * Go back to a mailbox list view. If a message view is currently active, it will
+     * be hidden.
      */
-    public void goBackToMailbox() {
+    private void goBackToMailbox() {
         if (isMessageSelected()) {
             mThreePane.showLeftPane(); // Show mailbox list
         }
     }
 
     /**
-     * Call it to select a mailbox.
-     *
+     * Select a mailbox and potentially a message within that mailbox.
      * We assume the mailbox selected here belongs to the account selected with
      * {@link #selectAccount}.
      *
      * @param mailboxId ID of mailbox
      * @param messageId message ID.  Pass -1 to not open a message.
      */
-    public void selectMailbox(long mailboxId, long messageId) {
+    private void selectMailbox(long mailboxId, long messageId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "selectMailbox mMailboxId=" + mailboxId);
         }
         if (mailboxId == -1) {
             throw new InvalidParameterException();
         }
-
         if (mMailboxId == mailboxId) {
             return;
         }
 
-        // Update members.
+        // Update members
         mMailboxId = mailboxId;
         mMessageId = -1;
 
         // Open mailbox
+        if (mMessageListFragmentState != null) {
+            mMessageListFragmentState.restore(mMessageListFragment);
+            mMessageListFragmentState = null;
+        }
         mMessageListFragment.openMailbox(mMailboxId);
-        restoreMesasgeListState();
-
         mMailboxListFragment.setSelectedMailbox(mMailboxId);
-        mTargetActivity.onMailboxChanged(mAccountId, mMailboxId);
+        mActivity.onMailboxChanged(mAccountId, mMailboxId);
+
+        // If a message ID was specified, show it; otherwise show the mailbox list
         if (messageId == -1) {
-            mThreePane.showLeftPane(); // Show mailbox list
+            mThreePane.showLeftPane();
         } else {
             selectMessage(messageId);
         }
     }
 
     /**
-     * Call it to select a mailbox.
-     *
-     * We assume the message passed here belongs to the account/mailbox selected with
-     * {@link #selectAccount} and {@link #selectMailbox}.
+     * Select a message to view.
+     * We assume the message selected here belongs to the mailbox selected with
+     * {@link #selectMailbox}.
      */
-    public void selectMessage(long messageId) {
+    private void selectMessage(long messageId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "selectMessage messageId=" + messageId);
         }
@@ -452,37 +548,15 @@ class MessageListXLFragmentManager {
             return;
         }
 
-        saveMessageListFragmentState();
+        mMessageListFragmentState = mMessageListFragment.getState();
 
-        // Update member.
+        // Update member
         mMessageId = messageId;
 
         // Open message
         mMessageListFragment.setSelectedMessage(mMessageId);
         mMessageViewFragment.openMessage(mMessageId);
         mThreePane.showRightPane(); // Show message view
-    }
-
-    /**
-     * Unselect the currently viewed message, if any, and release the resoruce grabbed by the
-     * message view.
-     *
-     * This must be called when the three pane reports that the message view pane gets hidden.
-     */
-    private void onMessageViewClosed() {
-        mMessageId = -1;
-        mMessageListFragment.setSelectedMessage(-1);
-        mMessageViewFragment.clearContent();
-    }
-
-    private void startInboxLookup() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "startLookForInbox account=" + mAccountId);
-        }
-        closeMailboxFinder();
-        mMailboxFinder = new MailboxFinder(mContext, mAccountId, Mailbox.TYPE_INBOX,
-                mMailboxFinderCallback);
-        mMailboxFinder.startLookup();
     }
 
     private void closeMailboxFinder() {
@@ -492,69 +566,104 @@ class MessageListXLFragmentManager {
         }
     }
 
-    private class MailboxFinderCallback implements MailboxFinder.Callback {
-        @Override
-        public void onAccountNotFound() {
-            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "MailboxFinderCallback.onAccountNotFound");
-            }
-            // Shouldn't happen
-        }
-
-        @Override
-        public void onAccountSecurityHold(long accountId) {
-            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "MailboxFinderCallback.onAccountSecurityHold");
-            }
-            mTargetActivity.onAccountSecurityHold(accountId);
-        }
-
-        @Override
-        public void onMailboxFound(long accountId, long mailboxId) {
-            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "  Found inbox");
-            }
-            selectMailbox(mailboxId, -1);
-        }
-
-        @Override
-        public void onMailboxNotFound(long accountId) {
-            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "MailboxFinderCallback.onMailboxNotFound");
-            }
-            // Shouldn't happen
-        }
-    }
-
-    public void updateMessageCommandButtons(boolean enableMoveToNewer, boolean enableMoveToOlder,
-            int currentPosition, int countMessages) {
-        mMessageCommandButtons.enableNavigationButtons(enableMoveToNewer, enableMoveToOlder,
-                currentPosition, countMessages);
-    }
-
     private class CommandButtonCallback implements MessageCommandButtonView.Callback {
         @Override
         public void onMoveToNewer() {
-            mTargetActivity.onMoveToNewer();
+            MessageListXLFragmentManager.this.onMoveToNewer();
         }
 
         @Override
         public void onMoveToOlder() {
-            mTargetActivity.onMoveToOlder();
+            MessageListXLFragmentManager.this.onMoveToOlder();
         }
     }
 
-    private class ThreePaneLayoutCallback implements ThreePaneLayout.Callback {
-        @Override
-        public void onVisiblePanesChanged(int previousVisiblePanes) {
-            updateActionBar();
-            final int visiblePanes = mThreePane.getVisiblePanes();
-            if (((visiblePanes & ThreePaneLayout.PANE_RIGHT) == 0) &&
-                    ((previousVisiblePanes & ThreePaneLayout.PANE_RIGHT) != 0)) {
-                // Message view just got hidden
-                onMessageViewClosed();
-            }
-            mMessageListFragment.setVisibility((visiblePanes & ThreePaneLayout.PANE_MIDDLE) != 0);
+    private void onCurrentMessageGone() {
+        switch (Preferences.getPreferences(mActivity).getAutoAdvanceDirection()) {
+            case Preferences.AUTO_ADVANCE_NEWER:
+                if (onMoveToNewer()) return;
+                if (onMoveToOlder()) return;
+                break;
+            case Preferences.AUTO_ADVANCE_OLDER:
+                if (onMoveToOlder()) return;
+                if (onMoveToNewer()) return;
+                break;
         }
+        // Last message in the box or AUTO_ADVANCE_MESSAGE_LIST.  Go back to message list.
+        goBackToMailbox();
+    }
+
+    /**
+     * Potentially create a new {@link MessageOrderManager}; if it's not already started or if
+     * the account has changed, and sync it to the current message.
+     */
+    private void updateMessageOrderManager() {
+        if (!isMailboxSelected()) {
+            return;
+        }
+        final long mailboxId = getMailboxId();
+        if (mOrderManager == null || mOrderManager.getMailboxId() != mailboxId) {
+            stopMessageOrderManager();
+            mOrderManager =
+                new MessageOrderManager(mActivity, mailboxId, mMessageOrderManagerCallback);
+        }
+        if (isMessageSelected()) {
+            mOrderManager.moveTo(getMessageId());
+        }
+    }
+
+    private class MessageOrderManagerCallback implements MessageOrderManager.Callback {
+        @Override
+        public void onMessagesChanged() {
+            updateNavigationArrows();
+        }
+
+        @Override
+        public void onMessageNotFound() {
+            // Current message gone.
+            goBackToMailbox();
+        }
+    }
+
+    /**
+     * Stop {@link MessageOrderManager}.
+     */
+    private void stopMessageOrderManager() {
+        if (mOrderManager != null) {
+            mOrderManager.close();
+            mOrderManager = null;
+        }
+    }
+
+    /**
+     * Disable/enable the move-to-newer/older buttons.
+     */
+    private void updateNavigationArrows() {
+        if (mOrderManager == null) {
+            // shouldn't happen, but just in case
+            mMessageCommandButtons.enableNavigationButtons(false, false, 0, 0);
+        } else {
+            mMessageCommandButtons.enableNavigationButtons(
+                    mOrderManager.canMoveToNewer(), mOrderManager.canMoveToOlder(),
+                    mOrderManager.getCurrentPosition(), mOrderManager.getTotalMessageCount());
+        }
+    }
+
+    private boolean onMoveToOlder() {
+        if (isMessageSelected() && (mOrderManager != null)
+                && mOrderManager.moveToOlder()) {
+            selectMessage(mOrderManager.getCurrentMessageId());
+            return true;
+        }
+        return false;
+    }
+
+    private boolean onMoveToNewer() {
+        if (isMessageSelected() && (mOrderManager != null)
+                && mOrderManager.moveToNewer()) {
+            selectMessage(mOrderManager.getCurrentMessageId());
+            return true;
+        }
+        return false;
     }
 }
