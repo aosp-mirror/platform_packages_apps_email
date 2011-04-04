@@ -453,31 +453,31 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     public void setFocusShifter(int fromViewId, final int targetViewId) {
-        View label = findViewById(fromViewId);
-        // Labels don't exist on the phone UI, so null check.
+        View label = findViewById(fromViewId); // xlarge only
         if (label != null) {
+            final View target = UiUtilities.getView(this, targetViewId);
             label.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    findViewById(targetViewId).requestFocus();
+                    target.requestFocus();
                 }
             });
         }
     }
 
     private void initViews() {
-        mFromView = (TextView)findViewById(R.id.from);
-        mToView = (MultiAutoCompleteTextView)findViewById(R.id.to);
-        mCcView = (MultiAutoCompleteTextView)findViewById(R.id.cc);
-        mBccView = (MultiAutoCompleteTextView)findViewById(R.id.bcc);
-        mCcBccContainer = findViewById(R.id.cc_bcc_container);
-        mSubjectView = (EditText)findViewById(R.id.subject);
-        mMessageContentView = (EditText)findViewById(R.id.message_content);
-        mAttachments = (LinearLayout)findViewById(R.id.attachments);
-        mAttachmentContainer = findViewById(R.id.attachment_container);
-        mQuotedTextBar = findViewById(R.id.quoted_text_bar);
-        mIncludeQuotedTextCheckBox = (CheckBox) findViewById(R.id.include_quoted_text);
-        mQuotedText = (WebView)findViewById(R.id.quoted_text);
+        mFromView = (TextView) UiUtilities.getView(this, R.id.from);
+        mToView = (MultiAutoCompleteTextView) UiUtilities.getView(this, R.id.to);
+        mCcView = (MultiAutoCompleteTextView) UiUtilities.getView(this, R.id.cc);
+        mBccView = (MultiAutoCompleteTextView) UiUtilities.getView(this, R.id.bcc);
+        mCcBccContainer = UiUtilities.getView(this, R.id.cc_bcc_container);
+        mSubjectView = (EditText) UiUtilities.getView(this, R.id.subject);
+        mMessageContentView = (EditText) UiUtilities.getView(this, R.id.message_content);
+        mAttachments = (LinearLayout) UiUtilities.getView(this, R.id.attachments);
+        mAttachmentContainer = UiUtilities.getView(this, R.id.attachment_container);
+        mQuotedTextBar = UiUtilities.getView(this, R.id.quoted_text_bar);
+        mIncludeQuotedTextCheckBox = (CheckBox) UiUtilities.getView(this, R.id.include_quoted_text);
+        mQuotedText = (WebView) UiUtilities.getView(this, R.id.quoted_text);
 
         TextWatcher watcher = new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start,
@@ -579,8 +579,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mBccView.setTokenizer(new Rfc822Tokenizer());
         mBccView.setValidator(addressValidator);
 
-        findViewById(R.id.add_cc_bcc).setOnClickListener(this);
-        findViewById(R.id.add_attachment).setOnClickListener(this);
+        final View addCcBccView = findViewById(R.id.add_cc_bcc); // xlarge only
+        if (addCcBccView != null) {
+            addCcBccView.setOnClickListener(this);
+        }
+        final View addAttachmentView = findViewById(R.id.add_attachment); // xlarge only
+        if (addAttachmentView != null) {
+            addAttachmentView.setOnClickListener(this);
+        }
 
         setFocusShifter(R.id.to_label, R.id.to);
         setFocusShifter(R.id.cc_label, R.id.cc);
@@ -1093,7 +1099,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private void showCcBccFields() {
         mCcBccContainer.setVisibility(View.VISIBLE);
-        findViewById(R.id.add_cc_bcc).setVisibility(View.INVISIBLE);
+        UiUtilities.setVisibilitySafe(this, R.id.add_cc_bcc, View.INVISIBLE);
     }
 
     /**
@@ -1164,9 +1170,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         View view = getLayoutInflater().inflate(R.layout.message_compose_attachment,
                 mAttachments, false);
-        TextView nameView = (TextView)view.findViewById(R.id.attachment_name);
-        ImageButton delete = (ImageButton)view.findViewById(R.id.attachment_delete);
-        TextView sizeView = (TextView)view.findViewById(R.id.attachment_size);
+        TextView nameView = (TextView) UiUtilities.getView(view, R.id.attachment_name);
+        ImageButton delete = (ImageButton) UiUtilities.getView(view, R.id.attachment_delete);
+        TextView sizeView = (TextView) UiUtilities.getView(view, R.id.attachment_size);
 
         nameView.setText(attachment.mFileName);
         sizeView.setText(UiUtilities.formatSize(this, attachment.mSize));
