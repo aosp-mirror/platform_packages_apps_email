@@ -21,6 +21,7 @@ import com.android.email.activity.setup.AccountSettingsUtils.Provider;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
+import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
 /**
@@ -30,14 +31,14 @@ import android.test.suitebuilder.annotation.SmallTest;
  *  runtest -c com.android.email.activity.setup.AccountSettingsUtilsTests email
  */
 @SmallTest
-public class AccountSettingsUtilsTests extends AndroidTestCase {
+public class AccountSettingsUtilsTests extends InstrumentationTestCase {
 
     private Context mTestContext;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mTestContext = getTestContext();
+        mTestContext = getInstrumentation().getContext();
     }
 
     /**
