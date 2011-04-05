@@ -177,7 +177,7 @@ public class AccountShortcutPicker extends ListActivity
      */
     private void setupShortcut(Account account) {
         // First, set up the shortcut intent.
-        Intent shortcutIntent = Welcome.createOpenAccountInboxIntent(this, account.mId);
+        Intent shortcutIntent = Welcome.createAccountShortcutIntent(this, account);
 
         // Then, set up the container intent (the response to the caller)
         Intent intent = new Intent();

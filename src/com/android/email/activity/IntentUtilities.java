@@ -16,6 +16,8 @@
 
 package com.android.email.activity;
 
+import com.android.emailcommon.provider.EmailContent.Account;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +32,7 @@ public final class IntentUtilities {
     private static final String ACCOUNT_ID_PARAM = "ACCOUNT_ID";
     private static final String MAILBOX_ID_PARAM = "MAILBOX_ID";
     private static final String MESSAGE_ID_PARAM = "MESSAGE_ID";
+    private static final String ACCOUNT_UUID_PARAM = "ACCOUNT_UUID";
 
     private IntentUtilities() {
     }
@@ -73,6 +76,16 @@ public final class IntentUtilities {
     }
 
     /**
+     * Add the account UUID parameter.
+     */
+    public static void setAccountUuid(Uri.Builder b, String mUuid) {
+        if (TextUtils.isEmpty(mUuid)) {
+            throw new IllegalArgumentException();
+        }
+        b.appendQueryParameter(ACCOUNT_UUID_PARAM, mUuid);
+    }
+
+    /**
      * Retrieve the account ID.
      */
     public static long getAccountIdFromIntent(Intent intent) {
@@ -91,6 +104,18 @@ public final class IntentUtilities {
      */
     public static long getMessageIdFromIntent(Intent intent) {
         return getLongFromIntent(intent, MESSAGE_ID_PARAM);
+    }
+
+    /**
+     * Retrieve the account UUID, or null if the UUID param is not found.
+     */
+    public static String getAccountUuidFromIntent(Intent intent) {
+        final Uri uri = intent.getData();
+        if (uri == null) {
+            return null;
+        }
+        String uuid = uri.getQueryParameter(ACCOUNT_UUID_PARAM);
+        return TextUtils.isEmpty(uuid) ? null : uuid;
     }
 
     private static long getLongFromIntent(Intent intent, String paramName) {

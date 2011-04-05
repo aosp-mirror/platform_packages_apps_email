@@ -28,6 +28,7 @@ public class IntentUtilitiesTests extends AndroidTestCase {
         IntentUtilities.setAccountId(b, 10);
         IntentUtilities.setMailboxId(b, 20);
         IntentUtilities.setMessageId(b, 30);
+        IntentUtilities.setAccountUuid(b, "*uuid*");
 
         final Uri u = b.build();
         assertEquals("content", u.getScheme());
@@ -38,6 +39,7 @@ public class IntentUtilitiesTests extends AndroidTestCase {
         assertEquals(10, IntentUtilities.getAccountIdFromIntent(i));
         assertEquals(20, IntentUtilities.getMailboxIdFromIntent(i));
         assertEquals(30, IntentUtilities.getMessageIdFromIntent(i));
+        assertEquals("*uuid*", IntentUtilities.getAccountUuidFromIntent(i));
     }
 
     public void testGetIdFromIntent() {
@@ -81,5 +83,25 @@ public class IntentUtilitiesTests extends AndroidTestCase {
 
         i = new Intent(Intent.ACTION_VIEW, Uri.parse(uri.replace("ID", "MESSAGE_ID")));
         assertEquals(expected, IntentUtilities.getMessageIdFromIntent(i));
+    }
+
+    public void testGetAccountUuidFromIntent() {
+        Intent i;
+
+        // No URL in intent
+        i = new Intent(getContext(), getClass());
+        assertEquals(null, IntentUtilities.getAccountUuidFromIntent(i));
+
+        // No param
+        i = new Intent(Intent.ACTION_VIEW, Uri.parse("content://s/"));
+        assertEquals(null, IntentUtilities.getAccountUuidFromIntent(i));
+
+        // No value
+        i = new Intent(Intent.ACTION_VIEW, Uri.parse("content://s/?ACCOUNT_UUID="));
+        assertEquals(null, IntentUtilities.getAccountUuidFromIntent(i));
+
+        // With valid UUID
+        i = new Intent(Intent.ACTION_VIEW, Uri.parse("content://s/?ACCOUNT_UUID=xyz"));
+        assertEquals("xyz", IntentUtilities.getAccountUuidFromIntent(i));
     }
 }
