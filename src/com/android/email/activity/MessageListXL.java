@@ -29,11 +29,17 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.app.SearchManager;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
@@ -227,6 +233,47 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onStart");
         super.onStart();
         mFragmentManager.onStart();
+
+        // STOPSHIP Temporary search UI
+        Intent intent = getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            // TODO Very temporary (e.g. no database access in UI thread)
+            Bundle appData = getIntent().getBundleExtra(SearchManager.APP_DATA);
+            if (appData == null) return; // ??
+            final long accountId = appData.getLong(EXTRA_ACCOUNT_ID);
+            final long mailboxId = appData.getLong(EXTRA_MAILBOX_ID);
+            final String queryString = intent.getStringExtra(SearchManager.QUERY);
+            Log.d(Logging.LOG_TAG, queryString);
+            // Switch to search mailbox
+            // TODO How to handle search from within the search mailbox??
+            final Controller controller = Controller.getInstance(mContext);
+            final Mailbox searchMailbox = controller.getSearchMailbox(accountId);
+            if (searchMailbox == null) return;
+
+            // Delete contents, add a placeholder
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.delete(Message.CONTENT_URI, Message.MAILBOX_KEY + "=" + searchMailbox.mId,
+                    null);
+            ContentValues cv = new ContentValues();
+            cv.put(Mailbox.DISPLAY_NAME, queryString);
+            resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailbox.mId), cv,
+                    null, null);
+            Message msg = new Message();
+            msg.mMailboxKey = searchMailbox.mId;
+            msg.mAccountKey = accountId;
+            msg.mDisplayName = "Searching for " + queryString;
+            msg.mTimeStamp = Long.MAX_VALUE; // Sort on top
+            msg.save(mContext);
+
+            actionOpenMessage(MessageListXL.this, accountId, searchMailbox.mId, msg.mId);
+            Utility.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    controller.searchMessages(accountId, mailboxId, true, queryString, 10, 0,
+                            searchMailbox.mId);
+                }});
+            return;
+        }
     }
 
     @Override
@@ -455,6 +502,17 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        // STOPSHIP Temporary search UI
+        // Only show search for EAS
+        boolean showSearch = false;
+        long accountId = mFragmentManager.getActualAccountId();
+        if (accountId > 0) {
+            if ("eas".equals(Account.getProtocol(mContext, accountId))) {
+                showSearch = true;
+            }
+        }
+        menu.findItem(R.id.search).setVisible(showSearch);
+
         ActivityHelper.updateRefreshMenuIcon(
                 menu.findItem(R.id.refresh), shouldShowRefreshButton(), isProgressActive());
         return super.onPrepareOptionsMenu(menu);
@@ -464,6 +522,15 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         // - Don't show for combined inboxes, but
         // - Show even for non-refreshable mailboxes, in which case we refresh the mailbox list.
         return -1 != mFragmentManager.getActualAccountId();
+    }
+
+    @Override
+    public boolean onSearchRequested() {
+        Bundle bundle = new Bundle();
+        bundle.putLong(EXTRA_ACCOUNT_ID, mFragmentManager.getActualAccountId());
+        bundle.putLong(EXTRA_MAILBOX_ID, mFragmentManager.getMailboxId());
+        startSearch(null, false, bundle, false);
+        return true;
     }
 
     @Override
@@ -477,6 +544,9 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
                 return onCompose();
             case R.id.refresh:
                 onRefresh();
+                return true;
+            case R.id.search:
+                onSearchRequested();
                 return true;
             case R.id.account_settings:
                 return onAccountSettings();

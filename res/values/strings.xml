@@ -1080,4 +1080,9 @@ save attachment.</string>
          This should not be altered if the original string ("999+") makes sense in the
          target language. Typical alternatives include "+999" and ">999".  [CHAR_LIMIT=4] -->
     <string name="more_than_999">999+</string>
+
+    <!-- Search title (should be the app name) [CHAR LIMIT=16] -->
+    <string name="search_title">Email</string>
+    <!-- The hint used in the search EditText field [CHAR LIMIT=35] -->
+    <string name="search_hint">Search email</string>
 </resources>

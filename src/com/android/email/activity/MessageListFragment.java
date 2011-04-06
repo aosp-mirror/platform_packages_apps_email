@@ -1180,6 +1180,11 @@ public class MessageListFragment extends ListFragment
                 lss = new Utility.ListStateSaver(lv);
             }
 
+            // If this is a search mailbox, set the query
+            if (mMailbox != null && mMailbox.mType == Mailbox.TYPE_SEARCH) {
+                mListAdapter.setQuery(mMailbox.mDisplayName);
+            }
+
             // Update the list
             mListAdapter.swapCursor(cursor);
             // Show chips if combined view.

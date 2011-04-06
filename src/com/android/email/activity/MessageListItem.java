@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.R;
+import com.android.emailcommon.utility.TextUtilities;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -37,6 +38,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.text.format.DateUtils;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -89,6 +91,7 @@ public class MessageListItem extends View {
     private static final TextPaint sDefaultPaint = new TextPaint();
     private static final TextPaint sBoldPaint = new TextPaint();
     private static final TextPaint sDatePaint = new TextPaint();
+    private static final TextPaint sHighlightPaint = new TextPaint();
     private static Bitmap sAttachmentIcon;
     private static Bitmap sInviteIcon;
     private static Bitmap sFavoriteIconOff;
@@ -100,7 +103,7 @@ public class MessageListItem extends View {
 
     public String mSender;
     public CharSequence mText;
-    public String mSnippet;
+    public CharSequence mSnippet;
     public String mSubject;
     public boolean mRead;
     public long mTimestamp;
@@ -208,6 +211,7 @@ public class MessageListItem extends View {
             sBoldPaint.setTypeface(Typeface.DEFAULT_BOLD);
             sBoldPaint.setTextSize(sTextSize);
             sBoldPaint.setAntiAlias(true);
+            sHighlightPaint.setColor(TextUtilities.HIGHLIGHT_COLOR_INT);
             sAttachmentIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_attachment);
             sInviteIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_invite);
             sFavoriteIconOff =
@@ -444,28 +448,35 @@ public class MessageListItem extends View {
                 mRead ? sDefaultPaint : sBoldPaint);
 
         // Draw each of the snippet lines
-        int subjectEnd = (mSubject == null) ? 0 : mSubject.length();
-        int lineStart = 0;
-        TextPaint subjectPaint = mRead ? sDefaultPaint : sBoldPaint;
         for (int i = 0; i < MAX_SUBJECT_SNIPPET_LINES && i < mSnippetLineCount; i++) {
             CharSequence line = mSnippetLines[i];
             int drawX = snippetX;
             if (line != null) {
-                int defaultPaintStart = 0;
-                if (lineStart <= subjectEnd) {
-                    int boldPaintEnd = subjectEnd - lineStart;
-                    if (boldPaintEnd > line.length()) {
-                        boldPaintEnd = line.length();
+                SpannableStringBuilder ssb = (SpannableStringBuilder)line;
+                Object[] spans = ssb.getSpans(0, line.length(), Object.class);
+                int curr = 0;
+                for (Object span: spans) {
+                    if (span != null) {
+                        int spanStart = ssb.getSpanStart(span);
+                        int spanEnd = ssb.getSpanEnd(span);
+                        if (curr < spanStart) {
+                            canvas.drawText(line, curr, spanStart, drawX, snippetY, sDefaultPaint);
+                            drawX += sDefaultPaint.measureText(line, curr, spanStart);
+                        }
+                        TextPaint spanPaint =
+                            (span instanceof StyleSpan) ? sBoldPaint : sDefaultPaint;
+                        float textWidth = spanPaint.measureText(line, spanStart, spanEnd);
+                        if (span instanceof BackgroundColorSpan) {
+                            canvas.drawRect(drawX, snippetY + ascent, drawX + textWidth,
+                                    snippetY + descent, sHighlightPaint);
+                        }
+                        canvas.drawText(line, spanStart, spanEnd, drawX, snippetY, spanPaint);
+                        drawX += textWidth;
+                        curr = spanEnd;
                     }
-                    // From 0 to end, do in bold or default depending on the read flag
-                    canvas.drawText(line, 0, boldPaintEnd, drawX, snippetY, subjectPaint);
-                    defaultPaintStart = boldPaintEnd;
-                    drawX += subjectPaint.measureText(line, 0, boldPaintEnd);
                 }
-                canvas.drawText(line, defaultPaintStart, line.length(), drawX, snippetY,
-                        sDefaultPaint);
+                canvas.drawText(line, curr, line.length(), drawX, snippetY, sDefaultPaint);
                 snippetY += lineHeight;
-                lineStart += line.length();
             }
         }
 
