@@ -150,17 +150,17 @@ public class MessageViewFragment extends MessageViewFragmentBase
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = super.onCreateView(inflater, container, savedInstanceState);
 
-        mFavoriteIcon = (ImageView) view.findViewById(R.id.favorite);
-        mInviteSection = view.findViewById(R.id.invite_section);
-        mReplyButton = view.findViewById(R.id.reply);
-        mReplyAllButton = view.findViewById(R.id.reply_all);
-        mForwardButton = view.findViewById(R.id.forward);
-        mMeetingYes = (CheckBox) view.findViewById(R.id.accept);
-        mMeetingMaybe = (CheckBox) view.findViewById(R.id.maybe);
-        mMeetingNo = (CheckBox) view.findViewById(R.id.decline);
+        mFavoriteIcon = (ImageView) UiUtilities.getView(view, R.id.favorite);
+        mInviteSection = UiUtilities.getView(view, R.id.invite_section);
+        mReplyButton = UiUtilities.getView(view, R.id.reply);
+        mReplyAllButton = UiUtilities.getView(view, R.id.reply_all);
+        mForwardButton = UiUtilities.getView(view, R.id.forward);
+        mMeetingYes = (CheckBox) UiUtilities.getView(view, R.id.accept);
+        mMeetingMaybe = (CheckBox) UiUtilities.getView(view, R.id.maybe);
+        mMeetingNo = (CheckBox) UiUtilities.getView(view, R.id.decline);
 
         // Star is only visible on this fragment (as opposed to MessageFileViewFragment.)
-        view.findViewById(R.id.favorite).setVisibility(View.VISIBLE);
+        UiUtilities.getView(view, R.id.favorite).setVisibility(View.VISIBLE);
 
         mFavoriteIcon.setOnClickListener(this);
         mReplyButton.setOnClickListener(this);
@@ -169,7 +169,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
         mMeetingYes.setOnCheckedChangeListener(this);
         mMeetingMaybe.setOnCheckedChangeListener(this);
         mMeetingNo.setOnCheckedChangeListener(this);
-        view.findViewById(R.id.invite_link).setOnClickListener(this);
+        UiUtilities.getView(view, R.id.invite_link).setOnClickListener(this);
 
         enableReplyForwardButtons(false);
 

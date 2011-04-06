@@ -53,6 +53,8 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
 
     private View mMoveToNewer;
     private View mMoveToOlder;
+    private View mReplyButton;
+    private View mReplyAllButton;
 
     // False when a message can't be forwarded/replied, such as trashed messages
     private boolean mReplyAndForwardEnabled;
@@ -89,16 +91,12 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
                 .findFragmentById(R.id.message_view_fragment);
         mFragment.setCallback(this);
 
-        // TODO Remove these bottom buttons, and make use of the ones in MessageViewFragments.
-
-        mMoveToNewer = findViewById(R.id.moveToNewer);
-        mMoveToOlder = findViewById(R.id.moveToOlder);
+        mMoveToNewer = UiUtilities.getView(this, R.id.moveToNewer);
+        mMoveToOlder = UiUtilities.getView(this, R.id.moveToOlder);
         mMoveToNewer.setOnClickListener(this);
         mMoveToOlder.setOnClickListener(this);
-
-        findViewById(R.id.reply).setOnClickListener(this);
-        findViewById(R.id.reply_all).setOnClickListener(this);
-        findViewById(R.id.delete).setOnClickListener(this);
+        mReplyButton = UiUtilities.getView(this, R.id.reply);
+        mReplyAllButton = UiUtilities.getView(this, R.id.reply_all);
 
         initFromIntent();
         if (icicle != null) {
@@ -265,8 +263,8 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
 
     private void enableForwardReply(boolean enabled) {
         mReplyAndForwardEnabled = enabled;
-        findViewById(R.id.reply).setEnabled(enabled);
-        findViewById(R.id.reply_all).setEnabled(enabled);
+        mReplyButton.setEnabled(enabled);
+        mReplyAllButton.setEnabled(enabled);
     }
 
     @Override

@@ -14,119 +14,104 @@
      limitations under the License.
 -->
 
-<!-- Non-xlarge -->
+<!-- phone -->
+<!--
+  TODO Remove the default visibility and always set them from code.
+-->
 
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="4dip">
+    android:orientation="horizontal"
+    >
+    <ImageView
+        android:id="@+id/attachment_icon"
+        android:layout_width="64dip"
+        android:layout_height="64dip"
+        android:src="@drawable/attached_image_placeholder"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="4dip">
-        <RelativeLayout
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/attachment_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/text_box"
-            android:gravity="center_vertical">
-            <ImageView
-                android:id="@+id/attachment_icon"
-                android:layout_width="62dip"
-                android:layout_height="62dip"
-                android:layout_marginLeft="4dip"
-                android:layout_marginRight="4dip"
-                android:layout_marginBottom="4dip"
-                android:layout_marginTop="4dip"
-                android:src="@drawable/attached_image_placeholder" />
-            <TextView
-                android:id="@+id/attachment_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_toRightOf="@id/attachment_icon"
-                android:layout_alignParentRight="true"
-                android:layout_alignWithParentIfMissing="true"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="?android:attr/textColorSecondaryInverse"
-                android:singleLine="true"
-                android:ellipsize="middle" />
-            <TextView
-                android:id="@+id/attachment_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/attachment_name"
-                android:layout_below="@id/attachment_name"
-                android:layout_alignWithParentIfMissing="true"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorTertiaryInverse"
-                android:singleLine="true"
-                android:ellipsize="middle" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:attr/textColorSecondaryInverse"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            />
+        <TextView
+            android:id="@+id/attachment_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorTertiaryInverse"
+            android:singleLine="true"
+            android:ellipsize="middle"
+            />
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:max="100"
+            android:visibility="invisible"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
             <Button
                 android:id="@+id/load"
-                android:layout_width="wrap_content"
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_below="@id/attachment_name"
-                android:layout_marginTop="6dip"
-                style="?android:attr/buttonStyleSmall"
+                android:layout_weight="1"
                 android:text="@string/message_view_attachment_load_action"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:visibility="gone"
+                />
             <Button
                 android:id="@+id/cancel"
-                android:layout_width="wrap_content"
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_below="@id/attachment_name"
-                android:layout_marginTop="6dip"
-                style="?android:attr/buttonStyleSmall"
+                android:layout_weight="1"
                 android:text="@string/message_view_attachment_cancel_action"
                 android:singleLine="true"
-                android:visibility="gone" />
+                android:visibility="gone"
+                />
+            <Button
+                android:id="@+id/info"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/message_view_attachment_info_action"
+                android:singleLine="true"
+                android:visibility="gone"
+                />
             <Button
                 android:id="@+id/save"
-                android:layout_width="wrap_content"
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_below="@id/attachment_name"
-                android:layout_marginTop="6dip"
-                style="?android:attr/buttonStyleSmall"
-                android:text="@string/message_view_attachment_save_action"
-                android:singleLine="true" />
-            <Button
-                android:id="@+id/view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toLeftOf="@id/save"
-                android:layout_alignWithParentIfMissing="true"
-                android:layout_below="@id/attachment_name"
-                android:layout_marginTop="6dip"
-                style="?android:attr/buttonStyleSmall"
-                android:text="@string/message_view_attachment_view_action"
-                android:singleLine="true" />
-            <ProgressBar
-                android:id="@+id/progress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/attachment_name"
-                android:layout_below="@id/attachment_info"
-                android:layout_alignWithParentIfMissing="true"
-                android:layout_toLeftOf="@id/view"
-                android:layout_marginRight="2dip"
                 android:layout_weight="1"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:max="100"
-                android:visibility="gone" />
-        </RelativeLayout>
+                android:text="@string/message_view_attachment_save_action"
+                android:singleLine="true"
+                android:visibility="gone"
+                />
+            <Button
+                android:id="@+id/open"
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/message_view_attachment_view_action"
+                android:singleLine="true"
+                android:visibility="gone"
+                />
+        </LinearLayout>
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical">
-        <ImageView
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:src="@drawable/ic_attachment_holo_light" />
-    </LinearLayout>
-</FrameLayout>
+</LinearLayout>

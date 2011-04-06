@@ -27,7 +27,6 @@
         android:layout_height="0dip"
         android:layout_weight="1"
         />
-    <!-- Bottom buttons -->
     <LinearLayout
         android:id="@+id/button_panel"
         android:orientation="horizontal"
@@ -37,25 +36,7 @@
         android:paddingLeft="4dip"
         android:paddingRight="4dip"
         android:paddingBottom="1dip"
-        android:background="@android:drawable/bottom_bar">
-        <Button
-            android:id="@+id/reply"
-            android:text="@string/reply_action"
-            android:layout_height="match_parent"
-            android:layout_width="0dip"
-            android:layout_weight="1" />
-        <Button
-            android:id="@+id/reply_all"
-            android:text="@string/reply_all_action"
-            android:layout_height="match_parent"
-            android:layout_width="0dip"
-            android:layout_weight="1" />
-        <Button
-            android:id="@+id/delete"
-            android:text="@string/delete_action"
-            android:layout_height="match_parent"
-            android:layout_width="0dip"
-            android:layout_weight="1" />
+        >
         <Button
             android:id="@+id/moveToNewer"
             android:text="@string/message_view_move_to_newer"
