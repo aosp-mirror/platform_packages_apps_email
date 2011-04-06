@@ -281,30 +281,30 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         final View view = inflater.inflate(R.layout.message_view_fragment, container, false);
 
-        mSubjectView = (TextView) view.findViewById(R.id.subject);
-        mFromNameView = (TextView) view.findViewById(R.id.from_name);
-        mFromAddressView = (TextView) view.findViewById(R.id.from_address);
-        mAddressesView = (TextView) view.findViewById(R.id.addresses);
-        mDateTimeView = (TextView) view.findViewById(R.id.datetime);
-        mMessageContentView = (WebView) view.findViewById(R.id.message_content);
-        mAttachments = (LinearLayout) view.findViewById(R.id.attachments);
-        mTabSection = view.findViewById(R.id.message_tabs_section);
-        mFromBadge = (ImageView) view.findViewById(R.id.badge);
-        mSenderPresenceView = (ImageView) view.findViewById(R.id.presence);
-        mMainView = view.findViewById(R.id.main_panel);
-        mLoadingProgress = view.findViewById(R.id.loading_progress);
-        mShowDetailsButton = (Button) view.findViewById(R.id.show_details);
+        mSubjectView = (TextView) UiUtilities.getView(view, R.id.subject);
+        mFromNameView = (TextView) UiUtilities.getView(view, R.id.from_name);
+        mFromAddressView = (TextView) UiUtilities.getView(view, R.id.from_address);
+        mAddressesView = (TextView) UiUtilities.getView(view, R.id.addresses);
+        mDateTimeView = (TextView) UiUtilities.getView(view, R.id.datetime);
+        mMessageContentView = (WebView) UiUtilities.getView(view, R.id.message_content);
+        mAttachments = (LinearLayout) UiUtilities.getView(view, R.id.attachments);
+        mTabSection = UiUtilities.getView(view, R.id.message_tabs_section);
+        mFromBadge = (ImageView) UiUtilities.getView(view, R.id.badge);
+        mSenderPresenceView = (ImageView) UiUtilities.getView(view, R.id.presence);
+        mMainView = UiUtilities.getView(view, R.id.main_panel);
+        mLoadingProgress = UiUtilities.getView(view, R.id.loading_progress);
+        mShowDetailsButton = (Button) UiUtilities.getView(view, R.id.show_details);
 
         mFromNameView.setOnClickListener(this);
         mFromAddressView.setOnClickListener(this);
         mFromBadge.setOnClickListener(this);
         mSenderPresenceView.setOnClickListener(this);
 
-        mMessageTab = (TextView) view.findViewById(R.id.show_message);
-        mAttachmentTab = (TextView) view.findViewById(R.id.show_attachments);
-        mShowPicturesTab = (TextView) view.findViewById(R.id.show_pictures);
+        mMessageTab = (TextView) UiUtilities.getView(view, R.id.show_message);
+        mAttachmentTab = (TextView) UiUtilities.getView(view, R.id.show_attachments);
+        mShowPicturesTab = (TextView) UiUtilities.getView(view, R.id.show_pictures);
         // Invite is only used in MessageViewFragment, but visibility is controlled here.
-        mInviteTab = (TextView) view.findViewById(R.id.show_invite);
+        mInviteTab = (TextView) UiUtilities.getView(view, R.id.show_invite);
 
         mMessageTab.setOnClickListener(this);
         mAttachmentTab.setOnClickListener(this);
@@ -312,8 +312,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mInviteTab.setOnClickListener(this);
         mShowDetailsButton.setOnClickListener(this);
 
-        mAttachmentsScroll = view.findViewById(R.id.attachments_scroll);
-        mInviteScroll = view.findViewById(R.id.invite_scroll);
+        mAttachmentsScroll = UiUtilities.getView(view, R.id.attachments_scroll);
+        mInviteScroll = UiUtilities.getView(view, R.id.invite_scroll);
 
         WebSettings webSettings = mMessageContentView.getSettings();
         boolean supportMultiTouch = mContext.getPackageManager()
@@ -475,13 +475,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * to avoid flicker.
      */
     private void showContent(boolean showContent, boolean showProgressWhenHidden) {
-        if (mLoadingProgress == null) {
-            // Phone UI doesn't have it yet.
-            // TODO Add loading_progress and main_panel to the phone layout too.
-        } else {
-            makeVisible(mMainView, showContent);
-            makeVisible(mLoadingProgress, !showContent && showProgressWhenHidden);
-        }
+        makeVisible(mMainView, showContent);
+        makeVisible(mLoadingProgress, !showContent && showProgressWhenHidden);
     }
 
     protected void resetView() {
@@ -1332,15 +1327,15 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.message_view_attachment, null);
 
-        TextView attachmentName = (TextView)view.findViewById(R.id.attachment_name);
-        TextView attachmentInfoView = (TextView)view.findViewById(R.id.attachment_info);
-        ImageView attachmentIcon = (ImageView)view.findViewById(R.id.attachment_icon);
-        Button openButton = (Button)view.findViewById(R.id.open);
-        Button saveButton = (Button)view.findViewById(R.id.save);
-        Button loadButton = (Button)view.findViewById(R.id.load);
-        Button infoButton = (Button)view.findViewById(R.id.info);
-        Button cancelButton = (Button)view.findViewById(R.id.cancel);
-        ProgressBar attachmentProgress = (ProgressBar)view.findViewById(R.id.progress);
+        TextView attachmentName = (TextView) UiUtilities.getView(view, R.id.attachment_name);
+        TextView attachmentInfoView = (TextView) UiUtilities.getView(view, R.id.attachment_info);
+        ImageView attachmentIcon = (ImageView) UiUtilities.getView(view, R.id.attachment_icon);
+        Button openButton = (Button) UiUtilities.getView(view, R.id.open);
+        Button saveButton = (Button) UiUtilities.getView(view, R.id.save);
+        Button loadButton = (Button) UiUtilities.getView(view, R.id.load);
+        Button infoButton = (Button) UiUtilities.getView(view, R.id.info);
+        Button cancelButton = (Button) UiUtilities.getView(view, R.id.cancel);
+        ProgressBar attachmentProgress = (ProgressBar) UiUtilities.getView(view, R.id.progress);
 
         MessageViewAttachmentInfo attachmentInfo = new MessageViewAttachmentInfo(
                 mContext, attachment, attachmentProgress);

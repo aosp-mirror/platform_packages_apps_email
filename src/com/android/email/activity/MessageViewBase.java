@@ -17,14 +17,11 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
+import com.android.email.R;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Browser;
 
 /**
  * Base class for {@link MessageView} and {@link MessageFileView}.
