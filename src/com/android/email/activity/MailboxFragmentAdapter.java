@@ -172,7 +172,7 @@ import android.widget.TextView;
         // STOPSHIP remove when legacy protocols support folders; parent key must always be set
         MailboxFragmentLoader(Context context, long accountId) {
             super(context, EmailContent.Mailbox.CONTENT_URI,
-                    MailboxesAdapter.PROJECTION, MAILBOX_SELECTION,
+                    MailboxesAdapter.PROJECTION, MAILBOX_SELECTION_NO_PARENT,
                     new String[] { Long.toString(accountId) },
                     MAILBOX_ORDER_BY);
             mContext = context;
