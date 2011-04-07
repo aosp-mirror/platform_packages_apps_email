@@ -101,6 +101,9 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
     /** Id of the account that had a messaging exception most recently. */
     private long mLastErrorAccountId;
 
+    // STOPSHIP Temporary mailbox settings UI
+    private int mDialogSelection = -1;
+
     /**
      * Launch and open account's inbox.
      *
@@ -556,41 +559,79 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
             onRefresh();
         }
     }
+    // STOPSHIP Temporary mailbox settings UI.  If this ends up being useful, it should
+    // be moved to Utility (emailcommon)
+    private int findInStringArray(String[] array, String item) {
+        int i = 0;
+        for (String str: array) {
+            if (str.equals(item)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
+    // STOPSHIP Temporary mailbox settings UI
+    private final DialogInterface.OnClickListener mSelectionListener =
+        new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                mDialogSelection = which;
+            }
+    };
+
+    // STOPSHIP Temporary mailbox settings UI
+    private final DialogInterface.OnClickListener mCancelListener =
+        new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+            }
+    };
 
     // STOPSHIP Temporary mailbox settings UI
     @Override
     protected Dialog onCreateDialog(int id) {
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mFragmentManager.getMailboxId());
+        if (mailbox == null) return null;
         switch (id) {
-        case MAILBOX_SYNC_FREQUENCY_DIALOG:
-            return new AlertDialog.Builder(this)
-                .setTitle(R.string.mailbox_options_check_frequency_label)
-                .setItems(R.array.account_settings_check_frequency_entries_push,
-                    new DialogInterface.OnClickListener() {
+            case MAILBOX_SYNC_FREQUENCY_DIALOG:
+                String freq = Integer.toString(mailbox.mSyncInterval);
+                final String[] freqValues = getResources().getStringArray(
+                        R.array.account_settings_check_frequency_values_push);
+                int selection = findInStringArray(freqValues, freq);
+                // If not found, this is a push mailbox; trust me on this
+                if (selection == -1) selection = 0;
+                return new AlertDialog.Builder(this)
+                    .setIconAttribute(android.R.attr.dialogIcon)
+                    .setTitle(R.string.mailbox_options_check_frequency_label)
+                    .setSingleChoiceItems(R.array.account_settings_check_frequency_entries_push,
+                            selection,
+                            mSelectionListener)
+                    .setPositiveButton(R.string.okay_action, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            String[] items = getResources().getStringArray(
-                                    R.array.account_settings_check_frequency_entries_push);
-                            String[] values = getResources().getStringArray(
-                                    R.array.account_settings_check_frequency_values_push);
-                            new AlertDialog.Builder(MessageListXL.this)
-                                .setMessage("You selected " + items[which])
-                                .show();
-                            setMailboxColumn(MailboxColumns.SYNC_INTERVAL, values[which]);
-            }}).create();
-        case MAILBOX_SYNC_LOOKBACK_DIALOG:
-            return new AlertDialog.Builder(this)
-                .setTitle(R.string.mailbox_options_lookback_label)
-                .setItems(R.array.account_settings_mail_window_entries,
-                    new DialogInterface.OnClickListener() {
+                            setMailboxColumn(MailboxColumns.SYNC_INTERVAL,
+                                    freqValues[mDialogSelection]);
+                        }})
+                    .setNegativeButton(R.string.cancel_action, mCancelListener)
+                   .create();
+
+            case MAILBOX_SYNC_LOOKBACK_DIALOG:
+                freq = Integer.toString(mailbox.mSyncLookback);
+                final String[] windowValues = getResources().getStringArray(
+                        R.array.account_settings_mail_window_values);
+                selection = findInStringArray(windowValues, freq);
+                return new AlertDialog.Builder(this)
+                    .setIconAttribute(android.R.attr.dialogIcon)
+                    .setTitle(R.string.mailbox_options_lookback_label)
+                    .setSingleChoiceItems(R.array.account_settings_mail_window_entries,
+                            selection,
+                            mSelectionListener)
+                    .setPositiveButton(R.string.okay_action, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            String[] items = getResources().getStringArray(
-                                    R.array.account_settings_mail_window_entries);
-                            String[] values = getResources().getStringArray(
-                                    R.array.account_settings_mail_window_values);
-                            new AlertDialog.Builder(MessageListXL.this)
-                                .setMessage("You selected " + items[which])
-                                .show();
-                            setMailboxColumn(MailboxColumns.SYNC_LOOKBACK, values[which]);
-            }}).create();
+                            setMailboxColumn(MailboxColumns.SYNC_LOOKBACK,
+                                    windowValues[mDialogSelection]);
+                        }})
+                    .setNegativeButton(R.string.cancel_action, mCancelListener)
+                   .create();
         }
         return null;
     }
@@ -607,9 +648,11 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
             case R.id.refresh:
                 onRefresh();
                 return true;
+            // STOPSHIP Temporary mailbox settings UI
             case R.id.sync_lookback:
                 showDialog(MAILBOX_SYNC_LOOKBACK_DIALOG);
                 return true;
+            // STOPSHIP Temporary mailbox settings UI
             case R.id.sync_frequency:
                 showDialog(MAILBOX_SYNC_FREQUENCY_DIALOG);
                 return true;
