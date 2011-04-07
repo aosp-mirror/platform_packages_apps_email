@@ -67,7 +67,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static final String BUNDLE_KEY_SELECTED_MAILBOX_ID
             = "MailboxListFragment.state.selected_mailbox_id";
     private static final String BUNDLE_LIST_STATE = "MailboxListFragment.state.listState";
-    private static final int LOADER_ID_MAILBOX_LIST = 1;
     private static final boolean DEBUG_DRAG_DROP = false; // MUST NOT SUBMIT SET TO TRUE
 
     private static final int NO_DROP_TARGET = -1;
@@ -75,6 +74,13 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static final int SCROLL_ZONE_SIZE = 64;
     // The amount of time to scroll by one pixel, in ms
     private static final int SCROLL_SPEED = 4;
+
+    // TODO Clean up usage of mailbox ID. We use both '-1' and '0' to mean "not selected". To
+    // confuse matters, the database uses '-1' for "no mailbox" and '0' for "invalid mailbox".
+    // Once legacy accounts properly support nested folders, we need to make sure we're only
+    // ever using '-1'.
+    // STOPSHIP Change value to '-1' when legacy protocols support folders
+    private final static long DEFAULT_MAILBOX_ID = 0;
 
     private RefreshManager mRefreshManager;
 
@@ -93,7 +99,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private long mLastLoadedAccountId = -1;
     private long mAccountId = -1;
-    private long mSelectedMailboxId = -1;
+    private long mSelectedMailboxId = DEFAULT_MAILBOX_ID;
+    /** The ID of the mailbox that we have been asked to load */
+    private long mLoadedMailboxId = -1;
 
     private boolean mOpenRequested;
 
@@ -124,7 +132,15 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Callback interface that owning activities must implement
      */
     public interface Callback {
-        /** Called when a mailbox (including combined mailbox) is selected. */
+        /**
+         * Called when any mailbox (even a combined mailbox) is selected.
+         * @param accountId
+         *          The ID of the account for which a mailbox was selected
+         * @param mailboxId
+         *          The ID of the selected mailbox. This may be real mailbox ID [e.g. a number > 0],
+         *          or a special mailbox ID [e.g. {@link MessageListXLFragmentManager#NO_MAILBOX},
+         *          {@link Mailbox#QUERY_ALL_INBOXES}, etc...].
+         */
         public void onMailboxSelected(long accountId, long mailboxId);
 
         /** Called when an account is selected on the combined view. */
@@ -197,14 +213,16 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     private void clearContent() {
+        getLoaderManager().destroyLoader((int) mLoadedMailboxId);
+
         mLastLoadedAccountId = -1;
         mAccountId = -1;
-        mSelectedMailboxId = -1;
+        mSelectedMailboxId = DEFAULT_MAILBOX_ID;
+        mLoadedMailboxId = -1;
 
         mOpenRequested = false;
         mDragInProgress = false;
 
-        stopLoader();
         if (mListAdapter != null) {
             mListAdapter.swapCursor(null);
         }
@@ -212,16 +230,31 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     /**
-     * @param accountId the account we're looking at
+     * Opens the top-level mailboxes for the given account ID. If the account is currently
+     * loaded, no actions will be performed. To forcefully load the list of top-level
+     * mailboxes use {@link #openMailboxes(long, boolean)}
+     * @param accountId The ID of the account we want to view
      */
     public void openMailboxes(long accountId) {
+        openMailboxes(accountId, false);
+    }
+
+    /**
+     * Opens the top-level mailboxes for the given account ID. If the account is currently
+     * loaded, the list of top-level mailbox will not be reloaded unless <code>forceReload</code>
+     * is <code>true</code>.
+     * @param accountId The ID of the account we want to view
+     * @param forceReload If <code>true</code>, always load the list of top-level mailboxes.
+     * Otherwise, only load the list of top-level mailboxes if the account changes.
+     */
+    public void openMailboxes(long accountId, boolean forceReload) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxListFragment openMailboxes");
         }
         if (accountId == -1) {
             throw new InvalidParameterException();
         }
-        if (mAccountId == accountId) {
+        if (!forceReload && mAccountId == accountId) {
             return;
         }
         clearContent();
@@ -232,6 +265,23 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
     }
 
+    /**
+     * Selects the given mailbox ID and navigates to it. This loads any mailboxes contained
+     * within it. The mailbox is assumed to be associated with the account passed into
+     * {@link #openMailboxes(long)}
+     * @param mailboxId The ID of the mailbox to load.
+     */
+    public void navigateToMailbox(long mailboxId) {
+        setSelectedMailbox(mailboxId);
+        if (mResumed) {
+            startLoading();
+        }
+    }
+
+    /**
+     * Sets the selected mailbox to the given ID. Sub-folders will not be loaded.
+     * @param mailboxId The ID of the mailbox to select.
+     */
     public void setSelectedMailbox(long mailboxId) {
         mSelectedMailboxId = mailboxId;
         if (mResumed) {
@@ -323,33 +373,35 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         // Clear the list.  (ListFragment will show the "Loading" animation)
         setListShown(false);
 
-        // If we've already loaded for a different account, discard the previous result and
-        // start loading again.
-        // We don't want to use restartLoader(), because if the Loader is retained, we *do* want to
-        // reuse the previous result.
-        // Also, when changing accounts, we don't preserve scroll position.
-        boolean accountChanging = false;
-        if ((mLastLoadedAccountId != -1) && (mLastLoadedAccountId != mAccountId)) {
-            accountChanging = true;
-            getLoaderManager().destroyLoader(LOADER_ID_MAILBOX_LIST);
-
-            // Also, when we're changing account, update the mailbox list if stale.
+        // If we've already loaded for a different account OR if we've loaded for a different
+        // mailbox, discard the previous result and load again.
+        boolean saveListState = true;
+        final LoaderManager lm = getLoaderManager();
+        long lastLoadedMailboxId = mLoadedMailboxId;
+        mLoadedMailboxId = mSelectedMailboxId;
+        if ((lastLoadedMailboxId != mSelectedMailboxId) ||
+                ((mLastLoadedAccountId != -1) && (mLastLoadedAccountId != mAccountId))) {
+            lm.destroyLoader((int) lastLoadedMailboxId);
+            saveListState = false;
             refreshMailboxListIfStale();
         }
-        getLoaderManager().initLoader(LOADER_ID_MAILBOX_LIST, null,
-                new MailboxListLoaderCallbacks(accountChanging));
+        /**
+         * Don't use {@link LoaderManager#restartLoader(int, Bundle, LoaderCallbacks)}, because
+         * we want to reuse the previous result if the Loader has been retained.
+         */
+        lm.initLoader((int)mLoadedMailboxId, null,
+                new MailboxListLoaderCallbacks(saveListState, mLoadedMailboxId));
     }
 
-    private void stopLoader() {
-        final LoaderManager lm = getLoaderManager();
-        lm.destroyLoader(LOADER_ID_MAILBOX_LIST);
-    }
-
+    // TODO This class probably should be made static. There are many calls into the enclosing
+    // class and we need to be cautious about what we call while in these callbacks
     private class MailboxListLoaderCallbacks implements LoaderCallbacks<Cursor> {
-        private boolean mAccountChanging;
+        private boolean mSaveListState;
+        private final long mMailboxId;
 
-        public MailboxListLoaderCallbacks(boolean accountChanging) {
-            mAccountChanging = accountChanging;
+        public MailboxListLoaderCallbacks(boolean saveListState, long mailboxId) {
+            mSaveListState = saveListState;
+            mMailboxId = mailboxId;
         }
 
         @Override
@@ -357,7 +409,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, "MailboxListFragment onCreateLoader");
             }
-            return MailboxFragmentAdapter.createLoader(getActivity(), mAccountId);
+            return MailboxFragmentAdapter.createLoader(getActivity(), mAccountId, mMailboxId);
         }
 
         @Override
@@ -365,12 +417,15 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, "MailboxListFragment onLoadFinished");
             }
+            if (mMailboxId != mLoadedMailboxId) {
+                return;
+            }
             mLastLoadedAccountId = mAccountId;
 
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
             final Utility.ListStateSaver lss;
-            if (mAccountChanging) {
+            if (!mSaveListState) {
                 lss = null; // Don't preserve list state
             } else if (mSavedListState != null) {
                 lss = mSavedListState;
@@ -392,7 +447,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
                 // We want to make selection visible only when account is changing..
                 // i.e. Refresh caused by content changed events shouldn't scroll the list.
-                highlightSelectedMailbox(mAccountChanging);
+                highlightSelectedMailbox(!mSaveListState);
             }
 
             // Restore the state
@@ -401,11 +456,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             }
 
             // Clear this for next reload triggered by content changed events.
-            mAccountChanging = false;
+            mSaveListState = true;
         }
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
+            if (mMailboxId != mLoadedMailboxId) {
+                return;
+            }
             mListAdapter.swapCursor(null);
         }
     }
@@ -438,7 +496,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private void highlightSelectedMailbox(boolean ensureSelectionVisible) {
         String mailboxName = "";
         int unreadCount = 0;
-        if (mSelectedMailboxId == -1) {
+        if (mSelectedMailboxId == DEFAULT_MAILBOX_ID) {
             // No mailbox selected
             mListView.clearChoices();
         } else {

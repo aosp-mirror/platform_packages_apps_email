@@ -200,6 +200,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
      */
     @Override
     public void onMailboxSelected(long accountId, long mailboxId) {
+        // TODO handle folder navigation on the phone. when will we actually show the messages?
         onOpenMailbox(mailboxId);
     }
 

@@ -81,8 +81,16 @@ import android.widget.CursorAdapter;
     static final int COLUMN_MESSAGE_COUNT = 5;
     static final int COLUMN_ROW_TYPE = 6;
 
+    /** All mailboxes for the account */
     static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
+    // STOPSHIP This can be removed when legacy protocols support folders
+    /** All top-level mailboxes */
+    static final String MAILBOX_SELECTION_NO_PARENT = MAILBOX_SELECTION +
+            " AND " + MailboxColumns.PARENT_KEY + "<=0";
+    /** All mailboxes with the given parent */
+    static final String MAILBOX_SELECTION_WITH_PARENT = MAILBOX_SELECTION +
+            " AND " + MailboxColumns.PARENT_KEY + "=?";
 
     static final String MAILBOX_ORDER_BY = "CASE " + MailboxColumns.TYPE +
             " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0" +

@@ -238,6 +238,8 @@
     <string name="mailbox_name_display_sent">Sent</string>
     <!-- In the UI, the junk will be displayed with this name -->
     <string name="mailbox_name_display_junk">Junk</string>
+    <!-- Folder name displayed to go back to the top-level mailbox view [CHAR_LIMIT=20] -->
+    <string name="mailbox_name_go_back">All Folders</string>
 
     <!-- Version number, shown only on debug screen -->
     <string name="debug_version_fmt">Version: <xliff:g id="version">%s</xliff:g></string>

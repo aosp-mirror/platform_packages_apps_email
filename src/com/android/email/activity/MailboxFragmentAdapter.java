@@ -110,36 +110,54 @@ import android.widget.TextView;
     }
 
     /**
-     * @return mailboxes Loader for an account.
+     * Returns a cursor loader for the mailboxes of the given account. If <code>parentKey</code>
+     * refers to a valid mailbox ID [e.g. non-zero], restrict the loader to only those mailboxes
+     * contained by this parent mailbox.
      */
-    public static Loader<Cursor> createLoader(Context context, long accountId) {
+    public static Loader<Cursor> createLoader(Context context, long accountId, long parentKey) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxFragmentAdapter#createLoader accountId=" + accountId);
         }
         if (accountId != Account.ACCOUNT_ID_COMBINED_VIEW) {
-            return new MailboxFragmentLoader(context, accountId);
+            // STOPSHIP remove test when legacy protocols support folders; the parent key
+            // should never equal '0'
+            if (parentKey == 0) {
+                // load all mailboxes at the top level
+                return new MailboxFragmentLoader(context, accountId);
+            } else {
+                return new MailboxFragmentLoader(context, accountId, parentKey);
+            }
         } else {
             return new CombinedMailboxLoader(context);
         }
     }
 
     /**
-     * Adds a new row into the specified cursor.
+     * Adds a new row into the given cursor.
      */
-    private static void addSummaryMailboxRow(MatrixCursor cursor, long id, int type, int count,
-            boolean showAlways) {
+    private static void addMailboxRow(MatrixCursor cursor, long mailboxId, String displayName,
+            int mailboxType, int unreadCount, int messageCount) {
+        long listId = mailboxId;
+        if (mailboxId < 0) {
+            listId = Long.MAX_VALUE + mailboxId; // IDs for the list view must be positive
+        }
+        RowBuilder row = cursor.newRow();
+        row.add(listId);
+        row.add(mailboxId);
+        row.add(displayName);
+        row.add(mailboxType);
+        row.add(unreadCount);
+        row.add(messageCount);
+        row.add(ROW_TYPE_MAILBOX);
+    }
+
+    private static void addSummaryMailboxRow(MatrixCursor cursor, long id, int mailboxType,
+            int count, boolean showAlways) {
         if (id >= 0) {
-            throw new IllegalArgumentException(); // Must be QUERY_ALL_*, which are all negative.
+            throw new IllegalArgumentException(); // Must be QUERY_ALL_*, which are all negative
         }
         if (showAlways || (count > 0)) {
-            RowBuilder row = cursor.newRow();
-            row.add(Long.MAX_VALUE + id); // Map QUERY_ALL_* constants to positive ints.
-            row.add(id); // The real mailbox ID.
-            row.add(""); // Display name.  We get it from FolderProperties.
-            row.add(type);
-            row.add(count);
-            row.add(count);
-            row.add(ROW_TYPE_MAILBOX);
+            addMailboxRow(cursor, id, "", mailboxType, count, count);
         }
     }
 
@@ -149,13 +167,27 @@ import android.widget.TextView;
     private static class MailboxFragmentLoader extends ThrottlingCursorLoader {
         private final Context mContext;
         private final long mAccountId;
+        private final long mParentKey;
 
-        public MailboxFragmentLoader(Context context, long accountId) {
+        // STOPSHIP remove when legacy protocols support folders; parent key must always be set
+        MailboxFragmentLoader(Context context, long accountId) {
             super(context, EmailContent.Mailbox.CONTENT_URI,
                     MailboxesAdapter.PROJECTION, MAILBOX_SELECTION,
-                    new String[] { String.valueOf(accountId) }, MAILBOX_ORDER_BY);
+                    new String[] { Long.toString(accountId) },
+                    MAILBOX_ORDER_BY);
             mContext = context;
             mAccountId = accountId;
+            mParentKey = 0;
+        }
+
+        MailboxFragmentLoader(Context context, long accountId, long parentKey) {
+            super(context, EmailContent.Mailbox.CONTENT_URI,
+                    MailboxesAdapter.PROJECTION, MAILBOX_SELECTION_WITH_PARENT,
+                    new String[] { Long.toString(accountId), Long.toString(parentKey) },
+                    MAILBOX_ORDER_BY);
+            mContext = context;
+            mAccountId = accountId;
+            mParentKey = parentKey;
         }
 
         @Override
@@ -168,6 +200,24 @@ import android.widget.TextView;
         @Override
         public Cursor loadInBackground() {
             final Cursor mailboxesCursor = super.loadInBackground();
+
+            // Add "up" item if we are not viewing the top-level list
+            if (mParentKey > 0) {
+                // STOPSHIP Remove this commented block of code if truly not wanted by UX
+//                // Find the parent's parent ...
+//                Long superParentKey = Utility.getFirstRowLong(getContext(), Mailbox.CONTENT_URI,
+//                        new String[] { MailboxColumns.PARENT_KEY }, MailboxColumns.ID + "=?",
+//                        new String[] { Long.toString(mParentKey) }, null, 0);
+                Long superParentKey = MessageListXLFragmentManager.NO_MAILBOX;
+
+                if (superParentKey != null) {
+                    final MatrixCursor extraCursor = new MatrixCursor(getProjection());
+                    String label = mContext.getResources().getString(R.string.mailbox_name_go_back);
+                    addMailboxRow(extraCursor, superParentKey, label, Mailbox.TYPE_MAIL, 0, 0);
+                    return Utility.CloseTraceCursorWrapper.get(
+                            new MergeCursor(new Cursor[] {extraCursor, mailboxesCursor}));
+                }
+            }
 
             // Add "Starred", only if the account has at least one starred message.
             // TODO It's currently "combined starred", but the plan is to make it per-account
