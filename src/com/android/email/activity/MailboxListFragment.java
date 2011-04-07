@@ -74,6 +74,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static final int SCROLL_ZONE_SIZE = 64;
     // The amount of time to scroll by one pixel, in ms
     private static final int SCROLL_SPEED = 4;
+    /** Arbitrary number for use with the loader manager */
+    private static final int MAILBOX_LOADER_ID = 1;
 
     // TODO Clean up usage of mailbox ID. We use both '-1' and '0' to mean "not selected". To
     // confuse matters, the database uses '-1' for "no mailbox" and '0' for "invalid mailbox".
@@ -213,7 +215,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     private void clearContent() {
-        getLoaderManager().destroyLoader((int) mLoadedMailboxId);
+        getLoaderManager().destroyLoader(MAILBOX_LOADER_ID);
 
         mLastLoadedAccountId = -1;
         mAccountId = -1;
@@ -381,7 +383,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mLoadedMailboxId = mSelectedMailboxId;
         if ((lastLoadedMailboxId != mSelectedMailboxId) ||
                 ((mLastLoadedAccountId != -1) && (mLastLoadedAccountId != mAccountId))) {
-            lm.destroyLoader((int) lastLoadedMailboxId);
+            lm.destroyLoader(MAILBOX_LOADER_ID);
             saveListState = false;
             refreshMailboxListIfStale();
         }
@@ -389,7 +391,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
          * Don't use {@link LoaderManager#restartLoader(int, Bundle, LoaderCallbacks)}, because
          * we want to reuse the previous result if the Loader has been retained.
          */
-        lm.initLoader((int)mLoadedMailboxId, null,
+        lm.initLoader(MAILBOX_LOADER_ID, null,
                 new MailboxListLoaderCallbacks(saveListState, mLoadedMailboxId));
     }
 
