@@ -1087,4 +1087,10 @@ save attachment.</string>
     <string name="search_title">Email</string>
     <!-- The hint used in the search EditText field [CHAR LIMIT=35] -->
     <string name="search_hint">Search email</string>
+
+    <!-- STOPSHIP Temporary UI DO NOT TRANSLATE-->
+    <!-- In Mailbox setings, label for email check frequency selector -->
+    <string name="mailbox_options_check_frequency_label">Mailbox check frequency</string>
+    <!-- In Mailbox setings, label for email check lookback selector -->
+    <string name="mailbox_options_lookback_label">Mailbox check lookback</string>
 </resources>

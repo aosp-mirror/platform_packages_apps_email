@@ -45,4 +45,16 @@
         android:title="@string/account_settings_action"
         android:icon="@android:drawable/ic_menu_preferences"
     />
+    <item
+        android:id="@+id/sync_frequency"
+        android:orderInCategory="3000"
+        android:title="@string/mailbox_options_check_frequency_label"
+        android:icon="@android:drawable/ic_menu_preferences"
+    />
+    <item
+        android:id="@+id/sync_lookback"
+        android:orderInCategory="3100"
+        android:title="@string/mailbox_options_lookback_label"
+        android:icon="@android:drawable/ic_menu_preferences"
+    />
 </menu>
