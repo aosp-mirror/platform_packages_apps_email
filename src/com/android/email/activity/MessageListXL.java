@@ -29,18 +29,22 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -69,6 +73,9 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
     private static final int LOADER_ID_ACCOUNT_LIST = 0;
     /* package */ static final int MAILBOX_REFRESH_MIN_INTERVAL = 30 * 1000; // in milliseconds
     /* package */ static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
+
+    private static final int MAILBOX_SYNC_FREQUENCY_DIALOG = 1;
+    private static final int MAILBOX_SYNC_LOOKBACK_DIALOG = 2;
 
     private Context mContext;
     private Controller mController;
@@ -502,16 +509,20 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        // STOPSHIP Temporary search UI
-        // Only show search for EAS
-        boolean showSearch = false;
+        // STOPSHIP Temporary search/sync options UI
+        // Only show search/sync options for EAS
+        boolean isEas = false;
         long accountId = mFragmentManager.getActualAccountId();
         if (accountId > 0) {
             if ("eas".equals(Account.getProtocol(mContext, accountId))) {
-                showSearch = true;
+                isEas = true;
             }
         }
-        menu.findItem(R.id.search).setVisible(showSearch);
+        // Should use an isSearchable call to prevent search on inappropriate accounts/boxes
+        menu.findItem(R.id.search).setVisible(isEas);
+        // Should use an isSyncable call to prevent drafts/outbox from allowing this
+        menu.findItem(R.id.sync_lookback).setVisible(isEas);
+        menu.findItem(R.id.sync_frequency).setVisible(isEas);
 
         ActivityHelper.updateRefreshMenuIcon(
                 menu.findItem(R.id.refresh), shouldShowRefreshButton(), isProgressActive());
@@ -533,6 +544,57 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         return true;
     }
 
+    // STOPSHIP Set column from user options
+    private void setMailboxColumn(String column, String value) {
+        final long mailboxId = mFragmentManager.getMailboxId();
+        if (mailboxId > 0) {
+            ContentValues cv = new ContentValues();
+            cv.put(column, value);
+            getContentResolver().update(
+                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                    cv, null, null);
+            onRefresh();
+        }
+    }
+
+    // STOPSHIP Temporary mailbox settings UI
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+        case MAILBOX_SYNC_FREQUENCY_DIALOG:
+            return new AlertDialog.Builder(this)
+                .setTitle(R.string.mailbox_options_check_frequency_label)
+                .setItems(R.array.account_settings_check_frequency_entries_push,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            String[] items = getResources().getStringArray(
+                                    R.array.account_settings_check_frequency_entries_push);
+                            String[] values = getResources().getStringArray(
+                                    R.array.account_settings_check_frequency_values_push);
+                            new AlertDialog.Builder(MessageListXL.this)
+                                .setMessage("You selected " + items[which])
+                                .show();
+                            setMailboxColumn(MailboxColumns.SYNC_INTERVAL, values[which]);
+            }}).create();
+        case MAILBOX_SYNC_LOOKBACK_DIALOG:
+            return new AlertDialog.Builder(this)
+                .setTitle(R.string.mailbox_options_lookback_label)
+                .setItems(R.array.account_settings_mail_window_entries,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            String[] items = getResources().getStringArray(
+                                    R.array.account_settings_mail_window_entries);
+                            String[] values = getResources().getStringArray(
+                                    R.array.account_settings_mail_window_values);
+                            new AlertDialog.Builder(MessageListXL.this)
+                                .setMessage("You selected " + items[which])
+                                .show();
+                            setMailboxColumn(MailboxColumns.SYNC_LOOKBACK, values[which]);
+            }}).create();
+        }
+        return null;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -544,6 +606,12 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
                 return onCompose();
             case R.id.refresh:
                 onRefresh();
+                return true;
+            case R.id.sync_lookback:
+                showDialog(MAILBOX_SYNC_LOOKBACK_DIALOG);
+                return true;
+            case R.id.sync_frequency:
+                showDialog(MAILBOX_SYNC_FREQUENCY_DIALOG);
                 return true;
             case R.id.search:
                 onSearchRequested();
