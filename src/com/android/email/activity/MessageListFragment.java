@@ -105,7 +105,7 @@ public class MessageListFragment extends ListFragment
     // Controller access
     private Controller mController;
     private RefreshManager mRefreshManager;
-    private RefreshListener mRefreshListener = new RefreshListener();
+    private final RefreshListener mRefreshListener = new RefreshListener();
 
     // UI Support
     private Activity mActivity;
@@ -500,11 +500,11 @@ public class MessageListFragment extends ListFragment
         /** Height of the draggable view */
         private final int mDragHeight;
 
-        private String mMessageText;
-        private PointF mMessagePoint;
+        private final String mMessageText;
+        private final PointF mMessagePoint;
 
-        private String mCountText;
-        private PointF mCountPoint;
+        private final String mCountText;
+        private final PointF mCountPoint;
         private int mOldOrientation = Configuration.ORIENTATION_UNDEFINED;
 
         /** Margin applied to the right of count text */

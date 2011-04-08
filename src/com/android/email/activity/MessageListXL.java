@@ -589,7 +589,7 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
 
     // STOPSHIP Temporary mailbox settings UI
     @Override
-    protected Dialog onCreateDialog(int id) {
+    protected Dialog onCreateDialog(int id, Bundle args) {
         Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mFragmentManager.getMailboxId());
         if (mailbox == null) return null;
         switch (id) {

@@ -49,7 +49,6 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
     private MessageListFragment mListFragment;
     private TextView mErrorBanner;
 
-    private Controller mController;
     private RefreshManager mRefreshManager;
     private final RefreshListener mRefreshListener = new RefreshListener();
 
@@ -108,7 +107,6 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.message_list);
 
-        mController = Controller.getInstance(this);
         mRefreshManager = RefreshManager.getInstance(this);
         mRefreshManager.registerListener(mRefreshListener);
         mListFragment = (MessageListFragment) getFragmentManager()
@@ -344,7 +342,7 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
             // launch the security setup activity
             Intent i = AccountSecurity.actionUpdateSecurityIntent(
                     MessageList.this, accountId, true);
-            MessageList.this.startActivityForResult(i, REQUEST_SECURITY);
+            startActivityForResult(i, REQUEST_SECURITY);
         }
     }
 }

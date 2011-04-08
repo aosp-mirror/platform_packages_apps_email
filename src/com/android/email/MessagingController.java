@@ -105,12 +105,6 @@ public class MessagingController implements Runnable {
      */
     private static final String LOCAL_SERVERID_PREFIX = "Local-";
 
-    /**
-     * Projections & CVs used by pruneCachedAttachments
-     */
-    private static final String[] PRUNE_ATTACHMENT_PROJECTION = new String[] {
-        AttachmentColumns.LOCATION
-    };
     private static final ContentValues PRUNE_ATTACHMENT_CV = new ContentValues();
     static {
         PRUNE_ATTACHMENT_CV.putNull(AttachmentColumns.CONTENT_URI);
@@ -1401,7 +1395,8 @@ public class MessagingController implements Runnable {
         }
         if (deleteUpdate) {
             // Finally, delete the update (if any)
-            Uri uri = ContentUris.withAppendedId(EmailContent.Message.UPDATED_CONTENT_URI, messageId);
+            Uri uri = ContentUris.withAppendedId(
+                    EmailContent.Message.UPDATED_CONTENT_URI, messageId);
             resolver.delete(uri, null, null);
         }
     }

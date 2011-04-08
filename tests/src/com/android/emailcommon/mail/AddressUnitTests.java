@@ -16,14 +16,12 @@
 
 package com.android.emailcommon.mail;
 
-import com.android.emailcommon.mail.Address;
-
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import org.apache.james.mime4j.decoder.DecoderUtil;
 
-import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * This is a series of unit tests for the Address class.  These tests must be locally
@@ -48,7 +46,8 @@ public class AddressUnitTests extends AndroidTestCase {
 
     private static final Address PACK_ADDR_1 = new Address("john@gmail.com", "John Doe");
     private static final Address PACK_ADDR_2 = new Address("foo@bar.com", null);
-    private static final Address PACK_ADDR_3 = new Address("mar.y+test@gmail.com", "Mar-y, B; B*arr");
+    private static final Address PACK_ADDR_3 = new Address(
+            "mar.y+test@gmail.com", "Mar-y, B; B*arr");
     private static final Address[][] PACK_CASES = {
         {PACK_ADDR_2}, {PACK_ADDR_1},
         {PACK_ADDR_1, PACK_ADDR_2}, {PACK_ADDR_2, PACK_ADDR_1},
@@ -353,7 +352,8 @@ public class AddressUnitTests extends AndroidTestCase {
         assertEquals("no name 1", "noname1@dom1.com", addresses[0].toString());
         assertEquals("no name 2", "noname2@dom2.com", addresses[1].toString());
         assertEquals("simple name", "simple name <address3@dom3.org>", addresses[2].toString());
-        assertEquals("double quoted name", "\"name,4\" <address4@dom4.org>", addresses[3].toString());
+        assertEquals("double quoted name",
+                "\"name,4\" <address4@dom4.org>", addresses[3].toString());
         assertEquals("quoted name", "\"big \"G\"\" <bigG@dom5.net>", addresses[4].toString());
         assertEquals("utf-16 name", "\u65E5\u672C\u8A9E <address6@co.jp>",
                 addresses[5].toString());
@@ -616,13 +616,6 @@ public class AddressUnitTests extends AndroidTestCase {
         for (Address[] list : PACK_CASES) {
             String packed = Address.pack(list);
             assertTrue(packed, addressArrayEquals(list, Address.unpack(packed)));
-        }
-    }
-
-    public void testLegacyPackUnpack() {
-        for (Address[] list : PACK_CASES) {
-            String packed = legacyPack(list);
-            assertTrue(packed, addressArrayEquals(list, Address.legacyUnpack(packed)));
         }
     }
 

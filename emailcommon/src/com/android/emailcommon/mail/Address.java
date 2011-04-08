@@ -80,7 +80,7 @@ public class Address {
     }
 
     public void setAddress(String address) {
-        this.mAddress = REMOVE_OPTIONAL_BRACKET.matcher(address).replaceAll("$1");;
+        mAddress = REMOVE_OPTIONAL_BRACKET.matcher(address).replaceAll("$1");;
     }
 
     /**
@@ -107,7 +107,7 @@ public class Address {
                 personal = null;
             }
         }
-        this.mPersonal = personal;
+        mPersonal = personal;
     }
 
     /**
@@ -446,74 +446,5 @@ public class Address {
         } else {
             return address + LIST_DELIMITER_PERSONAL + personal;
         }
-    }
-
-    /**
-     * Legacy unpack() used for reading the old data (migration),
-     * as found in LocalStore (Donut; db version up to 24).
-     * @See unpack()
-     */
-    public static Address[] legacyUnpack(String addressList) {
-        if (addressList == null || addressList.length() == 0) {
-            return new Address[] { };
-        }
-        ArrayList<Address> addresses = new ArrayList<Address>();
-        int length = addressList.length();
-        int pairStartIndex = 0;
-        int pairEndIndex = 0;
-        int addressEndIndex = 0;
-        while (pairStartIndex < length) {
-            pairEndIndex = addressList.indexOf(',', pairStartIndex);
-            if (pairEndIndex == -1) {
-                pairEndIndex = length;
-            }
-            addressEndIndex = addressList.indexOf(';', pairStartIndex);
-            String address = null;
-            String personal = null;
-            if (addressEndIndex == -1 || addressEndIndex > pairEndIndex) {
-                address =
-                    Utility.fastUrlDecode(addressList.substring(pairStartIndex, pairEndIndex));
-            }
-            else {
-                address =
-                    Utility.fastUrlDecode(addressList.substring(pairStartIndex, addressEndIndex));
-                personal =
-                    Utility.fastUrlDecode(addressList.substring(addressEndIndex + 1, pairEndIndex));
-            }
-            addresses.add(new Address(address, personal));
-            pairStartIndex = pairEndIndex + 1;
-        }
-        return addresses.toArray(new Address[] { });
-    }
-
-    /**
-     * Legacy pack() used for writing to old data (migration),
-     * as found in LocalStore (Donut; db version up to 24).
-     * @See unpack()
-     */
-    public static String legacyPack(Address[] addresses) {
-        if (addresses == null) {
-            return null;
-        } else if (addresses.length == 0) {
-            return "";
-        }
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0, count = addresses.length; i < count; i++) {
-            Address address = addresses[i];
-            try {
-                sb.append(URLEncoder.encode(address.getAddress(), "UTF-8"));
-                if (address.getPersonal() != null) {
-                    sb.append(';');
-                    sb.append(URLEncoder.encode(address.getPersonal(), "UTF-8"));
-                }
-                if (i < count - 1) {
-                    sb.append(',');
-                }
-            }
-            catch (UnsupportedEncodingException uee) {
-                return null;
-            }
-        }
-        return sb.toString();
     }
 }
