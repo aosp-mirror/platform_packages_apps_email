@@ -1180,9 +1180,11 @@ public class MessageListFragment extends ListFragment
                 lss = new Utility.ListStateSaver(lv);
             }
 
-            // If this is a search mailbox, set the query
+            // If this is a search mailbox, set the query; otherwise, clear it
             if (mMailbox != null && mMailbox.mType == Mailbox.TYPE_SEARCH) {
                 mListAdapter.setQuery(mMailbox.mDisplayName);
+            } else {
+                mListAdapter.setQuery(null);
             }
 
             // Update the list
