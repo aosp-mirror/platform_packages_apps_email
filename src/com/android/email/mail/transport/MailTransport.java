@@ -23,7 +23,6 @@ import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.utility.SSLUtils;
 
-import android.util.Config;
 import android.util.Log;
 
 import java.io.BufferedInputStream;

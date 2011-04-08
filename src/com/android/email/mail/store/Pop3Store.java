@@ -35,7 +35,6 @@ import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Config;
 import android.util.Log;
 
 import java.io.IOException;

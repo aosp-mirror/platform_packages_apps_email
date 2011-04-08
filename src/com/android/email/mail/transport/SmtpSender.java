@@ -28,7 +28,6 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Message;
 
 import android.content.Context;
-import android.util.Config;
 import android.util.Log;
 import android.util.Base64;
 
