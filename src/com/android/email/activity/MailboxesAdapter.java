@@ -220,12 +220,22 @@ import android.widget.CursorAdapter;
     }
 
     /**
-     * @return ID of the mailbox (or account, if {@link #isAccountRow} == true) of the specified
-     * row.
+     * Returns the ID of the mailbox (or account, if {@link #isAccountRow} is {@code true})
+     * of the given row.
      */
     public long getId(int position) {
         Cursor c = (Cursor) getItem(position);
         return c.getLong(COLUMN_ID);
+    }
+
+    /**
+     * Returns whether or not the mailbox at the given row can be navigated to.
+     */
+    public boolean isNavigable(int row) {
+        final Cursor c = (Cursor) getItem(row);
+        final int flags = c.getInt(COLUMN_FLAGS);
+        return (flags & Mailbox.FLAG_HAS_CHILDREN) != 0
+                && (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0;
     }
 
     /**

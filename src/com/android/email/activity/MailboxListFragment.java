@@ -268,16 +268,32 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     /**
-     * Selects the given mailbox ID and navigates to it. This loads any mailboxes contained
-     * within it. The mailbox is assumed to be associated with the account passed into
-     * {@link #openMailboxes(long)}
-     * @param mailboxId The ID of the mailbox to load.
+     * Selects the given mailbox ID and possibly navigates to it. This loads any mailboxes
+     * contained within it and may cause the mailbox list to be updated. If the current fragment
+     * is not in the resumed state or if the mailbox cannot be navigated to, the given mailbox
+     * will only be selected. The mailbox is assumed to be associated with the account passed
+     * into {@link #openMailboxes(long)}.
+     * @param mailboxId The ID of the mailbox to select and navigate to.
      */
     public void navigateToMailbox(long mailboxId) {
         setSelectedMailbox(mailboxId);
-        if (mResumed) {
+        if (mResumed && isNavigable(mailboxId)) {
             startLoading();
         }
+    }
+
+    /**
+     * Returns whether or not the specified mailbox can be navigated to.
+     */
+    private boolean isNavigable(long mailboxId) {
+        final int count = mListAdapter.getCount();
+        for (int i = 0; i < count; i++) {
+            if (mListAdapter.getId(i) != mSelectedMailboxId) {
+                continue;
+            }
+            return mListAdapter.isNavigable(i);
+        }
+        return false;
     }
 
     /**
@@ -502,6 +518,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             // No mailbox selected
             mListView.clearChoices();
         } else {
+            // TODO Don't mix list view & list adapter indices. This is a recipe for disaster.
             final int count = mListView.getCount();
             for (int i = 0; i < count; i++) {
                 if (mListAdapter.getId(i) != mSelectedMailboxId) {

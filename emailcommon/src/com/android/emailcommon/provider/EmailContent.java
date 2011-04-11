@@ -2299,26 +2299,28 @@ public abstract class EmailContent {
 
         // Types of mailboxes.  The list is ordered to match a typical UI presentation, e.g.
         // placing the inbox at the top.
-        // The "main" mailbox for the account, almost always referred to as "Inbox"
         // Arrays of "special_mailbox_display_names" and "special_mailbox_icons" are depends on
         // types Id of mailboxes.
+        /** No type specified */
+        public static final int TYPE_NONE = -1;
+        /** The "main" mailbox for the account, almost always referred to as "Inbox" */
         public static final int TYPE_INBOX = 0;
         // Types of mailboxes
-        // Holds mail (generic)
+        /** Generic mailbox that holds mail */
         public static final int TYPE_MAIL = 1;
-        // Parent-only mailbox; holds no mail
+        /** Parent-only mailbox; does not hold any mail */
         public static final int TYPE_PARENT = 2;
-        // Holds drafts
+        /** Drafts mailbox */
         public static final int TYPE_DRAFTS = 3;
-        // The local outbox associated with the Account
+        /** Local mailbox associated with the account's outgoing mail */
         public static final int TYPE_OUTBOX = 4;
-        // Holds sent mail
+        /** Sent mail; mail that was sent from the account */
         public static final int TYPE_SENT = 5;
-        // Holds deleted mail
+        /** Deleted mail */
         public static final int TYPE_TRASH = 6;
-        // Holds junk mail
+        /** Junk mail */
         public static final int TYPE_JUNK = 7;
-        // A mailbox that holds search results
+        /** Search results */
         public static final int TYPE_SEARCH = 8;
 
         // Types after this are used for non-mail mailboxes (as in EAS)
@@ -2335,17 +2337,19 @@ public abstract class EmailContent {
 
         // Bit field flags; each is defined below
         // Warning: Do not read these flags until POP/IMAP/EAS all populate them
-        // This mailbox has children in the mailbox hierarchy
+        /** No flags set */
+        public static final int FLAG_NONE = 0;
+        /** Has children in the mailbox hierarchy */
         public static final int FLAG_HAS_CHILDREN = 1<<0;
-        // This mailbox's children are visible in the UI
+        /** Children are visible in the UI */
         public static final int FLAG_CHILDREN_VISIBLE = 1<<1;
-        // This mailbox cannot receive "pushed" mail
+        /** cannot receive "pushed" mail */
         public static final int FLAG_CANT_PUSH = 1<<2;
-        // This mailbox can hold emails (i.e. some parent mailboxes cannot themselves contain mail)
+        /** can hold emails (i.e. some parent mailboxes cannot themselves contain mail) */
         public static final int FLAG_HOLDS_MAIL = 1<<3;
-        // This mailbox is a valid target for moving messages within the account
+        /** can be used as a target for moving messages within the account */
         public static final int FLAG_ACCEPTS_MOVED_MAIL = 1<<4;
-        // This mailbox is a valid target for appending messages
+        /** can be used as a target for appending messages */
         public static final int FLAG_ACCEPTS_APPENDED_MAIL = 1<<5;
 
         // Magic mailbox ID's

@@ -74,7 +74,6 @@ import android.widget.TextView;
         listItem.mMailboxType = type;
         listItem.mMailboxId = id;
         listItem.mAdapter = this;
-
         // Set the background depending on whether we're in drag mode, the mailbox is a valid
         // target, etc.
         mCallback.onBind(listItem);
@@ -108,8 +107,8 @@ import android.widget.TextView;
                 folderIcon.setVisibility(View.INVISIBLE);
                 break;
             case ROW_TYPE_SUBMAILBOX:
-                if ((flags & Mailbox.FLAG_HAS_CHILDREN) != 0 &&
-                        (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0) {
+                if ((flags & Mailbox.FLAG_HAS_CHILDREN) != 0
+                        && (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0) {
                     mailboxExpandedIcon.setVisibility(View.VISIBLE);
                     mailboxExpandedIcon.setImageResource(
                             R.drawable.ic_mailbox_collapsed_holo_light);
@@ -204,7 +203,8 @@ import android.widget.TextView;
             throw new IllegalArgumentException(); // Must be QUERY_ALL_*, which are all negative
         }
         if (showAlways || (count > 0)) {
-            addMailboxRow(cursor, id, "", mailboxType, count, count, ROW_TYPE_MAILBOX, 0);
+            addMailboxRow(
+                    cursor, id, "", mailboxType, count, count, ROW_TYPE_MAILBOX, Mailbox.FLAG_NONE);
         }
     }
 
@@ -314,17 +314,12 @@ import android.widget.TextView;
 
             accounts.moveToPosition(-1);
             while (accounts.moveToNext()) {
-                RowBuilder row =  combinedWithAccounts.newRow();
                 final long accountId = accounts.getLong(COLUMN_ACCOUND_ID);
-                row.add(accountId);
-                row.add(accountId);
-                row.add(accounts.getString(COLUMN_ACCOUNT_DISPLAY_NAME));
-                row.add(-1); // No mailbox type.  Shouldn't really be used.
+                final String accountName = accounts.getString(COLUMN_ACCOUNT_DISPLAY_NAME);
                 final int unreadCount = Mailbox.getUnreadCountByAccountAndMailboxType(
                         mContext, accountId, Mailbox.TYPE_INBOX);
-                row.add(unreadCount);
-                row.add(unreadCount);
-                row.add(ROW_TYPE_ACCOUNT);
+                addMailboxRow(combinedWithAccounts, accountId, accountName, Mailbox.TYPE_NONE,
+                        unreadCount, unreadCount, ROW_TYPE_ACCOUNT, Mailbox.FLAG_NONE);
             }
             return Utility.CloseTraceCursorWrapper.get(combinedWithAccounts);
         }
