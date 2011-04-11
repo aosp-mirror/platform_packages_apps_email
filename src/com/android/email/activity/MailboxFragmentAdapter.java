@@ -26,6 +26,7 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.Utility;
 
@@ -45,6 +46,8 @@ import android.widget.TextView;
  * Cursor adapter for a fragment mailbox list.
  */
 /*package*/ class MailboxFragmentAdapter extends MailboxesAdapter {
+    private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
+            " AND " + MailboxColumns.ID + "=?";
     public MailboxFragmentAdapter(Context context, Callback callback) {
         super(context, callback);
     }
@@ -199,7 +202,7 @@ import android.widget.TextView;
 
         @Override
         public Cursor loadInBackground() {
-            final Cursor mailboxesCursor = super.loadInBackground();
+            final Cursor childMailboxCursor = super.loadInBackground();
 
             // Add "up" item if we are not viewing the top-level list
             if (mParentKey > 0) {
@@ -211,11 +214,15 @@ import android.widget.TextView;
                 Long superParentKey = MessageListXLFragmentManager.NO_MAILBOX;
 
                 if (superParentKey != null) {
+                    final Cursor parentCursor = getContext().getContentResolver().query(
+                            Mailbox.CONTENT_URI, getProjection(), MAILBOX_SELECTION,
+                            new String[] { Long.toString(mAccountId), Long.toString(mParentKey) },
+                            null);
                     final MatrixCursor extraCursor = new MatrixCursor(getProjection());
                     String label = mContext.getResources().getString(R.string.mailbox_name_go_back);
                     addMailboxRow(extraCursor, superParentKey, label, Mailbox.TYPE_MAIL, 0, 0);
-                    return Utility.CloseTraceCursorWrapper.get(
-                            new MergeCursor(new Cursor[] {extraCursor, mailboxesCursor}));
+                    return Utility.CloseTraceCursorWrapper.get(new MergeCursor(
+                            new Cursor[] { extraCursor, parentCursor, childMailboxCursor }));
                 }
             }
 
@@ -223,18 +230,16 @@ import android.widget.TextView;
             // TODO It's currently "combined starred", but the plan is to make it per-account
             // starred.
             final int accountStarredCount = Message.getFavoriteMessageCount(mContext, mAccountId);
-            if (accountStarredCount == 0) {
-                return Utility.CloseTraceCursorWrapper.get(mailboxesCursor); // no starred message
+            if (accountStarredCount > 0) {
+                final MatrixCursor starredCursor = new MatrixCursor(getProjection());
+                final int totalStarredCount = Message.getFavoriteMessageCount(mContext);
+                addSummaryMailboxRow(starredCursor, Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
+                        totalStarredCount, true);
+                return Utility.CloseTraceCursorWrapper.get(
+                        new MergeCursor(new Cursor[] { starredCursor, childMailboxCursor }));
             }
 
-            final MatrixCursor starredCursor = new MatrixCursor(getProjection());
-
-            final int totalStarredCount = Message.getFavoriteMessageCount(mContext);
-            addSummaryMailboxRow(starredCursor, Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
-                    totalStarredCount, true);
-
-            return Utility.CloseTraceCursorWrapper.get(
-                    new MergeCursor(new Cursor[] {starredCursor, mailboxesCursor}));
+            return Utility.CloseTraceCursorWrapper.get(childMailboxCursor); // no starred message
         }
     }
 
