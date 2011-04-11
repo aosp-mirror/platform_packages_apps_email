@@ -43,7 +43,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
- * Cursor adapter for a fragment mailbox list.
+ * Mailbox cursor adapter for the mailbox list fragment.
+ *
+ * A mailbox cursor may contain one of several different types of data. Currently, this
+ * adapter supports the following views:
+ * 1. The standard inbox, mailbox view
+ * 2. The combined mailbox view
+ * 3. Nested folder navigation
+ *
+ * TODO At a minimum, we should break out the loaders. They have no relation to the view code
+ * and only serve to confuse the user.
+ * TODO Determine if we actually need a separate adapter / view / loader for nested folder
+ * navigation. It's a little convoluted at the moment, but, still manageable.
  */
 /*package*/ class MailboxFragmentAdapter extends MailboxesAdapter {
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
@@ -57,6 +68,7 @@ import android.widget.TextView;
         final boolean isAccount = isAccountRow(cursor);
         final int type = cursor.getInt(COLUMN_TYPE);
         final long id = cursor.getLong(COLUMN_ID);
+        final int flags = cursor.getInt(COLUMN_FLAGS);
 
         MailboxListItem listItem = (MailboxListItem)view;
         listItem.mMailboxType = type;
@@ -86,6 +98,37 @@ import android.widget.TextView;
         }
         final TextView countView = (TextView) view.findViewById(R.id.message_count);
 
+        final ImageView mailboxExpandedIcon =
+            (ImageView) view.findViewById(R.id.folder_expanded_icon);
+        final ImageView folderIcon = (ImageView) view.findViewById(R.id.folder_icon);
+        switch (cursor.getInt(COLUMN_ROW_TYPE)) {
+            case ROW_TYPE_ALLMAILBOX:
+                mailboxExpandedIcon.setVisibility(View.VISIBLE);
+                mailboxExpandedIcon.setImageResource(R.drawable.ic_mailbox_expanded_holo_light);
+                folderIcon.setVisibility(View.INVISIBLE);
+                break;
+            case ROW_TYPE_SUBMAILBOX:
+                if ((flags & Mailbox.FLAG_HAS_CHILDREN) != 0 &&
+                        (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0) {
+                    mailboxExpandedIcon.setVisibility(View.VISIBLE);
+                    mailboxExpandedIcon.setImageResource(
+                            R.drawable.ic_mailbox_collapsed_holo_light);
+                } else {
+                    mailboxExpandedIcon.setVisibility(View.INVISIBLE);
+                    mailboxExpandedIcon.setImageDrawable(null);
+                }
+                folderIcon.setVisibility(View.INVISIBLE);
+                break;
+            case ROW_TYPE_CURMAILBOX:
+                folderIcon.setVisibility(View.GONE);
+                break;
+            default:
+                mailboxExpandedIcon.setVisibility(View.GONE);
+                mailboxExpandedIcon.setImageDrawable(null);
+                folderIcon.setVisibility(View.VISIBLE);
+                break;
+        }
+
         // If the unread count is zero, not to show countView.
         if (count > 0) {
             countView.setVisibility(View.VISIBLE);
@@ -95,8 +138,8 @@ import android.widget.TextView;
         }
 
         // Set folder icon
-        ((ImageView) view.findViewById(R.id.folder_icon)).setImageDrawable(
-                FolderProperties.getInstance(context).getIcon(type, id));
+        folderIcon.setImageDrawable(
+                FolderProperties.getInstance(context).getIcon(type, id, flags));
 
         final View chipView = view.findViewById(R.id.color_chip);
         if (isAccount) {
@@ -139,7 +182,7 @@ import android.widget.TextView;
      * Adds a new row into the given cursor.
      */
     private static void addMailboxRow(MatrixCursor cursor, long mailboxId, String displayName,
-            int mailboxType, int unreadCount, int messageCount) {
+            int mailboxType, int unreadCount, int messageCount, int rowType, int flags) {
         long listId = mailboxId;
         if (mailboxId < 0) {
             listId = Long.MAX_VALUE + mailboxId; // IDs for the list view must be positive
@@ -151,7 +194,8 @@ import android.widget.TextView;
         row.add(mailboxType);
         row.add(unreadCount);
         row.add(messageCount);
-        row.add(ROW_TYPE_MAILBOX);
+        row.add(rowType);
+        row.add(flags);
     }
 
     private static void addSummaryMailboxRow(MatrixCursor cursor, long id, int mailboxType,
@@ -160,7 +204,7 @@ import android.widget.TextView;
             throw new IllegalArgumentException(); // Must be QUERY_ALL_*, which are all negative
         }
         if (showAlways || (count > 0)) {
-            addMailboxRow(cursor, id, "", mailboxType, count, count);
+            addMailboxRow(cursor, id, "", mailboxType, count, count, ROW_TYPE_MAILBOX, 0);
         }
     }
 
@@ -185,7 +229,9 @@ import android.widget.TextView;
 
         MailboxFragmentLoader(Context context, long accountId, long parentKey) {
             super(context, EmailContent.Mailbox.CONTENT_URI,
-                    MailboxesAdapter.PROJECTION, MAILBOX_SELECTION_WITH_PARENT,
+                    (parentKey > 0) ? MailboxesAdapter.SUBMAILBOX_PROJECTION
+                                    : MailboxesAdapter.PROJECTION,
+                    MAILBOX_SELECTION_WITH_PARENT,
                     new String[] { Long.toString(accountId), Long.toString(parentKey) },
                     MAILBOX_ORDER_BY);
             mContext = context;
@@ -215,12 +261,13 @@ import android.widget.TextView;
 
                 if (superParentKey != null) {
                     final Cursor parentCursor = getContext().getContentResolver().query(
-                            Mailbox.CONTENT_URI, getProjection(), MAILBOX_SELECTION,
+                            Mailbox.CONTENT_URI, CURMAILBOX_PROJECTION, MAILBOX_SELECTION,
                             new String[] { Long.toString(mAccountId), Long.toString(mParentKey) },
                             null);
                     final MatrixCursor extraCursor = new MatrixCursor(getProjection());
                     String label = mContext.getResources().getString(R.string.mailbox_name_go_back);
-                    addMailboxRow(extraCursor, superParentKey, label, Mailbox.TYPE_MAIL, 0, 0);
+                    addMailboxRow(extraCursor, superParentKey, label, Mailbox.TYPE_MAIL, 0, 0,
+                            ROW_TYPE_ALLMAILBOX, 0);
                     return Utility.CloseTraceCursorWrapper.get(new MergeCursor(
                             new Cursor[] { extraCursor, parentCursor, childMailboxCursor }));
                 }

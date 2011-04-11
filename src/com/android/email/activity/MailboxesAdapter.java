@@ -39,9 +39,9 @@ import android.widget.CursorAdapter;
     /**
      * Return value from {@link #getCountType}.
      */
-    public static final int COUNT_TYPE_UNREAD = 0;
-    public static final int COUNT_TYPE_TOTAL = 1;
-    public static final int COUNT_TYPE_NO_COUNT = 2;
+    static final int COUNT_TYPE_UNREAD = 0;
+    static final int COUNT_TYPE_TOTAL = 1;
+    static final int COUNT_TYPE_NO_COUNT = 2;
 
     /**
      * Callback interface used to report clicks other than the basic list item click or long press.
@@ -52,14 +52,24 @@ import android.widget.CursorAdapter;
     }
 
     /**
-     * Row type, used in the "row_type" in {@link #PROJECTION}.
-     * {@link #ROW_TYPE_MAILBOX} for regular mailboxes and combined mailboxes.
-     * {@link #ROW_TYPE_ACCOUNT} for account row in the combined view.
+     * The type of the row to present to the user. There are 4 defined rows that each
+     * have a slightly different look. These are typically used in the constant column
+     * <code>row_type</code> specified in {@link #PROJECTION} and {@link #SUBMAILBOX_PROJECTION}.
      */
+    /** Both regular and combined mailboxes */
     static final int ROW_TYPE_MAILBOX = 0;
+    /** Account "mailboxes" in the combined view */
     static final int ROW_TYPE_ACCOUNT = 1;
+    // STOPSHIP Need to determine if these types are sufficient for nested folders
+    // The following types are used when drilling into a mailbox
+    /** The current mailbox */
+    static final int ROW_TYPE_CURMAILBOX = 2;
+    /** Sub mailboxes */
+    static final int ROW_TYPE_SUBMAILBOX = 3;
+    /** The "All Folders" mailbox */
+    static final int ROW_TYPE_ALLMAILBOX = 4;
 
-    /*
+    /**
      * Note here we have two ID columns.  The first one is for ListView, which doesn't like ID
      * values to be negative.  The second one is the actual mailbox ID, which we use in the rest
      * of code.
@@ -71,7 +81,24 @@ import android.widget.CursorAdapter;
     /*package*/ static final String[] PROJECTION = new String[] { MailboxColumns.ID,
             MailboxColumns.ID + " AS org_mailbox_id",
             MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
-            MailboxColumns.MESSAGE_COUNT, ROW_TYPE_MAILBOX + " AS row_type" };
+            MailboxColumns.MESSAGE_COUNT, ROW_TYPE_MAILBOX + " AS row_type",
+            MailboxColumns.FLAGS };
+    // STOPSHIP May need to adjust sub-folder projection depending upon final UX
+    /**
+     * Projection used to retrieve immediate children for a mailbox. The columns need to
+     * be identical to those in {@link #PROJECTION}. We are only changing the constant
+     * column <code>row_type</code>.
+     */
+    /*package*/ static final String[] SUBMAILBOX_PROJECTION = new String[] { MailboxColumns.ID,
+        MailboxColumns.ID + " AS org_mailbox_id",
+        MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
+        MailboxColumns.MESSAGE_COUNT, ROW_TYPE_SUBMAILBOX + " AS row_type",
+        MailboxColumns.FLAGS };
+    /*package*/ static final String[] CURMAILBOX_PROJECTION = new String[] { MailboxColumns.ID,
+        MailboxColumns.ID + " AS org_mailbox_id",
+        MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
+        MailboxColumns.MESSAGE_COUNT, ROW_TYPE_CURMAILBOX + " AS row_type",
+        MailboxColumns.FLAGS };
 
     // Column 0 is only for ListView; we don't use it in our code.
     static final int COLUMN_ID = 1;
@@ -80,6 +107,7 @@ import android.widget.CursorAdapter;
     static final int COLUMN_UNREAD_COUNT = 4;
     static final int COLUMN_MESSAGE_COUNT = 5;
     static final int COLUMN_ROW_TYPE = 6;
+    static final int COLUMN_FLAGS = 7;
 
     /** All mailboxes for the account */
     static final String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +

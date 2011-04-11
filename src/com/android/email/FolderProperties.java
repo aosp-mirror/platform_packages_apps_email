@@ -37,6 +37,7 @@ public class FolderProperties {
     private final TypedArray mSpecialMailboxDrawable;
     private final Drawable mSummaryStarredMailboxDrawable;
     private final Drawable mSummaryCombinedInboxDrawable;
+    private final Drawable mMailboxCollapsedDrawable;
 
     private FolderProperties(Context context) {
         mContext = context.getApplicationContext();
@@ -53,6 +54,8 @@ public class FolderProperties {
             context.getResources().getDrawable(R.drawable.ic_folder_star_holo_light);
         mSummaryCombinedInboxDrawable =
             context.getResources().getDrawable(R.drawable.ic_list_combined_inbox);
+        mMailboxCollapsedDrawable =
+            context.getResources().getDrawable(R.drawable.ic_mailbox_collapsed_holo_light);
     }
 
     public static synchronized FolderProperties getInstance(Context context) {
@@ -69,7 +72,7 @@ public class FolderProperties {
 
     // For backward compatibility.
     public Drawable getSummaryMailboxIconIds(long id) {
-        return getIcon(-1, id);
+        return getIcon(-1, id, 0);
     }
 
     /**
@@ -102,7 +105,7 @@ public class FolderProperties {
     /**
      * Lookup icons of special mailboxes
      */
-    public Drawable getIcon(int type, long mailboxId) {
+    public Drawable getIcon(int type, long mailboxId, int mailboxFlags) {
         if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
             return mSummaryCombinedInboxDrawable;
         } else if (mailboxId == Mailbox.QUERY_ALL_FAVORITES) {
@@ -117,6 +120,10 @@ public class FolderProperties {
             if (resId != -1) {
                 return mContext.getResources().getDrawable(resId);
             }
+        }
+        if ((mailboxFlags & Mailbox.FLAG_HAS_CHILDREN) != 0 &&
+                (mailboxFlags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0) {
+            return mMailboxCollapsedDrawable;
         }
         return null; // No icon
     }

@@ -106,14 +106,14 @@ public class UtilityUnitTests extends AndroidTestCase {
         FolderProperties fp = FolderProperties.getInstance(mContext);
 
         // Make sure they're available
-        Drawable inbox = fp.getIcon(Mailbox.TYPE_INBOX, -1);
-        Drawable mail = fp.getIcon(Mailbox.TYPE_MAIL, -1);
-        Drawable parent = fp.getIcon(Mailbox.TYPE_PARENT, -1);
-        Drawable drafts = fp.getIcon(Mailbox.TYPE_DRAFTS, -1);
-        Drawable outbox = fp.getIcon(Mailbox.TYPE_OUTBOX, -1);
-        Drawable sent = fp.getIcon(Mailbox.TYPE_SENT, -1);
-        Drawable trash = fp.getIcon(Mailbox.TYPE_TRASH, -1);
-        Drawable junk = fp.getIcon(Mailbox.TYPE_JUNK, -1);
+        Drawable inbox = fp.getIcon(Mailbox.TYPE_INBOX, -1, 0);
+        Drawable mail = fp.getIcon(Mailbox.TYPE_MAIL, -1, 0);
+        Drawable parent = fp.getIcon(Mailbox.TYPE_PARENT, -1, 0);
+        Drawable drafts = fp.getIcon(Mailbox.TYPE_DRAFTS, -1, 0);
+        Drawable outbox = fp.getIcon(Mailbox.TYPE_OUTBOX, -1, 0);
+        Drawable sent = fp.getIcon(Mailbox.TYPE_SENT, -1, 0);
+        Drawable trash = fp.getIcon(Mailbox.TYPE_TRASH, -1, 0);
+        Drawable junk = fp.getIcon(Mailbox.TYPE_JUNK, -1, 0);
 
         // Make sure they're unique
         Set<Drawable> set = new HashSet<Drawable>();
