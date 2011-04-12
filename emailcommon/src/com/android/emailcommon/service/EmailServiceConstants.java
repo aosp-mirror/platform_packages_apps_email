@@ -17,6 +17,8 @@
 package com.android.emailcommon.service;
 
 public class EmailServiceConstants {
+    /** "Not responded yet", used ONLY for UI. */
+    public static final int MEETING_REQUEST_NOT_RESPONDED = 0;
     public static final int MEETING_REQUEST_ACCEPTED = 1;
     public static final int MEETING_REQUEST_TENTATIVE = 2;
     public static final int MEETING_REQUEST_DECLINED = 3;
