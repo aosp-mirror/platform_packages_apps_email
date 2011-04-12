@@ -594,7 +594,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setFocusShifter(R.id.subject_label, R.id.subject);
         setFocusShifter(R.id.tap_trap, R.id.message_content);
 
-        mSubjectView.setOnFocusChangeListener(this);
         mMessageContentView.setOnFocusChangeListener(this);
 
         updateAttachmentContainer();
@@ -732,11 +731,20 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
+    @Override
     public void onFocusChange(View view, boolean focused) {
         if (focused) {
             switch (view.getId()) {
                 case R.id.message_content:
-                    setMessageContentSelection((mAccount != null) ? mAccount.mSignature : null);
+                    // When focusing on the message content via tabbing to it, or other means of
+                    // auto focusing, move the cursor to the end of the body (before the signature).
+                    if (mMessageContentView.getSelectionStart() == 0
+                            && mMessageContentView.getSelectionEnd() == 0) {
+                        // There is no way to determine if the focus change was programmatic or due
+                        // to keyboard event, or if it was due to a tap/restore. Use a best-guess
+                        // by using the fact that auto-focus/keyboard tabs set the selection to 0.
+                        setMessageContentSelection((mAccount != null) ? mAccount.mSignature : null);
+                    }
             }
         }
     }
@@ -1339,6 +1347,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mMessageContentView.append("\n");
             }
             mMessageContentView.append(signature);
+
+            // Reset cursor to right before the signature.
+            mMessageContentView.setSelection(textLength);
         }
     }
 
@@ -1617,11 +1628,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     /**
-     * Set a cursor to the end of a body except a signature
+     * Set a cursor to the end of a body except a signature.
      */
     /* package */ void setMessageContentSelection(String signature) {
-        // when selecting the message content, explicitly move IP to the end of the message,
-        // so you can quickly resume typing into a draft
         int selection = mMessageContentView.length();
         if (!TextUtils.isEmpty(signature)) {
             int signatureLength = signature.length();
@@ -1659,7 +1668,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mSubjectView.requestFocus();
         } else {
             mMessageContentView.requestFocus();
-            setMessageContentSelection((mAccount != null) ? mAccount.mSignature : null);
         }
     }
 }

@@ -661,7 +661,6 @@ public class Controller {
      * IMAP and POP.
      *
      * @param mailboxId the mailbox
-     * @param callback
      */
     public void loadMoreMessages(final long mailboxId) {
         Utility.runAsync(new Runnable() {
