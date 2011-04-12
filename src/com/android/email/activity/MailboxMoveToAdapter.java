@@ -36,7 +36,7 @@ import android.widget.TextView;
  */
 /*package*/ class MailboxMoveToAdapter extends MailboxesAdapter {
     private static final String MAILBOX_SELECTION_MOVE_TO_FOLDER =
-        MAILBOX_SELECTION + " AND " + Mailbox.MOVE_TO_TARGET_MAILBOX_SELECTION;
+        ALL_MAILBOX_SELECTION + " AND " + Mailbox.MOVE_TO_TARGET_MAILBOX_SELECTION;
 
     public MailboxMoveToAdapter(Context context, Callback callback) {
         super(context, callback);
