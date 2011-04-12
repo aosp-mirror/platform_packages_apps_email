@@ -62,10 +62,10 @@ public class MessageViewFragment extends MessageViewFragmentBase
     private CheckBox mMeetingYes;
     private CheckBox mMeetingMaybe;
     private CheckBox mMeetingNo;
-    private int mPreviousMeetingResponse = -1;
-
     private Drawable mFavoriteIconOn;
     private Drawable mFavoriteIconOff;
+
+    private int mPreviousMeetingResponse = EmailServiceConstants.MEETING_REQUEST_NOT_RESPONDED;
 
     /**
      * ID of the message that will be loaded.  Protect with {@link #mLock}.
@@ -233,6 +233,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
         mMeetingYes.setChecked(false);
         mMeetingNo.setChecked(false);
         mMeetingMaybe.setChecked(false);
+        mPreviousMeetingResponse = EmailServiceConstants.MEETING_REQUEST_NOT_RESPONDED;
     }
 
     @Override
