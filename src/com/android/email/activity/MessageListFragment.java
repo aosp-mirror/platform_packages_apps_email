@@ -689,20 +689,8 @@ public class MessageListFragment extends ListFragment
         }
     }
 
-    public void onMultiToggleRead() {
-        onMultiToggleRead(mListAdapter.getSelectedSet());
-    }
-
-    public void onMultiToggleFavorite() {
-        onMultiToggleFavorite(mListAdapter.getSelectedSet());
-    }
-
-    public void onMultiDelete() {
-        onMultiDelete(mListAdapter.getSelectedSet());
-    }
-
-    public void onMultiMove() {
-        long[] messageIds = Utility.toPrimitiveLongArray(mListAdapter.getSelectedSet());
+    private void moveMessages(Set<Long> selectedSet) {
+        long[] messageIds = Utility.toPrimitiveLongArray(selectedSet);
         MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(messageIds, this);
         dialog.show(getFragmentManager(), "dialog");
     }
@@ -784,7 +772,7 @@ public class MessageListFragment extends ListFragment
      *
      * @param selectedSet The current list of selected items
      */
-    private void onMultiToggleRead(Set<Long> selectedSet) {
+    private void toggleRead(Set<Long> selectedSet) {
         toggleMultiple(selectedSet, new MultiToggleHelper() {
 
             public boolean getField(long messageId, Cursor c) {
@@ -807,7 +795,7 @@ public class MessageListFragment extends ListFragment
      *
      * @param selectedSet The current list of selected items
      */
-    private void onMultiToggleFavorite(Set<Long> selectedSet) {
+    private void toggleFavorite(Set<Long> selectedSet) {
         toggleMultiple(selectedSet, new MultiToggleHelper() {
 
             public boolean getField(long messageId, Cursor c) {
@@ -825,7 +813,7 @@ public class MessageListFragment extends ListFragment
         });
     }
 
-    private void onMultiDelete(Set<Long> selectedSet) {
+    private void deleteMessages(Set<Long> selectedSet) {
         // Clone the set, because deleting is going to thrash things
         HashSet<Long> cloneSet = new HashSet<Long>(selectedSet);
         for (Long id : cloneSet) {
@@ -1323,20 +1311,21 @@ public class MessageListFragment extends ListFragment
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            Set<Long> selectedConversations = mListAdapter.getSelectedSet();
             switch (item.getItemId()) {
                 case R.id.mark_read:
                 case R.id.mark_unread:
-                    onMultiToggleRead();
+                    toggleRead(selectedConversations);
                     break;
                 case R.id.add_star:
                 case R.id.remove_star:
-                    onMultiToggleFavorite();
+                    toggleFavorite(selectedConversations);
                     break;
                 case R.id.delete:
-                    onMultiDelete();
+                    deleteMessages(selectedConversations);
                     break;
                 case R.id.move:
-                    onMultiMove();
+                    moveMessages(selectedConversations);
                     break;
             }
             return true;
