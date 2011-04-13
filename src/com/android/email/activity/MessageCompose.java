@@ -88,6 +88,7 @@ import java.util.List;
  */
 public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener,
         DeleteMessageConfirmationDialog.Callback {
+
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
     private static final String ACTION_REPLY_ALL = "com.android.email.intent.action.REPLY_ALL";
     private static final String ACTION_FORWARD = "com.android.email.intent.action.FORWARD";
@@ -324,7 +325,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 || Intent.ACTION_SENDTO.equals(mAction)
                 || Intent.ACTION_SEND.equals(mAction)
                 || Intent.ACTION_SEND_MULTIPLE.equals(mAction)) {
-            setAccount(intent);
             // Use the fields found in the Intent to prefill as much of the message as possible
             initFromIntent(intent);
             setDraftNeedsSaving(true);
@@ -342,7 +342,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mMessageLoaded = true;
                 mSourceMessageProcessed = true;
             }
-            setInitialComposeText(null, (mAccount != null) ? mAccount.mSignature : null);
+            setInitialComposeText(null, getAccountSignature(mAccount));
         }
 
         if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction) ||
@@ -743,7 +743,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         // There is no way to determine if the focus change was programmatic or due
                         // to keyboard event, or if it was due to a tap/restore. Use a best-guess
                         // by using the fact that auto-focus/keyboard tabs set the selection to 0.
-                        setMessageContentSelection((mAccount != null) ? mAccount.mSignature : null);
+                        setMessageContentSelection(getAccountSignature(mAccount));
                     }
             }
         }
@@ -1337,6 +1337,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param text the message body
      */
     /* package */ void setInitialComposeText(CharSequence text, String signature) {
+        mMessageContentView.setText("");
         int textLength = 0;
         if (text != null) {
             mMessageContentView.append(text);
@@ -1365,6 +1366,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param intent the launch intent
      */
     /* package */ void initFromIntent(Intent intent) {
+
+        setAccount(intent);
 
         // First, add values stored in top-level extras
         String[] extraStrings = intent.getStringArrayExtra(Intent.EXTRA_EMAIL);
@@ -1402,9 +1405,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         // Next, fill in the plaintext (note, this will override mailto:?body=)
         CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
-        if (text != null) {
-            setInitialComposeText(text, null);
-        }
+        setInitialComposeText(text, getAccountSignature(mAccount));
 
         // Next, convert EXTRA_STREAM into an attachment
         if (Intent.ACTION_SEND.equals(mAction) && intent.hasExtra(Intent.EXTRA_STREAM)) {
@@ -1478,7 +1479,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         List<String> body = uri.getQueryParameters("body");
         if (body.size() > 0) {
-            setInitialComposeText(body.get(0), (mAccount != null) ? mAccount.mSignature : null);
+            setInitialComposeText(body.get(0), getAccountSignature(mAccount));
         }
     }
 
@@ -1599,13 +1600,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
             displayQuotedText(message.mText, message.mHtml);
             setIncludeQuotedText(true, false);
-            setInitialComposeText(null, (account != null) ? account.mSignature : null);
+            setInitialComposeText(null, getAccountSignature(account));
         } else if (ACTION_FORWARD.equals(mAction)) {
             mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
                     "Fwd: " + subject : subject);
             displayQuotedText(message.mText, message.mHtml);
             setIncludeQuotedText(true, false);
-            setInitialComposeText(null, (account != null) ? account.mSignature : null);
+            setInitialComposeText(null, getAccountSignature(account));
         } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
             mSubjectView.setText(subject);
             addAddresses(mToView, Address.unpack(message.mTo));
@@ -1669,5 +1670,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         } else {
             mMessageContentView.requestFocus();
         }
+    }
+
+    /**
+     * @return the signature for the specified account, if non-null. If the account specified is
+     *     null or has no signature, {@code null} is returned.
+     */
+    private static String getAccountSignature(Account account) {
+        return (account == null) ? null : account.mSignature;
     }
 }

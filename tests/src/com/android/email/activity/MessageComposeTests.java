@@ -68,8 +68,6 @@ public class MessageComposeTests
     private static final String RECIPIENT_BCC = "recipient-bcc@android.com";
     private static final String SUBJECT = "This is the subject";
     private static final String BODY = "This is the body.  This is also the body.";
-    private static final String REPLY_BODY_SHORT = "\n\n" + SENDER + " wrote:\n\n";
-    private static final String REPLY_BODY = REPLY_BODY_SHORT + ">" + BODY;
     private static final String SIGNATURE = "signature";
 
     private static final String FROM = "Fred From <from@google.com>";
@@ -107,7 +105,12 @@ public class MessageComposeTests
     private static final String UTF32_SUBJECT = "\uD834\uDF01\uD834\uDF46";
     private static final String UTF32_BODY = "\uD834\uDF01\uD834\uDF46";
 
-    /** Note - these are copied from private strings in MessageCompose.  Make them package? */
+    /*
+     * The following action definitions are purposefully copied from MessageCompose, so that
+     * any changes to the action strings will break these tests. Changes to the actions should
+     * be done consciously to think about existing shortcuts and clients.
+     */
+
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
     private static final String ACTION_REPLY_ALL = "com.android.email.intent.action.REPLY_ALL";
     private static final String ACTION_FORWARD = "com.android.email.intent.action.FORWARD";
@@ -133,6 +136,7 @@ public class MessageComposeTests
             Account account = new Account();
             account.mSenderName = "Bob Sender";
             account.mEmailAddress = "bob@sender.com";
+            account.mSignature = SIGNATURE;
             account.save(mContext);
             accountId = account.mId;
             mCreatedAccountId = accountId;
@@ -174,7 +178,10 @@ public class MessageComposeTests
         assertNotNull(mSubjectView);
         assertEquals(0, mSubjectView.length());
         assertNotNull(mMessageView);
-        assertEquals(0, mMessageView.length());
+
+        // Note that the signature is always preceeded with a newline.
+        int sigLength = (mSignature == null) ? 0 : (1 + mSignature.length());
+        assertEquals(sigLength, mMessageView.length());
     }
 
      /**
@@ -618,7 +625,7 @@ public class MessageComposeTests
             public void run() {
                 a.initFromIntent(i2);
                 checkFields(RECIPIENT_TO + ", ", RECIPIENT_CC + ", ", RECIPIENT_BCC + ", ", SUBJECT,
-                        null, null);
+                        null, mSignature);
                 checkFocused(mMessageView);
             }
         });
@@ -642,7 +649,7 @@ public class MessageComposeTests
             public void run() {
                 a.initFromIntent(i2);
                 checkFields(UTF16_RECIPIENT_TO + ", ", UTF16_RECIPIENT_CC + ", ",
-                        UTF16_RECIPIENT_BCC + ", ", UTF16_SUBJECT, null, null);
+                        UTF16_RECIPIENT_BCC + ", ", UTF16_SUBJECT, null, mSignature);
                 checkFocused(mMessageView);
             }
         });
@@ -666,7 +673,7 @@ public class MessageComposeTests
             public void run() {
                 a.initFromIntent(i2);
                 checkFields(UTF32_RECIPIENT_TO + ", ", UTF32_RECIPIENT_CC + ", ",
-                        UTF32_RECIPIENT_BCC + ", ", UTF32_SUBJECT, null, null);
+                        UTF32_RECIPIENT_BCC + ", ", UTF32_SUBJECT, null, mSignature);
                 checkFocused(mMessageView);
             }
         });
@@ -688,7 +695,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(i2);
-                checkFields(null, null, null, null, BODY, null);
+                checkFields(null, null, null, null, BODY, mSignature);
                 checkFocused(mToView);
             }
         });
@@ -712,7 +719,8 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(i2);
-                checkFields(RECIPIENT_TO + ", ", null, null, "This is the subject", null, null);
+                checkFields(
+                        RECIPIENT_TO + ", ", null, null, "This is the subject", null, mSignature);
                 checkFocused(mMessageView);
             }
         });
