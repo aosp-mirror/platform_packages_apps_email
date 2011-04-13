@@ -38,6 +38,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -565,6 +566,9 @@ public class AccountCheckSettingsFragment extends Fragment {
                 int progressState = STATE_CHECK_ERROR;
                 int exceptionType = result.getExceptionType();
                 String message = result.getMessage();
+                if (message != null) {
+                    message = message.trim();
+                }
                 HostAuth hostAuth = null;
                 int id = 0;
 
@@ -572,7 +576,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     // NOTE: AutoDiscover reports have their own reporting state, handle differently
                     // from the other exception types
                     case MessagingException.AUTODISCOVER_AUTHENTICATION_FAILED:
-                        id = (message == null)
+                        id = TextUtils.isEmpty(message)
                             ? R.string.account_setup_failed_dlg_auth_message
                             : R.string.account_setup_failed_dlg_auth_message_fmt;
                         progressState = STATE_AUTODISCOVER_AUTH_DIALOG;
@@ -591,12 +595,12 @@ public class AccountCheckSettingsFragment extends Fragment {
                     // The remaining exception types are handled by setting the state to
                     // STATE_CHECK_ERROR (above, default) and conversion to specific error strings.
                     case MessagingException.CERTIFICATE_VALIDATION_ERROR:
-                        id = (message == null)
+                        id = TextUtils.isEmpty(message)
                             ? R.string.account_setup_failed_dlg_certificate_message
                             : R.string.account_setup_failed_dlg_certificate_message_fmt;
                         break;
                     case MessagingException.AUTHENTICATION_FAILED:
-                        id = (message == null)
+                        id = TextUtils.isEmpty(message)
                             ? R.string.account_setup_failed_dlg_auth_message
                             : R.string.account_setup_failed_dlg_auth_message_fmt;
                         break;
@@ -622,7 +626,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                         id = R.string.account_setup_failed_security;
                         break;
                     default:
-                        id = (message == null)
+                        id = TextUtils.isEmpty(message)
                                 ? R.string.account_setup_failed_dlg_server_message
                                 : R.string.account_setup_failed_dlg_server_message_fmt;
                         break;
