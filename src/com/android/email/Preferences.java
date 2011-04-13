@@ -49,7 +49,7 @@ public class Preferences {
     public static final int AUTO_ADVANCE_OLDER = 1;
     public static final int AUTO_ADVANCE_MESSAGE_LIST = 2;
     // "move to older" was the behavior on older versions.
-    public static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
+    private static final int AUTO_ADVANCE_DEFAULT = AUTO_ADVANCE_OLDER;
 
     // The following constants are used as offsets into TEXT_ZOOM_ARRAY (below)
     public static final int TEXT_ZOOM_TINY = 0;

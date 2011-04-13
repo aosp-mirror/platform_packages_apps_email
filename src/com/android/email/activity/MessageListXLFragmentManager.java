@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.View;
 
 import java.security.InvalidParameterException;
+import java.util.Set;
 
 /**
  * A class manages what are showing on {@link MessageListXL} (i.e. account id, mailbox id, and
@@ -217,10 +218,48 @@ class MessageListXLFragmentManager implements
     public void onEnterSelectionMode(boolean enter) {
     }
 
+    /**
+     * Apply the auto-advance policy upon initation of a batch command that could potentially
+     * affect the currently selected conversation.
+     */
+    @Override
+    public void onAdvancingOpAccepted(Set<Long> affectedMessages) {
+        int autoAdvanceDir = Preferences.getPreferences(mActivity).getAutoAdvanceDirection();
+        if ((autoAdvanceDir == Preferences.AUTO_ADVANCE_MESSAGE_LIST) || (mOrderManager == null)) {
+            if (affectedMessages.contains(getMessageId())) {
+                goBackToMailbox();
+            }
+            return;
+        }
+
+        // Navigate to the first unselected item in the appropriate direction.
+        switch (autoAdvanceDir) {
+            case Preferences.AUTO_ADVANCE_NEWER:
+                while (affectedMessages.contains(mOrderManager.getCurrentMessageId())) {
+                    if (!mOrderManager.moveToNewer()) {
+                        goBackToMailbox();
+                        return;
+                    }
+                }
+                selectMessage(mOrderManager.getCurrentMessageId());
+                break;
+
+            case Preferences.AUTO_ADVANCE_OLDER:
+                while (affectedMessages.contains(mOrderManager.getCurrentMessageId())) {
+                    if (!mOrderManager.moveToOlder()) {
+                        goBackToMailbox();
+                        return;
+                    }
+                }
+                selectMessage(mOrderManager.getCurrentMessageId());
+                break;
+        }
+    }
+
     @Override
     public void onListLoaded() {
     }
-    
+
     // MessageViewFragment$Callback
     @Override
     public void onMessageViewShown(int mailboxType) {
@@ -600,24 +639,24 @@ class MessageListXLFragmentManager implements
     private class CommandButtonCallback implements MessageCommandButtonView.Callback {
         @Override
         public void onMoveToNewer() {
-            MessageListXLFragmentManager.this.onMoveToNewer();
+            moveToNewer();
         }
 
         @Override
         public void onMoveToOlder() {
-            MessageListXLFragmentManager.this.onMoveToOlder();
+            moveToOlder();
         }
     }
 
     private void onCurrentMessageGone() {
         switch (Preferences.getPreferences(mActivity).getAutoAdvanceDirection()) {
             case Preferences.AUTO_ADVANCE_NEWER:
-                if (onMoveToNewer()) return;
-                if (onMoveToOlder()) return;
+                if (moveToNewer()) return;
+                if (moveToOlder()) return;
                 break;
             case Preferences.AUTO_ADVANCE_OLDER:
-                if (onMoveToOlder()) return;
-                if (onMoveToNewer()) return;
+                if (moveToOlder()) return;
+                if (moveToNewer()) return;
                 break;
         }
         // Last message in the box or AUTO_ADVANCE_MESSAGE_LIST.  Go back to message list.
@@ -680,18 +719,16 @@ class MessageListXLFragmentManager implements
         }
     }
 
-    private boolean onMoveToOlder() {
-        if (isMessageSelected() && (mOrderManager != null)
-                && mOrderManager.moveToOlder()) {
+    private boolean moveToOlder() {
+        if ((mOrderManager != null) && mOrderManager.moveToOlder()) {
             selectMessage(mOrderManager.getCurrentMessageId());
             return true;
         }
         return false;
     }
 
-    private boolean onMoveToNewer() {
-        if (isMessageSelected() && (mOrderManager != null)
-                && mOrderManager.moveToNewer()) {
+    private boolean moveToNewer() {
+        if ((mOrderManager != null) && mOrderManager.moveToNewer()) {
             selectMessage(mOrderManager.getCurrentMessageId());
             return true;
         }

@@ -197,6 +197,13 @@ public class MessageListFragment extends ListFragment
          * @param enter true if entering, false if leaving
          */
         public void onEnterSelectionMode(boolean enter);
+
+        /**
+         * Called when an operation is initiated that can potentially advance the current
+         * message selection (e.g. a delete operation may advance the selection).
+         * @param affectedMessages the messages the operation will apply to
+         */
+        public void onAdvancingOpAccepted(Set<Long> affectedMessages);
     }
 
     private static final class EmptyCallback implements Callback {
@@ -215,6 +222,10 @@ public class MessageListFragment extends ListFragment
         }
         @Override
         public void onEnterSelectionMode(boolean enter) {
+        }
+
+        @Override
+        public void onAdvancingOpAccepted(Set<Long> affectedMessages) {
         }
     }
 
@@ -460,9 +471,9 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
-     * @return the number of messages that are currently selecteed.
+     * @return the number of messages that are currently selected.
      */
-    public int getSelectedCount() {
+    private int getSelectedCount() {
         return mListAdapter.getSelectedSet().size();
     }
 
@@ -1314,17 +1325,25 @@ public class MessageListFragment extends ListFragment
             Set<Long> selectedConversations = mListAdapter.getSelectedSet();
             switch (item.getItemId()) {
                 case R.id.mark_read:
+                    // Note - marking as read does not trigger auto-advance.
+                    toggleRead(selectedConversations);
+                    break;
                 case R.id.mark_unread:
+                    mCallback.onAdvancingOpAccepted(selectedConversations);
                     toggleRead(selectedConversations);
                     break;
                 case R.id.add_star:
                 case R.id.remove_star:
+                    // TODO: removing a star can be a destructive command and cause auto-advance
+                    // if the current mailbox shown is favorites.
                     toggleFavorite(selectedConversations);
                     break;
                 case R.id.delete:
+                    mCallback.onAdvancingOpAccepted(selectedConversations);
                     deleteMessages(selectedConversations);
                     break;
                 case R.id.move:
+                    mCallback.onAdvancingOpAccepted(selectedConversations);
                     moveMessages(selectedConversations);
                     break;
             }

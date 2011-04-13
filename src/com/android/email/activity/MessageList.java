@@ -16,7 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
@@ -36,6 +35,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+
+import java.util.Set;
 
 public class MessageList extends Activity implements MessageListFragment.Callback {
     // Intent extras (internal to this activity)
@@ -201,6 +202,11 @@ public class MessageList extends Activity implements MessageListFragment.Callbac
 
     @Override
     public void onEnterSelectionMode(boolean enter) {
+    }
+
+
+    @Override
+    public void onAdvancingOpAccepted(Set<Long> affectedMessages) {
     }
 
     @Override
