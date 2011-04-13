@@ -69,6 +69,11 @@ public class MailboxListItem extends RelativeLayout {
         mLabelCount = (TextView)findViewById(R.id.message_count);
     }
 
+    /**
+     * Whether or not this mailbox item is a drop target. Only valid mailboxes or those
+     * not forbidden by the system (see {@link Mailbox#INVALID_DROP_TARGETS}) will return
+     * {@code true}.
+     */
     public boolean isDropTarget(long itemMailbox) {
         if ((mMailboxId < 0) || (itemMailbox == mMailboxId)) {
             return false;
