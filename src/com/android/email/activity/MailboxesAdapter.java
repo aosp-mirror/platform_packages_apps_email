@@ -39,9 +39,9 @@ import android.widget.CursorAdapter;
     /**
      * Return value from {@link #getCountType}.
      */
-    static final int COUNT_TYPE_UNREAD = 0;
-    static final int COUNT_TYPE_TOTAL = 1;
-    static final int COUNT_TYPE_NO_COUNT = 2;
+    /*package*/ static final int COUNT_TYPE_UNREAD = 0;
+    /*package*/ static final int COUNT_TYPE_TOTAL = 1;
+    /*package*/ static final int COUNT_TYPE_NO_COUNT = 2;
 
     /**
      * Callback interface used to report clicks other than the basic list item click or long press.
@@ -57,17 +57,17 @@ import android.widget.CursorAdapter;
      * <code>row_type</code> specified in {@link #PROJECTION} and {@link #SUBMAILBOX_PROJECTION}.
      */
     /** Both regular and combined mailboxes */
-    static final int ROW_TYPE_MAILBOX = 0;
+    /*package*/ static final int ROW_TYPE_MAILBOX = 0;
     /** Account "mailboxes" in the combined view */
-    static final int ROW_TYPE_ACCOUNT = 1;
+    /*package*/ static final int ROW_TYPE_ACCOUNT = 1;
     // STOPSHIP Need to determine if these types are sufficient for nested folders
     // The following types are used when drilling into a mailbox
     /** The current mailbox */
-    static final int ROW_TYPE_CURMAILBOX = 2;
+    /*package*/ static final int ROW_TYPE_CURMAILBOX = 2;
     /** Sub mailboxes */
-    static final int ROW_TYPE_SUBMAILBOX = 3;
+    /*package*/ static final int ROW_TYPE_SUBMAILBOX = 3;
     /** The "All Folders" mailbox */
-    static final int ROW_TYPE_ALLMAILBOX = 4;
+    /*package*/ static final int ROW_TYPE_ALLMAILBOX = 4;
 
     /**
      * Note here we have two ID columns.  The first one is for ListView, which doesn't like ID
@@ -101,26 +101,26 @@ import android.widget.CursorAdapter;
         MailboxColumns.FLAGS };
 
     // Column 0 is only for ListView; we don't use it in our code.
-    static final int COLUMN_ID = 1;
-    static final int COLUMN_DISPLAY_NAME = 2;
-    static final int COLUMN_TYPE = 3;
-    static final int COLUMN_UNREAD_COUNT = 4;
-    static final int COLUMN_MESSAGE_COUNT = 5;
-    static final int COLUMN_ROW_TYPE = 6;
-    static final int COLUMN_FLAGS = 7;
+    /*package*/ static final int COLUMN_ID = 1;
+    /*package*/ static final int COLUMN_DISPLAY_NAME = 2;
+    /*package*/ static final int COLUMN_TYPE = 3;
+    /*package*/ static final int COLUMN_UNREAD_COUNT = 4;
+    /*package*/ static final int COLUMN_MESSAGE_COUNT = 5;
+    /*package*/ static final int COLUMN_ROW_TYPE = 6;
+    /*package*/ static final int COLUMN_FLAGS = 7;
 
     /** All mailboxes for the account */
-    static final String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
+    /*package*/ static final String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
     // STOPSHIP This can be removed when legacy protocols support folders
     /** All top-level mailboxes */
-    static final String MAILBOX_SELECTION_NO_PARENT = ALL_MAILBOX_SELECTION +
+    /*package*/ static final String MAILBOX_SELECTION_NO_PARENT = ALL_MAILBOX_SELECTION +
             " AND " + MailboxColumns.PARENT_KEY + "<=0";
     /** All mailboxes with the given parent */
-    static final String MAILBOX_SELECTION_WITH_PARENT = ALL_MAILBOX_SELECTION +
+    /*package*/ static final String MAILBOX_SELECTION_WITH_PARENT = ALL_MAILBOX_SELECTION +
             " AND " + MailboxColumns.PARENT_KEY + "=?";
 
-    static final String MAILBOX_ORDER_BY = "CASE " + MailboxColumns.TYPE +
+    /*package*/ static final String MAILBOX_ORDER_BY = "CASE " + MailboxColumns.TYPE +
             " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0" +
             " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN 1" +
             " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN 2" +
@@ -139,10 +139,10 @@ import android.widget.CursorAdapter;
         }
     }
 
-    static boolean sEnableUpdate = true;
-    final LayoutInflater mInflater;
-    final ResourceHelper mResourceHelper;
-    final Callback mCallback;
+    /*package*/ static boolean sEnableUpdate = true;
+    /*package*/ final LayoutInflater mInflater;
+    /*package*/ final ResourceHelper mResourceHelper;
+    /*package*/ final Callback mCallback;
 
     /*package*/ MailboxesAdapter(Context context, Callback callback) {
         super(context, null, 0 /* flags; no content observer */);
@@ -160,7 +160,7 @@ import android.widget.CursorAdapter;
     /**
      * @return true if the current row is of an account in the combined view.
      */
-    static boolean isAccountRow(Cursor c) {
+    /*package*/ static boolean isAccountRow(Cursor c) {
         return c.getInt(COLUMN_ROW_TYPE) == ROW_TYPE_ACCOUNT;
     }
 
@@ -175,7 +175,7 @@ import android.widget.CursorAdapter;
      * @return which type of count should be used for the current row.
      * Possible return values are COUNT_TYPE_*.
      */
-    static int getCountTypeForMailboxType(Cursor c) {
+    /*package*/ static int getCountTypeForMailboxType(Cursor c) {
         if (isAccountRow(c)) {
             return COUNT_TYPE_UNREAD; // Use the unread count for account rows.
         }
@@ -237,7 +237,7 @@ import android.widget.CursorAdapter;
         sEnableUpdate = state;
     }
 
-    static String getDisplayName(Context context, Cursor cursor) {
+    /*package*/ static String getDisplayName(Context context, Cursor cursor) {
         String name = null;
         if (cursor.getInt(COLUMN_ROW_TYPE) == ROW_TYPE_MAILBOX) {
             // If it's a mailbox (as opposed to account row in combined view), and of certain types,
@@ -252,19 +252,19 @@ import android.widget.CursorAdapter;
         return name;
     }
 
-    /* package */ static long getIdForTest(Cursor cursor) {
+    /*package*/ static long getIdForTest(Cursor cursor) {
         return cursor.getLong(COLUMN_ID);
     }
 
-    /* package */ static int getTypeForTest(Cursor cursor) {
+    /*package*/ static int getTypeForTest(Cursor cursor) {
         return cursor.getInt(COLUMN_TYPE);
     }
 
-    /* package */ static int getMessageCountForTest(Cursor cursor) {
+    /*package*/ static int getMessageCountForTest(Cursor cursor) {
         return cursor.getInt(COLUMN_MESSAGE_COUNT);
     }
 
-    /* package */ static int getUnreadCountForTest(Cursor cursor) {
+    /*package*/ static int getUnreadCountForTest(Cursor cursor) {
         return cursor.getInt(COLUMN_UNREAD_COUNT);
     }
 }
