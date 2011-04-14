@@ -39,6 +39,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
@@ -46,8 +47,8 @@ import android.view.View;
 import android.view.View.OnDragListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
 import java.security.InvalidParameterException;
 
@@ -121,9 +122,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     // True if we are currently scrolling under the drag item
     private boolean mTargetScrolling;
 
-    private Utility.ListStateSaver mSavedListState;
+    private Parcelable mSavedListState;
 
-    private MailboxesAdapter.Callback mMailboxesAdapterCallback = new MailboxesAdapter.Callback() {
+    private final MailboxesAdapter.Callback mMailboxesAdapterCallback =
+            new MailboxesAdapter.Callback() {
         @Override
         public void onBind(MailboxListItem listItem) {
             listItem.setDropTargetBackground(mDragInProgress, mDragItemMailboxId);
@@ -343,7 +345,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         mResumed = false;
         super.onPause();
-        mSavedListState = new Utility.ListStateSaver(getListView());
+        mSavedListState = getListView().onSaveInstanceState();
     }
 
     /**
@@ -375,7 +377,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         super.onSaveInstanceState(outState);
         outState.putLong(BUNDLE_KEY_SELECTED_MAILBOX_ID, mSelectedMailboxId);
-        outState.putParcelable(BUNDLE_LIST_STATE, new Utility.ListStateSaver(getListView()));
+        outState.putParcelable(BUNDLE_LIST_STATE, getListView().onSaveInstanceState());
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
@@ -442,14 +444,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
-            final Utility.ListStateSaver lss;
+            final Parcelable listState;
             if (!mSaveListState) {
-                lss = null; // Don't preserve list state
+                listState = null; // Don't preserve list state
             } else if (mSavedListState != null) {
-                lss = mSavedListState;
+                listState = mSavedListState;
                 mSavedListState = null;
             } else {
-                lss = new Utility.ListStateSaver(lv);
+                listState = lv.onSaveInstanceState();
             }
 
             if (cursor.getCount() == 0) {
@@ -469,8 +471,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             }
 
             // Restore the state
-            if (lss != null) {
-                lss.restore(lv);
+            if (listState != null) {
+                lv.onRestoreInstanceState(listState);
             }
 
             // Clear this for next reload triggered by content changed events.

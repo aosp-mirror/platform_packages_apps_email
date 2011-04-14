@@ -738,46 +738,6 @@ public class Utility {
                 column, defaultValue, BLOB_GETTER);
     }
 
-    /**
-     * A class used to restore ListView state (e.g. scroll position) when changing adapter.
-     */
-    public static class ListStateSaver implements Parcelable {
-        private final Parcelable mState;
-
-        private ListStateSaver(Parcel p) {
-            mState = p.readParcelable(getClass().getClassLoader());
-        }
-
-        public ListStateSaver(AbsListView lv) {
-            mState = lv.onSaveInstanceState();
-        }
-
-        public void restore(AbsListView lv) {
-            lv.onRestoreInstanceState(mState);
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeParcelable(mState, flags);
-        }
-
-        public static final Parcelable.Creator<ListStateSaver> CREATOR
-                = new Parcelable.Creator<ListStateSaver>() {
-                    public ListStateSaver createFromParcel(Parcel in) {
-                        return new ListStateSaver(in);
-                    }
-
-                    public ListStateSaver[] newArray(int size) {
-                        return new ListStateSaver[size];
-                    }
-                };
-    }
-
     public static boolean attachmentExists(Context context, Attachment attachment) {
         if (attachment == null) {
             return false;

@@ -30,7 +30,6 @@ import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
-import com.android.emailcommon.utility.Utility.ListStateSaver;
 
 import android.app.Activity;
 import android.app.ListFragment;
@@ -157,7 +156,7 @@ public class MessageListFragment extends ListFragment
     private ActionMode mSelectionMode;
     private SelectionModeCallback mLastSelectionModeCallback;
 
-    private Utility.ListStateSaver mSavedListState;
+    private Parcelable mSavedListState;
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
@@ -307,7 +306,7 @@ public class MessageListFragment extends ListFragment
         }
         mResumed = false;
         super.onStop();
-        mSavedListState = new Utility.ListStateSaver(getListView());
+        mSavedListState = getListView().onSaveInstanceState();
     }
 
     @Override
@@ -335,7 +334,7 @@ public class MessageListFragment extends ListFragment
         }
         super.onSaveInstanceState(outState);
         mListAdapter.onSaveInstanceState(outState);
-        outState.putParcelable(BUNDLE_LIST_STATE, new Utility.ListStateSaver(getListView()));
+        outState.putParcelable(BUNDLE_LIST_STATE, getListView().onSaveInstanceState());
         outState.putLong(BUNDLE_KEY_SELECTED_MESSAGE_ID, mSelectedMessageId);
     }
 
@@ -1169,14 +1168,14 @@ public class MessageListFragment extends ListFragment
 
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
-            final Utility.ListStateSaver lss;
+            final Parcelable listState;
             if (mMailboxChanging) {
-                lss = null; // Don't preserve list state
+                listState = null; // Don't preserve list state
             } else if (mSavedListState != null) {
-                lss = mSavedListState;
+                listState = mSavedListState;
                 mSavedListState = null;
             } else {
-                lss = new Utility.ListStateSaver(lv);
+                listState = lv.onSaveInstanceState();
             }
 
             // If this is a search mailbox, set the query; otherwise, clear it
@@ -1206,8 +1205,8 @@ public class MessageListFragment extends ListFragment
 
             // Restore the state -- this step has to be the last, because Some of the
             // "post processing" seems to reset the scroll position.
-            if (lss != null) {
-                lss.restore(lv);
+            if (listState != null) {
+                lv.onRestoreInstanceState(listState);
             }
 
             resetNewMessageCount(mActivity, mMailboxId, getAccountId());
@@ -1385,14 +1384,14 @@ public class MessageListFragment extends ListFragment
      * transitions.
      */
     public static class State implements Parcelable {
-        private final ListStateSaver mListState;
+        private final Parcelable mListState;
 
         private State(Parcel p) {
             mListState = p.readParcelable(getClass().getClassLoader());
         }
 
         private State(MessageListFragment messageListFragment) {
-            mListState = new Utility.ListStateSaver(messageListFragment.getListView());
+            mListState = messageListFragment.getListView().onSaveInstanceState();
         }
 
         public void restore(MessageListFragment messageListFragment) {

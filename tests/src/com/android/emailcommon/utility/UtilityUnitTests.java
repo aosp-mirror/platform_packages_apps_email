@@ -32,16 +32,12 @@ import android.database.CursorWrapper;
 import android.database.MatrixCursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -325,29 +321,6 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertTrue(Utility.isPortFieldValid(view));
     }
 
-    public void testListStateSaver() {
-        final String BUNDLE_KEY = "a";
-
-        Bundle b = new Bundle();
-        // Create a list view, save the state.
-        // (Use blocks to make sure we won't use the same instance later.)
-        {
-            final MockListView lv1 = new MockListView(getContext());
-            lv1.mCustomData = 1;
-
-            final Utility.ListStateSaver lss1 = new Utility.ListStateSaver(lv1);
-            b.putParcelable(BUNDLE_KEY, lss1);
-        }
-
-        // Restore the state into a new list view.
-        {
-            final Utility.ListStateSaver lss2 = b.getParcelable(BUNDLE_KEY);
-            final MockListView lv2 = new MockListView(getContext());
-            lss2.restore(lv2);
-            assertEquals(1, lv2.mCustomData);
-        }
-    }
-
     public void testToPrimitiveLongArray() {
         assertEquals(0, Utility.toPrimitiveLongArray(createLongCollection()).length);
 
@@ -468,60 +441,5 @@ public class UtilityUnitTests extends AndroidTestCase {
         s1 = null;
         s2 = null;
         assertTrue(Utility.areStringsEqual(s1, s2));
-    }
-
-    /**
-     * A {@link ListView} used by {@link #testListStateSaver}.
-     */
-    private static class MockListView extends ListView {
-        public int mCustomData;
-
-        public MockListView(Context context) {
-            super(context);
-        }
-
-        @Override
-        public Parcelable onSaveInstanceState() {
-            SavedState ss = new SavedState(super.onSaveInstanceState());
-            ss.mCustomData = mCustomData;
-            return ss;
-        }
-
-        @Override
-        public void onRestoreInstanceState(Parcelable state) {
-            SavedState ss = (SavedState) state;
-            mCustomData = ss.mCustomData;
-        }
-
-        static class SavedState extends BaseSavedState {
-            public int mCustomData;
-
-            SavedState(Parcelable superState) {
-                super(superState);
-            }
-
-            private SavedState(Parcel in) {
-                super(in);
-                in.writeInt(mCustomData);
-            }
-
-            @Override
-            public void writeToParcel(Parcel out, int flags) {
-                super.writeToParcel(out, flags);
-                mCustomData = out.readInt();
-            }
-
-            @SuppressWarnings({"hiding", "unused"})
-            public static final Parcelable.Creator<SavedState> CREATOR
-                    = new Parcelable.Creator<SavedState>() {
-                public SavedState createFromParcel(Parcel in) {
-                    return new SavedState(in);
-                }
-
-                public SavedState[] newArray(int size) {
-                    return new SavedState[size];
-                }
-            };
-        }
     }
 }
