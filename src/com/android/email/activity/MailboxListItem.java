@@ -18,7 +18,6 @@ package com.android.email.activity;
 
 import com.android.email.R;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
-import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -36,6 +35,10 @@ public class MailboxListItem extends RelativeLayout {
 
     public long mMailboxId;
     public Integer mMailboxType;
+    /** If {@code true} this item can be used as a drop target. Otherwise, drop is prohibited. */
+    public boolean mIsValidDropTarget;
+    /** If {@code true} this item can be navigated to. Otherwise, it can just be selected. */
+    public boolean mIsNavigable;
     public MailboxesAdapter mAdapter;
 
     private Drawable mBackground;
@@ -75,10 +78,14 @@ public class MailboxListItem extends RelativeLayout {
      * {@code true}.
      */
     public boolean isDropTarget(long itemMailbox) {
-        if ((mMailboxId < 0) || (itemMailbox == mMailboxId)) {
-            return false;
-        }
-        return !Utility.arrayContains(Mailbox.INVALID_DROP_TARGETS, mMailboxType);
+        return mIsValidDropTarget && (itemMailbox != mMailboxId);
+    }
+
+    /**
+     * Returns whether or not this item can be navigated to.
+     */
+    public boolean isNavigable() {
+        return mIsNavigable;
     }
 
     public void setDropTargetBackground(boolean dragInProgress, long itemMailbox) {

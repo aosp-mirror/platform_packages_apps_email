@@ -69,10 +69,17 @@ import android.widget.TextView;
         final int type = cursor.getInt(COLUMN_TYPE);
         final long id = cursor.getLong(COLUMN_ID);
         final int flags = cursor.getInt(COLUMN_FLAGS);
+        final int rowType = cursor.getInt(COLUMN_ROW_TYPE);
+        final boolean hasVisibleChildren = (flags & Mailbox.FLAG_HAS_CHILDREN) != 0
+                && (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0;
 
         MailboxListItem listItem = (MailboxListItem)view;
-        listItem.mMailboxType = type;
         listItem.mMailboxId = id;
+        listItem.mMailboxType = type;
+        listItem.mIsValidDropTarget = (id >= 0 || rowType == ROW_TYPE_ALLMAILBOX) &&
+                !Utility.arrayContains(Mailbox.INVALID_DROP_TARGETS, type);
+        listItem.mIsNavigable = hasVisibleChildren || rowType == ROW_TYPE_ALLMAILBOX;
+
         listItem.mAdapter = this;
         // Set the background depending on whether we're in drag mode, the mailbox is a valid
         // target, etc.
@@ -104,9 +111,6 @@ import android.widget.TextView;
 
         final ImageView mailboxExpandedIcon =
                 (ImageView) view.findViewById(R.id.folder_expanded_icon);
-        final boolean hasVisibleChildren =
-                (flags & Mailbox.FLAG_HAS_CHILDREN) != 0
-                    && (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0;
         switch (cursor.getInt(COLUMN_ROW_TYPE)) {
             case ROW_TYPE_ALLMAILBOX:
                 mailboxExpandedIcon.setVisibility(View.VISIBLE);

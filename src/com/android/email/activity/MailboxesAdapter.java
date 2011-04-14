@@ -229,16 +229,6 @@ import android.widget.CursorAdapter;
     }
 
     /**
-     * Returns whether or not the mailbox at the given row can be navigated to.
-     */
-    public boolean isNavigable(int row) {
-        final Cursor c = (Cursor) getItem(row);
-        final int flags = c.getInt(COLUMN_FLAGS);
-        return (flags & Mailbox.FLAG_HAS_CHILDREN) != 0
-                && (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0;
-    }
-
-    /**
      * Turn on and off list updates; during a drag operation, we do NOT want to the list of
      * mailboxes to update, as this would be visually jarring
      * @param state whether or not the MailboxList can be updated
