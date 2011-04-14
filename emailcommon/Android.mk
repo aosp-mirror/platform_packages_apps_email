@@ -21,6 +21,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := com.android.emailcommon
+LOCAL_STATIC_JAVA_LIBRARIES := guava
 LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/emailcommon)
 LOCAL_SRC_FILES += $(call all-java-files-under, src/org)
 LOCAL_SRC_FILES += \

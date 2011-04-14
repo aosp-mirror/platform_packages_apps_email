@@ -35,6 +35,7 @@ import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -1043,7 +1044,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /**
      * Checks whether all the email addresses listed in TO, CC, BCC are valid.
      */
-    /* package */ boolean isAddressAllValid() {
+    @VisibleForTesting
+    boolean isAddressAllValid() {
         for (TextView view : new TextView[]{mToView, mCcView, mBccView}) {
             String addresses = view.getText().toString().trim();
             if (!Address.isAllValid(addresses)) {
@@ -1336,7 +1338,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      *
      * @param text the message body
      */
-    /* package */ void setInitialComposeText(CharSequence text, String signature) {
+    @VisibleForTesting
+    void setInitialComposeText(CharSequence text, String signature) {
         mMessageContentView.setText("");
         int textLength = 0;
         if (text != null) {
@@ -1365,7 +1368,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      *
      * @param intent the launch intent
      */
-    /* package */ void initFromIntent(Intent intent) {
+    @VisibleForTesting
+    void initFromIntent(Intent intent) {
 
         setAccount(intent);
 
@@ -1534,7 +1538,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * @param ccView the "Cc" view
      * @param replyAll whether this is a replyAll (vs a reply)
      */
-    /*package*/ void setupAddressViews(Message message, Account account,
+    @VisibleForTesting
+    void setupAddressViews(Message message, Account account,
             MultiAutoCompleteTextView toView, MultiAutoCompleteTextView ccView, boolean replyAll) {
         /*
          * If a reply-to was included with the message use that, otherwise use the from
@@ -1631,7 +1636,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /**
      * Set a cursor to the end of a body except a signature.
      */
-    /* package */ void setMessageContentSelection(String signature) {
+    @VisibleForTesting
+    void setMessageContentSelection(String signature) {
         int selection = mMessageContentView.length();
         if (!TextUtils.isEmpty(signature)) {
             int signatureLength = signature.length();

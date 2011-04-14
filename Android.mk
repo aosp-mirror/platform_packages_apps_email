@@ -23,7 +23,7 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/email)
 LOCAL_SRC_FILES += $(call all-java-files-under, src/com/beetstra)
-LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon
+LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava
 
 LOCAL_PACKAGE_NAME := Email
 

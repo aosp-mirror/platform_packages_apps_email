@@ -17,6 +17,7 @@
 package com.android.emailcommon.mail;
 
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import org.apache.james.mime4j.codec.EncoderUtil;
 import org.apache.james.mime4j.decoder.DecoderUtil;
@@ -25,8 +26,6 @@ import android.text.TextUtils;
 import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -80,7 +79,7 @@ public class Address {
     }
 
     public void setAddress(String address) {
-        mAddress = REMOVE_OPTIONAL_BRACKET.matcher(address).replaceAll("$1");;
+        mAddress = REMOVE_OPTIONAL_BRACKET.matcher(address).replaceAll("$1");
     }
 
     /**
@@ -96,7 +95,7 @@ public class Address {
      * Set name part from UTF-16 string. Optional surrounding double quote will be removed.
      * It will be also unquoted and MIME/base64 decoded.
      *
-     * @param Personal name part of email address as UTF-16 string. Null is acceptable.
+     * @param personal name part of email address as UTF-16 string. Null is acceptable.
      */
     public void setPersonal(String personal) {
         if (personal != null) {
@@ -163,7 +162,8 @@ public class Address {
      * Checks whether a string email address is valid.
      * E.g. name@domain.com is valid.
      */
-    /* package */ static boolean isValidAddress(String address) {
+    @VisibleForTesting
+    static boolean isValidAddress(String address) {
         // Note: Some email provider may violate the standard, so here we only check that
         // address consists of two part that are separated by '@', and domain part contains
         // at least one '.'.
