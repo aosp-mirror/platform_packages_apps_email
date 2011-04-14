@@ -26,6 +26,12 @@ import android.graphics.drawable.Drawable;
 // TODO When the UI is settled, cache all strings/drawables
 // TODO When the UI is settled, write up tests
 // TODO When the UI is settled, remove backward-compatibility methods
+/**
+ * Stores names and icons for system folders. System folders are those with special
+ * meaning, such as Inbox, Drafts, Trash, etc... Although these folders may or may
+ * not exist on the server, we want to ensure they are displayed in a very specific
+ * manner.
+ */
 public class FolderProperties {
 
     private static FolderProperties sInstance;
@@ -37,7 +43,6 @@ public class FolderProperties {
     private final TypedArray mSpecialMailboxDrawable;
     private final Drawable mSummaryStarredMailboxDrawable;
     private final Drawable mSummaryCombinedInboxDrawable;
-    private final Drawable mMailboxCollapsedDrawable;
 
     private FolderProperties(Context context) {
         mContext = context.getApplicationContext();
@@ -54,8 +59,6 @@ public class FolderProperties {
             context.getResources().getDrawable(R.drawable.ic_folder_star_holo_light);
         mSummaryCombinedInboxDrawable =
             context.getResources().getDrawable(R.drawable.ic_list_combined_inbox);
-        mMailboxCollapsedDrawable =
-            context.getResources().getDrawable(R.drawable.ic_mailbox_collapsed_holo_light);
     }
 
     public static synchronized FolderProperties getInstance(Context context) {
@@ -120,10 +123,6 @@ public class FolderProperties {
             if (resId != -1) {
                 return mContext.getResources().getDrawable(resId);
             }
-        }
-        if ((mailboxFlags & Mailbox.FLAG_HAS_CHILDREN) != 0 &&
-                (mailboxFlags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0) {
-            return mMailboxCollapsedDrawable;
         }
         return null; // No icon
     }

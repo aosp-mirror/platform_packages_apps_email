@@ -97,9 +97,16 @@ import android.widget.TextView;
         }
         final TextView countView = (TextView) view.findViewById(R.id.message_count);
 
-        final ImageView mailboxExpandedIcon =
-            (ImageView) view.findViewById(R.id.folder_expanded_icon);
+        // Set folder icon
         final ImageView folderIcon = (ImageView) view.findViewById(R.id.folder_icon);
+        folderIcon.setImageDrawable(
+                FolderProperties.getInstance(context).getIcon(type, id, flags));
+
+        final ImageView mailboxExpandedIcon =
+                (ImageView) view.findViewById(R.id.folder_expanded_icon);
+        final boolean hasVisibleChildren =
+                (flags & Mailbox.FLAG_HAS_CHILDREN) != 0
+                    && (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0;
         switch (cursor.getInt(COLUMN_ROW_TYPE)) {
             case ROW_TYPE_ALLMAILBOX:
                 mailboxExpandedIcon.setVisibility(View.VISIBLE);
@@ -107,8 +114,7 @@ import android.widget.TextView;
                 folderIcon.setVisibility(View.INVISIBLE);
                 break;
             case ROW_TYPE_SUBMAILBOX:
-                if ((flags & Mailbox.FLAG_HAS_CHILDREN) != 0
-                        && (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0) {
+                if (hasVisibleChildren) {
                     mailboxExpandedIcon.setVisibility(View.VISIBLE);
                     mailboxExpandedIcon.setImageResource(
                             R.drawable.ic_mailbox_collapsed_holo_light);
@@ -119,8 +125,21 @@ import android.widget.TextView;
                 folderIcon.setVisibility(View.INVISIBLE);
                 break;
             case ROW_TYPE_CURMAILBOX:
+                mailboxExpandedIcon.setVisibility(View.GONE);
+                mailboxExpandedIcon.setImageDrawable(null);
                 folderIcon.setVisibility(View.GONE);
                 break;
+            case ROW_TYPE_MAILBOX:
+                // If we have children and no special icon; show the collapsed folder icon
+                if (hasVisibleChildren && folderIcon.getDrawable() == null) {
+                    mailboxExpandedIcon.setVisibility(View.VISIBLE);
+                    mailboxExpandedIcon.setImageResource(
+                            R.drawable.ic_mailbox_collapsed_holo_light);
+                    folderIcon.setVisibility(View.GONE);
+                    break;
+                }
+                // No children; handle normally
+                //$FALL-THROUGH$
             default:
                 mailboxExpandedIcon.setVisibility(View.GONE);
                 mailboxExpandedIcon.setImageDrawable(null);
@@ -135,10 +154,6 @@ import android.widget.TextView;
         } else {
             countView.setVisibility(View.GONE);
         }
-
-        // Set folder icon
-        folderIcon.setImageDrawable(
-                FolderProperties.getInstance(context).getIcon(type, id, flags));
 
         final View chipView = view.findViewById(R.id.color_chip);
         if (isAccount) {
