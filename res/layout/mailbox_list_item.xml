@@ -74,15 +74,15 @@
             android:textSize="18dip"
             android:textColor="@color/text_primary_color"
             />
-        <!-- Color chips are shown only for account rows on combined view. -->
-        <View
-            android:id="@+id/color_chip"
-            android:layout_width="32dip"
-            android:layout_height="8dip"
-            android:layout_marginLeft="16dip"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:visibility="gone"
-            />
     </RelativeLayout>
+    <!-- Color chips are shown only for account rows on combined view. -->
+    <View
+        android:id="@+id/color_chip"
+        android:layout_width="32dip"
+        android:layout_height="8dip"
+        android:layout_marginLeft="@dimen/mailbox_list_padding_left"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:visibility="gone"
+        />
 </com.android.email.activity.MailboxListItem>
