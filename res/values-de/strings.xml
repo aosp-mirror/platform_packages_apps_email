@@ -66,7 +66,7 @@
   </plurals>
     <string name="cannot_move_protocol_not_supported_toast" msgid="8321714399405096556">"Verschieben wird für POP3-Konten nicht unterstützt."</string>
     <string name="cannot_move_multiple_accounts_toast" msgid="4111097224275445005">"Verschieben nicht möglich. Auswahl enthält mehrere Konten."</string>
-    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"Nachrichten in \"Entwürfe\", dem Postausgang und \"Gesendet\" können nicht verschoben werden."</string>
+    <string name="cannot_move_special_mailboxes_toast" msgid="2533188790446456804">"Nachrichten im Postausgang und den Ordnern \"Entwürfe\" und \"Gesendet\" können nicht verschoben werden."</string>
   <plurals name="notification_new_one_account_fmt">
     <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
     <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> ungelesen (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
