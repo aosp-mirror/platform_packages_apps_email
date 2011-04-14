@@ -58,11 +58,12 @@
                 android:id="@+id/message_command_buttons"
                 />
         </LinearLayout>
+        <!-- View to snatch all touch events.  100% transparent. -->
         <View
             android:id="@+id/fogged_glass"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/message_view_fogged_glass_color"
+            android:background="@android:color/transparent"
             />
     </FrameLayout>
 </com.android.email.activity.ThreePaneLayout>
