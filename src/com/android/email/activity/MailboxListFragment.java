@@ -36,6 +36,7 @@ import android.content.ClipDescription;
 import android.content.Loader;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -74,6 +75,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     /** While in drag-n-drop, amount of time before it auto expands; in ms */
     private static final long AUTO_EXPAND_DELAY = 750L;
 
+    /** No drop target is available where the user is currently hovering over */
     private static final int NO_DROP_TARGET = -1;
     // Total height of the top and bottom scroll zones, in pixels
     private static final int SCROLL_ZONE_SIZE = 64;
@@ -91,6 +93,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     /** Timer to auto-expand folder lists during drag-n-drop */
     private static final Timer sDragTimer = new Timer();
+    /** Rectangle used for hit testing children */
+    private static final Rect sTouchFrame = new Rect();
+
     private RefreshManager mRefreshManager;
 
     // UI Support
@@ -116,11 +121,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     // True if a drag is currently in progress
     private boolean mDragInProgress;
-    // The mailbox id of the dragged item's mailbox.  We use it to prevent that box from being a
-    // valid drop target
+    /** Mailbox ID of the item being dragged. Used to determine valid drop targets. */
     private long mDragItemMailboxId = -1;
-    // The adapter position that the user's finger is hovering over
-    private int mDropTargetAdapterPosition = NO_DROP_TARGET;
+    /** A unique identifier for the drop target. May be {@link #NO_DROP_TARGET}. */
+    private int mDropTargetId = NO_DROP_TARGET;
     // The mailbox list item view that the user's finger is hovering over
     private MailboxListItem mDropTargetView;
     // Lazily instantiated height of a mailbox list item (-1 is a sentinel for 'not initialized')
@@ -174,6 +178,24 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         @Override public void onAccountSelected(long accountId) { }
         @Override public void onCurrentMailboxUpdated(long mailboxId, String mailboxName,
                 int unreadCount) { }
+    }
+
+    /**
+     * Returns the index of the view located at the specified coordinates in the given list.
+     * If the coordinates are outside of the list, {@code NO_DROP_TARGET} is returned.
+     */
+    private static int pointToIndex(ListView list, int x, int y) {
+        final int count = list.getChildCount();
+        for (int i = count - 1; i >= 0; i--) {
+            final View child = list.getChildAt(i);
+            if (child.getVisibility() == View.VISIBLE) {
+                child.getHitRect(sTouchFrame);
+                if (sTouchFrame.contains(x, y)) {
+                    return i;
+                }
+            }
+        }
+        return NO_DROP_TARGET;
     }
 
     /**
@@ -233,7 +255,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mLoadedMailboxId = -1;
 
         mOpenRequested = false;
-        mDropTargetAdapterPosition = NO_DROP_TARGET;
+        mDropTargetId = NO_DROP_TARGET;
         mDropTargetView = null;
 
         if (mListAdapter != null) {
@@ -480,7 +502,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 highlightSelectedMailbox(!mSaveListState);
             }
 
-            mDropTargetAdapterPosition = NO_DROP_TARGET;
+            // List has been reloaded; clear any drop target information
+            mDropTargetId = NO_DROP_TARGET;
             mDropTargetView = null;
 
             // Restore the state
@@ -570,6 +593,36 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     /**
+     * Starts the timer responsible for auto-selecting mailbox items while in drag-n-drop.
+     * If there is already an active task, we first try to cancel it. There are only two
+     * reasons why a new timer may not be started. First, if we are unable to cancel a
+     * previous timer, we must assume that a new mailbox has already been loaded. Second,
+     * if the target item is not permitted to be auto selected.
+     * @param newTarget The drag target that needs to be auto selected
+     */
+    private void startDragTimer(final MailboxListItem newTarget) {
+        boolean canceledInTime = mDragTimerTask == null || stopDragTimer();
+        if (canceledInTime
+                && newTarget != null
+                && newTarget.isNavigable()
+                && newTarget.isDropTarget(mDragItemMailboxId)) {
+            mDragTimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            stopDragTimer();
+                            mCallback.onMailboxSelected(mAccountId, newTarget.mMailboxId);
+                        }
+                    });
+                }
+            };
+            sDragTimer.schedule(mDragTimerTask, AUTO_EXPAND_DELAY);
+        }
+    }
+
+    /**
      * Stops the timer responsible for auto-selecting mailbox items while in drag-n-drop.
      * If the timer is not active, nothing will happen.
      * @return Whether or not the timer was interrupted. {@link TimerTask#cancel()}.
@@ -586,107 +639,81 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     /**
-     * Called when our ListView gets a DRAG_EXITED event
+     * Called when the user has dragged outside of the mailbox list area.
      */
     private void onDragExited() {
-        mDragInProgress = false;
         // Reset the background of the current target
-        if (mDropTargetAdapterPosition != NO_DROP_TARGET) {
+        if (mDropTargetView != null) {
             mDropTargetView.setDropTargetBackground(mDragInProgress, mDragItemMailboxId);
-            mDropTargetAdapterPosition = NO_DROP_TARGET;
+            mDropTargetView = null;
         }
+        mDropTargetId = NO_DROP_TARGET;
         stopDragTimer();
         stopScrolling();
     }
 
     /**
-     * Called while dragging;  highlight possible drop targets, and autoscroll the list.
+     * Called while dragging;  highlight possible drop targets, and auto scroll the list.
      */
     private void onDragLocation(DragEvent event) {
-        // The drag is somewhere in the ListView
+        // TODO The list may be changing while in drag-n-drop; temporarily suspend drag-n-drop
+        // if the list is being updated [i.e. navigated to another mailbox]
         if (mDragItemHeight <= 0) {
             // This shouldn't be possible, but avoid NPE
+            Log.w(TAG, "drag item height is not set");
             return;
         }
         // Find out which item we're in and highlight as appropriate
-        int rawTouchY = (int)event.getY();
-        int offset = 0;
-        if (mListView.getCount() > 0) {
-            View topView = mListView.getChildAt(0);
-            if (topView != null) {
-                offset = topView.getTop();
-            }
-        }
-        int targetScreenPosition = (rawTouchY - offset) / mDragItemHeight;
-        int firstVisibleItem = mListView.getFirstVisiblePosition();
-        int targetAdapterPosition = firstVisibleItem + targetScreenPosition;
-        if (targetAdapterPosition != mDropTargetAdapterPosition) {
+        final int rawTouchX = (int) event.getX();
+        final int rawTouchY = (int) event.getY();
+        final int viewIndex = pointToIndex(mListView, rawTouchX, rawTouchY);
+        int targetId = viewIndex;
+        if (targetId != mDropTargetId) {
             if (DEBUG_DRAG_DROP) {
-                Log.d(TAG, "========== DROP TARGET " + mDropTargetAdapterPosition + " -> " +
-                        targetAdapterPosition);
+                Log.d(TAG, "=== Target changed; oldId: " + mDropTargetId + ", newId: " + targetId);
             }
-            // Unhighlight the current target, if we've got one
-            if (mDropTargetAdapterPosition != NO_DROP_TARGET) {
+            // Remove highlight the current target; if there was one
+            if (mDropTargetView != null) {
                 mDropTargetView.setDropTargetBackground(true, mDragItemMailboxId);
+                mDropTargetView = null;
             }
             // Get the new target mailbox view
-            MailboxListItem newTarget =
-                (MailboxListItem)mListView.getChildAt(targetScreenPosition);
-            // This can be null due to a bug in the framework (checking on that)
-            // In any event, we're no longer dragging in the list view if newTarget is null
+            final MailboxListItem newTarget = (MailboxListItem) mListView.getChildAt(viewIndex);
             if (newTarget == null) {
+                // In any event, we're no longer dragging in the list view if newTarget is null
                 if (DEBUG_DRAG_DROP) {
-                    Log.d(TAG, "========== WTF??? DRAG EXITED");
+                    Log.d(TAG, "=== Drag off the list");
                 }
-                if (mListView.getChildCount() < targetScreenPosition) {
-                    // We're somewhere off the end of the list
-                    targetAdapterPosition = NO_DROP_TARGET;
-                } else {
-                    // Really a WTF moment ...
+                final int childCount = mListView.getChildCount();
+                if (viewIndex >= childCount) {
+                    // Touching beyond the end of the list; may happen for small lists
                     onDragExited();
                     return;
+                } else {
+                    // We should never get here
+                    Log.w(TAG, "null view; idx: " + viewIndex + ", cnt: " + childCount);
                 }
             } else if (newTarget.mMailboxType == Mailbox.TYPE_TRASH) {
                 if (DEBUG_DRAG_DROP) {
-                    Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " TRASH");
+                    Log.d(TAG, "=== Trash mailbox; id: " + newTarget.mMailboxId);
                 }
                 newTarget.setBackgroundColor(sDropTrashColor);
             } else if (newTarget.isDropTarget(mDragItemMailboxId)) {
                 if (DEBUG_DRAG_DROP) {
-                    Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " TARGET");
+                    Log.d(TAG, "=== Target mailbox; id: " + newTarget.mMailboxId);
                 }
                 newTarget.setBackgroundDrawable(sDropActiveDrawable);
             } else {
                 if (DEBUG_DRAG_DROP) {
-                    Log.d("onDragLocation", "=== Mailbox " + newTarget.mMailboxId + " (CALL)");
+                    Log.d(TAG, "=== Non-droppable mailbox; id: " + newTarget.mMailboxId);
                 }
-                targetAdapterPosition = NO_DROP_TARGET;
                 newTarget.setDropTargetBackground(true, mDragItemMailboxId);
+                targetId = NO_DROP_TARGET;
             }
             // Save away our current position and view
-            mDropTargetAdapterPosition = targetAdapterPosition;
+            mDropTargetId = targetId;
             mDropTargetView = newTarget;
-            if (mDropTargetAdapterPosition != NO_DROP_TARGET) {
-                boolean canceledInTime = mDragTimerTask == null || stopDragTimer();
-                if (canceledInTime
-                        && newTarget.isNavigable()
-                        && newTarget.isDropTarget(mDragItemMailboxId)) {
-                    mDragTimerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            mActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    stopDragTimer();
-                                    mCallback.onMailboxSelected(
-                                            mAccountId, mDropTargetView.mMailboxId);
-                                }
-                            });
-                        }
-                    };
-                    sDragTimer.schedule(mDragTimerTask, AUTO_EXPAND_DELAY);
-                }
-            }
+            startDragTimer(newTarget);
         }
 
         // This is a quick-and-dirty implementation of drag-under-scroll; something like this
@@ -695,18 +722,18 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         boolean scrollDown = (scrollDiff > 0);
         boolean scrollUp = (SCROLL_ZONE_SIZE > rawTouchY);
         if (!mTargetScrolling && scrollDown) {
-            int itemsToScroll = mListView.getCount() - targetAdapterPosition;
+            int itemsToScroll = mListView.getCount() - mListView.getLastVisiblePosition();
             int pixelsToScroll = (itemsToScroll + 1) * mDragItemHeight;
             mListView.smoothScrollBy(pixelsToScroll, pixelsToScroll * SCROLL_SPEED);
             if (DEBUG_DRAG_DROP) {
-                Log.d(TAG, "========== START TARGET SCROLLING DOWN");
+                Log.d(TAG, "=== Start scrolling list down");
             }
             mTargetScrolling = true;
         } else if (!mTargetScrolling && scrollUp) {
-            int pixelsToScroll = (firstVisibleItem + 1) * mDragItemHeight;
+            int pixelsToScroll = (mListView.getFirstVisiblePosition() + 1) * mDragItemHeight;
             mListView.smoothScrollBy(-pixelsToScroll, pixelsToScroll * SCROLL_SPEED);
             if (DEBUG_DRAG_DROP) {
-                Log.d(TAG, "========== START TARGET SCROLLING UP");
+                Log.d(TAG, "=== Start scrolling list up");
             }
             mTargetScrolling = true;
         } else if (!scrollUp && !scrollDown) {
@@ -721,7 +748,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (mTargetScrolling) {
             mTargetScrolling = false;
             if (DEBUG_DRAG_DROP) {
-                Log.d(TAG, "========== STOP TARGET SCROLLING");
+                Log.d(TAG, "=== Stop scrolling list");
             }
             // Stop the scrolling
             mListView.smoothScrollBy(0, 0);
@@ -752,7 +779,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             String mimeType = description.getMimeType(i);
             if (mimeType.startsWith(EmailProvider.EMAIL_MESSAGE_MIME_TYPE)) {
                 if (DEBUG_DRAG_DROP) {
-                    Log.d(TAG, "========== DRAG STARTED");
+                    Log.d(TAG, "=== Drag started");
                 }
                 mDragItemMailboxId = -1;
                 // See if we find a mailbox id here
@@ -775,16 +802,23 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         return false;
     }
 
+    /**
+     * Perform a "drop" action. If the user is not on top of a valid drop target, no action
+     * is performed.
+     * @return {@code true} if the drop action was performed. Otherwise {@code false}.
+     */
     private boolean onDrop(DragEvent event) {
         stopDragTimer();
         stopScrolling();
         // If we're not on a target, we're done
-        if (mDropTargetAdapterPosition == NO_DROP_TARGET) return false;
+        if (mDropTargetId == NO_DROP_TARGET) {
+            return false;
+        }
         final Controller controller = Controller.getInstance(mActivity);
         ClipData clipData = event.getClipData();
         int count = clipData.getItemCount();
         if (DEBUG_DRAG_DROP) {
-            Log.d(TAG, "Received a drop of " + count + " items.");
+            Log.d(TAG, "=== Dropping " + count + " items.");
         }
         // Extract the messageId's to move from the ClipData (set up in MessageListItem)
         final long[] messageIds = new long[count];
@@ -794,11 +828,12 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             long id = Long.parseLong(msgNum);
             messageIds[i] = id;
         }
+        final MailboxListItem targetItem = mDropTargetView;
         // Call either deleteMessage or moveMessage, depending on the target
         EmailAsyncTask.runAsyncSerial(new Runnable() {
             @Override
             public void run() {
-                if (mDropTargetView.mMailboxType == Mailbox.TYPE_TRASH) {
+                if (targetItem.mMailboxType == Mailbox.TYPE_TRASH) {
                     for (long messageId: messageIds) {
                         // TODO Get this off UI thread (put in clip)
                         Message msg = Message.restoreMessageWithId(mActivity, messageId);
@@ -807,7 +842,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                         }
                     }
                 } else {
-                    controller.moveMessage(messageIds, mDropTargetView.mMailboxId);
+                    controller.moveMessage(messageIds, targetItem.mMailboxId);
                 }
             }
         });
@@ -824,22 +859,20 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             case DragEvent.ACTION_DRAG_ENTERED:
                 // The drag has entered the ListView window
                 if (DEBUG_DRAG_DROP) {
-                    Log.d(TAG, "========== DRAG ENTERED (target = " + mDropTargetAdapterPosition +
-                    ")");
+                    Log.d(TAG, "=== Drag entered; targetId: " + mDropTargetId);
                 }
                 break;
             case DragEvent.ACTION_DRAG_EXITED:
                 // The drag has left the building
                 if (DEBUG_DRAG_DROP) {
-                    Log.d(TAG, "========== DRAG EXITED (target = " + mDropTargetAdapterPosition +
-                            ")");
+                    Log.d(TAG, "=== Drag exited; targetId: " + mDropTargetId);
                 }
                 onDragExited();
                 break;
             case DragEvent.ACTION_DRAG_ENDED:
                 // The drag is over
                 if (DEBUG_DRAG_DROP) {
-                    Log.d(TAG, "========== DRAG ENDED");
+                    Log.d(TAG, "=== Drag ended");
                 }
                 onDragEnded();
                 break;
@@ -850,7 +883,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             case DragEvent.ACTION_DROP:
                 // The drag item was dropped
                 if (DEBUG_DRAG_DROP) {
-                    Log.d(TAG, "========== DROP");
+                    Log.d(TAG, "=== Drop");
                 }
                 result = onDrop(event);
                 break;
