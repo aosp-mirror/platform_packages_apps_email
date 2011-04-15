@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"휴지통"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"보낸편지함"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"스팸"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"모든 폴더"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"버전: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"계정"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"받은편지함"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"원격 보안 관리"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 서버가 Android 기기의 몇 가지 보안 기능을 원격으로 제어할 수 있도록 해야 합니다. 이 계정 설정을 완료하시겠습니까?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"서버에 필요한 보안 기능 중 Android 기기에서 지원하지 않는 것이 있습니다."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"계정 사용자 이름을 변경할 수 없습니다. 다른 사용자 이름으로 계정을 추가하려면 \'계정 추가\'를 터치하세요."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"경고: 이메일 애플리케이션의 기기 관리 권한을 비활성화하면 관련된 모든 이메일 계정의 이메일, 주소록, 캘린더 일정 및 기타 데이터가  모두 삭제됩니다."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"보안 업데이트가 필요합니다."</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g>의 보안 설정을 업데이트해야 합니다."</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"로드 중..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"구성하려면 터치하세요."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_title" msgid="353141588517762921">"이메일"</string>
+    <string name="search_hint" msgid="2200412192574686497">"이메일 검색"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"편지함 확인 조회"</string>
 </resources>

@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Кошче"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Изпратени"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Нежелана поща"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Всички папки"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Версия: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Профили"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Вх. поща"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Отдалечено администриране на сигурността"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Сървърът <xliff:g id="SERVER">%s</xliff:g> изисква отдалечен контрол над някои от защитните функции на устройството ви с Android. Искате ли да завършите настройването на този профил?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Този сървър изисква защитни функции, които устройството ви с Android не поддържа."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Не можете да промените потребителското име на профил. За да добавите такъв с ново име, докоснете „Добавяне на профил“."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ПРЕДУПРЕЖДЕНИЕ: Деактивирането на възможността приложението за електронна поща да администрира устройството ви ще изтрие всички имейл профили, които го изискват, заедно с имейлите, контактите, календарните събития и други данни в тях."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Изисква се актуализация на защитата"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> изисква да актуализирате защитните си настройки."</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Зарежда се…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Докоснете, за да конфигурирате"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_title" msgid="353141588517762921">"Имейл адрес"</string>
+    <string name="search_hint" msgid="2200412192574686497">"Търсене по имейл"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Mailbox check lookback"</string>
 </resources>

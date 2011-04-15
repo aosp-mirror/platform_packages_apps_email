@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Κάδος απορριμμάτων"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Απεσταλμένα"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Ανεπιθύμητα"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Όλοι οι φάκελοι"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Έκδοση: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Λογαριασμοί"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Εισερχόμενα"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Απομακρυσμένη διαχείριση ασφαλείας"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Ο διακομιστής <xliff:g id="SERVER">%s</xliff:g> χρειάζεται την άδειά σας για να πραγματοποιήσει απομακρυσμένο έλεγχο ορισμένων λειτουργιών ασφαλείας της συσκευής σας Android. Θέλετε να ολοκληρωθεί η ρύθμιση αυτού του λογαριασμού;"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Αυτός ο διακομιστής απαιτεί λειτουργίες ασφαλείας που δεν υποστηρίζονται από τη συσκευή σας Android."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Δεν είναι δυνατό να αλλάξετε το όνομα χρήστη ενός λογαριασμού. Για να προσθέσετε έναν λογαριασμό με διαφορετικό όνομα χρήστη, αγγίξτε την επιλογή \"Προσθήκη λογαριασμού\"."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Η απενεργοποίηση της αρμοδιότητας της εφαρμογής Μήνυμα ηλεκτρονικού ταχυδρομείου για διαχείριση της συσκευής σας θα διαγράψει όλους τους λογαριασμούς ηλεκτρονικού ταχυδρομείου που το απαιτούν, καθώς και τα μηνύματα ηλεκτρονικού ταχυδρομείου, τις επαφές, τα συμβάντα ημερολογίου και άλλα δεδομένα."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Απαιτείται ενημέρωση ασφαλείας"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"Ο λογαριασμός <xliff:g id="ACCOUNT">%s</xliff:g> απαιτεί την ενημέρωση των ρυθμίσεων ασφαλείας."</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Φόρτωση…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Αγγίξτε για διαμόρφωση"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_title" msgid="353141588517762921">"Διεύθυνση email"</string>
+    <string name="search_hint" msgid="2200412192574686497">"Αναζήτηση ηλεκτρονικού ταχυδρομείου"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Έλεγχος γραμματοκιβωτίου loopback"</string>
 </resources>

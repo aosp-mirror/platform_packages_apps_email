@@ -88,6 +88,8 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"ゴミ箱"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"送信済み"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"迷惑メール"</string>
+    <!-- no translation found for mailbox_name_go_back (2886974252919886501) -->
+    <skip />
     <string name="debug_version_fmt" msgid="6160213145745376955">"バージョン: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"アカウント"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"受信トレイ"</string>
@@ -305,6 +307,8 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"セキュリティのリモート管理"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Android搭載携帯のセキュリティ機能の一部に対するリモートコントロールをサーバー<xliff:g id="SERVER">%s</xliff:g>に許可する必要があります。アカウントの設定を終了しますか？"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"このサーバーには、お使いのAndroid搭載携帯でサポートされていないセキュリティ機能が必要です。"</string>
+    <!-- no translation found for account_setup_username_uneditable_error (9057508235700936322) -->
+    <skip />
     <string name="disable_admin_warning" msgid="4940147098039352135">"警告: メールアプリケーションの端末管理権限を無効にすると、権限を必要とするすべてのメールアカウントが削除されます。また、そのアカウントのメール、連絡先、カレンダーの予定などのデータも削除されます。"</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"セキュリティの更新が必要です"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g>のセキュリティ設定を更新する必要があります。"</string>
@@ -405,4 +409,10 @@
     <string name="widget_loading" msgid="2340962056927255554">"読み込み中..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"タップして設定してください"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <!-- no translation found for search_title (353141588517762921) -->
+    <skip />
+    <!-- no translation found for search_hint (2200412192574686497) -->
+    <skip />
+    <!-- no translation found for mailbox_options_lookback_label (1207031465051138008) -->
+    <skip />
 </resources>
