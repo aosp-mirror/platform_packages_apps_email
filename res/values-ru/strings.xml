@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Корзина"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Отправленные"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Спам"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Все папки"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Версия: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Аккаунты"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Входящие"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Удаленное управление безопасностью"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Серверу <xliff:g id="SERVER">%s</xliff:g> требуется разрешение на удаленное управление некоторыми функциями безопасности устройства Android. Завершить настройку этого аккаунта?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Безопасность этого сервера обеспечивается с помощью средств, не поддерживаемых вашим устройством Android."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Невозможно изменить имя пользователя. Чтобы добавить аккаунт с другим именем пользователя, нажмите \"Добавить аккаунт\"."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ВНИМАНИЕ! Отключение прав по администрированию вашего устройства для приложения электронной почты приведет к удалению всех аккаунтов электронной почты, которые используют эти права. Кроме того, будут удалены все письма, контакты, календари и другие данные, связанные с этими аккаунтами."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Обновите систему безопасности"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"Для аккаунта <xliff:g id="ACCOUNT">%s</xliff:g> требуется обновить настройки безопасности."</string>
@@ -327,7 +329,7 @@
     <string name="account_settings_title_fmt" msgid="1702058877284382340">"Общие настройки"</string>
     <string name="account_settings_default_label" msgid="3575963379680943640">"Аккаунт по умолчанию"</string>
     <string name="account_settings_default_summary" msgid="1531901438624688482">"Сделать аккаунтом электронной почты по умолчанию для отправки сообщений"</string>
-    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Автозагрузка прикрепленных файлов"</string>
+    <string name="account_settings_background_attachments_label" msgid="6044567979405738536">"Автозагрузка прикрепл. файлов"</string>
     <string name="account_settings_background_attachments_summary" msgid="8036004124395110306">"Автоматически загружать прикрепленные файлы при подключении к Wi-Fi"</string>
     <string name="account_settings_notify_label" msgid="1630001017303007974">"Уведомления электронной почты"</string>
     <string name="account_settings_summary" msgid="8403582255413830007">"Частота синхронизации, уведомления и другие настройки"</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Загрузка..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Нажмите для настройки"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_title" msgid="353141588517762921">"Email"</string>
+    <string name="search_hint" msgid="2200412192574686497">"Искать в электронной почте"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Mailbox check lookback"</string>
 </resources>

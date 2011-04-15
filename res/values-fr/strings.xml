@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Corbeille"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Éléments envoyés"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Spam"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Tous les dossiers"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Version : <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Comptes"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Boîte de réception"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administration de la sécurité à distance"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre mobile Android. Voulez-vous terminer la configuration de ce compte ?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Ce serveur nécessite des fonctionnalités de sécurité non compatibles avec votre mobile Android."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Vous ne pouvez pas modifier le nom d\'utilisateur d\'un compte. Pour ajouter un compte associé à un autre nom d\'utilisateur, appuyez sur Ajouter un compte."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"AVERTISSEMENT : Si vous désactivez la gestion de votre appareil par l\'application de messagerie électronique, tous les comptes de messagerie électronique qui y sont associés seront supprimés, de même que leurs données (e-mails, contacts, événements d\'agenda, etc.)."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Mise à jour de sécurité requise"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> nécessite la mise à jour de vos paramètres de sécurité."</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Chargement…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Appuyez ici pour configurer compte"</string>
     <string name="more_than_999" msgid="8704425397397918798">"&gt; 999"</string>
+    <string name="search_title" msgid="353141588517762921">"E-mail"</string>
+    <string name="search_hint" msgid="2200412192574686497">"Recherchez dans l\'e-mail"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Vérification en boucle de la boîte aux lettres"</string>
 </resources>

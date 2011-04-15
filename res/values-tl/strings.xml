@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Basurahan"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Ipinadala"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Basura"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Lahat ng Mga Folder"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Bersyon: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Mga Account"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Inbox"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Pangangasiwa ng remote na seguridad"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Kinakailangan ng server na <xliff:g id="SERVER">%s</xliff:g> na payagan mo itong malayuang kontrolin ang ilang tampok sa seguridad ng iyong Android device. Gusto mo bang tapusing i-set up ang account na ito?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Kinakailangan ng server na ito ng mga tampok sa seguridad na hindi sinusuportahan ng iyong Android device."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Hindi ka maaaring magbago ng username ng account. Upang magdagdag ng account gamit ang ibang username, pindutin ang Magdagdag ng account."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"BABALA: Tatanggalin ng pag-deactivate ng awtoridad ng Email application na pangasiwaan ang iyong device ang lahat ng mga Email account na ngangailangan nito, kasama ang mga email, contact, kaganapan sa kalendaryo, at iba pang data ng mga ito."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Kailangan update sa seguridad"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"Hinihiling ng <xliff:g id="ACCOUNT">%s</xliff:g> na i-update mo ang mga setting ng iyong seguridad."</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Naglo-load..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Pindutin upang i-configure"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_title" msgid="353141588517762921">"Email"</string>
+    <string name="search_hint" msgid="2200412192574686497">"Maghanap sa email"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Pag-lookback sa pagsusuri ng mailbox"</string>
 </resources>

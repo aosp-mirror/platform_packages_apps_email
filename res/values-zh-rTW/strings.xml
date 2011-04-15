@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"垃圾桶"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"寄件備份"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"垃圾郵件"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"所有資料夾"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"帳戶"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"收件匣"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"遠端安全性管理"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的一些安全性功能，您要結束這個帳戶的設定程序嗎？"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"您的 Android 裝置不支援這個伺服器所需的安全性功能。"</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"您無法變更帳戶的使用者名稱。如要使用其他使用者名稱新增帳戶，請輕觸 [新增帳戶]。"</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"警告：如果停用「電子郵件」應用程式的裝置管理權限，系統將刪除所有需要使用這項權限的「電子郵件」帳戶，以及帳戶中的所有電子郵件、聯絡人、日曆活動和其他資料。"</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"必須更新安全性"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"您必須更新 <xliff:g id="ACCOUNT">%s</xliff:g> 的安全性設定。"</string>
@@ -350,7 +352,7 @@
     <string name="account_settings_sync_email_summary" msgid="262964076412310990">"同步處理此帳戶的電子郵件"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"震動"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"收到電子郵件時震動提醒"</string>
-    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"永遠要"</string>
+    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"一律"</string>
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"靜音時才啟用"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"永遠不要"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"震動"</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"載入中..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"輕觸即可進行設定"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_title" msgid="353141588517762921">"電子郵件"</string>
+    <string name="search_hint" msgid="2200412192574686497">"搜尋電子郵件"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"信箱檢查回顧"</string>
 </resources>

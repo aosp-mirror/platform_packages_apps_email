@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Kuka"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Elküldve"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Spam"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Összes mappa"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Verzió: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Fiókok"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Beérkezett üzenetek"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Távoli biztonságkezelés"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"A(z) <xliff:g id="SERVER">%s</xliff:g> szerver engedélyt kér arra, hogy távolról vezérelhesse az Android-eszköz egyes biztonsági funkcióit. Befejezi a fiók konfigurálását?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"A szerver olyan biztonsági funkciókat követel meg, melyeket az Android-eszköz nem támogat."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"A fiók felhasználónevét nem lehet módosítani. Eltérő nevű fiók hozzáadásához érintse meg a Fiók hozzáadása elemet."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"FIGYELMEZTETÉS: ha kikapcsolja az E-mail alkalmazás azon jogosultságát, hogy felügyelje az eszközt, akkor törli az összes olyan E-mail fiókot, amelyhez szükség van az alkalmazásra; a fiókokkal együtt pedig törli az e-maileket, a névjegyeket, a naptári eseményeket és más adatokat is."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Biztonsági frissítés szükséges"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> a biztonsági beállítások frissítését igényli."</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Betöltés…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"A konfiguráláshoz érintse meg"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_title" msgid="353141588517762921">"E-mail"</string>
+    <string name="search_hint" msgid="2200412192574686497">"E-mail keresése"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Postafiók-ellenőrzés visszatekintés"</string>
 </resources>

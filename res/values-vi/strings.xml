@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Thùng rác"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Đã gửi"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Thư rác"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Tất cả thư mục"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Phiên bản: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Tài khoản"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Hộp thư đến"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Quản lý bảo mật từ xa"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Máy chủ <xliff:g id="SERVER">%s</xliff:g> yêu cầu bạn cho phép kiểm soát từ xa một số tính năng bảo mật của điện thoại Android của bạn. Bạn có muốn hoàn tất việc thiết lập tài khoản này không?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Máy chủ này yêu cầu tính năng bảo mật mà điện thoại Android của bạn không hỗ trợ."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Bạn không thể thay đổi tên người dùng của tài khoản. Để thêm tài khoản có tên người dùng khác, hãy chạm vào Thêm tài khoản."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"CẢNH BÁO: Vô hiệu hóa quyền quản lý điện thoại của bạn của ứng dụng Email sẽ xóa tất cả tài khoản Email yêu cầu quyền đó, cùng với email, địa chỉ liên hệ, sự kiện lịch và các dữ liệu khác."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Yêu cầu cập nhật bảo mật"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> yêu cầu bạn cập nhật cài đặt bảo mật của mình."</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Đang tải…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Chạm để định cấu hình"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_title" msgid="353141588517762921">"Email"</string>
+    <string name="search_hint" msgid="2200412192574686497">"Tìm kiếm email"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Xem lại kiểm tra hộp thư"</string>
 </resources>

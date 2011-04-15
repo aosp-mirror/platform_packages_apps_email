@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Papirkurv"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Sendt"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Junk"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Alle mapper"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Version: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Konti"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Indbakke"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Ekstern sikkerhedsadministration"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Serveren <xliff:g id="SERVER">%s</xliff:g> kræver, at du giver den tilladelse til eksternt at kontrollere nogle af Android-enhedens sikkerhedsfunktioner. Vil du afslutte opsætning af denne konto?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Denne server kræver sikkerhedsfunktioner, som Android-enheden ikke understøtter."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Du kan ikke ændre en kontos brugernavn. Hvis du vil tilføje en konto med et andet brugernavn, skal du trykke på Tilføj konto."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ADVARSEL: Hvis du deaktiverer programmet E-mails tilladelse til at administrere din enhed, slettes alle konti i E-mail, der kræver dette, sammen med alle e-mails, kontaktpersoner, kalenderbegivenheder og andre data på disse konti."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Sikkerhedsopdatering kræves"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> kræver, at du opdaterer dine sikkerhedsindstillinger."</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Indlæser..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Tryk for at konfigurere"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_title" msgid="353141588517762921">"E-mail"</string>
+    <string name="search_hint" msgid="2200412192574686497">"Søg i e-mail"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Tjek i indbakke"</string>
 </resources>

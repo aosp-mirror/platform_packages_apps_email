@@ -88,6 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Papelera"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Enviado"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"No solicitado"</string>
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Todas las carpetas"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Cuentas"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Bandeja de entrada"</string>
@@ -305,6 +306,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administración de seguridad remota"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"El servidor <xliff:g id="SERVER">%s</xliff:g> requiere tu permiso para controlar de forma remota algunas funciones de seguridad en tu dispositivo Android. ¿Deseas finalizar la configuración de esta cuenta?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Este servidor requiere funciones de seguridad que no son compatibles con tu dispositivo Android."</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"No puedes modificar el nombre de usuario de una cuenta. Para agregar una cuenta con un nombre de usuario diferente, toca Agregar cuenta."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"Advertencia: La desactivación de la autorización de la aplicación de correo electrónico para administrar el dispositivo eliminará todas las cuentas de correo electrónico que la requieran junto a los correos electrónicos, contactos y eventos de calendario, entre otros datos de éstas."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Se requiere actualización de seguridad"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> requiere que actualices tus configuraciones de seguridad."</string>
@@ -405,4 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Cargando…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Tocar para configurar"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
+    <string name="search_title" msgid="353141588517762921">"Dirección de correo electrónico"</string>
+    <string name="search_hint" msgid="2200412192574686497">"Buscar correo electrónico"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Control de mensajes antiguos de la casilla"</string>
 </resources>

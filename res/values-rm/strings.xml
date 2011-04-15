@@ -92,6 +92,8 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Chanaster da palpiri"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Tramess"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Nungiavischà"</string>
+    <!-- no translation found for mailbox_name_go_back (2886974252919886501) -->
+    <skip />
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versiun: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Contos"</string>
     <!-- outdated translation 5790553737870057607 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Chascha da brevs cumbinada"</string>
@@ -356,6 +358,8 @@
     <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
     <skip />
     <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Quest server dovra funcziuns da segirezza che Voss telefonin na sustegna betg."</string>
+    <!-- no translation found for account_setup_username_uneditable_error (9057508235700936322) -->
+    <skip />
     <!-- no translation found for disable_admin_warning (4940147098039352135) -->
     <skip />
     <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
@@ -495,5 +499,11 @@
     <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
     <skip />
     <!-- no translation found for more_than_999 (8704425397397918798) -->
+    <skip />
+    <!-- no translation found for search_title (353141588517762921) -->
+    <skip />
+    <!-- no translation found for search_hint (2200412192574686497) -->
+    <skip />
+    <!-- no translation found for mailbox_options_lookback_label (1207031465051138008) -->
     <skip />
 </resources>
