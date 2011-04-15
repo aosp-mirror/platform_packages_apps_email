@@ -25,8 +25,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Paint.Align;
-import android.graphics.Paint.FontMetricsInt;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Layout.Alignment;
@@ -38,7 +36,6 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
 import android.text.format.DateUtils;
-import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -56,6 +53,8 @@ public class MessageListItem extends View {
     /* package */ long mAccountId;
 
     private MessagesAdapter mAdapter;
+    private MessageListItemCoordinates mCoordinates;
+    private Context mContext;
 
     private boolean mDownEvent;
 
@@ -77,13 +76,11 @@ public class MessageListItem extends View {
         init(context);
     }
 
-    // We always show two lines of subject/snippet
-    private static final int MAX_SUBJECT_SNIPPET_LINES = 2;
     // Narrow mode shows sender/snippet and time/favorite stacked to save real estate; due to this,
     // it is also somewhat taller
-    private static final int MODE_NARROW = 1;
+    private static final int MODE_NARROW = MessageListItemCoordinates.NARROW_MODE;
     // Wide mode shows sender, snippet, time, and favorite spread out across the screen
-    private static final int MODE_WIDE = 2;
+    private static final int MODE_WIDE = MessageListItemCoordinates.WIDE_MODE;
     // Sentinel indicating that the view needs layout
     public static final int NEEDS_LAYOUT = -1;
 
@@ -96,7 +93,6 @@ public class MessageListItem extends View {
     private static Bitmap sInviteIcon;
     private static Bitmap sFavoriteIconOff;
     private static Bitmap sFavoriteIconOn;
-    private static int sFavoriteIconWidth;
     private static Bitmap sSelectedIconOn;
     private static Bitmap sSelectedIconOff;
     private static String sSubjectSnippetDivider;
@@ -105,6 +101,7 @@ public class MessageListItem extends View {
     public CharSequence mText;
     public CharSequence mSnippet;
     public String mSubject;
+    private StaticLayout mSubjectLayout;
     public boolean mRead;
     public long mTimestamp;
     public boolean mHasAttachment = false;
@@ -117,31 +114,10 @@ public class MessageListItem extends View {
 
     private int mViewWidth = 0;
     private int mViewHeight = 0;
-    private int mSenderSnippetWidth;
-    private int mSnippetWidth;
-    private int mDateFaveWidth;
 
-    private static int sCheckboxHitWidth;
-    private static int sDateIconWidthWide;
-    private static int sDateIconWidthNarrow;
-    private static int sFavoriteHitWidth;
-    private static int sFavoritePaddingRight;
-    private static int sBadgePaddingTop;
-    private static int sBadgePaddingRight;
-    private static int sSenderPaddingTopNarrow;
-    private static int sSenderWidth;
-    private static int sPaddingLarge;
-    private static int sPaddingVerySmall;
-    private static int sPaddingSmall;
-    private static int sPaddingMedium;
     private static int sTextSize;
     private static int sItemHeightWide;
     private static int sItemHeightNarrow;
-    private static int sMinimumWidthWideMode;
-    private static int sColorTipWidth;
-    private static int sColorTipHeight;
-    private static int sColorTipRightMarginOnNarrow;
-    private static int sColorTipRightMarginOnWide;
 
     // Note: these cannot be shared Drawables because they are selectors which have state.
     private Drawable mReadSelector;
@@ -150,66 +126,28 @@ public class MessageListItem extends View {
     private Drawable mWideUnreadSelector;
 
     public int mSnippetLineCount = NEEDS_LAYOUT;
-    private final CharSequence[] mSnippetLines = new CharSequence[MAX_SUBJECT_SNIPPET_LINES];
     private CharSequence mFormattedSender;
     private CharSequence mFormattedDate;
 
     private void init(Context context) {
+        mContext = context;
         if (!sInit) {
             Resources r = context.getResources();
             sSubjectSnippetDivider = r.getString(R.string.message_list_subject_snippet_divider);
-            sCheckboxHitWidth =
-                r.getDimensionPixelSize(R.dimen.message_list_item_checkbox_hit_width);
-            sFavoriteHitWidth =
-                r.getDimensionPixelSize(R.dimen.message_list_item_favorite_hit_width);
-            sFavoritePaddingRight =
-                r.getDimensionPixelSize(R.dimen.message_list_item_favorite_padding_right);
-            sBadgePaddingTop =
-                r.getDimensionPixelSize(R.dimen.message_list_item_badge_padding_top);
-            sBadgePaddingRight =
-                r.getDimensionPixelSize(R.dimen.message_list_item_badge_padding_right);
-            sSenderPaddingTopNarrow =
-                r.getDimensionPixelSize(R.dimen.message_list_item_sender_padding_top_narrow);
-            sDateIconWidthWide =
-                r.getDimensionPixelSize(R.dimen.message_list_item_date_icon_width_wide);
-            sDateIconWidthNarrow =
-                r.getDimensionPixelSize(R.dimen.message_list_item_date_icon_width_narrow);
-            sSenderWidth =
-                r.getDimensionPixelSize(R.dimen.message_list_item_sender_width);
-            sPaddingLarge =
-                r.getDimensionPixelSize(R.dimen.message_list_item_padding_large);
-            sPaddingMedium =
-                r.getDimensionPixelSize(R.dimen.message_list_item_padding_medium);
-            sPaddingSmall =
-                r.getDimensionPixelSize(R.dimen.message_list_item_padding_small);
-            sPaddingVerySmall =
-                r.getDimensionPixelSize(R.dimen.message_list_item_padding_very_small);
             sTextSize =
                 r.getDimensionPixelSize(R.dimen.message_list_item_text_size);
             sItemHeightWide =
                 r.getDimensionPixelSize(R.dimen.message_list_item_height_wide);
             sItemHeightNarrow =
                 r.getDimensionPixelSize(R.dimen.message_list_item_height_narrow);
-            sMinimumWidthWideMode =
-                r.getDimensionPixelSize(R.dimen.message_list_item_minimum_width_wide_mode);
-            sColorTipWidth =
-                r.getDimensionPixelSize(R.dimen.message_list_item_color_tip_width);
-            sColorTipHeight =
-                r.getDimensionPixelSize(R.dimen.message_list_item_color_tip_height);
-            sColorTipRightMarginOnNarrow =
-                r.getDimensionPixelSize(R.dimen.message_list_item_color_tip_right_margin_on_narrow);
-            sColorTipRightMarginOnWide =
-                r.getDimensionPixelSize(R.dimen.message_list_item_color_tip_right_margin_on_wide);
 
             sDefaultPaint.setTypeface(Typeface.DEFAULT);
             sDefaultPaint.setTextSize(sTextSize);
             sDefaultPaint.setAntiAlias(true);
             sDatePaint.setTypeface(Typeface.DEFAULT);
-            sDatePaint.setTextSize(sTextSize - 1);
             sDatePaint.setAntiAlias(true);
-            sDatePaint.setTextAlign(Align.RIGHT);
-            sBoldPaint.setTypeface(Typeface.DEFAULT_BOLD);
             sBoldPaint.setTextSize(sTextSize);
+            sBoldPaint.setTypeface(Typeface.DEFAULT_BOLD);
             sBoldPaint.setAntiAlias(true);
             sHighlightPaint.setColor(TextUtilities.HIGHLIGHT_COLOR_INT);
             sAttachmentIcon = BitmapFactory.decodeResource(r, R.drawable.ic_badge_attachment);
@@ -223,7 +161,6 @@ public class MessageListItem extends View {
             sSelectedIconOn =
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_on_normal_holo_light);
 
-            sFavoriteIconWidth = sFavoriteIconOff.getWidth();
             sInit = true;
         }
     }
@@ -235,16 +172,12 @@ public class MessageListItem extends View {
      * @return The mode of the view
      */
     private int getViewMode(int width) {
-        int mode = MODE_NARROW;
-        if (width > sMinimumWidthWideMode) {
-            mode = MODE_WIDE;
-        }
-        return mode;
+        return MessageListItemCoordinates.getMode(mContext, width);
     }
 
     private Drawable mCurentBackground = null; // Only used by updateBackground()
 
-    /* package */ void updateBackground() {
+    private void updateBackground() {
         final Drawable newBackground;
         if (mRead) {
             if (mMode == MODE_WIDE) {
@@ -300,43 +233,19 @@ public class MessageListItem extends View {
         }
         mText = ssb;
 
-        if (mMode == MODE_WIDE) {
-            mDateFaveWidth = sFavoriteHitWidth + sDateIconWidthWide;
-        } else {
-            mDateFaveWidth = sDateIconWidthNarrow;
-        }
-        mSenderSnippetWidth = mViewWidth - mDateFaveWidth - sCheckboxHitWidth;
-
-        // In wide mode, we use 3/4 for snippet and 1/4 for sender
-        mSnippetWidth = mSenderSnippetWidth;
-        if (mMode == MODE_WIDE) {
-            mSnippetWidth = mSenderSnippetWidth - sSenderWidth - sPaddingLarge;
-        }
-
-        // Create a StaticLayout with our snippet to get the line breaks
-        StaticLayout layout = new StaticLayout(mText, 0, mText.length(), sDefaultPaint,
-                mSnippetWidth, Alignment.ALIGN_NORMAL, 1, 0, true);
-        // Get the number of lines needed to render the whole snippet
-        mSnippetLineCount = layout.getLineCount();
-        // Go through our maximum number of lines, and save away what we'll end up displaying
-        // for those lines
-        for (int i = 0; i < MAX_SUBJECT_SNIPPET_LINES; i++) {
-            int start = layout.getLineStart(i);
-            if (i == MAX_SUBJECT_SNIPPET_LINES - 1) {
-                int end = mText.length();
-                if (start > end) continue;
-                // For the final line, ellipsize the text to our width
-                mSnippetLines[i] = TextUtils.ellipsize(mText.subSequence(start, end), sDefaultPaint,
-                        mSnippetWidth, TruncateAt.END);
-            } else {
-                // Just extract from start to end
-                mSnippetLines[i] = mText.subSequence(start, layout.getLineEnd(i));
-            }
+        sDefaultPaint.setTextSize(mCoordinates.subjectFontSize);
+        mSubjectLayout = new StaticLayout(mText, sDefaultPaint,
+                mCoordinates.subjectWidth, Alignment.ALIGN_NORMAL, 1, 0, true);
+        if (mCoordinates.subjectLineCount < mSubjectLayout.getLineCount()) {
+            // TODO: ellipsize.
+            int end = mSubjectLayout.getLineEnd(mCoordinates.subjectLineCount - 1);
+            mSubjectLayout = new StaticLayout(mText.subSequence(0, end),
+                    sDefaultPaint, mCoordinates.subjectWidth, Alignment.ALIGN_NORMAL, 1, 0, true);
         }
 
         // Now, format the sender for its width
         TextPaint senderPaint = mRead ? sDefaultPaint : sBoldPaint;
-        int senderWidth = (mMode == MODE_WIDE) ? sSenderWidth : mSenderSnippetWidth;
+        int senderWidth = mCoordinates.sendersWidth;
         // And get the ellipsized string for the calculated width
         if (TextUtils.isEmpty(mSender)) {
             mFormattedSender = "";
@@ -345,9 +254,7 @@ public class MessageListItem extends View {
                     TruncateAt.END);
         }
         // Get a nicely formatted date string (relative to today)
-        String date = DateUtils.getRelativeTimeSpanString(getContext(), mTimestamp).toString();
-        // And make it fit to our size
-        mFormattedDate = TextUtils.ellipsize(date, sDatePaint, sDateIconWidthWide, TruncateAt.END);
+        mFormattedDate = DateUtils.getRelativeTimeSpanString(getContext(), mTimestamp).toString();
     }
 
     @Override
@@ -405,132 +312,71 @@ public class MessageListItem extends View {
     }
 
     @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+
+        mCoordinates = MessageListItemCoordinates.forWidth(mContext, mViewWidth);
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         if (mSnippetLineCount == NEEDS_LAYOUT) {
             calculateDrawingData();
         }
-        // Snippet starts at right of checkbox
-        int snippetX = sCheckboxHitWidth;
-        int snippetY;
-        int lineHeight = (int)sDefaultPaint.getFontSpacing() + sPaddingVerySmall;
-        FontMetricsInt fontMetrics = sDefaultPaint.getFontMetricsInt();
-        int ascent = fontMetrics.ascent;
-        int descent = fontMetrics.descent;
-        int senderY;
 
-        if (mMode == MODE_WIDE) {
-            // Get the right starting point for the snippet
-            snippetX += sSenderWidth + sPaddingLarge;
-            // And center the sender and snippet
-            senderY = (mViewHeight - descent - ascent) / 2;
-            snippetY = ((mViewHeight - (2 * lineHeight)) / 2) - ascent;
-        } else {
-            senderY = -ascent + sSenderPaddingTopNarrow;
-            snippetY = senderY + lineHeight + sPaddingVerySmall;
-        }
-
-        // Draw the color chip
+        // Draw the color chip indicating the mailbox this belongs to
         if (mColorChipPaint != null) {
-            final int rightMargin = (mMode == MODE_WIDE)
-                    ? sColorTipRightMarginOnWide : sColorTipRightMarginOnNarrow;
-            final int x = mViewWidth - rightMargin - sColorTipWidth;
-            canvas.drawRect(x, 0, x + sColorTipWidth, sColorTipHeight, mColorChipPaint);
+            canvas.drawRect(
+                    mCoordinates.chipX, mCoordinates.chipY,
+                    mCoordinates.chipX + mCoordinates.chipWidth,
+                    mCoordinates.chipY + mCoordinates.chipHeight,
+                    mColorChipPaint);
         }
 
         // Draw the checkbox
-        int checkboxLeft = (sCheckboxHitWidth - sSelectedIconOff.getWidth()) / 2;
-        int checkboxTop = (mViewHeight - sSelectedIconOff.getHeight()) / 2;
         canvas.drawBitmap(mAdapter.isSelected(this) ? sSelectedIconOn : sSelectedIconOff,
-                checkboxLeft, checkboxTop, sDefaultPaint);
+                mCoordinates.checkmarkX, mCoordinates.checkmarkY, sDefaultPaint);
 
         // Draw the sender name
-        canvas.drawText(mFormattedSender, 0, mFormattedSender.length(), sCheckboxHitWidth, senderY,
+        canvas.drawText(mFormattedSender, 0, mFormattedSender.length(),
+                mCoordinates.sendersX, mCoordinates.sendersY - mCoordinates.sendersAscent,
                 mRead ? sDefaultPaint : sBoldPaint);
 
-        // Draw each of the snippet lines
-        for (int i = 0; i < MAX_SUBJECT_SNIPPET_LINES && i < mSnippetLineCount; i++) {
-            CharSequence line = mSnippetLines[i];
-            int drawX = snippetX;
-            if (line != null) {
-                SpannableStringBuilder ssb = (SpannableStringBuilder)line;
-                Object[] spans = ssb.getSpans(0, line.length(), Object.class);
-                int curr = 0;
-                for (Object span: spans) {
-                    if (span != null) {
-                        int spanStart = ssb.getSpanStart(span);
-                        int spanEnd = ssb.getSpanEnd(span);
-                        if (curr < spanStart) {
-                            canvas.drawText(line, curr, spanStart, drawX, snippetY, sDefaultPaint);
-                            drawX += sDefaultPaint.measureText(line, curr, spanStart);
-                        }
-                        TextPaint spanPaint =
-                            (span instanceof StyleSpan) ? sBoldPaint : sDefaultPaint;
-                        float textWidth = spanPaint.measureText(line, spanStart, spanEnd);
-                        if (span instanceof BackgroundColorSpan) {
-                            canvas.drawRect(drawX, snippetY + ascent, drawX + textWidth,
-                                    snippetY + descent, sHighlightPaint);
-                        }
-                        canvas.drawText(line, spanStart, spanEnd, drawX, snippetY, spanPaint);
-                        drawX += textWidth;
-                        curr = spanEnd;
-                    }
-                }
-                canvas.drawText(line, curr, line.length(), drawX, snippetY, sDefaultPaint);
-                snippetY += lineHeight;
-            }
-        }
-
-        // Draw the attachment and invite icons, if necessary
-        int datePaddingRight;
-        if (mMode == MODE_WIDE) {
-            datePaddingRight = sFavoriteHitWidth;
-        } else {
-            datePaddingRight = sPaddingLarge;
-        }
-        int left = mViewWidth - datePaddingRight - (int)sDefaultPaint.measureText(mFormattedDate,
-                0, mFormattedDate.length()) - sPaddingMedium;
-
-        int iconTop;
-        if (mHasAttachment) {
-            left -= sAttachmentIcon.getWidth();
-            if (mMode == MODE_WIDE) {
-                iconTop = (mViewHeight - sAttachmentIcon.getHeight()) / 2;
-                left -= sPaddingSmall;
-            } else {
-                iconTop = senderY - sAttachmentIcon.getHeight() + sBadgePaddingTop;
-                left -= sBadgePaddingRight;
-            }
-            canvas.drawBitmap(sAttachmentIcon, left, iconTop, sDefaultPaint);
-        }
-        if (mHasInvite) {
-            left -= sInviteIcon.getWidth();
-            if (mMode == MODE_WIDE) {
-                iconTop = (mViewHeight - sInviteIcon.getHeight()) / 2;
-                left -= sPaddingSmall;
-            } else {
-                iconTop = senderY - sInviteIcon.getHeight() + sBadgePaddingTop;
-                left -= sBadgePaddingRight;
-            }
-            canvas.drawBitmap(sInviteIcon, left, iconTop, sDefaultPaint);
-        }
+        // Subject and snippet.
+        sDefaultPaint.setTextSize(mCoordinates.subjectFontSize);
+        sDefaultPaint.setTypeface(Typeface.DEFAULT);
+        canvas.save();
+        canvas.translate(
+                mCoordinates.subjectX,
+                mCoordinates.subjectY);
+        mSubjectLayout.draw(canvas);
+        canvas.restore();
 
         // Draw the date
-        canvas.drawText(mFormattedDate, 0, mFormattedDate.length(), mViewWidth - datePaddingRight,
-                senderY, sDatePaint);
+        sDatePaint.setTextSize(mCoordinates.dateFontSize);
+        int dateX = mCoordinates.dateXEnd
+                - (int) sDatePaint.measureText(mFormattedDate, 0, mFormattedDate.length());
+
+        canvas.drawText(mFormattedDate, 0, mFormattedDate.length(),
+                dateX, mCoordinates.dateY - mCoordinates.dateAscent, sDatePaint);
 
         // Draw the favorite icon
-        int faveLeft = mViewWidth - sFavoriteIconWidth;
-        if (mMode == MODE_WIDE) {
-            faveLeft -= sFavoritePaddingRight;
-        } else {
-            faveLeft -= sPaddingLarge;
+        canvas.drawBitmap(mIsFavorite ? sFavoriteIconOn : sFavoriteIconOff,
+                mCoordinates.starX, mCoordinates.starY, sDefaultPaint);
+
+        // TODO: deal with the icon layouts better from the coordinate class so that this logic
+        // doesn't have to exist.
+        // Draw the attachment and invite icons, if necessary.
+        int iconsLeft = dateX;
+        if (mHasAttachment) {
+            iconsLeft = iconsLeft - sAttachmentIcon.getWidth();
+            canvas.drawBitmap(sAttachmentIcon, iconsLeft, mCoordinates.paperclipY, sDefaultPaint);
         }
-        int faveTop = (mViewHeight - sFavoriteIconOff.getHeight()) / 2;
-        if (mMode == MODE_NARROW) {
-            faveTop += sSenderPaddingTopNarrow;
+        if (mHasInvite) {
+            iconsLeft -= sInviteIcon.getWidth();
+            canvas.drawBitmap(sInviteIcon, iconsLeft, mCoordinates.paperclipY, sDefaultPaint);
         }
-        canvas.drawBitmap(mIsFavorite ? sFavoriteIconOn : sFavoriteIconOff, faveLeft, faveTop,
-                sDefaultPaint);
+
     }
 
     /**
@@ -550,8 +396,8 @@ public class MessageListItem extends View {
     public boolean onTouchEvent(MotionEvent event) {
         boolean handled = false;
         int touchX = (int) event.getX();
-        int checkRight = sCheckboxHitWidth;
-        int starLeft = mViewWidth - sFavoriteHitWidth;
+        int checkRight = mCoordinates.checkmarkWidthIncludingMargins;
+        int starLeft = mViewWidth - mCoordinates.starWidthIncludingMargins;
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:

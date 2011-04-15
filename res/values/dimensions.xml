@@ -19,26 +19,10 @@
 <resources>
     <dimen name="button_minWidth">100sp</dimen>
     <dimen name="message_list_item_text_size">16dip</dimen>
-    <dimen name="message_list_item_checkbox_hit_width">64dip</dimen>
-    <dimen name="message_list_item_favorite_hit_width">64dip</dimen>
-    <dimen name="message_list_item_favorite_padding_right">16dip</dimen>
-    <dimen name="message_list_item_badge_padding_top">8dip</dimen>
-    <dimen name="message_list_item_badge_padding_right">-8dip</dimen>
-    <dimen name="message_list_item_date_icon_width_wide">144dip</dimen>
-    <dimen name="message_list_item_date_icon_width_narrow">112dip</dimen>
-    <dimen name="message_list_item_sender_padding_top_narrow">10dip</dimen>
-    <dimen name="message_list_item_sender_width">200dip</dimen>
-    <dimen name="message_list_item_padding_large">32dip</dimen>
-    <dimen name="message_list_item_padding_medium">6dip</dimen>
-    <dimen name="message_list_item_padding_small">4dip</dimen>
-    <dimen name="message_list_item_padding_very_small">2dip</dimen>
     <dimen name="message_list_item_height_wide">64dip</dimen>
     <dimen name="message_list_item_height_narrow">80dip</dimen>
-    <dimen name="message_list_item_minimum_width_wide_mode">720dip</dimen>
     <dimen name="message_list_item_color_tip_width">35dip</dimen>
     <dimen name="message_list_item_color_tip_height">8dip</dimen>
-    <dimen name="message_list_item_color_tip_right_margin_on_narrow">32dip</dimen>
-    <dimen name="message_list_item_color_tip_right_margin_on_wide">65dip</dimen>
 
     <dimen name="error_message_height">48dip</dimen>
 
@@ -71,4 +55,11 @@
 
     <dimen name="account_spinner_dropdown_account_name_max_width">352dip</dimen>
 
+    <!-- MessageListItem -->
+    <dimen name="senders_font_size">14sp</dimen>
+    <dimen name="wide_senders_font_size">16sp</dimen>
+    <dimen name="subject_font_size">16sp</dimen>
+    <dimen name="date_font_size">14sp</dimen>
+    <dimen name="minimum_width_wide_mode">800dip</dimen>
+    <dimen name="minimum_width_normal_mode">550dip</dimen>
 </resources>
