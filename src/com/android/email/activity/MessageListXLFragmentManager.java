@@ -37,8 +37,6 @@ import java.util.Set;
  * A class manages what are showing on {@link MessageListXL} (i.e. account id, mailbox id, and
  * message id), and show/hide fragments accordingly.
  *
- * TODO Highlight selected message on message list
- *
  * TODO: Test it.  It's testable if we implement MockFragmentTransaction, which may be too early
  * to do so at this point.  (API may not be stable enough yet.)
  *
@@ -152,7 +150,14 @@ class MessageListXLFragmentManager implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager#onMailboxNotFound()");
         }
-        // Shouldn't happen
+        // TODO: handle more gracefully.
+        Log.e(Logging.LOG_TAG, "unable to find mailbox for account " + accountId);
+    }
+
+    @Override
+    public void onMailboxNotFound() {
+        // TODO: handle more gracefully.
+        Log.e(Logging.LOG_TAG, "unable to find mailbox");
     }
 
     // MoveMessageToDialog$Callback
@@ -207,11 +212,6 @@ class MessageListXLFragmentManager implements
         } else {
             selectMessage(messageId);
         }
-    }
-
-    @Override
-    public void onMailboxNotFound() {
-        // TODO: What to do??
     }
 
     @Override
@@ -652,11 +652,9 @@ class MessageListXLFragmentManager implements
         switch (Preferences.getPreferences(mActivity).getAutoAdvanceDirection()) {
             case Preferences.AUTO_ADVANCE_NEWER:
                 if (moveToNewer()) return;
-                if (moveToOlder()) return;
                 break;
             case Preferences.AUTO_ADVANCE_OLDER:
                 if (moveToOlder()) return;
-                if (moveToNewer()) return;
                 break;
         }
         // Last message in the box or AUTO_ADVANCE_MESSAGE_LIST.  Go back to message list.
