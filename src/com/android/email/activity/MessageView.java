@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
+import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
@@ -169,7 +170,8 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
         // the delete triggers mCursorObserver in MessageOrderManager.
         // first move to older/newer before the actual delete
         long messageIdToDelete = mMessageId;
-        boolean moved = moveToOlder() || moveToNewer(); // TODO use "auto-advance" preference
+
+        boolean moved = autoAdvance();
         ActivityHelper.deleteMessage(this, messageIdToDelete);
         if (!moved) {
             // this generates a benign warning "Duplicate finish request" because
@@ -177,6 +179,22 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
             // in the onMessageNotFound() callback.
             finish();
         }
+    }
+
+    /**
+     * Auto-advances the message being shown according to the auto-advance policy set in preferences
+     * @return Whether or not a new message was selected. This will return false either if there are
+     *     no appropriate messages to advance to, or if the preferences indicate we should not
+     *     auto-advance
+     */
+    private boolean autoAdvance() {
+        switch (Preferences.getPreferences(this).getAutoAdvanceDirection()) {
+            case Preferences.AUTO_ADVANCE_NEWER:
+                return moveToNewer();
+            case Preferences.AUTO_ADVANCE_OLDER:
+                return moveToOlder();
+        }
+        return false;
     }
 
     private boolean moveToOlder() {
@@ -258,7 +276,9 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
 
     @Override
     public void onMessageSetUnread() {
-        finish();
+        if (!autoAdvance()) {
+            finish();
+        }
     }
 
     private void enableForwardReply(boolean enabled) {
@@ -319,9 +339,8 @@ public class MessageView extends MessageViewBase implements View.OnClickListener
 
     @Override
     public void onRespondedToInvite(int response) {
-        // TODO use "auto-advance" preference
-        if (!moveToOlder()) {
-            finish(); // if this is the last message, move up to message-list.
+        if (!autoAdvance()) {
+            finish();
         }
     }
 
