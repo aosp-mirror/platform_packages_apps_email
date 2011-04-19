@@ -84,7 +84,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
 
     /* These values are provided by setUp() */
     private ImapStore mStore = null;
-    private ImapStore.ImapFolder mFolder = null;
+    private ImapFolder mFolder = null;
 
     private int mNextTag;
     // Fields specific to the CopyMessages tests
@@ -103,7 +103,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // These are needed so we can get at the inner classes
         mStore = (ImapStore) ImapStore.newInstance("imap://user:password@server:999",
                 getContext(), null);
-        mFolder = (ImapStore.ImapFolder) mStore.getFolder(FOLDER_NAME);
+        mFolder = (ImapFolder) mStore.getFolder(FOLDER_NAME);
         mNextTag = 1;
     }
 
