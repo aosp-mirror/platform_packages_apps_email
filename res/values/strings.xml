@@ -1093,4 +1093,8 @@ save attachment.</string>
     <string name="mailbox_options_check_frequency_label">Mailbox check frequency</string>
     <!-- In Mailbox setings, label for email check lookback selector -->
     <string name="mailbox_options_lookback_label">Mailbox check lookback</string>
+
+    <!-- A long placeholder string to be used in template XML files message_list_item_*.xml.
+         Used only in layout computation, and never actually exposed to the user. -->
+    <string name="long_string" translatable="false">looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong</string>
 </resources>
