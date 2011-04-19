@@ -406,6 +406,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     private void restoreInstanceState(Bundle state) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MessageViewFragment restoreInstanceState");
+        }
         // At this point (in onCreate) no tabs are visible (because we don't know if the message has
         // an attachment or invite before loading it).  We just remember the tab here.
         // We'll make it current when the tab first becomes visible in updateTabs().
@@ -454,7 +457,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     /**
      * Clear all the content -- should be called when the fragment is hidden.
      */
-    public void clearContent() {
+    protected void clearContent() {
         cancelAllTasks();
         resetView();
     }

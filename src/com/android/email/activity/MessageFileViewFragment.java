@@ -81,7 +81,7 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
     }
 
     @Override
-    public void clearContent() {
+    protected void clearContent() {
         super.clearContent();
     }
 

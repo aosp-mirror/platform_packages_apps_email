@@ -51,6 +51,9 @@ import java.security.InvalidParameterException;
  */
 public class MessageViewFragment extends MessageViewFragmentBase
         implements CheckBox.OnCheckedChangeListener {
+    /** Argument name(s) */
+    private static final String ARG_MESSAGE_ID = "messageId";
+
     private ImageView mFavoriteIcon;
     private View mInviteSection;
 
@@ -136,6 +139,17 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
     private Callback mCallback = EmptyCallback.INSTANCE;
 
+    /**
+     * Create a new instance with initialization parameters.
+     */
+    public static MessageViewFragment newInstance(long messageId) {
+        final MessageViewFragment instance = new MessageViewFragment();
+        final Bundle args = new Bundle();
+        args.putLong(ARG_MESSAGE_ID, messageId);
+        instance.setArguments(args);
+        return instance;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -177,6 +191,14 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        final Bundle args = getArguments();
+        openMessage(args.getLong(ARG_MESSAGE_ID));
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
     }
@@ -200,7 +222,8 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     /** Called by activities to set an id of a message to open. */
-    public void openMessage(long messageId) {
+    // STOPSHIP Make it private once phone activities are gone
+    void openMessage(long messageId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageViewFragment openMessage");
         }
@@ -214,7 +237,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     @Override
-    public void clearContent() {
+    protected void clearContent() {
         synchronized (mLock) {
             super.clearContent();
             mMessageIdToOpen = -1;

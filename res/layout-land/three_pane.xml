@@ -23,8 +23,7 @@
     android:splitMotionEvents="true"
     >
 
-    <fragment
-        android:name="com.android.email.activity.MailboxListFragment"
+    <FrameLayout
         android:id="@+id/left_pane"
         android:layout_width="0dip"
         android:layout_height="match_parent"
@@ -34,8 +33,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
-        <fragment
-            android:name="com.android.email.activity.MessageListFragment"
+        <FrameLayout
             android:id="@+id/middle_pane"
             android:layout_width="0dip"
             android:layout_height="0dip"
@@ -46,8 +44,7 @@
             android:id="@+id/message_command_buttons"
             />
     </LinearLayout>
-    <fragment
-        android:name="com.android.email.activity.MessageViewFragment"
+    <FrameLayout
         android:id="@+id/right_pane"
         android:layout_width="0dip"
         android:layout_height="match_parent"

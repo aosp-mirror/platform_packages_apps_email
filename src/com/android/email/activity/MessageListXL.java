@@ -38,6 +38,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Fragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.app.SearchManager;
 import android.content.ContentResolver;
@@ -64,6 +65,8 @@ import java.security.InvalidParameterException;
  * The main activity for multi-pane UIs. The <code>MessageListXL</code> class is responsible
  * for managing the "chrome" area of the screen; which primarily includes the action bar.
  * The rest of the content area is managed by a fragment manager.
+ *
+ * TODO: Fixit: Current account resets to default on screen rotation.
  */
 public class MessageListXL extends Activity implements MessageListXLFragmentManager.TargetActivity,
         View.OnClickListener {
@@ -174,7 +177,7 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         mAccountsSelectorAdapter = new AccountSelectorAdapter(this, null);
 
         if (savedInstanceState != null) {
-            mFragmentManager.loadState(savedInstanceState);
+            mFragmentManager.restoreInstanceState(savedInstanceState);
         } else {
             initFromIntent();
         }
@@ -213,6 +216,8 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         mControllerResult = new ControllerResultUiThreadWrapper<ControllerResult>(new Handler(),
                 new ControllerResult());
         mController.addResultCallback(mControllerResult);
+
+        mFragmentManager.onActivityCreated();
     }
 
     private void initFromIntent() {
@@ -236,6 +241,15 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         }
         super.onSaveInstanceState(outState);
         mFragmentManager.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MessageListXL onAttachFragment fragment=" + fragment);
+        }
+        super.onAttachFragment(fragment);
+        mFragmentManager.onAttachFragment(fragment);
     }
 
     @Override
