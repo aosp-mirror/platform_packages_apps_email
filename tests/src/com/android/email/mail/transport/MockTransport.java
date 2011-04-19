@@ -204,11 +204,8 @@ public class MockTransport implements Transport {
         mPairs.clear();
     }
 
-    /**
-     * This is a test function (not part of the interface) and is used to set up a result
-     * value for getHost(), if needed for the test.
-     */
-    public void setMockHost(String host) {
+    @Override
+    public void setHost(String host) {
         mHost = host;
     }
 
@@ -239,6 +236,11 @@ public class MockTransport implements Transport {
         return new MockOutputStream();
     }
 
+    @Override
+    public void setPort(int port) {
+        SmtpSenderUnitTests.fail("setPort() not implemented");
+    }
+
     public int getPort() {
         SmtpSenderUnitTests.fail("getPort() not implemented");
         return 0;
@@ -248,6 +250,7 @@ public class MockTransport implements Transport {
         return mConnectionSecurity;
     }
 
+    @Deprecated
     public String[] getUserInfoParts() {
         SmtpSenderUnitTests.fail("getUserInfoParts() not implemented");
         return null;
@@ -315,6 +318,7 @@ public class MockTransport implements Transport {
     public void setSoTimeout(int timeoutMilliseconds) /* throws SocketException */ {
     }
 
+    @Deprecated
     public void setUri(URI uri, int defaultPort) {
         SmtpSenderUnitTests.assertTrue("Don't call setUri on a mock transport", false);
     }

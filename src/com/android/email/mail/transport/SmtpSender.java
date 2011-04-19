@@ -40,6 +40,7 @@ import javax.net.ssl.SSLException;
 
 /**
  * This class handles all of the protocol-level aspects of sending messages via SMTP.
+ * TODO Remove dependence upon URI; there's no reason why we need it here
  */
 public class SmtpSender extends Sender {
 
@@ -65,6 +66,7 @@ public class SmtpSender extends Sender {
      *
      * @param uriString the Uri containing information to configure this sender
      */
+    @SuppressWarnings("deprecation")
     private SmtpSender(Context context, String uriString) throws MessagingException {
         mContext = context;
         URI uri;

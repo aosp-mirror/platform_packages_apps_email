@@ -13,8 +13,13 @@
   public *** newInstance(android.content.Context, java.lang.String);
 }
 
+# TODO remove after converting Sender#instantiateSender() to use Account instead of URI
 -keepclasseswithmembers class * {
   public *** newInstance(java.lang.String, android.content.Context, com.android.email.mail.Store$PersistentDataCallbacks);
+}
+
+-keepclasseswithmembers class * {
+  public *** newInstance(com.android.emailcommon.provider.EmailContent$Account, android.content.Context, com.android.email.mail.Store$PersistentDataCallbacks);
 }
 
 -keepclasseswithmembers class android.content.SharedPreferences$Editor {
@@ -144,7 +149,7 @@
   *** setTransport(com.android.email.mail.Transport);
 }
 
--keepclasseswithmembers class com.android.email.mail.store.ImapStore$ImapFolder {
+-keepclasseswithmembers class com.android.email.mail.store.ImapFolder {
   *** getMessages(int, int, com.android.emailcommon.mail.Folder$MessageRetrievalListener);
   *** getMessages(com.android.emailcommon.mail.Folder$MessageRetrievalListener);
   *** getMessages(java.lang.String[], com.android.emailcommon.mail.Folder$MessageRetrievalListener);

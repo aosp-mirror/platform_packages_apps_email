@@ -37,6 +37,8 @@ import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.Utility;
 import com.beetstra.jutf7.CharsetProvider;
@@ -51,8 +53,6 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -130,66 +130,53 @@ public class ImapStore extends Store {
     /**
      * Static named constructor.
      */
-    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
-            throws MessagingException {
-        return new ImapStore(context, uri);
+    public static Store newInstance(Account account, Context context,
+            PersistentDataCallbacks callbacks) throws MessagingException {
+        return new ImapStore(context, account);
     }
 
     /**
-     * Allowed formats for the Uri:
-     * imap://user:password@server:port
-     * imap+tls+://user:password@server:port
-     * imap+tls+trustallcerts://user:password@server:port
-     * imap+ssl+://user:password@server:port
-     * imap+ssl+trustallcerts://user:password@server:port
-     *
-     * @param uriString the Uri containing information to configure this store
+     * Creates a new store for the given account.
      */
-    private ImapStore(Context context, String uriString) throws MessagingException {
+    private ImapStore(Context context, Account account) throws MessagingException {
         mContext = context;
-        URI uri;
-        try {
-            uri = new URI(uriString);
-        } catch (URISyntaxException use) {
-            throw new MessagingException("Invalid ImapStore URI", use);
-        }
 
-        String scheme = uri.getScheme();
-        if (scheme == null || !scheme.startsWith(STORE_SCHEME_IMAP)) {
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
+        if (recvAuth == null || !STORE_SCHEME_IMAP.equalsIgnoreCase(recvAuth.mProtocol)) {
             throw new MessagingException("Unsupported protocol");
         }
         // defaults, which can be changed by security modifiers
         int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
         int defaultPort = 143;
-        // check for security modifiers and apply changes
-        if (scheme.contains("+ssl")) {
+
+        // check for security flags and apply changes
+        if ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
             connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
             defaultPort = 993;
-        } else if (scheme.contains("+tls")) {
+        } else if ((recvAuth.mFlags & HostAuth.FLAG_TLS) != 0) {
             connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
         }
-        boolean trustCertificates = scheme.contains(STORE_SECURITY_TRUST_CERTIFICATES);
-
+        boolean trustCertificates = ((recvAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0);
+        int port = defaultPort;
+        if (recvAuth.mPort != HostAuth.PORT_UNKNOWN) {
+            port = recvAuth.mPort;
+        }
         mRootTransport = new MailTransport("IMAP");
-        mRootTransport.setUri(uri, defaultPort);
+        mRootTransport.setHost(recvAuth.mAddress);
+        mRootTransport.setPort(port);
         mRootTransport.setSecurity(connectionSecurity, trustCertificates);
 
-        String[] userInfoParts = mRootTransport.getUserInfoParts();
+        String[] userInfoParts = recvAuth.getLogin();
         if (userInfoParts != null) {
             mUsername = userInfoParts[0];
-            if (userInfoParts.length > 1) {
-                mPassword = userInfoParts[1];
+            mPassword = userInfoParts[1];
 
-                // build the LOGIN string once (instead of over-and-over again.)
-                // apply the quoting here around the built-up password
-                mLoginPhrase = ImapConstants.LOGIN + " " + mUsername + " "
-                        + ImapUtility.imapQuoted(mPassword);
-            }
+            // build the LOGIN string once (instead of over-and-over again.)
+            // apply the quoting here around the built-up password
+            mLoginPhrase = ImapConstants.LOGIN + " " + mUsername + " "
+                    + ImapUtility.imapQuoted(mPassword);
         }
-
-        if ((uri.getPath() != null) && (uri.getPath().length() > 0)) {
-            mPathPrefix = uri.getPath().substring(1);
-        }
+        mPathPrefix = recvAuth.mDomain;
     }
 
     /* package */ Collection<ImapConnection> getConnectionPoolForTest() {

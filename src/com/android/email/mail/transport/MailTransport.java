@@ -98,6 +98,8 @@ public class MailTransport implements Transport {
         return newObject;
     }
 
+    @Override
+    @Deprecated
     public void setUri(URI uri, int defaultPort) {
         mHost = uri.getHost();
 
@@ -109,11 +111,22 @@ public class MailTransport implements Transport {
         if (uri.getUserInfo() != null) {
             mUserInfoParts = uri.getUserInfo().split(":", 2);
         }
-
     }
 
+    @Override
+    @Deprecated
     public String[] getUserInfoParts() {
         return mUserInfoParts;
+    }
+
+    @Override
+    public void setHost(String host) {
+        mHost = host;
+    }
+
+    @Override
+    public void setPort(int port) {
+        mPort = port;
     }
 
     public String getHost() {

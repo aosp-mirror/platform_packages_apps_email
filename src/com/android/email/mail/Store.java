@@ -21,12 +21,17 @@ import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -59,18 +64,20 @@ public abstract class Store {
      * should be returned on FetchProfile.Item.BODY_SANE requests.
      */
     public static final int FETCH_BODY_SANE_SUGGESTED_SIZE = (50 * 1024);
-    private static final HashMap<String, Store> sStores = new HashMap<String, Store>();
+    @VisibleForTesting
+    static final HashMap<String, Store> sStores = new HashMap<String, Store>();
 
     /**
      * Static named constructor.  It should be overrode by extending class.
      * Because this method will be called through reflection, it can not be protected.
      */
-    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
-            throws MessagingException {
-        throw new MessagingException("Store.newInstance: Unknown scheme in " + uri);
+    public static Store newInstance(Account account, Context context,
+            PersistentDataCallbacks callbacks) throws MessagingException {
+        throw new MessagingException("Store#newInstance: Unknown scheme in "
+                + account.mDisplayName);
     }
 
-    private static Store instantiateStore(String className, String uri, Context context,
+    private static Store instantiateStore(String className, Account account, Context context,
             PersistentDataCallbacks callbacks)
         throws MessagingException {
         Object o = null;
@@ -78,18 +85,19 @@ public abstract class Store {
             Class<?> c = Class.forName(className);
             // and invoke "newInstance" class method and instantiate store object.
             java.lang.reflect.Method m =
-                c.getMethod("newInstance", String.class, Context.class,
+                c.getMethod("newInstance", Account.class, Context.class,
                         PersistentDataCallbacks.class);
-            o = m.invoke(null, uri, context, callbacks);
+            // TODO Do the stores _really need a context? Is there a way to not pass it along?
+            o = m.invoke(null, account, context, callbacks);
         } catch (Exception e) {
             Log.d(Logging.LOG_TAG, String.format(
-                    "exception %s invoking %s.newInstance.(String, Context) method for %s",
-                    e.toString(), className, uri));
-            throw new MessagingException("can not instantiate Store object for " + uri);
+                    "exception %s invoking method %s#newInstance(Account, Context) for %s",
+                    e.toString(), className, account.mDisplayName));
+            throw new MessagingException("can not instantiate Store for " + account.mDisplayName);
         }
         if (!(o instanceof Store)) {
             throw new MessagingException(
-                    uri + ": " + className + " create incompatible object");
+                    account.mDisplayName + ": " + className + " create incompatible object");
         }
         return (Store) o;
     }
@@ -149,38 +157,54 @@ public abstract class Store {
     }
 
     /**
-     * Get an instance of a mail store. The URI is parsed as a standard URI and
-     * the scheme is used to determine which protocol will be used.
-     *
-     * Although the URI format is somewhat protocol-specific, we use the following
-     * guidelines wherever possible:
-     *
-     * scheme [+ security [+]] :// username : password @ host [ / resource ]
-     *
-     * Typical schemes include imap, pop3, local, eas.
-     * Typical security models include SSL or TLS.
-     * A + after the security identifier indicates "required".
+     * Gets a unique key for the given account.
+     * @throws MessagingException If the account is not setup properly (i.e. there is no address
+     * or login)
+     */
+    @VisibleForTesting
+    static String getStoreKey(Context context, Account account) throws MessagingException {
+        final StringBuffer key = new StringBuffer();
+        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
+        if (recvAuth.mAddress == null) {
+            throw new MessagingException("Cannot find store for account " + account.mDisplayName);
+        }
+        final String address = recvAuth.mAddress.trim();
+        if (TextUtils.isEmpty(address)) {
+            throw new MessagingException("Cannot find store for account " + account.mDisplayName);
+        }
+        key.append(address);
+        if (recvAuth.mLogin != null) {
+            key.append(recvAuth.mLogin.trim());
+        }
+        return key.toString();
+    }
+
+    /**
+     * Get an instance of a mail store for the given account. The account must be valid (i.e. has
+     * at least an incoming server name).
      *
      * Username, password, and host are as expected.
      * Resource is protocol specific.  For example, IMAP uses it as the path prefix.  EAS uses it
      * as the domain.
      *
-     * @param uri The URI of the store.
+     * @param account The account of the store.
      * @return an initialized store of the appropriate class
-     * @throws MessagingException
+     * @throws MessagingException If the store cannot be obtained or if the account is invalid.
      */
-    public synchronized static Store getInstance(String uri, Context context,
+    public synchronized static Store getInstance(Account account, Context context,
             PersistentDataCallbacks callbacks) throws MessagingException {
-        Store store = sStores.get(uri);
+        String storeKey = getStoreKey(context, account);
+        Store store = sStores.get(storeKey);
         if (store == null) {
-            context = context.getApplicationContext();
-            StoreInfo info = StoreInfo.getStoreInfo(uri, context);
+            Context appContext = context.getApplicationContext();
+            HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
+            StoreInfo info = StoreInfo.getStoreInfo(recvAuth.mProtocol, context);
             if (info != null) {
-                store = instantiateStore(info.mClassName, uri, context, callbacks);
+                store = instantiateStore(info.mClassName, account, appContext, callbacks);
             }
 
             if (store != null) {
-                sStores.put(uri, store);
+                sStores.put(storeKey, store);
             }
         } else {
             // update the callbacks, which may have been null at creation time.
@@ -188,21 +212,25 @@ public abstract class Store {
         }
 
         if (store == null) {
-            throw new MessagingException("Unable to locate an applicable Store for " + uri);
+            throw new MessagingException("Cannot find store for account " + account.mDisplayName);
         }
 
         return store;
     }
 
     /**
-     * Delete an instance of a mail store.
+     * Delete the mail store associated with the given account. The account must be valid (i.e. has
+     * at least an incoming server name).
      *
      * The store should have been notified already by calling delete(), and the caller should
      * also take responsibility for deleting the matching LocalStore, etc.
-     * @param storeUri the store to be removed
+     *
+     * @throws MessagingException If the store cannot be removed or if the account is invalid.
      */
-    public synchronized static void removeInstance(String storeUri) {
-        sStores.remove(storeUri);
+    public synchronized static void removeInstance(Account account, Context context)
+            throws MessagingException {
+        final String storeKey = getStoreKey(context, account);
+        sStores.remove(storeKey);
     }
 
     /**
