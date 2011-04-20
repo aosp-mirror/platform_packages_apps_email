@@ -226,20 +226,17 @@ public class MessagingController implements Runnable {
     }
 
     /**
-     * Lists folders that are available locally and remotely. This method calls
-     * listFoldersCallback for local folders before it returns, and then for
-     * remote folders at some later point. If there are no local folders
-     * includeRemote is forced by this method. This method should be called from
-     * a Thread as it may take several seconds to list the local folders.
+     * Asynchronously synchronize the folder list. If the specified {@link MessagingListener}
+     * is not {@code null}, it must have been previously added to the set of listeners using the
+     * {@link #addListener(MessagingListener)}. Otherwise, no actions will be performed.
      *
      * TODO this needs to cache the remote folder list
      * TODO break out an inner listFoldersSynchronized which could simplify checkMail
      *
-     * @param account
-     * @param listener
-     * @throws MessagingException
+     * @param accountId ID of the account for which to list the folders
+     * @param listener A listener to notify
      */
-    public void listFolders(final long accountId, MessagingListener listener) {
+    void listFolders(final long accountId, MessagingListener listener) {
         final EmailContent.Account account =
                 EmailContent.Account.restoreAccountWithId(mContext, accountId);
         if (account == null) {
@@ -1173,7 +1170,7 @@ public class MessagingController implements Runnable {
      * @param accountIdArgs
      */
     private void processPendingUploadsSynchronous(EmailContent.Account account,
-            ContentResolver resolver, String[] accountIdArgs) throws MessagingException {
+            ContentResolver resolver, String[] accountIdArgs) {
         // Find the Sent folder (since that's all we're uploading for now
         Cursor mailboxes = resolver.query(Mailbox.CONTENT_URI, Mailbox.ID_PROJECTION,
                 MailboxColumns.ACCOUNT_KEY + "=?"
@@ -1878,10 +1875,6 @@ public class MessagingController implements Runnable {
 
     /**
      * Attempts to load the attachment specified by id from the given account and message.
-     * @param account
-     * @param message
-     * @param part
-     * @param listener
      */
     public void loadAttachment(final long accountId, final long messageId, final long mailboxId,
             final long attachmentId, MessagingListener listener, final boolean background) {
@@ -1993,10 +1986,8 @@ public class MessagingController implements Runnable {
     }
 
     /**
-     * Attempt to send any messages that are sitting in the Outbox.
-     *
-     * @param account
-     * @param listener
+     * Attempt to send all messages sitting in the given account's outbox. Optionally,
+     * if the server requires it, the message will be moved to the given sent folder.
      */
     public void sendPendingMessagesSynchronous(final EmailContent.Account account,
             long sentFolderId) {
@@ -2019,7 +2010,7 @@ public class MessagingController implements Runnable {
             // 3. do one-time setup of the Sender & other stuff
             mListeners.sendPendingMessagesStarted(account.mId, -1);
 
-            Sender sender = Sender.getInstance(mContext, account.getSenderUri(mContext));
+            Sender sender = Sender.getInstance(mContext, account);
             Store remoteStore = Store.getInstance(account, mContext, null);
             boolean requireMoveMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
             ContentValues moveToSentValues = null;

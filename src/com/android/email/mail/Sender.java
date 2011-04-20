@@ -19,11 +19,14 @@ package com.android.email.mail;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.content.res.XmlResourceParser;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -38,29 +41,30 @@ public abstract class Sender {
      * Static named constructor.  It should be overrode by extending class.
      * Because this method will be called through reflection, it can not be protected.
      */
-    public static Sender newInstance(Context context, String uri)
+    public static Sender newInstance(Context context, Account account)
             throws MessagingException {
-        throw new MessagingException("Sender.newInstance: Unknown scheme in " + uri);
+        throw new MessagingException("Sender.newInstance: Unknown scheme in "
+                + account.mDisplayName);
     }
 
-    private static Sender instantiateSender(Context context, String className, String uri)
+    private static Sender instantiateSender(Context context, String className, Account account)
         throws MessagingException {
         Object o = null;
         try {
             Class<?> c = Class.forName(className);
             // and invoke "newInstance" class method and instantiate sender object.
             java.lang.reflect.Method m =
-                c.getMethod("newInstance", Context.class, String.class);
-            o = m.invoke(null, context, uri);
+                c.getMethod("newInstance", Account.class, Context.class);
+            o = m.invoke(null, account, context);
         } catch (Exception e) {
             Log.d(Logging.LOG_TAG, String.format(
-                    "exception %s invoking %s.newInstance.(Context, String) method for %s",
-                    e.toString(), className, uri));
-            throw new MessagingException("can not instantiate Sender object for " + uri);
+                    "exception %s invoking method %s#newInstance(Account, Context) for %s",
+                    e.toString(), className, account.mDisplayName));
+            throw new MessagingException("can not instantiate Sender for " + account.mDisplayName);
         }
         if (!(o instanceof Sender)) {
             throw new MessagingException(
-                    uri + ": " + className + " create incompatible object");
+                    account.mDisplayName + ": " + className + " create incompatible object");
         }
         return (Sender) o;
     }
@@ -68,22 +72,23 @@ public abstract class Sender {
     /**
      * Find Sender implementation consulting with sender.xml file.
      */
-    private static Sender findSender(Context context, int resourceId, String uri)
+    private static Sender findSender(Context context, int resourceId, Account account)
             throws MessagingException {
         Sender sender = null;
         try {
             XmlResourceParser xml = context.getResources().getXml(resourceId);
             int xmlEventType;
+            HostAuth sendAuth = account.getOrCreateHostAuthSend(context);
             // walk through senders.xml file.
             while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
                 if (xmlEventType == XmlResourceParser.START_TAG &&
                     "sender".equals(xml.getName())) {
-                    String scheme = xml.getAttributeValue(null, "scheme");
-                    if (uri.startsWith(scheme)) {
+                    String xmlScheme = xml.getAttributeValue(null, "scheme");
+                    if (sendAuth.mProtocol != null && sendAuth.mProtocol.startsWith(xmlScheme)) {
                         // found sender entry whose scheme is matched with uri.
                         // then load sender class.
                         String className = xml.getAttributeValue(null, "class");
-                        sender = instantiateSender(context, className, uri);
+                        sender = instantiateSender(context, className, account);
                     }
                 }
             }
@@ -95,26 +100,57 @@ public abstract class Sender {
         return sender;
     }
 
-    public synchronized static Sender getInstance(Context context, String uri)
+    /**
+     * Gets a unique key for the given account.
+     * @throws MessagingException If the account is not setup properly (i.e. there is no address
+     * or login)
+     */
+    private static String getSenderKey(Context context, Account account) throws MessagingException {
+        final StringBuffer key = new StringBuffer();
+        final HostAuth sendAuth = account.getOrCreateHostAuthSend(context);
+        if (sendAuth.mAddress == null) {
+            throw new MessagingException("Cannot find sender for account " + account.mDisplayName);
+        }
+        final String address = sendAuth.mAddress.trim();
+        if (TextUtils.isEmpty(address)) {
+            throw new MessagingException("Cannot find sender for account " + account.mDisplayName);
+        }
+        key.append(address);
+        if (sendAuth.mLogin != null) {
+            key.append(sendAuth.mLogin.trim());
+        }
+        return key.toString();
+    }
+
+    /**
+     * Get an instance of a mail sender for the given account. The account must be valid (i.e. has
+     * at least an outgoing server name).
+     *
+     * @param account The account of the sender.
+     * @return an initialized sender of the appropriate class
+     * @throws MessagingException If the sender cannot be obtained or if the account is invalid.
+     */
+    public synchronized static Sender getInstance(Context context, Account account)
             throws MessagingException {
-       Sender sender = sSenders.get(uri);
-       if (sender == null) {
-           context = context.getApplicationContext();
-           sender = findSender(context, R.xml.senders_product, uri);
-           if (sender == null) {
-               sender = findSender(context, R.xml.senders, uri);
-           }
+        String senderKey = getSenderKey(context, account);
+        Sender sender = sSenders.get(senderKey);
+        if (sender == null) {
+            Context appContext = context.getApplicationContext();
+            sender = findSender(appContext, R.xml.senders_product, account);
+            if (sender == null) {
+                sender = findSender(appContext, R.xml.senders, account);
+            }
 
-           if (sender != null) {
-               sSenders.put(uri, sender);
-           }
-       }
+            if (sender != null) {
+                sSenders.put(senderKey, sender);
+            }
+        }
 
-       if (sender == null) {
-            throw new MessagingException("Unable to locate an applicable Transport for " + uri);
-       }
+        if (sender == null) {
+            throw new MessagingException("Cannot find sender for account " + account.mDisplayName);
+        }
 
-       return sender;
+        return sender;
     }
 
     /**

@@ -641,7 +641,7 @@ public class AccountSettingsXL extends PreferenceActivity {
      */
     public void onOutgoingSettings(Account account) {
         try {
-            Sender sender = Sender.getInstance(getApplication(), account.getSenderUri(this));
+            Sender sender = Sender.getInstance(getApplication(), account);
             if (sender != null) {
                 Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
                 if (setting != null) {

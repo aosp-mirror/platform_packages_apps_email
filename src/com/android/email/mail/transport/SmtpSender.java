@@ -25,6 +25,8 @@ import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.Message;
 
 import android.content.Context;
@@ -33,8 +35,6 @@ import android.util.Base64;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import javax.net.ssl.SSLException;
 
@@ -52,56 +52,44 @@ public class SmtpSender extends Sender {
     /**
      * Static named constructor.
      */
-    public static Sender newInstance(Context context, String uri) throws MessagingException {
-        return new SmtpSender(context, uri);
+    public static Sender newInstance(Account account, Context context) throws MessagingException {
+        return new SmtpSender(context, account);
     }
 
     /**
-     * Allowed formats for the Uri:
-     * smtp://user:password@server:port
-     * smtp+tls+://user:password@server:port
-     * smtp+tls+trustallcerts://user:password@server:port
-     * smtp+ssl+://user:password@server:port
-     * smtp+ssl+trustallcerts://user:password@server:port
-     *
-     * @param uriString the Uri containing information to configure this sender
+     * Creates a new sender for the given account.
      */
-    @SuppressWarnings("deprecation")
-    private SmtpSender(Context context, String uriString) throws MessagingException {
+    private SmtpSender(Context context, Account account) throws MessagingException {
         mContext = context;
-        URI uri;
-        try {
-            uri = new URI(uriString);
-        } catch (URISyntaxException use) {
-            throw new MessagingException("Invalid SmtpTransport URI", use);
-        }
-
-        String scheme = uri.getScheme();
-        if (scheme == null || !scheme.startsWith("smtp")) {
+        HostAuth sendAuth = account.getOrCreateHostAuthSend(context);
+        if (sendAuth == null || !"smtp".equalsIgnoreCase(sendAuth.mProtocol)) {
             throw new MessagingException("Unsupported protocol");
         }
         // defaults, which can be changed by security modifiers
         int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
         int defaultPort = 587;
-        // check for security modifiers and apply changes
-        if (scheme.contains("+ssl")) {
+
+        // check for security flags and apply changes
+        if ((sendAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
             connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
             defaultPort = 465;
-        } else if (scheme.contains("+tls")) {
+        } else if ((sendAuth.mFlags & HostAuth.FLAG_TLS) != 0) {
             connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
         }
-        boolean trustCertificates = scheme.contains("+trustallcerts");
-
-        mTransport = new MailTransport("SMTP");
-        mTransport.setUri(uri, defaultPort);
+        boolean trustCertificates = ((sendAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0);
+        int port = defaultPort;
+        if (sendAuth.mPort != HostAuth.PORT_UNKNOWN) {
+            port = sendAuth.mPort;
+        }
+        mTransport = new MailTransport("IMAP");
+        mTransport.setHost(sendAuth.mAddress);
+        mTransport.setPort(port);
         mTransport.setSecurity(connectionSecurity, trustCertificates);
 
-        String[] userInfoParts = mTransport.getUserInfoParts();
+        String[] userInfoParts = sendAuth.getLogin();
         if (userInfoParts != null) {
             mUsername = userInfoParts[0];
-            if (userInfoParts.length > 1) {
-                mPassword = userInfoParts[1];
-            }
+            mPassword = userInfoParts[1];
         }
     }
 

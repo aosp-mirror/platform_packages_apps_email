@@ -392,7 +392,6 @@ public class AccountCheckSettingsFragment extends Fragment {
         final int mMode;
         final Account mAccount;
         final String mStoreHost;
-        final String mSenderUri;
         final String mCheckEmail;
         final String mCheckPassword;
 
@@ -406,7 +405,6 @@ public class AccountCheckSettingsFragment extends Fragment {
             mMode = mode;
             mAccount = checkAccount;
             mStoreHost = checkAccount.mHostAuthRecv.mAddress;
-            mSenderUri = checkAccount.getSenderUri(mContext);
             mCheckEmail = checkAccount.mEmailAddress;
             mCheckPassword = checkAccount.mHostAuthRecv.mPassword;
         }
@@ -475,7 +473,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     if (isCancelled()) return null;
                     Log.d(Logging.LOG_TAG, "Begin check of outgoing email settings");
                     publishProgress(STATE_CHECK_OUTGOING);
-                    Sender sender = Sender.getInstance(mContext, mSenderUri);
+                    Sender sender = Sender.getInstance(mContext, mAccount);
                     sender.close();
                     sender.open();
                     sender.close();

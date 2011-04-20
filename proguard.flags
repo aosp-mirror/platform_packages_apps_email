@@ -10,12 +10,7 @@
 }
 
 -keepclasseswithmembers class * {
-  public *** newInstance(android.content.Context, java.lang.String);
-}
-
-# TODO remove after converting Sender#instantiateSender() to use Account instead of URI
--keepclasseswithmembers class * {
-  public *** newInstance(java.lang.String, android.content.Context, com.android.email.mail.Store$PersistentDataCallbacks);
+  public *** newInstance(com.android.emailcommon.provider.EmailContent$Account, android.content.Context);
 }
 
 -keepclasseswithmembers class * {
@@ -60,7 +55,6 @@
   <init>(java.lang.String);
   <init>(java.lang.String,java.lang.String);
   *** parseAndPack(java.lang.String);
-  *** legacyUnpack(java.lang.String);
 }
 
 -keepclasseswithmembers class com.android.email.SecurityPolicy {

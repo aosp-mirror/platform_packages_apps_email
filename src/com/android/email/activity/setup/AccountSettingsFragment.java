@@ -521,7 +521,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         Preference prefOutgoing = findPreference(PREFERENCE_OUTGOING);
         boolean showOutgoing = true;
         try {
-            Sender sender = Sender.getInstance(mContext, mAccount.getSenderUri(mContext));
+            Sender sender = Sender.getInstance(mContext, mAccount);
             if (sender != null) {
                 Class<? extends android.app.Activity> setting = sender.getSettingActivityClass();
                 showOutgoing = (setting != null);

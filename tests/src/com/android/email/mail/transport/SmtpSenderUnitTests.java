@@ -21,8 +21,10 @@ import com.android.email.mail.Transport;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Body;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.Message;
 
 import org.apache.commons.io.IOUtils;
@@ -73,9 +75,13 @@ public class SmtpSenderUnitTests extends AndroidTestCase {
                 getContext());
         mContext = getContext();
 
-        // These are needed so we can get at the inner classes
-        mSender = (SmtpSender) SmtpSender.newInstance(mProviderContext,
-                "smtp://user:password@server:999");
+        HostAuth testAuth = new HostAuth();
+        Account testAccount = new Account();
+
+        testAuth.setLogin("user", "password");
+        testAuth.setConnection("smtp", "server", 999);
+        testAccount.mHostAuthSend = testAuth;
+        mSender = (SmtpSender) SmtpSender.newInstance(testAccount, mProviderContext);
     }
 
     /**
