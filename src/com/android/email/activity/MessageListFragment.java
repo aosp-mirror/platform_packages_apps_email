@@ -90,6 +90,9 @@ import java.util.Set;
  * TODO Finalize batch move UI.  Probably the "move" button should be disabled or hidden when
  * the selection contains non-movable messages.  But then how does the user know why they can't be
  * moved?
+ * TODO Restoring scroll position on screen rotation is broken.
+ * TODO Restoring selected messages on screen rotation is broken.
+ * TODO Remove clearContent -> most probably this is the cause for the two issues above.
  */
 public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
@@ -100,6 +103,9 @@ public class MessageListFragment extends ListFragment
 
     private static final int LOADER_ID_MAILBOX_LOADER = 1;
     private static final int LOADER_ID_MESSAGES_LOADER = 2;
+
+    /** Argument name(s) */
+    private static final String ARG_MAILBOX_ID = "mailboxId";
 
     // Controller access
     private Controller mController;
@@ -228,6 +234,17 @@ public class MessageListFragment extends ListFragment
         }
     }
 
+    /**
+     * Create a new instance with initialization parameters.
+     */
+    public static MessageListFragment newInstance(long mailboxId) {
+        final MessageListFragment instance = new MessageListFragment();
+        final Bundle args = new Bundle();
+        args.putLong(ARG_MAILBOX_ID, mailboxId);
+        instance.setArguments(args);
+        return instance;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -272,8 +289,11 @@ public class MessageListFragment extends ListFragment
 
         if (savedInstanceState != null) {
             // Fragment doesn't have this method.  Call it manually.
-            loadState(savedInstanceState);
+            restoreInstanceState(savedInstanceState);
         }
+
+        final Bundle args = getArguments();
+        openMailbox(args.getLong(ARG_MAILBOX_ID));
     }
 
     @Override
@@ -339,7 +359,10 @@ public class MessageListFragment extends ListFragment
     }
 
     // Unit tests use it
-    /* package */void loadState(Bundle savedInstanceState) {
+    /* package */void restoreInstanceState(Bundle savedInstanceState) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MessageListFragment restoreInstanceState");
+        }
         mListAdapter.loadState(savedInstanceState);
         mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
         mSelectedMessageId = savedInstanceState.getLong(BUNDLE_KEY_SELECTED_MESSAGE_ID);
@@ -381,7 +404,7 @@ public class MessageListFragment extends ListFragment
     /**
      * Clear all the content, stop the loaders, etc -- should be called when the fragment is hidden.
      */
-    public void clearContent() {
+    private void clearContent() {
         mMailboxId = -1;
         mLastLoadedMailboxId = -1;
         mSelectedMessageId = -1;
@@ -407,7 +430,8 @@ public class MessageListFragment extends ListFragment
      * @param mailboxId the ID of a mailbox, or one of "special" mailbox IDs like
      *     {@link Mailbox#QUERY_ALL_INBOXES}.  -1 is not allowed.
      */
-    public void openMailbox(long mailboxId) {
+    // STOPSHIP Make it private once phone activities are gone
+    void openMailbox(long mailboxId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment openMailbox");
         }
@@ -1194,7 +1218,6 @@ public class MessageListFragment extends ListFragment
 
             // Various post processing...
             autoRefreshStaleMailbox();
-            addFooterView();
             updateSelectionMode();
             showSendCommandIfNecessary();
             showNoMessageTextIfNecessary();

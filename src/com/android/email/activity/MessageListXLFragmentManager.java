@@ -25,17 +25,23 @@ import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
  * A class manages what are showing on {@link MessageListXL} (i.e. account id, mailbox id, and
  * message id), and show/hide fragments accordingly.
+ *
+ * Note: Always use {@link #commitFragmentTransaction} to commit fragment transactions.  Currently
+ * we use synchronous transactions only, but we may want to switch back to asynchronous later.
  *
  * TODO: Test it.  It's testable if we implement MockFragmentTransaction, which may be too early
  * to do so at this point.  (API may not be stable enough yet.)
@@ -52,8 +58,6 @@ class MessageListXLFragmentManager implements
     private static final String BUNDLE_KEY_ACCOUNT_ID = "MessageListXl.state.account_id";
     private static final String BUNDLE_KEY_MAILBOX_ID = "MessageListXl.state.mailbox_id";
     private static final String BUNDLE_KEY_MESSAGE_ID = "MessageListXl.state.message_id";
-    private static final String BUNDLE_KEY_MESSAGE_LIST_STATE
-            = "MessageListXl.state.message_list_state";
 
     /** No account selected */
     static final long NO_ACCOUNT = -1;
@@ -61,9 +65,6 @@ class MessageListXLFragmentManager implements
     static final long NO_MAILBOX = -1;
     /** No message selected */
     static final long NO_MESSAGE = -1;
-
-    private boolean mIsActivityResumed;
-
     /** Current account id */
     private long mAccountId = NO_ACCOUNT;
 
@@ -75,19 +76,36 @@ class MessageListXLFragmentManager implements
 
     private ThreePaneLayout mThreePane;
 
+    /**
+     * Fragments that are installed.
+     *
+     * A fragment is installed when:
+     * - it is attached to the activity
+     * - the parent activity is created
+     * - and it is not scheduled to be removed.
+     *
+     * We set callbacks to fragments only when they are installed.
+     */
     private MailboxListFragment mMailboxListFragment;
     private MessageListFragment mMessageListFragment;
     private MessageViewFragment mMessageViewFragment;
+
     private MessageCommandButtonView mMessageCommandButtons;
 
     private MailboxFinder mMailboxFinder;
 
-    /** Save state for the "message list -> message view -[back press]-> message list" transition */
-    private MessageListFragment.State mMessageListFragmentState;
-
     private MessageOrderManager mOrderManager;
     private final MessageOrderManagerCallback mMessageOrderManagerCallback =
         new MessageOrderManagerCallback();
+
+    /**
+     * List of fragments that are restored by the framework while the activity is being re-created
+     * for configuration changes (e.g. screen rotation).  We'll install them later when the activity
+     * is created.
+     */
+    private final ArrayList<Fragment> mRestoredFragments = new ArrayList<Fragment>();
+
+    private boolean mActivityCreated = false;
 
     /**
      * The interface that {@link MessageListXL} implements.  We don't call its methods directly,
@@ -176,10 +194,15 @@ class MessageListXLFragmentManager implements
                 ((previousVisiblePanes & ThreePaneLayout.PANE_RIGHT) != 0)) {
             // Message view just got hidden
             mMessageId = NO_MESSAGE;
-            mMessageListFragment.setSelectedMessage(NO_MESSAGE);
-            mMessageViewFragment.clearContent();
+            if (mMessageListFragment != null) {
+                mMessageListFragment.setSelectedMessage(NO_MESSAGE);
+            }
+            uninstallMessageViewFragment(mActivity.getFragmentManager().beginTransaction())
+                    .commit();
         }
-        mMessageListFragment.setVisibility((visiblePanes & ThreePaneLayout.PANE_MIDDLE) != 0);
+        if (mMessageListFragment != null) {
+            mMessageListFragment.setVisibility((visiblePanes & ThreePaneLayout.PANE_MIDDLE) != 0);
+        }
     }
 
     // MailboxListFragment$Callback
@@ -342,28 +365,17 @@ class MessageListXLFragmentManager implements
      * Must be called just after the activity sets up the content view.
      *
      * (Due to the complexity regarding class/activity initialization order, we can't do this in
-     * the constructor.)
+     * the constructor.)  TODO this should no longer be true when we merge activities.
      */
     public void onActivityViewReady() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager.onActivityViewReady");
+            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager onActivityViewReady");
         }
         mThreePane = (ThreePaneLayout) mActivity.findViewById(R.id.three_pane);
         mThreePane.setCallback(this);
 
-        FragmentManager fm = mActivity.getFragmentManager();
-        mMailboxListFragment = (MailboxListFragment) fm.findFragmentById(
-                mThreePane.getLeftPaneId());
-        mMessageListFragment = (MessageListFragment) fm.findFragmentById(
-                mThreePane.getMiddlePaneId());
-        mMessageViewFragment = (MessageViewFragment) fm.findFragmentById(
-                mThreePane.getRightPaneId());
         mMessageCommandButtons = mThreePane.getMessageCommandButtons();
         mMessageCommandButtons.setCallback(new CommandButtonCallback());
-
-        mMailboxListFragment.setCallback(this);
-        mMessageListFragment.setCallback(this);
-        mMessageViewFragment.setCallback(this);
     }
 
     /**
@@ -409,6 +421,35 @@ class MessageListXLFragmentManager implements
     }
 
     /**
+     * Called at the end of {@link MessageListXL#onCreate}.
+     */
+    public void onActivityCreated() {
+        mActivityCreated = true;
+
+        // Install all the fragments restored by the framework.
+        for (Fragment fragment : mRestoredFragments) {
+            installFragment(fragment);
+        }
+        mRestoredFragments.clear();
+    }
+
+    /**
+     * Called by {@link MessageListXL} when a {@link Fragment} is attached.
+     *
+     * If the activity has already been created, we initialize the fragment here.  Otherwise we
+     * keep the fragment in {@link #mRestoredFragments} and initialize it after the activity's
+     * onCreate.
+     */
+    public void onAttachFragment(Fragment fragment) {
+        if (!mActivityCreated) {
+            // Fragment being restored by the framework during the activity recreation.
+            mRestoredFragments.add(fragment);
+            return;
+        }
+        installFragment(fragment);
+    }
+
+    /**
      * Called from {@link MessageListXL#onStart}.
      */
     public void onStart() {
@@ -423,22 +464,12 @@ class MessageListXLFragmentManager implements
     public void onResume() {
         int visiblePanes = mThreePane.getVisiblePanes();
         mActivity.onVisiblePanesChanged(visiblePanes);
-
-        if (mIsActivityResumed) {
-            return;
-        }
-        mIsActivityResumed = true;
     }
 
     /**
      * Called from {@link MessageListXL#onPause}.
      */
     public void onPause() {
-        if (!mIsActivityResumed) {
-            return;
-        }
-        mIsActivityResumed = false;
-        mMessageListFragmentState = mMessageListFragment.getState();
     }
 
     /**
@@ -452,30 +483,75 @@ class MessageListXLFragmentManager implements
      * Called from {@link MessageListXL#onDestroy}.
      */
     public void onDestroy() {
+        mActivityCreated = false;
         closeMailboxFinder();
     }
 
     public void onSaveInstanceState(Bundle outState) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager onSaveInstanceState");
+        }
         outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mAccountId);
         outState.putLong(BUNDLE_KEY_MAILBOX_ID, mMailboxId);
         outState.putLong(BUNDLE_KEY_MESSAGE_ID, mMessageId);
-        outState.putParcelable(BUNDLE_KEY_MESSAGE_LIST_STATE, mMessageListFragmentState);
+
+        // STOPSHIP If MailboxFinder is still running, it needs restarting after loadState().
     }
 
-    public void loadState(Bundle savedInstanceState) {
-        long accountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, NO_ACCOUNT);
-        long mailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, NO_MAILBOX);
-        long messageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, NO_MESSAGE);
-        mMessageListFragmentState = savedInstanceState.getParcelable(BUNDLE_KEY_MESSAGE_LIST_STATE);
+    public void restoreInstanceState(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager: Restoring "
-                    + accountId + "," + mailboxId + "," + messageId);
+            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager restoreInstanceState");
         }
-        if (accountId == NO_ACCOUNT) {
-            return;
+        mAccountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, NO_ACCOUNT);
+        mMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, NO_MAILBOX);
+        mMessageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, NO_MESSAGE);
+    }
+
+    private void installFragment(Fragment fragment) {
+        if (fragment instanceof MailboxListFragment) {
+            mMailboxListFragment = (MailboxListFragment) fragment;
+            mMailboxListFragment.setCallback(this);
+        } else if (fragment instanceof MessageListFragment) {
+            mMessageListFragment = (MessageListFragment) fragment;
+            mMessageListFragment.setCallback(this);
+        } else if (fragment instanceof MessageViewFragment) {
+            mMessageViewFragment = (MessageViewFragment) fragment;
+            mMessageViewFragment.setCallback(this);
+        } else {
+            // Ignore -- uninteresting fragments such as dialogs.
         }
-        // selectAccount() calls selectMailbox/Message() if necessary.
-        selectAccount(accountId, mailboxId, messageId);
+    }
+
+    private FragmentTransaction uninstallMailboxListFragment(FragmentTransaction ft) {
+        if (mMailboxListFragment != null) {
+            ft.remove(mMailboxListFragment);
+            mMailboxListFragment.setCallback(null);
+            mMailboxListFragment = null;
+        }
+        return ft;
+    }
+
+    private FragmentTransaction uninstallMessageListFragment(FragmentTransaction ft) {
+        if (mMessageListFragment != null) {
+            ft.remove(mMessageListFragment);
+            mMessageListFragment.setCallback(null);
+            mMessageListFragment = null;
+        }
+        return ft;
+    }
+
+    private FragmentTransaction uninstallMessageViewFragment(FragmentTransaction ft) {
+        if (mMessageViewFragment != null) {
+            ft.remove(mMessageViewFragment);
+            mMessageViewFragment.setCallback(null);
+            mMessageViewFragment = null;
+        }
+        return ft;
+    }
+
+    private void commitFragmentTransaction(FragmentTransaction ft) {
+        ft.commit();
+        mActivity.getFragmentManager().executePendingTransactions();
     }
 
     /**
@@ -515,12 +591,16 @@ class MessageListXLFragmentManager implements
         mMailboxId = NO_MAILBOX;
         mMessageId = NO_MESSAGE;
 
-        // In case of "message list -> message view -> change account", we don't have to keep it.
-        mMessageListFragmentState = null;
+        // Open mailbox list, remove message list / message view
+        final FragmentManager fm = mActivity.getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
+        uninstallMailboxListFragment(ft);
+        uninstallMessageListFragment(ft);
+        uninstallMessageViewFragment(ft);
+        ft.add(mThreePane.getLeftPaneId(),
+                MailboxListFragment.newInstance(getUIAccountId(), forceReload));
+        commitFragmentTransaction(ft);
 
-        // Open mailbox list, clear message list / message view
-        mMailboxListFragment.openMailboxes(mAccountId, forceReload);
-        mMessageListFragment.clearContent();
         mThreePane.showLeftPane(); // Show mailbox list
 
         if ((accountId == Account.ACCOUNT_ID_COMBINED_VIEW) && (mailboxId == NO_MAILBOX)) {
@@ -582,11 +662,14 @@ class MessageListXLFragmentManager implements
         }
         mMailboxId = mailboxId;
         mMessageId = NO_MESSAGE;
-        if (mMessageListFragmentState != null) {
-            mMessageListFragmentState.restore(mMessageListFragment);
-            mMessageListFragmentState = null;
-        }
-        mMessageListFragment.openMailbox(mailboxId);
+
+        final FragmentManager fm = mActivity.getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
+        uninstallMessageListFragment(ft);
+        uninstallMessageViewFragment(ft);
+        ft.add(mThreePane.getMiddlePaneId(), MessageListFragment.newInstance(mailboxId));
+        commitFragmentTransaction(ft);
+
         if (navigateToMailbox) {
             mMailboxListFragment.navigateToMailbox(mailboxId);
         } else {
@@ -618,14 +701,18 @@ class MessageListXLFragmentManager implements
             return;
         }
 
-        mMessageListFragmentState = mMessageListFragment.getState();
-
         // Update member
         mMessageId = messageId;
 
         // Open message
         mMessageListFragment.setSelectedMessage(mMessageId);
-        mMessageViewFragment.openMessage(mMessageId);
+
+        final FragmentManager fm = mActivity.getFragmentManager();
+        final FragmentTransaction ft = fm.beginTransaction();
+        uninstallMessageViewFragment(ft);
+        ft.add(mThreePane.getRightPaneId(), MessageViewFragment.newInstance(messageId));
+        commitFragmentTransaction(ft);
+
         mThreePane.showRightPane(); // Show message view
     }
 

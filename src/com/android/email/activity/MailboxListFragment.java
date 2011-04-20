@@ -64,6 +64,9 @@ import java.util.TimerTask;
  *  - pass-through implementations of onCreateContextMenu() and onContextItemSelected() (temporary)
  *
  * TODO Restoring ListView state -- don't do this when changing accounts
+ * TODO Restoring scroll position on screen rotation is broken.
+ * TODO Remove clearContent -> most probably this is the cause for the scroll position not being
+ *      restored issue.
  */
 public class MailboxListFragment extends ListFragment implements OnItemClickListener,
         OnDragListener {
@@ -81,8 +84,13 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static final int SCROLL_ZONE_SIZE = 64;
     // The amount of time to scroll by one pixel, in ms
     private static final int SCROLL_SPEED = 4;
+
     /** Arbitrary number for use with the loader manager */
     private static final int MAILBOX_LOADER_ID = 1;
+
+    /** Argument name(s) */
+    private static final String ARG_ACCOUNT_ID = "accountId";
+    private static final String ARG_FORCE_RELOAD = "forceReload";
 
     // TODO Clean up usage of mailbox ID. We use both '-1' and '0' to mean "not selected". To
     // confuse matters, the database uses '-1' for "no mailbox" and '0' for "invalid mailbox".
@@ -199,6 +207,18 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     /**
+     * Create a new instance with initialization parameters.
+     */
+    public static MailboxListFragment newInstance(long accountId, boolean forceReload) {
+        final MailboxListFragment instance = new MailboxListFragment();
+        final Bundle args = new Bundle();
+        args.putLong(ARG_ACCOUNT_ID, accountId);
+        args.putBoolean(ARG_FORCE_RELOAD, forceReload);
+        instance.setArguments(args);
+        return instance;
+    }
+
+    /**
      * Called to do initial creation of a fragment.  This is called after
      * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.
      */
@@ -240,6 +260,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mListView.setOnDragListener(this);
         registerForContextMenu(mListView);
+
+        final Bundle args = getArguments();
+        openMailboxes(args.getLong(ARG_ACCOUNT_ID), args.getBoolean(ARG_FORCE_RELOAD));
     }
 
     public void setCallback(Callback callback) {
@@ -266,23 +289,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     /**
      * Opens the top-level mailboxes for the given account ID. If the account is currently
-     * loaded, no actions will be performed. To forcefully load the list of top-level
-     * mailboxes use {@link #openMailboxes(long, boolean)}
-     * @param accountId The ID of the account we want to view
-     */
-    public void openMailboxes(long accountId) {
-        openMailboxes(accountId, false);
-    }
-
-    /**
-     * Opens the top-level mailboxes for the given account ID. If the account is currently
      * loaded, the list of top-level mailbox will not be reloaded unless <code>forceReload</code>
      * is <code>true</code>.
      * @param accountId The ID of the account we want to view
      * @param forceReload If <code>true</code>, always load the list of top-level mailboxes.
      * Otherwise, only load the list of top-level mailboxes if the account changes.
      */
-    public void openMailboxes(long accountId, boolean forceReload) {
+    // STOPSHIP Make it private once phone activities are gone
+    void openMailboxes(long accountId, boolean forceReload) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxListFragment openMailboxes");
         }
@@ -413,6 +427,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MailboxListFragment restoreInstanceState");
+        }
         mSelectedMailboxId = savedInstanceState.getLong(BUNDLE_KEY_SELECTED_MAILBOX_ID);
         mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
     }

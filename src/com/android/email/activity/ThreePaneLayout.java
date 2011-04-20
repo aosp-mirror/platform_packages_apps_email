@@ -100,9 +100,9 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     private AnimatorListener mLastAnimatorListener;
 
     // 2nd index for {@link #changePaneState}
-    private final int INDEX_VISIBLE = 0;
-    private final int INDEX_INVISIBLE = 1;
-    private final int INDEX_GONE = 2;
+    private static final int INDEX_VISIBLE = 0;
+    private static final int INDEX_INVISIBLE = 1;
+    private static final int INDEX_GONE = 2;
 
     // Arrays used in {@link #changePaneState}
     // First index: STATE_*

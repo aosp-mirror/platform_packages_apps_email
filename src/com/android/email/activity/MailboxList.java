@@ -99,7 +99,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
 
         mActionBar.setTitle(R.string.mailbox_list_title);
         mListFragment.setCallback(this);
-        mListFragment.openMailboxes(mAccountId);
+        mListFragment.openMailboxes(mAccountId, false);
 
         // Halt the progress indicator (we'll display it later when needed)
         setProgressBarIndeterminate(true);
