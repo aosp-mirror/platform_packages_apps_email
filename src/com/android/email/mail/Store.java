@@ -17,13 +17,14 @@
 package com.android.email.mail;
 
 import com.android.email.Email;
+import com.android.email.LegacyConversions;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
-import com.android.emailcommon.utility.Utility;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.google.common.annotations.VisibleForTesting;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -35,6 +36,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -274,7 +276,14 @@ public abstract class Store {
 
     public abstract Folder getFolder(String name) throws MessagingException;
 
-    public abstract Folder[] getAllFolders() throws MessagingException;
+    /**
+     * Updates the local list of mailboxes according to what is located on the remote server.
+     * <em>Note: This does not perform folder synchronization and it will not remove mailboxes
+     * that are stored locally but not remotely.</em>
+     * @return The set of remote folders
+     * @throws MessagingException If there was a problem connecting to the remote server
+     */
+    public abstract Folder[] updateFolders() throws MessagingException;
 
     public abstract Bundle checkSettings() throws MessagingException;
 
@@ -328,4 +337,59 @@ public abstract class Store {
             throws MessagingException {
         return null;
     }
+
+    /**
+     * Returns a {@link Mailbox} for the given path. If the path is not in the database, a new
+     * mailbox will be created.
+     */
+    private static Mailbox getMailboxForPath(Context context, long accountId, String path) {
+        Mailbox mailbox = Mailbox.restoreMailboxForPath(context, accountId, path);
+        if (mailbox == null) {
+            mailbox = new Mailbox();
+        }
+        return mailbox;
+    }
+
+    /**
+     * Adds the mailbox with the given path to the folder list and to the database. If the folder
+     * already exists on the server (e.g. the path is identical), the database row will be updated.
+     * Otherwise, a new database row will be inserted.
+     * @param folders the list of folders
+     * @param mailboxPath The path of the mailbox to add
+     * @param delimiter A path delimiter. May be {@code null} if there is no delimiter.
+     */
+    protected void addMailbox(Context context, long accountId, String mailboxPath, String delimiter,
+            ArrayList<Folder> folders) throws MessagingException {
+        char delimiterChar = 0;
+        if (!TextUtils.isEmpty(delimiter)) {
+            delimiterChar = delimiter.charAt(0);
+        }
+        folders.add(getFolder(mailboxPath));
+        Mailbox mailbox = getMailboxForPath(context, accountId, mailboxPath);
+        mailbox.mAccountKey = accountId;
+        mailbox.mDelimiter = delimiterChar;
+        mailbox.mDisplayName = mailboxPath;
+        //mailbox.mFlags;
+        mailbox.mFlagVisible = true;
+        //mailbox.mParentKey;
+        //mailbox.mParentServerId;
+        mailbox.mServerId = mailboxPath;
+        //mailbox.mServerId;
+        //mailbox.mSyncFrequency;
+        //mailbox.mSyncKey;
+        //mailbox.mSyncLookback;
+        //mailbox.mSyncTime;
+        mailbox.mType = LegacyConversions.inferMailboxTypeFromName(context, mailboxPath);
+        //box.mUnreadCount;
+        mailbox.mVisibleLimit = Email.VISIBLE_LIMIT_DEFAULT;
+
+        // TODO This is horribly inefficient. Only update db if the mailbox has really changed
+        if (mailbox.isSaved()) {
+            mailbox.update(context, mailbox.toContentValues());
+        } else {
+            mailbox.save(context);
+        }
+        // TODO ?? Add mailbox to Folder object ??
+    }
+
 }

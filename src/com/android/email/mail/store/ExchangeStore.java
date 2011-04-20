@@ -80,7 +80,7 @@ public class ExchangeStore extends Store {
     }
 
     @Override
-    public Folder[] getAllFolders() {
+    public Folder[] updateFolders() {
         return null;
     }
 
