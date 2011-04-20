@@ -613,7 +613,7 @@ public class AccountSettingsXL extends PreferenceActivity {
      */
     public void onIncomingSettings(Account account) {
         try {
-            Store store = Store.getInstance(account.getStoreUri(this), getApplication(), null);
+            Store store = Store.getInstance(account, getApplication(), null);
             if (store != null) {
                 Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
                 if (setting != null) {

@@ -1006,7 +1006,7 @@ public class Controller {
     }
 
     /**
-     * Delete an account synchronously.  Intended to be used only by unit tests.
+     * Delete an account synchronously.
      */
     public void deleteAccountSync(long accountId, Context context) {
         try {
@@ -1017,12 +1017,13 @@ public class Controller {
                 return; // Already deleted?
             }
 
-            final String accountUri = account.getStoreUri(context);
-            // Delete Remote store at first.
-            if (!TextUtils.isEmpty(accountUri)) {
-                Store.getInstance(accountUri, context, null).delete();
+            try {
+                // Delete Remote store at first.
+                Store.getInstance(account, context, null).delete();
                 // Remove the Store instance from cache.
-                Store.removeInstance(accountUri);
+                Store.removeInstance(account, context);
+            } catch (MessagingException e) {
+                Log.w(Logging.LOG_TAG, "Failed to delete store", e);
             }
 
             Uri uri = ContentUris.withAppendedId(

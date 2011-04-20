@@ -2789,6 +2789,19 @@ public abstract class EmailContent {
         }
 
         /**
+         * Returns the login information. [0] is the username and [1] is the password. If
+         * {@link #FLAG_AUTHENTICATE} is not set, {@code null} is returned.
+         */
+        public String[] getLogin() {
+            if ((mFlags & FLAG_AUTHENTICATE) != 0) {
+                String trimUser = (mLogin != null) ? mLogin.trim() : "";
+                String password = (mPassword != null) ? mPassword : "";
+                return new String[] { trimUser, password };
+            }
+            return null;
+        }
+
+        /**
          * Sets the connection values of the auth structure per the given scheme, host and port.
          */
         public void setConnection(String scheme, String host, int port) {

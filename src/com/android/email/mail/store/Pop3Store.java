@@ -29,6 +29,8 @@ import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Folder.OpenMode;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.LoggingInputStream;
 import com.android.emailcommon.utility.Utility;
@@ -39,8 +41,6 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -86,54 +86,45 @@ public class Pop3Store extends Store {
     /**
      * Static named constructor.
      */
-    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
-            throws MessagingException {
-        return new Pop3Store(uri);
+    public static Store newInstance(Account account, Context context,
+            PersistentDataCallbacks callbacks) throws MessagingException {
+        return new Pop3Store(context, account);
     }
 
     /**
-     * pop3://user:password@server:port
-     * pop3+tls+://user:password@server:port
-     * pop3+tls+trustallcerts://user:password@server:port
-     * pop3+ssl+://user:password@server:port
-     * pop3+ssl+trustallcerts://user:password@server:port
-     *
-     * @param _uri
+     * Creates a new store for the given account.
      */
-    private Pop3Store(String _uri) throws MessagingException {
-        URI uri;
-        try {
-            uri = new URI(_uri);
-        } catch (URISyntaxException use) {
-            throw new MessagingException("Invalid Pop3Store URI", use);
-        }
-
-        String scheme = uri.getScheme();
-        if (scheme == null || !scheme.startsWith(STORE_SCHEME_POP3)) {
+    private Pop3Store(Context context, Account account) throws MessagingException {
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
+        if (recvAuth == null || !STORE_SCHEME_POP3.equalsIgnoreCase(recvAuth.mProtocol)) {
             throw new MessagingException("Unsupported protocol");
         }
         // defaults, which can be changed by security modifiers
         int connectionSecurity = Transport.CONNECTION_SECURITY_NONE;
         int defaultPort = 110;
-        // check for security modifiers and apply changes
-        if (scheme.contains("+ssl")) {
+
+        // check for security flags and apply changes
+        if ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
             connectionSecurity = Transport.CONNECTION_SECURITY_SSL;
             defaultPort = 995;
-        } else if (scheme.contains("+tls")) {
+        } else if ((recvAuth.mFlags & HostAuth.FLAG_TLS) != 0) {
             connectionSecurity = Transport.CONNECTION_SECURITY_TLS;
         }
-        boolean trustCertificates = scheme.contains(STORE_SECURITY_TRUST_CERTIFICATES);
+        boolean trustCertificates = ((recvAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0);
 
+        int port = defaultPort;
+        if (recvAuth.mPort != HostAuth.PORT_UNKNOWN) {
+            port = recvAuth.mPort;
+        }
         mTransport = new MailTransport("POP3");
-        mTransport.setUri(uri, defaultPort);
+        mTransport.setHost(recvAuth.mAddress);
+        mTransport.setPort(port);
         mTransport.setSecurity(connectionSecurity, trustCertificates);
 
-        String[] userInfoParts = mTransport.getUserInfoParts();
+        String[] userInfoParts = recvAuth.getLogin();
         if (userInfoParts != null) {
             mUsername = userInfoParts[0];
-            if (userInfoParts.length > 1) {
-                mPassword = userInfoParts[1];
-            }
+            mPassword = userInfoParts[1];
         }
     }
 
@@ -147,7 +138,7 @@ public class Pop3Store extends Store {
     }
 
     @Override
-    public Folder getFolder(String name) throws MessagingException {
+    public Folder getFolder(String name) {
         Folder folder = mFolders.get(name);
         if (folder == null) {
             folder = new Pop3Folder(name);
@@ -157,7 +148,7 @@ public class Pop3Store extends Store {
     }
 
     @Override
-    public Folder[] getAllFolders() throws MessagingException {
+    public Folder[] getAllFolders() {
         return new Folder[] {
             getFolder("INBOX"),
         };
@@ -314,7 +305,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public OpenMode getMode() throws MessagingException {
+        public OpenMode getMode() {
             return OpenMode.READ_WRITE;
         }
 
@@ -348,12 +339,12 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public boolean create(FolderType type) throws MessagingException {
+        public boolean create(FolderType type) {
             return false;
         }
 
         @Override
-        public boolean exists() throws MessagingException {
+        public boolean exists() {
             return mName.equalsIgnoreCase("INBOX");
         }
 
@@ -363,7 +354,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public int getUnreadMessageCount() throws MessagingException {
+        public int getUnreadMessageCount() {
             return -1;
         }
 
@@ -608,14 +599,15 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public Message[] getMessages(MessageRetrievalListener listener) throws MessagingException {
-            throw new UnsupportedOperationException("Pop3Folder.getMessage(MessageRetrievalListener)");
+        public Message[] getMessages(MessageRetrievalListener listener) {
+            throw new UnsupportedOperationException(
+                    "Pop3Folder.getMessage(MessageRetrievalListener)");
         }
 
         @Override
-        public Message[] getMessages(String[] uids, MessageRetrievalListener listener)
-                throws MessagingException {
-            throw new UnsupportedOperationException("Pop3Folder.getMessage(MessageRetrievalListener)");
+        public Message[] getMessages(String[] uids, MessageRetrievalListener listener) {
+            throw new UnsupportedOperationException(
+                    "Pop3Folder.getMessage(MessageRetrievalListener)");
         }
 
         /**
@@ -805,20 +797,20 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public Flag[] getPermanentFlags() throws MessagingException {
+        public Flag[] getPermanentFlags() {
             return PERMANENT_FLAGS;
         }
 
         @Override
-        public void appendMessages(Message[] messages) throws MessagingException {
+        public void appendMessages(Message[] messages) {
         }
 
         @Override
-        public void delete(boolean recurse) throws MessagingException {
+        public void delete(boolean recurse) {
         }
 
         @Override
-        public Message[] expunge() throws MessagingException {
+        public Message[] expunge() {
             return null;
         }
 
@@ -847,8 +839,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public void copyMessages(Message[] msgs, Folder folder, MessageUpdateCallbacks callbacks)
-                throws MessagingException {
+        public void copyMessages(Message[] msgs, Folder folder, MessageUpdateCallbacks callbacks) {
             throw new UnsupportedOperationException("copyMessages is not supported in POP3");
         }
 
@@ -859,7 +850,7 @@ public class Pop3Store extends Store {
 //                    (mMessageCount * 58) / (mThroughputKbS * 1024 / 8) * 1000;
 //        }
 
-        private Pop3Capabilities getCapabilities() throws IOException, MessagingException {
+        private Pop3Capabilities getCapabilities() throws IOException {
             Pop3Capabilities capabilities = new Pop3Capabilities();
             try {
                 String response = executeSimpleCommand("CAPA");
@@ -945,13 +936,13 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public Message createMessage(String uid) throws MessagingException {
+        public Message createMessage(String uid) {
             return new Pop3Message(uid, this);
         }
     }
 
     public static class Pop3Message extends MimeMessage {
-        public Pop3Message(String uid, Pop3Folder folder) throws MessagingException {
+        public Pop3Message(String uid, Pop3Folder folder) {
             mUid = uid;
             mFolder = folder;
             mSize = -1;

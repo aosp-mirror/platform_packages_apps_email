@@ -41,12 +41,15 @@ import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.Message.RecipientType;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.test.AndroidTestCase;
+import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -66,7 +69,7 @@ import java.util.regex.Pattern;
  * TODO test for BYE response in various places?
  */
 @SmallTest
-public class ImapStoreUnitTests extends AndroidTestCase {
+public class ImapStoreUnitTests extends InstrumentationTestCase {
     private final static String[] NO_REPLY = new String[0];
 
     /**
@@ -85,6 +88,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     /* These values are provided by setUp() */
     private ImapStore mStore = null;
     private ImapFolder mFolder = null;
+    private Context mTestContext;
 
     private int mNextTag;
     // Fields specific to the CopyMessages tests
@@ -98,11 +102,18 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        TempDirectory.setTempDirectory(getContext());
+        mTestContext = getInstrumentation().getContext();
+        // Use the target's (i.e. the Email application) context
+        TempDirectory.setTempDirectory(getInstrumentation().getTargetContext());
 
         // These are needed so we can get at the inner classes
-        mStore = (ImapStore) ImapStore.newInstance("imap://user:password@server:999",
-                getContext(), null);
+        HostAuth testAuth = new HostAuth();
+        Account testAccount = new Account();
+
+        testAuth.setLogin("user", "password");
+        testAuth.setConnection("imap", "server", 999);
+        testAccount.mHostAuthRecv = testAuth;
+        mStore = (ImapStore) ImapStore.newInstance(testAccount, mTestContext, null);
         mFolder = (ImapFolder) mStore.getFolder(FOLDER_NAME);
         mNextTag = 1;
     }
@@ -194,10 +205,10 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         //   x-android-device-model Model (Optional, so not tested here)
         //   x-android-net-operator Carrier (Unreliable, so not tested here)
         //   AGUID           A device+account UID
-        String id = ImapStore.getImapId(getContext(), "user-name", "host-name",
+        String id = ImapStore.getImapId(mTestContext, "user-name", "host-name",
                 CAPABILITY_RESPONSE.flatten());
         HashMap<String, String> map = tokenizeImapId(id);
-        assertEquals(getContext().getPackageName(), map.get("name"));
+        assertEquals(mTestContext.getPackageName(), map.get("name"));
         assertEquals("android", map.get("os"));
         assertNotNull(map.get("os-version"));
         assertNotNull(map.get("vendor"));
@@ -237,7 +248,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      */
     public void testImapIdWithVendorPolicy() {
         try {
-            MockVendorPolicy.inject(getContext());
+            MockVendorPolicy.inject(mTestContext);
 
             // Prepare mock result
             Bundle result = new Bundle();
@@ -245,7 +256,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
             MockVendorPolicy.mockResult = result;
 
             // Invoke
-            String id = ImapStore.getImapId(getContext(), "user-name", "host-name",
+            String id = ImapStore.getImapId(mTestContext, "user-name", "host-name",
                     ImapTestUtils.parseResponse("* CAPABILITY IMAP4rev1 XXX YYY Z").flatten());
 
             // Check the result
@@ -289,17 +300,37 @@ public class ImapStoreUnitTests extends AndroidTestCase {
      * Test that IMAP ID uid's are per-username
      */
     public void testImapIdDeviceId() throws MessagingException {
-        ImapStore store1a = (ImapStore) ImapStore.newInstance("imap://user1:password@server:999",
-                getContext(), null);
-        ImapStore store1b = (ImapStore) ImapStore.newInstance("imap://user1:password@server:999",
-                getContext(), null);
-        ImapStore store2 = (ImapStore) ImapStore.newInstance("imap://user2:password@server:999",
-                getContext(), null);
+        HostAuth testAuth;
+        Account testAccount;
+
+        // store 1a
+        testAuth = new HostAuth();
+        testAuth.setLogin("user1", "password");
+        testAuth.setConnection("imap", "server", 999);
+        testAccount = new Account();
+        testAccount.mHostAuthRecv = testAuth;
+        ImapStore testStore1A = (ImapStore) ImapStore.newInstance(testAccount, mTestContext, null);
+
+        // store 1b
+        testAuth = new HostAuth();
+        testAuth.setLogin("user1", "password");
+        testAuth.setConnection("imap", "server", 999);
+        testAccount = new Account();
+        testAccount.mHostAuthRecv = testAuth;
+        ImapStore testStore1B = (ImapStore) ImapStore.newInstance(testAccount, mTestContext, null);
+
+        // store 2
+        testAuth = new HostAuth();
+        testAuth.setLogin("user2", "password");
+        testAuth.setConnection("imap", "server", 999);
+        testAccount = new Account();
+        testAccount.mHostAuthRecv = testAuth;
+        ImapStore testStore2 = (ImapStore) ImapStore.newInstance(testAccount, mTestContext, null);
 
         String capabilities = CAPABILITY_RESPONSE.flatten();
-        String id1a = ImapStore.getImapId(getContext(), "user1", "host-name", capabilities);
-        String id1b = ImapStore.getImapId(getContext(), "user1", "host-name", capabilities);
-        String id2 = ImapStore.getImapId(getContext(), "user2", "host-name", capabilities);
+        String id1a = ImapStore.getImapId(mTestContext, "user1", "host-name", capabilities);
+        String id1b = ImapStore.getImapId(mTestContext, "user1", "host-name", capabilities);
+        String id2 = ImapStore.getImapId(mTestContext, "user2", "host-name", capabilities);
 
         String uid1a = tokenizeImapId(id1a).get("AGUID");
         String uid1b = tokenizeImapId(id1b).get("AGUID");
@@ -412,7 +443,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
     public void testImapIdSecureServerNotSent() throws MessagingException {
         // Note, this is injected into mStore (which we don't use for this test)
         MockTransport mockTransport = openAndInjectMockTransport();
-        mockTransport.setMockHost("eMail.sEcurEserVer.nEt");
+        mockTransport.setHost("eMail.sEcurEserVer.nEt");
 
         // Prime the expects pump as if the server wants IMAP ID, but we should not actually expect
         // to send it, because the login code in the store should never actually send it (to this
@@ -498,7 +529,7 @@ public class ImapStoreUnitTests extends AndroidTestCase {
         // Create mock transport and inject it into the ImapStore that's already set up
         MockTransport mockTransport = new MockTransport();
         mockTransport.setSecurity(connectionSecurity, trustAllCertificates);
-        mockTransport.setMockHost("mock.server.com");
+        mockTransport.setHost("mock.server.com");
         mStore.setTransport(mockTransport);
         return mockTransport;
     }

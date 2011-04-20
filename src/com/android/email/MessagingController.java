@@ -253,7 +253,7 @@ public class MessagingController implements Runnable {
                     // Step 1:  Get remote folders, make a list, and add any local folders
                     // that don't already exist.
 
-                    Store store = Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                    Store store = Store.getInstance(account, mContext, null);
 
                     Folder[] remoteFolders = store.getAllFolders();
 
@@ -383,7 +383,7 @@ public class MessagingController implements Runnable {
             StoreSynchronizer.SyncResults results;
 
             // Select generic sync or store-specific sync
-            Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext, null);
+            Store remoteStore = Store.getInstance(account, mContext, null);
             StoreSynchronizer customSync = remoteStore.getMessageSynchronizer();
             if (customSync == null) {
                 results = synchronizeMailboxGeneric(account, folder);
@@ -512,7 +512,7 @@ public class MessagingController implements Runnable {
 
         // 2.  Open the remote folder and create the remote folder if necessary
 
-        Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext, null);
+        Store remoteStore = Store.getInstance(account, mContext, null);
         Folder remoteFolder = remoteStore.getFolder(folder.mDisplayName);
 
         /*
@@ -1130,7 +1130,7 @@ public class MessagingController implements Runnable {
 
                 // Load the remote store if it will be needed
                 if (remoteStore == null && deleteFromTrash) {
-                    remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                    remoteStore = Store.getInstance(account, mContext, null);
                 }
 
                 // Dispatch here for specific change types
@@ -1202,7 +1202,7 @@ public class MessagingController implements Runnable {
                         // Load the remote store if it will be needed
                         if (remoteStore == null) {
                             remoteStore =
-                                Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                                Store.getInstance(account, mContext, null);
                         }
                         // Load the mailbox if it will be needed
                         if (mailbox == null) {
@@ -1232,7 +1232,7 @@ public class MessagingController implements Runnable {
                         // Load the remote store if it will be needed
                         if (remoteStore == null) {
                             remoteStore =
-                                Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                                Store.getInstance(account, mContext, null);
                         }
                         // Load the mailbox if it will be needed
                         if (mailbox == null) {
@@ -1319,7 +1319,7 @@ public class MessagingController implements Runnable {
                 // Load the remote store if it will be needed
                 if (remoteStore == null &&
                         (changeMoveToTrash || changeRead || changeFlagged || changeMailbox)) {
-                    remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                    remoteStore = Store.getInstance(account, mContext, null);
                 }
 
                 // Dispatch here for specific change types
@@ -1829,7 +1829,7 @@ public class MessagingController implements Runnable {
                     }
 
                     Store remoteStore =
-                        Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                        Store.getInstance(account, mContext, null);
                     Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
                     remoteFolder.open(OpenMode.READ_WRITE, null);
 
@@ -1922,7 +1922,7 @@ public class MessagingController implements Runnable {
                     }
 
                     Store remoteStore =
-                        Store.getInstance(account.getStoreUri(mContext), mContext, null);
+                        Store.getInstance(account, mContext, null);
                     Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
                     remoteFolder.open(OpenMode.READ_WRITE, null);
 
@@ -2020,7 +2020,7 @@ public class MessagingController implements Runnable {
             mListeners.sendPendingMessagesStarted(account.mId, -1);
 
             Sender sender = Sender.getInstance(mContext, account.getSenderUri(mContext));
-            Store remoteStore = Store.getInstance(account.getStoreUri(mContext), mContext, null);
+            Store remoteStore = Store.getInstance(account, mContext, null);
             boolean requireMoveMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
             ContentValues moveToSentValues = null;
             if (requireMoveMessageToSentFolder) {

@@ -390,7 +390,7 @@ public class AccountCheckSettingsFragment extends Fragment {
 
         final Context mContext;
         final int mMode;
-        final String mStoreUri;
+        final Account mAccount;
         final String mStoreHost;
         final String mSenderUri;
         final String mCheckEmail;
@@ -404,7 +404,7 @@ public class AccountCheckSettingsFragment extends Fragment {
         public AccountCheckTask(int mode, Account checkAccount) {
             mContext = getActivity().getApplicationContext();
             mMode = mode;
-            mStoreUri = checkAccount.getStoreUri(mContext);
+            mAccount = checkAccount;
             mStoreHost = checkAccount.mHostAuthRecv.mAddress;
             mSenderUri = checkAccount.getSenderUri(mContext);
             mCheckEmail = checkAccount.mEmailAddress;
@@ -422,7 +422,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     if (isCancelled()) return null;
                     publishProgress(STATE_CHECK_AUTODISCOVER);
                     Log.d(Logging.LOG_TAG, "Begin auto-discover for " + mCheckEmail);
-                    Store store = Store.getInstance(mStoreUri, mContext, null);
+                    Store store = Store.getInstance(mAccount, mContext, null);
                     Bundle result = store.autoDiscover(mContext, mCheckEmail, mCheckPassword);
                     // Result will be one of:
                     //  null: remote exception - proceed to manual setup
@@ -450,7 +450,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     if (isCancelled()) return null;
                     Log.d(Logging.LOG_TAG, "Begin check of incoming email settings");
                     publishProgress(STATE_CHECK_INCOMING);
-                    Store store = Store.getInstance(mStoreUri, mContext, null);
+                    Store store = Store.getInstance(mAccount, mContext, null);
                     Bundle bundle = store.checkSettings();
                     int resultCode = MessagingException.UNSPECIFIED_EXCEPTION;
                     if (bundle != null) {

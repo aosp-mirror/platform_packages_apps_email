@@ -17,7 +17,10 @@
 package com.android.email.mail;
 
 import com.android.email.Email;
+import com.android.email.mail.Store.StoreInfo;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -27,83 +30,100 @@ import android.test.suitebuilder.annotation.MediumTest;
  */
 @MediumTest
 public class StoreTests extends AndroidTestCase {
+    public void testGetStoreKey() throws MessagingException {
+        HostAuth testAuth = new HostAuth();
+        Account testAccount = new Account();
+        String testKey;
 
-    /**
-     * Test StoreInfo & Store lookup for POP accounts
-     */
-    public void testStoreLookupPOP() throws MessagingException {
-        final String storeUri = "pop3://user:password@server.com";
-        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(storeUri, getContext());
-        
-        assertNotNull("storeInfo null", info);
-        assertNotNull("scheme null", info.mScheme);
-        assertNotNull("classname null", info.mClassName);
-        assertFalse(info.mPushSupported);
-        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, info.mVisibleLimitDefault);
-        assertEquals(Email.VISIBLE_LIMIT_INCREMENT, info.mVisibleLimitIncrement);
-        
-        // This will throw MessagingException if the result would have been null
-        Store store = Store.getInstance(storeUri, getContext(), null);
-    }
-        
-    /**
-     * Test StoreInfo & Store lookup for IMAP accounts
-     */
-    public void testStoreLookupIMAP() throws MessagingException {
-        final String storeUri = "imap://user:password@server.com";
-        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(storeUri, getContext());
-        
-        assertNotNull("storeInfo null", info);
-        assertNotNull("scheme null", info.mScheme);
-        assertNotNull("classname null", info.mClassName);
-        assertFalse(info.mPushSupported);
-        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, info.mVisibleLimitDefault);
-        assertEquals(Email.VISIBLE_LIMIT_INCREMENT, info.mVisibleLimitIncrement);
-        
-        // This will throw MessagingException if the result would have been null
-        Store store = Store.getInstance(storeUri, getContext(), null);
-    }
-        
-    /**
-     * Test StoreInfo & Store lookup for EAS accounts
-     * TODO: EAS store will probably require implementation of Store.PersistentDataCallbacks
-     */
-    public void testStoreLookupEAS() throws MessagingException {
-        final String storeUri = "eas://user:password@server.com";
-        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(storeUri, getContext());
-        if (info != null) {
-            assertNotNull("scheme null", info.mScheme);
-            assertNotNull("classname null", info.mClassName);
-            assertTrue(info.mPushSupported);
-            assertEquals(-1, info.mVisibleLimitDefault);
-            assertEquals(-1, info.mVisibleLimitIncrement);
-            
-            // This will throw MessagingException if the result would have been null
-            Store store = Store.getInstance(storeUri, getContext(), null);
-        } else {
-            try {
-                Store store = Store.getInstance(storeUri, getContext(), null);
-                fail("MessagingException expected when EAS not supported");
-            } catch (MessagingException me) {
-                // expected - fall through
-            }
-        }
-    }
-    
-    /**
-     * Test StoreInfo & Store lookup for unknown accounts
-     */
-    public void testStoreLookupUnknown() {
-        final String storeUri = "bogus-scheme://user:password@server.com";
-        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(storeUri, getContext());
-        assertNull(info);
+        // Make sure to set the host auth; otherwise we create entries in the hostauth db
+        testAccount.mHostAuthRecv = testAuth;
 
+        // No address defined; throws an exception
         try {
-            Store store = Store.getInstance(storeUri, getContext(), null);
-            fail("MessagingException expected from bogus URI scheme");
-        } catch (MessagingException me) {
-            // expected - fall through
+            testKey = Store.getStoreKey(mContext, testAccount);
+            fail("MesasginException not thrown for missing address");
+        } catch (MessagingException expected) {
         }
+
+        // Empty address defined; throws an exception
+        testAuth.mAddress = " \t ";
+        try {
+            testKey = Store.getStoreKey(mContext, testAccount);
+            fail("MesasginException not thrown for empty address");
+        } catch (MessagingException expected) {
+        }
+
+        // Address defined, no login
+        testAuth.mAddress = "a.valid.address.com";
+        testKey = Store.getStoreKey(mContext, testAccount);
+        assertEquals("a.valid.address.com", testKey);
+
+        // Address & login defined
+        testAuth.mAddress = "address.org";
+        testAuth.mLogin = "auser";
+        testKey = Store.getStoreKey(mContext, testAccount);
+        assertEquals("address.orgauser", testKey);
+    }
+
+    public void testGetStoreInfo() {
+        StoreInfo testInfo;
+
+        // POP3
+        testInfo = Store.StoreInfo.getStoreInfo("pop3", mContext);
+        assertNotNull(testInfo);
+        assertNotNull(testInfo.mScheme);
+        assertNotNull(testInfo.mClassName);
+        assertFalse(testInfo.mPushSupported);
+        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, testInfo.mVisibleLimitDefault);
+        assertEquals(Email.VISIBLE_LIMIT_INCREMENT, testInfo.mVisibleLimitIncrement);
+
+        // IMAP
+        testInfo = Store.StoreInfo.getStoreInfo("imap", mContext);
+        assertNotNull(testInfo);
+        assertNotNull(testInfo.mScheme);
+        assertNotNull(testInfo.mClassName);
+        assertFalse(testInfo.mPushSupported);
+        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, testInfo.mVisibleLimitDefault);
+        assertEquals(Email.VISIBLE_LIMIT_INCREMENT, testInfo.mVisibleLimitIncrement);
+
+        // Unknown
+        testInfo = Store.StoreInfo.getStoreInfo("unknownscheme", mContext);
+        assertNull(testInfo);
+    }
+
+    public void testGetInstance() throws MessagingException {
+        HostAuth testAuth = new HostAuth();
+        Account testAccount = new Account();
+        Store testStore;
+
+        // Make sure to set the host auth; otherwise we create entries in the hostauth db
+        testAccount.mHostAuthRecv = testAuth;
+
+        // POP3
+        testAuth.mAddress = "pop3.google.com";
+        testAuth.mProtocol = "pop3";
+        testStore = Store.getInstance(testAccount, getContext(), null);
+        assertEquals(1, Store.sStores.size());
+        assertSame(testStore, Store.sStores.get("pop3.google.com"));
+        Store.sStores.clear();
+
+        // IMAP
+        testAuth.mAddress = "imap.google.com";
+        testAuth.mProtocol = "imap";
+        testStore = Store.getInstance(testAccount, getContext(), null);
+        assertEquals(1, Store.sStores.size());
+        assertSame(testStore, Store.sStores.get("imap.google.com"));
+        Store.sStores.clear();
+
+        // Unknown
+        testAuth.mAddress = "unknown.google.com";
+        testAuth.mProtocol = "unknown";
+        try {
+            testStore = Store.getInstance(testAccount, getContext(), null);
+            fail("Store#getInstance() should have thrown an exception");
+        } catch (MessagingException expected) {
+        }
+        assertEquals(0, Store.sStores.size());
     }
 
 }
