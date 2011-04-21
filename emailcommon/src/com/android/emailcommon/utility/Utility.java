@@ -41,6 +41,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.StrictMode;
@@ -87,6 +88,20 @@ public class Utility {
     // "GMT" + "+" or "-" + 4 digits
     private static final Pattern DATE_CLEANUP_PATTERN_WRONG_TIMEZONE =
             Pattern.compile("GMT([-+]\\d{4})$");
+
+    private static Handler sMainThreadHandler;
+
+    /**
+     * @return a {@link Handler} tied to the main thread.
+     */
+    public static Handler getMainThreadHandler() {
+        if (sMainThreadHandler == null) {
+            // No need to synchronize -- it's okay to create an extra Handler, which will be used
+            // only once and then thrown away.
+            sMainThreadHandler = new Handler(Looper.getMainLooper());
+        }
+        return sMainThreadHandler;
+    }
 
     public final static String readInputStream(InputStream in, String encoding) throws IOException {
         InputStreamReader reader = new InputStreamReader(in, encoding);
@@ -513,27 +528,25 @@ public class Utility {
     }
 
     /**
-     * A thread safe way to show a Toast.  This method uses {@link Activity#runOnUiThread}, so it
-     * can be called on any thread.
+     * A thread safe way to show a Toast.  Can be called from any thread.
      *
-     * @param activity Parent activity.
+     * @param context context
      * @param resId Resource ID of the message string.
      */
-    public static void showToast(Activity activity, int resId) {
-        showToast(activity, activity.getResources().getString(resId));
+    public static void showToast(Context context, int resId) {
+        showToast(context, context.getResources().getString(resId));
     }
 
     /**
-     * A thread safe way to show a Toast.  This method uses {@link Activity#runOnUiThread}, so it
-     * can be called on any thread.
+     * A thread safe way to show a Toast.  Can be called from any thread.
      *
-     * @param activity Parent activity.
+     * @param context context
      * @param message Message to show.
      */
-    public static void showToast(final Activity activity, final String message) {
-        activity.runOnUiThread(new Runnable() {
+    public static void showToast(final Context context, final String message) {
+        getMainThreadHandler().post(new Runnable() {
             public void run() {
-                Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             }
         });
     }
