@@ -362,6 +362,8 @@
     <string name="message_view_attachment_info_action">Info</string>
     <!-- Button name, to save the attachment to SD card [CHAR LIMIT=10]-->
     <string name="message_view_attachment_save_action">Save</string>
+    <!-- Disabled button text to indicate an attachment has been saved [CHAR LIMIT=10] -->
+    <string name="message_view_attachment_saved">Saved</string>
     <!-- Button name, to cancel a queued attachment download [CHAR LIMIT=10]-->
     <string name="message_view_attachment_cancel_action">Stop</string>
     <!-- Toast after saving attachment [CHAR LIMIT=30] -->

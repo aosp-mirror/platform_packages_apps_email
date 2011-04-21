@@ -55,7 +55,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
     private static final String ARG_MESSAGE_ID = "messageId";
 
     private ImageView mFavoriteIcon;
-    private View mInviteSection;
 
     private View mReplyButton;
     private View mReplyAllButton;
@@ -125,6 +124,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
     public static final class EmptyCallback extends MessageViewFragmentBase.EmptyCallback
             implements Callback {
+        @SuppressWarnings("hiding")
         public static final Callback INSTANCE = new EmptyCallback();
 
         @Override public void onCalendarLinkClicked(long epochEventStartTime) { }
@@ -165,7 +165,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
         final View view = super.onCreateView(inflater, container, savedInstanceState);
 
         mFavoriteIcon = (ImageView) UiUtilities.getView(view, R.id.favorite);
-        mInviteSection = UiUtilities.getView(view, R.id.invite_section);
         mReplyButton = UiUtilities.getView(view, R.id.reply);
         mReplyAllButton = UiUtilities.getView(view, R.id.reply_all);
         mForwardButton = UiUtilities.getView(view, R.id.forward);

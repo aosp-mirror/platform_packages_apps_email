@@ -35,6 +35,7 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.collect.Maps;
 
 import org.apache.commons.io.IOUtils;
 
@@ -83,6 +84,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Formatter;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -735,6 +737,23 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             Utility.showToast(getActivity(), R.string.message_view_status_attachment_not_saved);
             return;
         }
+
+        if (info.isFileSaved()) {
+            // Nothing to do - we have the file saved.
+            return;
+        }
+
+        File savedFile = performAttachmentSave(info);
+        if (savedFile != null) {
+            Utility.showToast(getActivity(), String.format(
+                    mContext.getString(R.string.message_view_status_attachment_saved),
+                    savedFile.getName()));
+        } else {
+            Utility.showToast(getActivity(), R.string.message_view_status_attachment_not_saved);
+        }
+    }
+
+    private File performAttachmentSave(MessageViewAttachmentInfo info) {
         Attachment attachment = Attachment.restoreAttachmentWithId(mContext, info.mId);
         Uri attachmentUri = AttachmentUtilities.getAttachmentUri(mAccountId, attachment.mId);
 
@@ -752,30 +771,56 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             out.close();
             in.close();
 
-            Utility.showToast(getActivity(), String.format(
-                    mContext.getString(R.string.message_view_status_attachment_saved),
-                    file.getName()));
+            String absolutePath = file.getAbsolutePath();
 
             // Although the download manager can scan media files, scanning only happens after the
             // user clicks on the item in the Downloads app. So, we run the attachment through
             // the media scanner ourselves so it gets added to gallery / music immediately.
-            MediaScannerConnection.scanFile(mContext, new String[] {file.getAbsolutePath()},
+            MediaScannerConnection.scanFile(mContext, new String[] {absolutePath},
                     null, null);
 
             DownloadManager dm =
                     (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
             dm.addCompletedDownload(info.mName, info.mName,
                     false /* do not use media scanner */,
-                    info.mContentType, file.getAbsolutePath(), info.mSize,
+                    info.mContentType, absolutePath, info.mSize,
                     true /* show notification */);
+
+            // Cache the stored file information.
+            info.setSavedPath(absolutePath);
+
+            // Update our buttons.
+            updateAttachmentButtons(info);
+
+            return file;
+
         } catch (IOException ioe) {
-            Utility.showToast(getActivity(), R.string.message_view_status_attachment_not_saved);
+            // Ignore. Callers will handle it from the return code.
         }
+
+        return null;
     }
 
-    private void onViewAttachment(MessageViewAttachmentInfo info) {
-        Intent intent = info.getAttachmentIntent(mContext, mAccountId);
+    private void onOpenAttachment(MessageViewAttachmentInfo info) {
+        if (info.mAllowInstall) {
+            // The package installer is unable to install files from a content URI; it must be
+            // given a file path. Therefore, we need to save it first in order to proceed
+            if (!info.mAllowSave || !Utility.isExternalStorageMounted()) {
+                Utility.showToast(getActivity(), R.string.message_view_status_attachment_not_saved);
+                return;
+            }
+
+            if (!info.isFileSaved()) {
+                if (performAttachmentSave(info) == null) {
+                    // Saving failed for some reason - bail.
+                    Utility.showToast(
+                            getActivity(), R.string.message_view_status_attachment_not_saved);
+                    return;
+                }
+            }
+        }
         try {
+            Intent intent = info.getAttachmentIntent(mContext, mAccountId);
             startActivity(intent);
         } catch (ActivityNotFoundException e) {
             Utility.showToast(getActivity(), R.string.message_view_display_attachment_toast);
@@ -889,7 +934,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 onSaveAttachment((MessageViewAttachmentInfo) view.getTag());
                 break;
             case R.id.open:
-                onViewAttachment((MessageViewAttachmentInfo) view.getTag());
+                onOpenAttachment((MessageViewAttachmentInfo) view.getTag());
                 break;
             case R.id.cancel:
                 onCancelAttachment((MessageViewAttachmentInfo) view.getTag());
@@ -1048,7 +1093,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      */
     private class LoadBodyTask extends EmailAsyncTask<Void, Void, String[]> {
 
-        private long mId;
+        private final long mId;
         private boolean mErrorLoadingMessageBody;
 
         /**
@@ -1171,8 +1216,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         private Button cancelButton;
         private ImageView iconView;
 
+        private static final Map<AttachmentInfo, String> sSavedFileInfos = Maps.newHashMap();
+
         // Don't touch it directly from the outer class.
-        private ProgressBar mProgressView;
+        private final ProgressBar mProgressView;
         private boolean loaded;
 
         private MessageViewAttachmentInfo(Context context, Attachment attachment,
@@ -1221,6 +1268,54 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             if (!mProgressView.isIndeterminate()) {
                 mProgressView.setIndeterminate(true);
             }
+        }
+
+        /**
+         * Determines whether or not this attachment has a saved file in the external storage. That
+         * is, the user has at some point clicked "save" for this attachment.
+         *
+         * Note: this is an approximation and uses an in-memory cache that can get wiped when the
+         * process dies, and so is somewhat conservative. Additionally, the user can modify the file
+         * after saving, and so the file may not be the same (though this is unlikely).
+         */
+        public boolean isFileSaved() {
+            String path = getSavedPath();
+            if (path == null) {
+                return false;
+            }
+            boolean savedFileExists = new File(path).exists();
+            if (!savedFileExists) {
+                // Purge the cache entry.
+                setSavedPath(null);
+            }
+            return savedFileExists;
+        }
+
+        private void setSavedPath(String path) {
+            if (path == null) {
+                sSavedFileInfos.remove(this);
+            } else {
+                sSavedFileInfos.put(this, path);
+            }
+        }
+
+        /**
+         * Returns an absolute file path for the given attachment if it has been saved. If one is
+         * not found, {@code null} is returned.
+         *
+         * Clients are expected to validate that the file at the given path is still valid.
+         */
+        private String getSavedPath() {
+            return sSavedFileInfos.get(this);
+        }
+
+        @Override
+        protected Uri getUriForIntent(Context context, long accountId) {
+            // Prefer to act on the saved file for intents.
+            String path = getSavedPath();
+            return (path != null)
+                    ? Uri.parse("file://" + getSavedPath())
+                    : super.getUriForIntent(context, accountId);
         }
     }
 
@@ -1273,6 +1368,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             attachmentInfo.showProgress(100);
             if (attachmentInfo.mAllowSave) {
                 saveButton.setVisibility(View.VISIBLE);
+
+                boolean isFileSaved = attachmentInfo.isFileSaved();
+                saveButton.setEnabled(!isFileSaved);
+                if (!isFileSaved) {
+                    saveButton.setText(R.string.message_view_attachment_save_action);
+                } else {
+                    saveButton.setText(R.string.message_view_attachment_saved);
+                }
             }
             if (attachmentInfo.mAllowView) {
                 // Set the attachment action button text accordingly

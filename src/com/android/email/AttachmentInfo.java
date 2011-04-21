@@ -134,17 +134,12 @@ public class AttachmentInfo {
             boolean sideloadEnabled;
             sideloadEnabled = Settings.Secure.getInt(context.getContentResolver(),
                     Settings.Secure.INSTALL_NON_MARKET_APPS, 0 /* sideload disabled */) == 1;
-            // NOTE: Currently we prevent viewing (or installing) any application attachment
-            // from within Email. When we support installing directly from view, save and
-            // install should all be following sideloadEnabled.
-            canView = false;
             canSave &= sideloadEnabled;
+            canView = canSave;
+            canInstall = canSave;
             if (!sideloadEnabled) {
                 denyFlags |= DENY_NOSIDELOAD;
-            } else {
-                denyFlags |= DENY_APKINSTALL;
             }
-            canInstall = canView;
         }
 
         // Check for file size exceeded
@@ -178,20 +173,26 @@ public class AttachmentInfo {
      * Returns an <code>Intent</code> to load the given attachment.
      * @param context the caller's context
      * @param accountId the account associated with the attachment (or 0 if we don't need to
-     * resolve from attachmentUri to contentUri)
-     * @return an Intent suitable for loading the attachment
+     *     resolve from attachmentUri to contentUri)
+     * @return an Intent suitable for viewing the attachment
      */
     public Intent getAttachmentIntent(Context context, long accountId) {
+        Uri contentUri = getUriForIntent(context, accountId);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(contentUri, mContentType);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        return intent;
+    }
+
+    protected Uri getUriForIntent(Context context, long accountId) {
         Uri contentUri = AttachmentUtilities.getAttachmentUri(accountId, mId);
         if (accountId > 0) {
             contentUri = AttachmentUtilities.resolveAttachmentIdToContentUri(
                     context.getContentResolver(), contentUri);
         }
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(contentUri);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                | Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        return intent;
+
+        return contentUri;
     }
 
     /**
@@ -200,6 +201,24 @@ public class AttachmentInfo {
      */
     public boolean isEligibleForDownload() {
         return mAllowView || mAllowSave;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (mId ^ (mId >>> 32));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if ((o == null) || (o.getClass() != getClass())) {
+            return false;
+        }
+
+        return ((AttachmentInfo) o).mId == mId;
     }
 
     @Override

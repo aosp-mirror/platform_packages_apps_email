@@ -101,4 +101,16 @@
         <item name="android:enabled">false</item>
         <item name="android:ellipsize">end</item>
     </style>
+
+    <style name="Attachment" />
+
+    <style name="Attachment.Button" parent="@android:style/Widget.Holo.Button.Borderless">
+        <item name="android:padding">0dip</item>
+        <item name="android:textColor">@color/buttontext</item>
+        <item name="android:textSize">14dip</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center</item>
+    </style>
 </resources>
