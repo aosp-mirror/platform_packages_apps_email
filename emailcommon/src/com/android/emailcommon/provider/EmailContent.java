@@ -987,21 +987,39 @@ public abstract class EmailContent {
          */
         public static final long ACCOUNT_ID_COMBINED_VIEW = 0x1000000000000000L;
 
-        public final static int FLAGS_NOTIFY_NEW_MAIL = 1;
-        public final static int FLAGS_VIBRATE_ALWAYS = 2;
-        public static final int FLAGS_DELETE_POLICY_MASK = 4+8;
+        // Whether or not the user has asked for notifications of new mail in this account
+        public final static int FLAGS_NOTIFY_NEW_MAIL = 1<<0;
+        // Whether or not the user has asked for vibration notifications with all new mail
+        public final static int FLAGS_VIBRATE_ALWAYS = 1<<1;
+        // Bit mask for the account's deletion policy (see DELETE_POLICY_x below)
+        public static final int FLAGS_DELETE_POLICY_MASK = 1<<2 | 1<<3;
         public static final int FLAGS_DELETE_POLICY_SHIFT = 2;
-        public static final int FLAGS_INCOMPLETE = 16;
-        public static final int FLAGS_SECURITY_HOLD = 32;
-        public static final int FLAGS_VIBRATE_WHEN_SILENT = 64;
-        public static final int FLAGS_SUPPORTS_SMART_FORWARD = 128;
-        public static final int FLAGS_BACKGROUND_ATTACHMENTS = 256;
+        // Whether the account is in the process of being created; any account reconciliation code
+        // MUST ignore accounts with this bit set; in addition, ContentObservers for this data
+        // SHOULD consider the state of this flag during operation
+        public static final int FLAGS_INCOMPLETE = 1<<4;
+        // Security hold is used when the device is not in compliance with security policies
+        // required by the server; in this state, the user MUST be alerted to the need to update
+        // security settings.  Sync adapters SHOULD NOT attempt to sync when this flag is set.
+        public static final int FLAGS_SECURITY_HOLD = 1<<5;
+        // Whether or not the user has asked for vibration notifications when the ringer is silent
+        public static final int FLAGS_VIBRATE_WHEN_SILENT = 1<<6;
+        // Whether the account supports "smart forward" (i.e. the server appends the original
+        // message along with any attachments to the outgoing message)
+        public static final int FLAGS_SUPPORTS_SMART_FORWARD = 1<<7;
+        // Whether the account should try to cache attachments in the background
+        public static final int FLAGS_BACKGROUND_ATTACHMENTS = 1<<8;
         // Available to sync adapter
-        public static final int FLAGS_SYNC_ADAPTER = 512;
+        public static final int FLAGS_SYNC_ADAPTER = 1<<9;
+        // Sync disabled is a status commanded by the server; the sync adapter SHOULD NOT try to
+        // sync mailboxes in this account automatically.  A manual sync request to sync a mailbox
+        // with sync disabled SHOULD try to sync and report any failure result via the UI.
+        public static final int FLAGS_SYNC_DISABLED = 1<<10;
 
+        // Deletion policy (see FLAGS_DELETE_POLICY_MASK, above)
         public static final int DELETE_POLICY_NEVER = 0;
-        public static final int DELETE_POLICY_7DAYS = 1;        // not supported
-        public static final int DELETE_POLICY_ON_DELETE = 2;
+        public static final int DELETE_POLICY_7DAYS = 1<<0;        // not supported
+        public static final int DELETE_POLICY_ON_DELETE = 1<<1;
 
         // Sentinel values for the mSyncInterval field of both Account records
         public static final int CHECK_INTERVAL_NEVER = -1;
