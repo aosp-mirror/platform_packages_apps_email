@@ -163,8 +163,8 @@ public abstract class Store {
      * @throws MessagingException If the account is not setup properly (i.e. there is no address
      * or login)
      */
-    @VisibleForTesting
-    static String getStoreKey(Context context, Account account) throws MessagingException {
+    protected static String getStoreKey(Context context, Account account)
+            throws MessagingException {
         final StringBuffer key = new StringBuffer();
         final HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
         if (recvAuth.mAddress == null) {

@@ -21,6 +21,8 @@ import com.android.email.mail.Store;
 import com.android.email.mail.StoreSynchronizer;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 
@@ -29,8 +31,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 
 /**
@@ -41,37 +41,27 @@ import java.util.HashMap;
 public class ExchangeStore extends Store {
     public static final String LOG_TAG = "ExchangeStore";
 
-    private final URI mUri;
     private final ExchangeTransport mTransport;
 
     /**
-     * Factory method.
+     * Static named constructor.
      */
-    public static Store newInstance(String uri, Context context, PersistentDataCallbacks callbacks)
-            throws MessagingException {
-        return new ExchangeStore(uri, context, callbacks);
+    public static Store newInstance(Account account, Context context,
+            PersistentDataCallbacks callbacks) throws MessagingException {
+        return new ExchangeStore(account, context, callbacks);
     }
 
     /**
-     * eas://user:password@server/domain
-     *
-     * @param _uri
-     * @param application
+     * Creates a new store for the given account.
      */
-    private ExchangeStore(String _uri, Context context, PersistentDataCallbacks callbacks)
+    private ExchangeStore(Account account, Context context, PersistentDataCallbacks callbacks)
             throws MessagingException {
-        try {
-            mUri = new URI(_uri);
-        } catch (URISyntaxException e) {
-            throw new MessagingException("Invalid uri for ExchangeStore");
-        }
-
-        mTransport = ExchangeTransport.getInstance(mUri, context);
+        mTransport = ExchangeTransport.getInstance(account, context);
     }
 
     @Override
     public Bundle checkSettings() throws MessagingException {
-        return mTransport.checkSettings(mUri);
+        return mTransport.checkSettings();
     }
 
     @Override
@@ -127,9 +117,11 @@ public class ExchangeStore extends Store {
 
     public static class ExchangeTransport {
         private final Context mContext;
-
         private String mHost;
         private String mDomain;
+        private int mPort;
+        private boolean mSsl;
+        private boolean mTSsl;
         private String mUsername;
         private String mPassword;
 
@@ -139,18 +131,13 @@ public class ExchangeStore extends Store {
         /**
          * Public factory.  The transport should be a singleton (per Uri)
          */
-        public synchronized static ExchangeTransport getInstance(URI uri, Context context)
+        public synchronized static ExchangeTransport getInstance(Account account, Context context)
                 throws MessagingException {
-            if (!uri.getScheme().equals("eas") && !uri.getScheme().equals("eas+ssl+") &&
-                    !uri.getScheme().equals("eas+ssl+trustallcerts")) {
-                throw new MessagingException("Invalid scheme");
-            }
-
-            final String key = uri.toString();
-            ExchangeTransport transport = sUriToInstanceMap.get(key);
+            final String storeKey = getStoreKey(context, account);
+            ExchangeTransport transport = sUriToInstanceMap.get(storeKey);
             if (transport == null) {
-                transport = new ExchangeTransport(uri, context);
-                sUriToInstanceMap.put(key, transport);
+                transport = new ExchangeTransport(account, context);
+                sUriToInstanceMap.put(storeKey, transport);
             }
             return transport;
         }
@@ -158,57 +145,56 @@ public class ExchangeStore extends Store {
         /**
          * Private constructor - use public factory.
          */
-        private ExchangeTransport(URI uri, Context context) throws MessagingException {
+        private ExchangeTransport(Account account, Context context) throws MessagingException {
             mContext = context.getApplicationContext();
-            setUri(uri);
+            setAccount(account);
         }
 
-        /**
-         * Use the Uri to set up a newly-constructed transport
-         * @param uri
-         * @throws MessagingException
-         */
-        private void setUri(final URI uri) throws MessagingException {
-            mHost = uri.getHost();
+        private void setAccount(final Account account) throws MessagingException {
+            HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
+            if (recvAuth == null || !STORE_SCHEME_EAS.equalsIgnoreCase(recvAuth.mProtocol)) {
+                throw new MessagingException("Unsupported protocol");
+            }
+            mHost = recvAuth.mAddress;
             if (mHost == null) {
                 throw new MessagingException("host not specified");
             }
-
-            mDomain = uri.getPath();
+            mDomain = recvAuth.mDomain;
             if (!TextUtils.isEmpty(mDomain)) {
                 mDomain = mDomain.substring(1);
             }
+            mPort = 80;
+            if ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
+                mPort = 443;
+                mSsl = true;
+            }
+            mTSsl = ((recvAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0);
 
-            final String userInfo = uri.getUserInfo();
-            if (userInfo == null) {
+            String[] userInfoParts = recvAuth.getLogin();
+            if (userInfoParts != null) {
+                mUsername = userInfoParts[0];
+                mPassword = userInfoParts[1];
+                if (TextUtils.isEmpty(mPassword)) {
+                    throw new MessagingException("user name and password not specified");
+                }
+            } else {
                 throw new MessagingException("user information not specifed");
             }
-            final String[] uinfo = userInfo.split(":", 2);
-            if (uinfo.length != 2) {
-                throw new MessagingException("user name and password not specified");
-            }
-            mUsername = uinfo[0];
-            mPassword = uinfo[1];
         }
 
         /**
          * Here's where we check the settings for EAS.
-         * @param uri the URI of the account to create
          * @throws MessagingException if we can't authenticate the account
          */
-        public Bundle checkSettings(URI uri) throws MessagingException {
-            setUri(uri);
-            boolean ssl = uri.getScheme().contains("+ssl");
-            boolean tssl = uri.getScheme().contains("+trustallcerts");
+        public Bundle checkSettings() throws MessagingException {
             try {
-                int port = ssl ? 443 : 80;
                 IEmailService svc = ExchangeUtils.getExchangeService(mContext, null);
                 // Use a longer timeout for the validate command.  Note that the instanceof check
                 // shouldn't be necessary; we'll do it anyway, just to be safe
                 if (svc instanceof EmailServiceProxy) {
                     ((EmailServiceProxy)svc).setTimeout(90);
                 }
-                return svc.validate("eas", mHost, mUsername, mPassword, port, ssl, tssl);
+                return svc.validate("eas", mHost, mUsername, mPassword, mPort, mSsl, mTSsl);
             } catch (RemoteException e) {
                 throw new MessagingException("Call to validate generated an exception", e);
             }
@@ -220,11 +206,9 @@ public class ExchangeStore extends Store {
      * The service call returns a HostAuth and we return null if there was a service issue
      */
     @Override
-    public Bundle autoDiscover(Context context, String username, String password)
-            throws MessagingException {
+    public Bundle autoDiscover(Context context, String username, String password) {
         try {
-            return ExchangeUtils.getExchangeService(context, null)
-                .autoDiscover(username, password);
+            return ExchangeUtils.getExchangeService(context, null).autoDiscover(username, password);
         } catch (RemoteException e) {
             return null;
         }
