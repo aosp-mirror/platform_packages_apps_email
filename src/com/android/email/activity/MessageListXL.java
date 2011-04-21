@@ -230,7 +230,7 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         }
 
         if (accountId != -1) {
-            mFragmentManager.selectAccount(accountId, mailboxId, messageId);
+            mFragmentManager.open(accountId, mailboxId, messageId);
         }
     }
 
@@ -481,7 +481,10 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "Account selected: accountId=" + accountId);
         }
-        mFragmentManager.selectAccount(accountId, -1, -1);
+        // TODO UIManager should do the check eventually, but it's necessary for now.
+        if (accountId != mFragmentManager.getUIAccountId()) {
+            mFragmentManager.openAccount(accountId);
+        }
     }
 
     private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {

@@ -160,7 +160,7 @@ class MessageListXLFragmentManager implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager#onMailboxFound()");
         }
-        selectMailbox(mailboxId, NO_MESSAGE, false);
+        updateMessageList(mailboxId, true, true);
     }
 
     @Override
@@ -207,18 +207,29 @@ class MessageListXLFragmentManager implements
 
     // MailboxListFragment$Callback
     @Override
-    public void onMailboxSelected(long accountId, long mailboxId) {
-        if (mailboxId == NO_MAILBOX) {
-            // reload the top-level message list
-            selectAccount(mAccountId, NO_MAILBOX, NO_MESSAGE, true);
+    public void onMailboxSelected(long accountId, long mailboxId, boolean navigate,
+            boolean dragDrop) {
+        if (dragDrop) {
+            // We don't want to change the message list for D&D.
+
+            // STOPSHIP fixit: the new mailbox list created here doesn't know D&D is in progress.
+
+            updateMailboxList(accountId, mailboxId, true,
+                    false /* don't clear message list and message view */);
+        } else if (mailboxId == NO_MAILBOX) {
+            // reload the top-level message list.  Always implies navigate.
+            openAccount(accountId);
+        } else if (navigate) {
+            updateMailboxList(accountId, mailboxId, true, true);
+            updateMessageList(mailboxId, true, true);
         } else {
-            selectMailbox(mailboxId, NO_MESSAGE, true);
+            updateMessageList(mailboxId, true, true);
         }
     }
 
     @Override
     public void onAccountSelected(long accountId) {
-        selectAccount(accountId, NO_MAILBOX, NO_MESSAGE);
+        openAccount(accountId);
     }
 
     @Override
@@ -233,7 +244,7 @@ class MessageListXLFragmentManager implements
         if (type == MessageListFragment.Callback.TYPE_DRAFT) {
             MessageCompose.actionEditDraft(mActivity, messageId);
         } else {
-            selectMessage(messageId);
+            updateMessageView(messageId);
         }
     }
 
@@ -264,7 +275,7 @@ class MessageListXLFragmentManager implements
                         return;
                     }
                 }
-                selectMessage(mOrderManager.getCurrentMessageId());
+                updateMessageView(mOrderManager.getCurrentMessageId());
                 break;
 
             case Preferences.AUTO_ADVANCE_OLDER:
@@ -274,7 +285,7 @@ class MessageListXLFragmentManager implements
                         return;
                     }
                 }
-                selectMessage(mOrderManager.getCurrentMessageId());
+                updateMessageView(mOrderManager.getCurrentMessageId());
                 break;
         }
     }
@@ -494,8 +505,6 @@ class MessageListXLFragmentManager implements
         outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mAccountId);
         outState.putLong(BUNDLE_KEY_MAILBOX_ID, mMailboxId);
         outState.putLong(BUNDLE_KEY_MESSAGE_ID, mMessageId);
-
-        // STOPSHIP If MailboxFinder is still running, it needs restarting after loadState().
     }
 
     public void restoreInstanceState(Bundle savedInstanceState) {
@@ -505,6 +514,9 @@ class MessageListXLFragmentManager implements
         mAccountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, NO_ACCOUNT);
         mMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, NO_MAILBOX);
         mMessageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, NO_MESSAGE);
+
+        // STOPSHIP If MailboxFinder is still running, it needs restarting after loadState().
+        // This probably means we need to start MailboxFinder if mMailboxId == -1.
     }
 
     private void installFragment(Fragment fragment) {
@@ -555,64 +567,106 @@ class MessageListXLFragmentManager implements
     }
 
     /**
-     * Loads the given account and optionally selects the given mailbox and message. If the
-     * specified account is already selected, no actions will be performed. To forcefully
-     * load the account use {@link #selectAccount(long, long, long, boolean)}
-     * @param accountId ID of the account to load. Must never be {@link #NO_ACCOUNT}.
+     * Show the default view for the account.
+     *
+     * On two-pane, it's the account's root mailboxes on the left pane with Inbox on the right pane.
+     *
+     * @param accountId ID of the account to load.  Can be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
+     *     Must never be {@link #NO_ACCOUNT}.
+     */
+    public void openAccount(long accountId) {
+        open(accountId, NO_MAILBOX, NO_MESSAGE);
+    }
+
+    /**
+     * Loads the given account and optionally selects the given mailbox and message.  Used to open
+     * a particular view at a request from outside of the activity, such as the widget.
+     *
+     * @param accountId ID of the account to load.  Can be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
+     *     Must never be {@link #NO_ACCOUNT}.
      * @param mailboxId ID of the mailbox to load. If {@link #NO_MAILBOX}, load the account's inbox.
      * @param messageId ID of the message to load. If {@link #NO_MESSAGE}, do not open a message.
      */
-    public void selectAccount(long accountId, long mailboxId, long messageId) {
-        selectAccount(accountId, mailboxId, messageId, false);
+    public void open(long accountId, long mailboxId, long messageId) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "open accountId=" + accountId + " mailboxId=" + mailboxId
+                    + " messageId=" + messageId);
+        }
+        if (accountId == NO_ACCOUNT) {
+            throw new IllegalArgumentException();
+        } else if (mailboxId == NO_MAILBOX) {
+            updateMailboxList(accountId, NO_MAILBOX, true, true);
+
+            // Show the appropriate message list
+            if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                // When opening the Combined view, the right pane will be "combined inbox".
+                updateMessageList(Mailbox.QUERY_ALL_INBOXES, true, true);
+            } else {
+                // Try to find the inbox for the account
+                closeMailboxFinder();
+                mMailboxFinder = new MailboxFinder(mActivity, mAccountId, Mailbox.TYPE_INBOX, this);
+                mMailboxFinder.startLookup();
+            }
+        } else if (messageId == NO_MESSAGE) {
+            // STOPSHIP Use the appropriate parent mailbox ID
+            updateMailboxList(accountId, NO_MAILBOX, true, true);
+            updateMessageList(mailboxId, true, true);
+        } else {
+            // STOPSHIP Use the appropriate parent mailbox ID
+            updateMailboxList(accountId, NO_MAILBOX, false, true);
+            updateMessageList(mailboxId, false, true);
+            updateMessageView(messageId);
+        }
     }
 
     /**
      * Loads the given account and optionally selects the given mailbox and message. If the
      * specified account is already selected, no actions will be performed unless
      * <code>forceReload</code> is <code>true</code>.
+     *
      * @param accountId ID of the account to load. Must never be {@link #NO_ACCOUNT}.
-     * @param mailboxId ID of the mailbox to load. If {@link #NO_MAILBOX}, load the account's inbox.
-     * @param messageId ID of the message to load. If {@link #NO_MESSAGE}, do not open a message.
-     * @param forceReload If <code>true</code>, forcefully reload the account.
+     * @param parentMailboxId ID of the mailbox to use as the parent mailbox.  Pass
+     *     {@link #NO_MAILBOX} to show the root mailboxes.
+     * @param changeVisiblePane if true, the message view will be hidden.
+     * @param clearDependentPane if true, the message list and the message view will be cleared
      */
-    public void selectAccount(long accountId, long mailboxId, long messageId, boolean forceReload) {
+
+    // TODO The name "updateMailboxList" is misleading, as it also updates members such as
+    // mAccountId.  We need better structure but let's do that after refactoring
+    // MailboxListFragment.onMailboxSelected, and removed the UI callbacks such as
+    // TargetActivity.onAccountChanged.
+
+    private void updateMailboxList(long accountId, long parentMailboxId,
+            boolean changeVisiblePane, boolean clearDependentPane) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "selectAccount mAccountId=" + accountId);
+            Log.d(Logging.LOG_TAG, "updateMailboxList accountId=" + accountId + " parentMailboxId="
+                    + parentMailboxId);
         }
         if (accountId == NO_ACCOUNT) {
             throw new InvalidParameterException();
         }
-        if (!forceReload && mAccountId == accountId) {
-            return;
-        }
 
-        // Update members.
+        // TODO Check if the current fragment has been initialized with the same parameters, and
+        // then return.
+
         mAccountId = accountId;
-        mMailboxId = NO_MAILBOX;
-        mMessageId = NO_MESSAGE;
 
         // Open mailbox list, remove message list / message view
         final FragmentManager fm = mActivity.getFragmentManager();
         final FragmentTransaction ft = fm.beginTransaction();
         uninstallMailboxListFragment(ft);
-        uninstallMessageListFragment(ft);
-        uninstallMessageViewFragment(ft);
+        if (clearDependentPane) {
+            mMailboxId = NO_MAILBOX;
+            mMessageId = NO_MESSAGE;
+            uninstallMessageListFragment(ft);
+            uninstallMessageViewFragment(ft);
+        }
         ft.add(mThreePane.getLeftPaneId(),
-                MailboxListFragment.newInstance(getUIAccountId(), forceReload));
+                MailboxListFragment.newInstance(getUIAccountId(), parentMailboxId));
         commitFragmentTransaction(ft);
 
-        mThreePane.showLeftPane(); // Show mailbox list
-
-        if ((accountId == Account.ACCOUNT_ID_COMBINED_VIEW) && (mailboxId == NO_MAILBOX)) {
-            // When opening the Combined view, the right pane will be "combined inbox".
-            selectMailbox(Mailbox.QUERY_ALL_INBOXES, NO_MESSAGE, true);
-        } else if (mailboxId == NO_MAILBOX) {
-            // Try to find the inbox for the account
-            closeMailboxFinder();
-            mMailboxFinder = new MailboxFinder(mActivity, mAccountId, Mailbox.TYPE_INBOX, this);
-            mMailboxFinder.startLookup();
-        } else {
-            selectMailbox(mailboxId, messageId, true);
+        if (changeVisiblePane) {
+            mThreePane.showLeftPane();
         }
         mActivity.onAccountChanged(mAccountId);
     }
@@ -642,64 +696,58 @@ class MessageListXLFragmentManager implements
      * not loaded, a list of the messages contained within the mailbox is shown. Otherwise the
      * given message is shown. If <code>navigateToMailbox<code> is <code>true</code>, the
      * mailbox is navigated to and any contained mailboxes are shown.
-     * We assume the mailbox selected here belongs to the account selected with
-     * {@link #selectAccount}.
      *
      * @param mailboxId ID of the mailbox to load. Must never be <code>0</code> or <code>-1</code>.
-     * @param messageId ID of the message to load. If {@link #NO_MESSAGE}, do not open a message.
-     * @param navigateToMailbox Whether or not we're navigating to the mailbox. Navigating to
-     * a mailbox makes contained mailboxes visible.
+     * @param changeVisiblePane if true, the message view will be hidden.
+     * @param clearDependentPane if true, the message view will be cleared
      */
-    private void selectMailbox(long mailboxId, long messageId, boolean navigateToMailbox) {
+    private void updateMessageList(long mailboxId, boolean changeVisiblePane,
+            boolean clearDependentPane) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "selectMailbox mMailboxId=" + mailboxId);
+            Log.d(Logging.LOG_TAG, "updateMessageList mMailboxId=" + mailboxId);
         }
         if (mailboxId == 0 || mailboxId == -1) {
             throw new InvalidParameterException();
         }
-        if (mMailboxId == mailboxId) {
-            return;
-        }
+
+        // TODO Check if the current fragment has been initialized with the same parameters, and
+        // then return.
+
         mMailboxId = mailboxId;
-        mMessageId = NO_MESSAGE;
 
         final FragmentManager fm = mActivity.getFragmentManager();
         final FragmentTransaction ft = fm.beginTransaction();
         uninstallMessageListFragment(ft);
-        uninstallMessageViewFragment(ft);
+        if (clearDependentPane) {
+            uninstallMessageViewFragment(ft);
+            mMessageId = NO_MESSAGE;
+        }
         ft.add(mThreePane.getMiddlePaneId(), MessageListFragment.newInstance(mailboxId));
         commitFragmentTransaction(ft);
 
-        if (navigateToMailbox) {
-            mMailboxListFragment.navigateToMailbox(mailboxId);
-        } else {
-            mMailboxListFragment.setSelectedMailbox(mailboxId);
-        }
+        mMailboxListFragment.setSelectedMailbox(mailboxId);
         mActivity.onMailboxChanged(mAccountId, mailboxId);
 
-        // If a message ID was specified, show it; otherwise show the mailbox list
-        if (messageId == NO_MESSAGE) {
+        if (changeVisiblePane) {
             mThreePane.showLeftPane();
-        } else {
-            selectMessage(messageId);
         }
     }
 
     /**
-     * Select a message to view.
-     * We assume the message selected here belongs to the mailbox selected with
-     * {@link #selectMailbox}.
+     * Show a message on the message view.
+     *
+     * @param messageId ID of the mailbox to load. Must never be {@link #NO_MESSAGE}.
      */
-    private void selectMessage(long messageId) {
+    private void updateMessageView(long messageId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "selectMessage messageId=" + messageId);
+            Log.d(Logging.LOG_TAG, "updateMessageView messageId=" + messageId);
         }
         if (messageId == NO_MESSAGE) {
             throw new InvalidParameterException();
         }
-        if (mMessageId == messageId) {
-            return;
-        }
+
+        // TODO Check if the current fragment has been initialized with the same parameters, and
+        // then return.
 
         // Update member
         mMessageId = messageId;
@@ -806,7 +854,7 @@ class MessageListXLFragmentManager implements
 
     private boolean moveToOlder() {
         if ((mOrderManager != null) && mOrderManager.moveToOlder()) {
-            selectMessage(mOrderManager.getCurrentMessageId());
+            updateMessageView(mOrderManager.getCurrentMessageId());
             return true;
         }
         return false;
@@ -814,7 +862,7 @@ class MessageListXLFragmentManager implements
 
     private boolean moveToNewer() {
         if ((mOrderManager != null) && mOrderManager.moveToNewer()) {
-            selectMessage(mOrderManager.getCurrentMessageId());
+            updateMessageView(mOrderManager.getCurrentMessageId());
             return true;
         }
         return false;
