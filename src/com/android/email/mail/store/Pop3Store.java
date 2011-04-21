@@ -19,6 +19,7 @@ package com.android.email.mail.store;
 import com.android.email.Email;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
+import com.android.email.mail.store.imap.ImapConstants;
 import com.android.email.mail.transport.MailTransport;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeMessage;
@@ -53,6 +54,8 @@ public class Pop3Store extends Store {
 
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED };
 
+    private final Context mContext;
+    private final Account mAccount;
     private Transport mTransport;
     private String mUsername;
     private String mPassword;
@@ -95,6 +98,9 @@ public class Pop3Store extends Store {
      * Creates a new store for the given account.
      */
     private Pop3Store(Context context, Account account) throws MessagingException {
+        mContext = context;
+        mAccount = account;
+
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
         if (recvAuth == null || !STORE_SCHEME_POP3.equalsIgnoreCase(recvAuth.mProtocol)) {
             throw new MessagingException("Unsupported protocol");
@@ -148,10 +154,10 @@ public class Pop3Store extends Store {
     }
 
     @Override
-    public Folder[] getAllFolders() {
-        return new Folder[] {
-            getFolder("INBOX"),
-        };
+    public Folder[] updateFolders() throws MessagingException {
+        ArrayList<Folder> folders = new ArrayList<Folder>();
+        addMailbox(mContext, mAccount.mId, "INBOX", null, folders);
+        return folders.toArray(new Folder[] {});
     }
 
     /**

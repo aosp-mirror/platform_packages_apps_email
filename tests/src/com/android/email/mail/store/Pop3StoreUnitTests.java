@@ -246,10 +246,10 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
     /**
      * Test small Store & Folder functions that manage folders & namespace
      */
-    public void testStoreFoldersFunctions() {
+    public void testStoreFoldersFunctions() throws MessagingException {
 
         // getPersonalNamespaces() always returns INBOX folder
-        Folder[] folders = mStore.getAllFolders();
+        Folder[] folders = mStore.updateFolders();
         assertEquals(1, folders.length);
         assertSame(mFolder, folders[0]);
 
@@ -326,8 +326,8 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
     /**
      * Lightweight test to confirm that POP3 hasn't implemented any folder roles yet.
      */
-    public void testNoFolderRolesYet() {
-        Folder[] remoteFolders = mStore.getAllFolders();
+    public void testNoFolderRolesYet() throws MessagingException {
+        Folder[] remoteFolders = mStore.updateFolders();
         for (Folder folder : remoteFolders) {
             assertEquals(Folder.FolderRole.UNKNOWN, folder.getRole());
         }

@@ -93,6 +93,7 @@ public class ImapStore extends Store {
 
     static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
     private final Context mContext;
+    private final Account mAccount;
     private Transport mRootTransport;
     private String mUsername;
     private String mPassword;
@@ -140,6 +141,7 @@ public class ImapStore extends Store {
      */
     private ImapStore(Context context, Account account) throws MessagingException {
         mContext = context;
+        mAccount = account;
 
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
         if (recvAuth == null || !STORE_SCHEME_IMAP.equalsIgnoreCase(recvAuth.mProtocol)) {
@@ -359,7 +361,7 @@ public class ImapStore extends Store {
     }
 
     @Override
-    public Folder[] getAllFolders() throws MessagingException {
+    public Folder[] updateFolders() throws MessagingException {
         ImapConnection connection = getConnection();
         try {
             ArrayList<Folder> folders = new ArrayList<Folder>();
@@ -379,8 +381,8 @@ public class ImapStore extends Store {
                     // Get folder name.
                     ImapString encodedFolder = response.getStringOrEmpty(3);
                     if (encodedFolder.isEmpty()) continue;
-                    String folder = decodeFolderName(encodedFolder.getString(), mPathPrefix);
-                    if (ImapConstants.INBOX.equalsIgnoreCase(folder)) {
+                    String folderName = decodeFolderName(encodedFolder.getString(), mPathPrefix);
+                    if (ImapConstants.INBOX.equalsIgnoreCase(folderName)) {
                         continue;
                     }
 
@@ -389,11 +391,12 @@ public class ImapStore extends Store {
                         includeFolder = false;
                     }
                     if (includeFolder) {
-                        folders.add(getFolder(folder));
+                        String delimiter = response.getStringOrEmpty(2).toString();
+                        addMailbox(mContext, mAccount.mId, folderName, delimiter, folders);
                     }
                 }
             }
-            folders.add(getFolder(ImapConstants.INBOX));
+            addMailbox(mContext, mAccount.mId, ImapConstants.INBOX, null, folders);
             return folders.toArray(new Folder[] {});
         } catch (IOException ioe) {
             connection.close();

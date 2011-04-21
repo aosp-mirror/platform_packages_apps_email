@@ -117,9 +117,12 @@ public class ProviderTestUtils extends Assert {
             Context context) {
         return setupMailbox(name, accountId, saveIt, context, Mailbox.TYPE_MAIL);
     }
-
     public static Mailbox setupMailbox(String name, long accountId, boolean saveIt,
             Context context, int type) {
+        return setupMailbox(name, accountId, saveIt, context, type, '/');
+    }
+    public static Mailbox setupMailbox(String name, long accountId, boolean saveIt,
+            Context context, int type, char delimiter) {
         Mailbox box = new Mailbox();
 
         box.mDisplayName = name;
@@ -128,7 +131,7 @@ public class ProviderTestUtils extends Assert {
         box.mParentKey = 4;
         box.mAccountKey = accountId;
         box.mType = type;
-        box.mDelimiter = 1;
+        box.mDelimiter = delimiter;
         box.mSyncKey = "sync-key-" + name;
         box.mSyncLookback = 2;
         box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;

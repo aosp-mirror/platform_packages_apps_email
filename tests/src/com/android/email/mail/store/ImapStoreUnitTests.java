@@ -1212,7 +1212,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 "* lIST (\\HAsNoChildren) \"/\" \"&ZeVnLIqe-\"", // Japanese folder name
                 getNextTag(true) + " oK SUCCESS"
                 });
-        Folder[] folders = mStore.getAllFolders();
+        Folder[] folders = mStore.updateFolders();
 
         ArrayList<String> list = new ArrayList<String>();
         for (Folder f : folders) {
@@ -2087,7 +2087,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
             "* LIST () \"/\" \"" + FOLDER_2 + "\"",
             getNextTag(true) + " OK SUCCESS"
         });
-        final Folder[] folders = mStore.getAllFolders();
+        final Folder[] folders = mStore.updateFolders();
 
         ArrayList<String> list = new ArrayList<String>();
         for (Folder f : folders) {

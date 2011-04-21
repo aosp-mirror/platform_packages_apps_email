@@ -36,6 +36,7 @@ import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
@@ -197,38 +198,23 @@ public class MessagingController implements Runnable {
         return mListeners.isActiveListener(listener);
     }
 
-    /**
-     * Lightweight class for capturing local mailboxes in an account.  Just the columns
-     * necessary for a sync.
-     */
-    private static class LocalMailboxInfo {
-        private static final int COLUMN_ID = 0;
-        private static final int COLUMN_DISPLAY_NAME = 1;
-        private static final int COLUMN_ACCOUNT_KEY = 2;
-        private static final int COLUMN_TYPE = 3;
+    private static final int MAILBOX_COLUMN_ID = 0;
+    private static final int MAILBOX_COLUMN_DISPLAY_NAME = 1;
+    private static final int MAILBOX_COLUMN_TYPE = 2;
 
-        private static final String[] PROJECTION = new String[] {
-            EmailContent.RECORD_ID,
-            MailboxColumns.DISPLAY_NAME, MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
-        };
-
-        final long mId;
-        final String mDisplayName;
-        final long mAccountKey;
-        final int mType;
-
-        public LocalMailboxInfo(Cursor c) {
-            mId = c.getLong(COLUMN_ID);
-            mDisplayName = c.getString(COLUMN_DISPLAY_NAME);
-            mAccountKey = c.getLong(COLUMN_ACCOUNT_KEY);
-            mType = c.getInt(COLUMN_TYPE);
-        }
-    }
+    /** Small projection for just the columns required for a sync. */
+    private static final String[] MAILBOX_PROJECTION = new String[] {
+        MailboxColumns.ID,
+        MailboxColumns.DISPLAY_NAME,
+        MailboxColumns.TYPE,
+    };
 
     /**
-     * Asynchronously synchronize the folder list. If the specified {@link MessagingListener}
-     * is not {@code null}, it must have been previously added to the set of listeners using the
-     * {@link #addListener(MessagingListener)}. Otherwise, no actions will be performed.
+     * Synchronize the folder list with the remote server. Synchronization occurs in the
+     * background and results are passed through the {@link MessagingListener}. If the
+     * given listener is not {@code null}, it must have been previously added to the set
+     * of listeners using the {@link #addListener(MessagingListener)}. Otherwise, no
+     * actions will be performed.
      *
      * TODO this needs to cache the remote folder list
      * TODO break out an inner listFoldersSynchronized which could simplify checkMail
@@ -237,101 +223,71 @@ public class MessagingController implements Runnable {
      * @param listener A listener to notify
      */
     void listFolders(final long accountId, MessagingListener listener) {
-        final EmailContent.Account account =
-                EmailContent.Account.restoreAccountWithId(mContext, accountId);
+        final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) {
+            Log.i(Logging.LOG_TAG, "Could not load account id " + accountId
+                    + ". Has it been removed?");
             return;
         }
         mListeners.listFoldersStarted(accountId);
         put("listFolders", listener, new Runnable() {
+            // TODO For now, mailbox addition occurs in the server-dependent store implementation,
+            // but, mailbox removal occurs here. Instead, each store should be responsible for
+            // content synchronization (addition AND removal) since each store will likely need
+            // to implement it's own, unique synchronization methodology.
             public void run() {
                 Cursor localFolderCursor = null;
                 try {
-                    // Step 1:  Get remote folders, make a list, and add any local folders
-                    // that don't already exist.
-
+                    // Step 1: Get remote mailboxes
                     Store store = Store.getInstance(account, mContext, null);
-
-                    Folder[] remoteFolders = store.getAllFolders();
-
+                    Folder[] remoteFolders = store.updateFolders();
                     HashSet<String> remoteFolderNames = new HashSet<String>();
                     for (int i = 0, count = remoteFolders.length; i < count; i++) {
                         remoteFolderNames.add(remoteFolders[i].getName());
                     }
 
-                    HashMap<String, LocalMailboxInfo> localFolders =
-                        new HashMap<String, LocalMailboxInfo>();
-                    HashSet<String> localFolderNames = new HashSet<String>();
+                    // Step 2: Get local mailboxes
                     localFolderCursor = mContext.getContentResolver().query(
                             EmailContent.Mailbox.CONTENT_URI,
-                            LocalMailboxInfo.PROJECTION,
+                            MAILBOX_PROJECTION,
                             EmailContent.MailboxColumns.ACCOUNT_KEY + "=?",
                             new String[] { String.valueOf(account.mId) },
                             null);
+
+                    // Step 3: Remove any local mailbox not on the remote list
                     while (localFolderCursor.moveToNext()) {
-                        LocalMailboxInfo info = new LocalMailboxInfo(localFolderCursor);
-                        localFolders.put(info.mDisplayName, info);
-                        localFolderNames.add(info.mDisplayName);
-                    }
-
-                    // Short circuit the rest if the sets are the same (the usual case)
-                    if (!remoteFolderNames.equals(localFolderNames)) {
-
-                        // They are different, so we have to do some adds and drops
-
-                        // Drops first, to make things smaller rather than larger
-                        HashSet<String> localsToDrop = new HashSet<String>(localFolderNames);
-                        localsToDrop.removeAll(remoteFolderNames);
-                        for (String localNameToDrop : localsToDrop) {
-                            LocalMailboxInfo localInfo = localFolders.get(localNameToDrop);
-                            // Exclusion list - never delete local special folders, irrespective
-                            // of server-side existence.
-                            switch (localInfo.mType) {
-                                case Mailbox.TYPE_INBOX:
-                                case Mailbox.TYPE_DRAFTS:
-                                case Mailbox.TYPE_OUTBOX:
-                                case Mailbox.TYPE_SENT:
-                                case Mailbox.TYPE_TRASH:
-                                    break;
-                                default:
-                                    // Drop all attachment files related to this mailbox
-                                    AttachmentUtilities.deleteAllMailboxAttachmentFiles(
-                                            mContext, accountId, localInfo.mId);
-                                    // Delete the mailbox.  Triggers will take care of
-                                    // related Message, Body and Attachment records.
-                                    Uri uri = ContentUris.withAppendedId(
-                                            EmailContent.Mailbox.CONTENT_URI, localInfo.mId);
-                                    mContext.getContentResolver().delete(uri, null, null);
-                                    break;
-                            }
+                        String mailboxPath
+                                = localFolderCursor.getString(MAILBOX_COLUMN_DISPLAY_NAME);
+                        // Short circuit if we have a remote mailbox with the same name
+                        if (remoteFolderNames.contains(mailboxPath)) {
+                            continue;
                         }
 
-                        // Now do the adds
-                        remoteFolderNames.removeAll(localFolderNames);
-                        for (String remoteNameToAdd : remoteFolderNames) {
-                            EmailContent.Mailbox box = new EmailContent.Mailbox();
-                            box.mDisplayName = remoteNameToAdd;
-                            // box.mServerId;
-                            // box.mParentServerId;
-                            // box.mParentKey;
-                            box.mAccountKey = account.mId;
-                            box.mType = LegacyConversions.inferMailboxTypeFromName(
-                                    mContext, remoteNameToAdd);
-                            // box.mDelimiter;
-                            // box.mSyncKey;
-                            // box.mSyncLookback;
-                            // box.mSyncFrequency;
-                            // box.mSyncTime;
-                            // box.mUnreadCount;
-                            box.mFlagVisible = true;
-                            // box.mFlags;
-                            box.mVisibleLimit = Email.VISIBLE_LIMIT_DEFAULT;
-                            box.save(mContext);
+                        int mailboxType = localFolderCursor.getInt(MAILBOX_COLUMN_TYPE);
+                        long mailboxId = localFolderCursor.getLong(MAILBOX_COLUMN_ID);
+                        switch (mailboxType) {
+                            case Mailbox.TYPE_INBOX:
+                            case Mailbox.TYPE_DRAFTS:
+                            case Mailbox.TYPE_OUTBOX:
+                            case Mailbox.TYPE_SENT:
+                            case Mailbox.TYPE_TRASH:
+                                // Never, ever delete special mailboxes
+                                break;
+                            default:
+                                // Drop all attachment files related to this mailbox
+                                AttachmentUtilities.deleteAllMailboxAttachmentFiles(
+                                        mContext, accountId, mailboxId);
+                                // Delete the mailbox; database triggers take care of related
+                                // Message, Body and Attachment records
+                                Uri uri = ContentUris.withAppendedId(
+                                        Mailbox.CONTENT_URI, mailboxId);
+                                mContext.getContentResolver().delete(uri, null, null);
+                                break;
                         }
                     }
                     mListeners.listFoldersFinished(accountId);
                 } catch (Exception e) {
-                    mListeners.listFoldersFailed(accountId, "");
+                    mListeners.listFoldersFailed(accountId, e.toString());
                 } finally {
                     if (localFolderCursor != null) {
                         localFolderCursor.close();

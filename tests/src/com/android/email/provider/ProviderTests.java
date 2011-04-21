@@ -2093,20 +2093,53 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(-1, Account.getAccountIdForMessageId(c, 12345));
     }
 
-    public void testGetAccountMailboxFromMessageId() {
+    public void testGetMailboxForMessageId() {
         final Context c = mMockContext;
-        Account a = ProviderTestUtils.setupAccount("acct", true, c);
-        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a.mId, true, c, Mailbox.TYPE_MAIL);
-        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", a.mId, true, c, Mailbox.TYPE_MAIL);
+        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", 1, true, c, Mailbox.TYPE_MAIL);
+        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", 1, true, c, Mailbox.TYPE_MAIL);
         Message m1 = createMessage(c, b1, false, false);
         Message m2 = createMessage(c, b2, false, false);
-        ProviderTestUtils.assertAccountEqual("x", a, Account.getAccountForMessageId(c, m1.mId));
-        ProviderTestUtils.assertAccountEqual("x", a, Account.getAccountForMessageId(c, m2.mId));
-        // Restore the mailboxes, since the unread & total counts will have changed
-        b1 = Mailbox.restoreMailboxWithId(c, b1.mId);
-        b2 = Mailbox.restoreMailboxWithId(c, b2.mId);
         ProviderTestUtils.assertMailboxEqual("x", b1, Mailbox.getMailboxForMessageId(c, m1.mId));
         ProviderTestUtils.assertMailboxEqual("x", b2, Mailbox.getMailboxForMessageId(c, m2.mId));
+    }
+
+    public void testRestoreMailboxWithId() {
+        final Context c = mMockContext;
+        Mailbox testMailbox;
+
+        testMailbox = ProviderTestUtils.setupMailbox("box1", 1, true, c, Mailbox.TYPE_MAIL);
+        ProviderTestUtils.assertMailboxEqual(
+                "x", testMailbox, Mailbox.restoreMailboxWithId(c, testMailbox.mId));
+        testMailbox = ProviderTestUtils.setupMailbox("box2", 1, true, c, Mailbox.TYPE_MAIL);
+        ProviderTestUtils.assertMailboxEqual(
+                "x", testMailbox, Mailbox.restoreMailboxWithId(c, testMailbox.mId));
+        // Unknown IDs
+        assertNull(Mailbox.restoreMailboxWithId(c, 8));
+        assertNull(Mailbox.restoreMailboxWithId(c, -1));
+        assertNull(Mailbox.restoreMailboxWithId(c, Long.MAX_VALUE));
+    }
+
+    public void testRestoreMailboxForPath() {
+        final Context c = mMockContext;
+        Mailbox testMailbox;
+        testMailbox = ProviderTestUtils.setupMailbox("a/b/c/box", 1, true, c, Mailbox.TYPE_MAIL);
+        ProviderTestUtils.assertMailboxEqual(
+                "x", testMailbox, Mailbox.restoreMailboxForPath(c, 1, "a/b/c/box"));
+        // Same name, different account; no match
+        assertNull(Mailbox.restoreMailboxForPath(c, 2, "a/b/c/box"));
+        // Substring; no match
+        assertNull(Mailbox.restoreMailboxForPath(c, 1, "a/b/c"));
+        // Wild cards not supported; no match
+        assertNull(Mailbox.restoreMailboxForPath(c, 1, "a/b/c/%"));
+    }
+
+    public void testGetAccountForMessageId() {
+        final Context c = mMockContext;
+        Account a = ProviderTestUtils.setupAccount("acct", true, c);
+        Message m1 = ProviderTestUtils.setupMessage("1", a.mId, 1, true, true, c, false, false);
+        Message m2 = ProviderTestUtils.setupMessage("1", a.mId, 2, true, true, c, false, false);
+        ProviderTestUtils.assertAccountEqual("x", a, Account.getAccountForMessageId(c, m1.mId));
+        ProviderTestUtils.assertAccountEqual("x", a, Account.getAccountForMessageId(c, m2.mId));
     }
 
     public void testGetAccountGetInboxIdTest() {

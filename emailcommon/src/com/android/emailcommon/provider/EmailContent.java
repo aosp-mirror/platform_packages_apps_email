@@ -16,6 +16,7 @@
 
 package com.android.emailcommon.provider;
 
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
 
@@ -33,6 +34,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.net.URI;
@@ -2250,6 +2252,10 @@ public abstract class EmailContent {
                 MailboxColumns.TYPE + " =?";
         private static final String MAILBOX_TYPE_SELECTION =
                 MailboxColumns.TYPE + " =?";
+        /** Selection by display name for a given account */
+        private static final String NAME_AND_ACCOUNT_SELECTION =
+            MailboxColumns.DISPLAY_NAME + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
+
         private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {
                 "sum(" + MailboxColumns.UNREAD_COUNT + ")"
                 };
@@ -2382,6 +2388,38 @@ public abstract class EmailContent {
                 } else {
                     return null;
                 }
+            } finally {
+                c.close();
+            }
+        }
+
+        /**
+         * Returns a Mailbox from the database, given its pathname and account id. All mailbox
+         * paths for a particular account must be unique.
+         * @param context
+         * @param accountId the ID of the account
+         * @param path the fully qualified, remote pathname
+         */
+        public static Mailbox restoreMailboxForPath(Context context, long accountId, String path) {
+            Cursor c = context.getContentResolver().query(
+                    Mailbox.CONTENT_URI,
+                    Mailbox.CONTENT_PROJECTION,
+                    Mailbox.NAME_AND_ACCOUNT_SELECTION,
+                    new String[] { path, Long.toString(accountId) },
+                    null);
+// TODO for mblank; uncomment when you submit CL Iab059f9a68eecd797914a6229f1ff9c03d0f0800
+//            if (c == null) throw new ProviderUnavailableException();
+            try {
+                Mailbox mailbox = null;
+                if (c.moveToFirst()) {
+                    mailbox = getContent(c, Mailbox.class);
+                    if (c.moveToNext()) {
+                        Log.w(Logging.LOG_TAG, "Multiple mailboxes named \"" + path + "\"");
+                    }
+                } else {
+                    Log.i(Logging.LOG_TAG, "Could not find mailbox at \"" + path + "\"");
+                }
+                return mailbox;
             } finally {
                 c.close();
             }
