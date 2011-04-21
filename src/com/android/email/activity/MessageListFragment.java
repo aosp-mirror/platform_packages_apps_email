@@ -344,6 +344,12 @@ public class MessageListFragment extends ListFragment
         }
         mTaskTracker.cancellAllInterrupt();
         mRefreshManager.unregisterListener(mRefreshListener);
+
+        // Make sure to exit CAB
+        // TODO: This is a questionable place to do this for the phone UI.  We want to hide the CAB
+        // when the fragment is put in the back stack as well, in which case onDestroy() won't be
+        // called.  Consider doing it in onDestroyView instead.
+        finishSelectionMode();
         super.onDestroy();
     }
 
