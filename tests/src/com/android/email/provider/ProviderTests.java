@@ -88,6 +88,41 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
      * TODO: Database upgrade tests
      */
 
+    //////////////////////////////////////////////////////////
+    ////// Utility methods
+    //////////////////////////////////////////////////////////
+
+    /** Sets the message count of all mailboxes to {@code -1}. */
+    private void setMinusOneToMessageCounts() {
+        ContentValues values = new ContentValues();
+        values.put(MailboxColumns.MESSAGE_COUNT, -1);
+
+        // EmailProvider.update() doesn't allow updating messageCount, so directly use the DB.
+        SQLiteDatabase db = getProvider().getDatabase(mMockContext);
+        db.update(Mailbox.TABLE_NAME, values, null, null);
+    }
+
+    /** Returns the number of messages in a mailbox. */
+    private int getMessageCount(long mailboxId) {
+        return Utility.getFirstRowInt(mMockContext,
+                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                new String[] {MailboxColumns.MESSAGE_COUNT}, null, null, null, 0);
+    }
+
+    /** Creates a new message. */
+    private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read,
+            int flagLoaded) {
+        Message message = ProviderTestUtils.setupMessage(
+                "1", b.mAccountKey, b.mId, true, false, c, starred, read);
+        message.mFlagLoaded = flagLoaded;
+        message.save(c);
+        return message;
+    }
+
+    //////////////////////////////////////////////////////////
+    ////// The tests
+    //////////////////////////////////////////////////////////
+
     /**
      * Test simple account save/retrieve
      */
@@ -310,21 +345,6 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             c.close();
         }
         return Integer.valueOf(text);
-    }
-
-    /**
-     * Test simple mailbox save/retrieve
-     */
-    public void testMailboxSave() {
-        Account account1 = ProviderTestUtils.setupAccount("mailbox-save", true, mMockContext);
-        long account1Id = account1.mId;
-        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true,
-                mMockContext);
-        long box1Id = box1.mId;
-
-        Mailbox box2 = EmailContent.Mailbox.restoreMailboxWithId(mMockContext, box1Id);
-
-        ProviderTestUtils.assertMailboxEqual("testMailboxSave", box1, box2);
     }
 
     private static String[] expectedAttachmentNames =
@@ -935,41 +955,6 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         // There should now be 4 messages in each of the deleted and updated tables again
         assertEquals(4, EmailContent.count(context, Message.UPDATED_CONTENT_URI, null, null));
         assertEquals(4, EmailContent.count(context, Message.DELETED_CONTENT_URI, null, null));
-    }
-
-    /**
-     * Test delete mailbox
-     */
-    public void testMailboxDelete() {
-        Account account1 = ProviderTestUtils.setupAccount("mailbox-delete", true, mMockContext);
-        long account1Id = account1.mId;
-        Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, mMockContext);
-        long box1Id = box1.mId;
-        Mailbox box2 = ProviderTestUtils.setupMailbox("box2", account1Id, true, mMockContext);
-        long box2Id = box2.mId;
-
-        String selection = EmailContent.MailboxColumns.ACCOUNT_KEY + "=?";
-        String[] selArgs = new String[] { String.valueOf(account1Id) };
-
-        // make sure there are two mailboxes
-        int numBoxes = EmailContent.count(mMockContext, Mailbox.CONTENT_URI, selection, selArgs);
-        assertEquals(2, numBoxes);
-
-        // now delete one of them
-        Uri uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, box1Id);
-        mMockContext.getContentResolver().delete(uri, null, null);
-
-        // make sure there's only one mailbox now
-        numBoxes = EmailContent.count(mMockContext, Mailbox.CONTENT_URI, selection, selArgs);
-        assertEquals(1, numBoxes);
-
-        // now delete the other one
-        uri = ContentUris.withAppendedId(Mailbox.CONTENT_URI, box2Id);
-        mMockContext.getContentResolver().delete(uri, null, null);
-
-        // make sure there are no mailboxes now
-        numBoxes = EmailContent.count(mMockContext, Mailbox.CONTENT_URI, selection, selArgs);
-        assertEquals(0, numBoxes);
     }
 
     /**
@@ -1731,90 +1716,6 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, count);
     }
 
-    public void testFindMailboxOfType() {
-        final Context context = mMockContext;
-
-        // Create two accounts and a variety of mailbox types
-        Account acct1 = ProviderTestUtils.setupAccount("acct1", true, context);
-        Mailbox acct1Inbox =
-            ProviderTestUtils.setupMailbox("Inbox1", acct1.mId, true, context, Mailbox.TYPE_INBOX);
-        Mailbox acct1Calendar
-        = ProviderTestUtils.setupMailbox("Cal1", acct1.mId, true, context, Mailbox.TYPE_CALENDAR);
-        Mailbox acct1Contacts =
-            ProviderTestUtils.setupMailbox("Con1", acct1.mId, true, context, Mailbox.TYPE_CONTACTS);
-        Account acct2 = ProviderTestUtils.setupAccount("acct1", true, context);
-        Mailbox acct2Inbox =
-            ProviderTestUtils.setupMailbox("Inbox2", acct2.mId, true, context, Mailbox.TYPE_INBOX);
-        Mailbox acct2Calendar =
-            ProviderTestUtils.setupMailbox("Cal2", acct2.mId, true, context, Mailbox.TYPE_CALENDAR);
-        Mailbox acct2Contacts =
-            ProviderTestUtils.setupMailbox("Con2", acct2.mId, true, context, Mailbox.TYPE_CONTACTS);
-
-        // Check that we can find them by type
-        assertEquals(acct1Inbox.mId,
-                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_INBOX));
-        assertEquals(acct2Inbox.mId,
-                Mailbox.findMailboxOfType(context, acct2.mId, Mailbox.TYPE_INBOX));
-        assertEquals(acct1Calendar.mId,
-                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_CALENDAR));
-        assertEquals(acct2Calendar.mId,
-                Mailbox.findMailboxOfType(context, acct2.mId, Mailbox.TYPE_CALENDAR));
-        assertEquals(acct1Contacts.mId,
-                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_CONTACTS));
-        assertEquals(acct2Contacts.mId,
-                Mailbox.findMailboxOfType(context, acct2.mId, Mailbox.TYPE_CONTACTS));
-
-        // Check that nonexistent mailboxes are not returned
-        assertEquals(Mailbox.NO_MAILBOX,
-                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_DRAFTS));
-        assertEquals(Mailbox.NO_MAILBOX,
-                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_OUTBOX));
-
-        // delete account 1 and confirm no mailboxes are returned
-        context.getContentResolver().delete(
-                ContentUris.withAppendedId(Account.CONTENT_URI, acct1.mId), null, null);
-        assertEquals(Mailbox.NO_MAILBOX,
-                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_INBOX));
-        assertEquals(Mailbox.NO_MAILBOX,
-                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_CALENDAR));
-        assertEquals(Mailbox.NO_MAILBOX,
-                Mailbox.findMailboxOfType(context, acct1.mId, Mailbox.TYPE_CONTACTS));
-    }
-
-    public void testRestoreMailboxOfType() {
-        final Context context = mMockContext;
-
-        // Create two accounts and a variety of mailbox types
-        Account acct1 = ProviderTestUtils.setupAccount("acct1", true, context);
-        Mailbox acct1Inbox =
-            ProviderTestUtils.setupMailbox("Inbox1", acct1.mId, true, context, Mailbox.TYPE_INBOX);
-        Mailbox acct1Calendar
-        = ProviderTestUtils.setupMailbox("Cal1", acct1.mId, true, context, Mailbox.TYPE_CALENDAR);
-        Mailbox acct1Contacts =
-            ProviderTestUtils.setupMailbox("Con1", acct1.mId, true, context, Mailbox.TYPE_CONTACTS);
-        Account acct2 = ProviderTestUtils.setupAccount("acct1", true, context);
-        Mailbox acct2Inbox =
-            ProviderTestUtils.setupMailbox("Inbox2", acct2.mId, true, context, Mailbox.TYPE_INBOX);
-        Mailbox acct2Calendar =
-            ProviderTestUtils.setupMailbox("Cal2", acct2.mId, true, context, Mailbox.TYPE_CALENDAR);
-        Mailbox acct2Contacts =
-            ProviderTestUtils.setupMailbox("Con2", acct2.mId, true, context, Mailbox.TYPE_CONTACTS);
-
-        // Check that we can find them by type
-        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct1Inbox,
-                Mailbox.restoreMailboxOfType(context, acct1.mId, Mailbox.TYPE_INBOX));
-        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct2Inbox,
-                Mailbox.restoreMailboxOfType(context, acct2.mId, Mailbox.TYPE_INBOX));
-        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct1Calendar,
-                Mailbox.restoreMailboxOfType(context, acct1.mId, Mailbox.TYPE_CALENDAR));
-        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct2Calendar,
-                Mailbox.restoreMailboxOfType(context, acct2.mId, Mailbox.TYPE_CALENDAR));
-        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct1Contacts,
-                Mailbox.restoreMailboxOfType(context, acct1.mId, Mailbox.TYPE_CONTACTS));
-        ProviderTestUtils.assertMailboxEqual("testRestoreMailboxOfType", acct2Contacts,
-                Mailbox.restoreMailboxOfType(context, acct2.mId, Mailbox.TYPE_CONTACTS));
-    }
-
     public void testAccountIsSecurityHold() {
         final Context context = mMockContext;
         Account acct1 = ProviderTestUtils.setupAccount("acct1", true, context);
@@ -1846,203 +1747,9 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(Account.FLAGS_VIBRATE_ALWAYS, a2a.mFlags);
     }
 
-    /**
-     * @return the number of messages in a mailbox.
-     */
-    private int getMessageCount(long mailboxId) {
-        return Utility.getFirstRowInt(mMockContext,
-                ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
-                new String[] {MailboxColumns.MESSAGE_COUNT}, null, null, null, 0);
-    }
-
-    /** Set -1 to the message count of all mailboxes for the recalculateMessageCount test. */
-    private void setMinusOneToMessageCounts() {
-        ContentValues values = new ContentValues();
-        values.put(MailboxColumns.MESSAGE_COUNT, -1);
-
-        // EmailProvider.update() doesn't allow updating messageCount, so directly use the DB.
-        SQLiteDatabase db = getProvider().getDatabase(mMockContext);
-        db.update(Mailbox.TABLE_NAME, values, null, null);
-    }
-
-    /**
-     * Test for the message count triggers (insert/delete/move mailbox), and also
-     * {@link EmailProvider#recalculateMessageCount}.
-     *
-     * It also covers:
-     * - {@link Mailbox#getMessageCountByMailboxType(Context, int)}
-     * - {@link Mailbox#getUnreadCountByAccountAndMailboxType(Context, long, int)}
-     * - {@link Mailbox#getUnreadCountByMailboxType(Context, int)}
-     * - {@link Message#getFavoriteMessageCount(Context)}
-     * - {@link Message#getFavoriteMessageCount(Context, long)}
-     */
-    public void testMessageCount() {
-        final Context c = mMockContext;
-
-        // Create 2 accounts
-        Account a1 = ProviderTestUtils.setupAccount("holdflag-1", true, c);
-        Account a2 = ProviderTestUtils.setupAccount("holdflag-2", true, c);
-
-        // Create 2 mailboxes for each account
-        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a1.mId, true, c, Mailbox.TYPE_INBOX);
-        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", a1.mId, true, c, Mailbox.TYPE_OUTBOX);
-        Mailbox b3 = ProviderTestUtils.setupMailbox("box3", a2.mId, true, c, Mailbox.TYPE_INBOX);
-        Mailbox b4 = ProviderTestUtils.setupMailbox("box4", a2.mId, true, c, Mailbox.TYPE_OUTBOX);
-        Mailbox bt = ProviderTestUtils.setupMailbox("boxT", a2.mId, true, c, Mailbox.TYPE_TRASH);
-
-        // 0. Check the initial values, just in case.
-
-        assertEquals(0, getMessageCount(b1.mId));
-        assertEquals(0, getMessageCount(b2.mId));
-        assertEquals(0, getMessageCount(b3.mId));
-        assertEquals(0, getMessageCount(b4.mId));
-        assertEquals(0, getMessageCount(bt.mId));
-
-        assertEquals(0, Message.getFavoriteMessageCount(c));
-        assertEquals(0, Message.getFavoriteMessageCount(c, a1.mId));
-        assertEquals(0, Message.getFavoriteMessageCount(c, a2.mId));
-        assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_INBOX));
-        assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
-        assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_INBOX));
-        assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
-        assertEquals(0, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_TRASH));
-
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_INBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_OUTBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_TRASH));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_INBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_OUTBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_TRASH));
-
-        // 1. Test for insert triggers.
-
-        // Create some messages
-        // b1 (account 1, inbox): 1 message, including 1 starred
-        Message m11 = createMessage(c, b1, true, false, Message.FLAG_LOADED_COMPLETE);
-
-        // b2 (account 1, outbox): 2 message, including 1 starred
-        Message m21 = createMessage(c, b2, false, false, Message.FLAG_LOADED_COMPLETE);
-        Message m22 = createMessage(c, b2, true, true, Message.FLAG_LOADED_COMPLETE);
-
-        // b3 (account 2, inbox): 3 message, including 1 starred
-        Message m31 = createMessage(c, b3, false, false, Message.FLAG_LOADED_COMPLETE);
-        Message m32 = createMessage(c, b3, false, false, Message.FLAG_LOADED_COMPLETE);
-        Message m33 = createMessage(c, b3, true, true, Message.FLAG_LOADED_COMPLETE);
-
-        // b4 (account 2, outbox) has no messages.
-
-        // bt (account 2, trash) has 3 messages, including 2 starred
-        Message mt1 = createMessage(c, bt, true, false, Message.FLAG_LOADED_COMPLETE);
-        Message mt2 = createMessage(c, bt, true, false, Message.FLAG_LOADED_COMPLETE);
-        Message mt3 = createMessage(c, bt, false, false, Message.FLAG_LOADED_COMPLETE);
-
-        // Check message counts
-        assertEquals(1, getMessageCount(b1.mId));
-        assertEquals(2, getMessageCount(b2.mId));
-        assertEquals(3, getMessageCount(b3.mId));
-        assertEquals(0, getMessageCount(b4.mId));
-        assertEquals(3, getMessageCount(bt.mId));
-
-        // Check the simple counting methods.
-        assertEquals(3, Message.getFavoriteMessageCount(c)); // excludes starred in trash
-        assertEquals(2, Message.getFavoriteMessageCount(c, a1.mId));
-        assertEquals(1, Message.getFavoriteMessageCount(c, a2.mId)); // excludes starred in trash
-        assertEquals(3, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_INBOX));
-        assertEquals(1, Mailbox.getUnreadCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
-        assertEquals(4, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_INBOX));
-        assertEquals(2, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_OUTBOX));
-        assertEquals(3, Mailbox.getMessageCountByMailboxType(c, Mailbox.TYPE_TRASH));
-
-        assertEquals(1, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_INBOX));
-        assertEquals(1, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_OUTBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a1.mId, Mailbox.TYPE_TRASH));
-        assertEquals(2, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_INBOX));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_OUTBOX));
-        assertEquals(3, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                a2.mId, Mailbox.TYPE_TRASH));
-
-        // 2. test for recalculateMessageCount.
-
-        // First, invalidate the message counts.
-        setMinusOneToMessageCounts();
-        assertEquals(-1, getMessageCount(b1.mId));
-        assertEquals(-1, getMessageCount(b2.mId));
-        assertEquals(-1, getMessageCount(b3.mId));
-        assertEquals(-1, getMessageCount(b4.mId));
-
-        // Batch update.
-        SQLiteDatabase db = getProvider().getDatabase(mMockContext);
-        EmailProvider.recalculateMessageCount(db);
-
-        // Check message counts
-        assertEquals(1, getMessageCount(b1.mId));
-        assertEquals(2, getMessageCount(b2.mId));
-        assertEquals(3, getMessageCount(b3.mId));
-        assertEquals(0, getMessageCount(b4.mId));
-
-        // 3. Check the "move mailbox" trigger.
-
-        // Move m32 (in mailbox 3) to mailbox 4.
-        ContentValues values = new ContentValues();
-        values.put(MessageColumns.MAILBOX_KEY, b4.mId);
-
-        getProvider().update(Message.CONTENT_URI, values, EmailContent.ID_SELECTION,
-                new String[] {"" + m32.mId});
-
-        // Check message counts
-        assertEquals(1, getMessageCount(b1.mId));
-        assertEquals(2, getMessageCount(b2.mId));
-        assertEquals(2, getMessageCount(b3.mId));
-        assertEquals(1, getMessageCount(b4.mId));
-
-        // 4. Check the delete trigger.
-
-        // Delete m11 (in mailbox 1)
-        getProvider().delete(Message.CONTENT_URI, EmailContent.ID_SELECTION,
-                new String[] {"" + m11.mId});
-        // Delete m21 (in mailbox 2)
-        getProvider().delete(Message.CONTENT_URI, EmailContent.ID_SELECTION,
-                new String[] {"" + m21.mId});
-
-        // Check message counts
-        assertEquals(0, getMessageCount(b1.mId));
-        assertEquals(1, getMessageCount(b2.mId));
-        assertEquals(2, getMessageCount(b3.mId));
-        assertEquals(1, getMessageCount(b4.mId));
-
-        // No such mailbox type.
-        assertEquals(0, Mailbox.getMessageCountByMailboxType(c, 99999));
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c, a1.mId, 99999));
-        assertEquals(0, Mailbox.getUnreadCountByMailboxType(c, 99999));
-
-        // No such account
-        assertEquals(0, Mailbox.getUnreadCountByAccountAndMailboxType(c,
-                99999, Mailbox.TYPE_INBOX));
-    }
-
     private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read) {
         return ProviderTestUtils.setupMessage(
                 "1", b.mAccountKey, b.mId, true, true, c, starred, read);
-    }
-
-    private static Message createMessage(Context c, Mailbox b, boolean starred, boolean read,
-            int flagLoaded) {
-        Message message = ProviderTestUtils.setupMessage(
-                "1", b.mAccountKey, b.mId, true, false, c, starred, read);
-        message.mFlagLoaded = flagLoaded;
-        message.save(c);
-        return message;
     }
 
     public void testAccountIsEasAccount() {
@@ -2093,46 +1800,6 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(-1, Account.getAccountIdForMessageId(c, 12345));
     }
 
-    public void testGetMailboxForMessageId() {
-        final Context c = mMockContext;
-        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", 1, true, c, Mailbox.TYPE_MAIL);
-        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", 1, true, c, Mailbox.TYPE_MAIL);
-        Message m1 = createMessage(c, b1, false, false);
-        Message m2 = createMessage(c, b2, false, false);
-        ProviderTestUtils.assertMailboxEqual("x", b1, Mailbox.getMailboxForMessageId(c, m1.mId));
-        ProviderTestUtils.assertMailboxEqual("x", b2, Mailbox.getMailboxForMessageId(c, m2.mId));
-    }
-
-    public void testRestoreMailboxWithId() {
-        final Context c = mMockContext;
-        Mailbox testMailbox;
-
-        testMailbox = ProviderTestUtils.setupMailbox("box1", 1, true, c, Mailbox.TYPE_MAIL);
-        ProviderTestUtils.assertMailboxEqual(
-                "x", testMailbox, Mailbox.restoreMailboxWithId(c, testMailbox.mId));
-        testMailbox = ProviderTestUtils.setupMailbox("box2", 1, true, c, Mailbox.TYPE_MAIL);
-        ProviderTestUtils.assertMailboxEqual(
-                "x", testMailbox, Mailbox.restoreMailboxWithId(c, testMailbox.mId));
-        // Unknown IDs
-        assertNull(Mailbox.restoreMailboxWithId(c, 8));
-        assertNull(Mailbox.restoreMailboxWithId(c, -1));
-        assertNull(Mailbox.restoreMailboxWithId(c, Long.MAX_VALUE));
-    }
-
-    public void testRestoreMailboxForPath() {
-        final Context c = mMockContext;
-        Mailbox testMailbox;
-        testMailbox = ProviderTestUtils.setupMailbox("a/b/c/box", 1, true, c, Mailbox.TYPE_MAIL);
-        ProviderTestUtils.assertMailboxEqual(
-                "x", testMailbox, Mailbox.restoreMailboxForPath(c, 1, "a/b/c/box"));
-        // Same name, different account; no match
-        assertNull(Mailbox.restoreMailboxForPath(c, 2, "a/b/c/box"));
-        // Substring; no match
-        assertNull(Mailbox.restoreMailboxForPath(c, 1, "a/b/c"));
-        // Wild cards not supported; no match
-        assertNull(Mailbox.restoreMailboxForPath(c, 1, "a/b/c/%"));
-    }
-
     public void testGetAccountForMessageId() {
         final Context c = mMockContext;
         Account a = ProviderTestUtils.setupAccount("acct", true, c);
@@ -2156,67 +1823,6 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
 
         // No account found.
         assertEquals(-1, Account.getInboxId(c, 999999));
-    }
-
-    public void testGetMailboxType() {
-        final Context c = mMockContext;
-
-        Account a = ProviderTestUtils.setupAccount("acct1", true, c);
-        Mailbox bi = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_INBOX);
-        Mailbox bm = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_MAIL);
-
-        assertEquals(Mailbox.TYPE_INBOX, Mailbox.getMailboxType(c, bi.mId));
-        assertEquals(Mailbox.TYPE_MAIL, Mailbox.getMailboxType(c, bm.mId));
-        assertEquals(-1, Mailbox.getMailboxType(c, 999999)); // mailbox not found
-    }
-
-    public void testGetDisplayName() {
-        final Context c = mMockContext;
-
-        Account a = ProviderTestUtils.setupAccount("acct1", true, c);
-        Mailbox bi = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_INBOX);
-        Mailbox bm = ProviderTestUtils.setupMailbox("b2", a.mId, true, c, Mailbox.TYPE_MAIL);
-
-        assertEquals("b1", Mailbox.getDisplayName(c, bi.mId));
-        assertEquals("b2", Mailbox.getDisplayName(c, bm.mId));
-        assertEquals(null, Mailbox.getDisplayName(c, 999999)); // mailbox not found
-    }
-
-    public void testMailboxIsRefreshable() {
-        final Context c = mMockContext;
-
-        Account a = ProviderTestUtils.setupAccount("acct1", true, c);
-        Mailbox bi = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_INBOX);
-        Mailbox bm = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_MAIL);
-        Mailbox bd = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_DRAFTS);
-        Mailbox bo = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_OUTBOX);
-
-        assertTrue(Mailbox.isRefreshable(c, bi.mId));
-        assertTrue(Mailbox.isRefreshable(c, bm.mId));
-        assertFalse(Mailbox.isRefreshable(c, bd.mId));
-        assertFalse(Mailbox.isRefreshable(c, bo.mId));
-
-        // No such mailbox
-        assertFalse(Mailbox.isRefreshable(c, 9999999));
-
-        // Magic mailboxes can't be refreshed.
-        assertFalse(Mailbox.isRefreshable(c, Mailbox.QUERY_ALL_DRAFTS));
-        assertFalse(Mailbox.isRefreshable(c, Mailbox.QUERY_ALL_INBOXES));
-    }
-
-    public void testMailboxCanMoveFrom() {
-        final Context c = mMockContext;
-
-        Account a = ProviderTestUtils.setupAccount("acct1", true, c);
-        Mailbox bi = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_INBOX);
-        Mailbox bm = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_MAIL);
-        Mailbox bd = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_DRAFTS);
-        Mailbox bo = ProviderTestUtils.setupMailbox("b1", a.mId, true, c, Mailbox.TYPE_OUTBOX);
-
-        assertTrue(Mailbox.canMoveFrom(c, bi.mId));
-        assertTrue(Mailbox.canMoveFrom(c, bm.mId));
-        assertFalse(Mailbox.canMoveFrom(c, bd.mId));
-        assertFalse(Mailbox.canMoveFrom(c, bo.mId));
     }
 
     /**
@@ -2376,27 +1982,6 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     }
 
     /**
-     * Check if update on MAILBOX_ID_ADD_TO_FIELD updates the cache properly.
-     */
-    public void testUpdateCacheMailboxIdAddToField() {
-        final Context c = mMockContext;
-        Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
-        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a1.mId, true, c, Mailbox.TYPE_INBOX);
-
-        int start = Mailbox.restoreMailboxWithId(c, b1.mId).mSyncInterval;
-
-        // +1 to SYNC_INTERVAL
-        ContentValues cv = new ContentValues();
-        cv.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.SYNC_INTERVAL);
-        cv.put(EmailContent.ADD_COLUMN_NAME, 1);
-        mProvider.update(ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, a1.mId), cv,
-                null, null);
-
-        // Check
-        assertEquals(start + 1, Mailbox.restoreMailboxWithId(c, b1.mId).mSyncInterval);
-    }
-
-    /**
      * Check that we're handling illegal uri's properly (by throwing an exception unless it's a
      * query for an id of -1, in which case we return a zero-length cursor)
      */
@@ -2436,5 +2021,221 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertNotNull(c);
         assertEquals(0, c.getCount());
         c.close();
+    }
+
+    /**
+     * Verify {@link EmailProvider#recalculateMessageCount(android.database.sqlite.SQLiteDatabase)}
+     */
+    public void testRecalculateMessageCounts() {
+        final Context c = mMockContext;
+
+        // Create accounts
+        Account a1 = ProviderTestUtils.setupAccount("holdflag-1", true, c);
+        Account a2 = ProviderTestUtils.setupAccount("holdflag-2", true, c);
+
+        // Create mailboxes for each account
+        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a1.mId, true, c, Mailbox.TYPE_INBOX);
+        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", a1.mId, true, c, Mailbox.TYPE_OUTBOX);
+        Mailbox b3 = ProviderTestUtils.setupMailbox("box3", a2.mId, true, c, Mailbox.TYPE_INBOX);
+        Mailbox b4 = ProviderTestUtils.setupMailbox("box4", a2.mId, true, c, Mailbox.TYPE_OUTBOX);
+        Mailbox bt = ProviderTestUtils.setupMailbox("boxT", a2.mId, true, c, Mailbox.TYPE_TRASH);
+
+        // Create some messages
+        // b1 (account 1, inbox): 1 message, including 1 starred
+        Message m11 = createMessage(c, b1, true, false, Message.FLAG_LOADED_COMPLETE);
+
+        // b2 (account 1, outbox): 2 message, including 1 starred
+        Message m21 = createMessage(c, b2, false, false, Message.FLAG_LOADED_COMPLETE);
+        Message m22 = createMessage(c, b2, true, true, Message.FLAG_LOADED_COMPLETE);
+
+        // b3 (account 2, inbox): 3 message, including 1 starred
+        Message m31 = createMessage(c, b3, false, false, Message.FLAG_LOADED_COMPLETE);
+        Message m32 = createMessage(c, b3, false, false, Message.FLAG_LOADED_COMPLETE);
+        Message m33 = createMessage(c, b3, true, true, Message.FLAG_LOADED_COMPLETE);
+
+        // b4 (account 2, outbox) has no messages.
+
+        // bt (account 2, trash) has 3 messages, including 2 starred
+        Message mt1 = createMessage(c, bt, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message mt2 = createMessage(c, bt, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message mt3 = createMessage(c, bt, false, false, Message.FLAG_LOADED_COMPLETE);
+
+        // Verifiy initial message counts
+        assertEquals(1, getMessageCount(b1.mId));
+        assertEquals(2, getMessageCount(b2.mId));
+        assertEquals(3, getMessageCount(b3.mId));
+        assertEquals(0, getMessageCount(b4.mId));
+        assertEquals(3, getMessageCount(bt.mId));
+
+        // Whew. The setup is done; now let's actually get to the test
+
+        // First, invalidate the message counts.
+        setMinusOneToMessageCounts();
+        assertEquals(-1, getMessageCount(b1.mId));
+        assertEquals(-1, getMessageCount(b2.mId));
+        assertEquals(-1, getMessageCount(b3.mId));
+        assertEquals(-1, getMessageCount(b4.mId));
+        assertEquals(-1, getMessageCount(bt.mId));
+
+        // Batch update.
+        SQLiteDatabase db = getProvider().getDatabase(mMockContext);
+        EmailProvider.recalculateMessageCount(db);
+
+        // Check message counts are valid again
+        assertEquals(1, getMessageCount(b1.mId));
+        assertEquals(2, getMessageCount(b2.mId));
+        assertEquals(3, getMessageCount(b3.mId));
+        assertEquals(0, getMessageCount(b4.mId));
+        assertEquals(3, getMessageCount(bt.mId));
+    }
+
+    /** Creates an account */
+    private Account createAccount(Context c, String name, HostAuth recvAuth, HostAuth sendAuth) {
+        Account account = ProviderTestUtils.setupAccount(name, false, c);
+        if (recvAuth != null) {
+            account.mHostAuthKeyRecv = recvAuth.mId;
+            if (sendAuth == null) {
+                account.mHostAuthKeySend = recvAuth.mId;
+            }
+        }
+        if (sendAuth != null) {
+            account.mHostAuthKeySend = sendAuth.mId;
+        }
+        account.save(c);
+        return account;
+    }
+
+    /** Creates a mailbox; redefine as we need version 17 mailbox values */
+    private Mailbox createMailbox(Context c, String displayName, String serverId, long parentKey,
+            long accountId) {
+        Mailbox box = new Mailbox();
+
+        box.mDisplayName = displayName;
+        box.mServerId = serverId;
+        box.mParentKey = parentKey;
+        box.mAccountKey = accountId;
+        // Don't care about the fields below ... set them for giggles
+        box.mType = Mailbox.TYPE_MAIL;
+        box.mDelimiter = '/';
+        box.mSyncKey = "sync-key";
+        box.mSyncLookback = 2;
+        box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
+        box.mSyncTime = 3;
+        box.mFlagVisible = true;
+        box.mFlags = 5;
+        box.mVisibleLimit = 6;
+        box.save(c);
+        return box;
+    }
+
+    /**
+     * Asserts equality between two mailboxes. We define this as we don't have implementations
+     * for Mailbox#equals().
+     */
+    private void assertEquals(Mailbox expected, Mailbox actual) {
+        if (expected == null && actual == null) return;
+        assertTrue(expected != null && actual != null);
+        assertEqualsExceptServerId(expected, actual, expected.mServerId);
+    }
+
+    /**
+     * Asserts equality between the two mailboxes EXCEPT for the server id. The given server
+     * ID is the expected value.
+     */
+    private void assertEqualsExceptServerId(Mailbox expected, Mailbox actual, String serverId) {
+        if (expected == null && actual == null) return;
+
+        assertTrue(expected != null && actual != null);
+        assertEquals(expected.mDisplayName, actual.mDisplayName);
+        assertEquals(serverId, actual.mServerId);
+        assertEquals(expected.mParentKey, actual.mParentKey);
+        assertEquals(expected.mAccountKey, actual.mAccountKey);
+    }
+
+    /** Verifies updating the DB from v17 to v18 works as expected */
+    public void testUpgradeFromVersion17ToVersion18() {
+        final Context c = mMockContext;
+        // Create accounts
+        Account a1 =createAccount(c, "exchange",
+                ProviderTestUtils.setupHostAuth("eas", "exchange.host.com", true, c),
+                null);
+        Account a2 = createAccount(c, "imap",
+                ProviderTestUtils.setupHostAuth("imap", "imap.host.com", true, c),
+                ProviderTestUtils.setupHostAuth("smtp", "smtp.host.com", true, c));
+        Account a3 = createAccount(c, "pop3",
+                ProviderTestUtils.setupHostAuth("pop3", "imap.host.com", true, c),
+                ProviderTestUtils.setupHostAuth("smtp", "smtp.host.com", true, c));
+
+        // Create mailboxes; some w/ valid parent IDs, others without
+        Mailbox b11 = createMailbox(c, "box1", "12", 0L, a1.mId);
+        Mailbox b12 = createMailbox(c, "box2", "67", -1L, a1.mId);
+        Mailbox b13 = createMailbox(c, "box3", "18", b12.mId, a1.mId);
+
+        Mailbox b21 = createMailbox(c, "box4", null, 0L, a2.mId);
+        Mailbox b22 = createMailbox(c, "box4/foo/bar", "will-be-replaced", 0L, a2.mId);
+        Mailbox b23 = createMailbox(c, "box5", null, -1L, a2.mId);
+        Mailbox b24 = createMailbox(c, "box6", "box5/box6", b23.mId, a2.mId);
+
+        Mailbox b31 = createMailbox(c, "box7", "12", 0L, a3.mId);
+        Mailbox b32 = createMailbox(c, "box8/foo/bar", "will-be-replaced", 0L, a3.mId);
+        Mailbox b33 = createMailbox(c, "box9", "box9", -1L, a3.mId);
+        Mailbox b34 = createMailbox(c, "boxA", "box9/boxA", b33.mId, a3.mId);
+
+        // Sanity check the mailboxes that were just added
+        Mailbox testMailbox;
+        testMailbox = Mailbox.restoreMailboxWithId(c, b11.mId);
+        assertEquals(b11, testMailbox);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b12.mId);
+        assertEquals(b12, testMailbox);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b13.mId);
+        assertEquals(b13, testMailbox);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b21.mId);
+        assertEqualsExceptServerId(b21, testMailbox, null);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b22.mId);
+        assertEqualsExceptServerId(b22, testMailbox, "will-be-replaced");
+        testMailbox = Mailbox.restoreMailboxWithId(c, b23.mId);
+        assertEquals(b23, testMailbox);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b24.mId);
+        assertEquals(b24, testMailbox);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b31.mId);
+        assertEqualsExceptServerId(b31, testMailbox, "12");
+        testMailbox = Mailbox.restoreMailboxWithId(c, b32.mId);
+        assertEqualsExceptServerId(b32, testMailbox, "will-be-replaced");
+        testMailbox = Mailbox.restoreMailboxWithId(c, b33.mId);
+        assertEquals(b33, testMailbox);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b34.mId);
+        assertEquals(b34, testMailbox);
+
+        SQLiteDatabase db = getProvider().getDatabase(mMockContext);
+        EmailProvider.upgradeFromVersion17ToVersion18(db);
+
+        // Verify that only IMAP/POP3 mailboxes w/ a parent key of '0' are changed
+        // Exchange mailboxes; none should be changed
+        testMailbox = Mailbox.restoreMailboxWithId(c, b11.mId);
+        assertEquals(b11, testMailbox);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b12.mId);
+        assertEquals(b12, testMailbox);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b13.mId);
+        assertEquals(b13, testMailbox);
+
+        // IMAP mailboxes; only mailboxes w/ a parent id of '0' are changed
+        testMailbox = Mailbox.restoreMailboxWithId(c, b21.mId);
+        assertEqualsExceptServerId(b21, testMailbox, "box4");
+        testMailbox = Mailbox.restoreMailboxWithId(c, b22.mId);
+        assertEqualsExceptServerId(b22, testMailbox, "box4/foo/bar");
+        testMailbox = Mailbox.restoreMailboxWithId(c, b23.mId);
+        assertEquals(b23, testMailbox);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b24.mId);
+        assertEquals(b24, testMailbox);
+
+        // POP3 mailboxes; only mailboxes w/ a parent id of '0' are changed
+        testMailbox = Mailbox.restoreMailboxWithId(c, b31.mId);
+        assertEqualsExceptServerId(b31, testMailbox, "box7");
+        testMailbox = Mailbox.restoreMailboxWithId(c, b32.mId);
+        assertEqualsExceptServerId(b32, testMailbox, "box8/foo/bar");
+        testMailbox = Mailbox.restoreMailboxWithId(c, b33.mId);
+        assertEquals(b33, testMailbox);
+        testMailbox = Mailbox.restoreMailboxWithId(c, b34.mId);
+        assertEquals(b34, testMailbox);
     }
 }

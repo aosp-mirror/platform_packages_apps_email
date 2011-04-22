@@ -108,7 +108,7 @@ public class MailboxFinderTest extends InstrumentationTestCase {
      */
     private long createMailbox(long accountId, int mailboxType) {
         EmailContent.Mailbox box = new EmailContent.Mailbox();
-        box.mDisplayName = "mailbox";
+        box.mServerId = box.mDisplayName = "mailbox";
         box.mAccountKey = accountId;
         box.mType = mailboxType;
         box.mFlagVisible = true;

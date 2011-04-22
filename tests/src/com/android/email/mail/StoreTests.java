@@ -21,6 +21,7 @@ import com.android.email.mail.Store.StoreInfo;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -132,4 +133,31 @@ public class StoreTests extends AndroidTestCase {
         assertEquals(0, Store.sStores.size());
     }
 
+    public void testUpdateMailbox() {
+        Mailbox testMailbox = new Mailbox();
+
+        Store.updateMailbox(testMailbox, 1L, "inbox", '/', Mailbox.TYPE_MAIL);
+        assertEquals(1L, testMailbox.mAccountKey);
+        assertEquals("inbox", testMailbox.mDisplayName);
+        assertEquals("inbox", testMailbox.mServerId);
+        assertEquals('/', testMailbox.mDelimiter);
+
+        Store.updateMailbox(testMailbox, 2L, "inbox/a", '/', Mailbox.TYPE_MAIL);
+        assertEquals(2L, testMailbox.mAccountKey);
+        assertEquals("a", testMailbox.mDisplayName);
+        assertEquals("inbox/a", testMailbox.mServerId);
+        assertEquals('/', testMailbox.mDelimiter);
+
+        Store.updateMailbox(testMailbox, 3L, "inbox/a/b/c/d", '/', Mailbox.TYPE_MAIL);
+        assertEquals(3L, testMailbox.mAccountKey);
+        assertEquals("d", testMailbox.mDisplayName);
+        assertEquals("inbox/a/b/c/d", testMailbox.mServerId);
+        assertEquals('/', testMailbox.mDelimiter);
+
+        Store.updateMailbox(testMailbox, 4L, "inbox/a/b/c", '\0', Mailbox.TYPE_MAIL);
+        assertEquals(4L, testMailbox.mAccountKey);
+        assertEquals("inbox/a/b/c", testMailbox.mDisplayName);
+        assertEquals("inbox/a/b/c", testMailbox.mServerId);
+        assertEquals('\0', testMailbox.mDelimiter);
+    }
 }

@@ -342,7 +342,7 @@ public abstract class Store {
      * Returns a {@link Mailbox} for the given path. If the path is not in the database, a new
      * mailbox will be created.
      */
-    private static Mailbox getMailboxForPath(Context context, long accountId, String path) {
+    protected static Mailbox getMailboxForPath(Context context, long accountId, String path) {
         Mailbox mailbox = Mailbox.restoreMailboxForPath(context, accountId, path);
         if (mailbox == null) {
             mailbox = new Mailbox();
@@ -351,24 +351,19 @@ public abstract class Store {
     }
 
     /**
-     * Adds the mailbox with the given path to the folder list and to the database. If the folder
-     * already exists on the server (e.g. the path is identical), the database row will be updated.
-     * Otherwise, a new database row will be inserted.
-     * @param folders the list of folders
-     * @param mailboxPath The path of the mailbox to add
-     * @param delimiter A path delimiter. May be {@code null} if there is no delimiter.
+     * Updates the fields within the given mailbox. Only the fields that are important to
+     * non-EAS accounts are modified.
      */
-    protected void addMailbox(Context context, long accountId, String mailboxPath, String delimiter,
-            ArrayList<Folder> folders) throws MessagingException {
-        char delimiterChar = 0;
-        if (!TextUtils.isEmpty(delimiter)) {
-            delimiterChar = delimiter.charAt(0);
-        }
-        folders.add(getFolder(mailboxPath));
-        Mailbox mailbox = getMailboxForPath(context, accountId, mailboxPath);
+    protected static void updateMailbox(Mailbox mailbox, long accountId, String mailboxPath,
+            char delimiter, int type) {
         mailbox.mAccountKey = accountId;
-        mailbox.mDelimiter = delimiterChar;
-        mailbox.mDisplayName = mailboxPath;
+        mailbox.mDelimiter = delimiter;
+        String displayPath = mailboxPath;
+        int pathIndex = mailboxPath.lastIndexOf(delimiter);
+        if (pathIndex > 0) {
+            displayPath = mailboxPath.substring(pathIndex + 1);
+        }
+        mailbox.mDisplayName = displayPath;
         //mailbox.mFlags;
         mailbox.mFlagVisible = true;
         //mailbox.mParentKey;
@@ -379,17 +374,8 @@ public abstract class Store {
         //mailbox.mSyncKey;
         //mailbox.mSyncLookback;
         //mailbox.mSyncTime;
-        mailbox.mType = LegacyConversions.inferMailboxTypeFromName(context, mailboxPath);
+        mailbox.mType = type;
         //box.mUnreadCount;
         mailbox.mVisibleLimit = Email.VISIBLE_LIMIT_DEFAULT;
-
-        // TODO This is horribly inefficient. Only update db if the mailbox has really changed
-        if (mailbox.isSaved()) {
-            mailbox.update(context, mailbox.toContentValues());
-        } else {
-            mailbox.save(context);
-        }
-        // TODO ?? Add mailbox to Folder object ??
     }
-
 }

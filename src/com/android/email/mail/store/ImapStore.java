@@ -17,6 +17,7 @@
 package com.android.email.mail.store;
 
 import com.android.email.Email;
+import com.android.email.LegacyConversions;
 import com.android.email.Preferences;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Store;
@@ -39,6 +40,7 @@ import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.Utility;
 import com.beetstra.jutf7.CharsetProvider;
@@ -63,6 +65,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -361,11 +364,77 @@ public class ImapStore extends Store {
         return folder;
     }
 
+    /**
+     * Creates a mailbox hierarchy out of the flat data provided by the server.
+     */
+    @VisibleForTesting
+    static void createHierarchy(HashMap<String, ImapFolder> mailboxes) {
+        Set<String> pathnames = mailboxes.keySet();
+        for (String path : pathnames) {
+            final ImapFolder folder = mailboxes.get(path);
+            final Mailbox mailbox = folder.mMailbox;
+            int delimiterIdx = mailbox.mServerId.lastIndexOf(mailbox.mDelimiter);
+            long parentKey = -1L;
+            if (delimiterIdx != -1) {
+                String parentPath = path.substring(0, delimiterIdx);
+                final ImapFolder parentFolder = mailboxes.get(parentPath);
+                final Mailbox parentMailbox = (parentFolder == null) ? null : parentFolder.mMailbox;
+                if (parentMailbox != null) {
+                    parentKey = parentMailbox.mId;
+                    parentMailbox.mFlags
+                            |= (Mailbox.FLAG_HAS_CHILDREN | Mailbox.FLAG_CHILDREN_VISIBLE);
+                }
+            }
+            mailbox.mParentKey = parentKey;
+        }
+    }
+
+    /**
+     * Creates a {@link Folder} and associated {@link Mailbox}. If the folder does not already
+     * exist in the local database, a new row will immediately be created in the mailbox table.
+     * Otherwise, the existing row will be used. Any changes to existing rows, will not be stored
+     * to the database immediately.
+     * @param accountId The ID of the account the mailbox is to be associated with
+     * @param mailboxPath The path of the mailbox to add
+     * @param delimiter A path delimiter. May be {@code null} if there is no delimiter.
+     */
+    private ImapFolder addMailbox(Context context, long accountId, String mailboxPath,
+            char delimiter) {
+        ImapFolder folder = (ImapFolder) getFolder(mailboxPath);
+        Mailbox mailbox = getMailboxForPath(context, accountId, mailboxPath);
+        if (mailbox.isSaved()) {
+            // existing mailbox
+            // mailbox retrieved from database; save hash _before_ updating fields
+            folder.mHash = mailbox.getHashes();
+        }
+        updateMailbox(mailbox, accountId, mailboxPath, delimiter,
+                LegacyConversions.inferMailboxTypeFromName(context, mailboxPath));
+        if (folder.mHash == null) {
+            // new mailbox
+            // save hash after updating. allows tracking changes if the mailbox is saved
+            // outside of #saveMailboxList()
+            folder.mHash = mailbox.getHashes();
+            // We must save this here to make sure we have a valid ID for later
+            mailbox.save(mContext);
+        }
+        folder.mMailbox = mailbox;
+        return folder;
+    }
+
+    /**
+     * Persists the folders in the given list.
+     */
+    private static void saveMailboxList(Context context, HashMap<String, ImapFolder> folderMap) {
+        for (ImapFolder imapFolder : folderMap.values()) {
+            imapFolder.save(context);
+        }
+    }
+
     @Override
     public Folder[] updateFolders() throws MessagingException {
         ImapConnection connection = getConnection();
         try {
-            ArrayList<Folder> folders = new ArrayList<Folder>();
+            HashMap<String, ImapFolder> mailboxes = new HashMap<String, ImapFolder>();
             // Establish a connection to the IMAP server; if necessary
             // This ensures a valid prefix if the prefix is automatically set by the server
             connection.executeSimpleCommand(ImapConstants.NOOP);
@@ -392,13 +461,22 @@ public class ImapStore extends Store {
                         includeFolder = false;
                     }
                     if (includeFolder) {
-                        String delimiter = response.getStringOrEmpty(2).toString();
-                        addMailbox(mContext, mAccount.mId, folderName, delimiter, folders);
+                        String delimiter = response.getStringOrEmpty(2).getString();
+                        char delimiterChar = '\0';
+                        if (!TextUtils.isEmpty(delimiter)) {
+                            delimiterChar = delimiter.charAt(0);
+                        }
+                        ImapFolder folder =
+                                addMailbox(mContext, mAccount.mId, folderName, delimiterChar);
+                        mailboxes.put(folderName, folder);
                     }
                 }
             }
-            addMailbox(mContext, mAccount.mId, ImapConstants.INBOX, null, folders);
-            return folders.toArray(new Folder[] {});
+            Folder newFolder = addMailbox(mContext, mAccount.mId, ImapConstants.INBOX, '\0');
+            mailboxes.put(ImapConstants.INBOX, (ImapFolder)newFolder);
+            createHierarchy(mailboxes);
+            saveMailboxList(mContext, mailboxes);
+            return mailboxes.values().toArray(new Folder[] {});
         } catch (IOException ioe) {
             connection.close();
             throw new MessagingException("Unable to get folder list.", ioe);

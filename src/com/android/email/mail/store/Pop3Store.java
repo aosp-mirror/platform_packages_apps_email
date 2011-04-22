@@ -32,6 +32,7 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Folder.OpenMode;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.LoggingInputStream;
 import com.android.emailcommon.utility.Utility;
@@ -53,7 +54,8 @@ public class Pop3Store extends Store {
     private static boolean DEBUG_LOG_RAW_STREAM = false;
 
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED };
-
+    /** The name of the only mailbox available to POP3 accounts */
+    private static final String POP3_MAILBOX_NAME = "INBOX";
     private final Context mContext;
     private final Account mAccount;
     private Transport mTransport;
@@ -154,10 +156,15 @@ public class Pop3Store extends Store {
     }
 
     @Override
-    public Folder[] updateFolders() throws MessagingException {
-        ArrayList<Folder> folders = new ArrayList<Folder>();
-        addMailbox(mContext, mAccount.mId, "INBOX", null, folders);
-        return folders.toArray(new Folder[] {});
+    public Folder[] updateFolders() {
+        Mailbox mailbox = getMailboxForPath(mContext, mAccount.mId, POP3_MAILBOX_NAME);
+        updateMailbox(mailbox, mAccount.mId, POP3_MAILBOX_NAME, '\0', Mailbox.TYPE_INBOX);
+        if (mailbox.isSaved()) {
+            mailbox.update(mContext, mailbox.toContentValues());
+        } else {
+            mailbox.save(mContext);
+        }
+        return new Folder[] { getFolder(POP3_MAILBOX_NAME) };
     }
 
     /**
@@ -169,7 +176,7 @@ public class Pop3Store extends Store {
      */
     @Override
     public Bundle checkSettings() throws MessagingException {
-        Pop3Folder folder = new Pop3Folder("INBOX");
+        Pop3Folder folder = new Pop3Folder(POP3_MAILBOX_NAME);
         Bundle bundle = null;
         // Close any open or half-open connections - checkSettings should always be "fresh"
         if (mTransport.isOpen()) {
@@ -195,8 +202,8 @@ public class Pop3Store extends Store {
         private Pop3Capabilities mCapabilities;
 
         public Pop3Folder(String name) {
-            if (name.equalsIgnoreCase("INBOX")) {
-                mName = "INBOX";
+            if (name.equalsIgnoreCase(POP3_MAILBOX_NAME)) {
+                mName = POP3_MAILBOX_NAME;
             } else {
                 mName = name;
             }
@@ -243,7 +250,7 @@ public class Pop3Store extends Store {
                 return;
             }
 
-            if (!mName.equalsIgnoreCase("INBOX")) {
+            if (!mName.equalsIgnoreCase(POP3_MAILBOX_NAME)) {
                 throw new MessagingException("Folder does not exist");
             }
 
@@ -351,7 +358,7 @@ public class Pop3Store extends Store {
 
         @Override
         public boolean exists() {
-            return mName.equalsIgnoreCase("INBOX");
+            return mName.equalsIgnoreCase(POP3_MAILBOX_NAME);
         }
 
         @Override

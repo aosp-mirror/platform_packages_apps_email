@@ -125,8 +125,13 @@ public class ProviderTestUtils extends Assert {
             Context context, int type, char delimiter) {
         Mailbox box = new Mailbox();
 
-        box.mDisplayName = name;
-        box.mServerId = "serverid-" + name;
+        int delimiterIndex = name.lastIndexOf(delimiter);
+        String displayName = name;
+        if (delimiterIndex > 0) {
+            displayName = name.substring(delimiterIndex + 1);
+        }
+        box.mDisplayName = displayName;
+        box.mServerId = name;
         box.mParentServerId = "parent-serverid-" + name;
         box.mParentKey = 4;
         box.mAccountKey = accountId;
