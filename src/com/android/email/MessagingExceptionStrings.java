@@ -45,6 +45,8 @@ public class MessagingExceptionStrings {
                 // where the security policy needs to be updated.
             case MessagingException.SECURITY_POLICIES_REQUIRED:
                 return R.string.account_setup_failed_security;
+            case MessagingException.ACCESS_DENIED:
+                return R.string.account_setup_failed_access_denied;
         }
         return R.string.status_network_error; // default
     }

@@ -617,6 +617,9 @@ public class AccountCheckSettingsFragment extends Fragment {
                     case MessagingException.SECURITY_POLICIES_UNSUPPORTED:
                         id = R.string.account_setup_failed_security_policies_unsupported;
                         break;
+                    case MessagingException.ACCESS_DENIED:
+                        id = R.string.account_setup_failed_access_denied;
+                        break;
                     case MessagingException.PROTOCOL_VERSION_UNSUPPORTED:
                         id = R.string.account_setup_failed_protocol_unsupported;
                         break;
