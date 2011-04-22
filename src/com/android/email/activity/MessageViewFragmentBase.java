@@ -100,7 +100,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private static final String BUNDLE_KEY_CURRENT_TAB = "MessageViewFragmentBase.currentTab";
     private static final String BUNDLE_KEY_PICTURE_LOADED = "MessageViewFragmentBase.pictureLoaded";
     private static final int PHOTO_LOADER_ID = 1;
-    private Context mContext;
+    protected Context mContext;
 
     // Regex that matches start of img tag. '<(?i)img\s+'.
     private static final Pattern IMG_TAG_START_REGEX = Pattern.compile("<(?i)img\\s+");

@@ -415,7 +415,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
     private void onDelete() {
         mCallback.onBeforeMessageDelete();
-        ActivityHelper.deleteMessage(getActivity(), mCurrentMessageId);
+        ActivityHelper.deleteMessage(mContext, mCurrentMessageId);
     }
 
     private void onMarkAsUnread() {
