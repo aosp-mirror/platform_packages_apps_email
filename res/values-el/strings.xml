@@ -407,7 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Φόρτωση…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Αγγίξτε για διαμόρφωση"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
-    <string name="search_title" msgid="353141588517762921">"Διεύθυνση email"</string>
+    <string name="search_title" msgid="353141588517762921">"Ηλ. ταχυδρομείο"</string>
     <string name="search_hint" msgid="2200412192574686497">"Αναζήτηση ηλεκτρονικού ταχυδρομείου"</string>
     <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Έλεγχος γραμματοκιβωτίου loopback"</string>
 </resources>
