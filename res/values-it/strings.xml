@@ -409,5 +409,5 @@
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_title" msgid="353141588517762921">"Email"</string>
     <string name="search_hint" msgid="2200412192574686497">"Cerca email"</string>
-    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Loopback controllo cassetta postale"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Mailbox check lookback"</string>
 </resources>

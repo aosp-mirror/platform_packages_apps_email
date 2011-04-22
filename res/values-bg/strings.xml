@@ -407,7 +407,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"Зарежда се…"</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Докоснете, за да конфигурирате"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
-    <string name="search_title" msgid="353141588517762921">"Имейл адрес"</string>
-    <string name="search_hint" msgid="2200412192574686497">"Търсене по имейл"</string>
+    <string name="search_title" msgid="353141588517762921">"Имейл"</string>
+    <string name="search_hint" msgid="2200412192574686497">"Търсете по имейл"</string>
     <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Mailbox check lookback"</string>
 </resources>
