@@ -25,6 +25,7 @@ import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Browser;
@@ -99,26 +100,26 @@ public final class ActivityHelper {
         activity.startActivity(intent);
     }
 
-    public static void deleteMessage(Activity activity, long messageId) {
-        Controller.getInstance(activity).deleteMessage(messageId, -1);
-        Utility.showToast(activity,
-                activity.getResources().getQuantityString(R.plurals.message_deleted_toast, 1));
+    public static void deleteMessage(Context context, long messageId) {
+        Controller.getInstance(context).deleteMessage(messageId, -1);
+        Utility.showToast(context,
+                context.getResources().getQuantityString(R.plurals.message_deleted_toast, 1));
     }
 
-    public static void moveMessages(final Activity activity, final long newMailboxId,
+    public static void moveMessages(final Context context, final long newMailboxId,
             final long[] messageIds) {
-        Controller.getInstance(activity).moveMessage(messageIds, newMailboxId);
+        Controller.getInstance(context).moveMessage(messageIds, newMailboxId);
         EmailAsyncTask.runAsyncSerial(new Runnable() {
             @Override
             public void run() {
-                String mailboxName = Mailbox.getDisplayName(activity, newMailboxId);
+                String mailboxName = Mailbox.getDisplayName(context, newMailboxId);
                 if (mailboxName == null) {
                     return; // Mailbox gone??
                 }
-                String message = activity.getResources().getQuantityString(
+                String message = context.getResources().getQuantityString(
                         R.plurals.message_moved_toast, messageIds.length, messageIds.length ,
                         mailboxName);
-                Utility.showToast(activity, message);
+                Utility.showToast(context, message);
             }
         });
     }
