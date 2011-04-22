@@ -50,7 +50,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.FileNotFoundException;
@@ -1578,6 +1577,9 @@ public class Controller {
 
                 case EmailServiceStatus.SECURITY_FAILURE:
                     return new MessagingException(MessagingException.SECURITY_POLICIES_REQUIRED);
+
+                case EmailServiceStatus.ACCESS_DENIED:
+                    return new MessagingException(MessagingException.ACCESS_DENIED);
 
                 case EmailServiceStatus.MESSAGE_NOT_FOUND:
                 case EmailServiceStatus.ATTACHMENT_NOT_FOUND:

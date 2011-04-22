@@ -776,6 +776,11 @@ save attachment.</string>
     <string name="account_setup_failed_protocol_unsupported">
          You entered an incorrect server address or the server requires a protocol version that
          Email does not support.</string>
+    <!-- Additional diagnostic text when server access was denied; the user should contact the
+         administrator of the server for more information [CHAR LIMIT=none] -->
+    <string name="account_setup_failed_access_denied">
+         You do not have permission to sync with this server. Please contact your server\'s
+         administrator for more information.</string>
 
     <!-- Dialog title when validation requires security provisioning (e.g. support
          for device lock PIN, or remote wipe.) and we ask the user permission before continuing -->

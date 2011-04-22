@@ -58,6 +58,8 @@ public class MessagingException extends Exception {
     public static final int AUTODISCOVER_AUTHENTICATION_RESULT = 12;
     /** Ambiguous failure; server error or bad credentials */
     public static final int AUTHENTICATION_FAILED_OR_SERVER_ERROR = 13;
+    /** The server refused access */
+    public static final int ACCESS_DENIED = 14;
 
     protected int mExceptionType;
 

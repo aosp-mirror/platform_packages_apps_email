@@ -33,6 +33,7 @@ public interface EmailServiceStatus {
     public static final int LOGIN_FAILED = 0x16;
     public static final int SECURITY_FAILURE = 0x17;
     public static final int ACCOUNT_UNINITIALIZED = 0x18;
+    public static final int ACCESS_DENIED = 0x19;
 
     // Maybe we should automatically retry these?
     public static final int CONNECTION_ERROR = 0x20;
