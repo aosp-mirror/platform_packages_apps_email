@@ -17,6 +17,8 @@
 package com.android.email.mail.transport;
 
 import com.android.email.mail.Sender;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent.Account;
 
 import android.content.Context;
 
@@ -29,11 +31,11 @@ public class ExchangeSender extends Sender {
     /**
      * Factory method.
      */
-    public static Sender newInstance(Context context, String uri) {
-        return new ExchangeSender(context, uri);
+    public static Sender newInstance(Account account, Context context) throws MessagingException {
+        return new ExchangeSender(context, account);
     }
 
-    private ExchangeSender(Context context, String _uri) {
+    private ExchangeSender(Context context, Account account) {
     }
 
     @Override
