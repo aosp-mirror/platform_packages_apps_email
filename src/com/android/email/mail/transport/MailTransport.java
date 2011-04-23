@@ -100,21 +100,6 @@ public class MailTransport implements Transport {
 
     @Override
     @Deprecated
-    public void setUri(URI uri, int defaultPort) {
-        mHost = uri.getHost();
-
-        mPort = defaultPort;
-        if (uri.getPort() != -1) {
-            mPort = uri.getPort();
-        }
-
-        if (uri.getUserInfo() != null) {
-            mUserInfoParts = uri.getUserInfo().split(":", 2);
-        }
-    }
-
-    @Override
-    @Deprecated
     public String[] getUserInfoParts() {
         return mUserInfoParts;
     }

@@ -30,6 +30,12 @@ import android.test.suitebuilder.annotation.MediumTest;
  */
 @MediumTest
 public class StoreTests extends AndroidTestCase {
+
+    @Override
+    public void setUp() {
+        Store.sStores.clear();
+    }
+
     public void testGetStoreKey() throws MessagingException {
         HostAuth testAuth = new HostAuth();
         Account testAccount = new Account();

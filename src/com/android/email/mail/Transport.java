@@ -56,16 +56,6 @@ public interface Transport {
     public Transport newInstanceWithConfiguration();
 
     /**
-     * Set the Uri for the connection.
-     *
-     * @param uri The Uri for the connection
-     * @param defaultPort If the Uri does not include an explicit port, this value will be used.
-     * @deprecated use the individual methods {@link #setHost(String)} and {@link #setPort(int)}
-     */
-    @Deprecated
-    public void setUri(URI uri, int defaultPort);
-
-    /**
      * Sets the host
      */
     public void setHost(String host);
