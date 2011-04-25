@@ -102,7 +102,8 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mTestContext = getInstrumentation().getContext();
+        // TODO: this should really use a mock context.
+        mTestContext = getInstrumentation().getTargetContext();
         // Use the target's (i.e. the Email application) context
         TempDirectory.setTempDirectory(getInstrumentation().getTargetContext());
 

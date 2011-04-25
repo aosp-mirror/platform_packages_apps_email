@@ -192,6 +192,10 @@
   *** getBody();
 }
 
+-keepclasseswithmembers class com.android.email.mail.FolderProperties {
+  *** getDisplayName(int);
+}
+
 # The following classes are used only by unit tests.
 # We should move them into tests/ if possible.
 
