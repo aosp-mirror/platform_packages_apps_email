@@ -26,8 +26,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * A bridge class to the email vendor policy apk.

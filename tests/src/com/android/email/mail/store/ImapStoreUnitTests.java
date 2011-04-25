@@ -16,6 +16,8 @@
 
 package com.android.email.mail.store;
 
+import com.android.email.DBTestHelper;
+import com.android.email.MockSharedPreferences;
 import com.android.email.MockVendorPolicy;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Transport;
@@ -48,6 +50,10 @@ import com.android.emailcommon.utility.Utility;
 import org.apache.commons.io.IOUtils;
 
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
 import android.os.Bundle;
 import android.test.InstrumentationTestCase;
 import android.test.MoreAsserts;
@@ -97,15 +103,48 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     private Message[] mCopyMessages;
 
     /**
+     * A wrapper to provide a wrapper to a Context which has already been mocked.
+     * This allows additional methods to delegate to the original, real context, in cases
+     * where the mocked behavior is insufficient.
+     */
+    private class SecondaryMockContext extends ContextWrapper {
+        private final Context mUnderlying;
+
+        public SecondaryMockContext(Context mocked, Context underlying) {
+            super(mocked);
+            mUnderlying = underlying;
+        }
+
+        // TODO: eliminate the need for these method.
+        @Override
+        public Context createPackageContext(String packageName, int flags)
+                throws NameNotFoundException {
+            return mUnderlying.createPackageContext(packageName, flags);
+        }
+
+        @Override
+        public SharedPreferences getSharedPreferences(String name, int mode) {
+            return new MockSharedPreferences();
+        }
+    }
+
+    /**
      * Setup code.  We generate a lightweight ImapStore and ImapStore.ImapFolder.
      */
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        // TODO: this should really use a mock context.
-        mTestContext = getInstrumentation().getTargetContext();
-        // Use the target's (i.e. the Email application) context
-        TempDirectory.setTempDirectory(getInstrumentation().getTargetContext());
+        Context realContext = getInstrumentation().getTargetContext();
+        ImapStore.sImapId = ImapStore.makeCommonImapId(realContext.getPackageName(),
+                        Build.VERSION.RELEASE, Build.VERSION.CODENAME,
+                        Build.MODEL, Build.ID, Build.MANUFACTURER,
+                        "FakeNetworkOperator");
+        mTestContext = new SecondaryMockContext(
+                DBTestHelper.ProviderContextSetupHelper.getProviderContext(realContext),
+                realContext);
+        MockVendorPolicy.inject(mTestContext);
+
+        TempDirectory.setTempDirectory(mTestContext);
 
         // These are needed so we can get at the inner classes
         HostAuth testAuth = new HostAuth();

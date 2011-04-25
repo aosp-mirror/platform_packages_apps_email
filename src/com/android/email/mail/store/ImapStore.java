@@ -42,6 +42,7 @@ import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.Utility;
 import com.beetstra.jutf7.CharsetProvider;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.content.Context;
 import android.os.Build;
@@ -99,7 +100,7 @@ public class ImapStore extends Store {
     private String mPassword;
     private String mLoginPhrase;
     private String mIdPhrase = null;
-    private static String sImapId = null;
+    @VisibleForTesting static String sImapId = null;
     /*package*/ String mPathPrefix;
     /*package*/ String mPathSeparator;
 
@@ -118,7 +119,7 @@ public class ImapStore extends Store {
      * requests. This cache lets us make sure we always reuse, if possible, for a given
      * folder name.
      */
-    private HashMap<String, ImapFolder> mFolderCache = new HashMap<String, ImapFolder>();
+    private final HashMap<String, ImapFolder> mFolderCache = new HashMap<String, ImapFolder>();
 
     /**
      * Next tag to use.  All connections associated to the same ImapStore instance share the same
@@ -219,7 +220,7 @@ public class ImapStore extends Store {
      * @param capabilities a list of the capabilities from the server
      * @return a String for use in an IMAP ID message.
      */
-    /* package */ static String getImapId(Context context, String userName, String host,
+    @VisibleForTesting static String getImapId(Context context, String userName, String host,
             String capabilities) {
         // The first section is global to all IMAP connections, and generates the fixed
         // values in any IMAP ID message
@@ -280,7 +281,7 @@ public class ImapStore extends Store {
      * @param networkOperator TelephonyManager.getNetworkOperatorName()
      * @return the static (never changes) portion of the IMAP ID
      */
-    /* package */ static String makeCommonImapId(String packageName, String version,
+    @VisibleForTesting static String makeCommonImapId(String packageName, String version,
             String codeName, String model, String id, String vendor, String networkOperator) {
 
         // Before building up IMAP ID string, pre-filter the input strings for "legal" chars
