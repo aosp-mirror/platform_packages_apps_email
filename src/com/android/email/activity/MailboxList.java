@@ -99,7 +99,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
 
         mActionBar.setTitle(R.string.mailbox_list_title);
         mListFragment.setCallback(this);
-        mListFragment.openMailboxes(mAccountId, false);
+        mListFragment.openMailboxes(mAccountId, -1);
 
         // Halt the progress indicator (we'll display it later when needed)
         setProgressBarIndeterminate(true);
@@ -199,7 +199,8 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
      * Implements MailboxFragment.Callback
      */
     @Override
-    public void onMailboxSelected(long accountId, long mailboxId) {
+    public void onMailboxSelected(long accountId, long mailboxId, boolean navigate,
+            boolean dragDrop) {
         // TODO handle folder navigation on the phone. when will we actually show the messages?
         onOpenMailbox(mailboxId);
     }

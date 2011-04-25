@@ -640,6 +640,8 @@ public class MessageListFragment extends ListFragment
 
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
+            // Start drag&drop.
+
             // We can't move from combined accounts view
             // We also need to check the actual mailbox to see if we can move items from it
             if (mAccount == null || mMailbox == null) {

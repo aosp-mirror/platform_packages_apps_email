@@ -90,7 +90,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     /** Argument name(s) */
     private static final String ARG_ACCOUNT_ID = "accountId";
-    private static final String ARG_FORCE_RELOAD = "forceReload";
+    private static final String ARG_PARENT_MAILBOX_ID = "parentMailboxId";
 
     // TODO Clean up usage of mailbox ID. We use both '-1' and '0' to mean "not selected". To
     // confuse matters, the database uses '-1' for "no mailbox" and '0' for "invalid mailbox".
@@ -121,7 +121,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private long mLastLoadedAccountId = -1;
     private long mAccountId = -1;
-    private long mSelectedMailboxId = DEFAULT_MAILBOX_ID;
+    private long mParentMailboxId = DEFAULT_MAILBOX_ID;
+    private long mSelectedMailboxId = -1;
     /** The ID of the mailbox that we have been asked to load */
     private long mLoadedMailboxId = -1;
 
@@ -157,15 +158,25 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      */
     public interface Callback {
         /**
+         * STOPSHIP split this into separate callbacks.
+         * - Drill in to a mailbox and open a mailbox (= show message list) are different operations
+         *   on the phone
+         * - Regular navigation and navigation for D&D are different; the latter case we probably
+         *   want to go back to the original mailbox afterwards.  (Need another callback for this)
+         *
          * Called when any mailbox (even a combined mailbox) is selected.
          * @param accountId
          *          The ID of the account for which a mailbox was selected
          * @param mailboxId
          *          The ID of the selected mailbox. This may be real mailbox ID [e.g. a number > 0],
-         *          or a special mailbox ID [e.g. {@link MessageListXLFragmentManager#NO_MAILBOX},
-         *          {@link Mailbox#QUERY_ALL_INBOXES}, etc...].
+         *          or a special mailbox ID
+         *          [e.g. {@link MessageListXLFragmentManager#NO_MAILBOX} for "All Folders" to open
+         *          the root folders, {@link Mailbox#QUERY_ALL_INBOXES}, etc...].
+         * @param navigate navigate to the mailbox.
+         * @param dragDrop true if D&D is in progress.
          */
-        public void onMailboxSelected(long accountId, long mailboxId);
+        public void onMailboxSelected(long accountId, long mailboxId, boolean navigate,
+                boolean dragDrop);
 
         /** Called when an account is selected on the combined view. */
         public void onAccountSelected(long accountId);
@@ -182,7 +193,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onMailboxSelected(long accountId, long mailboxId) { }
+        @Override public void onMailboxSelected(long accountId, long mailboxId, boolean navigate,
+                boolean dragDrop) {
+        }
         @Override public void onAccountSelected(long accountId) { }
         @Override public void onCurrentMailboxUpdated(long mailboxId, String mailboxName,
                 int unreadCount) { }
@@ -209,11 +222,11 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     /**
      * Create a new instance with initialization parameters.
      */
-    public static MailboxListFragment newInstance(long accountId, boolean forceReload) {
+    public static MailboxListFragment newInstance(long accountId, long parentMailboxId) {
         final MailboxListFragment instance = new MailboxListFragment();
         final Bundle args = new Bundle();
         args.putLong(ARG_ACCOUNT_ID, accountId);
-        args.putBoolean(ARG_FORCE_RELOAD, forceReload);
+        args.putLong(ARG_PARENT_MAILBOX_ID, parentMailboxId);
         instance.setArguments(args);
         return instance;
     }
@@ -262,7 +275,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         registerForContextMenu(mListView);
 
         final Bundle args = getArguments();
-        openMailboxes(args.getLong(ARG_ACCOUNT_ID), args.getBoolean(ARG_FORCE_RELOAD));
+        openMailboxes(args.getLong(ARG_ACCOUNT_ID), args.getLong(ARG_PARENT_MAILBOX_ID));
     }
 
     public void setCallback(Callback callback) {
@@ -274,7 +287,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         mLastLoadedAccountId = -1;
         mAccountId = -1;
-        mSelectedMailboxId = DEFAULT_MAILBOX_ID;
+        mParentMailboxId = DEFAULT_MAILBOX_ID;
+        mSelectedMailboxId = -1;
         mLoadedMailboxId = -1;
 
         mOpenRequested = false;
@@ -292,39 +306,30 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * loaded, the list of top-level mailbox will not be reloaded unless <code>forceReload</code>
      * is <code>true</code>.
      * @param accountId The ID of the account we want to view
-     * @param forceReload If <code>true</code>, always load the list of top-level mailboxes.
+     * @param parentMailboxId The ID of the parent mailbox.  Use -1 to open the root.
      * Otherwise, only load the list of top-level mailboxes if the account changes.
      */
     // STOPSHIP Make it private once phone activities are gone
-    void openMailboxes(long accountId, boolean forceReload) {
+    void openMailboxes(long accountId, long parentMailboxId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxListFragment openMailboxes");
         }
         if (accountId == -1) {
             throw new InvalidParameterException();
         }
-        if (!forceReload && mAccountId == accountId) {
+        // Normalize -- STOPSHIP should be removed when DEFAULT_MAILBOX_ID becomes -1.
+        if (parentMailboxId == -1) {
+            parentMailboxId = DEFAULT_MAILBOX_ID;
+        }
+
+        if ((mAccountId == accountId) && (mParentMailboxId == parentMailboxId)) {
             return;
         }
         clearContent();
         mOpenRequested = true;
         mAccountId = accountId;
+        mParentMailboxId = parentMailboxId;
         if (mResumed) {
-            startLoading();
-        }
-    }
-
-    /**
-     * Selects the given mailbox ID and possibly navigates to it. This loads any mailboxes
-     * contained within it and may cause the mailbox list to be updated. If the current fragment
-     * is not in the resumed state or if the mailbox cannot be navigated to, the given mailbox
-     * will only be selected. The mailbox is assumed to be associated with the account passed
-     * into {@link #openMailboxes(long)}.
-     * @param mailboxId The ID of the mailbox to select and navigate to.
-     */
-    public void navigateToMailbox(long mailboxId) {
-        setSelectedMailbox(mailboxId);
-        if (mResumed && isNavigable(mailboxId)) {
             startLoading();
         }
     }
@@ -336,7 +341,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         final int count = mListView.getCount();
         for (int i = 0; i < count; i++) {
             final MailboxListItem item = (MailboxListItem) mListView.getChildAt(i);
-            if (item.mMailboxId != mSelectedMailboxId) {
+            if (item.mMailboxId != mailboxId) {
                 continue;
             }
             return item.isNavigable();
@@ -447,8 +452,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         boolean saveListState = true;
         final LoaderManager lm = getLoaderManager();
         long lastLoadedMailboxId = mLoadedMailboxId;
-        mLoadedMailboxId = mSelectedMailboxId;
-        if ((lastLoadedMailboxId != mSelectedMailboxId) ||
+        mLoadedMailboxId = mParentMailboxId;
+        if ((lastLoadedMailboxId != mParentMailboxId) ||
                 ((mLastLoadedAccountId != -1) && (mLastLoadedAccountId != mAccountId))) {
             lm.destroyLoader(MAILBOX_LOADER_ID);
             saveListState = false;
@@ -547,7 +552,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (mListAdapter.isAccountRow(position)) {
             mCallback.onAccountSelected(id);
         } else {
-            mCallback.onMailboxSelected(mAccountId, id);
+            // STOPSHIP On phone, we need a way to open a message list without navigating to the
+            // mailbox.
+            mCallback.onMailboxSelected(mAccountId, id, isNavigable(id), false);
         }
     }
 
@@ -569,7 +576,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private void highlightSelectedMailbox(boolean ensureSelectionVisible) {
         String mailboxName = "";
         int unreadCount = 0;
-        if (mSelectedMailboxId == DEFAULT_MAILBOX_ID) {
+        if (mSelectedMailboxId == -1) {
             // No mailbox selected
             mListView.clearChoices();
         } else {
@@ -630,7 +637,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                         @Override
                         public void run() {
                             stopDragTimer();
-                            mCallback.onMailboxSelected(mAccountId, newTarget.mMailboxId);
+                            // STOPSHIP Revisit this -- probably we need a different callback
+                            // so that when D&D finishes we can go back to the original mailbox.
+                            mCallback.onMailboxSelected(mAccountId, newTarget.mMailboxId, true,
+                                    true);
                         }
                     });
                 }
