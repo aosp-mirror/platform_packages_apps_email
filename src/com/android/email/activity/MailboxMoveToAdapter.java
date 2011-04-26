@@ -46,7 +46,8 @@ class MailboxMoveToAdapter extends CursorAdapter {
         " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
     private static final String MOVE_TO_TARGET_MAILBOX_SELECTION =
         MailboxColumns.TYPE + " NOT IN (" + Mailbox.TYPE_DRAFTS + "," +
-        Mailbox.TYPE_OUTBOX + "," + Mailbox.TYPE_SENT + "," + Mailbox.TYPE_TRASH + ")";
+        Mailbox.TYPE_OUTBOX + "," + Mailbox.TYPE_SENT + "," + Mailbox.TYPE_TRASH + ") AND (" +
+        MailboxColumns.FLAGS + " & " + Mailbox.FLAG_ACCEPTS_MOVED_MAIL + " != 0)";
     /** The main selection to populate the "move to" dialog */
     private static final String MOVE_TO_SELECTION =
         ALL_MAILBOX_SELECTION + " AND " + MOVE_TO_TARGET_MAILBOX_SELECTION;

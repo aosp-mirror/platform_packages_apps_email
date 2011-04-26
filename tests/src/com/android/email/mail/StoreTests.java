@@ -136,25 +136,25 @@ public class StoreTests extends AndroidTestCase {
     public void testUpdateMailbox() {
         Mailbox testMailbox = new Mailbox();
 
-        Store.updateMailbox(testMailbox, 1L, "inbox", '/', Mailbox.TYPE_MAIL);
+        Store.updateMailbox(testMailbox, 1L, "inbox", '/', true, Mailbox.TYPE_MAIL);
         assertEquals(1L, testMailbox.mAccountKey);
         assertEquals("inbox", testMailbox.mDisplayName);
         assertEquals("inbox", testMailbox.mServerId);
         assertEquals('/', testMailbox.mDelimiter);
 
-        Store.updateMailbox(testMailbox, 2L, "inbox/a", '/', Mailbox.TYPE_MAIL);
+        Store.updateMailbox(testMailbox, 2L, "inbox/a", '/', true, Mailbox.TYPE_MAIL);
         assertEquals(2L, testMailbox.mAccountKey);
         assertEquals("a", testMailbox.mDisplayName);
         assertEquals("inbox/a", testMailbox.mServerId);
         assertEquals('/', testMailbox.mDelimiter);
 
-        Store.updateMailbox(testMailbox, 3L, "inbox/a/b/c/d", '/', Mailbox.TYPE_MAIL);
+        Store.updateMailbox(testMailbox, 3L, "inbox/a/b/c/d", '/', true, Mailbox.TYPE_MAIL);
         assertEquals(3L, testMailbox.mAccountKey);
         assertEquals("d", testMailbox.mDisplayName);
         assertEquals("inbox/a/b/c/d", testMailbox.mServerId);
         assertEquals('/', testMailbox.mDelimiter);
 
-        Store.updateMailbox(testMailbox, 4L, "inbox/a/b/c", '\0', Mailbox.TYPE_MAIL);
+        Store.updateMailbox(testMailbox, 4L, "inbox/a/b/c", '\0', true, Mailbox.TYPE_MAIL);
         assertEquals(4L, testMailbox.mAccountKey);
         assertEquals("inbox/a/b/c", testMailbox.mDisplayName);
         assertEquals("inbox/a/b/c", testMailbox.mServerId);

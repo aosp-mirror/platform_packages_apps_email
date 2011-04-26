@@ -21,6 +21,7 @@ import com.android.email.ResourceHelper;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.utility.TextUtilities;
@@ -29,6 +30,7 @@ import com.android.emailcommon.utility.Utility;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -236,11 +238,19 @@ import java.util.Set;
 
         @Override
         public Cursor loadInBackground() {
-            // Determine the where clause.  (Can't do this on the UI thread.)
-            setSelection(Utility.buildMailboxIdSelection(mContext, mMailboxId));
-
-            // Then do a query.
-            return Utility.CloseTraceCursorWrapper.get(super.loadInBackground());
+            Cursor returnCursor;
+            Mailbox box = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
+            // Only perform a load if the selected mailbox can hold messages
+            if ((box.mFlags & Mailbox.FLAG_HOLDS_MAIL) != 0) {
+                // Determine the where clause.  (Can't do this on the UI thread.)
+                setSelection(Utility.buildMailboxIdSelection(mContext, mMailboxId));
+                // Then do a query to get the cursor
+                returnCursor = super.loadInBackground();
+            } else {
+                // return an empty cursor
+                returnCursor = new MatrixCursor(getProjection());
+            }
+            return Utility.CloseTraceCursorWrapper.get(returnCursor);
         }
     }
 }

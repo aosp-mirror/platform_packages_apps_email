@@ -158,7 +158,7 @@ public class Pop3Store extends Store {
     @Override
     public Folder[] updateFolders() {
         Mailbox mailbox = getMailboxForPath(mContext, mAccount.mId, POP3_MAILBOX_NAME);
-        updateMailbox(mailbox, mAccount.mId, POP3_MAILBOX_NAME, '\0', Mailbox.TYPE_INBOX);
+        updateMailbox(mailbox, mAccount.mId, POP3_MAILBOX_NAME, '\0', true, Mailbox.TYPE_INBOX);
         if (mailbox.isSaved()) {
             mailbox.update(mContext, mailbox.toContentValues());
         } else {

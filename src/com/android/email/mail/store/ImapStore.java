@@ -397,9 +397,10 @@ public class ImapStore extends Store {
      * @param accountId The ID of the account the mailbox is to be associated with
      * @param mailboxPath The path of the mailbox to add
      * @param delimiter A path delimiter. May be {@code null} if there is no delimiter.
+     * @param selectable If {@code true}, the mailbox can be selected and used to store messages.
      */
     private ImapFolder addMailbox(Context context, long accountId, String mailboxPath,
-            char delimiter) {
+            char delimiter, boolean selectable) {
         ImapFolder folder = (ImapFolder) getFolder(mailboxPath);
         Mailbox mailbox = getMailboxForPath(context, accountId, mailboxPath);
         if (mailbox.isSaved()) {
@@ -407,7 +408,7 @@ public class ImapStore extends Store {
             // mailbox retrieved from database; save hash _before_ updating fields
             folder.mHash = mailbox.getHashes();
         }
-        updateMailbox(mailbox, accountId, mailboxPath, delimiter,
+        updateMailbox(mailbox, accountId, mailboxPath, delimiter, selectable,
                 LegacyConversions.inferMailboxTypeFromName(context, mailboxPath));
         if (folder.mHash == null) {
             // new mailbox
@@ -446,33 +447,28 @@ public class ImapStore extends Store {
             for (ImapResponse response : responses) {
                 // S: * LIST (\Noselect) "/" ~/Mail/foo
                 if (response.isDataResponse(0, ImapConstants.LIST)) {
-                    boolean includeFolder = true;
-
                     // Get folder name.
                     ImapString encodedFolder = response.getStringOrEmpty(3);
                     if (encodedFolder.isEmpty()) continue;
+
                     String folderName = decodeFolderName(encodedFolder.getString(), mPathPrefix);
-                    if (ImapConstants.INBOX.equalsIgnoreCase(folderName)) {
-                        continue;
-                    }
+                    if (ImapConstants.INBOX.equalsIgnoreCase(folderName)) continue;
 
                     // Parse attributes.
-                    if (response.getListOrEmpty(1).contains(ImapConstants.FLAG_NO_SELECT)) {
-                        includeFolder = false;
+                    boolean selectable =
+                        !response.getListOrEmpty(1).contains(ImapConstants.FLAG_NO_SELECT);
+                    String delimiter = response.getStringOrEmpty(2).getString();
+                    char delimiterChar = '\0';
+                    if (!TextUtils.isEmpty(delimiter)) {
+                        delimiterChar = delimiter.charAt(0);
                     }
-                    if (includeFolder) {
-                        String delimiter = response.getStringOrEmpty(2).getString();
-                        char delimiterChar = '\0';
-                        if (!TextUtils.isEmpty(delimiter)) {
-                            delimiterChar = delimiter.charAt(0);
-                        }
-                        ImapFolder folder =
-                                addMailbox(mContext, mAccount.mId, folderName, delimiterChar);
-                        mailboxes.put(folderName, folder);
-                    }
+                    ImapFolder folder =
+                        addMailbox(mContext, mAccount.mId, folderName, delimiterChar, selectable);
+                    mailboxes.put(folderName, folder);
                 }
             }
-            Folder newFolder = addMailbox(mContext, mAccount.mId, ImapConstants.INBOX, '\0');
+            Folder newFolder =
+                addMailbox(mContext, mAccount.mId, ImapConstants.INBOX, '\0', true /*selectable*/);
             mailboxes.put(ImapConstants.INBOX, (ImapFolder)newFolder);
             createHierarchy(mailboxes);
             saveMailboxList(mContext, mailboxes);

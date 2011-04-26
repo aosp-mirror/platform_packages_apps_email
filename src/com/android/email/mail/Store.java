@@ -355,7 +355,7 @@ public abstract class Store {
      * non-EAS accounts are modified.
      */
     protected static void updateMailbox(Mailbox mailbox, long accountId, String mailboxPath,
-            char delimiter, int type) {
+            char delimiter, boolean selectable, int type) {
         mailbox.mAccountKey = accountId;
         mailbox.mDelimiter = delimiter;
         String displayPath = mailboxPath;
@@ -364,7 +364,9 @@ public abstract class Store {
             displayPath = mailboxPath.substring(pathIndex + 1);
         }
         mailbox.mDisplayName = displayPath;
-        //mailbox.mFlags;
+        if (selectable) {
+            mailbox.mFlags = Mailbox.FLAG_HOLDS_MAIL | Mailbox.FLAG_ACCEPTS_MOVED_MAIL;
+        }
         mailbox.mFlagVisible = true;
         //mailbox.mParentKey;
         //mailbox.mParentServerId;

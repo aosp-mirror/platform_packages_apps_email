@@ -328,6 +328,11 @@ public class MessagingController implements Runnable {
     private void synchronizeMailboxSynchronous(final EmailContent.Account account,
             final EmailContent.Mailbox folder) {
         mListeners.synchronizeMailboxStarted(account.mId, folder.mId);
+        if ((folder.mFlags & Mailbox.FLAG_HOLDS_MAIL) == 0) {
+            // We don't hold messages, so, nothing to synchronize
+            mListeners.synchronizeMailboxFinished(account.mId, folder.mId, 0, 0);
+            return;
+        }
         NotificationController nc = NotificationController.getInstance(mContext);
         try {
             processPendingActionsSynchronous(account);
@@ -335,14 +340,7 @@ public class MessagingController implements Runnable {
             StoreSynchronizer.SyncResults results;
 
             // Select generic sync or store-specific sync
-            Store remoteStore = Store.getInstance(account, mContext, null);
-            StoreSynchronizer customSync = remoteStore.getMessageSynchronizer();
-            if (customSync == null) {
-                results = synchronizeMailboxGeneric(account, folder);
-            } else {
-                results = customSync.SynchronizeMessagesSynchronous(
-                        account, folder, mListeners, mContext);
-            }
+            results = synchronizeMailboxGeneric(account, folder);
             mListeners.synchronizeMailboxFinished(account.mId, folder.mId,
                                                   results.mTotalMessages,
                                                   results.mNewMessages);

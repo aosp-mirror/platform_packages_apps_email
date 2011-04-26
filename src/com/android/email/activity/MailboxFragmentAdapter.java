@@ -76,8 +76,9 @@ import android.widget.TextView;
         MailboxListItem listItem = (MailboxListItem)view;
         listItem.mMailboxId = id;
         listItem.mMailboxType = type;
-        listItem.mIsValidDropTarget = (id >= 0 || rowType == ROW_TYPE_ALLMAILBOX) &&
-                !Utility.arrayContains(Mailbox.INVALID_DROP_TARGETS, type);
+        listItem.mIsValidDropTarget = (id >= 0 || rowType == ROW_TYPE_ALLMAILBOX)
+                && !Utility.arrayContains(Mailbox.INVALID_DROP_TARGETS, type)
+                && (flags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0;
         listItem.mIsNavigable = hasVisibleChildren || rowType == ROW_TYPE_ALLMAILBOX;
 
         listItem.mAdapter = this;
