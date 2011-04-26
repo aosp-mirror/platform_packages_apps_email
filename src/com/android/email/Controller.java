@@ -532,7 +532,7 @@ public class Controller {
         box.mType = mailboxType;
         box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
         box.mFlagVisible = true;
-        box.mDisplayName = getMailboxServerName(mailboxType);
+        box.mServerId = box.mDisplayName = getMailboxServerName(mailboxType);
         box.save(mProviderContext);
         return box.mId;
     }

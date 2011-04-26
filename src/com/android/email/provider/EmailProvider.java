@@ -34,6 +34,7 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.accounts.AccountManager;
 import android.content.ContentProvider;
@@ -111,7 +112,9 @@ public class EmailProvider extends ContentProvider {
     // Version 15: Fix upgrade problem in version 14.
     // Version 16: Add accountKey to Attachment table
     // Version 17: Add parentKey to Mailbox table
-    public static final int DATABASE_VERSION = 17;
+    // Version 18: Copy Mailbox.displayName to Mailbox.serverId for all IMAP & POP3 mailboxes.
+    //             Column Mailbox.serverId is used for the server-side pathname of a mailbox.
+    public static final int DATABASE_VERSION = 18;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -944,6 +947,10 @@ public class EmailProvider extends ContentProvider {
                 }
                 oldVersion = 17;
             }
+            if (oldVersion == 17) {
+                upgradeFromVersion17ToVersion18(db);
+                oldVersion = 18;
+            }
         }
 
         @Override
@@ -1601,13 +1608,47 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    /**
-     * Count the number of messages in each mailbox, and update the message count column.
-     */
-    /* package */ static void recalculateMessageCount(SQLiteDatabase db) {
+    /** Counts the number of messages in each mailbox, and updates the message count column. */
+    @VisibleForTesting
+    static void recalculateMessageCount(SQLiteDatabase db) {
         db.execSQL("update " + Mailbox.TABLE_NAME + " set " + MailboxColumns.MESSAGE_COUNT +
                 "= (select count(*) from " + Message.TABLE_NAME +
                 " where " + Message.MAILBOX_KEY + " = " +
                     Mailbox.TABLE_NAME + "." + EmailContent.RECORD_ID + ")");
+    }
+
+    /** Upgrades the database from v17 to v18 */
+    @VisibleForTesting
+    static void upgradeFromVersion17ToVersion18(SQLiteDatabase db) {
+        // Copy the displayName column to the serverId column. In v18 of the database,
+        // we use the serverId for IMAP/POP3 mailboxes instead of overloading the
+        // display name.
+        //
+        // For posterity; this is the command we're executing:
+        //sqlite> UPDATE mailbox SET serverid=displayname WHERE mailbox._id in (
+        //        ...> SELECT mailbox._id FROM mailbox,account,hostauth WHERE
+        //        ...> mailbox.parentkey=0 AND mailbox.accountkey=account._id AND
+        //        ...> account.hostauthkeyrecv=hostauth._id AND
+        //        ...> (hostauth.protocol='imap' OR hostauth.protocol='pop3'));
+        try {
+            db.execSQL(
+                    "UPDATE " + Mailbox.TABLE_NAME + " SET "
+                    + MailboxColumns.SERVER_ID + "=" + MailboxColumns.DISPLAY_NAME
+                    + " WHERE "
+                    + Mailbox.TABLE_NAME + "." + MailboxColumns.ID + " IN ( SELECT "
+                    + Mailbox.TABLE_NAME + "." + MailboxColumns.ID + " FROM "
+                    + Mailbox.TABLE_NAME + "," + Account.TABLE_NAME + ","
+                    + HostAuth.TABLE_NAME + " WHERE "
+                    + Mailbox.TABLE_NAME + "." + MailboxColumns.PARENT_KEY + "=0 AND "
+                    + Mailbox.TABLE_NAME + "." + MailboxColumns.ACCOUNT_KEY + "="
+                    + Account.TABLE_NAME + "." + AccountColumns.ID + " AND "
+                    + Account.TABLE_NAME + "." + AccountColumns.HOST_AUTH_KEY_RECV + "="
+                    + HostAuth.TABLE_NAME + "." + HostAuthColumns.ID + " AND ( "
+                    + HostAuth.TABLE_NAME + "." + HostAuthColumns.PROTOCOL + "='imap' OR "
+                    + HostAuth.TABLE_NAME + "." + HostAuthColumns.PROTOCOL + "='pop3' ) )");
+        } catch (SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 17 to 18 " + e);
+        }
     }
 }

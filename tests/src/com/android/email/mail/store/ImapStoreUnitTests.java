@@ -45,6 +45,7 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
@@ -1259,7 +1260,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
             list.add(f.getName());
         }
         MoreAsserts.assertEquals(
-                new String[] {"Drafts", "\u65E5\u672C\u8A9E", "INBOX"},
+                new String[] {"INBOX", "\u65E5\u672C\u8A9E", "Drafts"},
                 list.toArray(new String[0])
                 );
 
@@ -2134,7 +2135,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
             list.add(f.getName());
         }
         MoreAsserts.assertEquals(
-                new String[] {FOLDER_1, FOLDER_2, "INBOX"},
+                new String[] {"INBOX", FOLDER_2, FOLDER_1},
                 list.toArray(new String[0])
                 );
 
@@ -2148,8 +2149,8 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
             "* OK [UNSEEN 0]",
             "* OK [UIDNEXT 1]",
             getNextTag(true) + " OK [READ-WRITE] " + FOLDER_1});
-        folders[0].open(OpenMode.READ_WRITE, null);
-        folders[0].close(false);
+        folders[2].open(OpenMode.READ_WRITE, null);
+        folders[2].close(false);
 
         expectNoop(mock, true);
         mock.expect(getNextTag(false) + " SELECT \"" + FOLDER_2 + "\"", new String[] {
@@ -2273,5 +2274,77 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 folder.open(OpenMode.READ_WRITE, null);
             }
         });
+    }
+
+    /** Creates a folder & mailbox */
+    private ImapFolder createFolder(long id, String displayName, String serverId, char delimiter) {
+        ImapFolder folder = new ImapFolder(null, serverId);
+        Mailbox mailbox = new Mailbox();
+        mailbox.mId = id;
+        mailbox.mDisplayName = displayName;
+        mailbox.mServerId = serverId;
+        mailbox.mDelimiter = delimiter;
+        mailbox.mFlags = 0xAAAAAAA8;
+        folder.mMailbox = mailbox;
+        return folder;
+    }
+
+    /** Tests creating folder hierarchies */
+    public void testCreateHierarchy() {
+        HashMap<String, ImapFolder> testMap = new HashMap<String, ImapFolder>();
+
+        // Create hierarchy
+        //   |-INBOX
+        //   |  +-b
+        //   |-a
+        //   |  |-b
+        //   |  |-c
+        //   |  +-d
+        //   |    +-b
+        //   |      +-b
+        //   +-g
+        ImapFolder[] folders = {
+            createFolder(1L, "INBOX", "INBOX", '/'),
+            createFolder(2L, "b", "INBOX/b", '/'),
+            createFolder(3L, "a", "a", '/'),
+            createFolder(4L, "b", "a/b", '/'),
+            createFolder(5L, "c", "a/c", '/'),
+            createFolder(6L, "d", "a/d", '/'),
+            createFolder(7L, "b", "a/d/b", '/'),
+            createFolder(8L, "b", "a/d/b/b", '/'),
+            createFolder(9L, "g", "g", '/'),
+        };
+        for (ImapFolder folder : folders) {
+            testMap.put(folder.getName(), folder);
+        }
+
+        ImapStore.createHierarchy(testMap);
+        // 'INBOX'
+        assertEquals(-1L, folders[0].mMailbox.mParentKey);
+        assertEquals(0xAAAAAAAB, folders[0].mMailbox.mFlags);
+        // 'INBOX/b'
+        assertEquals(1L, folders[1].mMailbox.mParentKey);
+        assertEquals(0xAAAAAAA8, folders[1].mMailbox.mFlags);
+        // 'a'
+        assertEquals(-1L, folders[2].mMailbox.mParentKey);
+        assertEquals(0xAAAAAAAB, folders[2].mMailbox.mFlags);
+        // 'a/b'
+        assertEquals(3L, folders[3].mMailbox.mParentKey);
+        assertEquals(0xAAAAAAA8, folders[3].mMailbox.mFlags);
+        // 'a/c'
+        assertEquals(3L, folders[4].mMailbox.mParentKey);
+        assertEquals(0xAAAAAAA8, folders[4].mMailbox.mFlags);
+        // 'a/d'
+        assertEquals(3L, folders[5].mMailbox.mParentKey);
+        assertEquals(0xAAAAAAAB, folders[5].mMailbox.mFlags);
+        // 'a/d/b'
+        assertEquals(6L, folders[6].mMailbox.mParentKey);
+        assertEquals(0xAAAAAAAB, folders[6].mMailbox.mFlags);
+        // 'a/d/b/b'
+        assertEquals(7L, folders[7].mMailbox.mParentKey);
+        assertEquals(0xAAAAAAA8, folders[7].mMailbox.mFlags);
+        // 'g'
+        assertEquals(-1L, folders[8].mMailbox.mParentKey);
+        assertEquals(0xAAAAAAA8, folders[8].mMailbox.mFlags);
     }
 }

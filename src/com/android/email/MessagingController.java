@@ -199,13 +199,13 @@ public class MessagingController implements Runnable {
     }
 
     private static final int MAILBOX_COLUMN_ID = 0;
-    private static final int MAILBOX_COLUMN_DISPLAY_NAME = 1;
+    private static final int MAILBOX_COLUMN_SERVER_ID = 1;
     private static final int MAILBOX_COLUMN_TYPE = 2;
 
     /** Small projection for just the columns required for a sync. */
     private static final String[] MAILBOX_PROJECTION = new String[] {
         MailboxColumns.ID,
-        MailboxColumns.DISPLAY_NAME,
+        MailboxColumns.SERVER_ID,
         MailboxColumns.TYPE,
     };
 
@@ -256,8 +256,7 @@ public class MessagingController implements Runnable {
 
                     // Step 3: Remove any local mailbox not on the remote list
                     while (localFolderCursor.moveToNext()) {
-                        String mailboxPath
-                                = localFolderCursor.getString(MAILBOX_COLUMN_DISPLAY_NAME);
+                        String mailboxPath = localFolderCursor.getString(MAILBOX_COLUMN_SERVER_ID);
                         // Short circuit if we have a remote mailbox with the same name
                         if (remoteFolderNames.contains(mailboxPath)) {
                             continue;
@@ -466,7 +465,7 @@ public class MessagingController implements Runnable {
         // 2.  Open the remote folder and create the remote folder if necessary
 
         Store remoteStore = Store.getInstance(account, mContext, null);
-        Folder remoteFolder = remoteStore.getFolder(folder.mDisplayName);
+        Folder remoteFolder = remoteStore.getFolder(folder.mServerId);
 
         /*
          * If the folder is a "special" folder we need to see if it exists
@@ -1394,7 +1393,7 @@ public class MessagingController implements Runnable {
         }
 
         // 2. Open the remote store & folder
-        Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
+        Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
         if (!remoteFolder.exists()) {
             return;
         }
@@ -1423,7 +1422,7 @@ public class MessagingController implements Runnable {
             remoteFolder.setFlags(messages, FLAG_LIST_FLAGGED, newMessage.mFlagFavorite);
         }
         if (changeMailbox) {
-            Folder toFolder = remoteStore.getFolder(newMailbox.mDisplayName);
+            Folder toFolder = remoteStore.getFolder(newMailbox.mServerId);
             if (!remoteFolder.exists()) {
                 return;
             }
@@ -1503,7 +1502,7 @@ public class MessagingController implements Runnable {
         // The rest of this method handles server-side deletion
 
         // 4.  Find the remote mailbox (that we deleted from), and open it
-        Folder remoteFolder = remoteStore.getFolder(oldMailbox.mDisplayName);
+        Folder remoteFolder = remoteStore.getFolder(oldMailbox.mServerId);
         if (!remoteFolder.exists()) {
             return;
         }
@@ -1522,7 +1521,7 @@ public class MessagingController implements Runnable {
         }
 
         // 6. Find the remote trash folder, and create it if not found
-        Folder remoteTrashFolder = remoteStore.getFolder(newMailbox.mDisplayName);
+        Folder remoteTrashFolder = remoteStore.getFolder(newMailbox.mServerId);
         if (!remoteTrashFolder.exists()) {
             /*
              * If the remote trash folder doesn't exist we try to create it.
@@ -1589,7 +1588,7 @@ public class MessagingController implements Runnable {
         }
 
         // 2.  Find the remote trash folder (that we are deleting from), and open it
-        Folder remoteTrashFolder = remoteStore.getFolder(oldMailbox.mDisplayName);
+        Folder remoteTrashFolder = remoteStore.getFolder(oldMailbox.mServerId);
         if (!remoteTrashFolder.exists()) {
             return;
         }
@@ -1633,7 +1632,7 @@ public class MessagingController implements Runnable {
         boolean deleteMessage = false;
 
         // 1. Find the remote folder that we're appending to and create and/or open it
-        Folder remoteFolder = remoteStore.getFolder(newMailbox.mDisplayName);
+        Folder remoteFolder = remoteStore.getFolder(newMailbox.mServerId);
         if (!remoteFolder.exists()) {
             if (!remoteFolder.canCreate(FolderType.HOLDS_MESSAGES)) {
                 // This is POP3, we cannot actually upload.  Instead, we'll update the message
@@ -1783,7 +1782,7 @@ public class MessagingController implements Runnable {
 
                     Store remoteStore =
                         Store.getInstance(account, mContext, null);
-                    Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
+                    Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
                     remoteFolder.open(OpenMode.READ_WRITE, null);
 
                     // 3. Not supported, because IMAP & POP don't use it: structure prefetch
@@ -1872,7 +1871,7 @@ public class MessagingController implements Runnable {
 
                     Store remoteStore =
                         Store.getInstance(account, mContext, null);
-                    Folder remoteFolder = remoteStore.getFolder(mailbox.mDisplayName);
+                    Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
                     remoteFolder.open(OpenMode.READ_WRITE, null);
 
                     // 3. Generate a shell message in which to retrieve the attachment,

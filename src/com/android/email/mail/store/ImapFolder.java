@@ -16,6 +16,7 @@
 
 package com.android.email.mail.store;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64DataException;
 import android.util.Log;
@@ -53,6 +54,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -65,6 +67,10 @@ class ImapFolder extends Folder {
     private ImapConnection mConnection;
     private OpenMode mMode;
     private boolean mExists;
+    /** The local mailbox associated with this remote folder */
+    Mailbox mMailbox;
+    /** A set of hashes that can be used to track dirtiness */
+    Object mHash[];
 
     /*package*/ ImapFolder(ImapStore store, String name) {
         mStore = store;
@@ -968,6 +974,25 @@ class ImapFolder extends Folder {
             throw ioExceptionHandler(mConnection, ioe);
         } finally {
             destroyResponses();
+        }
+    }
+
+    /**
+     * Persists this folder. We will always perform the proper database operation (e.g.
+     * 'save' or 'update'). As an optimization, if a folder has not been modified, no
+     * database operations are performed.
+     */
+    void save(Context context) {
+        final Mailbox mailbox = mMailbox;
+        if (!mailbox.isSaved()) {
+            mailbox.save(context);
+            mHash = mailbox.getHashes();
+        } else {
+            Object[] hash = mailbox.getHashes();
+            if (!Arrays.equals(mHash, hash)) {
+                mailbox.update(context, mailbox.toContentValues());
+                mHash = hash;  // Save updated hash
+            }
         }
     }
 

@@ -2256,6 +2256,10 @@ public abstract class EmailContent {
         public static final int CONTENT_VISIBLE_LIMIT_COLUMN = 13;
         public static final int CONTENT_SYNC_STATUS_COLUMN = 14;
         public static final int CONTENT_PARENT_KEY_COLUMN = 15;
+        /**
+         * <em>NOTE</em>: If fields are added or removed, the method {@link #getHashes()}
+         * MUST be updated.
+         */
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.SERVER_ID,
             MailboxColumns.PARENT_SERVER_ID, MailboxColumns.ACCOUNT_KEY, MailboxColumns.TYPE,
@@ -2270,9 +2274,9 @@ public abstract class EmailContent {
                 MailboxColumns.TYPE + " =?";
         private static final String MAILBOX_TYPE_SELECTION =
                 MailboxColumns.TYPE + " =?";
-        /** Selection by display name for a given account */
-        private static final String NAME_AND_ACCOUNT_SELECTION =
-            MailboxColumns.DISPLAY_NAME + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
+        /** Selection by server pathname for a given account */
+        private static final String PATH_AND_ACCOUNT_SELECTION =
+            MailboxColumns.SERVER_ID + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
 
         private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {
                 "sum(" + MailboxColumns.UNREAD_COUNT + ")"
@@ -2413,7 +2417,8 @@ public abstract class EmailContent {
 
         /**
          * Returns a Mailbox from the database, given its pathname and account id. All mailbox
-         * paths for a particular account must be unique.
+         * paths for a particular account must be unique. Paths are stored in the column
+         * {@link MailboxColumns#SERVER_ID} for want of yet another column in the table.
          * @param context
          * @param accountId the ID of the account
          * @param path the fully qualified, remote pathname
@@ -2422,7 +2427,7 @@ public abstract class EmailContent {
             Cursor c = context.getContentResolver().query(
                     Mailbox.CONTENT_URI,
                     Mailbox.CONTENT_PROJECTION,
-                    Mailbox.NAME_AND_ACCOUNT_SELECTION,
+                    Mailbox.PATH_AND_ACCOUNT_SELECTION,
                     new String[] { path, Long.toString(accountId) },
                     null);
 // TODO for mblank; uncomment when you submit CL Iab059f9a68eecd797914a6229f1ff9c03d0f0800
@@ -2615,6 +2620,48 @@ public abstract class EmailContent {
          */
         public static boolean isMailboxTypeReplyAndForwardable(int type) {
             return (type != TYPE_TRASH) && (type != TYPE_DRAFTS);
+        }
+
+        /**
+         * Returns a set of hashes that can identify this mailbox. These can be used to
+         * determine if any of the fields have been modified.
+         */
+        public Object[] getHashes() {
+            Object[] hash = new Object[CONTENT_PROJECTION.length];
+
+            hash[CONTENT_ID_COLUMN]
+                 = mId;
+            hash[CONTENT_DISPLAY_NAME_COLUMN]
+                 = mDisplayName;
+            hash[CONTENT_SERVER_ID_COLUMN]
+                 = mServerId;
+            hash[CONTENT_PARENT_SERVER_ID_COLUMN]
+                 = mParentServerId;
+            hash[CONTENT_ACCOUNT_KEY_COLUMN]
+                 = mAccountKey;
+            hash[CONTENT_TYPE_COLUMN]
+                 = mType;
+            hash[CONTENT_DELIMITER_COLUMN]
+                 = mDelimiter;
+            hash[CONTENT_SYNC_KEY_COLUMN]
+                 = mSyncKey;
+            hash[CONTENT_SYNC_LOOKBACK_COLUMN]
+                 = mSyncLookback;
+            hash[CONTENT_SYNC_INTERVAL_COLUMN]
+                 = mSyncInterval;
+            hash[CONTENT_SYNC_TIME_COLUMN]
+                 = mSyncTime;
+            hash[CONTENT_FLAG_VISIBLE_COLUMN]
+                 = mFlagVisible;
+            hash[CONTENT_FLAGS_COLUMN]
+                 = mFlags;
+            hash[CONTENT_VISIBLE_LIMIT_COLUMN]
+                 = mVisibleLimit;
+            hash[CONTENT_SYNC_STATUS_COLUMN]
+                 = mSyncStatus;
+            hash[CONTENT_PARENT_KEY_COLUMN]
+                 = mParentKey;
+            return hash;
         }
     }
 
