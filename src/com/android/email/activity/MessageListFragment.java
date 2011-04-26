@@ -736,7 +736,7 @@ public class MessageListFragment extends ListFragment
         }
     }
 
-    private void moveMessages(Set<Long> selectedSet) {
+    private void showMoveMessagesDialog(Set<Long> selectedSet) {
         long[] messageIds = Utility.toPrimitiveLongArray(selectedSet);
         MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(messageIds, this);
         dialog.show(getFragmentManager(), "dialog");
@@ -744,6 +744,7 @@ public class MessageListFragment extends ListFragment
 
     @Override
     public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
+        mCallback.onAdvancingOpAccepted(Utility.toLongSet(messageIds));
         ActivityHelper.moveMessages(getActivity(), newMailboxId, messageIds);
 
         // Move is async, so we can't refresh now.  Instead, just clear the selection.
@@ -1378,8 +1379,7 @@ public class MessageListFragment extends ListFragment
                     deleteMessages(selectedConversations);
                     break;
                 case R.id.move:
-                    mCallback.onAdvancingOpAccepted(selectedConversations);
-                    moveMessages(selectedConversations);
+                    showMoveMessagesDialog(selectedConversations);
                     break;
             }
             return true;
