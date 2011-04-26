@@ -49,7 +49,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
 
     /** Message IDs passed to {@link #newInstance} */
     private long[] mMessageIds;
-    private MailboxesAdapter mAdapter;
+    private MailboxMoveToAdapter mAdapter;
 
     /** Account ID is restored by {@link MailboxesLoaderCallbacks} */
     private long mAccountId;
@@ -107,7 +107,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
         AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                 .setTitle(activity.getResources().getString(R.string.move_to_folder_dialog_title));
 
-        mAdapter = new MailboxMoveToAdapter(builder.getContext(), null);
+        mAdapter = new MailboxMoveToAdapter(builder.getContext());
         builder.setSingleChoiceItems(mAdapter, -1, this);
 
         getLoaderManager().initLoader(

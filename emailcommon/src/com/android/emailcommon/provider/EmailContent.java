@@ -2315,9 +2315,6 @@ public abstract class EmailContent {
         private static final String WHERE_TYPE_AND_ACCOUNT_KEY =
             MailboxColumns.TYPE + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
 
-        public static final String MOVE_TO_TARGET_MAILBOX_SELECTION =
-            MailboxColumns.TYPE + " NOT IN (" + Mailbox.TYPE_DRAFTS + "," +
-            Mailbox.TYPE_OUTBOX + "," + Mailbox.TYPE_SENT + "," + Mailbox.TYPE_TRASH + ")";
         public static final Integer[] INVALID_DROP_TARGETS = new Integer[] {Mailbox.TYPE_DRAFTS,
             Mailbox.TYPE_OUTBOX, Mailbox.TYPE_SENT};
 
