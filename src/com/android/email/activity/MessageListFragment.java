@@ -146,12 +146,12 @@ public class MessageListFragment extends ListFragment
     private boolean mShowSendCommand;
 
     /**
-     * Visibility.  On XL, message list is normally visible, except when message view is shown
-     * in full-screen on portrait.
-     *
-     * When not visible, the contextual action bar will be gone.
+     * If true, we disable the CAB even if there are selected messages.
+     * It's used in portrait on the tablet when the message view becomes visible and the message
+     * list gets pushed out of the screen, in which case we want to keep the selection but the CAB
+     * should be gone.
      */
-    private boolean mIsVisible = true;
+    private boolean mDisableCab;
 
     /** true between {@link #onResume} and {@link #onPause}. */
     private boolean mResumed;
@@ -404,11 +404,15 @@ public class MessageListFragment extends ListFragment
         mCallback = (callback != null) ? callback : EmptyCallback.INSTANCE;
     }
 
-    public void setVisibility(boolean isVisible) {
-        if (isVisible == mIsVisible) {
+    /**
+     * This method must be called when the fragment is hidden/shown.
+     */
+    public void onHidden(boolean hidden) {
+        // When hidden, we need to disable CAB.
+        if (hidden == mDisableCab) {
             return;
         }
-        mIsVisible = isVisible;
+        mDisableCab = hidden;
         updateSelectionMode();
     }
 
@@ -1284,7 +1288,7 @@ public class MessageListFragment extends ListFragment
      */
     public void updateSelectionMode() {
         final int numSelected = getSelectedCount();
-        if ((numSelected == 0) || !mIsVisible) {
+        if ((numSelected == 0) || mDisableCab) {
             finishSelectionMode();
             return;
         }
@@ -1411,53 +1415,6 @@ public class MessageListFragment extends ListFragment
         public void onRefreshStatusChanged(long accountId, long mailboxId) {
             updateListFooter();
         }
-    }
-
-    /**
-     * Object that holds the current state (right now it's only the ListView state) of the fragment.
-     *
-     * Used by {@link MessageListXLFragmentManager} to preserve scroll position through fragment
-     * transitions.
-     */
-    public static class State implements Parcelable {
-        private final Parcelable mListState;
-
-        private State(Parcel p) {
-            mListState = p.readParcelable(getClass().getClassLoader());
-        }
-
-        private State(MessageListFragment messageListFragment) {
-            mListState = messageListFragment.getListView().onSaveInstanceState();
-        }
-
-        public void restore(MessageListFragment messageListFragment) {
-            messageListFragment.mSavedListState = mListState;
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeParcelable(mListState, flags);
-        }
-
-        public static final Parcelable.Creator<State> CREATOR
-                = new Parcelable.Creator<State>() {
-                    public State createFromParcel(Parcel in) {
-                        return new State(in);
-                    }
-
-                    public State[] newArray(int size) {
-                        return new State[size];
-                    }
-                };
-    }
-
-    public State getState() {
-        return new State(this);
     }
 
     /**

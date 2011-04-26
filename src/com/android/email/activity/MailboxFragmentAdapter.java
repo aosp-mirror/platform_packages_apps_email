@@ -276,7 +276,7 @@ import android.widget.TextView;
 //                Long superParentKey = Utility.getFirstRowLong(getContext(), Mailbox.CONTENT_URI,
 //                        new String[] { MailboxColumns.PARENT_KEY }, MailboxColumns.ID + "=?",
 //                        new String[] { Long.toString(mParentKey) }, null, 0);
-                Long superParentKey = MessageListXLFragmentManager.NO_MAILBOX;
+                Long superParentKey = Mailbox.PARENT_KEY_NONE;
 
                 if (superParentKey != null) {
                     final Cursor parentCursor = getContext().getContentResolver().query(

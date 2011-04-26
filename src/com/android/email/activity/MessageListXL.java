@@ -23,7 +23,6 @@ import com.android.email.Email;
 import com.android.email.MessagingExceptionStrings;
 import com.android.email.R;
 import com.android.email.RefreshManager;
-import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
@@ -53,7 +52,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,14 +60,15 @@ import android.widget.TextView;
 import java.security.InvalidParameterException;
 
 /**
- * The main activity for multi-pane UIs. The <code>MessageListXL</code> class is responsible
- * for managing the "chrome" area of the screen; which primarily includes the action bar.
- * The rest of the content area is managed by a fragment manager.
+ * The main Email activity, which is used on both the tablet and the phone.
  *
- * TODO: Fixit: Current account resets to default on screen rotation.
+ * Because this activity is device agnostic, so most of the UI aren't owned by this, but by
+ * the UIController.
+ *
+ * TODO: Account spinner should also be moved out of this class.  (to the UIController or to a
+ * sepate class.)
  */
-public class MessageListXL extends Activity implements MessageListXLFragmentManager.TargetActivity,
-        View.OnClickListener {
+public class MessageListXL extends Activity implements View.OnClickListener {
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     private static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
@@ -87,15 +86,10 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
     private Controller.Result mControllerResult;
 
     private AccountSelectorAdapter mAccountsSelectorAdapter;
-    private ActionBar mActionBar;
-    private View mActionBarMailboxNameView;
-    private TextView mActionBarMailboxName;
-    private TextView mActionBarUnreadCount;
     private final ActionBarNavigationCallback mActionBarNavigationCallback =
         new ActionBarNavigationCallback();
 
-    private final MessageListXLFragmentManager mFragmentManager =
-        new MessageListXLFragmentManager(this);
+    private final UIControllerTwoPane mUIController = new UIControllerTwoPane(this);
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
@@ -164,23 +158,18 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.message_list_xl);
 
-        ActionBar ab = getActionBar();
-        ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME);
-
-        mFragmentManager.onActivityViewReady();
+        mUIController.onActivityViewReady();
 
         mContext = getApplicationContext();
         mController = Controller.getInstance(this);
+        mControllerResult = new ControllerResultUiThreadWrapper<ControllerResult>(new Handler(),
+                new ControllerResult());
+        mController.addResultCallback(mControllerResult);
         mRefreshManager = RefreshManager.getInstance(this);
         mRefreshManager.registerListener(mRefreshListener);
 
         mAccountsSelectorAdapter = new AccountSelectorAdapter(this, null);
 
-        if (savedInstanceState != null) {
-            mFragmentManager.restoreInstanceState(savedInstanceState);
-        } else {
-            initFromIntent();
-        }
         loadAccounts();
 
         // Set up views
@@ -191,33 +180,16 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         int errorBannerHeight = getResources().getDimensionPixelSize(R.dimen.error_message_height);
         mErrorBanner = new BannerController(this, errorMessage, errorBannerHeight);
 
-        mActionBar = getActionBar();
+        // Install restored fragments.
+        mUIController.installRestoredFragments();
 
-        // Set a view for the current mailbox to the action bar.
-        final LayoutInflater inflater = LayoutInflater.from(mContext);
-        mActionBarMailboxNameView = inflater.inflate(R.layout.action_bar_current_mailbox, null);
-        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
-        final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
-                ActionBar.LayoutParams.WRAP_CONTENT,
-                ActionBar.LayoutParams.MATCH_PARENT);
-        customViewLayout.setMargins(mContext.getResources().getDimensionPixelSize(
-                        R.dimen.action_bar_mailbox_name_left_margin) , 0, 0, 0);
-        mActionBar.setCustomView(mActionBarMailboxNameView, customViewLayout);
-
-        mActionBarMailboxName =
-                (TextView) mActionBarMailboxNameView.findViewById(R.id.mailbox_name);
-        mActionBarUnreadCount =
-                (TextView) mActionBarMailboxNameView.findViewById(R.id.unread_count);
-
-        // Halt the progress indicator (we'll display it later when needed)
-        setProgressBarIndeterminate(true);
-        setProgressBarIndeterminateVisibility(false);
-
-        mControllerResult = new ControllerResultUiThreadWrapper<ControllerResult>(new Handler(),
-                new ControllerResult());
-        mController.addResultCallback(mControllerResult);
-
-        mFragmentManager.onActivityCreated();
+        if (savedInstanceState != null) {
+            mUIController.restoreInstanceState(savedInstanceState);
+        } else {
+            // This needs to be done after installRestoredFragments.
+            // See UIControllerTwoPane.preFragmentTransactionCheck()
+            initFromIntent();
+        }
     }
 
     private void initFromIntent() {
@@ -230,7 +202,7 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         }
 
         if (accountId != -1) {
-            mFragmentManager.open(accountId, mailboxId, messageId);
+            mUIController.open(accountId, mailboxId, messageId);
         }
     }
 
@@ -240,7 +212,7 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
             Log.d(Logging.LOG_TAG, "MessageListXL onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
-        mFragmentManager.onSaveInstanceState(outState);
+        mUIController.onSaveInstanceState(outState);
     }
 
     @Override
@@ -249,14 +221,14 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
             Log.d(Logging.LOG_TAG, "MessageListXL onAttachFragment fragment=" + fragment);
         }
         super.onAttachFragment(fragment);
-        mFragmentManager.onAttachFragment(fragment);
+        mUIController.onAttachFragment(fragment);
     }
 
     @Override
     protected void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onStart");
         super.onStart();
-        mFragmentManager.onStart();
+        mUIController.onStart();
 
         // STOPSHIP Temporary search UI
         Intent intent = getIntent();
@@ -304,7 +276,7 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
     protected void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onResume");
         super.onResume();
-        mFragmentManager.onResume();
+        mUIController.onResume();
         /**
          * In {@link MessageList#onResume()}, we go back to {@link Welcome} if an account
          * has been added/removed. We don't need to do that here, because we fetch the most
@@ -317,14 +289,14 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
     protected void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onPause");
         super.onPause();
-        mFragmentManager.onPause();
+        mUIController.onPause();
     }
 
     @Override
     protected void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onStop");
         super.onStop();
-        mFragmentManager.onStop();
+        mUIController.onStop();
     }
 
     @Override
@@ -333,7 +305,7 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         mController.removeResultCallback(mControllerResult);
         mTaskTracker.cancellAllInterrupt();
         mRefreshManager.unregisterListener(mRefreshListener);
-        mFragmentManager.onDestroy();
+        mUIController.onDestroy();
         super.onDestroy();
     }
 
@@ -352,7 +324,7 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
      * <code>false</code> [e.g. the home icon on action bar were pressed].
      */
     private boolean onBackPressed(boolean isSystemBackKey) {
-        if (mFragmentManager.onBackPressed(isSystemBackKey)) {
+        if (mUIController.onBackPressed(isSystemBackKey)) {
             return true;
         }
         if (isSystemBackKey) {
@@ -372,30 +344,12 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         }
     }
 
-    @Override
-    public void onAccountSecurityHold(long accountId) {
-        startActivity(AccountSecurity.actionUpdateSecurityIntent(this, accountId, true));
-    }
-
-    @Override
+    /**
+     * Called by the UIController when the current account has changed.
+     */
     public void onAccountChanged(long accountId) {
-        invalidateOptionsMenu(); // Update the refresh button
+        updateRefreshProgress();
         loadAccounts(); // This will update the account spinner, and select the account.
-    }
-
-    @Override
-    public void onMailboxChanged(long accountId, long newMailboxId) {
-        updateProgressIcon();
-    }
-
-    @Override
-    public void onMailboxNameChanged(String mailboxName, int unreadCount) {
-        mActionBarMailboxName.setText(mailboxName);
-
-        // Note on action bar, we show only "unread count".  Some mailboxes such as Outbox don't
-        // have the idea of "unread count", in which case we just omit the count.
-        mActionBarUnreadCount.setText(
-                UiUtilities.getMessageCountForUi(mContext, unreadCount, true));
     }
 
     /**
@@ -454,12 +408,12 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
 
         // Find the currently selected account, and select it.
         int defaultSelection = 0;
-        if (mFragmentManager.isAccountSelected()) {
+        if (mUIController.isAccountSelected()) {
             accountsCursor.moveToPosition(-1);
             int i = 0;
             while (accountsCursor.moveToNext()) {
                 final long accountId = AccountSelectorAdapter.getAccountId(accountsCursor);
-                if (accountId == mFragmentManager.getUIAccountId()) {
+                if (accountId == mUIController.getUIAccountId()) {
                     defaultSelection = i;
                     break;
                 }
@@ -482,8 +436,8 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
             Log.d(Logging.LOG_TAG, "Account selected: accountId=" + accountId);
         }
         // TODO UIManager should do the check eventually, but it's necessary for now.
-        if (accountId != mFragmentManager.getUIAccountId()) {
-            mFragmentManager.openAccount(accountId);
+        if (accountId != mUIController.getUIAccountId()) {
+            mUIController.openAccount(accountId);
         }
     }
 
@@ -499,25 +453,23 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
             implements RefreshManager.Listener {
         @Override
         public void onMessagingError(final long accountId, long mailboxId, final String message) {
-            updateProgressIcon();
+            updateRefreshProgress();
         }
 
         @Override
         public void onRefreshStatusChanged(long accountId, long mailboxId) {
-            updateProgressIcon();
+            updateRefreshProgress();
         }
     }
 
     /**
-     * If we're refreshing the current mailbox, animate the "mailbox refreshing" progress icon.
+     * Start/stop the "refresh" animation on the action bar according to the current refresh state.
+     *
+     * (We start the animation if {@link UIControllerTwoPane#isRefreshInProgress} returns true,
+     * and stop otherwise.)
      */
-    private void updateProgressIcon() {
+    public void updateRefreshProgress() {
         invalidateOptionsMenu();
-    }
-
-    private boolean isProgressActive() {
-        final long mailboxId = mFragmentManager.getMailboxId();
-        return (mailboxId >= 0) && mRefreshManager.isMessageListRefreshing(mailboxId);
     }
 
     @Override
@@ -532,7 +484,7 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         // STOPSHIP Temporary search/sync options UI
         // Only show search/sync options for EAS
         boolean isEas = false;
-        long accountId = mFragmentManager.getActualAccountId();
+        long accountId = mUIController.getActualAccountId();
         if (accountId > 0) {
             if ("eas".equals(Account.getProtocol(mContext, accountId))) {
                 isEas = true;
@@ -544,29 +496,24 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
         menu.findItem(R.id.sync_lookback).setVisible(isEas);
         menu.findItem(R.id.sync_frequency).setVisible(isEas);
 
-        ActivityHelper.updateRefreshMenuIcon(
-                menu.findItem(R.id.refresh), shouldShowRefreshButton(), isProgressActive());
+        ActivityHelper.updateRefreshMenuIcon(menu.findItem(R.id.refresh),
+                mUIController.isRefreshEnabled(),
+                mUIController.isRefreshInProgress());
         return super.onPrepareOptionsMenu(menu);
-    }
-
-    private boolean shouldShowRefreshButton() {
-        // - Don't show for combined inboxes, but
-        // - Show even for non-refreshable mailboxes, in which case we refresh the mailbox list.
-        return -1 != mFragmentManager.getActualAccountId();
     }
 
     @Override
     public boolean onSearchRequested() {
         Bundle bundle = new Bundle();
-        bundle.putLong(EXTRA_ACCOUNT_ID, mFragmentManager.getActualAccountId());
-        bundle.putLong(EXTRA_MAILBOX_ID, mFragmentManager.getMailboxId());
+        bundle.putLong(EXTRA_ACCOUNT_ID, mUIController.getActualAccountId());
+        bundle.putLong(EXTRA_MAILBOX_ID, mUIController.getMailboxId());
         startSearch(null, false, bundle, false);
         return true;
     }
 
     // STOPSHIP Set column from user options
     private void setMailboxColumn(String column, String value) {
-        final long mailboxId = mFragmentManager.getMailboxId();
+        final long mailboxId = mUIController.getMailboxId();
         if (mailboxId > 0) {
             ContentValues cv = new ContentValues();
             cv.put(column, value);
@@ -607,7 +554,7 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
     // STOPSHIP Temporary mailbox settings UI
     @Override
     protected Dialog onCreateDialog(int id, Bundle args) {
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mFragmentManager.getMailboxId());
+        Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mUIController.getMailboxId());
         if (mailbox == null) return null;
         switch (id) {
             case MAILBOX_SYNC_FREQUENCY_DIALOG:
@@ -683,35 +630,28 @@ public class MessageListXL extends Activity implements MessageListXLFragmentMana
     }
 
     private boolean onCompose() {
-        if (!mFragmentManager.isAccountSelected()) {
+        if (!mUIController.isAccountSelected()) {
             return false; // this shouldn't really happen
         }
-        MessageCompose.actionCompose(this, mFragmentManager.getActualAccountId());
+        MessageCompose.actionCompose(this, mUIController.getActualAccountId());
         return true;
     }
 
     private boolean onAccountSettings() {
-        AccountSettingsXL.actionSettings(this, mFragmentManager.getActualAccountId());
+        AccountSettingsXL.actionSettings(this, mUIController.getActualAccountId());
         return true;
     }
 
     private void onRefresh() {
         // Cancel previously running instance if any.
-        new RefreshTask(mTaskTracker, this, mFragmentManager.getActualAccountId(),
-                mFragmentManager.getMailboxId()).cancelPreviousAndExecuteParallel();
-    }
-
-    @Override
-    public void onVisiblePanesChanged(int visiblePanes) {
-        // If the left pane (mailbox list pane) is hidden, the back action on action bar will be
-        // enabled, and we also show the current mailbox name.
-        final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
-        mActionBar.setDisplayOptions(leftPaneHidden ? ActionBar.DISPLAY_HOME_AS_UP : 0,
-                ActionBar.DISPLAY_HOME_AS_UP);
-        mActionBarMailboxNameView.setVisibility(leftPaneHidden ? View.VISIBLE : View.GONE);
+        new RefreshTask(mTaskTracker, this, mUIController.getActualAccountId(),
+                mUIController.getMailboxId()).cancelPreviousAndExecuteParallel();
     }
 
     /**
+     * TODO Move this to UIController, as requirement for this may change for the phone.
+     * (e.g. should we still do the implicit refresh of mailbox list on the phone?)
+     *
      * Class to handle refresh.
      *
      * When the user press "refresh",

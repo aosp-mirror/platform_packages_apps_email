@@ -170,7 +170,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
          * @param mailboxId
          *          The ID of the selected mailbox. This may be real mailbox ID [e.g. a number > 0],
          *          or a special mailbox ID
-         *          [e.g. {@link MessageListXLFragmentManager#NO_MAILBOX} for "All Folders" to open
+         *          [e.g. {@link #ROOT_PARENT_MAILBOX_ID} for "All Folders" to open
          *          the root folders, {@link Mailbox#QUERY_ALL_INBOXES}, etc...].
          * @param navigate navigate to the mailbox.
          * @param dragDrop true if D&D is in progress.
@@ -311,7 +311,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * loaded, the list of top-level mailbox will not be reloaded unless <code>forceReload</code>
      * is <code>true</code>.
      * @param accountId The ID of the account we want to view
-     * @param parentMailboxId The ID of the parent mailbox.  Use -1 to open the root.
+     * @param parentMailboxId The ID of the parent mailbox.  Use {@link Mailbox#PARENT_KEY_NONE}
+     *     to open the root.
      * Otherwise, only load the list of top-level mailboxes if the account changes.
      */
     // STOPSHIP Make it private once phone activities are gone
@@ -323,7 +324,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             throw new InvalidParameterException();
         }
         // Normalize -- STOPSHIP should be removed when DEFAULT_MAILBOX_ID becomes -1.
-        if (parentMailboxId == -1) {
+        if (parentMailboxId == Mailbox.PARENT_KEY_NONE) {
             parentMailboxId = DEFAULT_MAILBOX_ID;
         }
 
