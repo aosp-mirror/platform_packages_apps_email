@@ -221,6 +221,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     /**
      * Create a new instance with initialization parameters.
+     *
+     * This fragment should be created only with this method.  (Arguments should always be set.)
      */
     public static MailboxListFragment newInstance(long accountId, long parentMailboxId) {
         final MailboxListFragment instance = new MailboxListFragment();
@@ -275,7 +277,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         registerForContextMenu(mListView);
 
         final Bundle args = getArguments();
-        openMailboxes(args.getLong(ARG_ACCOUNT_ID), args.getLong(ARG_PARENT_MAILBOX_ID));
+        // STOPSHIP remove the check.  Right now it's needed for the obsolete phone activities.
+        if (args != null) {
+            openMailboxes(args.getLong(ARG_ACCOUNT_ID), args.getLong(ARG_PARENT_MAILBOX_ID));
+        }
     }
 
     public void setCallback(Callback callback) {
