@@ -236,6 +236,8 @@ public class MessageListFragment extends ListFragment
 
     /**
      * Create a new instance with initialization parameters.
+     *
+     * This fragment should be created only with this method.  (Arguments should always be set.)
      */
     public static MessageListFragment newInstance(long mailboxId) {
         final MessageListFragment instance = new MessageListFragment();
@@ -293,7 +295,10 @@ public class MessageListFragment extends ListFragment
         }
 
         final Bundle args = getArguments();
-        openMailbox(args.getLong(ARG_MAILBOX_ID));
+        // STOPSHIP remove the check.  Right now it's needed for the obsolete phone activities.
+        if (args != null) {
+            openMailbox(args.getLong(ARG_MAILBOX_ID));
+        }
     }
 
     @Override

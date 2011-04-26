@@ -141,6 +141,8 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
     /**
      * Create a new instance with initialization parameters.
+     *
+     * This fragment should be created only with this method.  (Arguments should always be set.)
      */
     public static MessageViewFragment newInstance(long messageId) {
         final MessageViewFragment instance = new MessageViewFragment();
@@ -194,7 +196,10 @@ public class MessageViewFragment extends MessageViewFragmentBase
         super.onActivityCreated(savedInstanceState);
 
         final Bundle args = getArguments();
-        openMessage(args.getLong(ARG_MESSAGE_ID));
+        // STOPSHIP remove the check.  Right now it's needed for the obsolete phone activities.
+        if (args != null) {
+            openMessage(args.getLong(ARG_MESSAGE_ID));
+        }
     }
 
     @Override
