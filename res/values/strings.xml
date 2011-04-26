@@ -795,7 +795,8 @@ save attachment.</string>
     <!-- Additional diagnostic text when validation failed due to required provisioning not
          being supported [CHAR LIMIT=none] -->
     <string name="account_setup_failed_security_policies_unsupported">
-         This server requires security features that your Android device does not support.</string>
+         This server requires security features that your Android device does not support,
+          including: <xliff:g id="error">%s</xliff:g></string>
     <!-- The user name can only be changed during initial account setup. [CHAR LIMIT=none] -->
     <string name="account_setup_username_uneditable_error">You can\'t change an account\'s username.
          To add an account with a different username, touch Add account.</string>
