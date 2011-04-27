@@ -49,7 +49,6 @@ import java.util.Set;
  * TODO Refine "move to".
  */
 class MessageListXLFragmentManager implements
-        MoveMessageToDialog.Callback,
         MailboxFinder.Callback,
         ThreePaneLayout.Callback,
         MailboxListFragment.Callback,
@@ -178,13 +177,6 @@ class MessageListXLFragmentManager implements
         Log.e(Logging.LOG_TAG, "unable to find mailbox");
     }
 
-    // MoveMessageToDialog$Callback
-    @Override
-    public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
-        ActivityHelper.moveMessages(mActivity, newMailboxId, messageIds);
-        onCurrentMessageGone();
-    }
-
     // ThreePaneLayoutCallback
     @Override
     public void onVisiblePanesChanged(int previousVisiblePanes) {
@@ -258,6 +250,11 @@ class MessageListXLFragmentManager implements
      */
     @Override
     public void onAdvancingOpAccepted(Set<Long> affectedMessages) {
+        if (!isMessageSelected()) {
+            // Do nothing if message view is not visible.
+            return;
+        }
+
         int autoAdvanceDir = Preferences.getPreferences(mActivity).getAutoAdvanceDirection();
         if ((autoAdvanceDir == Preferences.AUTO_ADVANCE_MESSAGE_LIST) || (mOrderManager == null)) {
             if (affectedMessages.contains(getMessageId())) {
@@ -346,15 +343,8 @@ class MessageListXLFragmentManager implements
     }
 
     @Override
-    public void onBeforeMessageDelete() {
+    public void onBeforeMessageGone() {
         onCurrentMessageGone();
-    }
-
-    @Override
-    public void onMoveMessage() {
-        long messageId = getMessageId();
-        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(new long[] {messageId}, null);
-        dialog.show(mActivity.getFragmentManager(), "dialog");
     }
 
     @Override

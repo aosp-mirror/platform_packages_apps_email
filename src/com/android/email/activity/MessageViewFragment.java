@@ -50,7 +50,7 @@ import java.security.InvalidParameterException;
  * See {@link MessageViewBase} for the class relation diagram.
  */
 public class MessageViewFragment extends MessageViewFragmentBase
-        implements CheckBox.OnCheckedChangeListener {
+        implements CheckBox.OnCheckedChangeListener, MoveMessageToDialog.Callback {
     /** Argument name(s) */
     private static final String ARG_MESSAGE_ID = "messageId";
 
@@ -107,13 +107,12 @@ public class MessageViewFragment extends MessageViewFragmentBase
         public void onMessageSetUnread();
 
         /**
-         * Called right before the current message will be deleted.
-         * Callees don't have to delete messages.  The fragment does.
+         * Called right before the current message will be deleted or moved to another mailbox.
+         *
+         * Callees will usually close the fragment.
          */
-        public void onBeforeMessageDelete();
+        public void onBeforeMessageGone();
 
-        /** Called when the move button is pressed. */
-        public void onMoveMessage();
         /** Called when the forward button is pressed. */
         public void onForward();
         /** Called when the reply button is pressed. */
@@ -130,8 +129,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
         @Override public void onCalendarLinkClicked(long epochEventStartTime) { }
         @Override public void onMessageSetUnread() { }
         @Override public void onRespondedToInvite(int response) { }
-        @Override public void onBeforeMessageDelete() { }
-        @Override public void onMoveMessage() { }
+        @Override public void onBeforeMessageGone() { }
         @Override public void onForward() { }
         @Override public void onReply() { }
         @Override public void onReplyAll() { }
@@ -415,11 +413,22 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     private void onMove() {
-        mCallback.onMoveMessage();
+        // STOPSHIP mCurrentMessageId is not a good one to use here.  See b/4346486
+        // (We use it for now just to keep it consistent with onDelete)
+        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(new long[] {mCurrentMessageId},
+                this);
+        dialog.show(getFragmentManager(), "dialog");
+    }
+
+    // MoveMessageToDialog$Callback
+    @Override
+    public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
+        mCallback.onBeforeMessageGone();
+        ActivityHelper.moveMessages(mContext, newMailboxId, messageIds);
     }
 
     private void onDelete() {
-        mCallback.onBeforeMessageDelete();
+        mCallback.onBeforeMessageGone();
         ActivityHelper.deleteMessage(mContext, mCurrentMessageId);
     }
 

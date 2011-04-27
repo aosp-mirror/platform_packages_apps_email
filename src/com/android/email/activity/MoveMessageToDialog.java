@@ -16,7 +16,9 @@
 
 package com.android.email.activity;
 
+import com.android.email.Email;
 import com.android.email.R;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -35,6 +37,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import java.security.InvalidParameterException;
 
@@ -68,25 +71,29 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
      *
      * @param messageIds IDs of the messages to be moved.
      * @param callbackFragment Fragment that gets a callback.  The fragment must implement
-     * {@link Callback}.  If null is passed, then the owner activity is used instead, in which case
-     * it must implement {@link Callback} instead.
+     *     {@link Callback}.
      */
-    public static MoveMessageToDialog newInstance(long[] messageIds, Fragment callbackFragment) {
+    public static <T extends Fragment & Callback> MoveMessageToDialog newInstance(long[] messageIds,
+            T callbackFragment) {
         if (messageIds.length == 0) {
             throw new InvalidParameterException();
+        }
+        if (callbackFragment == null) {
+            throw new IllegalArgumentException(); // fail fast
         }
         MoveMessageToDialog dialog = new MoveMessageToDialog();
         Bundle args = new Bundle();
         args.putLongArray(BUNDLE_MESSAGE_IDS, messageIds);
         dialog.setArguments(args);
-        if (callbackFragment != null) {
-            dialog.setTargetFragment(callbackFragment, 0);
-        }
+        dialog.setTargetFragment(callbackFragment, 0);
         return dialog;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "" + this + " onCreate  target=" + getTargetFragment());
+        }
         super.onCreate(savedInstanceState);
         mMessageIds = getArguments().getLongArray(BUNDLE_MESSAGE_IDS);
         setStyle(STYLE_NORMAL, android.R.style.Theme_Holo_Light);
@@ -121,18 +128,8 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     public void onClick(DialogInterface dialog, int position) {
         final long mailboxId = mAdapter.getItemId(position);
 
-        getCallback().onMoveToMailboxSelected(mailboxId, mMessageIds);
+        ((Callback) getTargetFragment()).onMoveToMailboxSelected(mailboxId, mMessageIds);
         dismiss();
-    }
-
-    private Callback getCallback() {
-        Fragment targetFragment = getTargetFragment();
-        if (targetFragment != null) {
-            // If a target is set, it MUST implement Callback.
-            return (Callback) targetFragment;
-        }
-        // If not the parent activity MUST implement Callback.
-        return (Callback) getActivity();
     }
 
     /**

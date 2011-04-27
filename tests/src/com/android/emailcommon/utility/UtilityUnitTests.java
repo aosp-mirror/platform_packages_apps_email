@@ -334,6 +334,19 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals(4, two[1]);
     }
 
+    public void testToLongSet() {
+        assertEquals(0, Utility.toLongSet(new long[] {}).size());
+
+        final Set<Long> one = Utility.toLongSet(new long[] {1});
+        assertEquals(1, one.size());
+        assertTrue(one.contains(1L));
+
+        final Set<Long> two = Utility.toLongSet(new long[] {1, 2});
+        assertEquals(2, two.size());
+        assertTrue(two.contains(1L));
+        assertTrue(two.contains(2L));
+    }
+
     public void testGetContentFileName() throws Exception {
         Context providerContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
                 mContext);
@@ -359,6 +372,7 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertEquals(lastPathSegment, Utility.getContentFileName(providerContext, notExistUri));
     }
 
+    // used by testToPrimitiveLongArray
     private static Collection<Long> createLongCollection(long... values) {
         ArrayList<Long> ret = new ArrayList<Long>();
         for (long value : values) {

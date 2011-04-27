@@ -75,6 +75,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -902,12 +904,25 @@ public class Utility {
     }
 
     public static long[] toPrimitiveLongArray(Collection<Long> collection) {
+        // Need to do this manually because we're converting to a primitive long array, not
+        // a Long array.
         final int size = collection.size();
         final long[] ret = new long[size];
         // Collection doesn't have get(i).  (Iterable doesn't have size())
         int i = 0;
         for (Long value : collection) {
             ret[i++] = value;
+        }
+        return ret;
+    }
+
+    public static Set<Long> toLongSet(long[] array) {
+        // Need to do this manually because we're converting from a primitive long array, not
+        // a Long array.
+        final int size = array.length;
+        HashSet<Long> ret = new HashSet<Long>(size);
+        for (int i = 0; i < size; i++) {
+            ret.add(array[i]);
         }
         return ret;
     }
