@@ -19,18 +19,21 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
+import com.android.email.RefreshManager;
+import com.android.email.activity.setup.AccountSecurity;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -48,7 +51,8 @@ import java.util.Set;
  *
  * TODO Refine "move to".
  */
-class MessageListXLFragmentManager implements
+class UIControllerTwoPane implements
+        MoveMessageToDialog.Callback,
         MailboxFinder.Callback,
         ThreePaneLayout.Callback,
         MailboxListFragment.Callback,
@@ -73,6 +77,11 @@ class MessageListXLFragmentManager implements
     /** Current message id */
     private long mMessageId = NO_MESSAGE;
 
+    // UI elements
+    private ActionBar mActionBar;
+    private View mActionBarMailboxNameView;
+    private TextView mActionBarMailboxName;
+    private TextView mActionBarUnreadCount;
     private ThreePaneLayout mThreePane;
 
     /**
@@ -93,6 +102,7 @@ class MessageListXLFragmentManager implements
 
     private MailboxFinder mMailboxFinder;
 
+    private RefreshManager mRefreshManager;
     private MessageOrderManager mOrderManager;
     private final MessageOrderManagerCallback mMessageOrderManagerCallback =
         new MessageOrderManagerCallback();
@@ -100,48 +110,29 @@ class MessageListXLFragmentManager implements
     /**
      * List of fragments that are restored by the framework while the activity is being re-created
      * for configuration changes (e.g. screen rotation).  We'll install them later when the activity
-     * is created.
+     * is created in {@link #installRestoredFragments()}.
      */
     private final ArrayList<Fragment> mRestoredFragments = new ArrayList<Fragment>();
 
-    private boolean mActivityCreated = false;
-
     /**
-     * The interface that {@link MessageListXL} implements.  We don't call its methods directly,
-     * in the hope that it'll make writing tests easier, and make it clear which methods are needed
-     * for MessageListXLFragmentManager.
-     * TODO Consider getting rid of this. The fragment manager needs an {@link Activity}, so,
-     * merely passing around an interface is not sufficient.
+     * Whether fragment installation should be hold.
+     * We hold installing fragments until {@link #installRestoredFragments()} is called.
      */
-    public interface TargetActivity {
-        /** Implemented by {@link Activity}, so, signature must match */
-        public ActionBar getActionBar();
-        public FragmentManager getFragmentManager();
-        public View findViewById(int id);
+    private boolean mHoldFragmentInstallation = true;
 
-        /** Called when the selected account is on security-hold. */
-        public void onAccountSecurityHold(long accountId);
-        /** Called when the current account has changed. */
-        public void onAccountChanged(long accountId);
-        /** Called when the current mailbox has changed. */
-        public void onMailboxChanged(long accountId, long newMailboxId);
-        /** Called when the current mailbox name / unread count has changed. */
-        public void onMailboxNameChanged(String mailboxName, int unreadCount);
-        /** Called when the visible panes have changed. */
-        public void onVisiblePanesChanged(int visiblePanes);
-    }
-
+    /** The owner activity */
     private final MessageListXL mActivity;
 
-    public MessageListXLFragmentManager(MessageListXL activity) {
+    public UIControllerTwoPane(MessageListXL activity) {
         mActivity = activity;
+        mRefreshManager = RefreshManager.getInstance(mActivity);
     }
 
     // MailboxFinder$Callback
     @Override
     public void onAccountNotFound() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager#onAccountNotFound()");
+            Log.d(Logging.LOG_TAG, "" + this + " onAccountNotFound()");
         }
         // Shouldn't happen
     }
@@ -149,15 +140,16 @@ class MessageListXLFragmentManager implements
     @Override
     public void onAccountSecurityHold(long accountId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager#onAccountSecurityHold()");
+            Log.d(Logging.LOG_TAG, "" + this + " onAccountSecurityHold()");
         }
-        mActivity.onAccountSecurityHold(accountId);
+        mActivity.startActivity(AccountSecurity.actionUpdateSecurityIntent(mActivity, accountId,
+                true));
     }
 
     @Override
     public void onMailboxFound(long accountId, long mailboxId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager#onMailboxFound()");
+            Log.d(Logging.LOG_TAG, "" + this + " onMailboxFound()");
         }
         updateMessageList(mailboxId, true, true);
     }
@@ -165,7 +157,7 @@ class MessageListXLFragmentManager implements
     @Override
     public void onMailboxNotFound(long accountId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager#onMailboxNotFound()");
+            Log.d(Logging.LOG_TAG, "" + this + " onMailboxNotFound()");
         }
         // TODO: handle more gracefully.
         Log.e(Logging.LOG_TAG, "unable to find mailbox for account " + accountId);
@@ -177,11 +169,21 @@ class MessageListXLFragmentManager implements
         Log.e(Logging.LOG_TAG, "unable to find mailbox");
     }
 
+    // MoveMessageToDialog$Callback
+    @Override
+    public void onMoveToMailboxSelected(long newMailboxId, long[] messageIds) {
+        ActivityHelper.moveMessages(mActivity, newMailboxId, messageIds);
+        onCurrentMessageGone();
+    }
+
     // ThreePaneLayoutCallback
     @Override
     public void onVisiblePanesChanged(int previousVisiblePanes) {
+
+        updateActionBar();
+
+        // If the right pane is gone, remove the message view.
         final int visiblePanes = mThreePane.getVisiblePanes();
-        mActivity.onVisiblePanesChanged(visiblePanes);
         if (((visiblePanes & ThreePaneLayout.PANE_RIGHT) == 0) &&
                 ((previousVisiblePanes & ThreePaneLayout.PANE_RIGHT) != 0)) {
             // Message view just got hidden
@@ -192,9 +194,27 @@ class MessageListXLFragmentManager implements
             uninstallMessageViewFragment(mActivity.getFragmentManager().beginTransaction())
                     .commit();
         }
+        // Disable CAB when the message list is not visible.
         if (mMessageListFragment != null) {
-            mMessageListFragment.setVisibility((visiblePanes & ThreePaneLayout.PANE_MIDDLE) != 0);
+            mMessageListFragment.onHidden((visiblePanes & ThreePaneLayout.PANE_MIDDLE) == 0);
         }
+    }
+
+    /**
+     * Update the action bar according to the current state.
+     *
+     * - Show/hide the "back" button next to the "Home" icon.
+     * - Show/hide the current mailbox name.
+     */
+    private void updateActionBar() {
+        final int visiblePanes = mThreePane.getVisiblePanes();
+
+        // If the left pane (mailbox list pane) is hidden, the back action on action bar will be
+        // enabled, and we also show the current mailbox name.
+        final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
+        mActionBar.setDisplayOptions(leftPaneHidden ? ActionBar.DISPLAY_HOME_AS_UP : 0,
+                ActionBar.DISPLAY_HOME_AS_UP);
+        mActionBarMailboxNameView.setVisibility(leftPaneHidden ? View.VISIBLE : View.GONE);
     }
 
     // MailboxListFragment$Callback
@@ -226,7 +246,12 @@ class MessageListXLFragmentManager implements
 
     @Override
     public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount) {
-        mActivity.onMailboxNameChanged(mailboxName, unreadCount);
+        mActionBarMailboxName.setText(mailboxName);
+
+        // Note on action bar, we show only "unread count".  Some mailboxes such as Outbox don't
+        // have the idea of "unread count", in which case we just omit the count.
+        mActionBarUnreadCount.setText(
+                UiUtilities.getMessageCountForUi(mActivity, unreadCount, true));
     }
 
     // MessageListFragment$Callback
@@ -250,11 +275,6 @@ class MessageListXLFragmentManager implements
      */
     @Override
     public void onAdvancingOpAccepted(Set<Long> affectedMessages) {
-        if (!isMessageSelected()) {
-            // Do nothing if message view is not visible.
-            return;
-        }
-
         int autoAdvanceDir = Preferences.getPreferences(mActivity).getAutoAdvanceDirection();
         if ((autoAdvanceDir == Preferences.AUTO_ADVANCE_MESSAGE_LIST) || (mOrderManager == null)) {
             if (affectedMessages.contains(getMessageId())) {
@@ -343,8 +363,15 @@ class MessageListXLFragmentManager implements
     }
 
     @Override
-    public void onBeforeMessageGone() {
+    public void onBeforeMessageDelete() {
         onCurrentMessageGone();
+    }
+
+    @Override
+    public void onMoveMessage() {
+        long messageId = getMessageId();
+        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(new long[] {messageId}, null);
+        dialog.show(mActivity.getFragmentManager(), "dialog");
     }
 
     @Override
@@ -370,8 +397,30 @@ class MessageListXLFragmentManager implements
      */
     public void onActivityViewReady() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager onActivityViewReady");
+            Log.d(Logging.LOG_TAG, "" + this + " onActivityViewReady");
         }
+        // Set up action bar
+        mActionBar = mActivity.getActionBar();
+        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME);
+
+        // Set a view for the current mailbox to the action bar.
+        final LayoutInflater inflater = LayoutInflater.from(mActivity);
+        mActionBarMailboxNameView = inflater.inflate(R.layout.action_bar_current_mailbox, null);
+        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
+        final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
+                ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.MATCH_PARENT);
+        customViewLayout.setMargins(mActivity.getResources().getDimensionPixelSize(
+                        R.dimen.action_bar_mailbox_name_left_margin) , 0, 0, 0);
+        mActionBar.setCustomView(mActionBarMailboxNameView, customViewLayout);
+
+        mActionBarMailboxName =
+                (TextView) mActionBarMailboxNameView.findViewById(R.id.mailbox_name);
+        mActionBarUnreadCount =
+                (TextView) mActionBarMailboxNameView.findViewById(R.id.unread_count);
+
+
+        // Set up content
         mThreePane = (ThreePaneLayout) mActivity.findViewById(R.id.three_pane);
         mThreePane.setCallback(this);
 
@@ -422,10 +471,28 @@ class MessageListXLFragmentManager implements
     }
 
     /**
-     * Called at the end of {@link MessageListXL#onCreate}.
+     * @return true if refresh is in progress for the current mailbox.
      */
-    public void onActivityCreated() {
-        mActivityCreated = true;
+    public boolean isRefreshInProgress() {
+        return (mMailboxId >= 0) && mRefreshManager.isMessageListRefreshing(mMailboxId);
+    }
+
+    /**
+     * @return true if the UI should enable the "refresh" command.
+     */
+    public boolean isRefreshEnabled() {
+        // - Don't show for combined inboxes, but
+        // - Show even for non-refreshable mailboxes, in which case we refresh the mailbox list
+        return -1 != getActualAccountId();
+    }
+
+    /**
+     * Install all the fragments kept in {@link #mRestoredFragments}.
+     *
+     * Must be called at the end of {@link MessageListXL#onCreate}.
+     */
+    public void installRestoredFragments() {
+        mHoldFragmentInstallation = false;
 
         // Install all the fragments restored by the framework.
         for (Fragment fragment : mRestoredFragments) {
@@ -442,7 +509,7 @@ class MessageListXLFragmentManager implements
      * onCreate.
      */
     public void onAttachFragment(Fragment fragment) {
-        if (!mActivityCreated) {
+        if (mHoldFragmentInstallation) {
             // Fragment being restored by the framework during the activity recreation.
             mRestoredFragments.add(fragment);
             return;
@@ -463,8 +530,7 @@ class MessageListXLFragmentManager implements
      * Called from {@link MessageListXL#onResume}.
      */
     public void onResume() {
-        int visiblePanes = mThreePane.getVisiblePanes();
-        mActivity.onVisiblePanesChanged(visiblePanes);
+        updateActionBar();
     }
 
     /**
@@ -484,13 +550,13 @@ class MessageListXLFragmentManager implements
      * Called from {@link MessageListXL#onDestroy}.
      */
     public void onDestroy() {
-        mActivityCreated = false;
+        mHoldFragmentInstallation = true; // No more fragment installation.
         closeMailboxFinder();
     }
 
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager onSaveInstanceState");
+            Log.d(Logging.LOG_TAG, "" + this + " onSaveInstanceState");
         }
         outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mAccountId);
         outState.putLong(BUNDLE_KEY_MAILBOX_ID, mMailboxId);
@@ -499,7 +565,7 @@ class MessageListXLFragmentManager implements
 
     public void restoreInstanceState(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXLFragmentManager restoreInstanceState");
+            Log.d(Logging.LOG_TAG, "" + this + " restoreInstanceState");
         }
         mAccountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, NO_ACCOUNT);
         mMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, NO_MAILBOX);
@@ -579,8 +645,8 @@ class MessageListXLFragmentManager implements
      */
     public void open(long accountId, long mailboxId, long messageId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "open accountId=" + accountId + " mailboxId=" + mailboxId
-                    + " messageId=" + messageId);
+            Log.d(Logging.LOG_TAG, "" + this + " open accountId=" + accountId
+                    + " mailboxId=" + mailboxId + " messageId=" + messageId);
         }
         if (accountId == NO_ACCOUNT) {
             throw new IllegalArgumentException();
@@ -610,6 +676,20 @@ class MessageListXLFragmentManager implements
     }
 
     /**
+     * Pre-fragment transaction check.
+     *
+     * @throw IllegalStateException if updateXxx methods can't be called in the current state.
+     */
+    private void preFragmentTransactionCheck() {
+        if (mHoldFragmentInstallation) {
+            // Code assumes mMailboxListFragment/etc are set right within the
+            // commitFragmentTransaction() call (because we use synchronous transaction),
+            // so updateXxx() can't be called if fragments are not installable yet.
+            throw new IllegalStateException();
+        }
+    }
+
+    /**
      * Loads the given account and optionally selects the given mailbox and message. If the
      * specified account is already selected, no actions will be performed unless
      * <code>forceReload</code> is <code>true</code>.
@@ -629,9 +709,10 @@ class MessageListXLFragmentManager implements
     private void updateMailboxList(long accountId, long parentMailboxId,
             boolean changeVisiblePane, boolean clearDependentPane) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "updateMailboxList accountId=" + accountId + " parentMailboxId="
-                    + parentMailboxId);
+            Log.d(Logging.LOG_TAG, "" + this + " updateMailboxList accountId=" + accountId
+                    + " parentMailboxId=" + parentMailboxId);
         }
+        preFragmentTransactionCheck();
         if (accountId == NO_ACCOUNT) {
             throw new InvalidParameterException();
         }
@@ -694,8 +775,9 @@ class MessageListXLFragmentManager implements
     private void updateMessageList(long mailboxId, boolean changeVisiblePane,
             boolean clearDependentPane) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "updateMessageList mMailboxId=" + mailboxId);
+            Log.d(Logging.LOG_TAG, "" + this + " updateMessageList mMailboxId=" + mailboxId);
         }
+        preFragmentTransactionCheck();
         if (mailboxId == 0 || mailboxId == -1) {
             throw new InvalidParameterException();
         }
@@ -715,12 +797,12 @@ class MessageListXLFragmentManager implements
         ft.add(mThreePane.getMiddlePaneId(), MessageListFragment.newInstance(mailboxId));
         commitFragmentTransaction(ft);
 
-        mMailboxListFragment.setSelectedMailbox(mailboxId);
-        mActivity.onMailboxChanged(mAccountId, mailboxId);
-
         if (changeVisiblePane) {
             mThreePane.showLeftPane();
         }
+
+        mMailboxListFragment.setSelectedMailbox(mailboxId);
+        mActivity.updateRefreshProgress();
     }
 
     /**
@@ -730,8 +812,9 @@ class MessageListXLFragmentManager implements
      */
     private void updateMessageView(long messageId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "updateMessageView messageId=" + messageId);
+            Log.d(Logging.LOG_TAG, "" + this + " updateMessageView messageId=" + messageId);
         }
+        preFragmentTransactionCheck();
         if (messageId == NO_MESSAGE) {
             throw new InvalidParameterException();
         }
@@ -743,8 +826,6 @@ class MessageListXLFragmentManager implements
         mMessageId = messageId;
 
         // Open message
-        mMessageListFragment.setSelectedMessage(mMessageId);
-
         final FragmentManager fm = mActivity.getFragmentManager();
         final FragmentTransaction ft = fm.beginTransaction();
         uninstallMessageViewFragment(ft);
@@ -752,6 +833,8 @@ class MessageListXLFragmentManager implements
         commitFragmentTransaction(ft);
 
         mThreePane.showRightPane(); // Show message view
+
+        mMessageListFragment.setSelectedMessage(mMessageId);
     }
 
     private void closeMailboxFinder() {
