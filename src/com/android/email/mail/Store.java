@@ -17,7 +17,6 @@
 package com.android.email.mail;
 
 import com.android.email.Email;
-import com.android.email.LegacyConversions;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Folder;
@@ -36,7 +35,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**

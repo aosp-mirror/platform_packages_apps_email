@@ -246,7 +246,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
     /**
      * Test small Store & Folder functions that manage folders & namespace
      */
-    public void testStoreFoldersFunctions() throws MessagingException {
+    public void testStoreFoldersFunctions() {
 
         // getPersonalNamespaces() always returns INBOX folder
         Folder[] folders = mStore.updateFolders();
@@ -326,7 +326,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
     /**
      * Lightweight test to confirm that POP3 hasn't implemented any folder roles yet.
      */
-    public void testNoFolderRolesYet() throws MessagingException {
+    public void testNoFolderRolesYet() {
         Folder[] remoteFolders = mStore.updateFolders();
         for (Folder folder : remoteFolders) {
             assertEquals(Folder.FolderRole.UNKNOWN, folder.getRole());
@@ -426,7 +426,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -468,7 +468,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -511,7 +511,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -563,7 +563,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -610,7 +610,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -669,7 +669,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -716,7 +716,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -765,7 +765,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // test is, can we recover?  So I'll try a new connection, without the failure.
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);

@@ -19,7 +19,6 @@ package com.android.email.mail.store;
 import com.android.email.Email;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
-import com.android.email.mail.store.imap.ImapConstants;
 import com.android.email.mail.transport.MailTransport;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeMessage;
@@ -943,8 +942,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        // TODO this is deprecated, eventually discard
-        public boolean isOpen() {
+        public boolean isOpenForTest() {
             return mTransport.isOpen();
         }
 

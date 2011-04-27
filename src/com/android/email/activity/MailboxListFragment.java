@@ -874,7 +874,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                         }
                     }
                 } else {
-                    controller.moveMessage(messageIds, targetItem.mMailboxId);
+                    controller.moveMessages(messageIds, targetItem.mMailboxId);
                 }
             }
         });

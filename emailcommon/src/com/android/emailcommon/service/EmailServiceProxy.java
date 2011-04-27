@@ -363,22 +363,6 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     }
 
     /**
-     * Deprecated (or at least unused); moves are recognized by sync adapters as messages whose
-     * mailboxKey has changed
-     *
-     * @param messageId the id of the messge to be moved
-     * @param mailboxId the id of the destination mailbox
-     */
-    @Deprecated
-    public void moveMessage(final long messageId, final long mailboxId) throws RemoteException {
-        setTask(new ProxyTask() {
-            public void run() throws RemoteException {
-                mService.moveMessage(messageId, mailboxId);
-            }
-        }, "moveMessage");
-    }
-
-    /**
      * Request the service to delete the account's PIM (personal information management) data. This
      * data includes any data that is 1) associated with the account and 2) created/stored by the
      * service or its sync adapters and 3) not stored in the EmailProvider database (e.g. contact

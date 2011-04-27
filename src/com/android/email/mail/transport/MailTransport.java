@@ -35,7 +35,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.URI;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -96,12 +95,6 @@ public class MailTransport implements Transport {
         newObject.mConnectionSecurity = mConnectionSecurity;
         newObject.mTrustCertificates = mTrustCertificates;
         return newObject;
-    }
-
-    @Override
-    @Deprecated
-    public String[] getUserInfoParts() {
-        return mUserInfoParts;
     }
 
     @Override

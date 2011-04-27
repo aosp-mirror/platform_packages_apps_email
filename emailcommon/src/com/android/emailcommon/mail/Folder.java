@@ -74,8 +74,7 @@ public abstract class Folder {
      * @return True if further commands are not expected to have to open the
      *         connection.
      */
-    // TODO not used, get rid of this - it's a transport function
-    public abstract boolean isOpen();
+    public abstract boolean isOpenForTest();
 
     /**
      * Returns the mode the folder was opened with. This may be different than the mode the open

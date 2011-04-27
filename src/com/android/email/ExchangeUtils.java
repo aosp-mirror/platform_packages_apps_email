@@ -134,9 +134,6 @@ public class ExchangeUtils {
             return null;
         }
 
-        public void moveMessage(long messageId, long mailboxId) throws RemoteException {
-        }
-
         public void deleteAccountPIMData(long accountId) throws RemoteException {
         }
 

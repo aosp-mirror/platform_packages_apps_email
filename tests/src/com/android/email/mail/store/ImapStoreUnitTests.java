@@ -1450,9 +1450,9 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         assertEquals(1, folder.getMessageCount());
         assertEquals(OpenMode.READ_WRITE, folder.getMode());
 
-        assertTrue(folder.isOpen());
+        assertTrue(folder.isOpenForTest());
         folder.close(false);
-        assertFalse(folder.isOpen());
+        assertFalse(folder.isOpenForTest());
 
         // READ-ONLY
         expectNoop(mock, true); // Need it because we reuse the connection.

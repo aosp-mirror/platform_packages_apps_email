@@ -35,6 +35,7 @@ import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Service;
@@ -778,24 +779,24 @@ public class Controller {
     }
 
     /**
-     * Moving messages to another folder
+     * Moves messages to a new mailbox.
      *
      * This function has no callback, no result reporting, because the desired outcome
      * is reflected entirely by changes to one or more cursors.
      *
-     * Note this method assumes all the messages, and the destination mailbox belong to the same
+     * Note this method assumes all of the given message and mailbox IDs belong to the same
      * account.
      *
-     * @param messageIds The IDs of the messages to move
-     * @param newMailboxId The id of the folder we're supposed to move the folder to
-     * @return the AsyncTask that will execute the move (for testing only)
+     * @param messageIds IDs of the messages that are to be moved
+     * @param newMailboxId ID of the new mailbox that the messages will be moved to
+     * @return an asynchronous task that executes the move (for testing only)
      */
-    public AsyncTask<Void, Void, Void> moveMessage(final long[] messageIds,
+    public EmailAsyncTask<Void, Void, Void> moveMessages(final long[] messageIds,
             final long newMailboxId) {
         if (messageIds == null || messageIds.length == 0) {
             throw new InvalidParameterException();
         }
-        return Utility.runAsync(new Runnable() {
+        return EmailAsyncTask.runAsyncParallel(new Runnable() {
             public void run() {
                 Account account = Account.getAccountForMessageId(mProviderContext, messageIds[0]);
                 if (account != null) {
@@ -1636,18 +1637,15 @@ public class Controller {
         }
 
         @Override
-        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress)
-                throws RemoteException {
+        public void sendMessageStatus(long messageId, String subject, int statusCode, int progress){
         }
 
         @Override
-        public void syncMailboxListStatus(long accountId, int statusCode, int progress)
-                throws RemoteException {
+        public void syncMailboxListStatus(long accountId, int statusCode, int progress) {
         }
 
         @Override
-        public void syncMailboxStatus(long mailboxId, int statusCode, int progress)
-                throws RemoteException {
+        public void syncMailboxStatus(long mailboxId, int statusCode, int progress) {
         }
     };
 
@@ -1659,18 +1657,18 @@ public class Controller {
         private final IEmailService.Stub mBinder = new IEmailService.Stub() {
 
             public Bundle validate(String protocol, String host, String userName, String password,
-                    int port, boolean ssl, boolean trustCertificates) throws RemoteException {
+                    int port, boolean ssl, boolean trustCertificates) {
                 return null;
             }
 
-            public Bundle autoDiscover(String userName, String password) throws RemoteException {
+            public Bundle autoDiscover(String userName, String password) {
                 return null;
             }
 
-            public void startSync(long mailboxId, boolean userRequest) throws RemoteException {
+            public void startSync(long mailboxId, boolean userRequest) {
             }
 
-            public void stopSync(long mailboxId) throws RemoteException {
+            public void stopSync(long mailboxId) {
             }
 
             public void loadAttachment(long attachmentId, boolean background)
@@ -1712,43 +1710,39 @@ public class Controller {
                 }
             }
 
-            public void updateFolderList(long accountId) throws RemoteException {
+            public void updateFolderList(long accountId) {
             }
 
-            public void hostChanged(long accountId) throws RemoteException {
+            public void hostChanged(long accountId) {
             }
 
-            public void setLogging(int flags) throws RemoteException {
+            public void setLogging(int flags) {
             }
 
-            public void sendMeetingResponse(long messageId, int response) throws RemoteException {
+            public void sendMeetingResponse(long messageId, int response) {
             }
 
-            public void loadMore(long messageId) throws RemoteException {
+            public void loadMore(long messageId) {
             }
 
             // The following three methods are not implemented in this version
-            public boolean createFolder(long accountId, String name) throws RemoteException {
+            public boolean createFolder(long accountId, String name) {
                 return false;
             }
 
-            public boolean deleteFolder(long accountId, String name) throws RemoteException {
+            public boolean deleteFolder(long accountId, String name) {
                 return false;
             }
 
-            public boolean renameFolder(long accountId, String oldName, String newName)
-                    throws RemoteException {
+            public boolean renameFolder(long accountId, String oldName, String newName) {
                 return false;
             }
 
-            public void setCallback(IEmailServiceCallback cb) throws RemoteException {
+            public void setCallback(IEmailServiceCallback cb) {
                 sCallbackList.register(cb);
             }
 
-            public void moveMessage(long messageId, long mailboxId) throws RemoteException {
-            }
-
-            public void deleteAccountPIMData(long accountId) throws RemoteException {
+            public void deleteAccountPIMData(long accountId) {
             }
 
             public int searchMessages(long accountId, long mailboxId, boolean includeSubfolders,
@@ -1757,7 +1751,7 @@ public class Controller {
             }
 
             @Override
-            public int getApiLevel() throws RemoteException {
+            public int getApiLevel() {
                 return Api.LEVEL;
             }
         };

@@ -87,7 +87,7 @@ class ImapFolder extends Folder {
     public void open(OpenMode mode, PersistentDataCallbacks callbacks)
             throws MessagingException {
         try {
-            if (isOpen()) {
+            if (isOpenForTest()) {
                 if (mMode == mode) {
                     // Make sure the connection is valid.
                     // If it's not we'll close it down and continue on to get a new one.
@@ -137,7 +137,7 @@ class ImapFolder extends Folder {
     }
 
     @Override
-    public boolean isOpen() {
+    public boolean isOpenForTest() {
         return mExists && mConnection != null;
     }
 
@@ -1031,7 +1031,7 @@ class ImapFolder extends Folder {
     }
 
     private void checkOpen() throws MessagingException {
-        if (!isOpen()) {
+        if (!isOpenForTest()) {
             throw new MessagingException("Folder " + mName + " is not open.");
         }
     }

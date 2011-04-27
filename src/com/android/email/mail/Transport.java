@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.URI;
 
 /**
  * This interface defines a "transport", which is defined here as being one layer below the
@@ -74,15 +73,6 @@ public interface Transport {
      * Returns the port or {@code 0} if none was specified.
      */
     public int getPort();
-
-    /**
-     * Returns the user info parts of the Uri, if any were supplied.  Typically, [0] is the user
-     * and [1] is the password.
-     * @return Returns the user info parts of the Uri.  Null if none were supplied.
-     * @deprecated do not use this method. user info parts should not be stored in the transport.
-     */
-    @Deprecated
-    public String[] getUserInfoParts();
 
     /**
      * Set the desired security mode for this connection.

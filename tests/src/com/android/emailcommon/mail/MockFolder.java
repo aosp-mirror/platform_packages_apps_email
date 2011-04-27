@@ -110,7 +110,7 @@ public class MockFolder extends Folder {
     }
 
     @Override
-    public boolean isOpen() {
+    public boolean isOpenForTest() {
         return false;
     }
 

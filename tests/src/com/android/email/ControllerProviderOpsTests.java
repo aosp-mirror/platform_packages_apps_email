@@ -180,7 +180,8 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         long message2Id = message2.mId;
 
         // Because moveMessage runs asynchronously, call get() to force it to complete
-        mTestController.moveMessage(new long[] {message1Id, message2Id}, boxDestId).get();
+        mTestController.moveMessages(
+                new long[] { message1Id, message2Id }, boxDestId).waitForFinish();
 
         // now read back a fresh copy and confirm it's in the trash
         assertEquals(boxDestId, EmailContent.Message.restoreMessageWithId(mProviderContext,
@@ -194,7 +195,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
      *    - message/mailbox/account all exist
      *    - trash mailbox exists
      */
-    public void testDeleteMessage() throws InterruptedException, ExecutionException {
+    public void testDeleteMessage() {
         Account account1 = ProviderTestUtils.setupAccount("message-delete", true, mProviderContext);
         long account1Id = account1.mId;
         Mailbox box = ProviderTestUtils.setupMailbox("box1", account1Id, true, mProviderContext);
@@ -268,7 +269,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
     /**
      * Test deleting message when there is no trash mailbox
      */
-    public void testDeleteMessageNoTrash() throws InterruptedException, ExecutionException {
+    public void testDeleteMessageNoTrash() {
         Account account1 =
                 ProviderTestUtils.setupAccount("message-delete-notrash", true, mProviderContext);
         long account1Id = account1.mId;

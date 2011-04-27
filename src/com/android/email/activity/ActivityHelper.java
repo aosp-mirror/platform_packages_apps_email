@@ -108,7 +108,7 @@ public final class ActivityHelper {
 
     public static void moveMessages(final Context context, final long newMailboxId,
             final long[] messageIds) {
-        Controller.getInstance(context).moveMessage(messageIds, newMailboxId);
+        Controller.getInstance(context).moveMessages(messageIds, newMailboxId);
         EmailAsyncTask.runAsyncSerial(new Runnable() {
             @Override
             public void run() {
