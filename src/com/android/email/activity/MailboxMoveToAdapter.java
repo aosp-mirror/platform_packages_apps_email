@@ -19,8 +19,11 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.FolderProperties;
 import com.android.email.data.ThrottlingCursorLoader;
+import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.utility.Utility;
@@ -51,22 +54,40 @@ class MailboxMoveToAdapter extends CursorAdapter {
     /** The main selection to populate the "move to" dialog */
     private static final String MOVE_TO_SELECTION =
         ALL_MAILBOX_SELECTION + " AND " + MOVE_TO_TARGET_MAILBOX_SELECTION;
-    /** Field projection for the "move to" dialog */
-    private static final String[] MOVE_TO_PROJECTION = new String[] { MailboxColumns.ID,
+    /** Projection that uses the server id column as the mailbox name */
+    private static final String[] MOVE_TO_PROJECTION_SERVER_ID = new String[] {
+        MailboxColumns.ID,
         MailboxColumns.ID + " AS org_mailbox_id",
         MailboxColumns.SERVER_ID,
         MailboxColumns.TYPE,
     };
-    private static final String MOVE_TO_ORDER_BY = "CASE " + MailboxColumns.TYPE +
-        " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0" +
-        " WHEN " + Mailbox.TYPE_JUNK    + " THEN 1" +
+    /** Projection that uses the display name column as the mailbox name */
+    private static final String[] MOVE_TO_PROJECTION_DISPLAY_NAME = new String[] {
+        MailboxColumns.ID,
+        MailboxColumns.ID + " AS org_mailbox_id",
+        MailboxColumns.DISPLAY_NAME,
+        MailboxColumns.TYPE,
+    };
+    /** Sort order for special mailboxes */
+    private static final String MOVE_TO_ORDER_BY_STATIC =
+        "CASE " + MailboxColumns.TYPE
+        + " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0"
+        + " WHEN " + Mailbox.TYPE_JUNK    + " THEN 1"
+        + " ELSE 10 END";
+    /** Server id sort order */
+    private static final String MOVE_TO_ORDER_BY_SERVER_ID =
+        MOVE_TO_ORDER_BY_STATIC
         // All other mailboxes are shown in alphabetical order.
-        " ELSE 10 END" +
-        " ," + MailboxColumns.DISPLAY_NAME;
+        + ", " + MailboxColumns.SERVER_ID;
+    /** Display name sort order */
+    private static final String MOVE_TO_ORDER_BY_DISPLAY_NAME =
+        MOVE_TO_ORDER_BY_STATIC
+        // All other mailboxes are shown in alphabetical order.
+        + ", " + MailboxColumns.DISPLAY_NAME;
 
     // Column 0 is only for ListView; we don't use it in our code.
     private static final int COLUMN_ID = 1;
-    private static final int COLUMN_SERVER_ID = 2;
+    private static final int COLUMN_MAILBOX_NAME = 2;
     private static final int COLUMN_TYPE = 3;
 
     /** Cached layout inflater */
@@ -105,21 +126,34 @@ class MailboxMoveToAdapter extends CursorAdapter {
         final long mailboxId = cursor.getLong(COLUMN_ID);
         String name = FolderProperties.getInstance(context).getDisplayName(type, mailboxId);
         if (name == null) {
-            name = cursor.getString(COLUMN_SERVER_ID);
+            name = cursor.getString(COLUMN_MAILBOX_NAME);
         }
         return name;
     }
 
     /** Loader for the "move to mailbox" dialog. */
     private static class MailboxMoveToLoader extends ThrottlingCursorLoader {
+        private final long mAccountId;
         public MailboxMoveToLoader(Context context, long accountId) {
             super(context, EmailContent.Mailbox.CONTENT_URI,
-                    MOVE_TO_PROJECTION, MOVE_TO_SELECTION,
-                    new String[] { String.valueOf(accountId) }, MOVE_TO_ORDER_BY);
+                    null, MOVE_TO_SELECTION,
+                    new String[] { String.valueOf(accountId) }, null);
+            mAccountId = accountId;
         }
 
         @Override
         public Cursor loadInBackground() {
+            // TODO Create a common way to store the fully qualified path name for all account types
+            final String protocol = Account.getProtocol(getContext(), mAccountId);
+            if (Store.STORE_SCHEME_EAS.equals(protocol)) {
+                // For EAS accounts; use the display name
+                setProjection(MOVE_TO_PROJECTION_DISPLAY_NAME);
+                setSortOrder(MOVE_TO_ORDER_BY_DISPLAY_NAME);
+            } else {
+                // For all other accounts; use the server id
+                setProjection(MOVE_TO_PROJECTION_SERVER_ID);
+                setSortOrder(MOVE_TO_ORDER_BY_SERVER_ID);
+            }
             final Cursor mailboxesCursor = super.loadInBackground();
             return Utility.CloseTraceCursorWrapper.get(mailboxesCursor);
         }
