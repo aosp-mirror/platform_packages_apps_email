@@ -62,20 +62,17 @@ public class MessagingException extends Exception {
     public static final int ACCESS_DENIED = 14;
 
     protected int mExceptionType;
-
-    public MessagingException(String message) {
-        super(message);
-        mExceptionType = UNSPECIFIED_EXCEPTION;
-    }
+    // Exception type-specific data
+    protected Object mExceptionData;
 
     public MessagingException(String message, Throwable throwable) {
-        super(message, throwable);
-        mExceptionType = UNSPECIFIED_EXCEPTION;
+        this(UNSPECIFIED_EXCEPTION, message, throwable);
     }
 
     public MessagingException(int exceptionType, String message, Throwable throwable) {
         super(message, throwable);
         mExceptionType = exceptionType;
+        mExceptionData = null;
     }
 
     /**
@@ -83,8 +80,15 @@ public class MessagingException extends Exception {
      * @param exceptionType The exception type to set for this exception.
      */
     public MessagingException(int exceptionType) {
-        super();
-        mExceptionType = exceptionType;
+        this(exceptionType, null, null);
+    }
+
+    /**
+     * Constructs a MessagingException with a message.
+     * @param message the message for this exception
+     */
+    public MessagingException(String message) {
+        this(UNSPECIFIED_EXCEPTION, message, null);
     }
 
     /**
@@ -92,8 +96,19 @@ public class MessagingException extends Exception {
      * @param exceptionType The exception type to set for this exception.
      */
     public MessagingException(int exceptionType, String message) {
+        this(exceptionType, message, null);
+    }
+
+    /**
+     * Constructs a MessagingException with an exceptionType, a message, and data
+     * @param exceptionType The exception type to set for this exception.
+     * @param message the message for the exception (or null)
+     * @param data exception-type specific data for the exception (or null)
+     */
+    public MessagingException(int exceptionType, String message, Object data) {
         super(message);
         mExceptionType = exceptionType;
+        mExceptionData = data;
     }
 
     /**
@@ -103,5 +118,13 @@ public class MessagingException extends Exception {
      */
     public int getExceptionType() {
         return mExceptionType;
+    }
+    /**
+     * Return the exception data.  Will be null if not explicitly set.
+     *
+     * @return Returns the exception data.
+     */
+    public Object getExceptionData() {
+        return mExceptionData;
     }
 }

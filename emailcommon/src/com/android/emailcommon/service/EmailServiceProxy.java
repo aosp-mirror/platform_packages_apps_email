@@ -57,6 +57,8 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
     public static final String VALIDATE_BUNDLE_RESULT_CODE = "validate_result_code";
     public static final String VALIDATE_BUNDLE_POLICY_SET = "validate_policy_set";
     public static final String VALIDATE_BUNDLE_ERROR_MESSAGE = "validate_error_message";
+    public static final String VALIDATE_BUNDLE_UNSUPPORTED_POLICIES =
+        "validate_unsupported_policies";
 
     private final IEmailServiceCallback mCallback;
     private Object mReturn = null;

@@ -458,10 +458,12 @@ public class AccountCheckSettingsFragment extends Fragment {
                     if (resultCode == MessagingException.SECURITY_POLICIES_REQUIRED) {
                         SetupData.setPolicySet((PolicySet)bundle.getParcelable(
                                 EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET));
-                        return new MessagingException(
-                                MessagingException.SECURITY_POLICIES_REQUIRED, mStoreHost);
-                    }
-                    if (resultCode != MessagingException.NO_ERROR) {
+                        return new MessagingException(resultCode, mStoreHost);
+                    } else if (resultCode == MessagingException.SECURITY_POLICIES_UNSUPPORTED) {
+                        String[] data = bundle.getStringArray(
+                                EmailServiceProxy.VALIDATE_BUNDLE_UNSUPPORTED_POLICIES);
+                        return new MessagingException(resultCode, mStoreHost, data);
+                    } else if (resultCode != MessagingException.NO_ERROR) {
                         String errorMessage =
                             bundle.getString(EmailServiceProxy.VALIDATE_BUNDLE_ERROR_MESSAGE);
                         return new MessagingException(resultCode, errorMessage);
@@ -519,8 +521,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 if (DEBUG_FAKE_CHECK_ERR) {
                     return new MessagingException(MessagingException.IOERROR);
                 } else if (DEBUG_FORCE_SECURITY_REQUIRED) {
-                    return new MessagingException(
-                            MessagingException.SECURITY_POLICIES_REQUIRED);
+                    return new MessagingException(MessagingException.SECURITY_POLICIES_REQUIRED);
                 }
             }
             if (isCancelled()) return null;
@@ -616,6 +617,24 @@ public class AccountCheckSettingsFragment extends Fragment {
                         break;
                     case MessagingException.SECURITY_POLICIES_UNSUPPORTED:
                         id = R.string.account_setup_failed_security_policies_unsupported;
+                        // Belt and suspenders here; there should always be a non-empty array here
+                        String[] unsupportedPolicies = (String[])result.getExceptionData();
+                        if (unsupportedPolicies == null) {
+                            Log.w(TAG, "No data for unsupported policies?");
+                            break;
+                        }
+                        // Build a string, concatenating policies we don't support
+                        StringBuilder sb = new StringBuilder();
+                        boolean first = true;
+                        for (String policyName: unsupportedPolicies) {
+                            if (first) {
+                                first = false;
+                            } else {
+                                sb.append(", ");
+                            }
+                            sb.append(policyName);
+                        }
+                        message = sb.toString();
                         break;
                     case MessagingException.ACCESS_DENIED:
                         id = R.string.account_setup_failed_access_denied;
