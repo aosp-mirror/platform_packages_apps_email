@@ -238,10 +238,19 @@ import java.util.Set;
 
         @Override
         public Cursor loadInBackground() {
-            Cursor returnCursor;
-            Mailbox box = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
+            final Cursor returnCursor;
+
             // Only perform a load if the selected mailbox can hold messages
-            if ((box.mFlags & Mailbox.FLAG_HOLDS_MAIL) != 0) {
+            // box can be null on the combined view where we use negative mailbox ids.
+            final boolean canHaveMessages;
+            if (mMailboxId < 0) {
+                // Combined mailboxes can always have messages.
+                canHaveMessages = true;
+            } else {
+                Mailbox box = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
+                canHaveMessages = (box != null) && (box.mFlags & Mailbox.FLAG_HOLDS_MAIL) != 0;
+            }
+            if (canHaveMessages) {
                 // Determine the where clause.  (Can't do this on the UI thread.)
                 setSelection(Utility.buildMailboxIdSelection(mContext, mMailboxId));
                 // Then do a query to get the cursor
