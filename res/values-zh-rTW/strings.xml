@@ -235,7 +235,7 @@
     <string name="account_settings_sync_calendar_summary" msgid="2456010694443333450">"同時同步處理此帳戶的日曆"</string>
     <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"震動"</string>
     <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"收到電子郵件時震動提醒"</string>
-    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"永遠要"</string>
+    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"一律"</string>
     <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"靜音時才啟用"</string>
     <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"永遠不要"</string>
     <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"震動"</string>
@@ -260,7 +260,7 @@
     <string name="exception_cancel" msgid="6160117429428313805">"已將 <xliff:g id="DATE">%s</xliff:g> 時的此活動取消"</string>
     <string name="exception_updated" msgid="3397583105901142050">"已變更此活動於 <xliff:g id="DATE">%s</xliff:g> 時的詳細資料"</string>
     <string name="system_account_create_failed" msgid="4917162302393971752">"AccountManager 無法建立帳戶，請再試一次。"</string>
-    <string name="device_admin_label" msgid="8680224994637869414">"傳送電子郵件"</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"電子郵件"</string>
     <string name="device_admin_description" msgid="426727923791430306">"啟用伺服器專用安全性政策"</string>
     <string name="notification_exchange_calendar_added" msgid="6823659622379350159">"已新增 Exchange 日曆"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"搜尋中 <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
