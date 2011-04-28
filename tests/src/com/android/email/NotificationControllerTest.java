@@ -60,11 +60,12 @@ public class NotificationControllerTest extends AndroidTestCase {
         mTarget = new NotificationControllerForTest(mProviderContext);
     }
 
-    public void testSetupNotificationSoundAndVibrationFromAccount() {
-        final Notification n = new Notification();
-
+    public void testSetupSoundAndVibration() {
         final Context c = mProviderContext;
         final Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
+        final Notification.Builder nb = new Notification.Builder(c);
+        final Uri expectedRingtone = Uri.parse(a1.mRingtoneUri);
+        Notification n;
 
         // === Ringer mode change ===
         mRingerMode = AudioManager.RINGER_MODE_NORMAL;
@@ -72,11 +73,12 @@ public class NotificationControllerTest extends AndroidTestCase {
         // VIBRATE_ALWAYS, with a ringer tone
         a1.mFlags = Account.FLAGS_VIBRATE_ALWAYS;
 
-        n.defaults = 0;
-        n.flags = 0;
-        mTarget.setupNotificationSoundAndVibrationFromAccount(n, a1);
+        nb.setDefaults(0);
+        nb.setSound(null);
+        mTarget.setupSoundAndVibration(nb, a1);
+        n = nb.getNotification();
 
-        assertEquals(Uri.parse(a1.mRingtoneUri), n.sound);
+        assertEquals(expectedRingtone, n.sound);
         assertTrue((n.defaults & Notification.DEFAULT_VIBRATE) != 0);
         assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
         assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
@@ -84,11 +86,12 @@ public class NotificationControllerTest extends AndroidTestCase {
         // FLAGS_VIBRATE_WHEN_SILENT, with a ringer tone
         a1.mFlags = Account.FLAGS_VIBRATE_WHEN_SILENT;
 
-        n.defaults = 0;
-        n.flags = 0;
-        mTarget.setupNotificationSoundAndVibrationFromAccount(n, a1);
+        nb.setDefaults(0);
+        nb.setSound(null);
+        mTarget.setupSoundAndVibration(nb, a1);
+        n = nb.getNotification();
 
-        assertEquals(Uri.parse(a1.mRingtoneUri), n.sound);
+        assertEquals(expectedRingtone, n.sound);
         assertFalse((n.defaults & Notification.DEFAULT_VIBRATE) != 0); // no vibe
         assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
         assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
@@ -96,11 +99,12 @@ public class NotificationControllerTest extends AndroidTestCase {
         // No VIBRATE flags, with a ringer tone
         a1.mFlags = 0;
 
-        n.defaults = 0;
-        n.flags = 0;
-        mTarget.setupNotificationSoundAndVibrationFromAccount(n, a1);
+        nb.setDefaults(0);
+        nb.setSound(null);
+        mTarget.setupSoundAndVibration(nb, a1);
+        n = nb.getNotification();
 
-        assertEquals(Uri.parse(a1.mRingtoneUri), n.sound);
+        assertEquals(expectedRingtone, n.sound);
         assertFalse((n.defaults & Notification.DEFAULT_VIBRATE) != 0); // no vibe
         assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
         assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
@@ -111,11 +115,12 @@ public class NotificationControllerTest extends AndroidTestCase {
         // VIBRATE_ALWAYS, with a ringer tone
         a1.mFlags = Account.FLAGS_VIBRATE_ALWAYS;
 
-        n.defaults = 0;
-        n.flags = 0;
-        mTarget.setupNotificationSoundAndVibrationFromAccount(n, a1);
+        nb.setDefaults(0);
+        nb.setSound(null);
+        mTarget.setupSoundAndVibration(nb, a1);
+        n = nb.getNotification();
 
-        assertEquals(Uri.parse(a1.mRingtoneUri), n.sound);
+        assertEquals(expectedRingtone, n.sound);
         assertTrue((n.defaults & Notification.DEFAULT_VIBRATE) != 0);
         assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
         assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
@@ -123,11 +128,12 @@ public class NotificationControllerTest extends AndroidTestCase {
         // FLAGS_VIBRATE_WHEN_SILENT, with a ringer tone
         a1.mFlags = Account.FLAGS_VIBRATE_WHEN_SILENT;
 
-        n.defaults = 0;
-        n.flags = 0;
-        mTarget.setupNotificationSoundAndVibrationFromAccount(n, a1);
+        nb.setDefaults(0);
+        nb.setSound(null);
+        mTarget.setupSoundAndVibration(nb, a1);
+        n = nb.getNotification();
 
-        assertEquals(Uri.parse(a1.mRingtoneUri), n.sound);
+        assertEquals(expectedRingtone, n.sound);
         assertTrue((n.defaults & Notification.DEFAULT_VIBRATE) != 0);
         assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
         assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
@@ -135,11 +141,12 @@ public class NotificationControllerTest extends AndroidTestCase {
         // No VIBRATE flags, with a ringer tone
         a1.mFlags = 0;
 
-        n.defaults = 0;
-        n.flags = 0;
-        mTarget.setupNotificationSoundAndVibrationFromAccount(n, a1);
+        nb.setDefaults(0);
+        nb.setSound(null);
+        mTarget.setupSoundAndVibration(nb, a1);
+        n = nb.getNotification();
 
-        assertEquals(Uri.parse(a1.mRingtoneUri), n.sound);
+        assertEquals(expectedRingtone, n.sound);
         assertFalse((n.defaults & Notification.DEFAULT_VIBRATE) != 0); // no vibe
         assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
         assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
@@ -150,11 +157,12 @@ public class NotificationControllerTest extends AndroidTestCase {
         // VIBRATE_ALWAYS, with a ringer tone
         a1.mFlags = Account.FLAGS_VIBRATE_ALWAYS;
 
-        n.defaults = 0;
-        n.flags = 0;
-        mTarget.setupNotificationSoundAndVibrationFromAccount(n, a1);
+        nb.setDefaults(0);
+        nb.setSound(null);
+        mTarget.setupSoundAndVibration(nb, a1);
+        n = nb.getNotification();
 
-        assertEquals(Uri.parse(a1.mRingtoneUri), n.sound);
+        assertEquals(expectedRingtone, n.sound);
         assertTrue((n.defaults & Notification.DEFAULT_VIBRATE) != 0);
         assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
         assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
@@ -162,11 +170,12 @@ public class NotificationControllerTest extends AndroidTestCase {
         // FLAGS_VIBRATE_WHEN_SILENT, with a ringer tone
         a1.mFlags = Account.FLAGS_VIBRATE_WHEN_SILENT;
 
-        n.defaults = 0;
-        n.flags = 0;
-        mTarget.setupNotificationSoundAndVibrationFromAccount(n, a1);
+        nb.setDefaults(0);
+        nb.setSound(null);
+        mTarget.setupSoundAndVibration(nb, a1);
+        n = nb.getNotification();
 
-        assertEquals(Uri.parse(a1.mRingtoneUri), n.sound);
+        assertEquals(expectedRingtone, n.sound);
         assertTrue((n.defaults & Notification.DEFAULT_VIBRATE) != 0);
         assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
         assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
@@ -174,11 +183,12 @@ public class NotificationControllerTest extends AndroidTestCase {
         // No VIBRATE flags, with a ringer tone
         a1.mFlags = 0;
 
-        n.defaults = 0;
-        n.flags = 0;
-        mTarget.setupNotificationSoundAndVibrationFromAccount(n, a1);
+        nb.setDefaults(0);
+        nb.setSound(null);
+        mTarget.setupSoundAndVibration(nb, a1);
+        n = nb.getNotification();
 
-        assertEquals(Uri.parse(a1.mRingtoneUri), n.sound);
+        assertEquals(expectedRingtone, n.sound);
         assertFalse((n.defaults & Notification.DEFAULT_VIBRATE) != 0); // no vibe
         assertTrue((n.flags & Notification.FLAG_SHOW_LIGHTS) != 0); // always set
         assertTrue((n.defaults & Notification.DEFAULT_LIGHTS) != 0); // always set
@@ -186,9 +196,10 @@ public class NotificationControllerTest extends AndroidTestCase {
         // No ringer tone
         a1.mRingtoneUri = null;
 
-        n.defaults = 0;
-        n.flags = 0;
-        mTarget.setupNotificationSoundAndVibrationFromAccount(n, a1);
+        nb.setDefaults(0);
+        nb.setSound(null);
+        mTarget.setupSoundAndVibration(nb, a1);
+        n = nb.getNotification();
 
         assertNull(n.sound);
     }
@@ -242,21 +253,21 @@ public class NotificationControllerTest extends AndroidTestCase {
         assertEquals(R.drawable.stat_notify_email_generic, n.icon);
     }
 
-    public void testGetNotificationTitle() {
+    public void testGetNewMessageTitle() {
         final Context c = mProviderContext;
 
         // Case 1: 1 account
         Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
 
         // Just check the content.  Ignore the spans.
-        String title = mTarget.getNotificationTitle("*sender*", "*receiver*").toString();
+        String title = mTarget.getNewMessageTitle("*sender*", "*receiver*").toString();
         assertEquals("*sender*", title);
 
         // Case 1: 2 account
         Account a2 = ProviderTestUtils.setupAccount("a1", true, c);
 
         // Just check the content.  Ignore the spans.
-        title = mTarget.getNotificationTitle("*sender*", "*receiver*").toString();
+        title = mTarget.getNewMessageTitle("*sender*", "*receiver*").toString();
         assertEquals("*sender* to *receiver*", title);
     }
 }
