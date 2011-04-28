@@ -50,6 +50,9 @@ import java.security.InvalidParameterException;
 public class MoveMessageToDialog extends DialogFragment implements DialogInterface.OnClickListener {
     private static final String BUNDLE_MESSAGE_IDS = "message_ids";
 
+    private static final int LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER = 1;
+    private static final int LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER = 2;
+
     /** Message IDs passed to {@link #newInstance} */
     private long[] mMessageIds;
     private MailboxMoveToAdapter mAdapter;
@@ -118,7 +121,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
         builder.setSingleChoiceItems(mAdapter, -1, this);
 
         getLoaderManager().initLoader(
-                ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER,
+                LOADER_ID_MOVE_TO_DIALOG_MESSAGE_CHECKER,
                 null, new MessageCheckerCallback());
 
         return builder.show();
@@ -170,7 +173,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
             }
             mAccountId = accountId;
             getLoaderManager().initLoader(
-                    ActivityHelper.GLOBAL_LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER,
+                    LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER,
                     null, new MailboxesLoaderCallbacks());
         }
 
