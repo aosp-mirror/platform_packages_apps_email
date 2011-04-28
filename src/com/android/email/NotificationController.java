@@ -25,7 +25,9 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -40,16 +42,14 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Class that manages notifications.
  */
 public class NotificationController {
     private static final int NOTIFICATION_ID_SECURITY_NEEDED = 1;
-
-    // ID reserved for CalendarSyncEnabler
-    private static final int PLACEHOLDER_NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 2;
+    /** Reserved for {@link com.android.exchange.CalendarSyncEnabler} */
+    @SuppressWarnings("unused")
+    private static final int NOTIFICATION_ID_EXCHANGE_CALENDAR_ADDED = 2;
     private static final int NOTIFICATION_ID_ATTACHMENT_WARNING = 3;
     private static final int NOTIFICATION_ID_PASSWORD_EXPIRING = 4;
     private static final int NOTIFICATION_ID_PASSWORD_EXPIRED = 5;
@@ -65,7 +65,8 @@ public class NotificationController {
     private final Clock mClock;
 
     /** Constructor */
-    /* package */ NotificationController(Context context, Clock clock) {
+    @VisibleForTesting
+    NotificationController(Context context, Clock clock) {
         mContext = context.getApplicationContext();
         mNotificationManager = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
@@ -84,75 +85,85 @@ public class NotificationController {
     }
 
     /**
-     * Generic notifier for any account.  Uses notification rules from account.
-     * NOTE:  Ticker is not shown in Holo XL notifications.
+     * Returns a {@link Notification} for an event with the given account. The account contains
+     * specific rules on ring tone usage and these will be used to modify the notification
+     * behaviour.
      *
-     * @param account The account for which the notification is posted
-     * @param ticker String for ticker
-     * @param contentTitle String for notification content title
-     * @param contentText String for notification content text
-     * @param intent The intent to launch from the notification
-     * @param notificationId The notification id
+     * @param account The account this notification is being built for.
+     * @param ticker Text displayed when the notification is first shown. May be {@code null}.
+     * @param title The first line of text. May NOT be {@code null}.
+     * @param contentText The second line of text. May NOT be {@code null}.
+     * @param intent The intent to start if the user clicks on the notification.
+     * @param largeIcon A large icon. May be {@code null}
+     * @param number A number to display using {@link Notification.Builder#setNumber(int)}. May
+     *        be {@code null}.
+     * @return A {@link Notification} that can be sent to the notification service.
      */
-    private void showAccountNotification(Account account, String ticker, String contentTitle,
-            String contentText, Intent intent, int notificationId) {
-
+    private Notification createAccountNotification(Account account, String ticker,
+            CharSequence title, String contentText, Intent intent, Bitmap largeIcon,
+            Integer number) {
         // Pending Intent
         PendingIntent pending = null;
         if (intent != null) {
-            pending =
-                PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            pending = PendingIntent.getActivity(
+                    mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
-        // Ringtone & Vibration
-        String ringtoneString = account.getRingtone();
-        Uri ringTone = (ringtoneString == null) ? null : Uri.parse(ringtoneString);
-        boolean vibrate = 0 != (account.mFlags & Account.FLAGS_VIBRATE_ALWAYS);
-        boolean vibrateWhenSilent = 0 != (account.mFlags & Account.FLAGS_VIBRATE_WHEN_SILENT);
+        // NOTE: the ticker is not shown for notifications in the Holo UX
+        Notification.Builder builder = new Notification.Builder(mContext)
+                .setContentTitle(title)
+                .setContentText(contentText)
+                .setContentIntent(pending)
+                .setLargeIcon(largeIcon)
+                .setNumber(number == null ? 0 : number)
+                .setSmallIcon(R.drawable.stat_notify_email_generic)
+                .setWhen(mClock.getTime())
+                .setTicker(ticker);
+        setupSoundAndVibration(builder, account);
 
-        // Use the account's notification rules for sound & vibrate (but always notify)
-        boolean nowSilent =
-            mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE;
+        Notification notification = builder.getNotification();
+        return notification;
+    }
 
-        int defaults = Notification.DEFAULT_LIGHTS;
-        if (vibrate || (vibrateWhenSilent && nowSilent)) {
-            defaults |= Notification.DEFAULT_VIBRATE;
-        }
-
-        // Notification
-        Notification.Builder nb = new Notification.Builder(mContext);
-        nb.setSmallIcon(R.drawable.stat_notify_email_generic);
-        nb.setTicker(ticker);
-        nb.setContentTitle(contentTitle);
-        nb.setContentText(contentText);
-        nb.setContentIntent(pending);
-        nb.setSound(ringTone);
-        nb.setDefaults(defaults);
-        Notification notification = nb.getNotification();
-
+    /**
+     * Generic notifier for any account.  Uses notification rules from account.
+     *
+     * @param account The account this notification is being built for.
+     * @param ticker Text displayed when the notification is first shown. May be {@code null}.
+     * @param title The first line of text. May NOT be {@code null}.
+     * @param contentText The second line of text. May NOT be {@code null}.
+     * @param intent The intent to start if the user clicks on the notification.
+     * @param notificationId The ID of the notification to register with the service.
+     */
+    private void showAccountNotification(Account account, String ticker, String title,
+            String contentText, Intent intent, int notificationId) {
+        Notification notification = //nb.getNotification();
+                createAccountNotification(account, ticker, title, contentText, intent, null, null);
         mNotificationManager.notify(notificationId, notification);
     }
 
     /**
-     * Generic notification canceler.
-     * @param notificationId The notification id
+     * Cancels the specified notification.
+     *
+     * @param notificationId The ID of the notification to register with the service.
      */
     private void cancelNotification(int notificationId) {
         mNotificationManager.cancel(notificationId);
     }
 
     /**
-     * @return the "new message" notification ID for an account. It just assumes
-     *         accountID won't be too huge. Any other smarter/cleaner way?
+     * Returns a notification ID for new message notifications for the given account.
      */
     private int getNewMessageNotificationId(long accountId) {
+        // We assume accountId will always be less than 0x0FFFFFFF; is there a better way?
         return (int) (NOTIFICATION_ID_BASE_NEW_MESSAGES + accountId);
     }
 
     /**
-     * Dismiss new message notification
+     * Cancels a "new message" notification for the specified account.
      *
-     * @param accountId ID of the target account, or -1 for all accounts.
+     * @param accountId The ID of the account to cancel for. If {@code -1}, "new message"
+     * notifications for all accounts will be canceled.
      */
     public void cancelNewMessageNotification(long accountId) {
         if (accountId == -1) {
@@ -168,11 +179,14 @@ public class NotificationController {
     }
 
     /**
-     * Show (or update) the "new message" notification.
+     * Show (or update) a "new message" notification for the given account.
+     *
+     * @param accountId The ID of the account to display a notification for.
+     * @param unseenMessageCount The number of messages in the account that are unseen.
      */
     public void showNewMessageNotification(final long accountId, final int unseenMessageCount,
             final int justFetchedCount) {
-        Utility.runAsync(new Runnable() {
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
             @Override
             public void run() {
                 Notification n = createNewMessageNotification(accountId, unseenMessageCount);
@@ -185,9 +199,10 @@ public class NotificationController {
     }
 
     /**
-     * @return The sender's photo, if available, or null.
+     * Returns a picture of the sender of the given message. If no picture is available, returns
+     * {@code null}.
      *
-     * Don't call it on the UI thread.
+     * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     private Bitmap getSenderPhoto(Message message) {
         Address sender = Address.unpackFirst(message.mFrom);
@@ -198,18 +213,16 @@ public class NotificationController {
         if (TextUtils.isEmpty(email)) {
             return null;
         }
-        return ContactStatusLoader.load(mContext, email).mPhoto;
+        return ContactStatusLoader.getContactInfo(mContext, email).mPhoto;
     }
 
-    private static final AtomicInteger sSequenceNumber = new AtomicInteger();
-
     /**
-     * Create a notification
+     * Returns a "new message" notification for the given account.
      *
-     * Don't call it on the UI thread.
+     * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
-    /* package */ Notification createNewMessageNotification(long accountId,
-            int unseenMessageCount) {
+    @VisibleForTesting
+    Notification createNewMessageNotification(long accountId, int unseenMessageCount) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) {
             return null;
@@ -226,37 +239,23 @@ public class NotificationController {
         }
         final String subject = message.mSubject;
         final Bitmap senderPhoto = getSenderPhoto(message);
+        final SpannableString title = getNewMessageTitle(senderName, account.mDisplayName);
+        final Intent intent = Welcome.createOpenAccountInboxIntent(mContext, accountId);
+        final Bitmap largeIcon = senderPhoto != null ? senderPhoto : mGenericSenderIcon;
+        final Integer number = unseenMessageCount > 1 ? unseenMessageCount : null;
 
-        // Intent to open inbox
-        PendingIntent contentIntent = PendingIntent.getActivity(mContext, 0,
-                Welcome.createOpenAccountInboxIntent(mContext, accountId),
-                0);
-
-        Notification.Builder builder = new Notification.Builder(mContext)
-                .setSmallIcon(R.drawable.stat_notify_email_generic)
-                .setWhen(mClock.getTime())
-                .setLargeIcon(senderPhoto != null ? senderPhoto : mGenericSenderIcon)
-                .setContentTitle(getNotificationTitle(senderName, account.mDisplayName))
-                .setContentText(subject)
-                .setContentIntent(contentIntent);
-        if (unseenMessageCount > 1) {
-            builder.setNumber(unseenMessageCount);
-        }
-
-        Notification notification = builder.getNotification();
-
-        setupNotificationSoundAndVibrationFromAccount(notification, account);
+        Notification notification =
+                createAccountNotification(account, null, title, subject, intent, largeIcon, number);
         return notification;
     }
 
     /**
-     * Creates the notification title.
-     *
-     * If only 1 account, just show the sender name.
-     * If 2+ accounts, make it "SENDER_NAME to RECEIVER_NAME", and gray out the "to RECEIVER_NAME"
-     * part.
+     * Creates a notification title for a new message. If there is only 1 email account, just
+     * show the sender name. Otherwise, show both the sender and the account name, but, grey
+     * out the account name.
      */
-    /* package */ SpannableString getNotificationTitle(String sender, String receiverDisplayName) {
+    @VisibleForTesting
+    SpannableString getNewMessageTitle(String sender, String receiverDisplayName) {
         final int numAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
         if (numAccounts == 1) {
             return new SpannableString(sender);
@@ -277,36 +276,35 @@ public class NotificationController {
         }
     }
 
-    // Overridden for testing (AudioManager can't be mocked out.)
-    /* package */ int getRingerMode() {
+    /** Returns the system's current ringer mode */
+    @VisibleForTesting
+    int getRingerMode() {
         return mAudioManager.getRingerMode();
     }
 
-    /* package */ boolean isRingerModeSilent() {
-        return getRingerMode() != AudioManager.RINGER_MODE_NORMAL;
-    }
-
-    /* package */ void setupNotificationSoundAndVibrationFromAccount(Notification notification,
-            Account account) {
+    /** Sets up the notification's sound and vibration based upon account details. */
+    @VisibleForTesting
+    void setupSoundAndVibration(Notification.Builder builder, Account account) {
         final int flags = account.mFlags;
         final String ringtoneUri = account.mRingtoneUri;
         final boolean vibrate = (flags & Account.FLAGS_VIBRATE_ALWAYS) != 0;
         final boolean vibrateWhenSilent = (flags & Account.FLAGS_VIBRATE_WHEN_SILENT) != 0;
+        final boolean isRingerSilent = getRingerMode() != AudioManager.RINGER_MODE_NORMAL;
 
-        notification.sound = (ringtoneUri == null) ? null : Uri.parse(ringtoneUri);
-
-        if (vibrate || (vibrateWhenSilent && isRingerModeSilent())) {
-            notification.defaults |= Notification.DEFAULT_VIBRATE;
+        int defaults = Notification.DEFAULT_LIGHTS;
+        if (vibrate || (vibrateWhenSilent && isRingerSilent)) {
+            defaults |= Notification.DEFAULT_VIBRATE;
         }
 
-        // This code is identical to that used by Gmail and GTalk for notifications
-        notification.flags |= Notification.FLAG_SHOW_LIGHTS;
-        notification.defaults |= Notification.DEFAULT_LIGHTS;
+        builder.setSound((ringtoneUri == null) ? null : Uri.parse(ringtoneUri))
+            .setDefaults(defaults);
     }
 
     /**
-     * Alert the user that an attachment couldn't be forwarded.  This is a very unusual case, and
-     * perhaps we shouldn't even send a notification. For now, it's helpful for debugging.
+     * Show (or update) a notification that the given attachment could not be forwarded. This
+     * is a very unusual case, and perhaps we shouldn't even send a notification. For now,
+     * it's helpful for debugging.
+     *
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     public void showDownloadForwardFailedNotification(Attachment attachment) {
@@ -321,14 +319,15 @@ public class NotificationController {
     }
 
     /**
-     * Alert the user that login failed for the specified account
+     * Returns a notification ID for login failed notifications for the given account account.
      */
     private int getLoginFailedNotificationId(long accountId) {
         return NOTIFICATION_ID_BASE_LOGIN_WARNING + (int)accountId;
     }
 
     /**
-     * Alert the user that login failed on a particular account.
+     * Show (or update) a notification that there was a login failure for the given account.
+     *
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     public void showLoginFailedNotification(long accountId) {
@@ -343,48 +342,54 @@ public class NotificationController {
                 getLoginFailedNotificationId(accountId));
     }
 
+    /**
+     * Cancels the login failed notification for the given account.
+     */
     public void cancelLoginFailedNotification(long accountId) {
         mNotificationManager.cancel(getLoginFailedNotificationId(accountId));
     }
 
     /**
-     * Show "password expiring" notification.
+     * Show (or update) a notification that the user's password is expiring. The given account
+     * is used to update the display text, but, all accounts share the same notification ID.
      *
-     * Note all accounts share the same notification ID.
+     * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     public void showPasswordExpiringNotification(long accountId) {
         Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
+
         Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
                 accountId, false);
-        String ticker = mContext.getString(
-                R.string.password_expire_warning_ticker_fmt, account.getDisplayName());
-        String contentTitle = mContext.getString(
-                R.string.password_expire_warning_content_title);
-        String contentText = account.getDisplayName();
-        showAccountNotification(account, ticker, contentTitle, contentText, intent,
+        String accountName = account.getDisplayName();
+        String ticker =
+            mContext.getString(R.string.password_expire_warning_ticker_fmt, accountName);
+        String title = mContext.getString(R.string.password_expire_warning_content_title);
+        showAccountNotification(account, ticker, title, accountName, intent,
                 NOTIFICATION_ID_PASSWORD_EXPIRING);
     }
 
     /**
-     * Show "password expired" notification.
+     * Show (or update) a notification that the user's password has expired. The given account
+     * is used to update the display text, but, all accounts share the same notification ID.
      *
-     * Note all accounts share the same notification ID.
+     * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     public void showPasswordExpiredNotification(long accountId) {
         Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) return;
+
         Intent intent = AccountSecurity.actionDevicePasswordExpirationIntent(mContext,
                 accountId, true);
+        String accountName = account.getDisplayName();
         String ticker = mContext.getString(R.string.password_expired_ticker);
-        String contentTitle = mContext.getString(R.string.password_expired_content_title);
-        String contentText = account.getDisplayName();
-        showAccountNotification(account, ticker, contentTitle,
-                contentText, intent, NOTIFICATION_ID_PASSWORD_EXPIRED);
+        String title = mContext.getString(R.string.password_expired_content_title);
+        showAccountNotification(account, ticker, title, accountName, intent,
+                NOTIFICATION_ID_PASSWORD_EXPIRED);
     }
 
     /**
-     * Cancel both "password expired/expiring" notifications.
+     * Cancels any password expire notifications [both expired & expiring].
      */
     public void cancelPasswordExpirationNotifications() {
         cancelNotification(NOTIFICATION_ID_PASSWORD_EXPIRING);
@@ -392,21 +397,21 @@ public class NotificationController {
     }
 
     /**
-     * Show "security needed" notification.
+     * Show (or update) a security needed notification. The given account is used to update
+     * the display text, but, all accounts share the same notification ID.
      */
     public void showSecurityNeededNotification(Account account) {
-        String tickerText = mContext.getString(R.string.security_notification_ticker_fmt,
-                account.getDisplayName());
-        String contentTitle = mContext.getString(R.string.security_notification_content_title);
-        String contentText = account.getDisplayName();
         Intent intent = AccountSecurity.actionUpdateSecurityIntent(mContext, account.mId, true);
-        showAccountNotification(
-                account, tickerText, contentTitle, contentText, intent,
+        String accountName = account.getDisplayName();
+        String ticker =
+            mContext.getString(R.string.security_notification_ticker_fmt, accountName);
+        String title = mContext.getString(R.string.security_notification_content_title);
+        showAccountNotification(account, ticker, title, accountName, intent,
                 NOTIFICATION_ID_SECURITY_NEEDED);
     }
 
     /**
-     * Cancel "security needed" notification.
+     * Cancels the security needed notification.
      */
     public void cancelSecurityNeededNotification() {
         cancelNotification(NOTIFICATION_ID_SECURITY_NEEDED);

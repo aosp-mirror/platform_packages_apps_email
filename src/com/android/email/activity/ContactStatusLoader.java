@@ -34,7 +34,7 @@ import android.provider.ContactsContract.StatusUpdates;
 import android.util.Log;
 
 /**
- * Loader to load presence statuses and the contact photoes.
+ * Loader to load presence statuses and the contact photo.
  */
 public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Result> {
     public static final int PRESENCE_UNKNOWN_RESOURCE_ID = android.R.drawable.presence_offline;
@@ -86,16 +86,15 @@ public class ContactStatusLoader extends AsyncTaskLoader<ContactStatusLoader.Res
 
     @Override
     public Result loadInBackground() {
-        return load(mContext, mEmailAddress);
+        return getContactInfo(mContext, mEmailAddress);
     }
 
     /**
-     * Load synchronously.
+     * Synchronously loads contact data.
      *
-     * Used to fetch a photo for notification, in which calls the callsite is already on a worker
-     * thread.
+     * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
-    public static Result load(Context context, String emailAddress) {
+    public static Result getContactInfo(Context context, String emailAddress) {
         // Load photo-id and presence status.
         Uri uri = Uri.withAppendedPath(Email.CONTENT_LOOKUP_URI, Uri.encode(emailAddress));
         Cursor c = context.getContentResolver().query(
