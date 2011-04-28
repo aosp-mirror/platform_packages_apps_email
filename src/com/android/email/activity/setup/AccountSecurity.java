@@ -16,6 +16,7 @@
 
 package com.android.email.activity.setup;
 
+import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.ActivityHelper;
@@ -35,6 +36,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
 /**
  * Psuedo-activity (no UI) to bootstrap the user up to a higher desired security level.  This
@@ -48,6 +50,7 @@ import android.os.Bundle;
  * 6.  If necessary, request for user to activate device encryption
  */
 public class AccountSecurity extends Activity {
+    private static final String TAG = "Email/AccountSecurity";
 
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_SHOW_DIALOG = "SHOW_DIALOG";
@@ -139,7 +142,7 @@ public class AccountSecurity extends Activity {
                     return;
                 }
                 // Otherwise, handle normal security settings flow
-                if (mAccount.mSecurityFlags != 0) {
+                if (mAccount.mPolicyKey != 0) {
                     // This account wants to control security
                     if (showDialog) {
                         // Show dialog first, unless already showing (e.g. after rotation)
@@ -184,10 +187,12 @@ public class AccountSecurity extends Activity {
      */
     private void tryAdvanceSecurity(Account account) {
         SecurityPolicy security = SecurityPolicy.getInstance(this);
-
         // Step 1.  Check if we are an active device administrator, and stop here to activate
         if (!security.isActiveAdmin()) {
             if (mTriedAddAdministrator) {
+                if (Email.DEBUG) {
+                    Log.d(TAG, "Not active admin: repost notification");
+                }
                 repostNotification(account, security);
                 finish();
             } else {
@@ -195,9 +200,15 @@ public class AccountSecurity extends Activity {
                 // retrieve name of server for the format string
                 HostAuth hostAuth = HostAuth.restoreHostAuthWithId(this, account.mHostAuthKeyRecv);
                 if (hostAuth == null) {
+                    if (Email.DEBUG) {
+                        Log.d(TAG, "No HostAuth: repost notification");
+                    }
                     repostNotification(account, security);
                     finish();
                 } else {
+                    if (Email.DEBUG) {
+                        Log.d(TAG, "Not active admin: post initial notification");
+                    }
                     // try to become active - must happen here in activity, to get result
                     Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
                     intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN,
@@ -214,6 +225,9 @@ public class AccountSecurity extends Activity {
         // Step 2.  Check if the current aggregate security policy is being satisfied by the
         // DevicePolicyManager (the current system security level).
         if (security.isActive(null)) {
+            if (Email.DEBUG) {
+                Log.d(TAG, "Security active; clear holds");
+            }
             Account.clearSecurityHoldOnAllAccounts(this);
             finish();
             return;
@@ -229,9 +243,15 @@ public class AccountSecurity extends Activity {
         // Step 5.  If password is needed, try to have the user set it
         if ((inactiveReasons & SecurityPolicy.INACTIVE_NEED_PASSWORD) != 0) {
             if (mTriedSetPassword) {
+                if (Email.DEBUG) {
+                    Log.d(TAG, "Password needed; repost notification");
+                }
                 repostNotification(account, security);
                 finish();
             } else {
+                if (Email.DEBUG) {
+                    Log.d(TAG, "Password needed; request it via DPM");
+                }
                 mTriedSetPassword = true;
                 // launch the activity to have the user set a new password.
                 Intent intent = new Intent(DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
@@ -243,10 +263,16 @@ public class AccountSecurity extends Activity {
         // Step 6.  If encryption is needed, try to have the user set it
         if ((inactiveReasons & SecurityPolicy.INACTIVE_NEED_ENCRYPTION) != 0) {
             if (mTriedSetEncryption) {
+                if (Email.DEBUG) {
+                    Log.d(TAG, "Encryption needed; repost notification");
+                }
                 repostNotification(account, security);
                 finish();
             } else {
-                mTriedSetEncryption = true;
+                if (Email.DEBUG) {
+                    Log.d(TAG, "Encryption needed; request it via DPM");
+                }
+               mTriedSetEncryption = true;
                 // launch the activity to start up encryption.
                 Intent intent = new Intent(DevicePolicyManager.ACTION_START_ENCRYPTION);
                 startActivityForResult(intent, REQUEST_ENCRYPTION);
@@ -255,6 +281,9 @@ public class AccountSecurity extends Activity {
         }
 
         // Step 7.  No problems were found, so clear holds and exit
+        if (Email.DEBUG) {
+            Log.d(TAG, "Policies enforced; clear holds");
+        }
         Account.clearSecurityHoldOnAllAccounts(this);
         finish();
     }
@@ -304,6 +333,9 @@ public class AccountSecurity extends Activity {
             b.setMessage(res.getString(R.string.account_security_dialog_content_fmt, accountName));
             b.setPositiveButton(R.string.okay_action, this);
             b.setNegativeButton(R.string.cancel_action, this);
+            if (Email.DEBUG) {
+                Log.d(TAG, "Posting security needed dialog");
+            }
             return b.create();
         }
 
@@ -318,9 +350,15 @@ public class AccountSecurity extends Activity {
             }
             switch (which) {
                 case DialogInterface.BUTTON_POSITIVE:
+                    if (Email.DEBUG) {
+                        Log.d(TAG, "User accepts; advance to next step");
+                    }
                     activity.tryAdvanceSecurity(activity.mAccount);
                     break;
                 case DialogInterface.BUTTON_NEGATIVE:
+                    if (Email.DEBUG) {
+                        Log.d(TAG, "User declines; repost notification");
+                    }
                     activity.repostNotification(
                             activity.mAccount, SecurityPolicy.getInstance(activity));
                     activity.finish();

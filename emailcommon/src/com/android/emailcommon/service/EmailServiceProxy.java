@@ -20,6 +20,7 @@ import com.android.emailcommon.Api;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.Policy;
 
 import android.content.Context;
 import android.content.Intent;
@@ -212,7 +213,7 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
             return bundle;
         } else {
             Bundle bundle = (Bundle) mReturn;
-            bundle.setClassLoader(PolicySet.class.getClassLoader());
+            bundle.setClassLoader(Policy.class.getClassLoader());
             Log.v(TAG, "validate returns " + bundle.getInt(VALIDATE_BUNDLE_RESULT_CODE));
             return bundle;
         }

@@ -15,16 +15,16 @@
  */
 package com.android.emailcommon.service;
 
-import com.android.emailcommon.service.PolicySet;
+import com.android.emailcommon.provider.Policy;
 
 interface IPolicyService {
-    boolean isActive(in PolicySet policies);
+    boolean isActive(in Policy policies);
     void policiesRequired(long accountId);
-    void updatePolicies(long accountId);
+    void policiesUpdated(long accountId);
     void setAccountHoldFlag(long accountId, boolean newState);
     boolean isActiveAdmin();
     // This is about as oneway as you can get
     oneway void remoteWipe();
-    boolean isSupported(in PolicySet policies);
-    PolicySet clearUnsupportedPolicies(in PolicySet policies);
+    boolean isSupported(in Policy policies);
+    Policy clearUnsupportedPolicies(in Policy policies);
 }

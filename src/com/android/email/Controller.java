@@ -37,6 +37,7 @@ import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Service;
 import android.content.ContentResolver;
@@ -1006,6 +1007,15 @@ public class Controller {
     }
 
     /**
+     * Backup our accounts; define this here so that unit tests can override the behavior
+     * @param context the caller's context
+     */
+    @VisibleForTesting
+    protected void backupAccounts(Context context) {
+        AccountBackupRestore.backupAccounts(context);
+    }
+
+    /**
      * Delete an account synchronously.
      */
     public void deleteAccountSync(long accountId, Context context) {
@@ -1030,8 +1040,7 @@ public class Controller {
                     EmailContent.Account.CONTENT_URI, accountId);
             context.getContentResolver().delete(uri, null, null);
 
-            // Update the backup (side copy) of the accounts
-            AccountBackupRestore.backupAccounts(context);
+            backupAccounts(context);
 
             // Release or relax device administration, if relevant
             SecurityPolicy.getInstance(context).reducePolicies();

@@ -1,0 +1,395 @@
+/*
+ * Copyright (C) 2011 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.emailcommon.provider;
+import com.android.emailcommon.utility.Utility;
+
+import android.app.admin.DevicePolicyManager;
+import android.content.ContentProviderOperation;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.os.RemoteException;
+import android.util.Log;
+
+import java.util.ArrayList;
+
+/**
+ * The Policy class represents a set of security requirements that are associated with an Account.
+ * The requirements may be either device-specific (e.g. password) or application-specific (e.g.
+ * a limit on the sync window for the Account)
+ */
+public final class Policy extends EmailContent implements EmailContent.PolicyColumns, Parcelable {
+    // STOPSHIP Change to false after a few days of debugging
+    public static final boolean DEBUG_POLICY = true;  // DO NOT SUBMIT WITH THIS SET TO FALSE
+    public static final String TAG = "Email/Policy";
+
+    public static final String TABLE_NAME = "Policy";
+    @SuppressWarnings("hiding")
+    public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/policy");
+
+    /* Convert days to mSec (used for password expiration) */
+    private static final long DAYS_TO_MSEC = 24 * 60 * 60 * 1000;
+    /* Small offset (2 minutes) added to policy expiration to make user testing easier. */
+    private static final long EXPIRATION_OFFSET_MSEC = 2 * 60 * 1000;
+
+    public static final int PASSWORD_MODE_NONE = 0;
+    public static final int PASSWORD_MODE_SIMPLE = 1;
+    public static final int PASSWORD_MODE_STRONG = 2;
+
+    public int mPasswordMode;
+    public int mPasswordMinLength;
+    public int mPasswordMaxFails;
+    public int mPasswordExpirationDays;
+    public int mPasswordHistory;
+    public int mPasswordComplexChars;
+    public int mMaxScreenLockTime;
+    public boolean mRequireRemoteWipe;
+    public boolean mRequireEncryption;
+    public boolean mRequireEncryptionExternal;
+
+    public static final int CONTENT_ID_COLUMN = 0;
+    public static final int CONTENT_PASSWORD_MODE_COLUMN = 1;
+    public static final int CONTENT_PASSWORD_MIN_LENGTH_COLUMN = 2;
+    public static final int CONTENT_PASSWORD_EXPIRATION_DAYS_COLUMN = 3;
+    public static final int CONTENT_PASSWORD_HISTORY_COLUMN = 4;
+    public static final int CONTENT_PASSWORD_COMPLEX_CHARS_COLUMN = 5;
+    public static final int CONTENT_PASSWORD_MAX_FAILS_COLUMN = 6;
+    public static final int CONTENT_MAX_SCREEN_LOCK_TIME_COLUMN = 7;
+    public static final int CONTENT_REQUIRE_REMOTE_WIPE_COLUMN = 8;
+    public static final int CONTENT_REQUIRE_ENCRYPTION_COLUMN = 9;
+    public static final int CONTENT_REQUIRE_ENCRYPTION_EXTERNAL_COLUMN = 10;
+
+    public static final String[] CONTENT_PROJECTION = new String[] {RECORD_ID,
+        PolicyColumns.PASSWORD_MODE, PolicyColumns.PASSWORD_MIN_LENGTH,
+        PolicyColumns.PASSWORD_EXPIRATION_DAYS, PolicyColumns.PASSWORD_HISTORY,
+        PolicyColumns.PASSWORD_COMPLEX_CHARS, PolicyColumns.PASSWORD_MAX_FAILS,
+        PolicyColumns.MAX_SCREEN_LOCK_TIME, PolicyColumns.REQUIRE_REMOTE_WIPE,
+        PolicyColumns.REQUIRE_ENCRYPTION, PolicyColumns.REQUIRE_ENCRYPTION_EXTERNAL
+    };
+
+    public static final Policy NO_POLICY = new Policy();
+
+    public Policy() {
+        mBaseUri = CONTENT_URI;
+        // By default, the password mode is "none"
+        mPasswordMode = PASSWORD_MODE_NONE;
+        // All server policies require the ability to wipe the device
+        mRequireRemoteWipe = true;
+    }
+
+    public static Policy restorePolicyWithId(Context context, long id) {
+        return EmailContent.restoreContentWithId(context, Policy.class, Policy.CONTENT_URI,
+                Policy.CONTENT_PROJECTION, id);
+    }
+
+    public static long getAccountIdWithPolicyKey(Context context, long id) {
+        return Utility.getFirstRowLong(context, Account.CONTENT_URI, Account.ID_PROJECTION,
+                AccountColumns.POLICY_KEY + "=?", new String[] {Long.toString(id)}, null,
+                Account.ID_PROJECTION_COLUMN);
+    }
+
+    // We override this method to insure that we never write invalid policy data to the provider
+    public Uri save(Context context) {
+        normalize();
+        return super.save(context);
+    }
+
+    /**
+     * Associate the policy with an account; this also removes any other policy associated with
+     * the account and sets the policy key for the account.  This is all done atomically
+     * @param context the caller's context
+     * @param account the account whose policy is to be set
+     * @param securitySyncKey the current security sync key for this account
+     */
+    public void setAccountPolicy(Context context, Account account, String securitySyncKey) {
+        if (DEBUG_POLICY) {
+            Log.d(TAG, "Set policy for account " + account.mDisplayName + ": " + toString());
+        }
+        // Make sure this is a valid policy set
+        normalize();
+        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+        // Add the new policy (no account will yet reference this)
+        ops.add(ContentProviderOperation.newInsert(
+                Policy.CONTENT_URI).withValues(toContentValues()).build());
+        // Delete the previous policy associated with this account, if any
+        if (account.mPolicyKey > 0) {
+            ops.add(ContentProviderOperation.newDelete(
+                    ContentUris.withAppendedId(Policy.CONTENT_URI, account.mPolicyKey)).build());
+        }
+        // Make the policyKey of the account our newly created policy, and set the sync key
+        ops.add(ContentProviderOperation.newUpdate(
+                ContentUris.withAppendedId(Account.CONTENT_URI, account.mId))
+                .withValueBackReference(AccountColumns.POLICY_KEY, 0)
+                .withValue(AccountColumns.SECURITY_SYNC_KEY, securitySyncKey)
+                .build());
+        try {
+            context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
+        } catch (RemoteException e) {
+           // This is fatal to a remote process
+            throw new IllegalStateException("Exception setting account policy.");
+        } catch (OperationApplicationException e) {
+            // Can't happen; our provider doesn't throw this exception
+        }
+    }
+
+    /**
+     * Clear any existing policy for a given account and clear the account's security sync key,
+     * and do so atomically
+     * @param context the caller's context
+     * @param account the account whose policy is to be cleared
+     */
+    public static void clearAccountPolicy(Context context, Account account) {
+        if (DEBUG_POLICY) {
+            Log.d(TAG, "Clearing policy for account: " + account.mDisplayName);
+        }
+        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+        // Delete the previous policy associated with this account, if any
+        if (account.mPolicyKey > 0) {
+            ops.add(ContentProviderOperation.newDelete(
+                    ContentUris.withAppendedId(Policy.CONTENT_URI, account.mPolicyKey)).build());
+        }
+        // Clear the security sync key and policy key
+        ops.add(ContentProviderOperation.newUpdate(
+                ContentUris.withAppendedId(Account.CONTENT_URI, account.mId))
+                .withValue(AccountColumns.SECURITY_SYNC_KEY, null)
+                .withValue(AccountColumns.POLICY_KEY, 0)
+                .build());
+        try {
+            context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
+        } catch (RemoteException e) {
+            // This is fatal to a remote process
+            throw new IllegalStateException("Exception setting account policy.");
+        } catch (OperationApplicationException e) {
+            // Can't happen; our provider doesn't throw this exception
+        }
+    }
+
+    /**
+     * Normalize the Policy.  If the password mode is "none", zero out all password-related fields;
+     * zero out complex characters for simple passwords.
+     */
+    public void normalize() {
+        if (mPasswordMode == PASSWORD_MODE_NONE) {
+            mPasswordMaxFails = 0;
+            mMaxScreenLockTime = 0;
+            mPasswordMinLength = 0;
+            mPasswordComplexChars = 0;
+            mPasswordHistory = 0;
+            mPasswordExpirationDays = 0;
+        } else {
+            if ((mPasswordMode != PASSWORD_MODE_SIMPLE) &&
+                    (mPasswordMode != PASSWORD_MODE_STRONG)) {
+                throw new IllegalArgumentException("password mode");
+            }
+            // If we're only requiring a simple password, set complex chars to zero; note
+            // that EAS can erroneously send non-zero values in this case
+            if (mPasswordMode == PASSWORD_MODE_SIMPLE) {
+                mPasswordComplexChars = 0;
+            }
+        }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Policy)) return false;
+        Policy otherPolicy = (Policy)other;
+        if (mRequireEncryption != otherPolicy.mRequireEncryption) return false;
+        if (mRequireEncryptionExternal != otherPolicy.mRequireEncryptionExternal) return false;
+        if (mRequireRemoteWipe != otherPolicy.mRequireRemoteWipe) return false;
+        if (mMaxScreenLockTime != otherPolicy.mMaxScreenLockTime) return false;
+        if (mPasswordComplexChars != otherPolicy.mPasswordComplexChars) return false;
+        if (mPasswordExpirationDays != otherPolicy.mPasswordExpirationDays) return false;
+        if (mPasswordHistory != otherPolicy.mPasswordHistory) return false;
+        if (mPasswordMaxFails != otherPolicy.mPasswordMaxFails) return false;
+        if (mPasswordMinLength != otherPolicy.mPasswordMinLength) return false;
+        if (mPasswordMode != otherPolicy.mPasswordMode) return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int code = mRequireEncryption ? 1 : 0;
+        code += (mRequireEncryptionExternal ? 1 : 0) << 1;
+        code += (mRequireRemoteWipe ? 1 : 0) << 2;
+        code += (mMaxScreenLockTime << 3);
+        code += (mPasswordComplexChars << 6);
+        code += (mPasswordExpirationDays << 12);
+        code += (mPasswordHistory << 15);
+        code += (mPasswordMaxFails << 18);
+        code += (mPasswordMinLength << 22);
+        code += (mPasswordMode << 26);
+        return code;
+    }
+
+    @Override
+    public void restore(Cursor cursor) {
+        mBaseUri = CONTENT_URI;
+        mId = cursor.getLong(CONTENT_ID_COLUMN);
+        mPasswordMode = cursor.getInt(CONTENT_PASSWORD_MODE_COLUMN);
+        mPasswordMinLength = cursor.getInt(CONTENT_PASSWORD_MIN_LENGTH_COLUMN);
+        mPasswordMaxFails = cursor.getInt(CONTENT_PASSWORD_MAX_FAILS_COLUMN);
+        mPasswordHistory = cursor.getInt(CONTENT_PASSWORD_HISTORY_COLUMN);
+        mPasswordExpirationDays = cursor.getInt(CONTENT_PASSWORD_EXPIRATION_DAYS_COLUMN);
+        mPasswordComplexChars = cursor.getInt(CONTENT_PASSWORD_COMPLEX_CHARS_COLUMN);
+        mMaxScreenLockTime = cursor.getInt(CONTENT_MAX_SCREEN_LOCK_TIME_COLUMN);
+        mRequireRemoteWipe = cursor.getInt(CONTENT_REQUIRE_REMOTE_WIPE_COLUMN) == 1;
+        mRequireEncryption = cursor.getInt(CONTENT_REQUIRE_ENCRYPTION_COLUMN) == 1;
+        mRequireEncryptionExternal =
+            cursor.getInt(CONTENT_REQUIRE_ENCRYPTION_EXTERNAL_COLUMN) == 1;
+    }
+
+    @Override
+    public ContentValues toContentValues() {
+        ContentValues values = new ContentValues();
+        values.put(PolicyColumns.PASSWORD_MODE, mPasswordMode);
+        values.put(PolicyColumns.PASSWORD_MIN_LENGTH, mPasswordMinLength);
+        values.put(PolicyColumns.PASSWORD_MAX_FAILS, mPasswordMaxFails);
+        values.put(PolicyColumns.PASSWORD_HISTORY, mPasswordHistory);
+        values.put(PolicyColumns.PASSWORD_EXPIRATION_DAYS, mPasswordExpirationDays);
+        values.put(PolicyColumns.PASSWORD_COMPLEX_CHARS, mPasswordComplexChars);
+        values.put(PolicyColumns.MAX_SCREEN_LOCK_TIME, mMaxScreenLockTime);
+        values.put(PolicyColumns.REQUIRE_REMOTE_WIPE, mRequireRemoteWipe);
+        values.put(PolicyColumns.REQUIRE_ENCRYPTION, mRequireEncryption);
+        values.put(PolicyColumns.REQUIRE_ENCRYPTION_EXTERNAL, mRequireEncryptionExternal);
+        return values;
+    }
+
+    /**
+     * Helper to map our internal encoding to DevicePolicyManager password modes.
+     */
+    public int getDPManagerPasswordQuality() {
+        switch (mPasswordMode) {
+            case PASSWORD_MODE_SIMPLE:
+                return DevicePolicyManager.PASSWORD_QUALITY_NUMERIC;
+            case PASSWORD_MODE_STRONG:
+                if (mPasswordComplexChars == 0) {
+                    return DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC;
+                } else {
+                    return DevicePolicyManager.PASSWORD_QUALITY_COMPLEX;
+                }
+            default:
+                return DevicePolicyManager .PASSWORD_QUALITY_UNSPECIFIED;
+        }
+    }
+
+    /**
+     * Helper to map expiration times to the millisecond values used by DevicePolicyManager.
+     */
+    public long getDPManagerPasswordExpirationTimeout() {
+        long result = mPasswordExpirationDays * DAYS_TO_MSEC;
+        // Add a small offset to the password expiration.  This makes it easier to test
+        // by changing (for example) 1 day to 1 day + 5 minutes.  If you set an expiration
+        // that is within the warning period, you should get a warning fairly quickly.
+        if (result > 0) {
+            result += EXPIRATION_OFFSET_MSEC;
+        }
+        return result;
+    }
+
+    private void appendPolicy(StringBuilder sb, String code, int value) {
+        sb.append(code);
+        sb.append(":");
+        sb.append(value);
+        sb.append(" ");
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[");
+        if (this.equals(NO_POLICY)) {
+            sb.append("No policies]");
+        } else {
+            if (mPasswordMode == PASSWORD_MODE_NONE) {
+                sb.append("Pwd no ");
+            } else {
+                appendPolicy(sb, "Pwd strong", mPasswordMode == PASSWORD_MODE_STRONG ? 1 : 0);
+                appendPolicy(sb, "len", mPasswordMinLength);
+                appendPolicy(sb, "cmpx", mPasswordComplexChars);
+                appendPolicy(sb, "expy", mPasswordExpirationDays);
+                appendPolicy(sb, "hist", mPasswordHistory);
+                appendPolicy(sb, "fail", mPasswordMaxFails);
+                appendPolicy(sb, "idle", mMaxScreenLockTime);
+            }
+            appendPolicy(sb, "crypt", mRequireEncryption ? 1 : 0);
+            appendPolicy(sb, "crypt/ex", mRequireEncryptionExternal ? 1 : 0);
+            sb.append("]");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Supports Parcelable
+     */
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
+     * Supports Parcelable
+     */
+    public static final Parcelable.Creator<Policy> CREATOR = new Parcelable.Creator<Policy>() {
+        public Policy createFromParcel(Parcel in) {
+            return new Policy(in);
+        }
+
+        public Policy[] newArray(int size) {
+            return new Policy[size];
+        }
+    };
+
+    /**
+     * Supports Parcelable
+     */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        // mBaseUri is not parceled
+        dest.writeLong(mId);
+        dest.writeInt(mPasswordMode);
+        dest.writeInt(mPasswordMinLength);
+        dest.writeInt(mPasswordMaxFails);
+        dest.writeInt(mPasswordHistory);
+        dest.writeInt(mPasswordExpirationDays);
+        dest.writeInt(mPasswordComplexChars);
+        dest.writeInt(mMaxScreenLockTime);
+        dest.writeInt(mRequireRemoteWipe ? 1 : 0);
+        dest.writeInt(mRequireEncryption ? 1 : 0);
+        dest.writeInt(mRequireEncryptionExternal ? 1 : 0);
+    }
+
+    /**
+     * Supports Parcelable
+     */
+    public Policy(Parcel in) {
+        mBaseUri = CONTENT_URI;
+        mId = in.readLong();
+        mPasswordMode = in.readInt();
+        mPasswordMinLength = in.readInt();
+        mPasswordMaxFails = in.readInt();
+        mPasswordHistory = in.readInt();
+        mPasswordExpirationDays = in.readInt();
+        mPasswordComplexChars = in.readInt();
+        mMaxScreenLockTime = in.readInt();
+        mRequireRemoteWipe = in.readInt() == 1;
+        mRequireEncryption = in.readInt() == 1;
+        mRequireEncryptionExternal = in.readInt() == 1;
+    }
+}

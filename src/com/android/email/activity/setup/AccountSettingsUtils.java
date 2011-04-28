@@ -59,8 +59,8 @@ public class AccountSettingsUtils {
     }
 
     /**
-     * Returns a set of content values to commit account changes (not including HostAuth) to
-     * the database.  Does not actually commit anything.
+     * Returns a set of content values to commit account changes (not including the foreign keys
+     * for the two host auth's and policy) to the database.  Does not actually commit anything.
      */
     public static ContentValues getAccountContentValues(EmailContent.Account account) {
         ContentValues cv = new ContentValues();
@@ -72,7 +72,6 @@ public class AccountSettingsUtils {
         cv.put(AccountColumns.RINGTONE_URI, account.mRingtoneUri);
         cv.put(AccountColumns.FLAGS, account.mFlags);
         cv.put(AccountColumns.SYNC_LOOKBACK, account.mSyncLookback);
-        cv.put(AccountColumns.SECURITY_FLAGS, account.mSecurityFlags);
         cv.put(AccountColumns.SECURITY_SYNC_KEY, account.mSecuritySyncKey);
         return cv;
     }

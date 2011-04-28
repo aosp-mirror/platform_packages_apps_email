@@ -33,7 +33,10 @@ import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.service.LegacyPolicySet;
 import com.google.common.annotations.VisibleForTesting;
 
 import android.accounts.AccountManager;
@@ -53,6 +56,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.os.Debug;
 import android.util.Log;
 
 import java.io.File;
@@ -93,7 +97,9 @@ public class EmailProvider extends ContentProvider {
     /*package*/ static final ContentCache sCacheMailbox =
         new ContentCache("Mailbox", Mailbox.CONTENT_PROJECTION, 8);
     private static final ContentCache sCacheMessage =
-        new ContentCache("Message", Message.CONTENT_PROJECTION, 3);
+        new ContentCache("Message", Message.CONTENT_PROJECTION, 8);
+    private static final ContentCache sCachePolicy =
+        new ContentCache("Policy", Policy.CONTENT_PROJECTION, 4);
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 3
@@ -114,7 +120,9 @@ public class EmailProvider extends ContentProvider {
     // Version 17: Add parentKey to Mailbox table
     // Version 18: Copy Mailbox.displayName to Mailbox.serverId for all IMAP & POP3 mailboxes.
     //             Column Mailbox.serverId is used for the server-side pathname of a mailbox.
-    public static final int DATABASE_VERSION = 18;
+    // Version 19: Add Policy table; add policyKey to Account table and trigger to delete an
+    //             Account's policy when the Account is deleted
+    public static final int DATABASE_VERSION = 19;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -158,8 +166,12 @@ public class EmailProvider extends ContentProvider {
     private static final int DELETED_MESSAGE = DELETED_MESSAGE_BASE;
     private static final int DELETED_MESSAGE_ID = DELETED_MESSAGE_BASE + 1;
 
+    private static final int POLICY_BASE = 0x7000;
+    private static final int POLICY = POLICY_BASE;
+    private static final int POLICY_ID = POLICY_BASE + 1;
+
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
-    private static final int LAST_EMAIL_PROVIDER_DB_BASE = DELETED_MESSAGE_BASE;
+    private static final int LAST_EMAIL_PROVIDER_DB_BASE = POLICY_BASE;
 
     // DO NOT CHANGE BODY_BASE!!
     private static final int BODY_BASE = LAST_EMAIL_PROVIDER_DB_BASE + 0x1000;
@@ -178,6 +190,7 @@ public class EmailProvider extends ContentProvider {
         EmailContent.HostAuth.TABLE_NAME,
         EmailContent.Message.UPDATED_TABLE_NAME,
         EmailContent.Message.DELETED_TABLE_NAME,
+        Policy.TABLE_NAME,
         EmailContent.Body.TABLE_NAME
     };
 
@@ -186,11 +199,13 @@ public class EmailProvider extends ContentProvider {
         sCacheAccount,
         sCacheMailbox,
         sCacheMessage,
-        null,
+        null, // Attachment
         sCacheHostAuth,
-        null,
-        null,
-        null};
+        null, // Updated message
+        null, // Deleted message
+        sCachePolicy,
+        null  // Body
+    };
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -228,6 +243,18 @@ public class EmailProvider extends ContentProvider {
         "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
         "; delete from " + Message.DELETED_TABLE_NAME +
         "  where " + MessageColumns.MAILBOX_KEY + "=old." + EmailContent.RECORD_ID +
+        "; end";
+
+    private static final String TRIGGER_ACCOUNT_DELETE =
+        "create trigger account_delete before delete on " + Account.TABLE_NAME +
+        " begin delete from " + Mailbox.TABLE_NAME +
+        " where " + MailboxColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID +
+        "; delete from " + HostAuth.TABLE_NAME +
+        " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.HOST_AUTH_KEY_RECV +
+        "; delete from " + HostAuth.TABLE_NAME +
+        " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.HOST_AUTH_KEY_SEND +
+        "; delete from " + Policy.TABLE_NAME +
+        " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.POLICY_KEY +
         "; end";
 
     private static final ContentValues CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
@@ -312,6 +339,9 @@ public class EmailProvider extends ContentProvider {
 
         CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT = new ContentValues();
         CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT.put(Account.NEW_MESSAGE_COUNT, 0);
+
+        matcher.addURI(EmailContent.AUTHORITY, "policy", POLICY);
+        matcher.addURI(EmailContent.AUTHORITY, "policy/#", POLICY_ID);
     }
 
 
@@ -505,18 +535,12 @@ public class EmailProvider extends ContentProvider {
             + AccountColumns.NEW_MESSAGE_COUNT + " integer, "
             + AccountColumns.SECURITY_FLAGS + " integer, "
             + AccountColumns.SECURITY_SYNC_KEY + " text, "
-            + AccountColumns.SIGNATURE + " text "
+            + AccountColumns.SIGNATURE + " text, "
+            + AccountColumns.POLICY_KEY + " integer"
             + ");";
         db.execSQL("create table " + Account.TABLE_NAME + s);
         // Deleting an account deletes associated Mailboxes and HostAuth's
-        db.execSQL("create trigger account_delete before delete on " + Account.TABLE_NAME +
-                " begin delete from " + Mailbox.TABLE_NAME +
-                " where " + MailboxColumns.ACCOUNT_KEY + "=old." + EmailContent.RECORD_ID +
-                "; delete from " + HostAuth.TABLE_NAME +
-                " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.HOST_AUTH_KEY_RECV +
-                "; delete from " + HostAuth.TABLE_NAME +
-                " where " + EmailContent.RECORD_ID + "=old." + AccountColumns.HOST_AUTH_KEY_SEND +
-        "; end");
+        db.execSQL(TRIGGER_ACCOUNT_DELETE);
     }
 
     static void resetAccountTable(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -525,6 +549,22 @@ public class EmailProvider extends ContentProvider {
         } catch (SQLException e) {
         }
         createAccountTable(db);
+    }
+
+    static void createPolicyTable(SQLiteDatabase db) {
+        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
+            + PolicyColumns.PASSWORD_MODE + " integer, "
+            + PolicyColumns.PASSWORD_MIN_LENGTH + " integer, "
+            + PolicyColumns.PASSWORD_EXPIRATION_DAYS + " integer, "
+            + PolicyColumns.PASSWORD_HISTORY + " integer, "
+            + PolicyColumns.PASSWORD_COMPLEX_CHARS + " integer, "
+            + PolicyColumns.PASSWORD_MAX_FAILS + " integer, "
+            + PolicyColumns.MAX_SCREEN_LOCK_TIME + " integer, "
+            + PolicyColumns.REQUIRE_REMOTE_WIPE + " integer, "
+            + PolicyColumns.REQUIRE_ENCRYPTION + " integer, "
+            + PolicyColumns.REQUIRE_ENCRYPTION_EXTERNAL + " integer"
+            + ");";
+        db.execSQL("create table " + Policy.TABLE_NAME + s);
     }
 
     static void createHostAuthTable(SQLiteDatabase db) {
@@ -783,6 +823,7 @@ public class EmailProvider extends ContentProvider {
             createMailboxTable(db);
             createHostAuthTable(db);
             createAccountTable(db);
+            createPolicyTable(db);
         }
 
         @Override
@@ -951,6 +992,21 @@ public class EmailProvider extends ContentProvider {
                 upgradeFromVersion17ToVersion18(db);
                 oldVersion = 18;
             }
+            if (oldVersion == 18) {
+                Debug.waitForDebugger();
+                try {
+                    db.execSQL("alter table " + Account.TABLE_NAME
+                            + " add column " + Account.POLICY_KEY + " integer;");
+                    db.execSQL("drop trigger account_delete;");
+                    db.execSQL(TRIGGER_ACCOUNT_DELETE);
+                    createPolicyTable(db);
+                    convertPolicyFlagsToPolicyTable(db);
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 18 to 19 " + e);
+                }
+                oldVersion = 19;
+            }
         }
 
         @Override
@@ -1009,6 +1065,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX_ID:
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
+                case POLICY_ID:
                     id = uri.getPathSegments().get(1);
                     if (match == SYNCED_MESSAGE_ID) {
                         // For synced messages, first copy the old message to the deleted table and
@@ -1062,6 +1119,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX:
                 case ACCOUNT:
                 case HOSTAUTH:
+                case POLICY:
                     switch(match) {
                         // See the comments above for deletion of ACCOUNT_ID, etc
                         case ACCOUNT:
@@ -1185,6 +1243,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX:
                 case ACCOUNT:
                 case HOSTAUTH:
+                case POLICY:
                     id = db.insert(TABLE_NAMES[table], "foo", values);
                     resultUri = ContentUris.withAppendedId(uri, id);
                     // Clients shouldn't normally be adding rows to these tables, as they are
@@ -1298,6 +1357,7 @@ public class EmailProvider extends ContentProvider {
                     case MAILBOX_ID:
                     case ACCOUNT_ID:
                     case HOSTAUTH_ID:
+                    case POLICY_ID:
                         return new MatrixCursor(projection, 0);
                 }
             }
@@ -1331,6 +1391,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX:
                 case ACCOUNT:
                 case HOSTAUTH:
+                case POLICY:
                     c = db.query(tableName, projection,
                             selection, selectionArgs, null, null, sortOrder, limit);
                     break;
@@ -1342,6 +1403,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX_ID:
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
+                case POLICY_ID:
                     id = uri.getPathSegments().get(1);
                     if (cache != null) {
                         c = cache.getCachedCursor(id, projection);
@@ -1615,6 +1677,25 @@ public class EmailProvider extends ContentProvider {
                 "= (select count(*) from " + Message.TABLE_NAME +
                 " where " + Message.MAILBOX_KEY + " = " +
                     Mailbox.TABLE_NAME + "." + EmailContent.RECORD_ID + ")");
+    }
+
+    @VisibleForTesting
+    void convertPolicyFlagsToPolicyTable(SQLiteDatabase db) {
+        Debug.waitForDebugger();
+        Cursor c = db.query(Account.TABLE_NAME,
+                new String[] {EmailContent.RECORD_ID /*0*/, AccountColumns.SECURITY_FLAGS /*1*/},
+                AccountColumns.SECURITY_FLAGS + ">0", null, null, null, null);
+        ContentValues cv = new ContentValues();
+        String[] args = new String[1];
+        while (c.moveToNext()) {
+            long securityFlags = c.getLong(1 /*SECURITY_FLAGS*/);
+            Policy policy = LegacyPolicySet.flagsToPolicy(securityFlags);
+            long policyId = db.insert(Policy.TABLE_NAME, null, policy.toContentValues());
+            cv.put(AccountColumns.POLICY_KEY, policyId);
+            cv.putNull(AccountColumns.SECURITY_FLAGS);
+            args[0] = Long.toString(c.getLong(0 /*RECORD_ID*/));
+            db.update(Account.TABLE_NAME, cv, EmailContent.RECORD_ID + "=?", args);
+        }
     }
 
     /** Upgrades the database from v17 to v18 */

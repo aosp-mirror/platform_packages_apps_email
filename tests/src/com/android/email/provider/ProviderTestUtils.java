@@ -64,7 +64,7 @@ public class ProviderTestUtils extends Assert {
         account.mRingtoneUri = "content://ringtone-" + name;
         account.mProtocolVersion = "2.5" + name;
         account.mNewMessageCount = 5 + name.length();
-        account.mSecurityFlags = 7;
+        account.mPolicyKey = 0;
         account.mSecuritySyncKey = "sec-sync-key-" + name;
         account.mSignature = "signature-" + name;
         if (saveIt) {
@@ -319,7 +319,7 @@ public class ProviderTestUtils extends Assert {
                 actual.mProtocolVersion);
         assertEquals(caller + " mNewMessageCount", expect.mNewMessageCount,
                 actual.mNewMessageCount);
-        assertEquals(caller + " mSecurityFlags", expect.mSecurityFlags, actual.mSecurityFlags);
+        assertEquals(caller + " mPolicyKey", expect.mPolicyKey, actual.mPolicyKey);
         assertEquals(caller + " mSecuritySyncKey", expect.mSecuritySyncKey,
                 actual.mSecuritySyncKey);
         assertEquals(caller + " mSignature", expect.mSignature, actual.mSignature);
