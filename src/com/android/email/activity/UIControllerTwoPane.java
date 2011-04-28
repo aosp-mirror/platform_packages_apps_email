@@ -122,6 +122,7 @@ class UIControllerTwoPane implements
     private MailboxFinder mMailboxFinder;
 
     private final RefreshManager mRefreshManager;
+    private final RefreshListener mRefreshListener = new RefreshListener();
     private MessageOrderManager mOrderManager;
     private final MessageOrderManagerCallback mMessageOrderManagerCallback =
         new MessageOrderManagerCallback();
@@ -506,6 +507,7 @@ class UIControllerTwoPane implements
      * Called by the host activity at the end of {@link Activity#onCreate}.
      */
     public void onActivityCreated() {
+        mRefreshManager.registerListener(mRefreshListener);
         loadAccounts();
     }
 
@@ -576,6 +578,7 @@ class UIControllerTwoPane implements
         mHoldFragmentInstallation = true; // No more fragment installation.
         mTaskTracker.cancellAllInterrupt();
         closeMailboxFinder();
+        mRefreshManager.unregisterListener(mRefreshListener);
     }
 
     public void onSaveInstanceState(Bundle outState) {
@@ -763,7 +766,7 @@ class UIControllerTwoPane implements
         if (changeVisiblePane) {
             mThreePane.showLeftPane();
         }
-        mActivity.updateRefreshProgress();
+        updateRefreshProgress();
     }
 
     /**
@@ -816,7 +819,7 @@ class UIControllerTwoPane implements
         }
 
         mMailboxListFragment.setSelectedMailbox(mailboxId);
-        mActivity.updateRefreshProgress();
+        updateRefreshProgress();
     }
 
     /**
@@ -1126,6 +1129,29 @@ class UIControllerTwoPane implements
         // Cancel previously running instance if any.
         new RefreshTask(mTaskTracker, mActivity, getActualAccountId(),
                 getMailboxId()).cancelPreviousAndExecuteParallel();
+    }
+
+    /**
+     * Start/stop the "refresh" animation on the action bar according to the current refresh state.
+     *
+     * (We start the animation if {@link UIControllerTwoPane#isRefreshInProgress} returns true,
+     * and stop otherwise.)
+     */
+    private void updateRefreshProgress() {
+        mActivity.invalidateOptionsMenu();
+    }
+
+    private class RefreshListener
+            implements RefreshManager.Listener {
+        @Override
+        public void onMessagingError(final long accountId, long mailboxId, final String message) {
+            updateRefreshProgress();
+        }
+
+        @Override
+        public void onRefreshStatusChanged(long accountId, long mailboxId) {
+            updateRefreshProgress();
+        }
     }
 
     /**

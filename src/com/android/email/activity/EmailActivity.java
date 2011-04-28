@@ -315,29 +315,6 @@ public class EmailActivity extends Activity implements View.OnClickListener {
         mErrorBanner.dismiss();
     }
 
-    private class RefreshListener
-            implements RefreshManager.Listener {
-        @Override
-        public void onMessagingError(final long accountId, long mailboxId, final String message) {
-            updateRefreshProgress();
-        }
-
-        @Override
-        public void onRefreshStatusChanged(long accountId, long mailboxId) {
-            updateRefreshProgress();
-        }
-    }
-
-    /**
-     * Start/stop the "refresh" animation on the action bar according to the current refresh state.
-     *
-     * (We start the animation if {@link UIControllerTwoPane#isRefreshInProgress} returns true,
-     * and stop otherwise.)
-     */
-    public void updateRefreshProgress() {
-        invalidateOptionsMenu();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return mUIController.onCreateOptionsMenu(getMenuInflater(), menu);
