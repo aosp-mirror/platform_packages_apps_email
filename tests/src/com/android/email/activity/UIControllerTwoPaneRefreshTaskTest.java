@@ -29,14 +29,14 @@ import android.test.suitebuilder.annotation.SmallTest;
 import junit.framework.Assert;
 
 /**
- * Tests for {@link MessageListXL.RefreshTask}.
+ * Tests for {@link UIControllerTwoPane.RefreshTask}.
  *
  * TOOD Add more tests.
  * Right now, it only has tests for the "shouldXxx" methods, because it's hard to notice when
  * they're subtly broken.  (And the spec may change.)
  */
 @SmallTest
-public class MessageListXLRefreshTaskTest extends AndroidTestCase {
+public class UIControllerTwoPaneRefreshTaskTest extends AndroidTestCase {
     private MockClock mClock = new MockClock();
     private MockRefreshManager mRefreshManager;
 
@@ -57,8 +57,8 @@ public class MessageListXLRefreshTaskTest extends AndroidTestCase {
         final long ACCOUNT_ID = 5;
         final long MAILBOX_ID = 10;
 
-        MessageListXL.RefreshTask task = new MessageListXL.RefreshTask(null, getContext(),
-                ACCOUNT_ID, MAILBOX_ID, mClock, mRefreshManager);
+        UIControllerTwoPane.RefreshTask task = new UIControllerTwoPane.RefreshTask(null,
+                getContext(), ACCOUNT_ID, MAILBOX_ID, mClock, mRefreshManager);
 
         mRefreshManager.mExpectedAccountId = ACCOUNT_ID;
 
@@ -88,7 +88,7 @@ public class MessageListXLRefreshTaskTest extends AndroidTestCase {
         // Not refreshing, refreshed TIMEOUT-1 ago == should NOT sync
         mRefreshManager.mLastMailboxListRefresTime = 1234567890;
         mClock.mTime = mRefreshManager.mLastMailboxListRefresTime
-            + MessageListXL.MAILBOX_REFRESH_MIN_INTERVAL - 1;
+            + UIControllerTwoPane.MAILBOX_REFRESH_MIN_INTERVAL - 1;
         assertFalse(task.shouldRefreshMailboxList());
 
         // 1 ms laster... should sync.
@@ -100,8 +100,8 @@ public class MessageListXLRefreshTaskTest extends AndroidTestCase {
         final long ACCOUNT_ID = 5;
         final long MAILBOX_ID = 10;
 
-        MessageListXL.RefreshTask task = new MessageListXL.RefreshTask(null, getContext(),
-                ACCOUNT_ID, MAILBOX_ID, mClock, mRefreshManager);
+        UIControllerTwoPane.RefreshTask task = new UIControllerTwoPane.RefreshTask(null,
+                getContext(), ACCOUNT_ID, MAILBOX_ID, mClock, mRefreshManager);
 
         mRefreshManager.mExpectedAccountId = ACCOUNT_ID;
 
@@ -142,7 +142,7 @@ public class MessageListXLRefreshTaskTest extends AndroidTestCase {
         // Not refreshing, refreshed TIMEOUT-1 ago == should NOT sync
         mRefreshManager.mLastMessageListRefresTime = 1234567890;
         mClock.mTime = mRefreshManager.mLastMessageListRefresTime
-            + MessageListXL.INBOX_AUTO_REFRESH_MIN_INTERVAL - 1;
+            + UIControllerTwoPane.INBOX_AUTO_REFRESH_MIN_INTERVAL - 1;
         assertFalse(task.shouldAutoRefreshInbox());
 
         // 1 ms laster... should sync.

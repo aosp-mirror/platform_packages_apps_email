@@ -16,22 +16,32 @@
 
 package com.android.email.activity;
 
+import com.android.email.Clock;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.activity.setup.AccountSecurity;
+import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
 
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Context;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -40,8 +50,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 /**
- * A class manages what are showing on {@link MessageListXL} (i.e. account id, mailbox id, and
- * message id), and show/hide fragments accordingly.
+ * UI Controller for x-large devices.  Supports a multi-pane layout.
  *
  * Note: Always use {@link #commitFragmentTransaction} to commit fragment transactions.  Currently
  * we use synchronous transactions only, but we may want to switch back to asynchronous later.
@@ -49,7 +58,7 @@ import java.util.Set;
  * TODO: Test it.  It's testable if we implement MockFragmentTransaction, which may be too early
  * to do so at this point.  (API may not be stable enough yet.)
  *
- * TODO Refine "move to".
+ * TODO Consider extracting out a separate class to manage the action bar
  */
 class UIControllerTwoPane implements
         MailboxFinder.Callback,
@@ -57,9 +66,15 @@ class UIControllerTwoPane implements
         MailboxListFragment.Callback,
         MessageListFragment.Callback,
         MessageViewFragment.Callback {
-    private static final String BUNDLE_KEY_ACCOUNT_ID = "MessageListXl.state.account_id";
-    private static final String BUNDLE_KEY_MAILBOX_ID = "MessageListXl.state.mailbox_id";
-    private static final String BUNDLE_KEY_MESSAGE_ID = "MessageListXl.state.message_id";
+    private static final String BUNDLE_KEY_ACCOUNT_ID = "UIControllerTwoPane.state.account_id";
+    private static final String BUNDLE_KEY_MAILBOX_ID = "UIControllerTwoPane.state.mailbox_id";
+    private static final String BUNDLE_KEY_MESSAGE_ID = "UIControllerTwoPane.state.message_id";
+
+    /* package */ static final int MAILBOX_REFRESH_MIN_INTERVAL = 30 * 1000; // in milliseconds
+    /* package */ static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
+
+    private static final int LOADER_ID_ACCOUNT_LIST
+            = EmailActivity.UI_CONTROLLER_LOADER_ID_BASE + 0;
 
     /** No account selected */
     static final long NO_ACCOUNT = -1;
@@ -76,11 +91,16 @@ class UIControllerTwoPane implements
     /** Current message id */
     private long mMessageId = NO_MESSAGE;
 
-    // UI elements
+    // Action bar
     private ActionBar mActionBar;
+    private AccountSelectorAdapter mAccountsSelectorAdapter;
+    private final ActionBarNavigationCallback mActionBarNavigationCallback =
+        new ActionBarNavigationCallback();
     private View mActionBarMailboxNameView;
     private TextView mActionBarMailboxName;
     private TextView mActionBarUnreadCount;
+
+    // Other UI elements
     private ThreePaneLayout mThreePane;
 
     /**
@@ -101,7 +121,7 @@ class UIControllerTwoPane implements
 
     private MailboxFinder mMailboxFinder;
 
-    private RefreshManager mRefreshManager;
+    private final RefreshManager mRefreshManager;
     private MessageOrderManager mOrderManager;
     private final MessageOrderManagerCallback mMessageOrderManagerCallback =
         new MessageOrderManagerCallback();
@@ -120,9 +140,11 @@ class UIControllerTwoPane implements
     private boolean mHoldFragmentInstallation = true;
 
     /** The owner activity */
-    private final MessageListXL mActivity;
+    private final EmailActivity mActivity;
 
-    public UIControllerTwoPane(MessageListXL activity) {
+    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
+
+    public UIControllerTwoPane(EmailActivity activity) {
         mActivity = activity;
         mRefreshManager = RefreshManager.getInstance(mActivity);
     }
@@ -233,7 +255,11 @@ class UIControllerTwoPane implements
 
     @Override
     public void onAccountSelected(long accountId) {
-        openAccount(accountId);
+        // TODO openAccount should do the check eventually, but it's necessary for now.
+        if (accountId != getUIAccountId()) {
+            openAccount(accountId);
+            loadAccounts(); // update account spinner
+        }
     }
 
     @Override
@@ -477,9 +503,16 @@ class UIControllerTwoPane implements
     }
 
     /**
+     * Called by the host activity at the end of {@link Activity#onCreate}.
+     */
+    public void onActivityCreated() {
+        loadAccounts();
+    }
+
+    /**
      * Install all the fragments kept in {@link #mRestoredFragments}.
      *
-     * Must be called at the end of {@link MessageListXL#onCreate}.
+     * Must be called at the end of {@link EmailActivity#onCreate}.
      */
     public void installRestoredFragments() {
         mHoldFragmentInstallation = false;
@@ -492,7 +525,7 @@ class UIControllerTwoPane implements
     }
 
     /**
-     * Called by {@link MessageListXL} when a {@link Fragment} is attached.
+     * Called by {@link EmailActivity} when a {@link Fragment} is attached.
      *
      * If the activity has already been created, we initialize the fragment here.  Otherwise we
      * keep the fragment in {@link #mRestoredFragments} and initialize it after the activity's
@@ -508,7 +541,7 @@ class UIControllerTwoPane implements
     }
 
     /**
-     * Called from {@link MessageListXL#onStart}.
+     * Called from {@link EmailActivity#onStart}.
      */
     public void onStart() {
         if (isMessageSelected()) {
@@ -517,30 +550,31 @@ class UIControllerTwoPane implements
     }
 
     /**
-     * Called from {@link MessageListXL#onResume}.
+     * Called from {@link EmailActivity#onResume}.
      */
     public void onResume() {
         updateActionBar();
     }
 
     /**
-     * Called from {@link MessageListXL#onPause}.
+     * Called from {@link EmailActivity#onPause}.
      */
     public void onPause() {
     }
 
     /**
-     * Called from {@link MessageListXL#onStop}.
+     * Called from {@link EmailActivity#onStop}.
      */
     public void onStop() {
         stopMessageOrderManager();
     }
 
     /**
-     * Called from {@link MessageListXL#onDestroy}.
+     * Called from {@link EmailActivity#onDestroy}.
      */
     public void onDestroy() {
         mHoldFragmentInstallation = true; // No more fragment installation.
+        mTaskTracker.cancellAllInterrupt();
         closeMailboxFinder();
     }
 
@@ -729,17 +763,7 @@ class UIControllerTwoPane implements
         if (changeVisiblePane) {
             mThreePane.showLeftPane();
         }
-        mActivity.onAccountChanged(mAccountId);
-    }
-
-    /**
-     * Handles the back event.
-     *
-     * @param isSystemBackKey See {@link ThreePaneLayout#onBackPressed}
-     * @return true if the event is handled.
-     */
-    public boolean onBackPressed(boolean isSystemBackKey) {
-        return mThreePane.onBackPressed(isSystemBackKey);
+        mActivity.updateRefreshProgress();
     }
 
     /**
@@ -929,5 +953,283 @@ class UIControllerTwoPane implements
             return true;
         }
         return false;
+    }
+
+    /**
+     * Load account list for the action bar.
+     *
+     * If there's only one account configured, show the account name in the action bar.
+     * If more than one account are configured, show a spinner in the action bar, and select the
+     * current account.
+     */
+    private void loadAccounts() {
+        if (mAccountsSelectorAdapter == null) {
+            mAccountsSelectorAdapter = new AccountSelectorAdapter(mActivity);
+        }
+        mActivity.getLoaderManager().initLoader(LOADER_ID_ACCOUNT_LIST, null,
+                new LoaderCallbacks<Cursor>() {
+            @Override
+            public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+                return AccountSelectorAdapter.createLoader(mActivity);
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+                updateAccountList(data);
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Cursor> loader) {
+                mAccountsSelectorAdapter.swapCursor(null);
+            }
+        });
+    }
+
+    /**
+     * Called when the LOADER_ID_ACCOUNT_LIST loader loads the data.  Update the account spinner
+     * on the action bar.
+     */
+    private void updateAccountList(Cursor accountsCursor) {
+        final int count = accountsCursor.getCount();
+        if (count == 0) {
+            // Open Welcome, which in turn shows the adding a new account screen.
+            Welcome.actionStart(mActivity);
+            mActivity.finish();
+            return;
+        }
+
+        // If ony one acount, don't show dropdown.
+        final ActionBar ab = mActionBar;
+        if (count == 1) {
+            accountsCursor.moveToFirst();
+
+            // Show the account name as the title.
+            ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
+            ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(accountsCursor));
+            return;
+        }
+
+        // Find the currently selected account, and select it.
+        int defaultSelection = 0;
+        if (isAccountSelected()) {
+            accountsCursor.moveToPosition(-1);
+            int i = 0;
+            while (accountsCursor.moveToNext()) {
+                final long accountId = AccountSelectorAdapter.getAccountId(accountsCursor);
+                if (accountId == getUIAccountId()) {
+                    defaultSelection = i;
+                    break;
+                }
+                i++;
+            }
+        }
+
+        // Update the dropdown list.
+        mAccountsSelectorAdapter.swapCursor(accountsCursor);
+
+        // Don't show the title.
+        ab.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
+        ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        ab.setListNavigationCallbacks(mAccountsSelectorAdapter, mActionBarNavigationCallback);
+        ab.setSelectedNavigationItem(defaultSelection);
+    }
+
+    private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {
+        @Override
+        public boolean onNavigationItemSelected(int itemPosition, long accountId) {
+            // TODO openAccount should do the check eventually, but it's necessary for now.
+            if (accountId != getUIAccountId()) {
+                openAccount(accountId);
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Handles {@link android.app.Activity#onCreateOptionsMenu} callback.
+     */
+    public boolean onCreateOptionsMenu(MenuInflater inflater, Menu menu) {
+        inflater.inflate(R.menu.message_list_xl_option, menu);
+        return true;
+    }
+
+    /**
+     * Handles {@link android.app.Activity#onPrepareOptionsMenu} callback.
+     */
+    public boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu) {
+        ActivityHelper.updateRefreshMenuIcon(menu.findItem(R.id.refresh),
+                isRefreshEnabled(),
+                isRefreshInProgress());
+        return true;
+    }
+
+    /**
+     * Handles {@link android.app.Activity#onOptionsItemSelected} callback.
+     *
+     * @return true if the option item is handled.
+     */
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // Comes from the action bar when the app icon on the left is pressed.
+                // It works like a back press, but it won't close the activity.
+                return onBackPressed(false);
+            case R.id.compose:
+                return onCompose();
+            case R.id.refresh:
+                onRefresh();
+                return true;
+            case R.id.account_settings:
+                return onAccountSettings();
+        }
+        return false;
+    }
+
+    /**
+     * Performs the back action.
+     *
+     * @param isSystemBackKey <code>true</code> if the system back key was pressed.
+     * <code>true</code> if it's caused by the "home" icon click on the action bar.
+     */
+    public boolean onBackPressed(boolean isSystemBackKey) {
+        if (mThreePane.onBackPressed(isSystemBackKey)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Handles the "Compose" option item.  Opens the message compose activity.
+     */
+    private boolean onCompose() {
+        if (!isAccountSelected()) {
+            return false; // this shouldn't really happen
+        }
+        MessageCompose.actionCompose(mActivity, getActualAccountId());
+        return true;
+    }
+
+    /**
+     * Handles the "Compose" option item.  Opens the settings activity.
+     */
+    private boolean onAccountSettings() {
+        AccountSettingsXL.actionSettings(mActivity, getActualAccountId());
+        return true;
+    }
+
+    /**
+     * Handles the "refresh" option item.  Opens the settings activity.
+     */
+    // TODO used by experimental code in the activity -- otherwise can be private.
+    public void onRefresh() {
+        // Cancel previously running instance if any.
+        new RefreshTask(mTaskTracker, mActivity, getActualAccountId(),
+                getMailboxId()).cancelPreviousAndExecuteParallel();
+    }
+
+    /**
+     * Class to handle refresh.
+     *
+     * When the user press "refresh",
+     * <ul>
+     *   <li>Refresh the current mailbox, if it's refreshable.  (e.g. don't refresh combined inbox,
+     *       drafts, etc.
+     *   <li>Refresh the mailbox list, if it hasn't been refreshed in the last
+     *       {@link #MAILBOX_REFRESH_MIN_INTERVAL}.
+     *   <li>Refresh inbox, if it's not the current mailbox and it hasn't been refreshed in the last
+     *       {@link #INBOX_AUTO_REFRESH_MIN_INTERVAL}.
+     * </ul>
+     */
+    /* package */ static class RefreshTask extends EmailAsyncTask<Void, Void, Boolean> {
+        private final Clock mClock;
+        private final Context mContext;
+        private final long mAccountId;
+        private final long mMailboxId;
+        private final RefreshManager mRefreshManager;
+        /* package */ long mInboxId;
+
+        public RefreshTask(EmailAsyncTask.Tracker tracker, Context context, long accountId,
+                long mailboxId) {
+            this(tracker, context, accountId, mailboxId, Clock.INSTANCE,
+                    RefreshManager.getInstance(context));
+        }
+
+        /* package */ RefreshTask(EmailAsyncTask.Tracker tracker, Context context, long accountId,
+                long mailboxId, Clock clock, RefreshManager refreshManager) {
+            super(tracker);
+            mClock = clock;
+            mContext = context;
+            mRefreshManager = refreshManager;
+            mAccountId = accountId;
+            mMailboxId = mailboxId;
+        }
+
+        /**
+         * Do DB access on a worker thread.
+         */
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            mInboxId = Account.getInboxId(mContext, mAccountId);
+            return Mailbox.isRefreshable(mContext, mMailboxId);
+        }
+
+        /**
+         * Do the actual refresh.
+         */
+        @Override
+        protected void onPostExecute(Boolean isCurrentMailboxRefreshable) {
+            if (isCancelled() || isCurrentMailboxRefreshable == null) {
+                return;
+            }
+            if (isCurrentMailboxRefreshable) {
+                mRefreshManager.refreshMessageList(mAccountId, mMailboxId, false);
+            }
+            // Refresh mailbox list
+            if (mAccountId != -1) {
+                if (shouldRefreshMailboxList()) {
+                    mRefreshManager.refreshMailboxList(mAccountId);
+                }
+            }
+            // Refresh inbox
+            if (shouldAutoRefreshInbox()) {
+                mRefreshManager.refreshMessageList(mAccountId, mInboxId, false);
+            }
+        }
+
+        /**
+         * @return true if the mailbox list of the current account hasn't been refreshed
+         * in the last {@link #MAILBOX_REFRESH_MIN_INTERVAL}.
+         */
+        /* package */ boolean shouldRefreshMailboxList() {
+            if (mRefreshManager.isMailboxListRefreshing(mAccountId)) {
+                return false;
+            }
+            final long nextRefreshTime = mRefreshManager.getLastMailboxListRefreshTime(mAccountId)
+                    + MAILBOX_REFRESH_MIN_INTERVAL;
+            if (nextRefreshTime > mClock.getTime()) {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * @return true if the inbox of the current account hasn't been refreshed
+         * in the last {@link #INBOX_AUTO_REFRESH_MIN_INTERVAL}.
+         */
+        /* package */ boolean shouldAutoRefreshInbox() {
+            if (mInboxId == mMailboxId) {
+                return false; // Current ID == inbox.  No need to auto-refresh.
+            }
+            if (mRefreshManager.isMessageListRefreshing(mInboxId)) {
+                return false;
+            }
+            final long nextRefreshTime = mRefreshManager.getLastMessageListRefreshTime(mInboxId)
+                    + INBOX_AUTO_REFRESH_MIN_INTERVAL;
+            if (nextRefreshTime > mClock.getTime()) {
+                return false;
+            }
+            return true;
+        }
     }
 }

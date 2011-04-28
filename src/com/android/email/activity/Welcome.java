@@ -244,12 +244,12 @@ public class Welcome extends Activity {
 
                 if (useTwoPane) {
                     if (isMessageSelected()) {
-                        MessageListXL.actionOpenMessage(mFromActivity, accountId, mMailboxId,
+                        EmailActivity.actionOpenMessage(mFromActivity, accountId, mMailboxId,
                                 mMessageId);
                     } else if (isMailboxSelected()) {
-                        MessageListXL.actionOpenMailbox(mFromActivity, accountId, mMailboxId);
+                        EmailActivity.actionOpenMailbox(mFromActivity, accountId, mMailboxId);
                     } else {
-                        MessageListXL.actionOpenAccount(mFromActivity, accountId);
+                        EmailActivity.actionOpenAccount(mFromActivity, accountId);
                     }
                 } else {
                     if (isMessageSelected()) {

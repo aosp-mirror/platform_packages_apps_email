@@ -36,12 +36,9 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 /**
- * Adapter for the account selector on {@link MessageListXL}.
+ * Adapter for the account selector on {@link UIControllerTwoPane}.
  *
  * TODO Test it!
- * TODO Use layout?  Or use the standard resources that ActionBarDemo uses?
- * TODO Revisit the sort order when we get more detailed UI spec.  (current sort order makes things
- * simpler for now.)  Maybe we can just use SimpleCursorAdapter.
  */
 public class AccountSelectorAdapter extends CursorAdapter {
     /** Projection used to query from Account */
@@ -78,8 +75,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
         return new AccountsLoader(context);
     }
 
-    public AccountSelectorAdapter(Context context, Cursor c) {
-        super(context, c, 0 /* no auto-requery */);
+    public AccountSelectorAdapter(Context context) {
+        super(context, null, 0 /* no auto-requery */);
         mContext = context;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }

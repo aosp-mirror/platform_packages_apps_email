@@ -210,7 +210,7 @@
             >
         </activity>
         <activity
-            android:name=".activity.MessageListXL">
+            android:name=".activity.EmailActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>

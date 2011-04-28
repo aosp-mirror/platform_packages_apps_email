@@ -16,14 +16,12 @@
 
 package com.android.email.activity;
 
-import com.android.email.Clock;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.MessagingExceptionStrings;
 import com.android.email.R;
 import com.android.email.RefreshManager;
-import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -33,12 +31,10 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -46,8 +42,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -64,30 +58,21 @@ import java.security.InvalidParameterException;
  *
  * Because this activity is device agnostic, so most of the UI aren't owned by this, but by
  * the UIController.
- *
- * TODO: Account spinner should also be moved out of this class.  (to the UIController or to a
- * sepate class.)
  */
-public class MessageListXL extends Activity implements View.OnClickListener {
+public class EmailActivity extends Activity implements View.OnClickListener {
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     private static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
-    private static final int LOADER_ID_ACCOUNT_LIST = 0;
-    /* package */ static final int MAILBOX_REFRESH_MIN_INTERVAL = 30 * 1000; // in milliseconds
-    /* package */ static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
+
+    /** Loader IDs starting with this is safe to use from UIControllers. */
+    static final int UI_CONTROLLER_LOADER_ID_BASE = 100;
 
     private static final int MAILBOX_SYNC_FREQUENCY_DIALOG = 1;
     private static final int MAILBOX_SYNC_LOOKBACK_DIALOG = 2;
 
     private Context mContext;
     private Controller mController;
-    private RefreshManager mRefreshManager;
-    private final RefreshListener mRefreshListener = new RefreshListener();
     private Controller.Result mControllerResult;
-
-    private AccountSelectorAdapter mAccountsSelectorAdapter;
-    private final ActionBarNavigationCallback mActionBarNavigationCallback =
-        new ActionBarNavigationCallback();
 
     private final UIControllerTwoPane mUIController = new UIControllerTwoPane(this);
 
@@ -107,7 +92,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
      * @param accountId If -1, default account will be used.
      */
     public static void actionOpenAccount(Activity fromActivity, long accountId) {
-        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, MessageListXL.class);
+        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         }
@@ -125,7 +110,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
         if (accountId == -1 || mailboxId == -1) {
             throw new InvalidParameterException();
         }
-        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, MessageListXL.class);
+        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         fromActivity.startActivity(i);
@@ -144,7 +129,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
         if (accountId == -1 || mailboxId == -1 || messageId == -1) {
             throw new InvalidParameterException();
         }
-        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, MessageListXL.class);
+        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
@@ -153,7 +138,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onCreate");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onCreate");
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(R.layout.message_list_xl);
@@ -165,12 +150,6 @@ public class MessageListXL extends Activity implements View.OnClickListener {
         mControllerResult = new ControllerResultUiThreadWrapper<ControllerResult>(new Handler(),
                 new ControllerResult());
         mController.addResultCallback(mControllerResult);
-        mRefreshManager = RefreshManager.getInstance(this);
-        mRefreshManager.registerListener(mRefreshListener);
-
-        mAccountsSelectorAdapter = new AccountSelectorAdapter(this, null);
-
-        loadAccounts();
 
         // Set up views
         // TODO Probably better to extract mErrorMessageView related code into a separate class,
@@ -190,6 +169,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
             // See UIControllerTwoPane.preFragmentTransactionCheck()
             initFromIntent();
         }
+        mUIController.onActivityCreated();
     }
 
     private void initFromIntent() {
@@ -209,7 +189,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXL onSaveInstanceState");
+            Log.d(Logging.LOG_TAG, "" + this + " onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
         mUIController.onSaveInstanceState(outState);
@@ -218,7 +198,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
     @Override
     public void onAttachFragment(Fragment fragment) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXL onAttachFragment fragment=" + fragment);
+            Log.d(Logging.LOG_TAG, "" + this + " onAttachFragment fragment=" + fragment);
         }
         super.onAttachFragment(fragment);
         mUIController.onAttachFragment(fragment);
@@ -226,7 +206,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
 
     @Override
     protected void onStart() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onStart");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onStart");
         super.onStart();
         mUIController.onStart();
 
@@ -261,7 +241,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
             msg.mTimeStamp = Long.MAX_VALUE; // Sort on top
             msg.save(mContext);
 
-            actionOpenMessage(MessageListXL.this, accountId, searchMailbox.mId, msg.mId);
+            actionOpenMessage(EmailActivity.this, accountId, searchMailbox.mId, msg.mId);
             Utility.runAsync(new Runnable() {
                 @Override
                 public void run() {
@@ -274,7 +254,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
 
     @Override
     protected void onResume() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onResume");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onResume");
         super.onResume();
         mUIController.onResume();
         /**
@@ -287,24 +267,23 @@ public class MessageListXL extends Activity implements View.OnClickListener {
 
     @Override
     protected void onPause() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onPause");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onPause");
         super.onPause();
         mUIController.onPause();
     }
 
     @Override
     protected void onStop() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onStop");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onStop");
         super.onStop();
         mUIController.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "MessageListXL onDestroy");
+        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onDestroy");
         mController.removeResultCallback(mControllerResult);
         mTaskTracker.cancellAllInterrupt();
-        mRefreshManager.unregisterListener(mRefreshListener);
         mUIController.onDestroy();
         super.onDestroy();
     }
@@ -312,27 +291,12 @@ public class MessageListXL extends Activity implements View.OnClickListener {
     @Override
     public void onBackPressed() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListXL onBackPressed");
+            Log.d(Logging.LOG_TAG, "" + this + " onBackPressed");
         }
-        onBackPressed(true);
-    }
-
-    /**
-     * Performs the back action.
-     *
-     * @param isSystemBackKey <code>true</code> if the system back key was pressed. Otherwise,
-     * <code>false</code> [e.g. the home icon on action bar were pressed].
-     */
-    private boolean onBackPressed(boolean isSystemBackKey) {
-        if (mUIController.onBackPressed(isSystemBackKey)) {
-            return true;
-        }
-        if (isSystemBackKey) {
-            // Perform the default behavior.
+        if (!mUIController.onBackPressed(true)) {
+            // Not handled by UIController -- perform the default. i.e. close the app.
             super.onBackPressed();
-            return true;
         }
-        return false;
     }
 
     @Override
@@ -345,108 +309,10 @@ public class MessageListXL extends Activity implements View.OnClickListener {
     }
 
     /**
-     * Called by the UIController when the current account has changed.
-     */
-    public void onAccountChanged(long accountId) {
-        updateRefreshProgress();
-        loadAccounts(); // This will update the account spinner, and select the account.
-    }
-
-    /**
      * Force dismiss the error banner.
      */
     private void dismissErrorMessage() {
         mErrorBanner.dismiss();
-    }
-
-    /**
-     * Load account list for the action bar.
-     *
-     * If there's only one account configured, show the account name in the action bar.
-     * If more than one account are configured, show a spinner in the action bar, and select the
-     * current account.
-     */
-    private void loadAccounts() {
-        getLoaderManager().initLoader(LOADER_ID_ACCOUNT_LIST, null, new LoaderCallbacks<Cursor>() {
-            @Override
-            public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                return AccountSelectorAdapter.createLoader(mContext);
-            }
-
-            @Override
-            public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                updateAccountList(data);
-            }
-
-            @Override
-            public void onLoaderReset(Loader<Cursor> loader) {
-                mAccountsSelectorAdapter.swapCursor(null);
-            }
-        });
-    }
-
-    private void updateAccountList(Cursor accountsCursor) {
-        final int count = accountsCursor.getCount();
-        if (count == 0) {
-            // Open Welcome, which in turn shows the adding a new account screen.
-            Welcome.actionStart(this);
-            finish();
-            return;
-        }
-
-        // If ony one acount, don't show dropdown.
-        final ActionBar ab = getActionBar();
-        if (count == 1) {
-            accountsCursor.moveToFirst();
-
-            // Show the account name as the title.
-            ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
-            ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(accountsCursor));
-            return;
-        }
-
-        // Find the currently selected account, and select it.
-        int defaultSelection = 0;
-        if (mUIController.isAccountSelected()) {
-            accountsCursor.moveToPosition(-1);
-            int i = 0;
-            while (accountsCursor.moveToNext()) {
-                final long accountId = AccountSelectorAdapter.getAccountId(accountsCursor);
-                if (accountId == mUIController.getUIAccountId()) {
-                    defaultSelection = i;
-                    break;
-                }
-                i++;
-            }
-        }
-
-        // Update the dropdown list.
-        mAccountsSelectorAdapter.swapCursor(accountsCursor);
-
-        // Don't show the title.
-        ab.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
-        ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        ab.setListNavigationCallbacks(mAccountsSelectorAdapter, mActionBarNavigationCallback);
-        ab.setSelectedNavigationItem(defaultSelection);
-    }
-
-    private void selectAccount(long accountId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "Account selected: accountId=" + accountId);
-        }
-        // TODO UIManager should do the check eventually, but it's necessary for now.
-        if (accountId != mUIController.getUIAccountId()) {
-            mUIController.openAccount(accountId);
-        }
-    }
-
-    private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {
-        @Override
-        public boolean onNavigationItemSelected(int itemPosition, long accountId) {
-            selectAccount(accountId);
-            return true;
-        }
     }
 
     private class RefreshListener
@@ -474,9 +340,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.message_list_xl_option, menu);
-        return true;
+        return mUIController.onCreateOptionsMenu(getMenuInflater(), menu);
     }
 
     @Override
@@ -496,10 +360,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
         menu.findItem(R.id.sync_lookback).setVisible(isEas);
         menu.findItem(R.id.sync_frequency).setVisible(isEas);
 
-        ActivityHelper.updateRefreshMenuIcon(menu.findItem(R.id.refresh),
-                mUIController.isRefreshEnabled(),
-                mUIController.isRefreshInProgress());
-        return super.onPrepareOptionsMenu(menu);
+        return mUIController.onPrepareOptionsMenu(getMenuInflater(), menu);
     }
 
     @Override
@@ -520,7 +381,7 @@ public class MessageListXL extends Activity implements View.OnClickListener {
             getContentResolver().update(
                     ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
                     cv, null, null);
-            onRefresh();
+            mUIController.onRefresh();
         }
     }
     // STOPSHIP Temporary mailbox settings UI.  If this ends up being useful, it should
@@ -602,16 +463,10 @@ public class MessageListXL extends Activity implements View.OnClickListener {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (mUIController.onOptionsItemSelected(item)) {
+            return true;
+        }
         switch (item.getItemId()) {
-            case android.R.id.home:
-                // Comes from the action bar when the app icon on the left is pressed.
-                // It works like a back press, but it won't close the activity.
-                return onBackPressed(false);
-            case R.id.compose:
-                return onCompose();
-            case R.id.refresh:
-                onRefresh();
-                return true;
             // STOPSHIP Temporary mailbox settings UI
             case R.id.sync_lookback:
                 showDialog(MAILBOX_SYNC_LOOKBACK_DIALOG);
@@ -623,138 +478,10 @@ public class MessageListXL extends Activity implements View.OnClickListener {
             case R.id.search:
                 onSearchRequested();
                 return true;
-            case R.id.account_settings:
-                return onAccountSettings();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean onCompose() {
-        if (!mUIController.isAccountSelected()) {
-            return false; // this shouldn't really happen
-        }
-        MessageCompose.actionCompose(this, mUIController.getActualAccountId());
-        return true;
-    }
-
-    private boolean onAccountSettings() {
-        AccountSettingsXL.actionSettings(this, mUIController.getActualAccountId());
-        return true;
-    }
-
-    private void onRefresh() {
-        // Cancel previously running instance if any.
-        new RefreshTask(mTaskTracker, this, mUIController.getActualAccountId(),
-                mUIController.getMailboxId()).cancelPreviousAndExecuteParallel();
-    }
-
-    /**
-     * TODO Move this to UIController, as requirement for this may change for the phone.
-     * (e.g. should we still do the implicit refresh of mailbox list on the phone?)
-     *
-     * Class to handle refresh.
-     *
-     * When the user press "refresh",
-     * <ul>
-     *   <li>Refresh the current mailbox, if it's refreshable.  (e.g. don't refresh combined inbox,
-     *       drafts, etc.
-     *   <li>Refresh the mailbox list, if it hasn't been refreshed in the last
-     *       {@link #MAILBOX_REFRESH_MIN_INTERVAL}.
-     *   <li>Refresh inbox, if it's not the current mailbox and it hasn't been refreshed in the last
-     *       {@link #INBOX_AUTO_REFRESH_MIN_INTERVAL}.
-     * </ul>
-     */
-    /* package */ static class RefreshTask extends EmailAsyncTask<Void, Void, Boolean> {
-        private final Clock mClock;
-        private final Context mContext;
-        private final long mAccountId;
-        private final long mMailboxId;
-        private final RefreshManager mRefreshManager;
-        /* package */ long mInboxId;
-
-        public RefreshTask(EmailAsyncTask.Tracker tracker, Context context, long accountId,
-                long mailboxId) {
-            this(tracker, context, accountId, mailboxId, Clock.INSTANCE,
-                    RefreshManager.getInstance(context));
-        }
-
-        /* package */ RefreshTask(EmailAsyncTask.Tracker tracker, Context context, long accountId,
-                long mailboxId, Clock clock, RefreshManager refreshManager) {
-            super(tracker);
-            mClock = clock;
-            mContext = context;
-            mRefreshManager = refreshManager;
-            mAccountId = accountId;
-            mMailboxId = mailboxId;
-        }
-
-        /**
-         * Do DB access on a worker thread.
-         */
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            mInboxId = Account.getInboxId(mContext, mAccountId);
-            return Mailbox.isRefreshable(mContext, mMailboxId);
-        }
-
-        /**
-         * Do the actual refresh.
-         */
-        @Override
-        protected void onPostExecute(Boolean isCurrentMailboxRefreshable) {
-            if (isCancelled() || isCurrentMailboxRefreshable == null) {
-                return;
-            }
-            if (isCurrentMailboxRefreshable) {
-                mRefreshManager.refreshMessageList(mAccountId, mMailboxId, false);
-            }
-            // Refresh mailbox list
-            if (mAccountId != -1) {
-                if (shouldRefreshMailboxList()) {
-                    mRefreshManager.refreshMailboxList(mAccountId);
-                }
-            }
-            // Refresh inbox
-            if (shouldAutoRefreshInbox()) {
-                mRefreshManager.refreshMessageList(mAccountId, mInboxId, false);
-            }
-        }
-
-        /**
-         * @return true if the mailbox list of the current account hasn't been refreshed
-         * in the last {@link #MAILBOX_REFRESH_MIN_INTERVAL}.
-         */
-        /* package */ boolean shouldRefreshMailboxList() {
-            if (mRefreshManager.isMailboxListRefreshing(mAccountId)) {
-                return false;
-            }
-            final long nextRefreshTime = mRefreshManager.getLastMailboxListRefreshTime(mAccountId)
-                    + MAILBOX_REFRESH_MIN_INTERVAL;
-            if (nextRefreshTime > mClock.getTime()) {
-                return false;
-            }
-            return true;
-        }
-
-        /**
-         * @return true if the inbox of the current account hasn't been refreshed
-         * in the last {@link #INBOX_AUTO_REFRESH_MIN_INTERVAL}.
-         */
-        /* package */ boolean shouldAutoRefreshInbox() {
-            if (mInboxId == mMailboxId) {
-                return false; // Current ID == inbox.  No need to auto-refresh.
-            }
-            if (mRefreshManager.isMessageListRefreshing(mInboxId)) {
-                return false;
-            }
-            final long nextRefreshTime = mRefreshManager.getLastMessageListRefreshTime(mInboxId)
-                    + INBOX_AUTO_REFRESH_MIN_INTERVAL;
-            if (nextRefreshTime > mClock.getTime()) {
-                return false;
-            }
-            return true;
-        }
-    }
 
     /**
      * A {@link Controller.Result} to detect connection status.
@@ -814,14 +541,14 @@ public class MessageListXL extends Activity implements View.OnClickListener {
                     @Override
                     protected String doInBackground(Void... params) {
                         Account account =
-                            Account.restoreAccountWithId(MessageListXL.this, accountId);
+                            Account.restoreAccountWithId(EmailActivity.this, accountId);
                         return (account == null) ? null : account.mDisplayName;
                     }
 
                     @Override
                     protected void onPostExecute(String accountName) {
                         String message =
-                            MessagingExceptionStrings.getErrorString(MessageListXL.this, result);
+                            MessagingExceptionStrings.getErrorString(EmailActivity.this, result);
                         if (!TextUtils.isEmpty(accountName)) {
                             // TODO Use properly designed layout. Don't just concatenate strings;
                             // which is generally poor for I18N.

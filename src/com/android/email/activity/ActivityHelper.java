@@ -35,7 +35,7 @@ import android.view.WindowManager;
 /**
  * Various methods that are used by both 1-pane and 2-pane activities.
  *
- * <p>Common code used by {@link MessageListXL}, {@link MessageList} and other activities go here.
+ * <p>Common code used by {@link EmailActivity}, {@link MessageList} and other activities go here.
  * Probably there's a nicer way to do this, if we re-design these classes more throughly.
  * However, without knowing what the phone UI will be, all such work can easily end up being
  * over-designed or totally useless.  For now this pattern will do...
