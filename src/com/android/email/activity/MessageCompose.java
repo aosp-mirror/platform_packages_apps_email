@@ -580,14 +580,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mBccView.setTokenizer(new Rfc822Tokenizer());
         mBccView.setValidator(addressValidator);
 
-        final View addCcBccView = findViewById(R.id.add_cc_bcc); // xlarge only
-        if (addCcBccView != null) {
-            addCcBccView.setOnClickListener(this);
-        }
-        final View addAttachmentView = findViewById(R.id.add_attachment); // xlarge only
-        if (addAttachmentView != null) {
-            addAttachmentView.setOnClickListener(this);
-        }
+        final View addCcBccView = UiUtilities.getView(this, R.id.add_cc_bcc);
+        addCcBccView.setOnClickListener(this);
+
+        final View addAttachmentView = UiUtilities.getView(this, R.id.add_attachment);
+        addAttachmentView.setOnClickListener(this);
 
         setFocusShifter(R.id.to_label, R.id.to);
         setFocusShifter(R.id.cc_label, R.id.cc);
