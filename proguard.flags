@@ -192,7 +192,7 @@
   *** getBody();
 }
 
--keepclasseswithmembers class com.android.email.mail.FolderProperties {
+-keepclasseswithmembers class com.android.email.FolderProperties {
   *** getDisplayName(int);
 }
 

@@ -79,15 +79,15 @@ import java.util.regex.Pattern;
 public class ImapStoreUnitTests extends InstrumentationTestCase {
     private final static String[] NO_REPLY = new String[0];
 
-    /**
-     * Default folder name.  In order to test for encoding, we use a non-ascii name.
-     */
+    /** Default folder name.  In order to test for encoding, we use a non-ascii name. */
     private final static String FOLDER_NAME = "\u65E5";
-
-    /**
-     * Folder name encoded in UTF-7.
-     */
+    /** Folder name encoded in UTF-7. */
     private final static String FOLDER_ENCODED = "&ZeU-";
+    /**
+     * Flag bits to specify whether or not a folder can be selected. This corresponds to
+     * {@link Mailbox#FLAG_ACCEPTS_MOVED_MAIL} and {@link Mailbox#FLAG_HOLDS_MAIL}.
+     */
+    private final static int SELECTABLE_BITS = 0x18;
 
     private final static ImapResponse CAPABILITY_RESPONSE = ImapTestUtils.parseResponse(
             "* CAPABILITY IMAP4rev1 STARTTLS");
@@ -1254,16 +1254,23 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 getNextTag(true) + " oK SUCCESS"
                 });
         Folder[] folders = mStore.updateFolders();
+        ImapFolder testFolder;
 
-        ArrayList<String> list = new ArrayList<String>();
-        for (Folder f : folders) {
-            list.add(f.getName());
-        }
-        MoreAsserts.assertEquals(
-                new String[] {"INBOX", "\u65E5\u672C\u8A9E", "Drafts"},
-                list.toArray(new String[0])
-                );
+        testFolder = (ImapFolder) folders[0];
+        assertEquals("INBOX", testFolder.getName());
+        assertEquals(SELECTABLE_BITS, testFolder.mMailbox.mFlags & SELECTABLE_BITS);
 
+        testFolder = (ImapFolder) folders[1];
+        assertEquals("no select", testFolder.getName());
+        assertEquals(0, testFolder.mMailbox.mFlags & SELECTABLE_BITS);
+
+        testFolder = (ImapFolder) folders[2];
+        assertEquals("\u65E5\u672C\u8A9E", testFolder.getName());
+        assertEquals(SELECTABLE_BITS, testFolder.mMailbox.mFlags & SELECTABLE_BITS);
+
+        testFolder = (ImapFolder) folders[3];
+        assertEquals("Drafts", testFolder.getName());
+        assertEquals(SELECTABLE_BITS, testFolder.mMailbox.mFlags & SELECTABLE_BITS);
         // TODO test with path prefix
         // TODO: Test NO response.
     }
