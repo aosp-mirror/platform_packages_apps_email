@@ -69,15 +69,17 @@ public class UiUtilities {
     /**
      * Same as {@link Activity#findViewById}, but crashes if there's no view.
      */
-    public static View getView(Activity parent, int viewId) {
-        return checkView(parent.findViewById(viewId));
+    @SuppressWarnings("unchecked")
+    public static <T extends View> T getView(Activity parent, int viewId) {
+        return (T) checkView(parent.findViewById(viewId));
     }
 
     /**
      * Same as {@link View#findViewById}, but crashes if there's no view.
      */
-    public static View getView(View parent, int viewId) {
-        return checkView(parent.findViewById(viewId));
+    @SuppressWarnings("unchecked")
+    public static <T extends View> T getView(View parent, int viewId) {
+        return (T) checkView(parent.findViewById(viewId));
     }
 
     private static View checkView(View v) {

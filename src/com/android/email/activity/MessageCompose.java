@@ -467,18 +467,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void initViews() {
-        mFromView = (TextView) UiUtilities.getView(this, R.id.from);
-        mToView = (MultiAutoCompleteTextView) UiUtilities.getView(this, R.id.to);
-        mCcView = (MultiAutoCompleteTextView) UiUtilities.getView(this, R.id.cc);
-        mBccView = (MultiAutoCompleteTextView) UiUtilities.getView(this, R.id.bcc);
+        mFromView = UiUtilities.getView(this, R.id.from);
+        mToView = UiUtilities.getView(this, R.id.to);
+        mCcView = UiUtilities.getView(this, R.id.cc);
+        mBccView = UiUtilities.getView(this, R.id.bcc);
         mCcBccContainer = UiUtilities.getView(this, R.id.cc_bcc_container);
-        mSubjectView = (EditText) UiUtilities.getView(this, R.id.subject);
-        mMessageContentView = (EditText) UiUtilities.getView(this, R.id.message_content);
-        mAttachments = (LinearLayout) UiUtilities.getView(this, R.id.attachments);
+        mSubjectView = UiUtilities.getView(this, R.id.subject);
+        mMessageContentView = UiUtilities.getView(this, R.id.message_content);
+        mAttachments = UiUtilities.getView(this, R.id.attachments);
         mAttachmentContainer = UiUtilities.getView(this, R.id.attachment_container);
         mQuotedTextBar = UiUtilities.getView(this, R.id.quoted_text_bar);
-        mIncludeQuotedTextCheckBox = (CheckBox) UiUtilities.getView(this, R.id.include_quoted_text);
-        mQuotedText = (WebView) UiUtilities.getView(this, R.id.quoted_text);
+        mIncludeQuotedTextCheckBox = UiUtilities.getView(this, R.id.include_quoted_text);
+        mQuotedText = UiUtilities.getView(this, R.id.quoted_text);
 
         TextWatcher watcher = new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start,
