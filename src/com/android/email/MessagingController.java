@@ -375,7 +375,6 @@ public class MessagingController implements Runnable {
             SyncColumns.SERVER_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY
         };
 
-        final int mCursorIndex;
         final long mId;
         final boolean mFlagRead;
         final boolean mFlagFavorite;
@@ -383,7 +382,6 @@ public class MessagingController implements Runnable {
         final String mServerId;
 
         public LocalMessageInfo(Cursor c) {
-            mCursorIndex = c.getPosition();
             mId = c.getLong(COLUMN_ID);
             mFlagRead = c.getInt(COLUMN_FLAG_READ) != 0;
             mFlagFavorite = c.getInt(COLUMN_FLAG_FAVORITE) != 0;
@@ -645,40 +643,7 @@ public class MessagingController implements Runnable {
             }
         }
 
-        // 10. Compute and store the unread message count.
-        // -- no longer necessary - Provider uses DB triggers to keep track
-
-//        int remoteUnreadMessageCount = remoteFolder.getUnreadMessageCount();
-//        if (remoteUnreadMessageCount == -1) {
-//            if (remoteSupportsSeenFlag) {
-//                /*
-//                 * If remote folder doesn't supported unread message count but supports
-//                 * seen flag, use local folder's unread message count and the size of
-//                 * new messages. This mode is not used for POP3, or IMAP.
-//                 */
-//
-//                remoteUnreadMessageCount = folder.mUnreadCount + newMessages.size();
-//            } else {
-//                /*
-//                 * If remote folder doesn't supported unread message count and doesn't
-//                 * support seen flag, use localUnreadCount and newMessageCount which
-//                 * don't rely on remote SEEN flag.  This mode is used by POP3.
-//                 */
-//                remoteUnreadMessageCount = localUnreadCount + newMessageCount;
-//            }
-//        } else {
-//            /*
-//             * If remote folder supports unread message count, use remoteUnreadMessageCount.
-//             * This mode is used by IMAP.
-//             */
-//         }
-//        Uri uri = ContentUris.withAppendedId(EmailContent.Mailbox.CONTENT_URI, folder.mId);
-//        ContentValues updateValues = new ContentValues();
-//        updateValues.put(EmailContent.Mailbox.UNREAD_COUNT, remoteUnreadMessageCount);
-//        resolver.update(uri, updateValues, null, null);
-
-        // 11. Remove any messages that are in the local store but no longer on the remote store.
-
+        // 10. Remove any messages that are in the local store but no longer on the remote store.
         HashSet<String> localUidsToDelete = new HashSet<String>(localMessageMap.keySet());
         localUidsToDelete.removeAll(remoteUidMap.keySet());
         for (String uidToDelete : localUidsToDelete) {
@@ -703,7 +668,7 @@ public class MessagingController implements Runnable {
             resolver.delete(deletERowToDelete, null, null);
         }
 
-        // 12. Divide the unsynced messages into small & large (by size)
+        // 11. Divide the unsynced messages into small & large (by size)
 
         // TODO doing this work here (synchronously) is problematic because it prevents the UI
         // from affecting the order (e.g. download a message because the user requested it.)  Much
@@ -721,7 +686,7 @@ public class MessagingController implements Runnable {
             }
         }
 
-        // 13. Download small messages
+        // 12. Download small messages
 
         // TODO Problems with this implementation.  1. For IMAP, where we get a real envelope,
         // this is going to be inefficient and duplicate work we've already done.  2.  It's going
@@ -743,7 +708,7 @@ public class MessagingController implements Runnable {
                     }
         });
 
-        // 14. Download large messages.  We ask the server to give us the message structure,
+        // 13. Download large messages.  We ask the server to give us the message structure,
         // but not all of the attachments.
         fp.clear();
         fp.add(FetchProfile.Item.STRUCTURE);
@@ -785,104 +750,8 @@ public class MessagingController implements Runnable {
             }
         }
 
-        // 15. Clean up and report results
-
+        // 14. Clean up and report results
         remoteFolder.close(false);
-        // TODO - more
-
-        // Original sync code.  Using for reference, will delete when done.
-        if (false) {
-        /*
-         * Now do the large messages that require more round trips.
-         */
-        fp.clear();
-        fp.add(FetchProfile.Item.STRUCTURE);
-        remoteFolder.fetch(largeMessages.toArray(new Message[largeMessages.size()]),
-                fp, null);
-        for (Message message : largeMessages) {
-            if (message.getBody() == null) {
-                /*
-                 * The provider was unable to get the structure of the message, so
-                 * we'll download a reasonable portion of the messge and mark it as
-                 * incomplete so the entire thing can be downloaded later if the user
-                 * wishes to download it.
-                 */
-                fp.clear();
-                fp.add(FetchProfile.Item.BODY_SANE);
-                /*
-                 *  TODO a good optimization here would be to make sure that all Stores set
-                 *  the proper size after this fetch and compare the before and after size. If
-                 *  they equal we can mark this SYNCHRONIZED instead of PARTIALLY_SYNCHRONIZED
-                 */
-
-                remoteFolder.fetch(new Message[] { message }, fp, null);
-                // Store the updated message locally
-//                localFolder.appendMessages(new Message[] {
-//                    message
-//                });
-
-//                Message localMessage = localFolder.getMessage(message.getUid());
-
-                // Set a flag indicating that the message has been partially downloaded and
-                // is ready for view.
-//                localMessage.setFlag(Flag.X_DOWNLOADED_PARTIAL, true);
-            } else {
-                /*
-                 * We have a structure to deal with, from which
-                 * we can pull down the parts we want to actually store.
-                 * Build a list of parts we are interested in. Text parts will be downloaded
-                 * right now, attachments will be left for later.
-                 */
-
-                ArrayList<Part> viewables = new ArrayList<Part>();
-                ArrayList<Part> attachments = new ArrayList<Part>();
-                MimeUtility.collectParts(message, viewables, attachments);
-
-                /*
-                 * Now download the parts we're interested in storing.
-                 */
-                for (Part part : viewables) {
-                    fp.clear();
-                    fp.add(part);
-                    // TODO what happens if the network connection dies? We've got partial
-                    // messages with incorrect status stored.
-                    remoteFolder.fetch(new Message[] { message }, fp, null);
-                }
-                // Store the updated message locally
-//                localFolder.appendMessages(new Message[] {
-//                    message
-//                });
-
-//                Message localMessage = localFolder.getMessage(message.getUid());
-
-                // Set a flag indicating this message has been fully downloaded and can be
-                // viewed.
-//                localMessage.setFlag(Flag.X_DOWNLOADED_FULL, true);
-            }
-
-            // Update the listener with what we've found
-//            synchronized (mListeners) {
-//                for (MessagingListener l : mListeners) {
-//                    l.synchronizeMailboxNewMessage(
-//                            account,
-//                            folder,
-//                            localFolder.getMessage(message.getUid()));
-//                }
-//            }
-        }
-
-
-        /*
-         * Report successful sync
-         */
-        StoreSynchronizer.SyncResults results = new StoreSynchronizer.SyncResults(
-                remoteFolder.getMessageCount(), newMessages.size());
-
-        remoteFolder.close(false);
-//        localFolder.close(false);
-
-        return results;
-        }
 
         return new StoreSynchronizer.SyncResults(remoteMessageCount, newMessages.size());
     }
