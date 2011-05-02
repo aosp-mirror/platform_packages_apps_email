@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Учитај"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Инфо."</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Сачувај"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Сачувано"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Заустави"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Прилог је сачуван као <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Није могуће сачувати прилог."</string>
@@ -303,9 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Услед безбедносне грешке није могуће успоставити везу са сервером."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Није било могуће успоставити везу са сервером."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Унели сте нетачну адресу сервера или сервер захтева верзију протокола коју е-пошта не подржава."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Немате дозволу за синхронизацију са овим сервером. Додатне информације потражите од администратора сервера."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Удаљено безбедносно администрирање"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Сервер <xliff:g id="SERVER">%s</xliff:g> захтева да му омогућите удаљену контролу појединих безбедносних функција Android уређаја. Желите ли да завршите подешавање овог налога?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Овај сервер захтева безбедносне функције које ваш Android уређај не подржава."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Не можете да промените корисничко име налога. Да бисте додали налог са другим корисничким именом, додирните Додај налог."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"УПОЗОРЕЊЕ: Деактивирањем овлашћења за апликацију е-поште да управља уређајем избрисаће налоге е-поште којима је то·потребно, заједно са е-адресом, контактима, догађајима календара и другим подацима."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Потребно је безбедносно ажурирање"</string>

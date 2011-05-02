@@ -88,8 +88,7 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"ゴミ箱"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"送信済み"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"迷惑メール"</string>
-    <!-- no translation found for mailbox_name_go_back (2886974252919886501) -->
-    <skip />
+    <string name="mailbox_name_go_back" msgid="2886974252919886501">"すべてのフォルダ"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"バージョン: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"アカウント"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"受信トレイ"</string>
@@ -135,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"読み込み"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"詳細"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"保存"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"保存済み"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"停止"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"添付ファイル<xliff:g id="FILENAME">%s</xliff:g>を保存しました。"</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"添付ファイルを保存できません。"</string>
@@ -304,11 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"セキュリティエラーのためサーバーに接続できません。"</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"サーバーに接続できません。"</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"入力したサーバーアドレスが間違っているか、サーバーで必要なプロトコルバージョンにメールが対応していません。"</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"このサーバーと同期する権限がありません。詳しくはサーバーの管理者にお問い合わせください。"</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"セキュリティのリモート管理"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Android搭載携帯のセキュリティ機能の一部に対するリモートコントロールをサーバー<xliff:g id="SERVER">%s</xliff:g>に許可する必要があります。アカウントの設定を終了しますか？"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"このサーバーには、お使いのAndroid搭載携帯でサポートされていないセキュリティ機能が必要です。"</string>
-    <!-- no translation found for account_setup_username_uneditable_error (9057508235700936322) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"このサーバーには、お使いのAndroid搭載端末でサポートされていない次のセキュリティ機能が必要です: <xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"アカウントのユーザー名を変更することはできません。アカウントに別のユーザー名を追加するには[アカウントを追加]をタップします。"</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"警告: メールアプリケーションの端末管理権限を無効にすると、権限を必要とするすべてのメールアカウントが削除されます。また、そのアカウントのメール、連絡先、カレンダーの予定などのデータも削除されます。"</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"セキュリティの更新が必要です"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g>のセキュリティ設定を更新する必要があります。"</string>
@@ -409,10 +409,7 @@
     <string name="widget_loading" msgid="2340962056927255554">"読み込み中..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"タップして設定してください"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
-    <!-- no translation found for search_title (353141588517762921) -->
-    <skip />
-    <!-- no translation found for search_hint (2200412192574686497) -->
-    <skip />
-    <!-- no translation found for mailbox_options_lookback_label (1207031465051138008) -->
-    <skip />
+    <string name="search_title" msgid="353141588517762921">"メール"</string>
+    <string name="search_hint" msgid="2200412192574686497">"メールを検索"</string>
+    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"メールボックス確認のルックバック"</string>
 </resources>

@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Загрузить"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Информация"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Сохранить"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Сохранено"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Стоп"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Вложение сохранено как <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Не удается сохранить вложение."</string>
@@ -303,9 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Не удается установить соединение с сервером из-за ошибки безопасности."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Не удается установить соединение с сервером."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Введен неправильный адрес сервера или сервер запрашивает версию протокола, которую не поддерживает почта."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"У вас нет разрешений на синхронизацию с этим сервером. За дополнительной информацией обратитесь к администратору сервера."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Удаленное управление безопасностью"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Серверу <xliff:g id="SERVER">%s</xliff:g> требуется разрешение на удаленное управление некоторыми функциями безопасности устройства Android. Завершить настройку этого аккаунта?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Безопасность этого сервера обеспечивается с помощью средств, не поддерживаемых вашим устройством Android."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Невозможно изменить имя пользователя. Но можно создать аккаунт с другим именем пользователя, нажав \"Добавить аккаунт\"."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ВНИМАНИЕ! Отключение прав по администрированию вашего устройства для приложения электронной почты приведет к удалению всех аккаунтов электронной почты, которые используют эти права. Кроме того, будут удалены все письма, контакты, календари и другие данные, связанные с этими аккаунтами."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Обновите систему безопасности"</string>

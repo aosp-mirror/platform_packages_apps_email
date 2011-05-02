@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Laste inn"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Info"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Lagre"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Lagret"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Stopp"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Vedlegget lagret som <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Kan ikke lagre vedlegget."</string>
@@ -303,9 +304,10 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Kunne ikke koble til tjeneren på grunn av sikkerhetsfeil."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Kunne ikke koble til tjeneren."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Du har angitt feil tjeneradresse, eller tjeneren krever en protokollversjon som ikke håndteres av e-postprogrammet."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Du har ikke tillatelse til å synkronisere med denne tjeneren. Ta kontakt med tjenerens administrator for mer informasjon."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Fjernadministrasjon av sikkerhet"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Tjeneren <xliff:g id="SERVER">%s</xliff:g> krever at den kan kontrollere noen av sikkerhetsfunksjonene på Android-enheten utenfra. Ønsker du å fullføre oppsettet av kontoen?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Tjeneren krever sikkerhetsfunksjoner som denne Android-enheten ikke håndterer."</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"Denne tjeneren krever sikkerhetsfunksjoner som Android-enheten din ikke støtter, for eksempel: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Du kan ikke endre brukernavnet for en konto. Hvis du ønsker å legge til en konto med et annet brukernavn, trykker du på Legg til konto."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ADVARSEL: Hvis du deaktiverer e-postprogrammets rett til å administrere enheten, vil alle e-postkontoene som krever programmet bli slettet, sammen med e-poster, kontakter, kalenderaktiviteter og andre data."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Sikkerhetsoppdatering påkrevd"</string>

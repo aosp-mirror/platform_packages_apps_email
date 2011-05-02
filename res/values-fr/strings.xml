@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Charger"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Infos"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Enregistrer"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Enregistrée"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Arrêter"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"PJ enregistrée sous <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Impossible d\'enregistrer la pièce jointe."</string>
@@ -303,9 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Impossible d\'établir une connexion avec le serveur en raison d\'une erreur de sécurité."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impossible d\'établir une connexion avec le serveur."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"L\'adresse de serveur saisie est incorrecte ou le serveur exige une version du protocole non prise en charge par la messagerie électronique."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Vous n\'êtes pas autorisé à synchroniser votre compte avec ce serveur. Veuillez contacter l\'administrateur de votre serveur pour en savoir plus."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administration de la sécurité à distance"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre mobile Android. Voulez-vous terminer la configuration de ce compte ?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Ce serveur nécessite des fonctionnalités de sécurité non compatibles avec votre mobile Android."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Vous ne pouvez pas modifier le nom d\'utilisateur d\'un compte. Pour ajouter un compte associé à un autre nom d\'utilisateur, appuyez sur \"Ajouter un compte\"."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"AVERTISSEMENT : Si vous désactivez la gestion de votre appareil par l\'application de messagerie électronique, tous les comptes de messagerie électronique qui y sont associés seront supprimés, de même que leurs données (e-mails, contacts, événements d\'agenda, etc.)."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Mise à jour de sécurité requise"</string>

@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Muat"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Info"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Simpan"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Disimpan"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Hentikan"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Lampiran disimpan sebagai <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Tidak dapat menyimpan lampiran."</string>
@@ -303,9 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Tidak dapat membuka sambungan ke server karena galat keamanan."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Tidak dapat membuka sambungan ke server."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Anda memasukkan alamat server yang salah atau server memerlukan versi protokol yang tidak didukung Email."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Anda tidak memiliki izin untuk menyinkronkan dengan server ini. Hubungi administrator server untuk mendapatkan informasi lebih lanjut."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administrasi keamanan jarak jauh"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Server <xliff:g id="SERVER">%s</xliff:g> meminta Anda mengizinkannya mengontrol beberapa fitur keamanan perangkat Android dari jarak jauh. Apakah Anda ingin menyelesaikan penyiapan akun ini?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Server ini memerlukan fitur keamanan yang tidak didukung perangkat Android Anda."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Anda tidak dapat mengubah nama pengguna akun. Untuk menambahkan akun dengan nama pengguna lain, sentuh Tambahkan akun."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"PERINGATAN: Menonaktifkan otoritas aplikasi Email untuk mengatur perangkat akan menghapus semua akun Email yang memerlukannya, beserta email, kenalan, acara kalender, dan data lainnya."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Pemutakhiran keamanan diperlukan"</string>

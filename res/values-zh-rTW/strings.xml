@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"載入"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"資訊"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"儲存"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"已儲存"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"停止"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"已將附件另存為 <xliff:g id="FILENAME">%s</xliff:g>。"</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"無法儲存附件。"</string>
@@ -303,9 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"發生安全性錯誤，無法連線至伺服器。"</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"無法連線至伺服器。"</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"您輸入的伺服器位址不正確，或是電子郵件不支援伺服器所需的通訊協定版本。"</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"您沒有與這部伺服器保持同步的權限。如需更多資訊，請與您伺服器的管理員聯絡。"</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"遠端安全性管理"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的一些安全性功能，您要結束這個帳戶的設定程序嗎？"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"您的 Android 裝置不支援這個伺服器所需的安全性功能。"</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"您無法變更帳戶的使用者名稱。如要以其他使用者名稱新增帳戶，請輕觸 [新增帳戶]。"</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"警告：如果停用「電子郵件」應用程式的裝置管理權限，系統將刪除所有需要使用這項權限的「電子郵件」帳戶，以及帳戶中的所有電子郵件、聯絡人、日曆活動和其他資料。"</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"必須更新安全性"</string>

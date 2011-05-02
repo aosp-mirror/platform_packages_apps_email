@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Wczytaj"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Informacje"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Zapisz"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Zapisany"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Zatrzymaj"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Załącznik zapisany jako <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Nie można zapisać załącznika."</string>
@@ -303,9 +304,10 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Nie można nawiązać połączenia z serwerem z powodu błędu zabezpieczeń."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Nie można nawiązać połączenia z serwerem."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Wprowadzono niepoprawny adres serwera lub serwer wymaga protokołu w wersji nieobsługiwanej przez aplikację Poczta."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Nie masz uprawnień do synchronizacji z tym serwerem. Skontaktuj się z administratorem serwera, aby uzyskać więcej informacji."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Zdalne administrowanie zabezpieczeniami"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Serwer <xliff:g id="SERVER">%s</xliff:g> wymaga udzielenia zezwolenia na zdalną kontrolę niektórych funkcji zabezpieczeń tego urządzenia z systemem Android. Czy chcesz zakończyć konfigurowanie tego konta?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Serwer wymaga funkcji zabezpieczeń, których to urządzenie z systemem Android nie obsługuje."</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"Serwer wymaga funkcji zabezpieczeń, których to urządzenie z systemem Android nie obsługuje, w tym funkcji: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Nie można zmienić nazwy użytkownika konta. Aby dodać konto z inną nazwą użytkownika, dotknij opcji Dodaj konto."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"OSTRZEŻENIE: cofnięcie uprawnienia aplikacji pocztowej do administrowania urządzeniem spowoduje usunięcie wszystkich kont e-mail, które wymagają tego uprawnienia, wraz z wiadomościami, kontaktami, wydarzeniami w kalendarzu i innymi danymi."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Wymagana aktualizacja zabezpieczeń"</string>

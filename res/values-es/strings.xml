@@ -134,6 +134,8 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Cargar"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Info"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Guardar"</string>
+    <!-- no translation found for message_view_attachment_saved (3432810414785232025) -->
+    <skip />
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Detener"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Adjunto guardado como <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"No se puede guardar el adjunto"</string>
@@ -303,9 +305,12 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"No se puede abrir la conexión con el servidor debido a un error de seguridad."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"No se puede abrir la conexión con el servidor."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Has introducido una dirección de servidor incorrecta o el servidor requiere una versión de protocolo que Email no admite."</string>
+    <!-- no translation found for account_setup_failed_access_denied (2571826611383388336) -->
+    <skip />
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administración de seguridad remota"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Es necesario que permitas que el servidor <xliff:g id="SERVER">%s</xliff:g> controle de forma remota algunas funciones de seguridad de tu dispositivo Android. ¿Deseas terminar de configurar esta cuenta?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Este servidor necesita funciones de seguridad que no son compatibles con tu dispositivo Android."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"No puedes modificar el nombre de usuario de una cuenta. Para añadir una cuenta con otro nombre de usuario, toca Añadir cuenta."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ADVERTENCIA: si desactivas la potestad de la aplicación Email para administrar tu dispositivo, se eliminarán todas las cuentas de esta aplicación que requieran su uso, así como las direcciones de correo electrónico, los contactos, los eventos de calendario y otro tipo de datos."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Actualización seguridad necesaria"</string>

@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"تحميل"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"معلومات"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"حفظ"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"تم الحفظ"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"إيقاف"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"تم حفظ المرفق باسم <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"يتعذر حفظ المرفق."</string>
@@ -303,9 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"يتعذر الاتصال بالخادم نظرًا لوقوع خطأ بالأمان."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"تعذر الاتصال بالخادم."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"لقد أدخلت عنوان خادم غير صحيح أو أن الخادم يتطلب إصدار بروتوكول لا يتوافق مع البريد الإلكتروني."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"ليس لديك إذن للمزامنة مع هذا الخادم. الرجاء الاتصال بمشرف الخادم للحصول على مزيد من المعلومات."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"التحكم عن بعد في إدارة الأمان"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"يتطلب الخادم <xliff:g id="SERVER">%s</xliff:g> أن تسمح له بالتحكم في بعض ميزات الأمان بجهاز Android عن بعد. هل تريد إنهاء إعداد هذا الحساب؟"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"يتطلب هذا الخادم ميزات أمان غير معتمدة على جهاز Android."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"لا يمكنك تغيير اسم المستخدم لأحد الحسابات. لإضافة حساب باسم مستخدم مختلف، المس \"إضافة حساب\"."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"تحذير: سيؤدي إلغاء تنشيط صلاحية تطبيق البريد الإلكتروني لإدارة الجهاز إلى حذف جميع حسابات البريد الإلكتروني التي تتطلب الصلاحية، وأيضًا حذف البريد الإلكتروني وجهات الاتصال وأحداث التقويم وغيرها من البيانات."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"تحديث الأمان مطلوب"</string>

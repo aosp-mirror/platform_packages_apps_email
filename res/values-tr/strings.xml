@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Yükle"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Bilgi"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Kaydet"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Kaydedildi"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Durdur"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Ek <xliff:g id="FILENAME">%s</xliff:g> olarak kaydedildi."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Ek kaydedilemedi."</string>
@@ -303,9 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Güvenlik hatası nedeniyle sunucu bağlantısı açılamıyor."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Sunucu bağlantısı açılamıyor."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Yanlış bir sunucu adresi girdiniz veya sunucu, E-postanın desteklemediği bir protokol sürümü gerektiriyor."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Bu sunucuyla senkronizasyon için izniniz yok. Lütfen daha fazla bilgi edinmek için sunucunuzun yöneticisine başvurun."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Uzaktan güvenlik yönetimi"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> sunucusu, Android cihazınızın bazı güvenlik özelliklerini uzaktan kontrol etmesine izin vermenizi gerektiriyor. Bu hesabı ayarlamayı tamamlamak istiyor musunuz?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Bu sunucu, Android cihazınızın desteklemediği güvenlik özellikleri gerektiriyor."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Bir hesabın kullanıcı adını değiştiremezsiniz. Farklı kullanıcı adıyla hesap eklemek için Hesap ekle\'ye dokunun."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"UYARI: E-posta uygulamasının, cihazınızı yönetme yetkisinin devre dışı bırakılması, bunu gerektiren tüm e-posta hesaplarını e-postaları, kişileri, takvim olayları ve diğer verileri ile birlikte siler."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Güvenlik güncellemesi gerekli"</string>

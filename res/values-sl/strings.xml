@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Naloži"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Informacije"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Shrani"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Shranjeno"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Ustavi"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Priloga je shranjena kot <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Priloge ni mogoče shraniti."</string>
@@ -303,9 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Zaradi varnostne napake ni bilo mogoče vzpostaviti povezave s strežnikom."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Povezave s strežnikom ni bilo mogoče vzpostaviti."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Vnesli ste napačen naslov strežnika ali pa je za strežnik potrebna različico protokola, ki je program za e-pošto ne podpira."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Nimate dovoljenja za sinhronizacijo s tem strežnikom. Za več informacij se obrnite na skrbnika strežnika."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Varnostno skrbništvo na daljavo"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Strežniku <xliff:g id="SERVER">%s</xliff:g> morate dovoliti, da na daljavo nadzira nekatere varnostne funkcije vaše naprave Android. Ali želite dokončati nastavitev tega računa?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Za ta strežnik so potrebne varnostne funkcije, ki jih vaša naprava Android ne podpira."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Uporabniškega imena za račun ni mogoče spreminjati. Če želite dodati račun z drugim uporabniškim imenom, se dotaknite možnosti »Dodaj račun«."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"Opozorilo: Če onemogočite pravico e-poštnega programa za upravljanja naprave, boste izbrisali vse e-poštne račune, ki jo potrebujejo, skupaj z e-pošto, stiki, dogodki koledarja in drugimi podatki."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Potrebna je varnostna posodobitev"</string>

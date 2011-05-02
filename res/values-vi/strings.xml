@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Tải"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Thông tin"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Lưu"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Đã lưu"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Dừng"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Đã lưu tệp đính kèm với tên <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Không thể lưu tệp đính kèm."</string>
@@ -303,9 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Không thể mở kết nối tới máy chủ do lỗi bảo mật."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Không thể mở kết nối tới máy chủ."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Bạn đã nhập địa chỉ máy chủ không chính xác hoặc máy chủ yêu cầu phiên bản giao thức mà Email không hỗ trợ."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Bạn không được phép đồng bộ hóa với máy chủ này. Vui lòng liên hệ với quản trị viên máy chủ của bạn để biết thêm thông tin."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Quản lý bảo mật từ xa"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Máy chủ <xliff:g id="SERVER">%s</xliff:g> yêu cầu bạn cho phép kiểm soát từ xa một số tính năng bảo mật của điện thoại Android của bạn. Bạn có muốn hoàn tất việc thiết lập tài khoản này không?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Máy chủ này yêu cầu tính năng bảo mật mà điện thoại Android của bạn không hỗ trợ."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Bạn không thể thay đổi tên người dùng của tài khoản. Để thêm tài khoản có tên người dùng khác, hãy chạm vào Thêm tài khoản."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"CẢNH BÁO: Vô hiệu hóa quyền quản lý điện thoại của bạn của ứng dụng Email sẽ xóa tất cả tài khoản Email yêu cầu quyền đó, cùng với email, địa chỉ liên hệ, sự kiện lịch và các dữ liệu khác."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Yêu cầu cập nhật bảo mật"</string>

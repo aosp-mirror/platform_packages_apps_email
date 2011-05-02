@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Carrega"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Informació"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Desa"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Desat"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Atura"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Fitxer adjunt desat com a <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"No es pot desar el fitxer adjunt."</string>
@@ -303,9 +304,11 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"No es pot obrir la connexió amb el servidor a causa d\'un error de seguretat."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"No es pot obrir la connexió amb el servidor."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Has introduït una adreça de servidor incorrecta o el servidor requereix una versió de protocol que el correu electrònic no admet."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"No tens permís per sincronitzar amb aquest servidor. Contacta amb l\'administrador del servidor per obtenir més informació."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administració de seguretat remota"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"El servidor <xliff:g id="SERVER">%s</xliff:g> requereix que li permetis controlar de manera remota algunes funcions de seguretat del dispositiu Android. Vols acabar de configurar aquest compte?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Aquest servidor requereix funcions de seguretat que no són compatibles amb el dispositiu Android."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"No pots canviar el nom d\'usuari d\'un compte. Per afegir un compte amb un nom d\'usuari diferent, toca Afegeix un compte."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"ADVERTIMENT: Desactivar l\'autoritat de l\'aplicació de correu electrònic per administrar el dispositiu suprimirà tots els comptes de correu electrònic que ho requereixin, juntament amb els correus electrònics, els contactes, els esdeveniments de calendari i altres dades."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Cal fer una actualització de seguretat"</string>

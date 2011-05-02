@@ -134,6 +134,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Načítať"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Informácie"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Uložiť"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Uložené"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Zastaviť"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Príloha uložená ako <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Prílohu nie je možné uložiť."</string>
@@ -303,9 +304,10 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Pripojenie k serveru sa nepodarilo otvoriť kvôli chybe zabezpečenia."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Nepodarilo sa otvoriť pripojenie k serveru."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Zadali ste nesprávni adresu servera alebo server vyžaduje verziu protokolu, ktorú aplikácia E-mail nepodporuje."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Nemáte povolenie na synchronizáciu s týmto serverom. Kontaktujte správcu servera a požiadajte ho o viac informácií."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Vzdialená správa zabezpečenia"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Server <xliff:g id="SERVER">%s</xliff:g> vyžaduje povolenie, aby mohol vzdialene ovládať niektoré funkcie zabezpečenia vášho zariadenia so systémom Android. Chcete dokončiť nastavenie tohto účtu?"</string>
-    <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Tento server vyžaduje funkcie zabezpečenia, ktoré vaše zariadenie so systémom Android nepodporuje."</string>
+    <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"Tento server vyžaduje bezpečnostné funkcie, ktoré vaše zariadenie so systémom Android nepodporuje, vrátane: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Používateľské meno účtu nemôžete zmeniť. Ak chcete pridať účet s iným používateľským menom, dotknite sa možnosti Pridať účet."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"UPOZORNENIE: Ak deaktivujete oprávnenia aplikácie E-mail spravovať toto zariadenie, budú odstránené všetky účty aplikácie E-mail, ktoré toto oprávnenie vyžadujú. Spoločne s týmito účtami budú odstránené aj všetky ich e-maily, kontakty, udalosti kalendára a ďalšie údaje."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Vyžaduje sa bezpečnostná aktualizácia"</string>

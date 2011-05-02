@@ -153,6 +153,8 @@
     <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
     <skip />
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Memorisar"</string>
+    <!-- no translation found for message_view_attachment_saved (3432810414785232025) -->
+    <skip />
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Fermar"</string>
     <!-- no translation found for message_view_status_attachment_saved (8878790392556284868) -->
     <skip />
@@ -354,10 +356,13 @@
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impussibel da stabilir ina connexiun cun il server."</string>
     <!-- no translation found for account_setup_failed_protocol_unsupported (5476633232659376833) -->
     <skip />
+    <!-- no translation found for account_setup_failed_access_denied (2571826611383388336) -->
+    <skip />
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administraziun da la segirezza a distanza"</string>
     <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
     <skip />
-    <!-- outdated translation 4093832822988053758 -->     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Quest server dovra funcziuns da segirezza che Voss telefonin na sustegna betg."</string>
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
     <!-- no translation found for account_setup_username_uneditable_error (9057508235700936322) -->
     <skip />
     <!-- no translation found for disable_admin_warning (4940147098039352135) -->
