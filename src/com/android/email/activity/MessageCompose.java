@@ -78,6 +78,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -108,6 +110,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         "com.android.email.activity.MessageCompose.stateKeySourceMessageProced";
     private static final String STATE_KEY_DRAFT_ID =
         "com.android.email.activity.MessageCompose.draftId";
+    private static final String STATE_KEY_REQUEST_ID =
+        "com.android.email.activity.MessageCompose.requestId";
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
 
@@ -116,12 +120,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     };
     private static final int ATTACHMENT_META_SIZE_COLUMN_SIZE = 0;
 
-    // Is set while the draft is saved by a background thread.
-    // Is static in order to be shared between the two activity instances
-    // on orientation change.
-    private static boolean sSaveInProgress = false;
-    // lock and condition for sSaveInProgress
-    private static final Object sSaveInProgressCondition = new Object();
+    /**
+     * A registry of the active tasks used to save messages.
+     */
+    private static final ConcurrentHashMap<Long, SendOrSaveMessageTask> sActiveSaveTasks =
+            new ConcurrentHashMap<Long, SendOrSaveMessageTask>();
+
+    private static long sNextSaveTaskId = 1;
+
+    /**
+     * The ID of the latest save or send task requested by this Activity.
+     */
+    private long mLastSaveTaskId = -1;
 
     private Account mAccount;
 
@@ -299,11 +309,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setDraftNeedsSaving(false);
 
         long draftId = -1;
+        long existingSaveTaskId = -1;
         if (savedInstanceState != null) {
             // This data gets used in onCreate, so grab it here instead of onRestoreInstanceState
             mSourceMessageProcessed =
                 savedInstanceState.getBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, false);
             draftId = savedInstanceState.getLong(STATE_KEY_DRAFT_ID, -1);
+            existingSaveTaskId = savedInstanceState.getLong(STATE_KEY_REQUEST_ID, -1);
         }
 
         // Show the back arrow on the action bar.
@@ -334,27 +346,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         } else {
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
             long messageId = draftId != -1 ? draftId : intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
-            if (messageId != -1) {
-                new LoadMessageTask(messageId).executeParallel();
+            SendOrSaveMessageTask saveTask = sActiveSaveTasks.get(existingSaveTaskId);
+            if ((messageId != -1) || (saveTask != null)) {
+                new LoadMessageTask(messageId, saveTask).executeParallel();
             } else {
                 setAccount(intent);
+                setInitialComposeText(null, getAccountSignature(mAccount));
+
                 // Since this is a new message, we don't need to call LoadMessageTask.
                 // But we DO need to set mMessageLoaded to indicate the message can be sent
                 mMessageLoaded = true;
                 mSourceMessageProcessed = true;
             }
-            setInitialComposeText(null, getAccountSignature(mAccount));
-        }
-
-        if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction) ||
-                ACTION_FORWARD.equals(mAction) || ACTION_EDIT_DRAFT.equals(mAction)) {
-            /*
-             * If we need to load the message we add ourself as a message listener here
-             * so we can kick it off. Normally we add in onResume but we don't
-             * want to reload the message every time the activity is resumed.
-             * There is no harm in adding twice.
-             */
-            // TODO: signal the controller to load the message
         }
     }
 
@@ -416,7 +419,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        long draftId = getOrCreateDraftId();
+
+        long draftId = mDraft.mId;
         if (draftId != -1) {
             outState.putLong(STATE_KEY_DRAFT_ID, draftId);
         }
@@ -424,6 +428,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         outState.putBoolean(STATE_KEY_QUOTED_TEXT_SHOWN,
                 mQuotedTextBar.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, mSourceMessageProcessed);
+
+        // If there are any outstanding save requests, ensure that it's noted in case it hasn't
+        // finished by the time the activity is restored.
+        outState.putLong(STATE_KEY_REQUEST_ID, mLastSaveTaskId);
     }
 
     @Override
@@ -432,11 +440,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (savedInstanceState.getBoolean(STATE_KEY_CC_SHOWN)) {
             showCcBccFields();
         }
-        mQuotedTextBar.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN) ?
-                View.VISIBLE : View.GONE);
-        mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN) ?
-                View.VISIBLE : View.GONE);
-        setDraftNeedsSaving(false);
+        mQuotedTextBar.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN)
+                ? View.VISIBLE : View.GONE);
+        mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN)
+                ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -607,26 +614,51 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mAddressAdapterBcc = new EmailAddressAdapter(this);
     }
 
+    /**
+     * Asynchronously loads a message and the account information.
+     * This can be used to load a reference message (when replying) or when restoring a draft.
+     */
     private class LoadMessageTask extends EmailAsyncTask<Void, Void, Object[]> {
-        private final long mMessageId;
+        /**
+         * The message ID to load, if available.
+         */
+        private long mMessageId;
 
-        public LoadMessageTask(long messageId) {
+        /**
+         * A future-like reference to the save task which must complete prior to this load.
+         */
+        private final SendOrSaveMessageTask mSaveTask;
+
+        public LoadMessageTask(long messageId, SendOrSaveMessageTask saveTask) {
             super(mTaskTracker);
             mMessageId = messageId;
+            mSaveTask = saveTask;
+        }
+
+        private long getIdToLoad() throws InterruptedException, ExecutionException {
+            if (mMessageId == -1) {
+                mMessageId = mSaveTask.get();
+            }
+            return mMessageId;
         }
 
         @Override
         protected Object[] doInBackground(Void... params) {
-            synchronized (sSaveInProgressCondition) {
-                while (sSaveInProgress) {
-                    try {
-                        sSaveInProgressCondition.wait();
-                    } catch (InterruptedException e) {
-                        // ignore & retry loop
-                    }
-                }
+            long messageId;
+            try {
+                messageId = getIdToLoad();
+            } catch (InterruptedException e) {
+                // Don't have a good message ID to load - bail.
+                Log.e(Logging.LOG_TAG,
+                        "Unable to load draft message since existing save task failed: " + e);
+                return null;
+            } catch (ExecutionException e) {
+                // Don't have a good message ID to load - bail.
+                Log.e(Logging.LOG_TAG,
+                        "Unable to load draft message since existing save task failed: " + e);
+                return new Object[] {null, null};
             }
-            Message message = Message.restoreMessageWithId(MessageCompose.this, mMessageId);
+            Message message = Message.restoreMessageWithId(MessageCompose.this, messageId);
             if (message == null) {
                 return new Object[] {null, null};
             }
@@ -656,7 +688,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 Log.d(Logging.LOG_TAG, "Exception while loading message body: " + e);
                 return new Object[] {null, null};
             }
-            return new Object[]{message, account};
+            return new Object[] {message, account};
         }
 
         @Override
@@ -897,41 +929,28 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return attachments;
     }
 
-    /* This method does DB operations in UI thread because
-       the draftId is needed by onSaveInstanceState() which can't wait for it
-       to be saved in the background.
-       TODO: This will cause ANRs, so we need to find a better solution.
-    */
-    private long getOrCreateDraftId() {
-        synchronized (mDraft) {
-            if (mDraft.mId > 0) {
-                return mDraft.mId;
-            }
-            // don't save draft if the source message did not load yet
-            if (!mMessageLoaded) {
-                return -1;
-            }
-            final Attachment[] attachments = getAttachmentsFromUI();
-            updateMessage(mDraft, mAccount, attachments.length > 0, false);
-            mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
-            return mDraft.mId;
-        }
-    }
-
-    private class SendOrSaveMessageTask extends EmailAsyncTask<Void, Void, Void> {
+    private class SendOrSaveMessageTask extends EmailAsyncTask<Void, Void, Long> {
         private final boolean mSend;
+        private final long mTaskId;
 
-        public SendOrSaveMessageTask(boolean send) {
+        /** A context that will survive even past activity destruction. */
+        private final Context mContext;
+
+        public SendOrSaveMessageTask(long taskId, boolean send) {
             super(null /* DO NOT cancel in onDestroy */);
             if (send && ActivityManager.isUserAMonkey()) {
                 Log.d(Logging.LOG_TAG, "Inhibiting send while monkey is in charge.");
                 send = false;
             }
+            mTaskId = taskId;
             mSend = send;
+            mContext = getApplicationContext();
+
+            sActiveSaveTasks.put(mTaskId, this);
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Long doInBackground(Void... params) {
             synchronized (mDraft) {
                 final Attachment[] attachments = getAttachmentsFromUI();
                 updateMessage(mDraft, mAccount, attachments.length > 0, mSend);
@@ -960,8 +979,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                             ((attachment.mFlags & Attachment.FLAG_SMART_FORWARD) == 0)) {
                         attachment.mFlags |= Attachment.FLAG_DOWNLOAD_FORWARD;
                         hasUnloadedAttachments = true;
-                        if (Email.DEBUG){
-                            Log.d("MessageCompose",
+                        if (Email.DEBUG) {
+                            Log.d(Logging.LOG_TAG,
                                     "Requesting download of attachment #" + attachment.mId);
                         }
                     }
@@ -994,20 +1013,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     }
                     mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
                 }
-                return null;
+                return mDraft.mId;
             }
         }
 
         @Override
-        protected void onPostExecute(Void param) {
-            synchronized (sSaveInProgressCondition) {
-                sSaveInProgress = false;
-                sSaveInProgressCondition.notify();
-            }
+        protected void onPostExecute(Long draftId) {
+            // Note that send or save tasks are always completed, even if the activity
+            // finishes earlier.
+            sActiveSaveTasks.remove(mTaskId);
             // Don't display the toast if the user is just changing the orientation
             if (!mSend && (getChangingConfigurations() & ActivityInfo.CONFIG_ORIENTATION) == 0) {
-                Toast.makeText(MessageCompose.this, R.string.message_saved_toast,
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext, R.string.message_saved_toast, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -1021,13 +1038,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     private void sendOrSaveMessage(boolean send) {
         if (!mMessageLoaded) {
-            // early save, before the message was loaded: do nothing
+            Log.w(Logging.LOG_TAG,
+                    "Attempted to save draft message prior to the state being fully loaded");
             return;
         }
-        synchronized (sSaveInProgressCondition) {
-            sSaveInProgress = true;
+        synchronized (sActiveSaveTasks) {
+            mLastSaveTaskId = sNextSaveTaskId++;
+
+            SendOrSaveMessageTask task = new SendOrSaveMessageTask(mLastSaveTaskId, send);
+
+            // Ensure the tasks are executed serially so that rapid scheduling doesn't result
+            // in inconsistent data.
+            task.executeSerial();
         }
-        new SendOrSaveMessageTask(send).executeParallel();
    }
 
     private void saveIfNeeded() {
@@ -1093,9 +1116,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         finish();
     }
 
+    /**
+     * Handles an explicit user-initiated action to save a draft.
+     */
     private void onSave() {
         saveIfNeeded();
-        finish();
     }
 
     private void showCcBccFieldsIfFilled() {
