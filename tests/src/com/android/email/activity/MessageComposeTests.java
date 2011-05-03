@@ -207,6 +207,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, null);
+                a.setInitialComposeText(null, null);
                 checkFields(SENDER + ", ", null, null, "Re: " + SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
@@ -219,6 +220,7 @@ public class MessageComposeTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message, null);
+                a.setInitialComposeText(null, null);
                 checkFields(REPLYTO + ", ", null, null, "Re: " + SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
@@ -235,6 +237,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, account);
+                a.setInitialComposeText(null, SIGNATURE);
                 checkFields(SENDER + ", ", null, null, "Re: " + SUBJECT, null, SIGNATURE);
                 checkFocused(mMessageView);
             }
@@ -247,6 +250,7 @@ public class MessageComposeTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message, account);
+                a.setInitialComposeText(null, SIGNATURE);
                 checkFields(REPLYTO + ", ", null, null, "Re: " + SUBJECT, null, SIGNATURE);
                 checkFocused(mMessageView);
             }
@@ -264,6 +268,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, account);
+                a.setInitialComposeText(null, SIGNATURE);
                 checkFields(null, null, null, "Fwd: " + SUBJECT, null, SIGNATURE);
                 checkFocused(mToView);
            }
@@ -283,6 +288,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, null);
+                a.setInitialComposeText(null, null);
                 checkFields(UTF16_SENDER + ", ", null, null, "Re: " + UTF16_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
@@ -295,6 +301,7 @@ public class MessageComposeTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message, null);
+                a.setInitialComposeText(null, null);
                 checkFields(UTF16_REPLYTO + ", ", null, null, "Re: " + UTF16_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
@@ -314,6 +321,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, null);
+                a.setInitialComposeText(null, null);
                 checkFields(UTF32_SENDER + ", ", null, null, "Re: " + UTF32_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
@@ -326,6 +334,7 @@ public class MessageComposeTests
             public void run() {
                 resetViews();
                 a.processSourceMessage(message, null);
+                a.setInitialComposeText(null, null);
                 checkFields(UTF32_REPLYTO + ", ", null, null, "Re: " + UTF32_SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
@@ -347,6 +356,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.processSourceMessage(message, null);
+                a.setInitialComposeText(null, null);
                 checkFields(null, null, null, "Fwd: " + SUBJECT, null, null);
                 checkFocused(mToView);
             }
@@ -489,7 +499,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(intent);
-                a.setupAddressViews(message, account, mToView, mCcView, false);
+                a.setupAddressViews(message, account, false);
                 assertEquals("", mCcView.getText().toString());
                 String result = Address.parseAndPack(mToView.getText().toString());
                 String expected = Address.parseAndPack(FROM);
@@ -525,7 +535,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(intent);
-                a.setupAddressViews(message, account, mToView, mCcView, true);
+                a.setupAddressViews(message, account, true);
                 String result = Address.parseAndPack(mToView.getText().toString());
                 String expected = Address.parseAndPack(FROM + ',' + TO2);
                 assertEquals(expected, result);
@@ -562,7 +572,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(intent);
-                a.setupAddressViews(message, account, mToView, mCcView, true);
+                a.setupAddressViews(message, account, true);
                 String result = Address.parseAndPack(mToView.getText().toString());
                 String expected = Address.parseAndPack(FROM + ',' + TO1 + ',' + TO2);
                 assertEquals(expected, result);
@@ -599,7 +609,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 a.initFromIntent(intent);
-                a.setupAddressViews(message, account, mToView, mCcView, true);
+                a.setupAddressViews(message, account, true);
                 String result = Address.parseAndPack(mToView.getText().toString());
                 String expected = Address.parseAndPack(FROM + ',' + TO1 + ',' + TO2 + ',' + TO3);
                 assertEquals(expected, result);
@@ -979,7 +989,6 @@ public class MessageComposeTests
         String result = mToView.getText().toString();
         assertEquals(expect, result);
     }
-
 
     private static int sAttachmentId = 1;
     private Attachment makeAttachment(String filename) {

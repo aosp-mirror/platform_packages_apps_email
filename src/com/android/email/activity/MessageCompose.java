@@ -38,8 +38,11 @@ import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 
 import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.ActionBar.TabListener;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.FragmentTransaction;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -47,6 +50,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -65,6 +69,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.WebView;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -112,6 +117,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         "com.android.email.activity.MessageCompose.draftId";
     private static final String STATE_KEY_LAST_SAVE_TASK_ID =
         "com.android.email.activity.MessageCompose.requestId";
+    private static final String STATE_KEY_ACTION =
+        "com.android.email.activity.MessageCompose.action";
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
 
@@ -155,10 +162,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     /**
      * The attachments associated with the source attachments. Usually included in a forward.
      */
-    private final ArrayList<Attachment> mSourceAttachments = new ArrayList<Attachment>();
+    private ArrayList<Attachment> mSourceAttachments = new ArrayList<Attachment>();
 
     /**
-     * The action being handled by this activity from the {@link Intent}.
+     * The action being handled by this activity. This is initially populated from the
+     * {@link Intent}, but can switch between reply/reply all/forward where appropriate.
+     * This value is nullable (a null value indicating a regular "compose").
      */
     private String mAction;
 
@@ -321,17 +330,25 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         getActionBar().setDisplayOptions(
                 ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
 
-        Intent intent = getIntent();
-        mAction = intent.getAction();
 
         if (savedInstanceState != null) {
             long draftId = savedInstanceState.getLong(STATE_KEY_DRAFT_ID, Message.NOT_SAVED);
             long existingSaveTaskId = savedInstanceState.getLong(STATE_KEY_LAST_SAVE_TASK_ID, -1);
+            mAction = savedInstanceState.getString(STATE_KEY_ACTION);
             SendOrSaveMessageTask existingSaveTask = sActiveSaveTasks.get(existingSaveTaskId);
 
-            // Assert ((draftId != Message.NOT_SAVED) || (existingSaveTask != null));
-            resumeDraft(draftId, existingSaveTask, false /* don't restore views */);
+            if ((draftId != Message.NOT_SAVED) || (existingSaveTask != null)) {
+                // Restoring state and there was an existing message saved or in the process of
+                // being saved.
+                resumeDraft(draftId, existingSaveTask, false /* don't restore views */);
+            } else {
+                // Restoring state but there was nothing saved - probably means the user rotated
+                // the device immediately - just use the Intent.
+                resolveIntent(getIntent());
+            }
         } else {
+            Intent intent = getIntent();
+            mAction = intent.getAction();
             resolveIntent(intent);
         }
 
@@ -350,7 +367,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 || ACTION_REPLY_ALL.equals(mAction)
                 || ACTION_FORWARD.equals(mAction)) {
             long sourceMessageId = getIntent().getLongExtra(EXTRA_MESSAGE_ID, Message.NOT_SAVED);
-            loadSourceMessage(sourceMessageId);
+            loadSourceMessage(sourceMessageId, true);
 
         } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
             // Assert getIntent.hasExtra(EXTRA_MESSAGE_ID)
@@ -444,10 +461,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         outState.putBoolean(STATE_KEY_CC_SHOWN, mCcBccContainer.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_QUOTED_TEXT_SHOWN,
                 mQuotedTextBar.getVisibility() == View.VISIBLE);
+        outState.putString(STATE_KEY_ACTION, mAction);
 
         // If there are any outstanding save requests, ensure that it's noted in case it hasn't
         // finished by the time the activity is restored.
         outState.putLong(STATE_KEY_LAST_SAVE_TASK_ID, mLastSaveTaskId);
+    }
+
+    /**
+     * Whether or not the current message being edited has a source message (i.e. is a reply,
+     * or forward) that is loaded.
+     */
+    private boolean hasSourceMessage() {
+        return mSource != null;
     }
 
     /**
@@ -658,6 +684,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         }
                     }
                 });
+
+                // If we're resuming an edit of a reply, reply-all, or forward, re-load the
+                // source message if available so that we get more information.
+                if (message.mSourceKey != Message.NOT_SAVED) {
+                    loadSourceMessage(message.mSourceKey, false /* restore views */);
+                }
+            }
+
+            @Override
+            public void onLoadFailed() {
+                Utility.showToast(MessageCompose.this, R.string.error_loading_message_body);
+                finish();
             }
         }).executeParallel((Void[]) null);
     }
@@ -691,9 +729,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     /**
      * Asynchronously loads a source message (to be replied or forwarded in this current view),
-     * populating text fields and quoted text fields as appropriate when the load finishes.
+     * populating text fields and quoted text fields when the load finishes, if requested.
      */
-    private void loadSourceMessage(long sourceMessageId) {
+    private void loadSourceMessage(long sourceMessageId, final boolean restoreViews) {
         new LoadMessageTask(sourceMessageId, null, new OnMessageLoadHandler() {
             @Override
             public void onMessageLoaded(Message message, Body body) {
@@ -703,31 +741,88 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 message.mTextReply = null;
                 message.mIntroText = null;
                 mSource = message;
+                mSourceAttachments = new ArrayList<Attachment>();
 
-                if (isForward()) {
-                    loadAttachments(message.mId, mAccount, new AttachmentLoadedCallback() {
-                        @Override
-                        public void onAttachmentLoaded(Attachment[] attachments) {
-                            final boolean supportsSmartForward =
-                                (mAccount.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0;
+                if (restoreViews) {
+                    processSourceMessage(mSource, mAccount);
+                    setInitialComposeText(null, getAccountSignature(mAccount));
+                }
 
-                            // Process the attachments to have the appropriate smart forward flags.
-                            for (Attachment attachment : attachments) {
-                                if (supportsSmartForward) {
-                                    attachment.mFlags |= Attachment.FLAG_SMART_FORWARD;
-                                }
-                                mSourceAttachments.add(attachment);
+                loadAttachments(message.mId, mAccount, new AttachmentLoadedCallback() {
+                    @Override
+                    public void onAttachmentLoaded(Attachment[] attachments) {
+                        final boolean supportsSmartForward =
+                            (mAccount.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0;
+
+                        // Process the attachments to have the appropriate smart forward flags.
+                        for (Attachment attachment : attachments) {
+                            if (supportsSmartForward) {
+                                attachment.mFlags |= Attachment.FLAG_SMART_FORWARD;
                             }
+                            mSourceAttachments.add(attachment);
+                        }
+                        if (isForward() && restoreViews) {
                             if (processSourceMessageAttachments(
                                     mAttachments, mSourceAttachments, true)) {
                                 updateAttachmentUi();
+                                setDraftNeedsSaving(true);
                             }
                         }
-                    });
+                    }
+                });
+
+                if (mAction.equals(ACTION_EDIT_DRAFT)) {
+                    // Resuming a draft may in fact be resuming a reply/reply all/forward.
+                    // Use a best guess and infer the action here.
+                    String inferredAction = inferAction();
+                    if (inferredAction != null) {
+                        mAction = inferredAction;
+                    }
                 }
-                processSourceMessage(mSource, mAccount);
+
+                // TODO: handle updating code when we have a drop down selector.
+                // Update action selector.
+                invalidateOptionsMenu();
+            }
+
+            @Override
+            public void onLoadFailed() {
+                // The loading of the source message is only really required if it is needed
+                // immediately to restore the view contents. In the case of resuming draft, it
+                // is only needed to gather additional information.
+                if (restoreViews) {
+                    Utility.showToast(MessageCompose.this, R.string.error_loading_message_body);
+                    finish();
+                }
             }
         }).executeParallel((Void[]) null);
+    }
+
+    /**
+     * Infers whether or not the current state of the message best reflects either a reply,
+     * reply-all, or forward.
+     */
+    @VisibleForTesting
+    String inferAction() {
+        String subject = mSubjectView.getText().toString();
+        if (subject == null) {
+            return null;
+        }
+        if (subject.toLowerCase().startsWith("fwd:")) {
+            return ACTION_FORWARD;
+        } else if (subject.toLowerCase().startsWith("re:")) {
+            int numRecipients = getAddresses(mToView).length
+                    + getAddresses(mCcView).length
+                    + getAddresses(mBccView).length;
+            if (numRecipients > 1) {
+                return ACTION_REPLY_ALL;
+            } else {
+                return ACTION_REPLY;
+            }
+        } else {
+            // Unsure.
+            return null;
+        }
     }
 
     private interface OnMessageLoadHandler {
@@ -735,6 +830,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          * Handles a load to a message (e.g. a draft message or a source message).
          */
         void onMessageLoaded(Message message, Body body);
+
+        /**
+         * Handles a failure to load a message.
+         */
+        void onLoadFailed();
     }
 
     /**
@@ -757,15 +857,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          */
         private final OnMessageLoadHandler mCallback;
 
-        private final Context mContext;
-
         public LoadMessageTask(
                 long messageId, SendOrSaveMessageTask saveTask, OnMessageLoadHandler callback) {
             super(mTaskTracker);
             mMessageId = messageId;
             mSaveTask = saveTask;
             mCallback = callback;
-            mContext = getApplicationContext();
         }
 
         private long getIdToLoad() throws InterruptedException, ExecutionException {
@@ -807,15 +904,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return new Object[] {message, body, account};
         }
 
-        private void onLoadFailed() {
-            Utility.showToast(mContext, R.string.error_loading_message_body);
-            finish();
-        }
-
         @Override
         protected void onPostExecute(Object[] results) {
             if ((results == null) || (results.length != 3)) {
-                onLoadFailed();
+                mCallback.onLoadFailed();
                 return;
             }
 
@@ -823,7 +915,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             final Body body = (Body) results[1];
             final Account account = (Account) results[2];
             if ((message == null) || (body == null) || (account == null)) {
-                onLoadFailed();
+                mCallback.onLoadFailed();
                 return;
             }
 
@@ -1385,8 +1477,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private void onDeleteAttachmentIconClicked(View delButtonView) {
         View attachmentView = (View) delButtonView.getTag();
         Attachment attachment = (Attachment) attachmentView.getTag();
-        deleteAttachment(attachment);
+        deleteAttachment(mAttachments, attachment);
         updateAttachmentUi();
+        setDraftNeedsSaving(true);
     }
 
     /**
@@ -1395,9 +1488,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * has previously been saved), then the draft is deleted from the db.
      *
      * This does not update the UI to remove the attachment view.
+     * @param attachments the list of attachments to delete from. Injected for tests.
+     * @param attachment the attachment to delete
      */
-    private void deleteAttachment(Attachment attachment) {
-        mAttachments.remove(attachment);
+    private void deleteAttachment(List<Attachment> attachments, Attachment attachment) {
+        attachments.remove(attachment);
         if ((attachment.mMessageKey == mDraft.mId) && attachment.isSaved()) {
             final long attachmentId = attachment.mId;
             EmailAsyncTask.runAsyncParallel(new Runnable() {
@@ -1407,7 +1502,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 }
             });
         }
-        setDraftNeedsSaving(true);
     }
 
     @Override
@@ -1456,10 +1550,73 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
+    /**
+     * Handles changing from reply/reply all/forward states. Note: this activity cannot transition
+     * from a standard compose state to any of the other three states.
+     */
+    private void onActionChanged(String action) {
+        if (action.equals(mAction)) {
+            return;
+        }
+
+        mAction = action;
+        if (mSource != null) {
+            processSourceMessage(mSource, mAccount);
+
+            // Note that the attachments might not be loaded yet, but this will safely noop
+            // if that's the case, and the attachments will be processed when they load.
+            if (processSourceMessageAttachments(mAttachments, mSourceAttachments, isForward())) {
+                updateAttachmentUi();
+                setDraftNeedsSaving(true);
+            }
+        }
+    }
+
+    private final TabListener ACTION_TAB_LISTENER = new TabListener() {
+        @Override public void onTabReselected(Tab tab, FragmentTransaction ft) {}
+        @Override public void onTabUnselected(Tab tab, FragmentTransaction ft) {}
+
+        @Override
+        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+            String action = (String) tab.getTag();
+            onActionChanged(action);
+        }
+    };
+
+    private Tab createAndAddTab(int labelResource, final String action) {
+        ActionBar.Tab tab = getActionBar().newTab();
+        boolean selected = mAction.equals(action);
+        tab.setTag(action);
+        tab.setText(getString(labelResource));
+        tab.setTabListener(ACTION_TAB_LISTENER);
+        getActionBar().addTab(tab, selected);
+        return tab;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_compose_option, menu);
+
+        if (hasSourceMessage()) {
+            // Initialize reply/reply all/forward switcher.
+            final int screenLayout = getResources().getConfiguration().screenLayout;
+            if (getWindow().hasFeature(Window.FEATURE_ACTION_BAR)
+                    && (screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) != 0) {
+
+                // Tab-based mode switching.
+                ActionBar actionBar = getActionBar();
+                actionBar.removeAllTabs();
+                createAndAddTab(R.string.reply_action, ACTION_REPLY);
+                createAndAddTab(R.string.reply_all_action, ACTION_REPLY_ALL);
+                createAndAddTab(R.string.forward_action, ACTION_FORWARD);
+
+                actionBar.setDisplayShowTitleEnabled(false);
+                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            } else {
+                // TODO: drop down mode switching.
+            }
+        }
         return true;
     }
 
@@ -1669,13 +1826,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * is that we not 1) send to ourselves, and 2) duplicate addressees.
      * @param message the message we're replying to
      * @param account the account we're sending from
-     * @param toView the "To" view
-     * @param ccView the "Cc" view
      * @param replyAll whether this is a replyAll (vs a reply)
      */
     @VisibleForTesting
-    void setupAddressViews(Message message, Account account,
-            MultiAutoCompleteTextView toView, MultiAutoCompleteTextView ccView, boolean replyAll) {
+    void setupAddressViews(Message message, Account account, boolean replyAll) {
+        // Start clean.
+        clearAddressViews();
+
         /*
          * If a reply-to was included with the message use that, otherwise use the from
          * or sender address.
@@ -1701,6 +1858,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         showCcBccFieldsIfFilled();
     }
 
+    private void clearAddressViews() {
+        mToView.setText("");
+        mCcView.setText("");
+        mBccView.setText("");
+    }
+
     /**
      * Pull out the parts of the now loaded source message and apply them to the new message
      * depending on the type of message being composed.
@@ -1710,8 +1873,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setDraftNeedsSaving(true);
         final String subject = message.mSubject;
         if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
-            setupAddressViews(message, account, mToView, mCcView,
-                ACTION_REPLY_ALL.equals(mAction));
+            setupAddressViews(message, account, ACTION_REPLY_ALL.equals(mAction));
             if (subject != null && !subject.toLowerCase().startsWith("re:")) {
                 mSubjectView.setText("Re: " + subject);
             } else {
@@ -1719,13 +1881,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
             displayQuotedText(message.mText, message.mHtml);
             setIncludeQuotedText(true, false);
-            setInitialComposeText(null, getAccountSignature(account));
         } else if (ACTION_FORWARD.equals(mAction)) {
+            clearAddressViews();
             mSubjectView.setText(subject != null && !subject.toLowerCase().startsWith("fwd:") ?
                     "Fwd: " + subject : subject);
             displayQuotedText(message.mText, message.mHtml);
             setIncludeQuotedText(true, false);
-            setInitialComposeText(null, getAccountSignature(account));
         } else {
             Log.w(Logging.LOG_TAG, "Unexpected action for a call to processSourceMessage "
                     + mAction);
@@ -1740,8 +1901,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * to remove them if going from a "Forward" to a "Reply"
      * Uniqueness is based on filename.
      *
-     * @param current the list of active attachments on the current message
-     * @param sourceAttachments the list of attachments related with the source message
+     * @param current the list of active attachments on the current message. Injected for tests.
+     * @param sourceAttachments the list of attachments related with the source message. Injected
+     *     for tests.
      * @param include whether or not the sourceMessages should be included or excluded from the
      *     current list of active attachments
      * @return whether or not the current attachments were modified
@@ -1770,7 +1932,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             HashSet<String> sourceNames = new HashSet<String>();
             for (Attachment attachment : sourceAttachments) {
                 if (currentNames.containsKey(attachment.mFileName)) {
-                    deleteAttachment(currentNames.get(attachment.mFileName));
+                    deleteAttachment(current, currentNames.get(attachment.mFileName));
                     dirty = true;
                 }
             }
