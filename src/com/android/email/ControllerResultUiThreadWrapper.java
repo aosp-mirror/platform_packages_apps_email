@@ -19,6 +19,8 @@ package com.android.email;
 import com.android.email.Controller.Result;
 import com.android.emailcommon.mail.MessagingException;
 
+import java.util.ArrayList;
+
 import android.os.Handler;
 
 /**
@@ -106,12 +108,13 @@ public class ControllerResultUiThreadWrapper<T extends Result> extends Result {
 
     @Override
     public void updateMailboxCallback(final MessagingException result, final long accountId,
-            final long mailboxId, final int progress, final int numNewMessages) {
+            final long mailboxId, final int progress, final int numNewMessages,
+            final ArrayList<Long> addedMessages) {
         run(new Runnable() {
             public void run() {
                 if (!isRegistered()) return;
                 mWrappee.updateMailboxCallback(result, accountId, mailboxId, progress,
-                        numNewMessages);
+                        numNewMessages, addedMessages);
             }
         });
     }

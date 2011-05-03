@@ -20,6 +20,7 @@ import com.android.emailcommon.mail.MessagingException;
 
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -80,10 +81,10 @@ public class GroupMessagingListener extends MessagingListener {
 
     @Override
     synchronized public void synchronizeMailboxFinished(long accountId, long mailboxId,
-            int totalMessagesInMailbox, int numNewMessages) {
+            int totalMessagesInMailbox, int numNewMessages, ArrayList<Long> addedMessages) {
         for (MessagingListener l : mListeners) {
             l.synchronizeMailboxFinished(accountId, mailboxId,
-                    totalMessagesInMailbox, numNewMessages);
+                    totalMessagesInMailbox, numNewMessages, addedMessages);
         }
     }
 

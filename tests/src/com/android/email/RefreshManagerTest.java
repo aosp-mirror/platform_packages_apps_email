@@ -260,7 +260,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertTrue(mTarget.isRefreshingAnyMessageListForTest());
 
         // Refreshing mailbox 1...
-        mController.mListener.updateMailboxCallback(null, ACCOUNT_1, MAILBOX_1, 0, 0);
+        mController.mListener.updateMailboxCallback(null, ACCOUNT_1, MAILBOX_1, 0, 0, null);
 
         assertTrue(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
@@ -272,7 +272,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
 
         // Done.
         Log.w(Logging.LOG_TAG, "" + mController.mListener.getClass());
-        mController.mListener.updateMailboxCallback(null, ACCOUNT_1, MAILBOX_1, 100, 0);
+        mController.mListener.updateMailboxCallback(null, ACCOUNT_1, MAILBOX_1, 100, 0, null);
 
         assertTrue(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
@@ -289,7 +289,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         // Refreshing mailbox 2...
         mClock.advance();
 
-        mController.mListener.updateMailboxCallback(null, ACCOUNT_2, MAILBOX_2, 0, 0);
+        mController.mListener.updateMailboxCallback(null, ACCOUNT_2, MAILBOX_2, 0, 0, null);
 
         assertTrue(mListener.mCalledOnRefreshStatusChanged);
         assertFalse(mListener.mCalledOnConnectionError);
@@ -300,7 +300,7 @@ public class RefreshManagerTest extends InstrumentationTestCase {
         assertEquals(0, mTarget.getMessageListStatusForTest(MAILBOX_2).getLastRefreshTime());
 
         // Done with exception.
-        mController.mListener.updateMailboxCallback(EXCEPTION, ACCOUNT_2, MAILBOX_2, 0, 0);
+        mController.mListener.updateMailboxCallback(EXCEPTION, ACCOUNT_2, MAILBOX_2, 0, 0, null);
 
         assertTrue(mListener.mCalledOnRefreshStatusChanged);
         assertTrue(mListener.mCalledOnConnectionError);

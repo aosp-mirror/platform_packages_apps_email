@@ -385,7 +385,8 @@ public class RefreshManager {
          */
         @Override
         public void updateMailboxCallback(MessagingException exception, long accountId,
-                long mailboxId, int progress, int dontUseNumNewMessages) {
+                long mailboxId, int progress, int dontUseNumNewMessages,
+                ArrayList<Long> addedMessages) {
             if (LOG_ENABLED) {
                 Log.d(Logging.LOG_TAG, "updateMailboxCallback " + accountId + ", "
                         + mailboxId + ", " + progress + ", " + exceptionToString(exception));

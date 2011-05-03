@@ -22,6 +22,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import java.util.List;
+
 public class AccountServiceProxy extends ServiceProxy implements IAccountService {
 
     public static final String ACCOUNT_INTENT = "com.android.email.ACCOUNT_INTENT";
@@ -44,7 +46,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
     }
 
     @Override
-    public void notifyLoginFailed(final long accountId) throws RemoteException {
+    public void notifyLoginFailed(final long accountId) {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
                 mService.notifyLoginFailed(accountId);
@@ -53,7 +55,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
     }
 
     @Override
-    public void notifyLoginSucceeded(final long accountId) throws RemoteException {
+    public void notifyLoginSucceeded(final long accountId) {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
                 mService.notifyLoginSucceeded(accountId);
@@ -62,16 +64,17 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
     }
 
     @Override
-    public void notifyNewMessages(final long accountId) throws RemoteException {
+    @SuppressWarnings("unchecked")
+    public void notifyNewMessages(final long accountId, final List messageIdList) {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
-                mService.notifyNewMessages(accountId);
+                mService.notifyNewMessages(accountId, messageIdList);
             }
         }, "notifyNewMessages");
     }
 
     @Override
-    public void accountDeleted() throws RemoteException {
+    public void accountDeleted() {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
                 mService.accountDeleted();
@@ -81,7 +84,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
 
     // The following call is synchronous, and should not be made from the UI thread
     @Override
-    public void restoreAccountsIfNeeded() throws RemoteException {
+    public void restoreAccountsIfNeeded() {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
                 mService.restoreAccountsIfNeeded();
@@ -92,7 +95,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
 
     // The following call is synchronous, and should not be made from the UI thread
     @Override
-    public int getAccountColor(final long accountId) throws RemoteException {
+    public int getAccountColor(final long accountId) {
         setTask(new ProxyTask() {
             public void run() throws RemoteException{
                 mReturn = mService.getAccountColor(accountId);
@@ -107,7 +110,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
     }
 
     // The following call is synchronous, and should not be made from the UI thread
-    public Bundle getConfigurationData(final String accountType) throws RemoteException {
+    public Bundle getConfigurationData(final String accountType) {
         setTask(new ProxyTask() {
             public void run() throws RemoteException{
                 mReturn = mService.getConfigurationData(accountType);
@@ -122,7 +125,7 @@ public class AccountServiceProxy extends ServiceProxy implements IAccountService
     }
 
     // The following call is synchronous, and should not be made from the UI thread
-    public String getDeviceId() throws RemoteException {
+    public String getDeviceId() {
         setTask(new ProxyTask() {
             public void run() throws RemoteException{
                 mReturn = mService.getDeviceId();

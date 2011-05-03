@@ -28,6 +28,8 @@ import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.utility.Utility;
 
+import java.util.ArrayList;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentUris;
@@ -288,7 +290,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
 
         @Override
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int progress, int numNewMessages) {
+                long mailboxKey, int progress, int numNewMessages, ArrayList<Long> addedMessages) {
             if (accountKey == mAccountId) {
                 updateBanner(result, progress);
                 updateProgress(result, progress);

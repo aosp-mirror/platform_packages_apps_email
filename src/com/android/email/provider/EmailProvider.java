@@ -1664,8 +1664,16 @@ public class EmailProvider extends ContentProvider {
                     if (cache != null) {
                         cache.lock(id);
                     }
+                    ContentValues newMessageCount = CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT;
+                    if (values != null) {
+                        Long set = values.getAsLong(EmailContent.SET_COLUMN_NAME);
+                        if (set != null) {
+                            newMessageCount = new ContentValues();
+                            newMessageCount.put(Account.NEW_MESSAGE_COUNT, set);
+                        }
+                    }
                     try {
-                        result = db.update(tableName, CONTENT_VALUES_RESET_NEW_MESSAGE_COUNT,
+                        result = db.update(tableName, newMessageCount,
                                 whereWithId(id, selection), selectionArgs);
                     } finally {
                         if (cache != null) {

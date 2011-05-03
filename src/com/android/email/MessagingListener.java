@@ -20,6 +20,8 @@ import com.android.emailcommon.mail.MessagingException;
 
 import android.content.Context;
 
+import java.util.ArrayList;
+
 /**
  * Defines the interface that MessagingController will use to callback to requesters. This class
  * is defined as non-abstract so that someone who wants to receive only a few messages can
@@ -40,16 +42,25 @@ public class MessagingListener {
     public void listFoldersFinished(long accountId) {
     }
 
-    public void synchronizeMailboxStarted(long accountId, long mailboxId)
-            {
+    public void synchronizeMailboxStarted(long accountId, long mailboxId) {
     }
 
-    public void synchronizeMailboxFinished(long accountId,
-            long mailboxId, int totalMessagesInMailbox, int numNewMessages) {
+    /**
+     * Synchronization of the mailbox finished. The mailbox and/or message databases have been
+     * updated accordingly.
+     *
+     * @param accountId The account that was synchronized
+     * @param mailboxId The mailbox that was synchronized
+     * @param totalMessagesInMailbox The total number of messages in the mailbox
+     * @param numNewMessages The number of new messages
+     * @param addedMessages Message IDs of messages that were added during the synchronization.
+     * These are new, unread messages. Messages that were previously read are not in this list.
+     */
+    public void synchronizeMailboxFinished(long accountId, long mailboxId,
+            int totalMessagesInMailbox, int numNewMessages, ArrayList<Long> addedMessages) {
     }
 
-    public void synchronizeMailboxFailed(long accountId, long mailboxId,
-            Exception e) {
+    public void synchronizeMailboxFailed(long accountId, long mailboxId, Exception e) {
     }
 
     public void loadMessageForViewStarted(long messageId) {

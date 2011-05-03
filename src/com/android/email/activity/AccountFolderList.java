@@ -28,6 +28,8 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -286,7 +288,8 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
 
         @Override
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int progress, int numNewMessages) {
+                long mailboxKey, int progress, int numNewMessages,
+                ArrayList<Long> addedMessages) {
             updateProgress(result, progress);
         }
 
