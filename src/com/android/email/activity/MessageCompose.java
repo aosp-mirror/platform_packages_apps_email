@@ -174,9 +174,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private EmailAddressAdapter mAddressAdapterCc;
     private EmailAddressAdapter mAddressAdapterBcc;
 
-    /** Whether the save command should be enabled. */
-    private boolean mSaveEnabled;
-
     private static Intent getBaseIntent(Context context) {
         Intent i = new Intent(context, MessageCompose.class);
         i.putExtra(EXTRA_FROM_WITHIN_APP, true);
@@ -306,15 +303,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         mController = Controller.getInstance(getApplication());
         initViews();
-        setDraftNeedsSaving(false);
 
-        long draftId = -1;
+        long draftId = Message.NOT_SAVED;
         long existingSaveTaskId = -1;
         if (savedInstanceState != null) {
             // This data gets used in onCreate, so grab it here instead of onRestoreInstanceState
             mSourceMessageProcessed =
                 savedInstanceState.getBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, false);
-            draftId = savedInstanceState.getLong(STATE_KEY_DRAFT_ID, -1);
+            draftId = savedInstanceState.getLong(STATE_KEY_DRAFT_ID, Message.NOT_SAVED);
             existingSaveTaskId = savedInstanceState.getLong(STATE_KEY_REQUEST_ID, -1);
         }
 
@@ -325,7 +321,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         Intent intent = getIntent();
         mAction = intent.getAction();
 
-        if (draftId != -1) {
+        if (draftId != Message.NOT_SAVED) {
             // this means that we saved the draft earlier,
             // so now we need to disregard the intent action and do
             // EDIT_DRAFT instead.
@@ -345,9 +341,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             mSourceMessageProcessed = true;
         } else {
             // Otherwise, handle the internal cases (Message Composer invoked from within app)
-            long messageId = draftId != -1 ? draftId : intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
+            long messageId = (draftId != Message.NOT_SAVED)
+                    ? draftId : intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
             SendOrSaveMessageTask saveTask = sActiveSaveTasks.get(existingSaveTaskId);
-            if ((messageId != -1) || (saveTask != null)) {
+            if ((messageId != Message.NOT_SAVED) || (saveTask != null)) {
                 new LoadMessageTask(messageId, saveTask).executeParallel();
             } else {
                 setAccount(intent);
@@ -359,6 +356,22 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mSourceMessageProcessed = true;
             }
         }
+
+        // Attach the text listeners late, since any population of data from Intent/saved instances
+        // are uninteresting and should be ignored.
+        initListeners();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.getBoolean(STATE_KEY_CC_SHOWN)) {
+            showCcBccFields();
+        }
+        mQuotedTextBar.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN)
+                ? View.VISIBLE : View.GONE);
+        mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN)
+                ? View.VISIBLE : View.GONE);
     }
 
     // needed for unit tests
@@ -421,7 +434,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         super.onSaveInstanceState(outState);
 
         long draftId = mDraft.mId;
-        if (draftId != -1) {
+        if (draftId != Message.NOT_SAVED) {
             outState.putLong(STATE_KEY_DRAFT_ID, draftId);
         }
         outState.putBoolean(STATE_KEY_CC_SHOWN, mCcBccContainer.getVisibility() == View.VISIBLE);
@@ -434,18 +447,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         outState.putLong(STATE_KEY_REQUEST_ID, mLastSaveTaskId);
     }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState.getBoolean(STATE_KEY_CC_SHOWN)) {
-            showCcBccFields();
-        }
-        mQuotedTextBar.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN)
-                ? View.VISIBLE : View.GONE);
-        mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN)
-                ? View.VISIBLE : View.GONE);
-    }
-
     /**
      * @return true if the activity was opened by the email app itself.
      */
@@ -455,9 +456,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     private void setDraftNeedsSaving(boolean needsSaving) {
-        mDraftNeedsSaving = needsSaving;
-        mSaveEnabled = needsSaving;
-        invalidateOptionsMenu();
+        if (mDraftNeedsSaving != needsSaving) {
+            mDraftNeedsSaving = needsSaving;
+            invalidateOptionsMenu();
+        }
     }
 
     public void setFocusShifter(int fromViewId, final int targetViewId) {
@@ -473,6 +475,59 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
+    /**
+     * An {@link InputFilter} that implements special address cleanup rules.
+     * The first space key entry following an "@" symbol that is followed by any combination
+     * of letters and symbols, including one+ dots and zero commas, should insert an extra
+     * comma (followed by the space).
+     */
+    @VisibleForTesting
+    static final InputFilter RECIPIENT_FILTER = new InputFilter() {
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end, Spanned dest,
+                int dstart, int dend) {
+
+            // Quick check - did they enter a single space?
+            if (end-start != 1 || source.charAt(start) != ' ') {
+                return null;
+            }
+
+            // determine if the characters before the new space fit the pattern
+            // follow backwards and see if we find a comma, dot, or @
+            int scanBack = dstart;
+            boolean dotFound = false;
+            while (scanBack > 0) {
+                char c = dest.charAt(--scanBack);
+                switch (c) {
+                    case '.':
+                        dotFound = true;    // one or more dots are req'd
+                        break;
+                    case ',':
+                        return null;
+                    case '@':
+                        if (!dotFound) {
+                            return null;
+                        }
+
+                        // we have found a comma-insert case.  now just do it
+                        // in the least expensive way we can.
+                        if (source instanceof Spanned) {
+                            SpannableStringBuilder sb = new SpannableStringBuilder(",");
+                            sb.append(source);
+                            return sb;
+                        } else {
+                            return ", ";
+                        }
+                    default:
+                        // just keep going
+                }
+            }
+
+            // no termination cases were found, so don't edit the input
+            return null;
+        }
+    };
+
     private void initViews() {
         mFromView = UiUtilities.getView(this, R.id.from);
         mToView = UiUtilities.getView(this, R.id.to);
@@ -487,76 +542,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mIncludeQuotedTextCheckBox = UiUtilities.getView(this, R.id.include_quoted_text);
         mQuotedText = UiUtilities.getView(this, R.id.quoted_text);
 
-        TextWatcher watcher = new TextWatcher() {
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int before, int after) { }
-
-            public void onTextChanged(CharSequence s, int start,
-                                          int before, int count) {
-                setDraftNeedsSaving(true);
-            }
-
-            public void afterTextChanged(android.text.Editable s) { }
-        };
-
-        /**
-         * Implements special address cleanup rules:
-         * The first space key entry following an "@" symbol that is followed by any combination
-         * of letters and symbols, including one+ dots and zero commas, should insert an extra
-         * comma (followed by the space).
-         */
-        InputFilter recipientFilter = new InputFilter() {
-
-            public CharSequence filter(CharSequence source, int start, int end, Spanned dest,
-                    int dstart, int dend) {
-
-                // quick check - did they enter a single space?
-                if (end-start != 1 || source.charAt(start) != ' ') {
-                    return null;
-                }
-
-                // determine if the characters before the new space fit the pattern
-                // follow backwards and see if we find a comma, dot, or @
-                int scanBack = dstart;
-                boolean dotFound = false;
-                while (scanBack > 0) {
-                    char c = dest.charAt(--scanBack);
-                    switch (c) {
-                        case '.':
-                            dotFound = true;    // one or more dots are req'd
-                            break;
-                        case ',':
-                            return null;
-                        case '@':
-                            if (!dotFound) {
-                                return null;
-                            }
-
-                            // we have found a comma-insert case.  now just do it
-                            // in the least expensive way we can.
-                            if (source instanceof Spanned) {
-                                SpannableStringBuilder sb = new SpannableStringBuilder(",");
-                                sb.append(source);
-                                return sb;
-                            } else {
-                                return ", ";
-                            }
-                        default:
-                            // just keep going
-                    }
-                }
-
-                // no termination cases were found, so don't edit the input
-                return null;
-            }
-        };
-        InputFilter[] recipientFilters = new InputFilter[] { recipientFilter };
-
-        mToView.addTextChangedListener(watcher);
-        mCcView.addTextChangedListener(watcher);
-        mBccView.addTextChangedListener(watcher);
-        mSubjectView.addTextChangedListener(watcher);
-        mMessageContentView.addTextChangedListener(watcher);
+        InputFilter[] recipientFilters = new InputFilter[] { RECIPIENT_FILTER };
 
         // NOTE: assumes no other filters are set
         mToView.setFilters(recipientFilters);
@@ -603,6 +589,26 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         updateAttachmentContainer();
         mToView.requestFocus();
+    }
+
+    private void initListeners() {
+        final TextWatcher watcher = new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int before, int after) { }
+
+            public void onTextChanged(CharSequence s, int start,
+                                          int before, int count) {
+                setDraftNeedsSaving(true);
+            }
+
+            public void afterTextChanged(android.text.Editable s) { }
+        };
+
+        mToView.addTextChangedListener(watcher);
+        mCcView.addTextChangedListener(watcher);
+        mBccView.addTextChangedListener(watcher);
+        mSubjectView.addTextChangedListener(watcher);
+        mMessageContentView.addTextChangedListener(watcher);
     }
 
     /**
@@ -1351,7 +1357,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.save).setEnabled(mSaveEnabled);
+        menu.findItem(R.id.save).setEnabled(mDraftNeedsSaving);
         return true;
     }
 
@@ -1457,7 +1463,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         // Finally - expose fields that were filled in but are normally hidden, and set focus
         showCcBccFieldsIfFilled();
         setNewMessageFocus();
-        setDraftNeedsSaving(false);
     }
 
     /**
