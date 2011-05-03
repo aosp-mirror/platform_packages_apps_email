@@ -180,8 +180,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         long message2Id = message2.mId;
 
         // Because moveMessage runs asynchronously, call get() to force it to complete
-        mTestController.moveMessages(
-                new long[] { message1Id, message2Id }, boxDestId).waitForFinish();
+        mTestController.moveMessages(new long[] { message1Id, message2Id }, boxDestId).get();
 
         // now read back a fresh copy and confirm it's in the trash
         assertEquals(boxDestId, EmailContent.Message.restoreMessageWithId(mProviderContext,

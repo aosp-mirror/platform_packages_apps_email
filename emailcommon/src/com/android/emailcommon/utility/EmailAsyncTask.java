@@ -238,12 +238,12 @@ public abstract class EmailAsyncTask<Params, Progress, Result> {
     }
 
     /**
-     * Wait until {@link #doInBackground} finishes.
+     * Wait until {@link #doInBackground} finishes and returns the results of the computation.
      *
      * @see AsyncTask#get
      */
-    public final void waitForFinish() throws InterruptedException, ExecutionException {
-        mInnerTask.get();
+    public final Result get() throws InterruptedException, ExecutionException {
+        return mInnerTask.get();
     }
 
     /** @see AsyncTask#isCancelled */
