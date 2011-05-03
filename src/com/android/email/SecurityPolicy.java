@@ -16,13 +16,15 @@
 
 package com.android.email;
 
-import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.service.EmailBroadcastProcessorService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.service.PolicySet;
+import com.android.emailcommon.provider.EmailContent.PolicyColumns;
+import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.app.admin.DeviceAdminInfo;
 import android.app.admin.DeviceAdminReceiver;
@@ -41,30 +43,21 @@ import android.util.Log;
  * into and out of various security states.
  */
 public class SecurityPolicy {
-    private static final String TAG = "SecurityPolicy";
+    private static final String TAG = "Email/SecurityPolicy";
     private static SecurityPolicy sInstance = null;
     private Context mContext;
     private DevicePolicyManager mDPM;
     private ComponentName mAdminName;
-    private PolicySet mAggregatePolicy;
-
-    /* package */ static final PolicySet NO_POLICY_SET =
-            new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0, false, false);
-
-    /**
-     * This projection on Account is for scanning/reading
-     */
-    private static final String[] ACCOUNT_SECURITY_PROJECTION = new String[] {
-        AccountColumns.ID, AccountColumns.SECURITY_FLAGS
-    };
-    private static final int ACCOUNT_SECURITY_COLUMN_ID = 0;
-    private static final int ACCOUNT_SECURITY_COLUMN_FLAGS = 1;
+    private Policy mAggregatePolicy;
 
     // Messages used for DevicePolicyManager callbacks
     private static final int DEVICE_ADMIN_MESSAGE_ENABLED = 1;
     private static final int DEVICE_ADMIN_MESSAGE_DISABLED = 2;
     private static final int DEVICE_ADMIN_MESSAGE_PASSWORD_CHANGED = 3;
     private static final int DEVICE_ADMIN_MESSAGE_PASSWORD_EXPIRING = 4;
+
+    private static final String HAS_PASSWORD_EXPIRATION =
+        PolicyColumns.PASSWORD_EXPIRATION_DAYS + ">0";
 
     /**
      * Get the security policy instance
@@ -111,77 +104,86 @@ public class SecurityPolicy {
      * @return a policy representing the strongest aggregate.  If no policy sets are defined,
      * a lightweight "nothing required" policy will be returned.  Never null.
      */
-    /*package*/ PolicySet computeAggregatePolicy() {
+    /*package*/ Policy computeAggregatePolicy() {
         boolean policiesFound = false;
+        Policy aggregate = new Policy();
+        aggregate.mPasswordMinLength = Integer.MIN_VALUE;
+        aggregate.mPasswordMode = Integer.MIN_VALUE;
+        aggregate.mPasswordMaxFails = Integer.MAX_VALUE;
+        aggregate.mPasswordHistory = Integer.MIN_VALUE;
+        aggregate.mPasswordExpirationDays = Integer.MAX_VALUE;
+        aggregate.mPasswordComplexChars = Integer.MIN_VALUE;
+        aggregate.mMaxScreenLockTime = Integer.MAX_VALUE;
+        aggregate.mRequireRemoteWipe = false;
+        aggregate.mRequireEncryption = false;
+        aggregate.mRequireEncryptionExternal = false;
 
-        int minPasswordLength = Integer.MIN_VALUE;
-        int passwordMode = Integer.MIN_VALUE;
-        int maxPasswordFails = Integer.MAX_VALUE;
-        int maxScreenLockTime = Integer.MAX_VALUE;
-        boolean requireRemoteWipe = false;
-        int passwordHistory = Integer.MIN_VALUE;
-        int passwordExpirationDays = Integer.MAX_VALUE;
-        int passwordComplexChars = Integer.MIN_VALUE;
-        boolean requireEncryption = false;
-        boolean requireEncryptionExternal = false;
-
-        Cursor c = mContext.getContentResolver().query(Account.CONTENT_URI,
-                ACCOUNT_SECURITY_PROJECTION, Account.SECURITY_NONZERO_SELECTION, null, null);
+        Cursor c = mContext.getContentResolver().query(Policy.CONTENT_URI,
+                Policy.CONTENT_PROJECTION, null, null, null);
+        Policy policy = new Policy();
         try {
             while (c.moveToNext()) {
-                long flags = c.getLong(ACCOUNT_SECURITY_COLUMN_FLAGS);
-                if (flags != 0) {
-                    PolicySet p = new PolicySet(flags);
-                    minPasswordLength = Math.max(p.mMinPasswordLength, minPasswordLength);
-                    passwordMode  = Math.max(p.mPasswordMode, passwordMode);
-                    if (p.mMaxPasswordFails > 0) {
-                        maxPasswordFails = Math.min(p.mMaxPasswordFails, maxPasswordFails);
-                    }
-                    if (p.mMaxScreenLockTime > 0) {
-                        maxScreenLockTime = Math.min(p.mMaxScreenLockTime, maxScreenLockTime);
-                    }
-                    if (p.mPasswordHistory > 0) {
-                        passwordHistory = Math.max(p.mPasswordHistory, passwordHistory);
-                    }
-                    if (p.mPasswordExpirationDays > 0) {
-                        passwordExpirationDays =
-                                Math.min(p.mPasswordExpirationDays, passwordExpirationDays);
-                    }
-                    if (p.mPasswordComplexChars > 0) {
-                        passwordComplexChars = Math.max(p.mPasswordComplexChars,
-                                passwordComplexChars);
-                    }
-                    requireRemoteWipe |= p.mRequireRemoteWipe;
-                    requireEncryption |= p.mRequireEncryption;
-                    requireEncryptionExternal |= p.mRequireEncryptionExternal;
-                    policiesFound = true;
+                policy.restore(c);
+                if (Email.DEBUG) {
+                    Log.d(TAG, "Aggregate from: " + policy);
                 }
+                aggregate.mPasswordMinLength =
+                    Math.max(policy.mPasswordMinLength, aggregate.mPasswordMinLength);
+                aggregate.mPasswordMode  = Math.max(policy.mPasswordMode, aggregate.mPasswordMode);
+                if (policy.mPasswordMaxFails > 0) {
+                    aggregate.mPasswordMaxFails =
+                        Math.min(policy.mPasswordMaxFails, aggregate.mPasswordMaxFails);
+                }
+                if (policy.mMaxScreenLockTime > 0) {
+                    aggregate.mMaxScreenLockTime = Math.min(policy.mMaxScreenLockTime,
+                            aggregate.mMaxScreenLockTime);
+                }
+                if (policy.mPasswordHistory > 0) {
+                    aggregate.mPasswordHistory =
+                        Math.max(policy.mPasswordHistory, aggregate.mPasswordHistory);
+                }
+                if (policy.mPasswordExpirationDays > 0) {
+                    aggregate.mPasswordExpirationDays =
+                        Math.min(policy.mPasswordExpirationDays, aggregate.mPasswordExpirationDays);
+                }
+                if (policy.mPasswordComplexChars > 0) {
+                    aggregate.mPasswordComplexChars = Math.max(policy.mPasswordComplexChars,
+                            aggregate.mPasswordComplexChars);
+                }
+                aggregate.mRequireRemoteWipe |= policy.mRequireRemoteWipe;
+                aggregate.mRequireEncryption |= policy.mRequireEncryption;
+                aggregate.mRequireEncryptionExternal |= policy.mRequireEncryptionExternal;
+                policiesFound = true;
             }
         } finally {
             c.close();
         }
         if (policiesFound) {
             // final cleanup pass converts any untouched min/max values to zero (not specified)
-            if (minPasswordLength == Integer.MIN_VALUE) minPasswordLength = 0;
-            if (passwordMode == Integer.MIN_VALUE) passwordMode = 0;
-            if (maxPasswordFails == Integer.MAX_VALUE) maxPasswordFails = 0;
-            if (maxScreenLockTime == Integer.MAX_VALUE) maxScreenLockTime = 0;
-            if (passwordHistory == Integer.MIN_VALUE) passwordHistory = 0;
-            if (passwordExpirationDays == Integer.MAX_VALUE) passwordExpirationDays = 0;
-            if (passwordComplexChars == Integer.MIN_VALUE) passwordComplexChars = 0;
-
-            return new PolicySet(minPasswordLength, passwordMode, maxPasswordFails,
-                    maxScreenLockTime, requireRemoteWipe, passwordExpirationDays, passwordHistory,
-                    passwordComplexChars, requireEncryption, requireEncryptionExternal);
-        } else {
-            return NO_POLICY_SET;
+            if (aggregate.mPasswordMinLength == Integer.MIN_VALUE) aggregate.mPasswordMinLength = 0;
+            if (aggregate.mPasswordMode == Integer.MIN_VALUE) aggregate.mPasswordMode = 0;
+            if (aggregate.mPasswordMaxFails == Integer.MAX_VALUE) aggregate.mPasswordMaxFails = 0;
+            if (aggregate.mMaxScreenLockTime == Integer.MAX_VALUE) aggregate.mMaxScreenLockTime = 0;
+            if (aggregate.mPasswordHistory == Integer.MIN_VALUE) aggregate.mPasswordHistory = 0;
+            if (aggregate.mPasswordExpirationDays == Integer.MAX_VALUE)
+                aggregate.mPasswordExpirationDays = 0;
+            if (aggregate.mPasswordComplexChars == Integer.MIN_VALUE)
+                aggregate.mPasswordComplexChars = 0;
+            if (Email.DEBUG) {
+                Log.d(TAG, "Calculated Aggregate: " + aggregate);
+            }
+            return aggregate;
         }
+        if (Email.DEBUG) {
+            Log.d(TAG, "Calculated Aggregate: no policy");
+        }
+        return Policy.NO_POLICY;
     }
 
     /**
      * Return updated aggregate policy, from cached value if possible
      */
-    public synchronized PolicySet getAggregatePolicy() {
+    public synchronized Policy getAggregatePolicy() {
         if (mAggregatePolicy == null) {
             mAggregatePolicy = computeAggregatePolicy();
         }
@@ -202,7 +204,7 @@ public class SecurityPolicy {
      * API: Report that policies may have been updated due to rewriting values in an Account.
      * @param accountId the account that has been updated, -1 if unknown/deleted
      */
-    public synchronized void updatePolicies(long accountId) {
+    public synchronized void policiesUpdated(long accountId) {
         mAggregatePolicy = null;
     }
 
@@ -213,7 +215,10 @@ public class SecurityPolicy {
      * rollbacks.
      */
     public void reducePolicies() {
-        updatePolicies(-1);
+        if (Email.DEBUG) {
+            Log.d(TAG, "reducePolicies");
+        }
+        policiesUpdated(-1);
         setActivePolicies();
     }
 
@@ -223,20 +228,20 @@ public class SecurityPolicy {
      * @param policies the polices that were requested
      * @return boolean if supported
      */
-    public boolean isSupported(PolicySet policies) {
+    public boolean isSupported(Policy policy) {
         // IMPLEMENTATION:  At this time, the only policy which might not be supported is
         // encryption (which requires low-level systems support).  Other policies are fully
         // supported by the framework and do not need to be checked.
-        if (policies.mRequireEncryption) {
+        if (policy.mRequireEncryption) {
             int encryptionStatus = getDPM().getStorageEncryptionStatus();
             if (encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_UNSUPPORTED) {
                 return false;
             }
         }
-        if (policies.mRequireEncryptionExternal) {
+        if (policy.mRequireEncryptionExternal) {
             // At this time, we only support "external encryption" when it is provided by virtue
             // of emulating the external storage inside an encrypted device.
-            if (!policies.mRequireEncryption) return false;
+            if (!policy.mRequireEncryption) return false;
             if (Environment.isExternalStorageRemovable()) return false;
             if (!Environment.isExternalStorageEmulated()) return false;
         }
@@ -253,34 +258,25 @@ public class SecurityPolicy {
      * @return the same PolicySet if all are supported;  A replacement PolicySet if any
      *   unsupported policies were removed
      */
-    public PolicySet clearUnsupportedPolicies(PolicySet policies) {
-        PolicySet result = policies;
+    public Policy clearUnsupportedPolicies(Policy policy) {
         // IMPLEMENTATION:  At this time, the only policy which might not be supported is
         // encryption (which requires low-level systems support).  Other policies are fully
         // supported by the framework and do not need to be checked.
-        if (policies.mRequireEncryption) {
+        if (policy.mRequireEncryption) {
             int encryptionStatus = getDPM().getStorageEncryptionStatus();
             if (encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_UNSUPPORTED) {
-                // Make new PolicySet w/o encryption
-                result = new PolicySet(policies.mMinPasswordLength, policies.mPasswordMode,
-                        policies.mMaxPasswordFails, policies.mMaxScreenLockTime,
-                        policies.mRequireRemoteWipe, policies.mPasswordExpirationDays,
-                        policies.mPasswordHistory, policies.mPasswordComplexChars, false, false);
+                policy.mRequireEncryption = false;
             }
         }
         // At this time, we only support "external encryption" when it is provided by virtue
         // of emulating the external storage inside an encrypted device.
-        if (policies.mRequireEncryptionExternal) {
+        if (policy.mRequireEncryptionExternal) {
             if (Environment.isExternalStorageRemovable()
                     || !Environment.isExternalStorageEmulated()) {
-                // Make new PolicySet w/o encryption
-                result = new PolicySet(policies.mMinPasswordLength, policies.mPasswordMode,
-                        policies.mMaxPasswordFails, policies.mMaxScreenLockTime,
-                        policies.mRequireRemoteWipe, policies.mPasswordExpirationDays,
-                        policies.mPasswordHistory, policies.mPasswordComplexChars, false, false);
+                policy.mRequireEncryptionExternal = false;
             }
         }
-        return result;
+        return policy;
     }
 
     /**
@@ -290,8 +286,29 @@ public class SecurityPolicy {
      * @param policies the policies requested, or null to check aggregate stored policies
      * @return true if the requested policies are active, false if not.
      */
-    public boolean isActive(PolicySet policies) {
-        int reasons = getInactiveReasons(policies);
+    public boolean isActive(Policy policy) {
+        int reasons = getInactiveReasons(policy);
+        if (Email.DEBUG && (reasons != 0)) {
+            StringBuilder sb = new StringBuilder("isActive for " + policy + ": ");
+            if (reasons == 0) {
+                sb.append("true");
+            } else {
+                sb.append("FALSE -> ");
+            }
+            if ((reasons & INACTIVE_NEED_ACTIVATION) != 0) {
+                sb.append("no_admin ");
+            }
+            if ((reasons & INACTIVE_NEED_CONFIGURATION) != 0) {
+                sb.append("config ");
+            }
+            if ((reasons & INACTIVE_NEED_PASSWORD) != 0) {
+                sb.append("password ");
+            }
+            if ((reasons & INACTIVE_NEED_ENCRYPTION) != 0) {
+                sb.append("encryption ");
+            }
+            Log.d(TAG, sb.toString());
+        }
         return reasons == 0;
     }
 
@@ -335,43 +352,43 @@ public class SecurityPolicy {
      * @return zero if the requested policies are active, non-zero bits indicates that more work
      * is needed (typically, by the user) before the required security polices are fully active.
      */
-    public int getInactiveReasons(PolicySet policies) {
+    public int getInactiveReasons(Policy policy) {
         // select aggregate set if needed
-        if (policies == null) {
-            policies = getAggregatePolicy();
+        if (policy == null) {
+            policy = getAggregatePolicy();
         }
         // quick check for the "empty set" of no policies
-        if (policies == NO_POLICY_SET) {
+        if (policy == Policy.NO_POLICY) {
             return 0;
         }
         int reasons = 0;
         DevicePolicyManager dpm = getDPM();
         if (isActiveAdmin()) {
             // check each policy explicitly
-            if (policies.mMinPasswordLength > 0) {
-                if (dpm.getPasswordMinimumLength(mAdminName) < policies.mMinPasswordLength) {
+            if (policy.mPasswordMinLength > 0) {
+                if (dpm.getPasswordMinimumLength(mAdminName) < policy.mPasswordMinLength) {
                     reasons |= INACTIVE_NEED_PASSWORD;
                 }
             }
-            if (policies.mPasswordMode > 0) {
-                if (dpm.getPasswordQuality(mAdminName) < policies.getDPManagerPasswordQuality()) {
+            if (policy.mPasswordMode > 0) {
+                if (dpm.getPasswordQuality(mAdminName) < policy.getDPManagerPasswordQuality()) {
                     reasons |= INACTIVE_NEED_PASSWORD;
                 }
                 if (!dpm.isActivePasswordSufficient()) {
                     reasons |= INACTIVE_NEED_PASSWORD;
                 }
             }
-            if (policies.mMaxScreenLockTime > 0) {
+            if (policy.mMaxScreenLockTime > 0) {
                 // Note, we use seconds, dpm uses milliseconds
-                if (dpm.getMaximumTimeToLock(mAdminName) > policies.mMaxScreenLockTime * 1000) {
+                if (dpm.getMaximumTimeToLock(mAdminName) > policy.mMaxScreenLockTime * 1000) {
                     reasons |= INACTIVE_NEED_CONFIGURATION;
                 }
             }
-            if (policies.mPasswordExpirationDays > 0) {
+            if (policy.mPasswordExpirationDays > 0) {
                 // confirm that expirations are currently set
                 long currentTimeout = dpm.getPasswordExpirationTimeout(mAdminName);
                 if (currentTimeout == 0
-                        || currentTimeout > policies.getDPManagerPasswordExpirationTimeout()) {
+                        || currentTimeout > policy.getDPManagerPasswordExpirationTimeout()) {
                     reasons |= INACTIVE_NEED_PASSWORD;
                 }
                 // confirm that the current password hasn't expired
@@ -382,17 +399,17 @@ public class SecurityPolicy {
                     reasons |= INACTIVE_NEED_PASSWORD;
                 }
             }
-            if (policies.mPasswordHistory > 0) {
-                if (dpm.getPasswordHistoryLength(mAdminName) < policies.mPasswordHistory) {
+            if (policy.mPasswordHistory > 0) {
+                if (dpm.getPasswordHistoryLength(mAdminName) < policy.mPasswordHistory) {
                     reasons |= INACTIVE_NEED_PASSWORD;
                 }
             }
-            if (policies.mPasswordComplexChars > 0) {
-                if (dpm.getPasswordMinimumNonLetter(mAdminName) < policies.mPasswordComplexChars) {
+            if (policy.mPasswordComplexChars > 0) {
+                if (dpm.getPasswordMinimumNonLetter(mAdminName) < policy.mPasswordComplexChars) {
                     reasons |= INACTIVE_NEED_PASSWORD;
                 }
             }
-            if (policies.mRequireEncryption) {
+            if (policy.mRequireEncryption) {
                 int encryptionStatus = getDPM().getStorageEncryptionStatus();
                 if (encryptionStatus != DevicePolicyManager.ENCRYPTION_STATUS_ACTIVE) {
                     reasons |= INACTIVE_NEED_ENCRYPTION;
@@ -421,24 +438,30 @@ public class SecurityPolicy {
     public void setActivePolicies() {
         DevicePolicyManager dpm = getDPM();
         // compute aggregate set of policies
-        PolicySet policies = getAggregatePolicy();
+        Policy aggregatePolicy = getAggregatePolicy();
         // if empty set, detach from policy manager
-        if (policies == NO_POLICY_SET) {
+        if (aggregatePolicy == Policy.NO_POLICY) {
+            if (Email.DEBUG) {
+                Log.d(TAG, "setActivePolicies: none, remove admin");
+            }
             dpm.removeActiveAdmin(mAdminName);
         } else if (isActiveAdmin()) {
+            if (Email.DEBUG) {
+                Log.d(TAG, "setActivePolicies: " + aggregatePolicy);
+            }
             // set each policy in the policy manager
             // password mode & length
-            dpm.setPasswordQuality(mAdminName, policies.getDPManagerPasswordQuality());
-            dpm.setPasswordMinimumLength(mAdminName, policies.mMinPasswordLength);
+            dpm.setPasswordQuality(mAdminName, aggregatePolicy.getDPManagerPasswordQuality());
+            dpm.setPasswordMinimumLength(mAdminName, aggregatePolicy.mPasswordMinLength);
             // screen lock time
-            dpm.setMaximumTimeToLock(mAdminName, policies.mMaxScreenLockTime * 1000);
+            dpm.setMaximumTimeToLock(mAdminName, aggregatePolicy.mMaxScreenLockTime * 1000);
             // local wipe (failed passwords limit)
-            dpm.setMaximumFailedPasswordsForWipe(mAdminName, policies.mMaxPasswordFails);
+            dpm.setMaximumFailedPasswordsForWipe(mAdminName, aggregatePolicy.mPasswordMaxFails);
             // password expiration (days until a password expires).  API takes mSec.
             dpm.setPasswordExpirationTimeout(mAdminName,
-                    policies.getDPManagerPasswordExpirationTimeout());
+                    aggregatePolicy.getDPManagerPasswordExpirationTimeout());
             // password history length (number of previous passwords that may not be reused)
-            dpm.setPasswordHistoryLength(mAdminName, policies.mPasswordHistory);
+            dpm.setPasswordHistoryLength(mAdminName, aggregatePolicy.mPasswordHistory);
             // password minimum complex characters.
             // Note, in Exchange, "complex chars" simply means "non alpha", but in the DPM,
             // setting the quality to complex also defaults min symbols=1 and min numeric=1.
@@ -446,9 +469,9 @@ public class SecurityPolicy {
             // configuration in which we explicitly require a minimum number of digits or symbols.)
             dpm.setPasswordMinimumSymbols(mAdminName, 0);
             dpm.setPasswordMinimumNumeric(mAdminName, 0);
-            dpm.setPasswordMinimumNonLetter(mAdminName, policies.mPasswordComplexChars);
+            dpm.setPasswordMinimumNonLetter(mAdminName, aggregatePolicy.mPasswordComplexChars);
             // encryption required
-            dpm.setStorageEncryption(mAdminName, policies.mRequireEncryption);
+            dpm.setStorageEncryption(mAdminName, aggregatePolicy.mRequireEncryption);
             // TODO: If we ever support external storage encryption as a first-class feature,
             // it will need to be set here.  For now, if there is a policy request for
             // external storage encryption, it's sufficient that we've activated internal
@@ -497,6 +520,18 @@ public class SecurityPolicy {
         Account account = EmailContent.Account.restoreAccountWithId(mContext, accountId);
         // In case the account has been deleted, just return
         if (account == null) return;
+        if (Email.DEBUG) {
+            if (account.mPolicyKey == 0) {
+                Log.d(TAG, "policiesRequired for " + account.mDisplayName + ": none");
+            } else {
+                Policy policy = Policy.restorePolicyWithId(mContext, account.mPolicyKey);
+                if (policy == null) {
+                    Log.w(TAG, "No policy??");
+                } else {
+                    Log.d(TAG, "policiesRequired for " + account.mDisplayName + ": " + policy);
+                }
+            }
+        }
 
         // Mark the account as "on hold".
         setAccountHoldFlag(mContext, account, true);
@@ -559,7 +594,7 @@ public class SecurityPolicy {
         ContentResolver cr = context.getContentResolver();
         // Find all accounts with security and delete them
         Cursor c = cr.query(Account.CONTENT_URI, EmailContent.ID_PROJECTION,
-                AccountColumns.SECURITY_FLAGS + "!=0", null, null);
+                Account.SECURITY_NONZERO_SELECTION, null, null);
         try {
             Log.w(TAG, "Email administration disabled; deleting " + c.getCount() +
                     " secured account(s)");
@@ -570,7 +605,7 @@ public class SecurityPolicy {
         } finally {
             c.close();
         }
-        updatePolicies(-1);
+        policiesUpdated(-1);
     }
 
     /**
@@ -626,27 +661,13 @@ public class SecurityPolicy {
      * the account that forces the password to be refreshed.
      * @return -1 if no expirations, or accountId if one is found
      */
-    /* package */ static long findShortestExpiration(Context context) {
-        long nextExpiringAccountId = -1;
-        long shortestExpiration = Long.MAX_VALUE;
-        Cursor c = context.getContentResolver().query(Account.CONTENT_URI,
-                ACCOUNT_SECURITY_PROJECTION, Account.SECURITY_NONZERO_SELECTION, null, null);
-        try {
-            while (c.moveToNext()) {
-                long flags = c.getLong(ACCOUNT_SECURITY_COLUMN_FLAGS);
-                if (flags != 0) {
-                    PolicySet p = new PolicySet(flags);
-                    if (p.mPasswordExpirationDays > 0 &&
-                            p.mPasswordExpirationDays < shortestExpiration) {
-                        nextExpiringAccountId = c.getLong(ACCOUNT_SECURITY_COLUMN_ID);
-                        shortestExpiration = p.mPasswordExpirationDays;
-                    }
-                }
-            }
-        } finally {
-            c.close();
-        }
-        return nextExpiringAccountId;
+    @VisibleForTesting
+    /*package*/ static long findShortestExpiration(Context context) {
+        long policyId = Utility.getFirstRowLong(context, Policy.CONTENT_URI, Policy.ID_PROJECTION,
+                HAS_PASSWORD_EXPIRATION, null, PolicyColumns.PASSWORD_EXPIRATION_DAYS + " ASC",
+                EmailContent.ID_PROJECTION_COLUMN, -1L);
+        if (policyId < 0) return -1L;
+        return Policy.getAccountIdWithPolicyKey(context, policyId);
     }
 
     /**
@@ -656,27 +677,24 @@ public class SecurityPolicy {
      * @param controller
      * @return true if one or more accounts were wiped
      */
-    /* package */ static boolean wipeExpiredAccounts(Context context, Controller controller) {
+    @VisibleForTesting
+    /*package*/ static boolean wipeExpiredAccounts(Context context, Controller controller) {
         boolean result = false;
-        Cursor c = context.getContentResolver().query(Account.CONTENT_URI,
-                ACCOUNT_SECURITY_PROJECTION, Account.SECURITY_NONZERO_SELECTION, null, null);
+        Cursor c = context.getContentResolver().query(Policy.CONTENT_URI,
+                Policy.ID_PROJECTION, HAS_PASSWORD_EXPIRATION, null, null);
         try {
             while (c.moveToNext()) {
-                long flags = c.getLong(ACCOUNT_SECURITY_COLUMN_FLAGS);
-                if (flags != 0) {
-                    PolicySet p = new PolicySet(flags);
-                    if (p.mPasswordExpirationDays > 0) {
-                        long accountId = c.getLong(ACCOUNT_SECURITY_COLUMN_ID);
-                        Account account = Account.restoreAccountWithId(context, accountId);
-                        if (account != null) {
-                            // Mark the account as "on hold".
-                            setAccountHoldFlag(context, account, true);
-                            // Erase data
-                            controller.deleteSyncedDataSync(accountId);
-                            // Report one or more were found
-                            result = true;
-                        }
-                    }
+                long policyId = c.getLong(Policy.ID_PROJECTION_COLUMN);
+                long accountId = Policy.getAccountIdWithPolicyKey(context, policyId);
+                if (accountId < 0) continue;
+                Account account = Account.restoreAccountWithId(context, accountId);
+                if (account != null) {
+                    // Mark the account as "on hold".
+                    setAccountHoldFlag(context, account, true);
+                    // Erase data
+                    controller.deleteSyncedDataSync(accountId);
+                    // Report one or more were found
+                    result = true;
                 }
             }
         } finally {

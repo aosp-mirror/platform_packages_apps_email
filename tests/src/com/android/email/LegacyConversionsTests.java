@@ -687,7 +687,6 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag + " ringtone", expect.getRingtone(), actual.mRingtoneUri);
         assertEquals(tag + " proto vers", expect.mProtocolVersion, actual.mProtocolVersion);
         assertEquals(tag + " new count", 0, actual.mNewMessageCount);
-        assertEquals(tag + " security", expect.mSecurityFlags, actual.mSecurityFlags);
         assertEquals(tag + " sec sync key", null, actual.mSecuritySyncKey);
         assertEquals(tag + " signature", expect.mSignature, actual.mSignature);
     }
@@ -728,7 +727,6 @@ public class LegacyConversionsTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(tag + " backup flags", 0, actual.mBackupFlags);
         assertEquals(tag + " proto vers", expect.mProtocolVersion, actual.mProtocolVersion);
         assertEquals(tag + " delete policy", expect.getDeletePolicy(), actual.getDeletePolicy());
-        assertEquals(tag + " security", expect.mSecurityFlags, actual.mSecurityFlags);
         assertEquals(tag + " signature", expect.mSignature, actual.mSignature);
     }
 }

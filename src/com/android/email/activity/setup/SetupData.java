@@ -17,7 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.service.PolicySet;
+import com.android.emailcommon.provider.Policy;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.os.Bundle;
@@ -56,7 +56,7 @@ public class SetupData implements Parcelable {
     private String mPassword;
     private int mCheckSettingsMode = 0;
     private boolean mAllowAutodiscover = true;
-    private PolicySet mPolicySet;
+    private Policy mPolicy;
     private boolean mAutoSetup = false;
     private boolean mDefault = false;
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
@@ -130,28 +130,30 @@ public class SetupData implements Parcelable {
         getInstance().mAllowAutodiscover = mAllowAutodiscover;
     }
 
-    static public PolicySet getPolicySet() {
-        return getInstance().mPolicySet;
+    static public Policy getPolicy() {
+        return getInstance().mPolicy;
     }
 
-    static public void setPolicySet(PolicySet mPolicySet) {
-        getInstance().mPolicySet = mPolicySet;
+    static public void setPolicy(Policy policy) {
+        SetupData data = getInstance();
+        data.mPolicy = policy;
+        data.mAccount.mPolicy = policy;
     }
 
     static public boolean isAutoSetup() {
         return getInstance().mAutoSetup;
     }
 
-    static public void setAutoSetup(boolean mAutoSetup) {
-        getInstance().mAutoSetup = mAutoSetup;
+    static public void setAutoSetup(boolean autoSetup) {
+        getInstance().mAutoSetup = autoSetup;
     }
 
     static public boolean isDefault() {
         return getInstance().mDefault;
     }
 
-    static public void setDefault(boolean mDefault) {
-        getInstance().mDefault = mDefault;
+    static public void setDefault(boolean _default) {
+        getInstance().mDefault = _default;
     }
 
     static public AccountAuthenticatorResponse getAccountAuthenticatorResponse() {
@@ -176,7 +178,7 @@ public class SetupData implements Parcelable {
     }
 
     void commonInit() {
-        mPolicySet = null;
+        mPolicy = null;
         mAutoSetup = false;
         mAllowAutodiscover = true;
         mCheckSettingsMode = 0;
@@ -210,7 +212,7 @@ public class SetupData implements Parcelable {
         dest.writeString(mPassword);
         dest.writeInt(mCheckSettingsMode);
         dest.writeInt(mAllowAutodiscover ? 1 : 0);
-        dest.writeParcelable(mPolicySet, 0);
+        dest.writeParcelable(mPolicy, 0);
         dest.writeInt(mAutoSetup ? 1 : 0);
         dest.writeInt(mDefault ? 1 : 0);
         dest.writeParcelable(mAccountAuthenticatorResponse, 0);
@@ -224,7 +226,7 @@ public class SetupData implements Parcelable {
         mPassword = in.readString();
         mCheckSettingsMode = in.readInt();
         mAllowAutodiscover = in.readInt() == 1;
-        mPolicySet = in.readParcelable(loader);
+        mPolicy = in.readParcelable(loader);
         mAutoSetup = in.readInt() == 1;
         mDefault = in.readInt() == 1;
         mAccountAuthenticatorResponse = in.readParcelable(loader);
@@ -262,7 +264,7 @@ public class SetupData implements Parcelable {
         if (SetupData.isCheckIncoming()) sb.append("in+");
         if (SetupData.isCheckOutgoing()) sb.append("out+");
         if (SetupData.isCheckAutodiscover()) sb.append("a/d");
-        sb.append(":policy=" + (data.mPolicySet == null ? "none" : "exists"));
+        sb.append(":policy=" + (data.mPolicy == null ? "none" : "exists"));
         return sb.toString();
     }
 }

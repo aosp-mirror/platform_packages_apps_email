@@ -17,6 +17,7 @@
 package com.android.emailcommon.service;
 
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Policy;
 
 import android.content.Context;
 import android.content.Intent;
@@ -48,7 +49,7 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     }
 
     @Override
-    public PolicySet clearUnsupportedPolicies(final PolicySet arg0) throws RemoteException {
+    public Policy clearUnsupportedPolicies(final Policy arg0) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
                 mReturn = mService.clearUnsupportedPolicies(arg0);
@@ -62,12 +63,12 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
             // Can this happen?
             return null;
         } else {
-            return (PolicySet)mReturn;
+            return (Policy)mReturn;
         }
     }
 
     @Override
-    public boolean isActive(final PolicySet arg0) throws RemoteException {
+    public boolean isActive(final Policy arg0) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
                 mReturn = mService.isActive(arg0);
@@ -105,7 +106,7 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     }
 
     @Override
-    public boolean isSupported(final PolicySet arg0) throws RemoteException {
+    public boolean isSupported(final Policy arg0) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
                 mReturn = mService.isSupported(arg0);
@@ -151,16 +152,16 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
     }
 
     @Override
-    public void updatePolicies(final long arg0) throws RemoteException {
+    public void policiesUpdated(final long arg0) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException {
-                mService.updatePolicies(arg0);
+                mService.policiesUpdated(arg0);
             }
-        }, "updatePolicies");
+        }, "policiesUpdated");
     }
 
     // Static methods that encapsulate the proxy calls above
-    public static boolean isActive(Context context, PolicySet policies) {
+    public static boolean isActive(Context context, Policy policies) {
         try {
             return new PolicyServiceProxy(context).isActive(policies);
         } catch (RemoteException e) {
@@ -176,9 +177,9 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
         }
     }
 
-    public static void updatePolicies(Context context, long accountId) {
+    public static void policiesUpdated(Context context, long accountId) {
         try {
-            new PolicyServiceProxy(context).updatePolicies(accountId);
+            new PolicyServiceProxy(context).policiesUpdated(accountId);
         } catch (RemoteException e) {
             throw new IllegalStateException("PolicyService transaction failed");
         }
@@ -208,17 +209,17 @@ public class PolicyServiceProxy extends ServiceProxy implements IPolicyService {
         }
     }
 
-    public static boolean isSupported(Context context, PolicySet policies) {
+    public static boolean isSupported(Context context, Policy policy) {
         try {
-            return new PolicyServiceProxy(context).isSupported(policies);
+            return new PolicyServiceProxy(context).isSupported(policy);
         } catch (RemoteException e) {
         }
         return false;
      }
 
-    public static PolicySet clearUnsupportedPolicies(Context context, PolicySet policies) {
+    public static Policy clearUnsupportedPolicies(Context context, Policy policy) {
         try {
-            return new PolicyServiceProxy(context).clearUnsupportedPolicies(policies);
+            return new PolicyServiceProxy(context).clearUnsupportedPolicies(policy);
         } catch (RemoteException e) {
         }
         throw new IllegalStateException("PolicyService transaction failed");

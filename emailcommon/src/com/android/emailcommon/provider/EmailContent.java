@@ -124,6 +124,33 @@ public abstract class EmailContent {
         return mId != NOT_SAVED;
     }
 
+
+    /**
+     * Restore a subclass of EmailContent from the database
+     * @param context the caller's context
+     * @param klass the class to restore
+     * @param contentUri the content uri of the EmailContent subclass
+     * @param contentProjection the content projection for the EmailContent subclass
+     * @param id the unique id of the object
+     * @return the instantiated object
+     */
+    public static <T extends EmailContent> T restoreContentWithId(Context context,
+            Class<T> klass, Uri contentUri, String[] contentProjection, long id) {
+        Uri u = ContentUris.withAppendedId(contentUri, id);
+        Cursor c = context.getContentResolver().query(u, contentProjection, null, null, null);
+
+        try {
+            if (c.moveToFirst()) {
+                return (T)getContent(c, klass);
+            } else {
+                return null;
+            }
+        } finally {
+            c.close();
+        }
+    }
+
+
     // The Content sub class must have a no-arg constructor
     static public <T extends EmailContent> T getContent(Cursor cursor, Class<T> klass) {
         try {
@@ -194,7 +221,7 @@ public abstract class EmailContent {
     /**
      * no public constructor since this is a utility class
      */
-    private EmailContent() {
+    protected EmailContent() {
     }
 
     public interface SyncColumns {
@@ -724,25 +751,8 @@ public abstract class EmailContent {
         }
 
         public static Message restoreMessageWithId(Context context, long id) {
-            Uri u = ContentUris.withAppendedId(Message.CONTENT_URI, id);
-            if (context == null) {
-                throw new NullPointerException("context");
-            }
-            ContentResolver resolver = context.getContentResolver();
-            if (resolver == null) {
-                throw new NullPointerException("resolver");
-            }
-            Cursor c = resolver.query(u, Message.CONTENT_PROJECTION, null, null, null);
-
-            try {
-                if (c.moveToFirst()) {
-                    return getContent(c, Message.class);
-                } else {
-                    return null;
-                }
-            } finally {
-                c.close();
-            }
+            return EmailContent.restoreContentWithId(context, Message.class,
+                    Message.CONTENT_URI, Message.CONTENT_PROJECTION, id);
         }
 
         @Override
@@ -961,12 +971,16 @@ public abstract class EmailContent {
         public static final String PROTOCOL_VERSION = "protocolVersion";
         // The number of new messages (reported by the sync/download engines
         public static final String NEW_MESSAGE_COUNT = "newMessageCount";
-        // Flags defining security (provisioning) requirements of this account
+        // Legacy flags defining security (provisioning) requirements of this account; this
+        // information is now found in the Policy table; POLICY_KEY (below) is the foreign key
+        @Deprecated
         public static final String SECURITY_FLAGS = "securityFlags";
         // Server-based sync key for the security policies currently enforced
         public static final String SECURITY_SYNC_KEY = "securitySyncKey";
         // Signature to use with this account
         public static final String SIGNATURE = "signature";
+        // A foreign key into the Policy table
+        public static final String POLICY_KEY = "policyKey";
     }
 
     public static final class Account extends EmailContent implements AccountColumns, Parcelable {
@@ -1039,13 +1053,14 @@ public abstract class EmailContent {
         public String mRingtoneUri;
         public String mProtocolVersion;
         public int mNewMessageCount;
-        public long mSecurityFlags;
         public String mSecuritySyncKey;
         public String mSignature;
+        public long mPolicyKey;
 
         // Convenience for creating an account
         public transient HostAuth mHostAuthRecv;
         public transient HostAuth mHostAuthSend;
+        public transient Policy mPolicy;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -1062,9 +1077,9 @@ public abstract class EmailContent {
         public static final int CONTENT_RINGTONE_URI_COLUMN = 12;
         public static final int CONTENT_PROTOCOL_VERSION_COLUMN = 13;
         public static final int CONTENT_NEW_MESSAGE_COUNT_COLUMN = 14;
-        public static final int CONTENT_SECURITY_FLAGS_COLUMN = 15;
-        public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 16;
-        public static final int CONTENT_SIGNATURE_COLUMN = 17;
+        public static final int CONTENT_SECURITY_SYNC_KEY_COLUMN = 15;
+        public static final int CONTENT_SIGNATURE_COLUMN = 16;
+        public static final int CONTENT_POLICY_KEY = 17;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID, AccountColumns.DISPLAY_NAME,
@@ -1073,8 +1088,8 @@ public abstract class EmailContent {
             AccountColumns.HOST_AUTH_KEY_SEND, AccountColumns.FLAGS, AccountColumns.IS_DEFAULT,
             AccountColumns.COMPATIBILITY_UUID, AccountColumns.SENDER_NAME,
             AccountColumns.RINGTONE_URI, AccountColumns.PROTOCOL_VERSION,
-            AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_FLAGS,
-            AccountColumns.SECURITY_SYNC_KEY, AccountColumns.SIGNATURE
+            AccountColumns.NEW_MESSAGE_COUNT, AccountColumns.SECURITY_SYNC_KEY,
+            AccountColumns.SIGNATURE, AccountColumns.POLICY_KEY
         };
 
         public static final int CONTENT_MAILBOX_TYPE_COLUMN = 1;
@@ -1100,7 +1115,7 @@ public abstract class EmailContent {
         private static final String UUID_SELECTION = AccountColumns.COMPATIBILITY_UUID + " =?";
 
         public static final String SECURITY_NONZERO_SELECTION =
-            Account.SECURITY_FLAGS + " IS NOT NULL AND " + Account.SECURITY_FLAGS + "!=0";
+            Account.POLICY_KEY + " IS NOT NULL AND " + Account.POLICY_KEY + "!=0";
 
         private static final String FIND_INBOX_SELECTION =
                 MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX +
@@ -1128,19 +1143,8 @@ public abstract class EmailContent {
         }
 
         public static Account restoreAccountWithId(Context context, long id) {
-            Uri u = ContentUris.withAppendedId(Account.CONTENT_URI, id);
-            Cursor c = context.getContentResolver().query(u, Account.CONTENT_PROJECTION,
-                    null, null, null);
-
-            try {
-                if (c.moveToFirst()) {
-                    return getContent(c, Account.class);
-                } else {
-                    return null;
-                }
-            } finally {
-                c.close();
-            }
+            return EmailContent.restoreContentWithId(context, Account.class,
+                    Account.CONTENT_URI, Account.CONTENT_PROJECTION, id);
         }
 
         /**
@@ -1178,9 +1182,9 @@ public abstract class EmailContent {
             mRingtoneUri = cursor.getString(CONTENT_RINGTONE_URI_COLUMN);
             mProtocolVersion = cursor.getString(CONTENT_PROTOCOL_VERSION_COLUMN);
             mNewMessageCount = cursor.getInt(CONTENT_NEW_MESSAGE_COUNT_COLUMN);
-            mSecurityFlags = cursor.getLong(CONTENT_SECURITY_FLAGS_COLUMN);
             mSecuritySyncKey = cursor.getString(CONTENT_SECURITY_SYNC_KEY_COLUMN);
             mSignature = cursor.getString(CONTENT_SIGNATURE_COLUMN);
+            mPolicyKey = cursor.getLong(CONTENT_POLICY_KEY);
         }
 
         private long getId(Uri u) {
@@ -1639,6 +1643,10 @@ public abstract class EmailContent {
          */
         @Override
         public int update(Context context, ContentValues cv) {
+            if (mPolicy != null && mPolicyKey <= 0) {
+                // If a policy is set and there's no policy, link it to the account
+                mPolicy.setAccountPolicy(context, this, null);
+            }
             if (cv.containsKey(AccountColumns.IS_DEFAULT) &&
                     cv.getAsBoolean(AccountColumns.IS_DEFAULT)) {
                 ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
@@ -1676,13 +1684,15 @@ public abstract class EmailContent {
             // This logic is in place so I can (a) short circuit the expensive stuff when
             // possible, and (b) override (and throw) if anyone tries to call save() or update()
             // directly for Account, which are unsupported.
-            if (mHostAuthRecv == null && mHostAuthSend == null && mIsDefault == false) {
-                    return super.save(context);
+            if (mHostAuthRecv == null && mHostAuthSend == null && mIsDefault == false &&
+                    mPolicy != null) {
+                return super.save(context);
             }
 
             int index = 0;
             int recvIndex = -1;
             int sendIndex = -1;
+            int policyIndex = -1;
 
             // Create operations for saving the send and recv hostAuths
             // Also, remember which operation in the array they represent
@@ -1697,6 +1707,12 @@ public abstract class EmailContent {
                 sendIndex = index++;
                 ops.add(ContentProviderOperation.newInsert(mHostAuthSend.mBaseUri)
                         .withValues(mHostAuthSend.toContentValues())
+                        .build());
+            }
+            if (mPolicy != null) {
+                policyIndex = index++;
+                ops.add(ContentProviderOperation.newInsert(mPolicy.mBaseUri)
+                        .withValues(mPolicy.toContentValues())
                         .build());
             }
 
@@ -1718,6 +1734,9 @@ public abstract class EmailContent {
                 }
                 if (sendIndex >= 0) {
                     cv.put(Account.HOST_AUTH_KEY_SEND, sendIndex);
+                }
+                if (policyIndex >= 0) {
+                    cv.put(Account.POLICY_KEY, policyIndex);
                 }
             }
 
@@ -1741,6 +1760,11 @@ public abstract class EmailContent {
                     long newId = getId(results[sendIndex].uri);
                     mHostAuthKeySend = newId;
                     mHostAuthSend.mId = newId;
+                }
+                if (policyIndex >= 0) {
+                    long newId = getId(results[policyIndex].uri);
+                    mPolicyKey = newId;
+                    mPolicy.mId = newId;
                 }
                 Uri u = results[index].uri;
                 mId = getId(u);
@@ -1770,9 +1794,9 @@ public abstract class EmailContent {
             values.put(AccountColumns.RINGTONE_URI, mRingtoneUri);
             values.put(AccountColumns.PROTOCOL_VERSION, mProtocolVersion);
             values.put(AccountColumns.NEW_MESSAGE_COUNT, mNewMessageCount);
-            values.put(AccountColumns.SECURITY_FLAGS, mSecurityFlags);
             values.put(AccountColumns.SECURITY_SYNC_KEY, mSecuritySyncKey);
             values.put(AccountColumns.SIGNATURE, mSignature);
+            values.put(AccountColumns.POLICY_KEY, mPolicyKey);
             return values;
         }
 
@@ -1817,9 +1841,9 @@ public abstract class EmailContent {
             dest.writeString(mRingtoneUri);
             dest.writeString(mProtocolVersion);
             dest.writeInt(mNewMessageCount);
-            dest.writeLong(mSecurityFlags);
             dest.writeString(mSecuritySyncKey);
             dest.writeString(mSignature);
+            dest.writeLong(mPolicyKey);
 
             if (mHostAuthRecv != null) {
                 dest.writeByte((byte)1);
@@ -1856,9 +1880,9 @@ public abstract class EmailContent {
             mRingtoneUri = in.readString();
             mProtocolVersion = in.readString();
             mNewMessageCount = in.readInt();
-            mSecurityFlags = in.readLong();
             mSecuritySyncKey = in.readString();
             mSignature = in.readString();
+            mPolicyKey = in.readLong();
 
             mHostAuthRecv = null;
             if (in.readByte() == 1) {
@@ -2004,19 +2028,8 @@ public abstract class EmailContent {
          * @return the instantiated Attachment
          */
         public static Attachment restoreAttachmentWithId (Context context, long id) {
-            Uri u = ContentUris.withAppendedId(Attachment.CONTENT_URI, id);
-            Cursor c = context.getContentResolver().query(u, Attachment.CONTENT_PROJECTION,
-                    null, null, null);
-
-            try {
-                if (c.moveToFirst()) {
-                    return getContent(c, Attachment.class);
-                } else {
-                    return null;
-                }
-            } finally {
-                c.close();
-            }
+            return EmailContent.restoreContentWithId(context, Attachment.class,
+                    Attachment.CONTENT_URI, Attachment.CONTENT_PROJECTION, id);
         }
 
         /**
@@ -2397,19 +2410,8 @@ public abstract class EmailContent {
          * @return the instantiated Mailbox
          */
         public static Mailbox restoreMailboxWithId(Context context, long id) {
-            Uri u = ContentUris.withAppendedId(Mailbox.CONTENT_URI, id);
-            Cursor c = context.getContentResolver().query(u, Mailbox.CONTENT_PROJECTION,
-                    null, null, null);
-
-            try {
-                if (c.moveToFirst()) {
-                    return getContent(c, Mailbox.class);
-                } else {
-                    return null;
-                }
-            } finally {
-                c.close();
-            }
+            return EmailContent.restoreContentWithId(context, Mailbox.class,
+                    Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION, id);
         }
 
         /**
@@ -2737,19 +2739,8 @@ public abstract class EmailContent {
          * @return the instantiated HostAuth
          */
         public static HostAuth restoreHostAuthWithId(Context context, long id) {
-            Uri u = ContentUris.withAppendedId(EmailContent.HostAuth.CONTENT_URI, id);
-            Cursor c = context.getContentResolver().query(u, HostAuth.CONTENT_PROJECTION,
-                    null, null, null);
-
-            try {
-                if (c.moveToFirst()) {
-                    return getContent(c, HostAuth.class);
-                } else {
-                    return null;
-                }
-            } finally {
-                c.close();
-            }
+            return EmailContent.restoreContentWithId(context, HostAuth.class,
+                    HostAuth.CONTENT_URI, HostAuth.CONTENT_PROJECTION, id);
         }
 
 
@@ -3014,5 +3005,19 @@ public abstract class EmailContent {
                     && Utility.areStringsEqual(mPassword, that.mPassword)
                     && Utility.areStringsEqual(mDomain, that.mDomain);
         }
+    }
+
+    public interface PolicyColumns {
+        public static final String ID = "_id";
+        public static final String PASSWORD_MODE = "passwordMode";
+        public static final String PASSWORD_MIN_LENGTH = "passwordMinLength";
+        public static final String PASSWORD_EXPIRATION_DAYS = "passwordExpirationDays";
+        public static final String PASSWORD_HISTORY = "passwordHistory";
+        public static final String PASSWORD_COMPLEX_CHARS = "passwordComplexChars";
+        public static final String PASSWORD_MAX_FAILS = "passwordMaxFails";
+        public static final String MAX_SCREEN_LOCK_TIME = "maxScreenLockTime";
+        public static final String REQUIRE_REMOTE_WIPE = "requireRemoteWipe";
+        public static final String REQUIRE_ENCRYPTION = "requireEncryption";
+        public static final String REQUIRE_ENCRYPTION_EXTERNAL = "requireEncryptionExternal";
     }
 }

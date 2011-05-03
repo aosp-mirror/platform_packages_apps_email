@@ -26,9 +26,9 @@ import com.android.emailcommon.internet.TextBody;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Message;
+import com.android.emailcommon.mail.Message.RecipientType;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
-import com.android.emailcommon.mail.Message.RecipientType;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
@@ -475,7 +475,6 @@ public class LegacyConversions {
         result.setRingtone(fromAccount.mRingtoneUri);
         result.mProtocolVersion = fromAccount.mProtocolVersion;
         // int fromAccount.mNewMessageCount = will be reset on next sync
-        result.mSecurityFlags = fromAccount.mSecurityFlags;
         result.mSignature = fromAccount.mSignature;
 
         // Use the existing conversions from HostAuth <-> Uri
@@ -518,10 +517,9 @@ public class LegacyConversions {
         result.setRingtone(fromAccount.getRingtone());
         result.mProtocolVersion = fromAccount.mProtocolVersion;
         result.mNewMessageCount = 0;
-        result.mSecurityFlags = fromAccount.mSecurityFlags;
         result.mSecuritySyncKey = null;
+        result.mPolicyKey = 0;
         result.mSignature = fromAccount.mSignature;
-
         try {
             HostAuth recvAuth = result.getOrCreateHostAuthRecv(context);
             Utility.setHostAuthFromString(recvAuth, fromAccount.getStoreUri());

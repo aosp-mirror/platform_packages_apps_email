@@ -23,8 +23,8 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.EmailServiceProxy;
-import com.android.emailcommon.service.PolicySet;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
@@ -456,7 +456,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                                 EmailServiceProxy.VALIDATE_BUNDLE_RESULT_CODE);
                     }
                     if (resultCode == MessagingException.SECURITY_POLICIES_REQUIRED) {
-                        SetupData.setPolicySet((PolicySet)bundle.getParcelable(
+                        SetupData.setPolicy((Policy)bundle.getParcelable(
                                 EmailServiceProxy.VALIDATE_BUNDLE_POLICY_SET));
                         return new MessagingException(resultCode, mStoreHost);
                     } else if (resultCode == MessagingException.SECURITY_POLICIES_UNSUPPORTED) {

@@ -26,7 +26,6 @@ import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.service.PolicySet;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.Utility;
 
@@ -238,11 +237,9 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         boolean contacts = false;
         boolean email = mSyncEmailView.isChecked();
         if (account.mHostAuthRecv.mProtocol.equals("eas")) {
-            // Set security hold if necessary to prevent sync until policies are accepted
-            PolicySet policySet = SetupData.getPolicySet();
-            if (policySet != null && policySet.getSecurityCode() != 0) {
-                account.mSecurityFlags = policySet.getSecurityCode();
+            if (SetupData.getPolicy() != null) {
                 account.mFlags |= Account.FLAGS_SECURITY_HOLD;
+                account.mPolicy = SetupData.getPolicy();
             }
             // Get flags for contacts/calendar sync
             contacts = mSyncContactsView.isChecked();
