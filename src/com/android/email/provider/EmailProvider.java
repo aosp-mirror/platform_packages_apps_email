@@ -56,7 +56,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.os.Debug;
 import android.util.Log;
 
 import java.io.File;
@@ -993,7 +992,6 @@ public class EmailProvider extends ContentProvider {
                 oldVersion = 18;
             }
             if (oldVersion == 18) {
-                Debug.waitForDebugger();
                 try {
                     db.execSQL("alter table " + Account.TABLE_NAME
                             + " add column " + Account.POLICY_KEY + " integer;");
@@ -1681,7 +1679,6 @@ public class EmailProvider extends ContentProvider {
 
     @VisibleForTesting
     void convertPolicyFlagsToPolicyTable(SQLiteDatabase db) {
-        Debug.waitForDebugger();
         Cursor c = db.query(Account.TABLE_NAME,
                 new String[] {EmailContent.RECORD_ID /*0*/, AccountColumns.SECURITY_FLAGS /*1*/},
                 AccountColumns.SECURITY_FLAGS + ">0", null, null, null, null);
