@@ -30,6 +30,7 @@ import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Activity;
 import android.app.ListFragment;
@@ -48,7 +49,6 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextPaint;
 import android.util.Log;
@@ -75,7 +75,6 @@ import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Set;
 
-// TODO Better handling of restoring list position/adapter check status
 /**
  * Message list.
  *
@@ -86,13 +85,6 @@ import java.util.Set;
  * </ul>
  * We run them sequentially.  i.e. First starts {@link MailboxAccountLoader}, and when it finishes
  * starts the other.
- *
- * TODO Finalize batch move UI.  Probably the "move" button should be disabled or hidden when
- * the selection contains non-movable messages.  But then how does the user know why they can't be
- * moved?
- * TODO Restoring scroll position on screen rotation is broken.
- * TODO Restoring selected messages on screen rotation is broken.
- * TODO Remove clearContent -> most probably this is the cause for the two issues above.
  */
 public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
@@ -130,7 +122,6 @@ public class MessageListFragment extends ListFragment
     private MessagesAdapter mListAdapter;
 
     private long mMailboxId = -1;
-    private long mLastLoadedMailboxId = -1;
     private long mSelectedMessageId = -1;
 
     private Account mAccount;
@@ -369,8 +360,8 @@ public class MessageListFragment extends ListFragment
         outState.putLong(BUNDLE_KEY_SELECTED_MESSAGE_ID, mSelectedMessageId);
     }
 
-    // Unit tests use it
-    /* package */void restoreInstanceState(Bundle savedInstanceState) {
+    @VisibleForTesting
+    void restoreInstanceState(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment restoreInstanceState");
         }
@@ -417,29 +408,6 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
-     * Clear all the content, stop the loaders, etc -- should be called when the fragment is hidden.
-     */
-    private void clearContent() {
-        mMailboxId = -1;
-        mLastLoadedMailboxId = -1;
-        mSelectedMessageId = -1;
-        mAccount = null;
-        mMailbox = null;
-        mIsEasAccount = false;
-        mIsRefreshable = false;
-        mCountTotalAccounts = 0;
-        mOpenRequested = false;
-        mShowSendCommand = false;
-
-        stopLoaders();
-        onDeselectAll();
-        if (mListAdapter != null) {
-            mListAdapter.swapCursor(null);
-        }
-        setListShownNoAnimation(false);
-    }
-
-    /**
      * Called by an Activity to open an mailbox.
      *
      * @param mailboxId the ID of a mailbox, or one of "special" mailbox IDs like
@@ -453,15 +421,14 @@ public class MessageListFragment extends ListFragment
         if (mailboxId == -1) {
             throw new InvalidParameterException();
         }
-        if (mMailboxId == mailboxId) {
-            return;
-        }
-
-        clearContent();
-
         mOpenRequested = true;
         mMailboxId = mailboxId;
 
+        // STOPSHIP Clean it up once the phone activities are gone. (See MailboxListFragment)
+        // - Move startLoading() to onActivityCreated
+        // - Remove mOpenRequested
+        // - Remove the mOpenRequested check from onResume
+        // etc...
         if (mResumed) {
             startLoading();
         }
@@ -937,8 +904,6 @@ public class MessageListFragment extends ListFragment
             }
         }
 
-        refreshList();
-
         return numChanged;
     }
 
@@ -1106,22 +1071,7 @@ public class MessageListFragment extends ListFragment
 
         // Start loading...
         final LoaderManager lm = getLoaderManager();
-
-        // If we're loading a different mailbox, discard the previous result.
-        // It also causes not to preserve the list position.
-        boolean mailboxChanging = false;
-        if ((mLastLoadedMailboxId != -1) && (mLastLoadedMailboxId != mMailboxId)) {
-            mailboxChanging = true;
-            stopLoaders();
-        }
-        lm.initLoader(LOADER_ID_MAILBOX_LOADER, null,
-                new MailboxAccountLoaderCallback(mailboxChanging));
-    }
-
-    private void stopLoaders() {
-        final LoaderManager lm = getLoaderManager();
-        lm.destroyLoader(LOADER_ID_MAILBOX_LOADER);
-        lm.destroyLoader(LOADER_ID_MESSAGES_LOADER);
+        lm.initLoader(LOADER_ID_MAILBOX_LOADER, null, new MailboxAccountLoaderCallback());
     }
 
     /**
@@ -1129,12 +1079,6 @@ public class MessageListFragment extends ListFragment
      */
     private class MailboxAccountLoaderCallback implements LoaderManager.LoaderCallbacks<
             MailboxAccountLoader.Result> {
-        private boolean mMailboxChanging;
-
-        public MailboxAccountLoaderCallback(boolean mailboxChanging) {
-            mMailboxChanging = mailboxChanging;
-        }
-
         @Override
         public Loader<MailboxAccountLoader.Result> onCreateLoader(int id, Bundle args) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -1156,17 +1100,13 @@ public class MessageListFragment extends ListFragment
                 return;
             }
 
-            mLastLoadedMailboxId = mMailboxId;
             mAccount = result.mAccount;
             mMailbox = result.mMailbox;
             mIsEasAccount = result.mIsEasAccount;
             mIsRefreshable = result.mIsRefreshable;
             mCountTotalAccounts = result.mCountTotalAccounts;
             getLoaderManager().initLoader(LOADER_ID_MESSAGES_LOADER, null,
-                    new MessagesLoaderCallback(mMailboxChanging));
-
-            // Clear this for next reload triggered by content changed events.
-            mMailboxChanging = false;
+                    new MessagesLoaderCallback());
         }
 
         @Override
@@ -1175,22 +1115,10 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
-     * Reload the data and refresh the list view.
-     */
-    private void refreshList() {
-        getLoaderManager().restartLoader(LOADER_ID_MESSAGES_LOADER, null,
-                new MessagesLoaderCallback(false));
-    }
-
-    /**
      * Loader callbacks for message list.
      */
     private class MessagesLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
-        private boolean mMailboxChanging;
-
-        public MessagesLoaderCallback(boolean mailboxChanging) {
-            mMailboxChanging = mailboxChanging;
-        }
+        private boolean mIsFirstLoad;
 
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -1198,6 +1126,7 @@ public class MessageListFragment extends ListFragment
                 Log.d(Logging.LOG_TAG,
                         "MessageListFragment onCreateLoader(messages) mailboxId=" + mMailboxId);
             }
+            mIsFirstLoad = true;
             return MessagesAdapter.createLoader(getActivity(), mMailboxId);
         }
 
@@ -1211,9 +1140,7 @@ public class MessageListFragment extends ListFragment
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
             final Parcelable listState;
-            if (mMailboxChanging) {
-                listState = null; // Don't preserve list state
-            } else if (mSavedListState != null) {
+            if (mSavedListState != null) {
                 listState = mSavedListState;
                 mSavedListState = null;
             } else {
@@ -1240,9 +1167,9 @@ public class MessageListFragment extends ListFragment
             showSendCommandIfNecessary();
             showNoMessageTextIfNecessary();
 
-            // We want to make selection visible only when the loader was explicitly started.
-            // i.e. Refresh caused by content changed events shouldn't scroll the list.
-            highlightSelectedMessage(mMailboxChanging);
+            // We want to make visible the selection only for the first load.
+            // Re-load caused by content changed events shouldn't scroll the list.
+            highlightSelectedMessage(mIsFirstLoad);
 
             // Restore the state -- this step has to be the last, because Some of the
             // "post processing" seems to reset the scroll position.
@@ -1253,7 +1180,7 @@ public class MessageListFragment extends ListFragment
             resetNewMessageCount(mActivity, mMailboxId, getAccountId());
 
             // Clear this for next reload triggered by content changed events.
-            mMailboxChanging = false;
+            mIsFirstLoad = false;
 
             mCallback.onListLoaded();
         }
@@ -1273,7 +1200,7 @@ public class MessageListFragment extends ListFragment
      * accountId} is valid, reset the count of the specified account.
      * </ul>
      */
-    /* protected */static void resetNewMessageCount(
+    private static void resetNewMessageCount(
             Context context, long mailboxId, long accountId) {
         if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
             MailService.resetNewMessageCount(context, -1);
