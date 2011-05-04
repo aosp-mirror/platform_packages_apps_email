@@ -57,17 +57,15 @@ import android.widget.CursorAdapter;
      * <code>row_type</code> specified in {@link #PROJECTION} and {@link #SUBMAILBOX_PROJECTION}.
      */
     /** Both regular and combined mailboxes */
-    /*package*/ static final int ROW_TYPE_MAILBOX = 0;
+    static final int ROW_TYPE_MAILBOX = 0;
     /** Account "mailboxes" in the combined view */
-    /*package*/ static final int ROW_TYPE_ACCOUNT = 1;
+    static final int ROW_TYPE_ACCOUNT = 1;
     // STOPSHIP Need to determine if these types are sufficient for nested folders
     // The following types are used when drilling into a mailbox
     /** The current mailbox */
-    /*package*/ static final int ROW_TYPE_CURMAILBOX = 2;
+    static final int ROW_TYPE_CURMAILBOX = 2;
     /** Sub mailboxes */
-    /*package*/ static final int ROW_TYPE_SUBMAILBOX = 3;
-    /** The "All Folders" mailbox */
-    /*package*/ static final int ROW_TYPE_ALLMAILBOX = 4;
+    static final int ROW_TYPE_SUBMAILBOX = 3;
 
     /**
      * Note here we have two ID columns.  The first one is for ListView, which doesn't like ID

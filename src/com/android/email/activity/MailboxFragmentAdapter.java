@@ -76,10 +76,10 @@ import android.widget.TextView;
         MailboxListItem listItem = (MailboxListItem)view;
         listItem.mMailboxId = id;
         listItem.mMailboxType = type;
-        listItem.mIsValidDropTarget = (id >= 0 || rowType == ROW_TYPE_ALLMAILBOX)
+        listItem.mIsValidDropTarget = (id >= 0)
                 && !Utility.arrayContains(Mailbox.INVALID_DROP_TARGETS, type)
                 && (flags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0;
-        listItem.mIsNavigable = hasVisibleChildren || rowType == ROW_TYPE_ALLMAILBOX;
+        listItem.mIsNavigable = hasVisibleChildren;
 
         listItem.mAdapter = this;
         // Set the background depending on whether we're in drag mode, the mailbox is a valid
@@ -89,7 +89,6 @@ import android.widget.TextView;
         // Set mailbox name
         final TextView nameView = (TextView) view.findViewById(R.id.mailbox_name);
         nameView.setText(getDisplayName(context, cursor));
-
         // Set count
         final int count;
         switch (getCountTypeForMailboxType(cursor)) {
@@ -113,11 +112,6 @@ import android.widget.TextView;
         final ImageView mailboxExpandedIcon =
                 (ImageView) view.findViewById(R.id.folder_expanded_icon);
         switch (cursor.getInt(COLUMN_ROW_TYPE)) {
-            case ROW_TYPE_ALLMAILBOX:
-                mailboxExpandedIcon.setVisibility(View.VISIBLE);
-                mailboxExpandedIcon.setImageResource(R.drawable.ic_mailbox_expanded_holo_light);
-                folderIcon.setVisibility(View.INVISIBLE);
-                break;
             case ROW_TYPE_SUBMAILBOX:
                 if (hasVisibleChildren) {
                     mailboxExpandedIcon.setVisibility(View.VISIBLE);
@@ -135,19 +129,15 @@ import android.widget.TextView;
                 folderIcon.setVisibility(View.GONE);
                 break;
             case ROW_TYPE_MAILBOX:
-                // If we have children and no special icon; show the collapsed folder icon
-                if (hasVisibleChildren && folderIcon.getDrawable() == null) {
+            default:
+                if (hasVisibleChildren) {
                     mailboxExpandedIcon.setVisibility(View.VISIBLE);
                     mailboxExpandedIcon.setImageResource(
                             R.drawable.ic_mailbox_collapsed_holo_light);
-                    folderIcon.setVisibility(View.GONE);
-                    break;
+                } else {
+                    mailboxExpandedIcon.setVisibility(View.GONE);
+                    mailboxExpandedIcon.setImageDrawable(null);
                 }
-                // No children; handle normally
-                //$FALL-THROUGH$
-            default:
-                mailboxExpandedIcon.setVisibility(View.GONE);
-                mailboxExpandedIcon.setImageDrawable(null);
                 folderIcon.setVisibility(View.VISIBLE);
                 break;
         }
@@ -285,9 +275,6 @@ import android.widget.TextView;
                             new String[] { Long.toString(mAccountId), Long.toString(mParentKey) },
                             null);
                     final MatrixCursor extraCursor = new MatrixCursor(getProjection());
-                    String label = mContext.getResources().getString(R.string.mailbox_name_go_back);
-                    addMailboxRow(extraCursor, superParentKey, label, Mailbox.TYPE_MAIL, 0, 0,
-                            ROW_TYPE_ALLMAILBOX, 0);
                     return Utility.CloseTraceCursorWrapper.get(new MergeCursor(
                             new Cursor[] { extraCursor, parentCursor, childMailboxCursor }));
                 }

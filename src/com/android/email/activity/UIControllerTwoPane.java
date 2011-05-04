@@ -27,8 +27,10 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -48,6 +50,7 @@ import android.widget.TextView;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Stack;
 
 /**
  * UI Controller for x-large devices.  Supports a multi-pane layout.
@@ -69,6 +72,8 @@ class UIControllerTwoPane implements
     private static final String BUNDLE_KEY_ACCOUNT_ID = "UIControllerTwoPane.state.account_id";
     private static final String BUNDLE_KEY_MAILBOX_ID = "UIControllerTwoPane.state.mailbox_id";
     private static final String BUNDLE_KEY_MESSAGE_ID = "UIControllerTwoPane.state.message_id";
+    private static final String BUNDLE_KEY_MAILBOX_STACK
+            = "UIControllerTwoPane.state.mailbox_stack";
 
     /* package */ static final int MAILBOX_REFRESH_MIN_INTERVAL = 30 * 1000; // in milliseconds
     /* package */ static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
@@ -85,8 +90,14 @@ class UIControllerTwoPane implements
     /** Current account id */
     private long mAccountId = NO_ACCOUNT;
 
-    /** Current mailbox id */
-    private long mMailboxId = NO_MAILBOX;
+    // TODO Remove this instance variable and replace it with a call to mMessageListFragment to
+    // retrieve it's mailbox ID. There's no reason we should be duplicating data
+    /**
+     * The id of the currently viewed mailbox in the mailbox list fragment.
+     * IMPORTANT: Do not confuse this with the value returned by {@link #getMessageListMailboxId()}
+     * which is the mailbox id associated with the message list fragment. The two may be different.
+     */
+    private long mMailboxListMailboxId = NO_MAILBOX;
 
     /** Current message id */
     private long mMessageId = NO_MESSAGE;
@@ -126,6 +137,8 @@ class UIControllerTwoPane implements
     private MessageOrderManager mOrderManager;
     private final MessageOrderManagerCallback mMessageOrderManagerCallback =
         new MessageOrderManagerCallback();
+    /** Mailbox IDs that the user has navigated away from; used to provide "back" functionality */
+    private final Stack<Long> mMailboxStack = new Stack<Long>();
 
     /**
      * List of fragments that are restored by the framework while the activity is being re-created
@@ -227,7 +240,8 @@ class UIControllerTwoPane implements
         // If the left pane (mailbox list pane) is hidden, the back action on action bar will be
         // enabled, and we also show the current mailbox name.
         final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
-        mActionBar.setDisplayOptions(leftPaneHidden ? ActionBar.DISPLAY_HOME_AS_UP : 0,
+        boolean displayUp = leftPaneHidden || !mMailboxStack.isEmpty();
+        mActionBar.setDisplayOptions(displayUp ? ActionBar.DISPLAY_HOME_AS_UP : 0,
                 ActionBar.DISPLAY_HOME_AS_UP);
         mActionBarMailboxNameView.setVisibility(leftPaneHidden ? View.VISIBLE : View.GONE);
     }
@@ -247,8 +261,11 @@ class UIControllerTwoPane implements
             // reload the top-level message list.  Always implies navigate.
             openAccount(accountId);
         } else if (navigate) {
-            updateMailboxList(accountId, mailboxId, true, true);
-            updateMessageList(mailboxId, true, true);
+            if (mMailboxStack.isEmpty() || mailboxId != mMailboxListMailboxId) {
+                // Don't navigate to the same mailbox id twice in a row
+                mMailboxStack.push(mMailboxListMailboxId);
+                openMailbox(accountId, mailboxId);
+            }
         } else {
             updateMessageList(mailboxId, true, true);
         }
@@ -464,8 +481,13 @@ class UIControllerTwoPane implements
         return mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW ? NO_ACCOUNT : mAccountId;
     }
 
-    public long getMailboxId() {
-        return mMailboxId;
+    /**
+     * Returns the id of the mailbox used for the message list fragment.
+     * IMPORTANT: Do not confuse this with {@link #mMailboxListMailboxId} which is the id used
+     * for the mailbox list. The two may be different.
+     */
+    public long getMessageListMailboxId() {
+        return mMessageListFragment.getMailboxId();
     }
 
     public long getMessageId() {
@@ -480,7 +502,7 @@ class UIControllerTwoPane implements
     }
 
     public boolean isMailboxSelected() {
-        return getMailboxId() != NO_MAILBOX;
+        return getMessageListMailboxId() != NO_MAILBOX;
     }
 
     public boolean isMessageSelected() {
@@ -491,7 +513,9 @@ class UIControllerTwoPane implements
      * @return true if refresh is in progress for the current mailbox.
      */
     public boolean isRefreshInProgress() {
-        return (mMailboxId >= 0) && mRefreshManager.isMessageListRefreshing(mMailboxId);
+        long messageListMailboxId = getMessageListMailboxId();
+        return (messageListMailboxId >= 0)
+                && mRefreshManager.isMessageListRefreshing(messageListMailboxId);
     }
 
     /**
@@ -586,8 +610,13 @@ class UIControllerTwoPane implements
             Log.d(Logging.LOG_TAG, "" + this + " onSaveInstanceState");
         }
         outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mAccountId);
-        outState.putLong(BUNDLE_KEY_MAILBOX_ID, mMailboxId);
+        outState.putLong(BUNDLE_KEY_MAILBOX_ID, mMailboxListMailboxId);
         outState.putLong(BUNDLE_KEY_MESSAGE_ID, mMessageId);
+        if (!mMailboxStack.isEmpty()) {
+            // Save the mailbox stack
+            long[] mailboxIds = Utility.toPrimitiveLongArray(mMailboxStack);
+            outState.putLongArray(BUNDLE_KEY_MAILBOX_STACK, mailboxIds);
+        }
     }
 
     public void restoreInstanceState(Bundle savedInstanceState) {
@@ -595,8 +624,16 @@ class UIControllerTwoPane implements
             Log.d(Logging.LOG_TAG, "" + this + " restoreInstanceState");
         }
         mAccountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, NO_ACCOUNT);
-        mMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, NO_MAILBOX);
+        mMailboxListMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, NO_MAILBOX);
         mMessageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, NO_MESSAGE);
+        long[] mailboxIds = savedInstanceState.getLongArray(BUNDLE_KEY_MAILBOX_STACK);
+        if (mailboxIds != null) {
+            // Restore the mailbox stack; ugly hack to get around 'Long' versus 'long'
+            mMailboxStack.clear();
+            for (long id : mailboxIds) {
+                mMailboxStack.push(id);
+            }
+        }
 
         // STOPSHIP If MailboxFinder is still running, it needs restarting after loadState().
         // This probably means we need to start MailboxFinder if mMailboxId == -1.
@@ -658,7 +695,22 @@ class UIControllerTwoPane implements
      *     Must never be {@link #NO_ACCOUNT}.
      */
     public void openAccount(long accountId) {
+        mMailboxStack.clear();
+        updateActionBar();
         open(accountId, NO_MAILBOX, NO_MESSAGE);
+    }
+
+    /**
+     * Opens the given mailbox. on two-pane, this will update both the mailbox list and the
+     * message list.
+     *
+     * NOTE: It's assumed that the mailbox is associated with the specified account. If the
+     * mailbox is not associated with the account, the behaviour is undefined.
+     */
+    private void openMailbox(long accountId, long mailboxId) {
+        updateActionBar();
+        updateMailboxList(accountId, mailboxId, true, true);
+        updateMessageList(mailboxId, true, true);
     }
 
     /**
@@ -692,11 +744,11 @@ class UIControllerTwoPane implements
             }
         } else if (messageId == NO_MESSAGE) {
             // STOPSHIP Use the appropriate parent mailbox ID
-            updateMailboxList(accountId, NO_MAILBOX, true, true);
+            updateMailboxList(accountId, mailboxId, true, true);
             updateMessageList(mailboxId, true, true);
         } else {
             // STOPSHIP Use the appropriate parent mailbox ID
-            updateMailboxList(accountId, NO_MAILBOX, false, true);
+            updateMailboxList(accountId, mailboxId, false, true);
             updateMessageList(mailboxId, false, true);
             updateMessageView(messageId);
         }
@@ -748,13 +800,13 @@ class UIControllerTwoPane implements
         // then return.
 
         mAccountId = accountId;
+        mMailboxListMailboxId = parentMailboxId;
 
         // Open mailbox list, remove message list / message view
         final FragmentManager fm = mActivity.getFragmentManager();
         final FragmentTransaction ft = fm.beginTransaction();
         uninstallMailboxListFragment(ft);
         if (clearDependentPane) {
-            mMailboxId = NO_MAILBOX;
             mMessageId = NO_MESSAGE;
             uninstallMessageListFragment(ft);
             uninstallMessageViewFragment(ft);
@@ -802,8 +854,6 @@ class UIControllerTwoPane implements
         // TODO Check if the current fragment has been initialized with the same parameters, and
         // then return.
 
-        mMailboxId = mailboxId;
-
         final FragmentManager fm = mActivity.getFragmentManager();
         final FragmentTransaction ft = fm.beginTransaction();
         uninstallMessageListFragment(ft);
@@ -818,6 +868,8 @@ class UIControllerTwoPane implements
             mThreePane.showLeftPane();
         }
 
+        // TODO We shouldn't select the mailbox when we're updating the message list. These two
+        // functions should be done separately. Find a better location for this call to be done.
         mMailboxListFragment.setSelectedMailbox(mailboxId);
         updateRefreshProgress();
     }
@@ -894,7 +946,7 @@ class UIControllerTwoPane implements
         if (!isMailboxSelected()) {
             return;
         }
-        final long mailboxId = getMailboxId();
+        final long mailboxId = getMessageListMailboxId();
         if (mOrderManager == null || mOrderManager.getMailboxId() != mailboxId) {
             stopMessageOrderManager();
             mOrderManager =
@@ -1098,6 +1150,15 @@ class UIControllerTwoPane implements
     public boolean onBackPressed(boolean isSystemBackKey) {
         if (mThreePane.onBackPressed(isSystemBackKey)) {
             return true;
+        } else if (!mMailboxStack.isEmpty()) {
+            long mailboxId = mMailboxStack.pop();
+            if (mailboxId == NO_MAILBOX) {
+                // No mailbox; reload the top-level message list
+                openAccount(mAccountId);
+            } else {
+                openMailbox(mAccountId, mailboxId);
+            }
+            return true;
         }
         return false;
     }
@@ -1128,7 +1189,7 @@ class UIControllerTwoPane implements
     public void onRefresh() {
         // Cancel previously running instance if any.
         new RefreshTask(mTaskTracker, mActivity, getActualAccountId(),
-                getMailboxId()).cancelPreviousAndExecuteParallel();
+                getMessageListMailboxId()).cancelPreviousAndExecuteParallel();
     }
 
     /**

@@ -21,7 +21,6 @@ import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.MessagingExceptionStrings;
 import com.android.email.R;
-import com.android.email.RefreshManager;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -344,14 +343,14 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     public boolean onSearchRequested() {
         Bundle bundle = new Bundle();
         bundle.putLong(EXTRA_ACCOUNT_ID, mUIController.getActualAccountId());
-        bundle.putLong(EXTRA_MAILBOX_ID, mUIController.getMailboxId());
+        bundle.putLong(EXTRA_MAILBOX_ID, mUIController.getMessageListMailboxId());
         startSearch(null, false, bundle, false);
         return true;
     }
 
     // STOPSHIP Set column from user options
     private void setMailboxColumn(String column, String value) {
-        final long mailboxId = mUIController.getMailboxId();
+        final long mailboxId = mUIController.getMessageListMailboxId();
         if (mailboxId > 0) {
             ContentValues cv = new ContentValues();
             cv.put(column, value);
@@ -391,8 +390,10 @@ public class EmailActivity extends Activity implements View.OnClickListener {
 
     // STOPSHIP Temporary mailbox settings UI
     @Override
+    @Deprecated
     protected Dialog onCreateDialog(int id, Bundle args) {
-        Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mUIController.getMailboxId());
+        Mailbox mailbox
+                = Mailbox.restoreMailboxWithId(this, mUIController.getMessageListMailboxId());
         if (mailbox == null) return null;
         switch (id) {
             case MAILBOX_SYNC_FREQUENCY_DIALOG:
@@ -439,6 +440,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mUIController.onOptionsItemSelected(item)) {
             return true;
