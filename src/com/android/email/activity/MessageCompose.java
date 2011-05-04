@@ -106,8 +106,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         "com.android.email.activity.MessageCompose.ccShown";
     private static final String STATE_KEY_QUOTED_TEXT_SHOWN =
         "com.android.email.activity.MessageCompose.quotedTextShown";
-    private static final String STATE_KEY_SOURCE_MESSAGE_PROCED =
-        "com.android.email.activity.MessageCompose.stateKeySourceMessageProced";
     private static final String STATE_KEY_DRAFT_ID =
         "com.android.email.activity.MessageCompose.draftId";
     private static final String STATE_KEY_LAST_SAVE_TASK_ID =
@@ -151,13 +149,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * The action being handled by this activity from the {@link Intent}.
      */
     private String mAction;
-
-    /**
-     * Indicates that the source message has been processed at least once and should not
-     * be processed on any subsequent loads. This protects us from adding attachments that
-     * have already been added from the restore of the view state.
-     */
-    private boolean mSourceMessageProcessed = false;
 
     private TextView mFromView;
     private MultiAutoCompleteTextView mToView;
@@ -343,7 +334,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             initFromIntent(intent);
             setDraftNeedsSaving(true);
             mMessageLoaded = true;
-            mSourceMessageProcessed = true;
         } else if (ACTION_REPLY.equals(mAction)
                 || ACTION_REPLY_ALL.equals(mAction)
                 || ACTION_FORWARD.equals(mAction)) {
@@ -361,7 +351,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             setInitialComposeText(null, getAccountSignature(mAccount));
 
             mMessageLoaded = true;
-            mSourceMessageProcessed = true;
         }
     }
 
@@ -443,7 +432,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         outState.putBoolean(STATE_KEY_CC_SHOWN, mCcBccContainer.getVisibility() == View.VISIBLE);
         outState.putBoolean(STATE_KEY_QUOTED_TEXT_SHOWN,
                 mQuotedTextBar.getVisibility() == View.VISIBLE);
-        outState.putBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, mSourceMessageProcessed);
 
         // If there are any outstanding save requests, ensure that it's noted in case it hasn't
         // finished by the time the activity is restored.
@@ -648,32 +636,36 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
                 mDraft = message;
                 loadAttachments(message.mId, mAccount);
-
-                if (restoreViews) {
-                    mSubjectView.setText(message.mSubject);
-                    addAddresses(mToView, Address.unpack(message.mTo));
-                    Address[] cc = Address.unpack(message.mCc);
-                    if (cc.length > 0) {
-                        addAddresses(mCcView, cc);
-                    }
-                    Address[] bcc = Address.unpack(message.mBcc);
-                    if (bcc.length > 0) {
-                        addAddresses(mBccView, bcc);
-                    }
-
-                    mMessageContentView.setText(message.mText);
-
-                    showCcBccFieldsIfFilled();
-                    setNewMessageFocus();
-                }
-                setDraftNeedsSaving(false);
-
-                // The quoted text must always be restored.
-                displayQuotedText(message.mTextReply, message.mHtmlReply);
-                setIncludeQuotedText(
-                        (mDraft.mFlags & Message.FLAG_NOT_INCLUDE_QUOTED_TEXT) == 0, false);
+                processDraftMessage(message, restoreViews);
             }
         }).executeParallel((Void[]) null);
+    }
+
+    @VisibleForTesting
+    void processDraftMessage(Message message, boolean restoreViews) {
+        if (restoreViews) {
+            mSubjectView.setText(message.mSubject);
+            addAddresses(mToView, Address.unpack(message.mTo));
+            Address[] cc = Address.unpack(message.mCc);
+            if (cc.length > 0) {
+                addAddresses(mCcView, cc);
+            }
+            Address[] bcc = Address.unpack(message.mBcc);
+            if (bcc.length > 0) {
+                addAddresses(mBccView, bcc);
+            }
+
+            mMessageContentView.setText(message.mText);
+
+            showCcBccFieldsIfFilled();
+            setNewMessageFocus();
+        }
+        setDraftNeedsSaving(false);
+
+        // The quoted text must always be restored.
+        displayQuotedText(message.mTextReply, message.mHtmlReply);
+        setIncludeQuotedText(
+                (mDraft.mFlags & Message.FLAG_NOT_INCLUDE_QUOTED_TEXT) == 0, false);
     }
 
     /**

@@ -357,7 +357,7 @@ public class MessageComposeTests
      *
      * TODO check CC and BCC handling too
      */
-    public void testProcessSourceMessageDraft() throws MessagingException, Throwable {
+    public void testProcessDraftMessage() throws MessagingException, Throwable {
 
         final Message message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
         Intent intent = new Intent(ACTION_EDIT_DRAFT);
@@ -366,7 +366,7 @@ public class MessageComposeTests
 
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message, null);
+                a.processDraftMessage(message, true);
                 checkFields(RECIPIENT_TO + ", ", null, null, SUBJECT, BODY, null);
                 checkFocused(mMessageView);
             }
@@ -379,7 +379,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message, null);
+                a.processDraftMessage(message, true);
                 checkFields(RECIPIENT_TO + ", ", null, null, null, BODY, null);
                 checkFocused(mSubjectView);
             }
@@ -388,10 +388,10 @@ public class MessageComposeTests
     }
 
     /**
-     * Test processSourceMessage() for EDIT_DRAFT with utf-16 name and address
+     * Test processDraftMessage() for EDIT_DRAFT with utf-16 name and address
      * TODO check CC and BCC handling too
      */
-    public void testProcessSourceMessageDraftWithUtf16() throws MessagingException, Throwable {
+    public void testProcessDraftMessageWithUtf16() throws MessagingException, Throwable {
 
         final Message message = buildTestMessage(UTF16_RECIPIENT_TO, UTF16_SENDER,
                 UTF16_SUBJECT, UTF16_BODY);
@@ -401,7 +401,7 @@ public class MessageComposeTests
 
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message, null);
+                a.processDraftMessage(message, true);
                 checkFields(UTF16_RECIPIENT_TO + ", ",
                         null, null, UTF16_SUBJECT, UTF16_BODY, null);
                 checkFocused(mMessageView);
@@ -415,7 +415,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message, null);
+                a.processDraftMessage(message, true);
                 checkFields(UTF16_RECIPIENT_TO + ", ", null, null, null, UTF16_BODY, null);
                 checkFocused(mSubjectView);
             }
@@ -424,10 +424,10 @@ public class MessageComposeTests
     }
 
     /**
-     * Test processSourceMessage() for EDIT_DRAFT with utf-32 name and address
+     * Test processDraftMessage() for EDIT_DRAFT with utf-32 name and address
      * TODO check CC and BCC handling too
      */
-    public void testProcessSourceMessageDraftWithUtf32() throws MessagingException, Throwable {
+    public void testProcessDraftMessageWithUtf32() throws MessagingException, Throwable {
 
         final Message message = buildTestMessage(UTF32_RECIPIENT_TO, UTF32_SENDER,
                 UTF32_SUBJECT, UTF32_BODY);
@@ -437,7 +437,7 @@ public class MessageComposeTests
 
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message, null);
+                a.processDraftMessage(message, true);
                 checkFields(UTF32_RECIPIENT_TO + ", ",
                         null, null, UTF32_SUBJECT, UTF32_BODY, null);
                 checkFocused(mMessageView);
@@ -451,7 +451,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message, null);
+                a.processDraftMessage(message, true);
                 checkFields(UTF32_RECIPIENT_TO + ", ", null, null, null, UTF32_BODY, null);
                 checkFocused(mSubjectView);
             }
@@ -823,8 +823,7 @@ public class MessageComposeTests
      * @param content Content of the message
      * @return a complete Message object
      */
-    private Message buildTestMessage(String to, String sender, String subject, String content)
-            throws MessagingException {
+    private Message buildTestMessage(String to, String sender, String subject, String content) {
         Message message = new Message();
 
         if (to != null) {
