@@ -110,7 +110,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         "com.android.email.activity.MessageCompose.stateKeySourceMessageProced";
     private static final String STATE_KEY_DRAFT_ID =
         "com.android.email.activity.MessageCompose.draftId";
-    private static final String STATE_KEY_REQUEST_ID =
+    private static final String STATE_KEY_LAST_SAVE_TASK_ID =
         "com.android.email.activity.MessageCompose.requestId";
 
     private static final int ACTIVITY_REQUEST_PICK_ATTACHMENT = 1;
@@ -135,14 +135,21 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private Account mAccount;
 
-    // mDraft has mId > 0 after the first draft save.
+    /**
+     * The contents of the current message being edited. This is not always in sync with what's
+     * on the UI. {@link #updateMessage(Message, Account, boolean, boolean)} must be called to sync
+     * the UI values into this object.
+     */
     private Message mDraft = new Message();
 
-    // mSource is only set for REPLY, REPLY_ALL and FORWARD, and contains the source message.
+    /**
+     * The source message for a reply, reply all, or forward. This is asynchronously loaded.
+     */
     private Message mSource;
 
-    // we use mAction instead of Intent.getAction() because sometimes we need to
-    // re-write the action to EDIT_DRAFT.
+    /**
+     * The action being handled by this activity from the {@link Intent}.
+     */
     private String mAction;
 
     /**
@@ -262,6 +269,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         startActivityWithMessage(context, ACTION_EDIT_DRAFT, messageId);
     }
 
+    /**
+     * Starts a compose activity with a message as a reference message (e.g. for reply or forward).
+     */
     private static void startActivityWithMessage(Context context, String action, long messageId) {
         Intent i = getBaseIntent(context);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
@@ -304,16 +314,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mController = Controller.getInstance(getApplication());
         initViews();
 
-        long draftId = Message.NOT_SAVED;
-        long existingSaveTaskId = -1;
-        if (savedInstanceState != null) {
-            // This data gets used in onCreate, so grab it here instead of onRestoreInstanceState
-            mSourceMessageProcessed =
-                savedInstanceState.getBoolean(STATE_KEY_SOURCE_MESSAGE_PROCED, false);
-            draftId = savedInstanceState.getLong(STATE_KEY_DRAFT_ID, Message.NOT_SAVED);
-            existingSaveTaskId = savedInstanceState.getLong(STATE_KEY_REQUEST_ID, -1);
-        }
-
         // Show the back arrow on the action bar.
         getActionBar().setDisplayOptions(
                 ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
@@ -321,45 +321,48 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         Intent intent = getIntent();
         mAction = intent.getAction();
 
-        if (draftId != Message.NOT_SAVED) {
-            // this means that we saved the draft earlier,
-            // so now we need to disregard the intent action and do
-            // EDIT_DRAFT instead.
-            mAction = ACTION_EDIT_DRAFT;
-            mDraft.mId = draftId;
+        if (savedInstanceState != null) {
+            long draftId = savedInstanceState.getLong(STATE_KEY_DRAFT_ID, Message.NOT_SAVED);
+            long existingSaveTaskId = savedInstanceState.getLong(STATE_KEY_LAST_SAVE_TASK_ID, -1);
+            SendOrSaveMessageTask existingSaveTask = sActiveSaveTasks.get(existingSaveTaskId);
+
+            // Assert ((draftId != Message.NOT_SAVED) || (existingSaveTask != null));
+            resumeDraft(draftId, existingSaveTask, false /* don't restore views */);
+        } else {
+            resolveIntent(intent);
         }
 
-        // Handle the various intents that launch the message composer
+        initListeners();
+    }
+
+    private void resolveIntent(Intent intent) {
         if (Intent.ACTION_VIEW.equals(mAction)
                 || Intent.ACTION_SENDTO.equals(mAction)
                 || Intent.ACTION_SEND.equals(mAction)
                 || Intent.ACTION_SEND_MULTIPLE.equals(mAction)) {
-            // Use the fields found in the Intent to prefill as much of the message as possible
             initFromIntent(intent);
             setDraftNeedsSaving(true);
             mMessageLoaded = true;
             mSourceMessageProcessed = true;
+        } else if (ACTION_REPLY.equals(mAction)
+                || ACTION_REPLY_ALL.equals(mAction)
+                || ACTION_FORWARD.equals(mAction)) {
+            long sourceMessageId = getIntent().getLongExtra(EXTRA_MESSAGE_ID, Message.NOT_SAVED);
+            loadSourceMessage(sourceMessageId);
+
+        } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
+            // Assert getIntent.hasExtra(EXTRA_MESSAGE_ID)
+            long draftId = getIntent().getLongExtra(EXTRA_MESSAGE_ID, Message.NOT_SAVED);
+            resumeDraft(draftId, null, true /* restore views */);
+
         } else {
-            // Otherwise, handle the internal cases (Message Composer invoked from within app)
-            long messageId = (draftId != Message.NOT_SAVED)
-                    ? draftId : intent.getLongExtra(EXTRA_MESSAGE_ID, -1);
-            SendOrSaveMessageTask saveTask = sActiveSaveTasks.get(existingSaveTaskId);
-            if ((messageId != Message.NOT_SAVED) || (saveTask != null)) {
-                new LoadMessageTask(messageId, saveTask).executeParallel();
-            } else {
-                setAccount(intent);
-                setInitialComposeText(null, getAccountSignature(mAccount));
+            // Normal compose flow for a new message.
+            setAccount(intent);
+            setInitialComposeText(null, getAccountSignature(mAccount));
 
-                // Since this is a new message, we don't need to call LoadMessageTask.
-                // But we DO need to set mMessageLoaded to indicate the message can be sent
-                mMessageLoaded = true;
-                mSourceMessageProcessed = true;
-            }
+            mMessageLoaded = true;
+            mSourceMessageProcessed = true;
         }
-
-        // Attach the text listeners late, since any population of data from Intent/saved instances
-        // are uninteresting and should be ignored.
-        initListeners();
     }
 
     @Override
@@ -444,7 +447,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         // If there are any outstanding save requests, ensure that it's noted in case it hasn't
         // finished by the time the activity is restored.
-        outState.putLong(STATE_KEY_REQUEST_ID, mLastSaveTaskId);
+        outState.putLong(STATE_KEY_LAST_SAVE_TASK_ID, mLastSaveTaskId);
     }
 
     /**
@@ -621,6 +624,89 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     }
 
     /**
+     * Asynchronously loads a draft message for editing.
+     * This may or may not restore the view contents, depending on whether or not callers want,
+     * since in the case of screen rotation, those are restored automatically.
+     */
+    private void resumeDraft(
+            long draftId,
+            SendOrSaveMessageTask existingSaveTask,
+            final boolean restoreViews) {
+        // Note - this can be Message.NOT_SAVED if there is an existing save task in progress
+        // for the draft we need to load.
+        mDraft.mId = draftId;
+
+        new LoadMessageTask(draftId, existingSaveTask, new OnMessageLoadHandler() {
+            @Override
+            public void onMessageLoaded(Message message, Body body) {
+                message.mHtml = body.mHtmlContent;
+                message.mText = body.mTextContent;
+                message.mHtmlReply = body.mHtmlReply;
+                message.mTextReply = body.mTextReply;
+                message.mIntroText = body.mIntroText;
+                message.mSourceKey = body.mSourceKey;
+
+                mDraft = message;
+                loadAttachments(message.mId, mAccount);
+
+                if (restoreViews) {
+                    mSubjectView.setText(message.mSubject);
+                    addAddresses(mToView, Address.unpack(message.mTo));
+                    Address[] cc = Address.unpack(message.mCc);
+                    if (cc.length > 0) {
+                        addAddresses(mCcView, cc);
+                    }
+                    Address[] bcc = Address.unpack(message.mBcc);
+                    if (bcc.length > 0) {
+                        addAddresses(mBccView, bcc);
+                    }
+
+                    mMessageContentView.setText(message.mText);
+
+                    showCcBccFieldsIfFilled();
+                    setNewMessageFocus();
+                }
+                setDraftNeedsSaving(false);
+
+                // The quoted text must always be restored.
+                displayQuotedText(message.mTextReply, message.mHtmlReply);
+                setIncludeQuotedText(
+                        (mDraft.mFlags & Message.FLAG_NOT_INCLUDE_QUOTED_TEXT) == 0, false);
+            }
+        }).executeParallel((Void[]) null);
+    }
+
+    /**
+     * Asynchronously loads a source message (to be replied or forwarded in this current view),
+     * populating text fields and quoted text fields as appropriate when the load finishes.
+     */
+    private void loadSourceMessage(long sourceMessageId) {
+        new LoadMessageTask(sourceMessageId, null, new OnMessageLoadHandler() {
+            @Override
+            public void onMessageLoaded(Message message, Body body) {
+                message.mHtml = body.mHtmlContent;
+                message.mText = body.mTextContent;
+                message.mHtmlReply = null;
+                message.mTextReply = null;
+                message.mIntroText = null;
+                mSource = message;
+
+                if (isForward()) {
+                    loadAttachments(message.mId, mAccount);
+                }
+                processSourceMessage(mSource, mAccount);
+            }
+        }).executeParallel((Void[]) null);
+    }
+
+    private interface OnMessageLoadHandler {
+        /**
+         * Handles a load to a message (e.g. a draft message or a source message).
+         */
+        void onMessageLoaded(Message message, Body body);
+    }
+
+    /**
      * Asynchronously loads a message and the account information.
      * This can be used to load a reference message (when replying) or when restoring a draft.
      */
@@ -635,10 +721,20 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
          */
         private final SendOrSaveMessageTask mSaveTask;
 
-        public LoadMessageTask(long messageId, SendOrSaveMessageTask saveTask) {
+        /**
+         * A callback to pass the results of the load to.
+         */
+        private final OnMessageLoadHandler mCallback;
+
+        private final Context mContext;
+
+        public LoadMessageTask(
+                long messageId, SendOrSaveMessageTask saveTask, OnMessageLoadHandler callback) {
             super(mTaskTracker);
             mMessageId = messageId;
             mSaveTask = saveTask;
+            mCallback = callback;
+            mContext = getApplicationContext();
         }
 
         private long getIdToLoad() throws InterruptedException, ExecutionException {
@@ -662,109 +758,83 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 // Don't have a good message ID to load - bail.
                 Log.e(Logging.LOG_TAG,
                         "Unable to load draft message since existing save task failed: " + e);
-                return new Object[] {null, null};
+                return null;
             }
             Message message = Message.restoreMessageWithId(MessageCompose.this, messageId);
             if (message == null) {
-                return new Object[] {null, null};
+                return null;
             }
             long accountId = message.mAccountKey;
             Account account = Account.restoreAccountWithId(MessageCompose.this, accountId);
+            Body body;
             try {
-                // Body body = Body.restoreBodyWithMessageId(MessageCompose.this, message.mId);
-                message.mHtml = Body.restoreBodyHtmlWithMessageId(MessageCompose.this, message.mId);
-                message.mText = Body.restoreBodyTextWithMessageId(MessageCompose.this, message.mId);
-                boolean isEditDraft = ACTION_EDIT_DRAFT.equals(mAction);
-                // the reply fields are only filled/used for Drafts.
-                if (isEditDraft) {
-                    message.mHtmlReply =
-                        Body.restoreReplyHtmlWithMessageId(MessageCompose.this, message.mId);
-                    message.mTextReply =
-                        Body.restoreReplyTextWithMessageId(MessageCompose.this, message.mId);
-                    message.mIntroText =
-                        Body.restoreIntroTextWithMessageId(MessageCompose.this, message.mId);
-                    message.mSourceKey = Body.restoreBodySourceKey(MessageCompose.this,
-                                                                   message.mId);
-                } else {
-                    message.mHtmlReply = null;
-                    message.mTextReply = null;
-                    message.mIntroText = null;
-                }
+                body = Body.restoreBodyWithMessageId(MessageCompose.this, message.mId);
             } catch (RuntimeException e) {
                 Log.d(Logging.LOG_TAG, "Exception while loading message body: " + e);
-                return new Object[] {null, null};
+                return null;
             }
-            return new Object[] {message, account};
+            return new Object[] {message, body, account};
+        }
+
+        private void onLoadFailed() {
+            Utility.showToast(mContext, R.string.error_loading_message_body);
+            finish();
         }
 
         @Override
-        protected void onPostExecute(Object[] messageAndAccount) {
-            if (messageAndAccount == null) {
+        protected void onPostExecute(Object[] results) {
+            if ((results == null) || (results.length != 3)) {
+                onLoadFailed();
                 return;
             }
 
-            final Message message = (Message) messageAndAccount[0];
-            final Account account = (Account) messageAndAccount[1];
-            if (message == null && account == null) {
-                // Something unexpected happened:
-                // the message or the body couldn't be loaded by SQLite.
-                // Bail out.
-                Utility.showToast(MessageCompose.this, R.string.error_loading_message_body);
-                finish();
+            final Message message = (Message) results[0];
+            final Body body = (Body) results[1];
+            final Account account = (Account) results[2];
+            if ((message == null) || (body == null) || (account == null)) {
+                onLoadFailed();
                 return;
-            }
-
-            // Drafts and "forwards" need to include attachments from the original unless the
-            // account is marked as supporting smart forward
-            final boolean isEditDraft = ACTION_EDIT_DRAFT.equals(mAction);
-            final boolean isForward = ACTION_FORWARD.equals(mAction);
-            if (isEditDraft || isForward) {
-                if (isEditDraft) {
-                    mDraft = message;
-                } else {
-                    mSource = message;
-                }
-                new EmailAsyncTask<Long, Void, Attachment[]>(mTaskTracker) {
-                    @Override
-                    protected Attachment[] doInBackground(Long... messageIds) {
-                        return Attachment.restoreAttachmentsWithMessageId(MessageCompose.this,
-                                messageIds[0]);
-                    }
-                    @Override
-                    protected void onPostExecute(Attachment[] attachments) {
-                        if (attachments == null) {
-                            return;
-                        }
-                        final boolean supportsSmartForward =
-                            (account.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0;
-
-                        for (Attachment attachment : attachments) {
-                            if (supportsSmartForward && isForward) {
-                                attachment.mFlags |= Attachment.FLAG_SMART_FORWARD;
-                            }
-                            // Note allowDelete is set in two cases:
-                            // 1. First time a message (w/ attachments) is forwarded,
-                            //    where action == ACTION_FORWARD
-                            // 2. 1 -> Save -> Reopen, where action == EDIT_DRAFT,
-                            //    but FLAG_SMART_FORWARD is already set at 1.
-                            // Even if the account supports smart-forward, attachments added
-                            // manually are still removable.
-                            final boolean allowDelete =
-                                    (attachment.mFlags & Attachment.FLAG_SMART_FORWARD) == 0;
-                            addAttachment(attachment, allowDelete);
-                        }
-                    }
-                }.executeParallel(message.mId);
-            } else if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
-                mSource = message;
-            } else if (Email.LOGD) {
-                Email.log("Action " + mAction + " has unexpected EXTRA_MESSAGE_ID");
             }
 
             setAccount(account);
-            processSourceMessageGuarded(message, mAccount);
+            mCallback.onMessageLoaded(message, body);
             mMessageLoaded = true;
         }
+    }
+
+    private void loadAttachments(final long messageId, final Account account) {
+        new EmailAsyncTask<Void, Void, Attachment[]>(mTaskTracker) {
+            @Override
+            protected Attachment[] doInBackground(Void... params) {
+                return Attachment.restoreAttachmentsWithMessageId(MessageCompose.this, messageId);
+            }
+
+            @Override
+            protected void onPostExecute(Attachment[] attachments) {
+                if (attachments == null) {
+                    return;
+                }
+
+                final boolean supportsSmartForward =
+                    (account.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0;
+
+                for (Attachment attachment : attachments) {
+                    if (supportsSmartForward && isForward()) {
+                        attachment.mFlags |= Attachment.FLAG_SMART_FORWARD;
+                    }
+                    // Note allowDelete is set in two cases:
+                    // 1. First time a message (w/ attachments) is forwarded,
+                    //    where action == ACTION_FORWARD
+                    // 2. 1 -> Save -> Reopen, where action == EDIT_DRAFT,
+                    //    but FLAG_SMART_FORWARD is already set at 1.
+                    // Even if the account supports smart-forward, attachments added
+                    // manually are still removable.
+                    final boolean allowDelete =
+                            (attachment.mFlags & Attachment.FLAG_SMART_FORWARD) == 0;
+                    addAttachment(attachment, allowDelete);
+                }
+            }
+        }.executeParallel((Void[]) null);
     }
 
     @Override
@@ -785,7 +855,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private void addAddresses(MultiAutoCompleteTextView view, Address[] addresses) {
+    private static void addAddresses(MultiAutoCompleteTextView view, Address[] addresses) {
         if (addresses == null) {
             return;
         }
@@ -794,7 +864,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private void addAddresses(MultiAutoCompleteTextView view, String[] addresses) {
+    private static void addAddresses(MultiAutoCompleteTextView view, String[] addresses) {
         if (addresses == null) {
             return;
         }
@@ -803,16 +873,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private void addAddress(MultiAutoCompleteTextView view, String address) {
+    private static void addAddress(MultiAutoCompleteTextView view, String address) {
         view.append(address + ", ");
     }
 
-    private String getPackedAddresses(TextView view) {
+    private static String getPackedAddresses(TextView view) {
         Address[] addresses = Address.parse(view.getText().toString().trim());
         return Address.pack(addresses);
     }
 
-    private Address[] getAddresses(TextView view) {
+    private static Address[] getAddresses(TextView view) {
         Address[] addresses = Address.parse(view.getText().toString().trim());
         return addresses;
     }
@@ -893,7 +963,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             message.mHtmlReply = mSource.mHtml;
             message.mTextReply = mSource.mText;
             String fromAsString = Address.unpackToString(mSource.mFrom);
-            if (ACTION_FORWARD.equals(mAction)) {
+            if (isForward()) {
                 message.mFlags |= Message.FLAG_TYPE_FORWARD;
                 String subject = mSource.mSubject;
                 String to = Address.unpackToString(mSource.mTo);
@@ -1542,7 +1612,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * addressees already added to other addressing views, adds unique addressees that don't
      * match our address to the passed in view
      */
-    private boolean safeAddAddresses(String addrs, String ourAddress,
+    private static boolean safeAddAddresses(String addrs, String ourAddress,
             MultiAutoCompleteTextView view, ArrayList<Address> addrList) {
         boolean added = false;
         for (Address address : Address.unpack(addrs)) {
@@ -1593,32 +1663,11 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         showCcBccFieldsIfFilled();
     }
 
-    void processSourceMessageGuarded(Message message, Account account) {
-        // Make sure we only do this once (otherwise we'll duplicate addresses!)
-        if (!mSourceMessageProcessed) {
-            processSourceMessage(message, account);
-            mSourceMessageProcessed = true;
-        }
-
-        /* The quoted text is displayed in a WebView whose content is not automatically
-         * saved/restored by onRestoreInstanceState(), so we need to *always* restore it here,
-         * regardless of the value of mSourceMessageProcessed.
-         * This only concerns EDIT_DRAFT because after a configuration change we're always
-         * in EDIT_DRAFT.
-         */
-        if (ACTION_EDIT_DRAFT.equals(mAction)) {
-            displayQuotedText(message.mTextReply, message.mHtmlReply);
-            setIncludeQuotedText((mDraft.mFlags & Message.FLAG_NOT_INCLUDE_QUOTED_TEXT) == 0,
-                    false);
-        }
-    }
-
     /**
      * Pull out the parts of the now loaded source message and apply them to the new message
      * depending on the type of message being composed.
-     * @param message
      */
-    /* package */
+    @VisibleForTesting
     void processSourceMessage(Message message, Account account) {
         setDraftNeedsSaving(true);
         final String subject = message.mSubject;
@@ -1639,22 +1688,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             displayQuotedText(message.mText, message.mHtml);
             setIncludeQuotedText(true, false);
             setInitialComposeText(null, getAccountSignature(account));
-        } else if (ACTION_EDIT_DRAFT.equals(mAction)) {
-            mSubjectView.setText(subject);
-            addAddresses(mToView, Address.unpack(message.mTo));
-            Address[] cc = Address.unpack(message.mCc);
-            if (cc.length > 0) {
-                addAddresses(mCcView, cc);
-            }
-            Address[] bcc = Address.unpack(message.mBcc);
-            if (bcc.length > 0) {
-                addAddresses(mBccView, bcc);
-            }
-
-            mMessageContentView.setText(message.mText);
-            // TODO: re-enable loadAttachments
-            // loadAttachments(message, 0);
-            setDraftNeedsSaving(false);
+        } else {
+            Log.w(Logging.LOG_TAG, "Unexpected action for a call to processSourceMessage "
+                    + mAction);
         }
         showCcBccFieldsIfFilled();
         setNewMessageFocus();
@@ -1703,6 +1739,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         } else {
             mMessageContentView.requestFocus();
         }
+    }
+
+    private boolean isForward() {
+        return ACTION_FORWARD.equals(mAction);
     }
 
     /**
