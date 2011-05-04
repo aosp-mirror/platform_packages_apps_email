@@ -69,7 +69,9 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
     public static final int REQUEST_CODE_ACCEPT_POLICIES = 1;
 
     /** Default sync window for new EAS accounts */
-    private static final int SYNC_WINDOW_EAS_DEFAULT = SyncWindow.SYNC_WINDOW_3_DAYS;
+    // STOPSHIP Change default for now to auto
+    private static final int SYNC_WINDOW_EAS_DEFAULT = SyncWindow.SYNC_WINDOW_AUTO;
+    // Was SYNC_WINDOW_3_DAYS;
 
     public static void actionOptions(Activity fromActivity) {
         fromActivity.startActivity(new Intent(fromActivity, AccountSetupOptions.class));
