@@ -487,7 +487,9 @@ class UIControllerTwoPane implements
      * for the mailbox list. The two may be different.
      */
     public long getMessageListMailboxId() {
-        return mMessageListFragment.getMailboxId();
+        return (mMessageListFragment == null)
+                ? Mailbox.NO_MAILBOX
+                : mMessageListFragment.getMailboxId();
     }
 
     public long getMessageId() {
