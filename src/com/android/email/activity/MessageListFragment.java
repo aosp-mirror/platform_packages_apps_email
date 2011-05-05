@@ -1236,6 +1236,7 @@ public class MessageListFragment extends ListFragment
 
             // Various post processing...
             autoRefreshStaleMailbox();
+            addFooterView();
             updateSelectionMode();
             showSendCommandIfNecessary();
             showNoMessageTextIfNecessary();
