@@ -121,7 +121,8 @@ public class EmailProvider extends ContentProvider {
     //             Column Mailbox.serverId is used for the server-side pathname of a mailbox.
     // Version 19: Add Policy table; add policyKey to Account table and trigger to delete an
     //             Account's policy when the Account is deleted
-    public static final int DATABASE_VERSION = 19;
+    // Version 20: Add new policies to Policy table
+    public static final int DATABASE_VERSION = 20;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -561,7 +562,17 @@ public class EmailProvider extends ContentProvider {
             + PolicyColumns.MAX_SCREEN_LOCK_TIME + " integer, "
             + PolicyColumns.REQUIRE_REMOTE_WIPE + " integer, "
             + PolicyColumns.REQUIRE_ENCRYPTION + " integer, "
-            + PolicyColumns.REQUIRE_ENCRYPTION_EXTERNAL + " integer"
+            + PolicyColumns.REQUIRE_ENCRYPTION_EXTERNAL + " integer, "
+            + PolicyColumns.REQUIRE_MANUAL_SYNC_WHEN_ROAMING + " integer, "
+            + PolicyColumns.DONT_ALLOW_CAMERA + " integer, "
+            + PolicyColumns.DONT_ALLOW_ATTACHMENTS + " integer, "
+            + PolicyColumns.DONT_ALLOW_HTML + " integer, "
+            + PolicyColumns.MAX_ATTACHMENT_SIZE + " integer, "
+            + PolicyColumns.MAX_TEXT_TRUNCATION_SIZE + " integer, "
+            + PolicyColumns.MAX_HTML_TRUNCATION_SIZE + " integer, "
+            + PolicyColumns.MAX_EMAIL_LOOKBACK + " integer, "
+            + PolicyColumns.MAX_CALENDAR_LOOKBACK + " integer, "
+            + PolicyColumns.PASSWORD_RECOVERY_ENABLED + " integer"
             + ");";
         db.execSQL("create table " + Policy.TABLE_NAME + s);
     }
@@ -1004,6 +1015,38 @@ public class EmailProvider extends ContentProvider {
                     Log.w(TAG, "Exception upgrading EmailProvider.db from 18 to 19 " + e);
                 }
                 oldVersion = 19;
+            }
+            if (oldVersion == 19) {
+                try {
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + PolicyColumns.REQUIRE_MANUAL_SYNC_WHEN_ROAMING +
+                            " integer;");
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + PolicyColumns.DONT_ALLOW_CAMERA + " integer;");
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + PolicyColumns.DONT_ALLOW_ATTACHMENTS + " integer;");
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + PolicyColumns.DONT_ALLOW_HTML + " integer;");
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + PolicyColumns.MAX_ATTACHMENT_SIZE + " integer;");
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + PolicyColumns.MAX_TEXT_TRUNCATION_SIZE +
+                            " integer;");
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + PolicyColumns.MAX_HTML_TRUNCATION_SIZE +
+                            " integer;");
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + PolicyColumns.MAX_EMAIL_LOOKBACK + " integer;");
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + PolicyColumns.MAX_CALENDAR_LOOKBACK + " integer;");
+                    db.execSQL("alter table " + Policy.TABLE_NAME
+                            + " add column " + PolicyColumns.PASSWORD_RECOVERY_ENABLED +
+                            " integer;");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 19 to 2 " + e);
+                }
+                oldVersion = 20;
             }
         }
 

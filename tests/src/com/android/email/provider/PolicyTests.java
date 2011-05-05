@@ -116,6 +116,16 @@ public class PolicyTests extends ProviderTestCase2<EmailProvider> {
         policy.mRequireRemoteWipe = true;
         policy.mRequireEncryption = true;
         policy.mRequireEncryptionExternal = true;
+        policy.mRequireManualSyncWhenRoaming = true;
+        policy.mDontAllowCamera = false;
+        policy.mDontAllowAttachments = true;
+        policy.mDontAllowHtml = false;
+        policy.mMaxAttachmentSize = 22222;
+        policy.mMaxTextTruncationSize = 33333;
+        policy.mMaxHtmlTruncationSize = 44444;
+        policy.mMaxEmailLookback = 5;
+        policy.mMaxCalendarLookback = 6;
+        policy.mPasswordRecoveryEnabled = true;
         Parcel parcel = Parcel.obtain();
         policy.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);

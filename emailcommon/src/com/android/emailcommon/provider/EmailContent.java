@@ -3026,5 +3026,19 @@ public abstract class EmailContent {
         public static final String REQUIRE_REMOTE_WIPE = "requireRemoteWipe";
         public static final String REQUIRE_ENCRYPTION = "requireEncryption";
         public static final String REQUIRE_ENCRYPTION_EXTERNAL = "requireEncryptionExternal";
+        // ICS additions
+        // Note: the appearance of these columns does not imply that we support these features; only
+        // that we store them in the Policy structure
+        public static final String REQUIRE_MANUAL_SYNC_WHEN_ROAMING = "requireManualSyncRoaming";
+        public static final String DONT_ALLOW_CAMERA = "dontAllowCamera";
+        public static final String DONT_ALLOW_ATTACHMENTS = "dontAllowAttachments";
+        public static final String DONT_ALLOW_HTML = "dontAllowHtml";
+        public static final String MAX_ATTACHMENT_SIZE = "maxAttachmentSize";
+        public static final String MAX_TEXT_TRUNCATION_SIZE = "maxTextTruncationSize";
+        public static final String MAX_HTML_TRUNCATION_SIZE = "maxHTMLTruncationSize";
+        public static final String MAX_EMAIL_LOOKBACK = "maxEmailLookback";
+        public static final String MAX_CALENDAR_LOOKBACK = "maxCalendarLookback";
+        // Indicates that the server allows password recovery, not that we support it
+        public static final String PASSWORD_RECOVERY_ENABLED = "passwordRecoveryEnabled";
     }
 }
