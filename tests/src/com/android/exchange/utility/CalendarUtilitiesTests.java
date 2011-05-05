@@ -91,6 +91,12 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         "AAAAAAAAAAEAAAABAAAAAAAAAAAAAAAAACgARwBNAFQAKwAwADAAOgAwADAAKQAgAFQAaQBtAGUAIABaAG8A" +
         "bgBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAEAAAAAAAAAxP///w==";
 
+    // This time zone has no DST, but earlier, buggy code retrieved a TZ WITH DST
+    private static final String ARIZONA_TIME =
+        "pAEAAFUAUwAgAE0AbwB1AG4AdABhAGkAbgAgAFMAdABhAG4AZABhAHIAZAAgAFQAaQBtAGUAAAAAAAAAAAAA" +
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFUAUwAgAE0AbwB1AG4AdABhAGkAbgAgAEQAYQB5AGwAaQBnAGgA" +
+        "dAAgAFQAaQBtAGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
+
     private static final String ORGANIZER = "organizer@server.com";
     private static final String ATTENDEE = "attendee@server.com";
 
@@ -125,6 +131,9 @@ public class CalendarUtilitiesTests extends AndroidTestCase {
         tz = CalendarUtilities.tziStringToTimeZone(GMT_UNKNOWN_DAYLIGHT_TIME);
         int bias = tz.getOffset(System.currentTimeMillis());
         assertEquals(0, bias);
+        // Make sure non-DST TZ's work properly
+        tz = CalendarUtilities.tziStringToTimeZone(ARIZONA_TIME);
+        assertEquals("America/Phoenix", tz.getID());
     }
 
     public void testGenerateEasDayOfWeek() {

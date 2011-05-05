@@ -30,14 +30,15 @@ import com.android.exchange.EasSyncService;
 import com.android.exchange.SyncManager;
 import com.android.exchange.adapter.Serializer;
 import com.android.exchange.adapter.Tags;
+import com.android.internal.util.ArrayUtils;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Entity;
-import android.content.EntityIterator;
 import android.content.Entity.NamedContentValues;
+import android.content.EntityIterator;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.RemoteException;
@@ -698,7 +699,7 @@ public class CalendarUtilities {
         TimeZone timeZone = sTimeZoneCache.get(timeZoneString);
         if (timeZone != null) {
             if (Eas.USER_LOG) {
-                SyncManager.log(TAG, " Using cached TimeZone " + timeZone.getDisplayName());
+                SyncManager.log(TAG, " Using cached TimeZone " + timeZone.getID());
             }
         } else {
             timeZone = tziStringToTimeZoneImpl(timeZoneString);
@@ -739,14 +740,31 @@ public class CalendarUtilities {
             TimeZoneDate dstEnd =
                 getTimeZoneDateFromSystemTime(timeZoneBytes, MSFT_TIME_ZONE_STANDARD_DATE_OFFSET);
             if (dstEnd == null) {
-                // In this case, there is no daylight savings time, so the only interesting data
-                // is the offset, and we know that all of the zoneId's match; we'll take the first
-                timeZone = TimeZone.getTimeZone(zoneIds[0]);
-                if (Eas.USER_LOG) {
-                    SyncManager.log(TAG, "TimeZone without DST found by offset: " +
-                            timeZone.getDisplayName());
+                // If the default time zone is a match
+                TimeZone defaultTimeZone = TimeZone.getDefault();
+                if (!defaultTimeZone.useDaylightTime() &&
+                        ArrayUtils.contains(zoneIds, defaultTimeZone.getID())) {
+                    if (Eas.USER_LOG) {
+                        SyncManager.log(TAG, "TimeZone without DST found to be default: " +
+                                defaultTimeZone.getID());
+                    }
+                    return defaultTimeZone;
                 }
-                return timeZone;
+                // In this case, there is no daylight savings time, so the only interesting data
+                // for possible matches is the offset and DST availability; we'll take the first
+                // match for those
+                for (String zoneId: zoneIds) {
+                    timeZone = TimeZone.getTimeZone(zoneId);
+                    if (!timeZone.useDaylightTime()) {
+                        if (Eas.USER_LOG) {
+                            SyncManager.log(TAG, "TimeZone without DST found by offset: " +
+                                    timeZone.getID());
+                        }
+                        return timeZone;
+                    }
+                }
+                // None found, return null
+                return null;
             } else {
                 TimeZoneDate dstStart = getTimeZoneDateFromSystemTime(timeZoneBytes,
                         MSFT_TIME_ZONE_DAYLIGHT_DATE_OFFSET);
@@ -791,7 +809,7 @@ public class CalendarUtilities {
                 timeZone = TimeZone.getTimeZone(zoneIds[0]);
                 if (Eas.USER_LOG) {
                     SyncManager.log(TAG, "No TimeZone with correct DST settings; using first: " +
-                            timeZone.getDisplayName());
+                            timeZone.getID());
                 }
                 return timeZone;
             }
