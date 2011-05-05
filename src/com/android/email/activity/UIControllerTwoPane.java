@@ -29,23 +29,16 @@ import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
-import android.content.Loader;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -78,9 +71,6 @@ class UIControllerTwoPane implements
     /* package */ static final int MAILBOX_REFRESH_MIN_INTERVAL = 30 * 1000; // in milliseconds
     /* package */ static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
 
-    private static final int LOADER_ID_ACCOUNT_LIST
-            = EmailActivity.UI_CONTROLLER_LOADER_ID_BASE + 0;
-
     /** No account selected */
     static final long NO_ACCOUNT = -1;
     /** No mailbox selected */
@@ -102,14 +92,9 @@ class UIControllerTwoPane implements
     /** Current message id */
     private long mMessageId = NO_MESSAGE;
 
-    // Action bar
-    private ActionBar mActionBar;
-    private AccountSelectorAdapter mAccountsSelectorAdapter;
-    private final ActionBarNavigationCallback mActionBarNavigationCallback =
-        new ActionBarNavigationCallback();
-    private View mActionBarMailboxNameView;
-    private TextView mActionBarMailboxName;
-    private TextView mActionBarUnreadCount;
+    private ActionBarController mActionBarController;
+    private final ActionBarControllerCallback mActionBarControllerCallback =
+            new ActionBarControllerCallback();
 
     // Other UI elements
     private ThreePaneLayout mThreePane;
@@ -139,6 +124,20 @@ class UIControllerTwoPane implements
         new MessageOrderManagerCallback();
     /** Mailbox IDs that the user has navigated away from; used to provide "back" functionality */
     private final Stack<Long> mMailboxStack = new Stack<Long>();
+
+    /**
+     * The mailbox name selected on the mailbox list.
+     * Passed via {@link #onCurrentMailboxUpdated}.
+     */
+    private String mCurrentMailboxName;
+
+    /**
+     * The unread count for the mailbox selected on the mailbox list.
+     * Passed via {@link #onCurrentMailboxUpdated}.
+     *
+     * 0 if the mailbox doesn't have the concept of "unread".  e.g. Drafts.
+     */
+    private int mCurrentMailboxUnreadCount;
 
     /**
      * List of fragments that are restored by the framework while the activity is being re-created
@@ -207,8 +206,7 @@ class UIControllerTwoPane implements
     // ThreePaneLayoutCallback
     @Override
     public void onVisiblePanesChanged(int previousVisiblePanes) {
-
-        updateActionBar();
+        refreshActionBar();
 
         // If the right pane is gone, remove the message view.
         final int visiblePanes = mThreePane.getVisiblePanes();
@@ -228,22 +226,10 @@ class UIControllerTwoPane implements
         }
     }
 
-    /**
-     * Update the action bar according to the current state.
-     *
-     * - Show/hide the "back" button next to the "Home" icon.
-     * - Show/hide the current mailbox name.
-     */
-    private void updateActionBar() {
-        final int visiblePanes = mThreePane.getVisiblePanes();
-
-        // If the left pane (mailbox list pane) is hidden, the back action on action bar will be
-        // enabled, and we also show the current mailbox name.
-        final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
-        boolean displayUp = leftPaneHidden || !mMailboxStack.isEmpty();
-        mActionBar.setDisplayOptions(displayUp ? ActionBar.DISPLAY_HOME_AS_UP : 0,
-                ActionBar.DISPLAY_HOME_AS_UP);
-        mActionBarMailboxNameView.setVisibility(leftPaneHidden ? View.VISIBLE : View.GONE);
+    private void refreshActionBar() {
+        if (mActionBarController != null) {
+            mActionBarController.refresh();
+        }
     }
 
     // MailboxListFragment$Callback
@@ -276,18 +262,14 @@ class UIControllerTwoPane implements
         // TODO openAccount should do the check eventually, but it's necessary for now.
         if (accountId != getUIAccountId()) {
             openAccount(accountId);
-            loadAccounts(); // update account spinner
         }
     }
 
     @Override
     public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount) {
-        mActionBarMailboxName.setText(mailboxName);
-
-        // Note on action bar, we show only "unread count".  Some mailboxes such as Outbox don't
-        // have the idea of "unread count", in which case we just omit the count.
-        mActionBarUnreadCount.setText(
-                UiUtilities.getMessageCountForUi(mActivity, unreadCount, true));
+        mCurrentMailboxName = mailboxName;
+        mCurrentMailboxUnreadCount = unreadCount;
+        refreshActionBar();
     }
 
     // MessageListFragment$Callback
@@ -433,26 +415,8 @@ class UIControllerTwoPane implements
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "" + this + " onActivityViewReady");
         }
-        // Set up action bar
-        mActionBar = mActivity.getActionBar();
-        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME);
-
-        // Set a view for the current mailbox to the action bar.
-        final LayoutInflater inflater = LayoutInflater.from(mActivity);
-        mActionBarMailboxNameView = inflater.inflate(R.layout.action_bar_current_mailbox, null);
-        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
-        final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
-                ActionBar.LayoutParams.WRAP_CONTENT,
-                ActionBar.LayoutParams.MATCH_PARENT);
-        customViewLayout.setMargins(mActivity.getResources().getDimensionPixelSize(
-                        R.dimen.action_bar_mailbox_name_left_margin) , 0, 0, 0);
-        mActionBar.setCustomView(mActionBarMailboxNameView, customViewLayout);
-
-        mActionBarMailboxName =
-                (TextView) mActionBarMailboxNameView.findViewById(R.id.mailbox_name);
-        mActionBarUnreadCount =
-                (TextView) mActionBarMailboxNameView.findViewById(R.id.unread_count);
-
+        mActionBarController = new ActionBarController(mActivity, mActivity.getLoaderManager(),
+                mActivity.getActionBar(), mActionBarControllerCallback);
 
         // Set up content
         mThreePane = (ThreePaneLayout) mActivity.findViewById(R.id.three_pane);
@@ -534,7 +498,7 @@ class UIControllerTwoPane implements
      */
     public void onActivityCreated() {
         mRefreshManager.registerListener(mRefreshListener);
-        loadAccounts();
+        mActionBarController.onActivityCreated();
     }
 
     /**
@@ -581,7 +545,7 @@ class UIControllerTwoPane implements
      * Called from {@link EmailActivity#onResume}.
      */
     public void onResume() {
-        updateActionBar();
+        refreshActionBar();
     }
 
     /**
@@ -698,8 +662,8 @@ class UIControllerTwoPane implements
      */
     public void openAccount(long accountId) {
         mMailboxStack.clear();
-        updateActionBar();
         open(accountId, NO_MAILBOX, NO_MESSAGE);
+        refreshActionBar();
     }
 
     /**
@@ -710,9 +674,9 @@ class UIControllerTwoPane implements
      * mailbox is not associated with the account, the behaviour is undefined.
      */
     private void openMailbox(long accountId, long mailboxId) {
-        updateActionBar();
         updateMailboxList(accountId, mailboxId, true, true);
         updateMessageList(mailboxId, true, true);
+        refreshActionBar();
     }
 
     /**
@@ -1013,97 +977,6 @@ class UIControllerTwoPane implements
     }
 
     /**
-     * Load account list for the action bar.
-     *
-     * If there's only one account configured, show the account name in the action bar.
-     * If more than one account are configured, show a spinner in the action bar, and select the
-     * current account.
-     */
-    private void loadAccounts() {
-        if (mAccountsSelectorAdapter == null) {
-            mAccountsSelectorAdapter = new AccountSelectorAdapter(mActivity);
-        }
-        mActivity.getLoaderManager().initLoader(LOADER_ID_ACCOUNT_LIST, null,
-                new LoaderCallbacks<Cursor>() {
-            @Override
-            public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                return AccountSelectorAdapter.createLoader(mActivity);
-            }
-
-            @Override
-            public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                updateAccountList(data);
-            }
-
-            @Override
-            public void onLoaderReset(Loader<Cursor> loader) {
-                mAccountsSelectorAdapter.swapCursor(null);
-            }
-        });
-    }
-
-    /**
-     * Called when the LOADER_ID_ACCOUNT_LIST loader loads the data.  Update the account spinner
-     * on the action bar.
-     */
-    private void updateAccountList(Cursor accountsCursor) {
-        final int count = accountsCursor.getCount();
-        if (count == 0) {
-            // Open Welcome, which in turn shows the adding a new account screen.
-            Welcome.actionStart(mActivity);
-            mActivity.finish();
-            return;
-        }
-
-        // If ony one acount, don't show dropdown.
-        final ActionBar ab = mActionBar;
-        if (count == 1) {
-            accountsCursor.moveToFirst();
-
-            // Show the account name as the title.
-            ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
-            ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(accountsCursor));
-            return;
-        }
-
-        // Find the currently selected account, and select it.
-        int defaultSelection = 0;
-        if (isAccountSelected()) {
-            accountsCursor.moveToPosition(-1);
-            int i = 0;
-            while (accountsCursor.moveToNext()) {
-                final long accountId = AccountSelectorAdapter.getAccountId(accountsCursor);
-                if (accountId == getUIAccountId()) {
-                    defaultSelection = i;
-                    break;
-                }
-                i++;
-            }
-        }
-
-        // Update the dropdown list.
-        mAccountsSelectorAdapter.swapCursor(accountsCursor);
-
-        // Don't show the title.
-        ab.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
-        ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        ab.setListNavigationCallbacks(mAccountsSelectorAdapter, mActionBarNavigationCallback);
-        ab.setSelectedNavigationItem(defaultSelection);
-    }
-
-    private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {
-        @Override
-        public boolean onNavigationItemSelected(int itemPosition, long accountId) {
-            // TODO openAccount should do the check eventually, but it's necessary for now.
-            if (accountId != getUIAccountId()) {
-                openAccount(accountId);
-            }
-            return true;
-        }
-    }
-
-    /**
      * Handles {@link android.app.Activity#onCreateOptionsMenu} callback.
      */
     public boolean onCreateOptionsMenu(MenuInflater inflater, Menu menu) {
@@ -1319,6 +1192,52 @@ class UIControllerTwoPane implements
                 return false;
             }
             return true;
+        }
+    }
+
+    private class ActionBarControllerCallback implements ActionBarController.Callback {
+        @Override
+        public String getCurrentMailboxName() {
+            return mCurrentMailboxName;
+        }
+
+        @Override
+        public int getCurrentMailboxUnreadCount() {
+            return mCurrentMailboxUnreadCount;
+        }
+
+        @Override
+        public long getUIAccountId() {
+            return UIControllerTwoPane.this.getUIAccountId();
+        }
+
+        @Override
+        public boolean isAccountSelected() {
+            return UIControllerTwoPane.this.isAccountSelected();
+        }
+
+        @Override
+        public void onAccountSelected(long accountId) {
+            openAccount(accountId);
+        }
+
+        @Override
+        public void onNoAccountsFound() {
+            Welcome.actionStart(mActivity);
+            mActivity.finish();
+        }
+
+        @Override
+        public boolean shouldShowMailboxName() {
+            // Show when the left pane is hidden.
+            return (mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_LEFT) == 0;
+        }
+
+        @Override
+        public boolean shouldShowUp() {
+            final int visiblePanes = mThreePane.getVisiblePanes();
+            final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
+            return leftPaneHidden || !mMailboxStack.isEmpty();
         }
     }
 }
