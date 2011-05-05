@@ -65,8 +65,8 @@
         android:name="com.android.email.permission.READ_ATTACHMENT"
         android:permissionGroup="android.permission-group.MESSAGES"
         android:protectionLevel="dangerous"
-        android:label="@string/read_attachment_label"
-        android:description="@string/read_attachment_desc"/>
+        android:label="@string/permission_read_attachment_label"
+        android:description="@string/permission_read_attachment_desc"/>
     <uses-permission
         android:name="com.android.email.permission.READ_ATTACHMENT"/>
 
