@@ -28,6 +28,7 @@ import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.ProviderUnavailableException;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -42,8 +43,6 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.os.StrictMode;
 import android.provider.OpenableColumns;
 import android.text.Spannable;
@@ -53,7 +52,6 @@ import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -325,6 +323,7 @@ public class Utility {
         ContentResolver resolver = context.getContentResolver();
         Cursor c = resolver.query(HostAuth.CONTENT_URI, HostAuth.ID_PROJECTION,
                 HOSTAUTH_WHERE_CREDENTIALS, new String[] { hostName, userLogin }, null);
+        if (c == null) throw new ProviderUnavailableException();
         try {
             while (c.moveToNext()) {
                 long hostAuthId = c.getLong(HostAuth.ID_PROJECTION_COLUMN);

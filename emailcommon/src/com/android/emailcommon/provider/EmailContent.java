@@ -138,7 +138,7 @@ public abstract class EmailContent {
             Class<T> klass, Uri contentUri, String[] contentProjection, long id) {
         Uri u = ContentUris.withAppendedId(contentUri, id);
         Cursor c = context.getContentResolver().query(u, contentProjection, null, null, null);
-
+        if (c == null) throw new ProviderUnavailableException();
         try {
             if (c.moveToFirst()) {
                 return (T)getContent(c, klass);
@@ -322,6 +322,11 @@ public abstract class EmailContent {
             return values;
         }
 
+        /**
+         * Given a cursor, restore a Body from it
+         * @param cursor a cursor which must NOT be null
+         * @return the Body as restored from the cursor
+         */
         private static Body restoreBodyWithCursor(Cursor cursor) {
             try {
                 if (cursor.moveToFirst()) {
@@ -338,6 +343,7 @@ public abstract class EmailContent {
             Uri u = ContentUris.withAppendedId(Body.CONTENT_URI, id);
             Cursor c = context.getContentResolver().query(u, Body.CONTENT_PROJECTION,
                     null, null, null);
+            if (c == null) throw new ProviderUnavailableException();
             return restoreBodyWithCursor(c);
         }
 
@@ -345,6 +351,7 @@ public abstract class EmailContent {
             Cursor c = context.getContentResolver().query(Body.CONTENT_URI,
                     Body.CONTENT_PROJECTION, Body.MESSAGE_KEY + "=?",
                     new String[] {Long.toString(messageId)}, null);
+            if (c == null) throw new ProviderUnavailableException();
             return restoreBodyWithCursor(c);
         }
 
@@ -387,6 +394,7 @@ public abstract class EmailContent {
                 String[] projection) {
             Cursor c = context.getContentResolver().query(Body.CONTENT_URI, projection,
                     Body.MESSAGE_KEY + "=?", new String[] {Long.toString(messageId)}, null);
+            if (c == null) throw new ProviderUnavailableException();
             try {
                 if (c.moveToFirst()) {
                     return c.getString(COMMON_PROJECTION_COLUMN_TEXT);
@@ -2429,8 +2437,7 @@ public abstract class EmailContent {
                     Mailbox.PATH_AND_ACCOUNT_SELECTION,
                     new String[] { path, Long.toString(accountId) },
                     null);
-// TODO for mblank; uncomment when you submit CL Iab059f9a68eecd797914a6229f1ff9c03d0f0800
-//            if (c == null) throw new ProviderUnavailableException();
+            if (c == null) throw new ProviderUnavailableException();
             try {
                 Mailbox mailbox = null;
                 if (c.moveToFirst()) {
