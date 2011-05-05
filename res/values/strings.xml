@@ -19,55 +19,21 @@
     <!-- Deprecated strings - Move the identifiers to this section, mark as DO NOT TRANSLATE,
          and remove the actual text.  These will be removed in a bulk operation. -->
     <!-- Do Not Translate.  Unused string. -->
-    <string name="status_sending_messages"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="message_view_fetching_attachment_toast"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="message_view_fetching_attachment_progress"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="read_attachment_label"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="read_attachment_desc"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="permission_access_provider_label"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="permission_access_provider_desc"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="general_preference_background_attachments_label"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="general_preference_background_attachments_summary"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="upgrade_accounts_title"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="upgrade_accounts_error"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="forward_download_failed_notification"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="login_failed_notification"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="password_expire_warning_content_text_fmt"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="password_expired_content_text"></string>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="meeting_accepted"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="meeting_declined"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="meeting_canceled"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="meeting_when"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="meeting_where"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="meeting_recurring"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="exception_cancel"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="exception_updated"/>
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="notification_exchange_calendar_added"/>
-    <!-- Do Not Translate.  Unused string. -->
     <string name="mailbox_name_go_back"></string>
+
+    <!-- Permissions implicitly granted to invoked intents -->
+    <skip />
+
+    <!-- Permissions label for reading attachments -->
+    <string name="permission_read_attachment_label">Read Email attachments</string>
+    <!-- Permissions description for reading attachments -->
+    <string name="permission_read_attachment_desc">Allows this application to read your Email
+        attachments.</string>
+    <!-- Permissions label for accessing the main provider -->
+    <string name="permission_access_provider_label">Access Email provider data</string>
+    <!-- Permissions description for accessing the main provider -->
+    <string name="permission_access_provider_desc">Allows this application to access your Email
+        database, including received messages, sent messages, user names and passwords.</string>
 
     <!-- Name of application on Home screen -->
     <string name="app_name">Email</string>
