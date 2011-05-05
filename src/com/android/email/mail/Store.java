@@ -243,14 +243,6 @@ public abstract class Store {
     }
 
     /**
-     * Get class of sync'er for this Store class
-     * @return Message Sync controller, or null to use default
-     */
-    public StoreSynchronizer getMessageSynchronizer() {
-        return null;
-    }
-
-    /**
      * Some stores cannot download a message based only on the uid, and need the message structure
      * to be preloaded and provided to them.  This method allows a remote store to signal this
      * requirement.  Most stores do not need this and do not need to overload this method, which

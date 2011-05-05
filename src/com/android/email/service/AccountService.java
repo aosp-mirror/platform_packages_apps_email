@@ -25,16 +25,16 @@ import com.android.email.VendorPolicyLoader;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.service.IAccountService;
-import com.android.emailcommon.utility.Utility;
+import com.android.emailcommon.utility.EmailAsyncTask;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.RemoteException;
 
 import java.io.IOException;
+import java.util.List;
 
 public class AccountService extends Service {
 
@@ -44,37 +44,38 @@ public class AccountService extends Service {
     private final IAccountService.Stub mBinder = new IAccountService.Stub() {
 
         @Override
-        public void notifyLoginFailed(long accountId) throws RemoteException {
+        public void notifyLoginFailed(long accountId) {
             NotificationController.getInstance(mContext).showLoginFailedNotification(accountId);
         }
 
         @Override
-        public void notifyLoginSucceeded(long accountId) throws RemoteException {
+        public void notifyLoginSucceeded(long accountId) {
             NotificationController.getInstance(mContext).cancelLoginFailedNotification(accountId);
         }
 
         @Override
-        public void notifyNewMessages(long accountId) throws RemoteException {
-            MailService.actionNotifyNewMessages(mContext, accountId);
+        @SuppressWarnings("unchecked")
+        public void notifyNewMessages(long accountId, List messageIdList) {
+            MailService.actionNotifyNewMessages(mContext, accountId, messageIdList);
         }
 
         @Override
-        public void restoreAccountsIfNeeded() throws RemoteException {
+        public void restoreAccountsIfNeeded() {
             AccountBackupRestore.restoreAccountsIfNeeded(mContext);
         }
 
         @Override
-        public void accountDeleted() throws RemoteException {
+        public void accountDeleted() {
             MailService.accountDeleted(mContext);
         }
 
         @Override
-        public int getAccountColor(long accountId) throws RemoteException {
+        public int getAccountColor(long accountId) {
             return ResourceHelper.getInstance(mContext).getAccountColor(accountId);
         }
 
         @Override
-        public Bundle getConfigurationData(String accountType) throws RemoteException {
+        public Bundle getConfigurationData(String accountType) {
             Bundle bundle = new Bundle();
             bundle.putBoolean(Configuration.EXCHANGE_CONFIGURATION_USE_ALTERNATE_STRINGS,
                     VendorPolicyLoader.getInstance(mContext).useAlternateExchangeStrings());
@@ -82,9 +83,9 @@ public class AccountService extends Service {
         }
 
         @Override
-        public String getDeviceId() throws RemoteException {
+        public String getDeviceId() {
             try {
-                Utility.runAsync(new Runnable() {
+                EmailAsyncTask.runAsyncSerial(new Runnable() {
                     @Override
                     public void run() {
                         // Make sure the service is properly running (re: lifecycle)

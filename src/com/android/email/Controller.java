@@ -58,6 +58,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1142,7 +1143,7 @@ public class Controller {
          * @param numNewMessages the number of new messages delivered
          */
         public void updateMailboxCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, int numNewMessages) {
+                long mailboxId, int progress, int numNewMessages, ArrayList<Long> addedMessages) {
         }
 
         /**
@@ -1292,17 +1293,18 @@ public class Controller {
         public void synchronizeMailboxStarted(long accountId, long mailboxId) {
             synchronized (mListeners) {
                 for (Result l : mListeners) {
-                    l.updateMailboxCallback(null, accountId, mailboxId, 0, 0);
+                    l.updateMailboxCallback(null, accountId, mailboxId, 0, 0, null);
                 }
             }
         }
 
         @Override
         public void synchronizeMailboxFinished(long accountId, long mailboxId,
-                int totalMessagesInMailbox, int numNewMessages) {
+                int totalMessagesInMailbox, int numNewMessages, ArrayList<Long> addedMessages) {
             synchronized (mListeners) {
                 for (Result l : mListeners) {
-                    l.updateMailboxCallback(null, accountId, mailboxId, 100, numNewMessages);
+                    l.updateMailboxCallback(null, accountId, mailboxId, 100, numNewMessages,
+                            addedMessages);
                 }
             }
         }
@@ -1317,7 +1319,7 @@ public class Controller {
             }
             synchronized (mListeners) {
                 for (Result l : mListeners) {
-                    l.updateMailboxCallback(me, accountId, mailboxId, 0, 0);
+                    l.updateMailboxCallback(me, accountId, mailboxId, 0, 0, null);
                 }
             }
         }
@@ -1566,7 +1568,7 @@ public class Controller {
             long accountId = mbx.mAccountKey;
             synchronized(mListeners) {
                 for (Result listener : mListeners) {
-                    listener.updateMailboxCallback(result, accountId, mailboxId, progress, 0);
+                    listener.updateMailboxCallback(result, accountId, mailboxId, progress, 0, null);
                 }
             }
         }

@@ -20,6 +20,7 @@ import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.MessagingExceptionStrings;
+import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
@@ -51,6 +52,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 
 /**
  * The main Email activity, which is used on both the tablet and the phone.
@@ -480,7 +482,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
 
         @Override
         public void updateMailboxCallback(MessagingException result, long accountId, long mailboxId,
-                int progress, int numNewMessages) {
+                int progress, int numNewMessages, ArrayList<Long> addedMessages) {
             handleError(result, accountId, progress);
         }
 

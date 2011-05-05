@@ -27,11 +27,11 @@ import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.AccountReconciler;
-import com.android.emailcommon.utility.Utility;
+import com.android.emailcommon.utility.EmailAsyncTask;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -47,7 +47,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -56,6 +55,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Background service for refreshing non-push email accounts.
@@ -82,16 +82,18 @@ public class MailService extends Service {
     private static final String EXTRA_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
     private static final String EXTRA_ACCOUNT_INFO = "com.android.email.intent.extra.ACCOUNT_INFO";
     private static final String EXTRA_DEBUG_WATCHDOG = "com.android.email.intent.extra.WATCHDOG";
+    private static final String EXTRA_MESSAGE_ID_COUNT =
+        "com.android.email.intent.extra.MESSAGE_ID_COUNT";
+    private static final String EXTRA_MESSAGE_ID_PREFIX =
+        "com.android.email.intent.extra.MESSAGE_ID_";
 
-    private static final int WATCHDOG_DELAY = 10 * 60 * 1000;   // 10 minutes
+    /** Time between watchdog checks; in milliseconds */
+    private static final long WATCHDOG_DELAY = 10 * 60 * 1000;   // 10 minutes
 
     // Sentinel value asking to update mSyncReports if it's currently empty
     /*package*/ static final int SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY = -1;
     // Sentinel value asking that mSyncReports be rebuilt
     /*package*/ static final int SYNC_REPORTS_RESET = -2;
-
-    private static final String[] NEW_MESSAGE_COUNT_PROJECTION =
-        new String[] {AccountColumns.NEW_MESSAGE_COUNT};
 
     private static MailService sMailService;
 
@@ -99,7 +101,6 @@ public class MailService extends Service {
     private final Controller.Result mControllerCallback = new ControllerResults();
     private ContentResolver mContentResolver;
     private Context mContext;
-    private Handler mHandler = new Handler();
 
     private int mStartId;
 
@@ -150,28 +151,7 @@ public class MailService extends Service {
      * @param accountId account to clear, or -1 for all accounts
      */
     public static void resetNewMessageCount(final Context context, final long accountId) {
-        synchronized (mSyncReports) {
-            for (AccountSyncReport report : mSyncReports.values()) {
-                if (accountId == -1 || accountId == report.accountId) {
-                    report.unseenMessageCount = 0;
-                    report.lastUnseenMessageCount = 0;
-                }
-            }
-        }
-        // Clear notification
         NotificationController.getInstance(context).cancelNewMessageNotification(accountId);
-
-        // now do the database - all accounts, or just one of them
-        Utility.runAsync(new Runnable() {
-            @Override
-            public void run() {
-                Uri uri = Account.RESET_NEW_MESSAGE_COUNT_URI;
-                if (accountId != -1) {
-                    uri = ContentUris.withAppendedId(uri, accountId);
-                }
-                context.getContentResolver().update(uri, null, null, null);
-            }
-        });
     }
 
     /**
@@ -182,10 +162,21 @@ public class MailService extends Service {
      * @param context a context
      * @param accountId the id of the account that is reporting new messages
      */
-    public static void actionNotifyNewMessages(Context context, long accountId) {
+    @SuppressWarnings("unchecked")
+    public static void actionNotifyNewMessages(
+                Context context, long accountId, List messageIdList) {
         Intent i = new Intent(ACTION_NOTIFY_MAIL);
         i.setClass(context, MailService.class);
         i.putExtra(EXTRA_ACCOUNT, accountId);
+        int listSize = 0;
+        if (messageIdList != null) {
+            listSize = messageIdList.size();
+            for (int j = 0; j < listSize; j++) {
+                long messageId = (Long) messageIdList.get(j);
+                i.putExtra(EXTRA_MESSAGE_ID_PREFIX + j, messageId);
+            }
+        }
+        i.putExtra(EXTRA_MESSAGE_ID_COUNT, listSize);
         context.startService(i);
     }
 
@@ -203,7 +194,7 @@ public class MailService extends Service {
         // Restore accounts, if it has not happened already
         AccountBackupRestore.restoreAccountsIfNeeded(this);
 
-        Utility.runAsync(new Runnable() {
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
             @Override
             public void run() {
                 reconcilePopImapAccountsSync(MailService.this);
@@ -224,7 +215,7 @@ public class MailService extends Service {
 
         if (ACTION_CHECK_MAIL.equals(action)) {
             // DB access required to satisfy this intent, so offload from UI thread
-            Utility.runAsync(new Runnable() {
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
                 @Override
                 public void run() {
                     // If we have the data, restore the last-sync-times for each account
@@ -280,7 +271,7 @@ public class MailService extends Service {
             if (Email.DEBUG) {
                 Log.d(LOG_TAG, "action: delete exchange accounts");
             }
-            Utility.runAsync(new Runnable() {
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
                 public void run() {
                     Cursor c = mContentResolver.query(Account.CONTENT_URI, Account.ID_PROJECTION,
                             null, null, null);
@@ -304,7 +295,7 @@ public class MailService extends Service {
             if (Email.DEBUG) {
                 Log.d(LOG_TAG, "action: send pending mail");
             }
-            Utility.runAsync(new Runnable() {
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
                 public void run() {
                     mController.sendPendingMessages(accountId);
                 }
@@ -315,17 +306,14 @@ public class MailService extends Service {
             if (Email.DEBUG) {
                 Log.d(LOG_TAG, "action: reschedule");
             }
-            final NotificationController nc = NotificationController.getInstance(this);
             // DB access required to satisfy this intent, so offload from UI thread
-            Utility.runAsync(new Runnable() {
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
                 @Override
                 public void run() {
                     // Clear all notifications, in case account list has changed.
-                    //
-                    // TODO Clear notifications for non-existing accounts.  Now that we have
-                    // separate notifications for each account, NotificationController should be
-                    // able to do that.
-                    nc.cancelNewMessageNotification(-1);
+                    NotificationController
+                        .getInstance(MailService.this)
+                        .cancelNewMessageNotification(-1);
 
                     // When called externally, we refresh the sync reports table to pick up
                     // any changes in the account list or account settings
@@ -337,23 +325,23 @@ public class MailService extends Service {
             });
         } else if (ACTION_NOTIFY_MAIL.equals(action)) {
             // DB access required to satisfy this intent, so offload from UI thread
-            Utility.runAsync(new Runnable() {
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
                 @Override
                 public void run() {
-                    // Get the current new message count
-                    Cursor c = mContentResolver.query(
-                            ContentUris.withAppendedId(Account.CONTENT_URI, accountId),
-                            NEW_MESSAGE_COUNT_PROJECTION, null, null, null);
-                    int newMessageCount = 0;
-                    try {
-                        if (c.moveToFirst()) {
-                            newMessageCount = c.getInt(0);
-                            updateAccountReport(accountId, newMessageCount);
-                            notifyNewMessages(accountId);
+                    int newMessageCount = intent.getIntExtra(EXTRA_MESSAGE_ID_COUNT, 0);
+                    ArrayList<Long> messageIdList = new ArrayList<Long>();
+                    for (int i = 0; i < newMessageCount; i++) {
+                        final long messageId =
+                                intent.getLongExtra(EXTRA_MESSAGE_ID_PREFIX + i, -1L);
+                        if (messageId <= 0) {
+                            // What else to do here?? This should never happen ...
+                            Log.w(LOG_TAG, "invalid message id in notification; id: " + messageId);
+                            continue;
                         }
-                    } finally {
-                        c.close();
+                        messageIdList.add(messageId);
                     }
+                    updateAccountReport(accountId, newMessageCount);
+                    notifyNewMessages(accountId, messageIdList);
                     if (Email.DEBUG) {
                         Log.d(LOG_TAG, "notify accountId=" + Long.toString(accountId)
                                 + " count=" + newMessageCount);
@@ -404,10 +392,7 @@ public class MailService extends Service {
                 AccountSyncReport oldReport = oldSyncReports.get(newReport.accountId);
                 if (oldReport != null) {
                     newReport.prevSyncTime = oldReport.prevSyncTime;
-                    if (newReport.syncInterval > 0 && newReport.prevSyncTime != 0) {
-                        newReport.nextSyncTime =
-                            newReport.prevSyncTime + (newReport.syncInterval * 1000 * 60);
-                    }
+                    newReport.setNextSyncTime();
                 }
             }
         }
@@ -533,38 +518,32 @@ public class MailService extends Service {
      * TODO:  Look more closely at syncEnabled and see if we can simply coalesce it into
      * syncInterval (e.g. if !syncEnabled, set syncInterval to -1).
      */
-    /*package*/ static class AccountSyncReport {
+    @VisibleForTesting
+    static class AccountSyncReport {
         long accountId;
-        long prevSyncTime;      // 0 == unknown
-        long nextSyncTime;      // 0 == ASAP  -1 == don't sync
-
-        /** # of "unseen" messages to show in notification */
-        int unseenMessageCount;
+        /** The time of the last sync, or, {@code 0}, the last sync time is unknown. */
+        long prevSyncTime;
+        /** The time of the next sync. If {@code 0}, sync ASAP. If {@code 1}, don't sync. */
+        long nextSyncTime;
+        /** Minimum time between syncs; in minutes. */
+        int syncInterval;
+        /** If {@code true}, show system notifications. */
+        boolean notify;
+        /** If {@code true}, auto sync is enabled. */
+        boolean syncEnabled;
 
         /**
-         * # of unseen, the value shown on the last notification. Used to
-         * calculate "the number of messages that have just been fetched".
-         *
-         * TODO It's a sort of cheating.  Should we use the "real" number?  The only difference
-         * is the first notification after reboot / process restart.
+         * Sets the next sync time using the previous sync time and sync interval.
          */
-        int lastUnseenMessageCount;
-
-        int syncInterval;
-        boolean notify;
-
-        boolean syncEnabled;    // whether auto sync is enabled for this account
-
-        /** # of messages that have just been fetched */
-        int getJustFetchedMessageCount() {
-            return unseenMessageCount - lastUnseenMessageCount;
+        void setNextSyncTime() {
+            if (syncInterval > 0 && prevSyncTime != 0) {
+                nextSyncTime = prevSyncTime + (syncInterval * 1000 * 60);
+            }
         }
 
         @Override
         public String toString() {
-            return "id=" + accountId
-                    + " prevSync=" + prevSyncTime + " nextSync=" + nextSyncTime + " numUnseen="
-                    + unseenMessageCount;
+            return "id=" + accountId + " prevSync=" + prevSyncTime + " nextSync=" + nextSyncTime;
         }
     }
 
@@ -644,8 +623,6 @@ public class MailService extends Service {
                 report.accountId = account.mId;
                 report.prevSyncTime = 0;
                 report.nextSyncTime = (syncInterval > 0) ? 0 : -1;  // 0 == ASAP -1 == no sync
-                report.unseenMessageCount = 0;
-                report.lastUnseenMessageCount = 0;
 
                 report.syncInterval = syncInterval;
                 report.notify = (account.mFlags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
@@ -685,12 +662,7 @@ public class MailService extends Service {
 
             // report found - update it (note - editing the report while in-place in the hashmap)
             report.prevSyncTime = SystemClock.elapsedRealtime();
-            if (report.syncInterval > 0) {
-                report.nextSyncTime = report.prevSyncTime + (report.syncInterval * 1000 * 60);
-            }
-            if (newCount != -1) {
-                report.unseenMessageCount = newCount;
-            }
+            report.setNextSyncTime();
             if (Email.DEBUG) {
                 Log.d(LOG_TAG, "update account " + report.toString());
             }
@@ -723,10 +695,7 @@ public class MailService extends Service {
                 if (report != null) {
                     if (report.prevSyncTime == 0) {
                         report.prevSyncTime = prevSync;
-                        if (report.syncInterval > 0 && report.prevSyncTime != 0) {
-                            report.nextSyncTime =
-                                report.prevSyncTime + (report.syncInterval * 1000 * 60);
-                        }
+                        report.setNextSyncTime();
                     }
                 }
             }
@@ -736,7 +705,8 @@ public class MailService extends Service {
     class ControllerResults extends Controller.Result {
         @Override
         public void updateMailboxCallback(MessagingException result, long accountId,
-                long mailboxId, int progress, int numNewMessages) {
+                long mailboxId, int progress, int numNewMessages,
+                ArrayList<Long> addedMessages) {
             // First, look for authentication failures and notify
            //checkAuthenticationStatus(result, accountId);
            if (result != null || progress == 100) {
@@ -747,7 +717,7 @@ public class MailService extends Service {
                     if (progress == 100) {
                         updateAccountReport(accountId, numNewMessages);
                         if (numNewMessages > 0) {
-                            notifyNewMessages(accountId);
+                            notifyNewMessages(accountId, addedMessages);
                         }
                     } else {
                         updateAccountReport(accountId, -1);
@@ -779,21 +749,16 @@ public class MailService extends Service {
     /**
      * Show "new message" notification for an account.  (Notification is shown per account.)
      */
-    private void notifyNewMessages(final long accountId) {
-        final int unseenMessageCount;
-        final int justFetchedCount;
+    private void notifyNewMessages(final long accountId, ArrayList<Long> addedMessages) {
         synchronized (mSyncReports) {
             AccountSyncReport report = mSyncReports.get(accountId);
-            if (report == null || report.unseenMessageCount == 0 || !report.notify) {
+            if (report == null || !report.notify) {
                 return;
             }
-            unseenMessageCount = report.unseenMessageCount;
-            justFetchedCount = report.getJustFetchedMessageCount();
-            report.lastUnseenMessageCount = report.unseenMessageCount;
         }
 
-        NotificationController.getInstance(this).showNewMessageNotification(accountId,
-                unseenMessageCount, justFetchedCount);
+        NotificationController.getInstance(this)
+            .showNewMessageNotification(accountId, addedMessages);
     }
 
     /**
@@ -874,7 +839,8 @@ public class MailService extends Service {
      * @param blockExternalChanges FOR TESTING ONLY - block backups, security changes, etc.
      * @param resolver the content resolver for making provider updates (injected for testability)
      */
-    /* package */ public static void reconcileAccountsWithAccountManager(Context context,
+    @VisibleForTesting
+    public static void reconcileAccountsWithAccountManager(Context context,
             List<Account> emailProviderAccounts, android.accounts.Account[] accountManagerAccounts,
             boolean blockExternalChanges, ContentResolver resolver) {
         boolean accountsDeleted = AccountReconciler.reconcileAccounts(context,

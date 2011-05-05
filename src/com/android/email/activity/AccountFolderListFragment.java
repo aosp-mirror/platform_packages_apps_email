@@ -28,6 +28,8 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.utility.Utility;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.ListFragment;
 import android.content.Context;
@@ -448,7 +450,8 @@ public class AccountFolderListFragment extends ListFragment
     private class ControllerResults extends Controller.Result {
         @Override
         public void updateMailboxCallback(MessagingException result, long accountKey,
-                long mailboxKey, int progress, int numNewMessages) {
+                long mailboxKey, int progress, int numNewMessages,
+                ArrayList<Long> addedMessages) {
             if (progress == 100) {
                 updateAccounts();
             }

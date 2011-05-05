@@ -18,7 +18,6 @@ package com.android.email;
 
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
-import com.android.email.mail.StoreSynchronizer;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeHeader;
@@ -330,20 +329,19 @@ public class MessagingController implements Runnable {
         mListeners.synchronizeMailboxStarted(account.mId, folder.mId);
         if ((folder.mFlags & Mailbox.FLAG_HOLDS_MAIL) == 0) {
             // We don't hold messages, so, nothing to synchronize
-            mListeners.synchronizeMailboxFinished(account.mId, folder.mId, 0, 0);
+            mListeners.synchronizeMailboxFinished(account.mId, folder.mId, 0, 0, null);
             return;
         }
         NotificationController nc = NotificationController.getInstance(mContext);
         try {
             processPendingActionsSynchronous(account);
 
-            StoreSynchronizer.SyncResults results;
-
             // Select generic sync or store-specific sync
-            results = synchronizeMailboxGeneric(account, folder);
+            SyncResults results = synchronizeMailboxGeneric(account, folder);
             mListeners.synchronizeMailboxFinished(account.mId, folder.mId,
                                                   results.mTotalMessages,
-                                                  results.mNewMessages);
+                                                  results.mAddedMessages.size(),
+                                                  results.mAddedMessages);
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException e) {
@@ -409,9 +407,15 @@ public class MessagingController implements Runnable {
      * @return results of the sync pass
      * @throws MessagingException
      */
-    private StoreSynchronizer.SyncResults synchronizeMailboxGeneric(
+    private SyncResults synchronizeMailboxGeneric(
             final EmailContent.Account account, final EmailContent.Mailbox folder)
             throws MessagingException {
+
+        /*
+         * A list of IDs for messages that were downloaded and did not have the seen flag set.
+         * This serves as the "true" new message count reported to the user via notification.
+         */
+        final ArrayList<Long> unseenMessages = new ArrayList<Long>();
 
         Log.d(Logging.LOG_TAG, "*** synchronizeMailboxGeneric ***");
         ContentResolver resolver = mContext.getContentResolver();
@@ -419,7 +423,7 @@ public class MessagingController implements Runnable {
         // 0.  We do not ever sync DRAFTS or OUTBOX (down or up)
         if (folder.mType == Mailbox.TYPE_DRAFTS || folder.mType == Mailbox.TYPE_OUTBOX) {
             int totalMessages = EmailContent.count(mContext, folder.getUri(), null, null);
-            return new StoreSynchronizer.SyncResults(totalMessages, 0);
+            return new SyncResults(totalMessages, unseenMessages);
         }
 
         // 1.  Get the message list from the local store and create an index of the uids
@@ -474,7 +478,7 @@ public class MessagingController implements Runnable {
                 || folder.mType == Mailbox.TYPE_DRAFTS) {
             if (!remoteFolder.exists()) {
                 if (!remoteFolder.create(FolderType.HOLDS_MESSAGES)) {
-                    return new StoreSynchronizer.SyncResults(0, 0);
+                    return new SyncResults(0, unseenMessages);
                 }
             }
         }
@@ -542,13 +546,6 @@ public class MessagingController implements Runnable {
 
         // 8.  Download basic info about the new/unloaded messages (if any)
         /*
-         * A list of messages that were downloaded and which did not have the Seen flag set.
-         * This will serve to indicate the true "new" message count that will be reported to
-         * the user via notification.
-         */
-        final ArrayList<Message> newMessages = new ArrayList<Message>();
-
-        /*
          * Fetch the flags and envelope only of the new messages. This is intended to get us
          * critical data as fast as possible, and then we'll fill in the details.
          */
@@ -584,7 +581,7 @@ public class MessagingController implements Runnable {
                                         saveOrUpdate(localMessage, mContext);
                                         // Track the "new" ness of the downloaded message
                                         if (!message.isSet(Flag.SEEN)) {
-                                            newMessages.add(message);
+                                            unseenMessages.add(localMessage.mId);
                                         }
                                     } catch (MessagingException me) {
                                         Log.e(Logging.LOG_TAG,
@@ -753,7 +750,7 @@ public class MessagingController implements Runnable {
         // 14. Clean up and report results
         remoteFolder.close(false);
 
-        return new StoreSynchronizer.SyncResults(remoteMessageCount, newMessages.size());
+        return new SyncResults(remoteMessageCount, unseenMessages);
     }
 
     /**
@@ -1958,6 +1955,22 @@ public class MessagingController implements Runnable {
         @Override
         public String toString() {
             return description;
+        }
+    }
+
+    /** Results of the latest synchronization. */
+    private static class SyncResults {
+        /** The total # of messages in the folder */
+        public final int mTotalMessages;
+        /** A list of new message IDs; must not be {@code null} */
+        public final ArrayList<Long> mAddedMessages;
+
+        public SyncResults(int totalMessages, ArrayList<Long> addedMessages) {
+            if (addedMessages == null) {
+                throw new IllegalArgumentException("addedMessages must not be null");
+            }
+            mTotalMessages = totalMessages;
+            mAddedMessages = addedMessages;
         }
     }
 }

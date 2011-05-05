@@ -97,6 +97,7 @@ public abstract class EmailContent {
 
     public static final String FIELD_COLUMN_NAME = "field";
     public static final String ADD_COLUMN_NAME = "add";
+    public static final String SET_COLUMN_NAME = "set";
 
     // Newly created objects get this id
     public static final int NOT_SAVED = -1;

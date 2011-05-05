@@ -23,6 +23,7 @@ import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.EmailAsyncTask;
@@ -32,15 +33,25 @@ import com.google.common.annotations.VisibleForTesting;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Handler;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
 
 /**
  * Class that manages notifications.
@@ -63,6 +74,12 @@ public class NotificationController {
     private final AudioManager mAudioManager;
     private final Bitmap mGenericSenderIcon;
     private final Clock mClock;
+    // TODO The service context used to create and manage the notification controller is NOT
+    // guaranteed to live forever. As such, we may lose the data in this structure. We should
+    // save / restore this data upon service termination / start. We'd also want to define
+    // the behaviour after a restart.
+    /** Maps account id to the message data */
+    private final HashMap<Long, MessageData> mNotificationMap;
 
     /** Constructor */
     @VisibleForTesting
@@ -74,6 +91,7 @@ public class NotificationController {
         mGenericSenderIcon = BitmapFactory.decodeResource(mContext.getResources(),
                 R.drawable.ic_contact_picture);
         mClock = clock;
+        mNotificationMap = new HashMap<Long, MessageData>();
     }
 
     /** Singleton access */
@@ -97,11 +115,13 @@ public class NotificationController {
      * @param largeIcon A large icon. May be {@code null}
      * @param number A number to display using {@link Notification.Builder#setNumber(int)}. May
      *        be {@code null}.
+     * @param enableAudio If {@code false}, do not play any sound. Otherwise, play sound according
+     *        to the settings for the given account.
      * @return A {@link Notification} that can be sent to the notification service.
      */
     private Notification createAccountNotification(Account account, String ticker,
             CharSequence title, String contentText, Intent intent, Bitmap largeIcon,
-            Integer number) {
+            Integer number, boolean enableAudio) {
         // Pending Intent
         PendingIntent pending = null;
         if (intent != null) {
@@ -119,7 +139,10 @@ public class NotificationController {
                 .setSmallIcon(R.drawable.stat_notify_email_generic)
                 .setWhen(mClock.getTime())
                 .setTicker(ticker);
-        setupSoundAndVibration(builder, account);
+
+        if (enableAudio) {
+            setupSoundAndVibration(builder, account);
+        }
 
         Notification notification = builder.getNotification();
         return notification;
@@ -137,8 +160,8 @@ public class NotificationController {
      */
     private void showAccountNotification(Account account, String ticker, String title,
             String contentText, Intent intent, int notificationId) {
-        Notification notification = //nb.getNotification();
-                createAccountNotification(account, ticker, title, contentText, intent, null, null);
+        Notification notification = createAccountNotification(account, ticker, title, contentText,
+                intent, null, null, true);
         mNotificationManager.notify(notificationId, notification);
     }
 
@@ -165,16 +188,35 @@ public class NotificationController {
      * @param accountId The ID of the account to cancel for. If {@code -1}, "new message"
      * notifications for all accounts will be canceled.
      */
-    public void cancelNewMessageNotification(long accountId) {
+    public void cancelNewMessageNotification(final long accountId) {
         if (accountId == -1) {
-            new Utility.ForEachAccount(mContext) {
-                @Override
-                protected void performAction(long accountId) {
-                    cancelNewMessageNotification(accountId);
-                }
-            }.execute();
+            for (long id : mNotificationMap.keySet()) {
+                cancelNewMessageNotification(id);
+            }
         } else {
+            MessageData data = mNotificationMap.remove(accountId);
+            if (data == null) {
+                // Not in map; nothing to do here
+                return;
+            }
+            // ensure we don't accidentally double-cancel a notification
+            final ContentObserver myObserver = data.mObserver;
+            data.mObserver = null;
             mNotificationManager.cancel(getNewMessageNotificationId(accountId));
+
+            // now do the database work
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
+                @Override
+                public void run() {
+                    ContentResolver resolver = mContext.getContentResolver();
+                    if (myObserver != null) {
+                        resolver.unregisterContentObserver(myObserver);
+                    }
+                    Uri uri = Account.RESET_NEW_MESSAGE_COUNT_URI;
+                    uri = ContentUris.withAppendedId(uri, accountId);
+                    resolver.update(uri, null, null, null);
+                }
+            });
         }
     }
 
@@ -182,17 +224,58 @@ public class NotificationController {
      * Show (or update) a "new message" notification for the given account.
      *
      * @param accountId The ID of the account to display a notification for.
-     * @param unseenMessageCount The number of messages in the account that are unseen.
+     * @param addedMessages A list of new message IDs added to the given account.
      */
-    public void showNewMessageNotification(final long accountId, final int unseenMessageCount,
-            final int justFetchedCount) {
+    public void showNewMessageNotification(final long accountId,
+            final ArrayList<Long> addedMessages) {
+        if (addedMessages == null || addedMessages.size() == 0) {
+            // No messages added; nothing to do here
+            return;
+        }
+        MessageData data = mNotificationMap.get(accountId);
+        if (data == null) {
+            data = new MessageData();
+            mNotificationMap.put(accountId, data);
+        }
+        final HashSet<Long> idSet = data.mMessageList;
+        synchronized (idSet) {
+            idSet.addAll(addedMessages);
+        }
+        // Pick a message to observe
+        final long messageId = idSet.iterator().next();
+        final ContentObserver myObserver;
+        if (data.mObserver == null) {
+            myObserver = new MessageContentObserver(Utility.getMainThreadHandler(), mContext,
+                    accountId, messageId);
+            data.mObserver = myObserver;
+        } else {
+            myObserver = data.mObserver;
+        }
+
         EmailAsyncTask.runAsyncParallel(new Runnable() {
             @Override
             public void run() {
-                Notification n = createNewMessageNotification(accountId, unseenMessageCount);
+                ContentResolver resolver = mContext.getContentResolver();
+                // Atomically update the unseen count
+                ContentValues cv = new ContentValues();
+                cv.put(EmailContent.FIELD_COLUMN_NAME, AccountColumns.NEW_MESSAGE_COUNT);
+                cv.put(EmailContent.ADD_COLUMN_NAME, addedMessages.size());
+                Uri uri = ContentUris.withAppendedId(Account.ADD_TO_FIELD_URI, accountId);
+                resolver.update(uri, cv, null, null);
+                // Get the unseen count
+                uri = ContentUris.withAppendedId(Account.CONTENT_URI, accountId);
+                int unseenMessageCount = Utility.getFirstRowInt(mContext, uri,
+                        new String[] { AccountColumns.NEW_MESSAGE_COUNT }, null /*selection*/,
+                        null /*selectionArgs*/, null /*sortOrder*/, 0 /*column*/, 0 /*default*/);
+                // Create the notification
+                Notification n = createNewMessageNotification(accountId, unseenMessageCount, true);
                 if (n == null) {
                     return;
                 }
+                // Register a content observer with one of the messages
+                uri = ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, messageId);
+                resolver.registerContentObserver(uri, false, myObserver);
+                // Make the notification visible
                 mNotificationManager.notify(getNewMessageNotificationId(accountId), n);
             }
         });
@@ -222,7 +305,8 @@ public class NotificationController {
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     @VisibleForTesting
-    Notification createNewMessageNotification(long accountId, int unseenMessageCount) {
+    Notification createNewMessageNotification(long accountId, int unseenMessageCount,
+            boolean enableAudio) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) {
             return null;
@@ -244,8 +328,8 @@ public class NotificationController {
         final Bitmap largeIcon = senderPhoto != null ? senderPhoto : mGenericSenderIcon;
         final Integer number = unseenMessageCount > 1 ? unseenMessageCount : null;
 
-        Notification notification =
-                createAccountNotification(account, null, title, subject, intent, largeIcon, number);
+        Notification notification = createAccountNotification(account, null, title, subject,
+                intent, largeIcon, number, enableAudio);
         return notification;
     }
 
@@ -415,5 +499,120 @@ public class NotificationController {
      */
     public void cancelSecurityNeededNotification() {
         cancelNotification(NOTIFICATION_ID_SECURITY_NEEDED);
+    }
+
+    /**
+     * Observer invoked whenever a message we're notifying the user about changes.
+     */
+    private static class MessageContentObserver extends ContentObserver {
+        /** The account this observer is attached to */
+        private final long mAccountId;
+        /** A singular message ID to notify on */
+        private final long mMessageId;
+        /** The context */
+        private final Context mContext;
+        /** The handler we will be invoked on */
+        private final Handler mHandler;
+
+        MessageContentObserver(Handler handler, Context context, long accountId,
+                long messageId) {
+            super (handler);
+            mHandler = handler;
+            mContext = context;
+            mAccountId = accountId;
+            mMessageId = messageId;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            final MessageData data = sInstance.mNotificationMap.get(mAccountId);
+            // If this account had been removed from the set of notifications or if the observer
+            // has been updated, make sure we don't get called again
+            if (data == null || data.mObserver != this) {
+                mContext.getContentResolver().unregisterContentObserver(this);
+                return;
+            }
+
+            // Ensure we're only handling one change at a time
+            EmailAsyncTask.runAsyncSerial(new Runnable() {
+                @Override
+                public void run() {
+                    handleChange(data);
+                }
+            });
+        }
+
+        /**
+         * Performs any database operations to handle an observed change.
+         *
+         * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
+         * @param data Message data for the observed account
+         */
+        private void handleChange(MessageData data) {
+            Message message = Message.restoreMessageWithId(mContext, mMessageId);
+            if (message != null && !message.mFlagRead) {
+                // do nothing; wait until this message is modified
+                return;
+            }
+
+            // message removed or read; get another one in the list and update the notification
+            // Remove ourselves from the set of notifiers
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.unregisterContentObserver(this);
+            synchronized (data.mMessageList) {
+                data.mMessageList.remove(mMessageId);
+            }
+            try {
+                for (;;) {
+                    long nextMessageId = data.mMessageList.iterator().next();
+                    Message nextMessage = Message.restoreMessageWithId(mContext, nextMessageId);
+                    if ((nextMessage == null) || (nextMessage.mFlagRead)) {
+                        synchronized (data.mMessageList) {
+                            data.mMessageList.remove(nextMessageId);
+                        }
+                        continue;
+                    }
+                    data.mObserver = new MessageContentObserver(mHandler, mContext, mAccountId,
+                            nextMessageId);
+                    Uri uri = ContentUris.withAppendedId(
+                            EmailContent.Message.CONTENT_URI, nextMessageId);
+                    resolver.registerContentObserver(uri, false, data.mObserver);
+
+                    // Update the new message count
+                    int unseenMessageCount = data.mMessageList.size();
+                    ContentValues cv = new ContentValues();
+
+                    cv.put(EmailContent.SET_COLUMN_NAME, unseenMessageCount);
+                    uri = ContentUris.withAppendedId(
+                            Account.RESET_NEW_MESSAGE_COUNT_URI, mAccountId);
+                    resolver.update(uri, cv, null, null);
+
+                    // Re-display the notification w/o audio
+                    Notification n = sInstance.createNewMessageNotification(mAccountId,
+                            unseenMessageCount, false);
+                    sInstance.mNotificationManager.notify(
+                            sInstance.getNewMessageNotificationId(mAccountId), n);
+                    break;
+                }
+            } catch (NoSuchElementException e) {
+                // this is not an error; it means the list is empty, so, hide the notification
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // make sure we're on the UI thread to cancel the notification
+                        sInstance.cancelNewMessageNotification(mAccountId);
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Information about the message(s) we're notifying the user about.
+     */
+    private static class MessageData {
+        final HashSet<Long> mMessageList = new HashSet<Long>();
+        ContentObserver mObserver;
     }
 }
