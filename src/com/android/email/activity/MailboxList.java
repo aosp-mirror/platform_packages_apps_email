@@ -21,6 +21,7 @@ import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.MessagingExceptionStrings;
 import com.android.email.R;
+import com.android.email.RefreshManager;
 import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -226,7 +227,7 @@ public class MailboxList extends Activity implements MailboxListFragment.Callbac
     private void onRefresh() {
         Controller controller = Controller.getInstance(getApplication());
         showProgressIcon(true);
-        mListFragment.onRefresh();
+        RefreshManager.getInstance(this).refreshMailboxList(mAccountId);
     }
 
     private void onAccounts() {
