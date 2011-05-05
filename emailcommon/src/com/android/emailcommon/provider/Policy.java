@@ -65,6 +65,16 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     public boolean mRequireRemoteWipe;
     public boolean mRequireEncryption;
     public boolean mRequireEncryptionExternal;
+    public boolean mRequireManualSyncWhenRoaming;
+    public boolean mDontAllowCamera;
+    public boolean mDontAllowAttachments;
+    public boolean mDontAllowHtml;
+    public int mMaxAttachmentSize;
+    public int mMaxTextTruncationSize;
+    public int mMaxHtmlTruncationSize;
+    public int mMaxEmailLookback;
+    public int mMaxCalendarLookback;
+    public boolean mPasswordRecoveryEnabled;
 
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_PASSWORD_MODE_COLUMN = 1;
@@ -77,13 +87,28 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     public static final int CONTENT_REQUIRE_REMOTE_WIPE_COLUMN = 8;
     public static final int CONTENT_REQUIRE_ENCRYPTION_COLUMN = 9;
     public static final int CONTENT_REQUIRE_ENCRYPTION_EXTERNAL_COLUMN = 10;
+    public static final int CONTENT_REQUIRE_MANUAL_SYNC_WHEN_ROAMING = 11;
+    public static final int CONTENT_DONT_ALLOW_CAMERA_COLUMN = 12;
+    public static final int CONTENT_DONT_ALLOW_ATTACHMENTS_COLUMN = 13;
+    public static final int CONTENT_DONT_ALLOW_HTML_COLUMN = 14;
+    public static final int CONTENT_MAX_ATTACHMENT_SIZE_COLUMN = 15;
+    public static final int CONTENT_MAX_TEXT_TRUNCATION_SIZE_COLUMN = 16;
+    public static final int CONTENT_MAX_HTML_TRUNCATION_SIZE_COLUMN = 17;
+    public static final int CONTENT_MAX_EMAIL_LOOKBACK_COLUMN = 18;
+    public static final int CONTENT_MAX_CALENDAR_LOOKBACK_COLUMN = 19;
+    public static final int CONTENT_PASSWORD_RECOVERY_ENABLED_COLUMN = 20;
 
     public static final String[] CONTENT_PROJECTION = new String[] {RECORD_ID,
         PolicyColumns.PASSWORD_MODE, PolicyColumns.PASSWORD_MIN_LENGTH,
         PolicyColumns.PASSWORD_EXPIRATION_DAYS, PolicyColumns.PASSWORD_HISTORY,
         PolicyColumns.PASSWORD_COMPLEX_CHARS, PolicyColumns.PASSWORD_MAX_FAILS,
         PolicyColumns.MAX_SCREEN_LOCK_TIME, PolicyColumns.REQUIRE_REMOTE_WIPE,
-        PolicyColumns.REQUIRE_ENCRYPTION, PolicyColumns.REQUIRE_ENCRYPTION_EXTERNAL
+        PolicyColumns.REQUIRE_ENCRYPTION, PolicyColumns.REQUIRE_ENCRYPTION_EXTERNAL,
+        PolicyColumns.REQUIRE_MANUAL_SYNC_WHEN_ROAMING, PolicyColumns.DONT_ALLOW_CAMERA,
+        PolicyColumns.DONT_ALLOW_ATTACHMENTS, PolicyColumns.DONT_ALLOW_HTML,
+        PolicyColumns.MAX_ATTACHMENT_SIZE, PolicyColumns.MAX_TEXT_TRUNCATION_SIZE,
+        PolicyColumns.MAX_HTML_TRUNCATION_SIZE, PolicyColumns.MAX_EMAIL_LOOKBACK,
+        PolicyColumns.MAX_CALENDAR_LOOKBACK, PolicyColumns.PASSWORD_RECOVERY_ENABLED
     };
 
     public static final Policy NO_POLICY = new Policy();
@@ -222,6 +247,18 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         if (mPasswordMaxFails != otherPolicy.mPasswordMaxFails) return false;
         if (mPasswordMinLength != otherPolicy.mPasswordMinLength) return false;
         if (mPasswordMode != otherPolicy.mPasswordMode) return false;
+        if (mRequireManualSyncWhenRoaming != otherPolicy.mRequireManualSyncWhenRoaming) {
+            return false;
+        }
+        if (mDontAllowCamera != otherPolicy.mDontAllowCamera) return false;
+        if (mDontAllowAttachments != otherPolicy.mDontAllowAttachments) return false;
+        if (mDontAllowHtml != otherPolicy.mDontAllowHtml) return false;
+        if (mMaxAttachmentSize != otherPolicy.mMaxAttachmentSize) return false;
+        if (mMaxTextTruncationSize != otherPolicy.mMaxTextTruncationSize) return false;
+        if (mMaxHtmlTruncationSize != otherPolicy.mMaxHtmlTruncationSize) return false;
+        if (mMaxEmailLookback != otherPolicy.mMaxEmailLookback) return false;
+        if (mMaxCalendarLookback != otherPolicy.mMaxCalendarLookback) return false;
+        if (mPasswordRecoveryEnabled != otherPolicy.mPasswordRecoveryEnabled) return false;
         return true;
     }
 
@@ -237,6 +274,7 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         code += (mPasswordMaxFails << 18);
         code += (mPasswordMinLength << 22);
         code += (mPasswordMode << 26);
+        // Don't need to include the other fields
         return code;
     }
 
@@ -255,6 +293,17 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         mRequireEncryption = cursor.getInt(CONTENT_REQUIRE_ENCRYPTION_COLUMN) == 1;
         mRequireEncryptionExternal =
             cursor.getInt(CONTENT_REQUIRE_ENCRYPTION_EXTERNAL_COLUMN) == 1;
+        mRequireManualSyncWhenRoaming =
+            cursor.getInt(CONTENT_REQUIRE_MANUAL_SYNC_WHEN_ROAMING) == 1;
+        mDontAllowCamera = cursor.getInt(CONTENT_DONT_ALLOW_CAMERA_COLUMN) == 1;
+        mDontAllowAttachments = cursor.getInt(CONTENT_DONT_ALLOW_ATTACHMENTS_COLUMN) == 1;
+        mDontAllowHtml = cursor.getInt(CONTENT_DONT_ALLOW_HTML_COLUMN) == 1;
+        mMaxAttachmentSize = cursor.getInt(CONTENT_MAX_ATTACHMENT_SIZE_COLUMN);
+        mMaxTextTruncationSize = cursor.getInt(CONTENT_MAX_TEXT_TRUNCATION_SIZE_COLUMN);
+        mMaxHtmlTruncationSize = cursor.getInt(CONTENT_MAX_HTML_TRUNCATION_SIZE_COLUMN);
+        mMaxEmailLookback = cursor.getInt(CONTENT_MAX_EMAIL_LOOKBACK_COLUMN);
+        mMaxCalendarLookback = cursor.getInt(CONTENT_MAX_CALENDAR_LOOKBACK_COLUMN);
+        mPasswordRecoveryEnabled = cursor.getInt(CONTENT_PASSWORD_RECOVERY_ENABLED_COLUMN) == 1;
     }
 
     @Override
@@ -270,6 +319,16 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         values.put(PolicyColumns.REQUIRE_REMOTE_WIPE, mRequireRemoteWipe);
         values.put(PolicyColumns.REQUIRE_ENCRYPTION, mRequireEncryption);
         values.put(PolicyColumns.REQUIRE_ENCRYPTION_EXTERNAL, mRequireEncryptionExternal);
+        values.put(PolicyColumns.REQUIRE_MANUAL_SYNC_WHEN_ROAMING, mRequireManualSyncWhenRoaming);
+        values.put(PolicyColumns.DONT_ALLOW_CAMERA, mDontAllowCamera);
+        values.put(PolicyColumns.DONT_ALLOW_ATTACHMENTS, mDontAllowAttachments);
+        values.put(PolicyColumns.DONT_ALLOW_HTML, mDontAllowHtml);
+        values.put(PolicyColumns.MAX_ATTACHMENT_SIZE, mMaxAttachmentSize);
+        values.put(PolicyColumns.MAX_TEXT_TRUNCATION_SIZE, mMaxTextTruncationSize);
+        values.put(PolicyColumns.MAX_HTML_TRUNCATION_SIZE, mMaxHtmlTruncationSize);
+        values.put(PolicyColumns.MAX_EMAIL_LOOKBACK, mMaxEmailLookback);
+        values.put(PolicyColumns.MAX_CALENDAR_LOOKBACK, mMaxCalendarLookback);
+        values.put(PolicyColumns.PASSWORD_RECOVERY_ENABLED, mPasswordRecoveryEnabled);
         return values;
     }
 
@@ -373,6 +432,16 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         dest.writeInt(mRequireRemoteWipe ? 1 : 0);
         dest.writeInt(mRequireEncryption ? 1 : 0);
         dest.writeInt(mRequireEncryptionExternal ? 1 : 0);
+        dest.writeInt(mRequireManualSyncWhenRoaming ? 1 : 0);
+        dest.writeInt(mDontAllowCamera ? 1 : 0);
+        dest.writeInt(mDontAllowAttachments ? 1 : 0);
+        dest.writeInt(mDontAllowHtml ? 1 : 0);
+        dest.writeInt(mMaxAttachmentSize);
+        dest.writeInt(mMaxTextTruncationSize);
+        dest.writeInt(mMaxHtmlTruncationSize);
+        dest.writeInt(mMaxEmailLookback);
+        dest.writeInt(mMaxCalendarLookback);
+        dest.writeInt(mPasswordRecoveryEnabled ? 1 : 0);
     }
 
     /**
@@ -391,5 +460,15 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         mRequireRemoteWipe = in.readInt() == 1;
         mRequireEncryption = in.readInt() == 1;
         mRequireEncryptionExternal = in.readInt() == 1;
+        mRequireManualSyncWhenRoaming = in.readInt() == 1;
+        mDontAllowCamera = in.readInt() == 1;
+        mDontAllowAttachments = in.readInt() == 1;
+        mDontAllowHtml = in.readInt() == 1;
+        mMaxAttachmentSize = in.readInt();
+        mMaxTextTruncationSize = in.readInt();
+        mMaxHtmlTruncationSize = in.readInt();
+        mMaxEmailLookback = in.readInt();
+        mMaxCalendarLookback = in.readInt();
+        mPasswordRecoveryEnabled = in.readInt() == 1;
     }
 }
