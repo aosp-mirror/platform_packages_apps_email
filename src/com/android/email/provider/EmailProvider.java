@@ -130,7 +130,8 @@ public class EmailProvider extends ContentProvider {
     // Version 19: Add Policy table; add policyKey to Account table and trigger to delete an
     //             Account's policy when the Account is deleted
     // Version 20: Add new policies to Policy table
-    public static final int DATABASE_VERSION = 20;
+    // Version 21: Add lastSeenMessageKey column to Mailbox table
+    public static final int DATABASE_VERSION = 21;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -626,7 +627,8 @@ public class EmailProvider extends ContentProvider {
             + MailboxColumns.FLAGS + " integer, "
             + MailboxColumns.VISIBLE_LIMIT + " integer, "
             + MailboxColumns.SYNC_STATUS + " text, "
-            + MailboxColumns.MESSAGE_COUNT + " integer not null default 0"
+            + MailboxColumns.MESSAGE_COUNT + " integer not null default 0, "
+            + MailboxColumns.LAST_SEEN_MESSAGE_KEY + " integer"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
@@ -1054,9 +1056,13 @@ public class EmailProvider extends ContentProvider {
                             " integer;");
                 } catch (SQLException e) {
                     // Shouldn't be needed unless we're debugging and interrupt the process
-                    Log.w(TAG, "Exception upgrading EmailProvider.db from 19 to 2 " + e);
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 19 to 20 " + e);
                 }
                 oldVersion = 20;
+            }
+            if (oldVersion == 20) {
+                upgradeFromVersion20ToVersion21(db);
+                oldVersion = 21;
             }
         }
 
@@ -1831,6 +1837,17 @@ public class EmailProvider extends ContentProvider {
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
             Log.w(TAG, "Exception upgrading EmailProvider.db from 17 to 18 " + e);
+        }
+    }
+
+    /** Upgrades the database from v20 to v21 */
+    private static void upgradeFromVersion20ToVersion21(SQLiteDatabase db) {
+        try {
+            db.execSQL("alter table " + Mailbox.TABLE_NAME
+                    + " add column " + Mailbox.LAST_SEEN_MESSAGE_KEY + " integer;");
+        } catch (SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 20 to 21 " + e);
         }
     }
 }
