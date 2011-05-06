@@ -140,6 +140,7 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     }
 
     // We override this method to insure that we never write invalid policy data to the provider
+    @Override
     public Uri save(Context context) {
         normalize();
         return super.save(context);
@@ -407,9 +408,10 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         sb.append(" ");
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
-        if (this.equals(NO_POLICY)) {
+        if (equals(NO_POLICY)) {
             sb.append("No policies]");
         } else {
             if (mPasswordMode == PASSWORD_MODE_NONE) {

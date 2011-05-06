@@ -272,7 +272,7 @@ public class AccountSecurity extends Activity {
                 if (Email.DEBUG) {
                     Log.d(TAG, "Encryption needed; request it via DPM");
                 }
-               mTriedSetEncryption = true;
+                mTriedSetEncryption = true;
                 // launch the activity to start up encryption.
                 Intent intent = new Intent(DevicePolicyManager.ACTION_START_ENCRYPTION);
                 startActivityForResult(intent, REQUEST_ENCRYPTION);
