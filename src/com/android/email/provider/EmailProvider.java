@@ -49,6 +49,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.UriMatcher;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.SQLException;
@@ -79,6 +80,13 @@ public class EmailProvider extends ContentProvider {
 
     public static final Uri INTEGRITY_CHECK_URI =
         Uri.parse("content://" + EmailContent.AUTHORITY + "/integrityCheck");
+
+    /** Appended to the notification URI for delete operations */
+    public static final String NOTIFICATION_OP_DELETE = "delete";
+    /** Appended to the notification URI for insert operations */
+    public static final String NOTIFICATION_OP_INSERT = "insert";
+    /** Appended to the notification URI for update operations */
+    public static final String NOTIFICATION_OP_UPDATE = "update";
 
     // Definitions for our queries looking for orphaned messages
     private static final String[] ORPHANS_PROJECTION
@@ -517,6 +525,7 @@ public class EmailProvider extends ContentProvider {
         createMessageTable(db);
     }
 
+    @SuppressWarnings("deprecation")
     static void createAccountTable(SQLiteDatabase db) {
         String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
             + AccountColumns.DISPLAY_NAME + " text, "
@@ -837,6 +846,7 @@ public class EmailProvider extends ContentProvider {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             // For versions prior to 5, delete all data
             // Versions >= 5 require that data be preserved!
@@ -1093,7 +1103,6 @@ public class EmailProvider extends ContentProvider {
                     // Bodies are auto-deleted here;  Attachments are auto-deleted via trigger
                     messageDeletion = true;
                     db.beginTransaction();
-                    resolver.notifyChange(Message.NOTIFIER_URI, null);
                     break;
             }
             switch (match) {
@@ -1143,7 +1152,7 @@ public class EmailProvider extends ContentProvider {
                         if (cache != null) {
                             cache.unlock(id);
                         }
-                   }
+                    }
                     break;
                 case ATTACHMENTS_MESSAGE_ID:
                     // All attachments for the given message
@@ -1200,7 +1209,12 @@ public class EmailProvider extends ContentProvider {
             }
         }
 
-        // Notify all existing cursors.
+        // Notify all notifier cursors
+        if (match == MESSAGE || match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
+            sendNotifierChange(Message.NOTIFIER_URI, NOTIFICATION_OP_DELETE, id);
+        }
+
+        // Notify all email content cursors
         resolver.notifyChange(EmailContent.CONTENT_URI, null);
         return result;
     }
@@ -1261,7 +1275,8 @@ public class EmailProvider extends ContentProvider {
         // See the comment at delete(), above
         SQLiteDatabase db = getDatabase(context);
         int table = match >> BASE_SHIFT;
-        long id;
+        String id = "0";
+        long longId;
 
         // We do NOT allow setting of unreadCount/messageCount via the provider
         // These columns are maintained via triggers
@@ -1275,8 +1290,6 @@ public class EmailProvider extends ContentProvider {
         try {
             switch (match) {
                 case MESSAGE:
-                    resolver.notifyChange(Message.NOTIFIER_URI, null);
-                    //$FALL-THROUGH$
                 case UPDATED_MESSAGE:
                 case DELETED_MESSAGE:
                 case BODY:
@@ -1285,8 +1298,8 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT:
                 case HOSTAUTH:
                 case POLICY:
-                    id = db.insert(TABLE_NAMES[table], "foo", values);
-                    resultUri = ContentUris.withAppendedId(uri, id);
+                    longId = db.insert(TABLE_NAMES[table], "foo", values);
+                    resultUri = ContentUris.withAppendedId(uri, longId);
                     // Clients shouldn't normally be adding rows to these tables, as they are
                     // maintained by triggers.  However, we need to be able to do this for unit
                     // testing, so we allow the insert and then throw the same exception that we
@@ -1300,29 +1313,30 @@ public class EmailProvider extends ContentProvider {
                             flags = values.getAsInteger(Attachment.FLAGS);
                         }
                         // Report all new attachments to the download service
-                        AttachmentDownloadService.attachmentChanged(id, flags);
+                        AttachmentDownloadService.attachmentChanged(longId, flags);
                     }
                     break;
                 case MAILBOX_ID:
                     // This implies adding a message to a mailbox
                     // Hmm, a problem here is that we can't link the account as well, so it must be
                     // already in the values...
-                    id = Long.parseLong(uri.getPathSegments().get(1));
-                    values.put(MessageColumns.MAILBOX_KEY, id);
+                    longId = Long.parseLong(uri.getPathSegments().get(1));
+                    values.put(MessageColumns.MAILBOX_KEY, longId);
                     return insert(Message.CONTENT_URI, values); // Recurse
                 case MESSAGE_ID:
                     // This implies adding an attachment to a message.
-                    id = Long.parseLong(uri.getPathSegments().get(1));
-                    values.put(AttachmentColumns.MESSAGE_KEY, id);
+                    id = uri.getPathSegments().get(1);
+                    longId = Long.parseLong(id);
+                    values.put(AttachmentColumns.MESSAGE_KEY, longId);
                     return insert(Attachment.CONTENT_URI, values); // Recurse
                 case ACCOUNT_ID:
                     // This implies adding a mailbox to an account.
-                    id = Long.parseLong(uri.getPathSegments().get(1));
-                    values.put(MailboxColumns.ACCOUNT_KEY, id);
+                    longId = Long.parseLong(uri.getPathSegments().get(1));
+                    values.put(MailboxColumns.ACCOUNT_KEY, longId);
                     return insert(Mailbox.CONTENT_URI, values); // Recurse
                 case ATTACHMENTS_MESSAGE_ID:
-                    id = db.insert(TABLE_NAMES[table], "foo", values);
-                    resultUri = ContentUris.withAppendedId(Attachment.CONTENT_URI, id);
+                    longId = db.insert(TABLE_NAMES[table], "foo", values);
+                    resultUri = ContentUris.withAppendedId(Attachment.CONTENT_URI, longId);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown URL " + uri);
@@ -1330,6 +1344,11 @@ public class EmailProvider extends ContentProvider {
         } catch (SQLiteException e) {
             checkDatabases();
             throw e;
+        }
+
+        // Notify all notifier cursors
+        if (match == MESSAGE) {
+            sendNotifierChange(Message.NOTIFIER_URI, NOTIFICATION_OP_INSERT, id);
         }
 
         // Notify all existing cursors.
@@ -1552,7 +1571,7 @@ public class EmailProvider extends ContentProvider {
 
         ContentCache cache = CONTENT_CACHES[table];
         String tableName = TABLE_NAMES[table];
-        String id;
+        String id = "0";
 
         try {
             switch (match) {
@@ -1598,8 +1617,6 @@ public class EmailProvider extends ContentProvider {
                     }
                     break;
                 case SYNCED_MESSAGE_ID:
-                    resolver.notifyChange(Message.NOTIFIER_URI, null);
-                  //$FALL-THROUGH$
                 case UPDATED_MESSAGE_ID:
                 case MESSAGE_ID:
                 case BODY_ID:
@@ -1697,13 +1714,48 @@ public class EmailProvider extends ContentProvider {
             throw e;
         }
 
+        // Notify all notifier cursors
+        if (match == MESSAGE || match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
+            sendNotifierChange(Message.NOTIFIER_URI, NOTIFICATION_OP_UPDATE, id);
+        }
+
         resolver.notifyChange(notificationUri, null);
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#applyBatch(android.content.ContentProviderOperation)
+    /**
+     * Sends a change notification to any cursors observers of the given base URI. The final
+     * notification URI is dynamically built to contain the specified information. It will be
+     * of the format <<baseURI>>/<<op>>/<<id>>; where <<op>> and <<id>> are optional depending
+     * upon the given values.
+     * NOTE: If <<op>> is specified, notifications for <<baseURI>>/<<id>> will NOT be invoked.
+     * If this is necessary, it can be added. However, due to the implementation of
+     * {@link ContentObserver}, observers of <<baseURI>> will receive multiple notifications.
+     *
+     * @param baseUri The base URI to send notifications to. Must be able to take appended IDs.
+     * @param op Optional operation to be appended to the URI.
+     * @param id If a positive value, the ID to append to the base URI. Otherwise, no ID will be
+     *           appended to the base URI.
      */
+    private void sendNotifierChange(Uri baseUri, String op, String id) {
+        final ContentResolver resolver = getContext().getContentResolver();
+
+        // Append the operation, if specified
+        if (op != null) {
+            baseUri = baseUri.buildUpon().appendEncodedPath(op).build();
+        }
+
+        long longId = 0L;
+        try {
+            longId = Long.valueOf(id);
+        } catch (NumberFormatException ignore) {}
+        if (longId > 0) {
+            resolver.notifyChange(ContentUris.withAppendedId(baseUri, longId), null);
+        } else {
+            resolver.notifyChange(baseUri, null);
+        }
+    }
+
     @Override
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
             throws OperationApplicationException {
@@ -1729,6 +1781,7 @@ public class EmailProvider extends ContentProvider {
     }
 
     @VisibleForTesting
+    @SuppressWarnings("deprecation")
     void convertPolicyFlagsToPolicyTable(SQLiteDatabase db) {
         Cursor c = db.query(Account.TABLE_NAME,
                 new String[] {EmailContent.RECORD_ID /*0*/, AccountColumns.SECURITY_FLAGS /*1*/},
