@@ -362,6 +362,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mResumed = false;
         super.onPause();
         mSavedListState = getListView().onSaveInstanceState();
+        Utility.updateLastSeenMessageKey(mActivity, mAccountId);
     }
 
     /**

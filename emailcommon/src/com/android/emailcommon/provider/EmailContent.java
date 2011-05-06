@@ -712,13 +712,8 @@ public abstract class EmailContent {
         // 8 general purpose flags (bits) that may be used at the discretion of the sync adapter
         public static final int FLAG_SYNC_ADAPTER_SHIFT = 9;
         public static final int FLAG_SYNC_ADAPTER_MASK = 255 << FLAG_SYNC_ADAPTER_SHIFT;
-        /**
-         * Bit used in mFlags indicating that the outgoing message should *not* include quoted
-         * original message.  ("Not", in order to keep compatibility with old databases)
-         */
-        public static final int FLAG_NOT_INCLUDE_QUOTED_TEXT_SHIFT = 17;
-        public static final int FLAG_NOT_INCLUDE_QUOTED_TEXT
-                = 1 << FLAG_NOT_INCLUDE_QUOTED_TEXT_SHIFT;
+        /** If set, the outgoing message should *not* include the quoted original message. */
+        public static final int FLAG_NOT_INCLUDE_QUOTED_TEXT = 1 << 17;
 
         public Message() {
             mBaseUri = CONTENT_URI;
@@ -2237,6 +2232,8 @@ public abstract class EmailContent {
         public static final String SYNC_STATUS = "syncStatus";
         // Number of messages in the mailbox.
         public static final String MESSAGE_COUNT = "messageCount";
+        // Number of messages in the mailbox.
+        public static final String LAST_SEEN_MESSAGE_KEY = "lastSeenMessageKey";
     }
 
     public static final class Mailbox extends EmailContent implements SyncColumns, MailboxColumns {
@@ -2261,6 +2258,7 @@ public abstract class EmailContent {
         public int mFlags;
         public int mVisibleLimit;
         public String mSyncStatus;
+        public long mLastSeenMessageKey;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
@@ -2278,6 +2276,8 @@ public abstract class EmailContent {
         public static final int CONTENT_VISIBLE_LIMIT_COLUMN = 13;
         public static final int CONTENT_SYNC_STATUS_COLUMN = 14;
         public static final int CONTENT_PARENT_KEY_COLUMN = 15;
+        public static final int CONTENT_LAST_SEEN_MESSAGE_KEY_COLUMN = 16;
+
         /**
          * <em>NOTE</em>: If fields are added or removed, the method {@link #getHashes()}
          * MUST be updated.
@@ -2288,7 +2288,8 @@ public abstract class EmailContent {
             MailboxColumns.DELIMITER, MailboxColumns.SYNC_KEY, MailboxColumns.SYNC_LOOKBACK,
             MailboxColumns.SYNC_INTERVAL, MailboxColumns.SYNC_TIME,
             MailboxColumns.FLAG_VISIBLE, MailboxColumns.FLAGS, MailboxColumns.VISIBLE_LIMIT,
-            MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY
+            MailboxColumns.SYNC_STATUS, MailboxColumns.PARENT_KEY,
+            MailboxColumns.LAST_SEEN_MESSAGE_KEY,
         };
 
         private static final String ACCOUNT_AND_MAILBOX_TYPE_SELECTION =
@@ -2474,6 +2475,7 @@ public abstract class EmailContent {
             mFlags = cursor.getInt(CONTENT_FLAGS_COLUMN);
             mVisibleLimit = cursor.getInt(CONTENT_VISIBLE_LIMIT_COLUMN);
             mSyncStatus = cursor.getString(CONTENT_SYNC_STATUS_COLUMN);
+            mLastSeenMessageKey = cursor.getLong(CONTENT_LAST_SEEN_MESSAGE_KEY_COLUMN);
         }
 
         @Override
@@ -2494,6 +2496,7 @@ public abstract class EmailContent {
             values.put(MailboxColumns.FLAGS, mFlags);
             values.put(MailboxColumns.VISIBLE_LIMIT, mVisibleLimit);
             values.put(MailboxColumns.SYNC_STATUS, mSyncStatus);
+            values.put(MailboxColumns.LAST_SEEN_MESSAGE_KEY, mLastSeenMessageKey);
             return values;
         }
 
@@ -2668,6 +2671,8 @@ public abstract class EmailContent {
                  = mSyncStatus;
             hash[CONTENT_PARENT_KEY_COLUMN]
                  = mParentKey;
+            hash[CONTENT_LAST_SEEN_MESSAGE_KEY_COLUMN]
+                 = mLastSeenMessageKey;
             return hash;
         }
     }

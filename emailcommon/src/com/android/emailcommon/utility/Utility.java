@@ -902,6 +902,65 @@ public class Utility {
         }
     }
 
+    /**
+     * Updates the last seen message key in the mailbox data base for the INBOX of the currently
+     * shown account. If the account is {@link Account#ACCOUNT_ID_COMBINED_VIEW}, the INBOX for
+     * all accounts are updated.
+     */
+    public static void updateLastSeenMessageKey(final Context context, final long accountId) {
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
+            private void updateLastSeenMessageKeyForAccount(long accountId) {
+                ContentResolver resolver = context.getContentResolver();
+                if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                    Cursor c = resolver.query(
+                            Account.CONTENT_URI, EmailContent.ID_PROJECTION, null, null, null);
+                    if (c == null) throw new ProviderUnavailableException();
+                    try {
+                        while (c.moveToNext()) {
+                            final long id = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
+                            updateLastSeenMessageKeyForAccount(id);
+                        }
+                    } finally {
+                        c.close();
+                    }
+                } else {
+                    Mailbox mailbox =
+                        Mailbox.restoreMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
+
+                    // mailbox has been removed
+                    if (mailbox == null) {
+                        return;
+                    }
+                    // We use the highest _id for the account the mailbox table as the "last seen
+                    // message key". We don't care if the message has been read or not. We only
+                    // need a point at which we can compare against in the future. By setting this
+                    // value, we are claiming that every message before this has potentially been
+                    // seen by the user.
+                    long messageId = Utility.getFirstRowLong(
+                            context,
+                            Message.CONTENT_URI,
+                            EmailContent.ID_PROJECTION,
+                            MessageColumns.MAILBOX_KEY + "=?",
+                            new String[] { Long.toString(mailbox.mId) },
+                            MessageColumns.ID + " DESC",
+                            EmailContent.ID_PROJECTION_COLUMN, 0L);
+                    ContentValues values = mailbox.toContentValues();
+                    values.put(MailboxColumns.LAST_SEEN_MESSAGE_KEY, messageId);
+                    resolver.update(
+                            Mailbox.CONTENT_URI,
+                            values,
+                            EmailContent.ID_SELECTION,
+                            new String[] { Long.toString(mailbox.mId) });
+                }
+            }
+
+            @Override
+            public void run() {
+                updateLastSeenMessageKeyForAccount(accountId);
+            }
+        });
+    }
+
     public static long[] toPrimitiveLongArray(Collection<Long> collection) {
         // Need to do this manually because we're converting to a primitive long array, not
         // a Long array.
