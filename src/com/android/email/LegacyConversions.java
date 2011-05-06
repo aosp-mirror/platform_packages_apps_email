@@ -32,10 +32,8 @@ import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
-import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
-import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
 
@@ -50,7 +48,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -434,109 +431,6 @@ public class LegacyConversions {
         mp.addBodyPart(bp);
     }
 
-    /**
-     * Conversion from provider account to legacy account
-     *
-     * Used for backup/restore.
-     *
-     * @param context application context
-     * @param fromAccount the provider account to be backed up (including transient hostauth's)
-     * @return a legacy Account object ready to be committed to preferences
-     */
-    /* package */ static Account makeLegacyAccount(Context context,
-            EmailContent.Account fromAccount) {
-        Account result = new Account(context);
-
-        result.setDescription(fromAccount.getDisplayName());
-        result.setEmail(fromAccount.getEmailAddress());
-        // fromAccount.mSyncKey - assume lost if restoring
-        result.setSyncWindow(fromAccount.getSyncLookback());
-        result.setAutomaticCheckIntervalMinutes(fromAccount.getSyncInterval());
-        // fromAccount.mHostAuthKeyRecv - id not saved; will be reassigned when restoring
-        // fromAccount.mHostAuthKeySend - id not saved; will be reassigned when restoring
-
-        // Provider Account flags, and how they are mapped.
-        //  FLAGS_NOTIFY_NEW_MAIL       -> mNotifyNewMail
-        //  FLAGS_VIBRATE_ALWAYS        -> mVibrate
-        //  FLAGS_VIBRATE_WHEN_SILENT   -> mVibrateWhenSilent
-        //  DELETE_POLICY_NEVER         -> mDeletePolicy
-        //  DELETE_POLICY_7DAYS
-        //  DELETE_POLICY_ON_DELETE
-        result.setNotifyNewMail(0 !=
-            (fromAccount.getFlags() & EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL));
-        result.setVibrate(0 !=
-            (fromAccount.getFlags() & EmailContent.Account.FLAGS_VIBRATE_ALWAYS));
-        result.setVibrateWhenSilent(0 !=
-            (fromAccount.getFlags() & EmailContent.Account.FLAGS_VIBRATE_WHEN_SILENT));
-        result.setDeletePolicy(fromAccount.getDeletePolicy());
-
-        result.mUuid = fromAccount.getUuid();
-        result.setName(fromAccount.mSenderName);
-        result.setRingtone(fromAccount.mRingtoneUri);
-        result.mProtocolVersion = fromAccount.mProtocolVersion;
-        // int fromAccount.mNewMessageCount = will be reset on next sync
-        result.mSignature = fromAccount.mSignature;
-
-        // Use the existing conversions from HostAuth <-> Uri
-        result.setStoreUri(fromAccount.getStoreUri(context));
-        result.setSenderUri(fromAccount.getSenderUri(context));
-
-        return result;
-    }
-
-    /**
-     * Conversion from legacy account to provider account
-     *
-     * Used for backup/restore.
-     *
-     * @param context application context
-     * @param fromAccount the legacy account to convert to modern format
-     * @return an Account ready to be committed to provider
-     */
-    public static EmailContent.Account makeAccount(Context context, Account fromAccount) {
-
-        EmailContent.Account result = new EmailContent.Account();
-
-        result.setDisplayName(fromAccount.getDescription());
-        result.setEmailAddress(fromAccount.getEmail());
-        result.mSyncKey = null;
-        result.setSyncLookback(fromAccount.getSyncWindow());
-        result.setSyncInterval(fromAccount.getAutomaticCheckIntervalMinutes());
-        // result.mHostAuthKeyRecv;     -- will be set when object is saved
-        // result.mHostAuthKeySend;     -- will be set when object is saved
-        int flags = 0;
-        if (fromAccount.isNotifyNewMail())  flags |= EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL;
-        if (fromAccount.isVibrate())        flags |= EmailContent.Account.FLAGS_VIBRATE_ALWAYS;
-        if (fromAccount.isVibrateWhenSilent())
-            flags |= EmailContent.Account.FLAGS_VIBRATE_WHEN_SILENT;
-        result.setFlags(flags);
-        result.setDeletePolicy(fromAccount.getDeletePolicy());
-        // result.setDefaultAccount();  -- will be set by caller, if needed
-        result.mCompatibilityUuid = fromAccount.getUuid();
-        result.setSenderName(fromAccount.getName());
-        result.setRingtone(fromAccount.getRingtone());
-        result.mProtocolVersion = fromAccount.mProtocolVersion;
-        result.mNewMessageCount = 0;
-        result.mSecuritySyncKey = null;
-        result.mPolicyKey = 0;
-        result.mSignature = fromAccount.mSignature;
-        try {
-            HostAuth recvAuth = result.getOrCreateHostAuthRecv(context);
-            Utility.setHostAuthFromString(recvAuth, fromAccount.getStoreUri());
-        } catch (URISyntaxException e) {
-            result.mHostAuthRecv = new HostAuth();
-            Log.w(Logging.LOG_TAG, e);
-        }
-        try {
-            HostAuth sendAuth = result.getOrCreateHostAuthSend(context);
-            Utility.setHostAuthFromString(sendAuth, fromAccount.getSenderUri());
-        } catch (URISyntaxException e) {
-            result.mHostAuthSend = new HostAuth();
-            Log.w(Logging.LOG_TAG, e);
-        }
-
-        return result;
-    }
 
     /**
      * Infer mailbox type from mailbox name.  Used by MessagingController (for live folder sync).

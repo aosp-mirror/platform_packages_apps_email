@@ -1461,7 +1461,7 @@ public abstract class EmailContent {
          * for desktop shortcuts.
          *
          * <p>We don't want to store _id in shortcuts, because
-         * {@link com.android.email.AccountBackupRestore} won't preserve it.
+         * {@link com.android.email.provider.AccountBackupRestore} won't preserve it.
          */
         public Uri getShortcutSafeUri() {
             return getShortcutSafeUriFromUuid(mCompatibilityUuid);

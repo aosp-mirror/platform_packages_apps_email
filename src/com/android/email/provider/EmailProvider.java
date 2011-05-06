@@ -68,6 +68,7 @@ public class EmailProvider extends ContentProvider {
 
     protected static final String DATABASE_NAME = "EmailProvider.db";
     protected static final String BODY_DATABASE_NAME = "EmailProviderBody.db";
+    protected static final String BACKUP_DATABASE_NAME = "EmailProviderBackup.db";
 
     public static final String ACTION_ATTACHMENT_UPDATED = "com.android.email.ATTACHMENT_UPDATED";
     public static final String ATTACHMENT_UPDATED_EXTRA_FLAGS =
@@ -80,6 +81,10 @@ public class EmailProvider extends ContentProvider {
 
     public static final Uri INTEGRITY_CHECK_URI =
         Uri.parse("content://" + EmailContent.AUTHORITY + "/integrityCheck");
+    public static final Uri ACCOUNT_BACKUP_URI =
+        Uri.parse("content://" + EmailContent.AUTHORITY + "/accountBackup");
+    public static final Uri ACCOUNT_RESTORE_URI =
+        Uri.parse("content://" + EmailContent.AUTHORITY + "/accountRestore");
 
     /** Appended to the notification URI for delete operations */
     public static final String NOTIFICATION_OP_DELETE = "delete";
@@ -1549,12 +1554,144 @@ public class EmailProvider extends ContentProvider {
         return sb.toString();
     }
 
+    /**
+     * Restore a HostAuth from a database, given its unique id
+     * @param db the database
+     * @param id the unique id (_id) of the row
+     * @return a fully populated HostAuth or null if the row does not exist
+     */
+    private HostAuth restoreHostAuth(SQLiteDatabase db, long id) {
+        Cursor c = db.query(HostAuth.TABLE_NAME, HostAuth.CONTENT_PROJECTION,
+                HostAuth.RECORD_ID + "=?", new String[] {Long.toString(id)}, null, null, null);
+        try {
+            if (c.moveToFirst()) {
+                HostAuth hostAuth = new HostAuth();
+                hostAuth.restore(c);
+                return hostAuth;
+            }
+            return null;
+        } finally {
+            c.close();
+        }
+    }
+
+    /**
+     * Copy the Account and HostAuth tables from one database to another
+     * @param fromDatabase the source database
+     * @param toDatabase the destination database
+     * @return the number of accounts copied, or -1 if an error occurred
+     */
+    private int copyAccountTables(SQLiteDatabase fromDatabase, SQLiteDatabase toDatabase) {
+        if (fromDatabase == null || toDatabase == null) return -1;
+        int copyCount = 0;
+        try {
+            // Lock both databases; for the "from" database, we don't want anyone changing it from
+            // under us; for the "to" database, we want to make the operation atomic
+            fromDatabase.beginTransaction();
+            toDatabase.beginTransaction();
+            // Delete anything hanging around here
+            toDatabase.delete(Account.TABLE_NAME, null, null);
+            toDatabase.delete(HostAuth.TABLE_NAME, null, null);
+            // Get our account cursor
+            Cursor c = fromDatabase.query(Account.TABLE_NAME, Account.CONTENT_PROJECTION,
+                    null, null, null, null, null);
+            boolean noErrors = true;
+            try {
+                // Loop through accounts, copying them and associated host auth's
+                while (c.moveToNext()) {
+                    Account account = new Account();
+                    account.restore(c);
+
+                    // Clear security sync key and sync key, as these were specific to the state of
+                    // the account, and we've reset that...
+                    // Clear policy key so that we can re-establish policies from the server
+                    // TODO This is pretty EAS specific, but there's a lot of that around
+                    account.mSecuritySyncKey = null;
+                    account.mSyncKey = null;
+                    account.mPolicyKey = 0;
+
+                    // Copy host auth's and update foreign keys
+                    HostAuth hostAuth = restoreHostAuth(fromDatabase, account.mHostAuthKeyRecv);
+                    // The account might have gone away, though very unlikely
+                    if (hostAuth == null) continue;
+                    account.mHostAuthKeyRecv = toDatabase.insert(HostAuth.TABLE_NAME, null,
+                            hostAuth.toContentValues());
+                    // EAS accounts have no send HostAuth
+                    if (account.mHostAuthKeySend > 0) {
+                        hostAuth = restoreHostAuth(fromDatabase, account.mHostAuthKeySend);
+                        // Belt and suspenders; I can't imagine that this is possible, since we
+                        // checked the validity of the account above, and the database is now locked
+                        if (hostAuth == null) continue;
+                        account.mHostAuthKeySend = toDatabase.insert(HostAuth.TABLE_NAME, null,
+                                hostAuth.toContentValues());
+                    }
+                    // Now, create the account in the "to" database
+                    toDatabase.insert(Account.TABLE_NAME, null, account.toContentValues());
+                    copyCount++;
+                }
+            } catch (SQLiteException e) {
+                noErrors = false;
+                copyCount = -1;
+            } finally {
+                fromDatabase.endTransaction();
+                if (noErrors) {
+                    // Say it's ok to commit
+                    toDatabase.setTransactionSuccessful();
+                }
+                toDatabase.endTransaction();
+                c.close();
+            }
+        } catch (SQLiteException e) {
+            copyCount = -1;
+        }
+        return copyCount;
+    }
+
+    private SQLiteDatabase getBackupDatabase(Context context) {
+        DatabaseHelper helper = new DatabaseHelper(context, BACKUP_DATABASE_NAME);
+        return helper.getWritableDatabase();
+    }
+
+    /**
+     * Backup account data, returning the number of accounts backed up
+     */
+    private int backupAccounts() {
+        Context context = getContext();
+        SQLiteDatabase backupDatabase = getBackupDatabase(context);
+        try {
+            return copyAccountTables(getDatabase(context), backupDatabase);
+        } finally {
+            if (backupDatabase != null) {
+                backupDatabase.close();
+            }
+        }
+    }
+
+    /**
+     * Restore account data, returning the number of accounts restored
+     */
+    private int restoreAccounts() {
+        Context context = getContext();
+        SQLiteDatabase backupDatabase = getBackupDatabase(context);
+        try {
+            return copyAccountTables(backupDatabase, getDatabase(context));
+        } finally {
+            if (backupDatabase != null) {
+                backupDatabase.close();
+            }
+        }
+    }
+
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         // Handle this special case the fastest possible way
         if (uri == INTEGRITY_CHECK_URI) {
             checkDatabases();
             return 0;
+        } else if (uri == ACCOUNT_BACKUP_URI) {
+            return backupAccounts();
+        } else if (uri == ACCOUNT_RESTORE_URI) {
+            return restoreAccounts();
         }
 
         // Notify all existing cursors, except for ACCOUNT_RESET_NEW_COUNT(_ID)

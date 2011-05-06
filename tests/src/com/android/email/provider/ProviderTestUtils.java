@@ -329,11 +329,18 @@ public class ProviderTestUtils extends Assert {
      * Compare two hostauth records for equality
      */
     public static void assertHostAuthEqual(String caller, HostAuth expect, HostAuth actual) {
+        assertHostAuthEqual(caller, expect, actual, true);
+    }
+
+    public static void assertHostAuthEqual(String caller, HostAuth expect, HostAuth actual,
+            boolean testEmailContent) {
         if (expect == actual) {
             return;
         }
 
-        assertEmailContentEqual(caller, expect, actual);
+        if (testEmailContent) {
+            assertEmailContentEqual(caller, expect, actual);
+        }
         assertEquals(caller + " mProtocol", expect.mProtocol, actual.mProtocol);
         assertEquals(caller + " mAddress", expect.mAddress, actual.mAddress);
         assertEquals(caller + " mPort", expect.mPort, actual.mPort);

@@ -16,10 +16,10 @@
 
 package com.android.email.activity;
 
-import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.MailService;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -166,7 +166,7 @@ public class Welcome extends Activity {
         // We're going to live with this for the short term and replace with something
         // smarter.  Long-term fix:  Move this, and most of the code below, to an AsyncTask
         // and do the DB work in a thread.  Then post handler to finish() as appropriate.
-        AccountBackupRestore.restoreAccountsIfNeeded(this);
+        AccountBackupRestore.restoreIfNeeded(this);
 
         // Because the app could be reloaded (for debugging, etc.), we need to make sure that
         // ExchangeService gets a chance to start.  There is no harm to starting it if it has

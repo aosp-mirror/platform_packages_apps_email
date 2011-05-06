@@ -16,13 +16,13 @@
 
 package com.android.email.service;
 
-import com.android.email.AccountBackupRestore;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.SingleRunningTask;
+import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent;
@@ -55,7 +55,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Background service for refreshing non-push email accounts.
@@ -192,7 +191,7 @@ public class MailService extends Service {
         sMailService = this;
 
         // Restore accounts, if it has not happened already
-        AccountBackupRestore.restoreAccountsIfNeeded(this);
+        AccountBackupRestore.restoreIfNeeded(this);
 
         EmailAsyncTask.runAsyncParallel(new Runnable() {
             @Override
@@ -825,7 +824,7 @@ public class MailService extends Service {
      * @param context the caller's context
      */
     public static void accountDeleted(Context context) {
-        AccountBackupRestore.backupAccounts(context);
+        AccountBackupRestore.backup(context);
         SecurityPolicy.getInstance(context).reducePolicies();
         Email.setNotifyUiAccountsChanged(true);
         MailService.actionReschedule(context);
