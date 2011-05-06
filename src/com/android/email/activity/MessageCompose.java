@@ -64,11 +64,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,6 +77,8 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -141,9 +143,19 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private Message mDraft = new Message();
 
     /**
+     * A collection of attachments the user is currently wanting to attach to this message.
+     */
+    private final ArrayList<Attachment> mAttachments = new ArrayList<Attachment>();
+
+    /**
      * The source message for a reply, reply all, or forward. This is asynchronously loaded.
      */
     private Message mSource;
+
+    /**
+     * The attachments associated with the source attachments. Usually included in a forward.
+     */
+    private final ArrayList<Attachment> mSourceAttachments = new ArrayList<Attachment>();
 
     /**
      * The action being handled by this activity from the {@link Intent}.
@@ -158,7 +170,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private EditText mSubjectView;
     private EditText mMessageContentView;
     private View mAttachmentContainer;
-    private LinearLayout mAttachments;
+    private ViewGroup mAttachmentContentView;
     private View mQuotedTextBar;
     private CheckBox mIncludeQuotedTextCheckBox;
     private WebView mQuotedText;
@@ -527,7 +539,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mCcBccContainer = UiUtilities.getView(this, R.id.cc_bcc_container);
         mSubjectView = UiUtilities.getView(this, R.id.subject);
         mMessageContentView = UiUtilities.getView(this, R.id.message_content);
-        mAttachments = UiUtilities.getView(this, R.id.attachments);
+        mAttachmentContentView = UiUtilities.getView(this, R.id.attachments);
         mAttachmentContainer = UiUtilities.getView(this, R.id.attachment_container);
         mQuotedTextBar = UiUtilities.getView(this, R.id.quoted_text_bar);
         mIncludeQuotedTextCheckBox = UiUtilities.getView(this, R.id.include_quoted_text);
@@ -635,8 +647,17 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 message.mSourceKey = body.mSourceKey;
 
                 mDraft = message;
-                loadAttachments(message.mId, mAccount);
                 processDraftMessage(message, restoreViews);
+
+                // Load attachments related to the draft.
+                loadAttachments(message.mId, mAccount, new AttachmentLoadedCallback() {
+                    @Override
+                    public void onAttachmentLoaded(Attachment[] attachments) {
+                        for (Attachment attachment: attachments) {
+                            addAttachment(attachment);
+                        }
+                    }
+                });
             }
         }).executeParallel((Void[]) null);
     }
@@ -684,7 +705,25 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mSource = message;
 
                 if (isForward()) {
-                    loadAttachments(message.mId, mAccount);
+                    loadAttachments(message.mId, mAccount, new AttachmentLoadedCallback() {
+                        @Override
+                        public void onAttachmentLoaded(Attachment[] attachments) {
+                            final boolean supportsSmartForward =
+                                (mAccount.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0;
+
+                            // Process the attachments to have the appropriate smart forward flags.
+                            for (Attachment attachment : attachments) {
+                                if (supportsSmartForward) {
+                                    attachment.mFlags |= Attachment.FLAG_SMART_FORWARD;
+                                }
+                                mSourceAttachments.add(attachment);
+                            }
+                            if (processSourceMessageAttachments(
+                                    mAttachments, mSourceAttachments, true)) {
+                                updateAttachmentUi();
+                            }
+                        }
+                    });
                 }
                 processSourceMessage(mSource, mAccount);
             }
@@ -794,7 +833,18 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private void loadAttachments(final long messageId, final Account account) {
+    private interface AttachmentLoadedCallback {
+        /**
+         * Handles completion of the loading of a set of attachments.
+         * Callback will always happen on the main thread.
+         */
+        void onAttachmentLoaded(Attachment[] attachment);
+    }
+
+    private void loadAttachments(
+            final long messageId,
+            final Account account,
+            final AttachmentLoadedCallback callback) {
         new EmailAsyncTask<Void, Void, Attachment[]>(mTaskTracker) {
             @Override
             protected Attachment[] doInBackground(Void... params) {
@@ -804,27 +854,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             @Override
             protected void onPostExecute(Attachment[] attachments) {
                 if (attachments == null) {
-                    return;
+                    attachments = new Attachment[0];
                 }
-
-                final boolean supportsSmartForward =
-                    (account.mFlags & Account.FLAGS_SUPPORTS_SMART_FORWARD) != 0;
-
-                for (Attachment attachment : attachments) {
-                    if (supportsSmartForward && isForward()) {
-                        attachment.mFlags |= Attachment.FLAG_SMART_FORWARD;
-                    }
-                    // Note allowDelete is set in two cases:
-                    // 1. First time a message (w/ attachments) is forwarded,
-                    //    where action == ACTION_FORWARD
-                    // 2. 1 -> Save -> Reopen, where action == EDIT_DRAFT,
-                    //    but FLAG_SMART_FORWARD is already set at 1.
-                    // Even if the account supports smart-forward, attachments added
-                    // manually are still removable.
-                    final boolean allowDelete =
-                            (attachment.mFlags & Attachment.FLAG_SMART_FORWARD) == 0;
-                    addAttachment(attachment, allowDelete);
-                }
+                callback.onAttachmentLoaded(attachments);
             }
         }.executeParallel((Void[]) null);
     }
@@ -988,15 +1020,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private Attachment[] getAttachmentsFromUI() {
-        int count = mAttachments.getChildCount();
-        Attachment[] attachments = new Attachment[count];
-        for (int i = 0; i < count; ++i) {
-            attachments[i] = (Attachment) mAttachments.getChildAt(i).getTag();
-        }
-        return attachments;
-    }
-
     private class SendOrSaveMessageTask extends EmailAsyncTask<Void, Void, Long> {
         private final boolean mSend;
         private final long mTaskId;
@@ -1020,8 +1043,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         @Override
         protected Long doInBackground(Void... params) {
             synchronized (mDraft) {
-                final Attachment[] attachments = getAttachmentsFromUI();
-                updateMessage(mDraft, mAccount, attachments.length > 0, mSend);
+                updateMessage(mDraft, mAccount, mAttachments.size() > 0, mSend);
                 ContentResolver resolver = getContentResolver();
                 if (mDraft.isSaved()) {
                     // Update the message
@@ -1042,7 +1064,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 }
                 // For any unloaded attachment, set the flag saying we need it loaded
                 boolean hasUnloadedAttachments = false;
-                for (Attachment attachment : attachments) {
+                for (Attachment attachment : mAttachments) {
                     if (attachment.mContentUri == null &&
                             ((attachment.mFlags & Attachment.FLAG_SMART_FORWARD) == 0)) {
                         attachment.mFlags |= Attachment.FLAG_DOWNLOAD_FORWARD;
@@ -1260,7 +1282,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return attachment;
     }
 
-    private void addAttachment(Attachment attachment, boolean allowDelete) {
+    private void addAttachment(Attachment attachment) {
         // Before attaching the attachment, make sure it meets any other pre-attach criteria
         if (attachment.mSize > AttachmentUtilities.MAX_ATTACHMENT_UPLOAD_SIZE) {
             Toast.makeText(this, R.string.message_compose_attachment_size, Toast.LENGTH_LONG)
@@ -1268,32 +1290,50 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return;
         }
 
-        View view = getLayoutInflater().inflate(R.layout.message_compose_attachment,
-                mAttachments, false);
-        TextView nameView = (TextView) UiUtilities.getView(view, R.id.attachment_name);
-        ImageButton delete = (ImageButton) UiUtilities.getView(view, R.id.attachment_delete);
-        TextView sizeView = (TextView) UiUtilities.getView(view, R.id.attachment_size);
+        mAttachments.add(attachment);
+        updateAttachmentUi();
+    }
 
-        nameView.setText(attachment.mFileName);
-        sizeView.setText(UiUtilities.formatSize(this, attachment.mSize));
-        if (allowDelete) {
-            delete.setOnClickListener(this);
-            delete.setTag(view);
-        } else {
-            delete.setVisibility(View.INVISIBLE);
+    private void updateAttachmentUi() {
+        mAttachmentContentView.removeAllViews();
+
+        for (Attachment attachment : mAttachments) {
+            // Note: allowDelete is set in two cases:
+            // 1. First time a message (w/ attachments) is forwarded,
+            //    where action == ACTION_FORWARD
+            // 2. 1 -> Save -> Reopen
+            //    but FLAG_SMART_FORWARD is already set at 1.
+            // Even if the account supports smart-forward, attachments added
+            // manually are still removable.
+            final boolean allowDelete = (attachment.mFlags & Attachment.FLAG_SMART_FORWARD) == 0;
+
+            View view = getLayoutInflater().inflate(R.layout.message_compose_attachment,
+                    mAttachmentContentView, false);
+            TextView nameView = UiUtilities.getView(view, R.id.attachment_name);
+            ImageButton delete = UiUtilities.getView(view, R.id.attachment_delete);
+            TextView sizeView = UiUtilities.getView(view, R.id.attachment_size);
+
+            nameView.setText(attachment.mFileName);
+            sizeView.setText(UiUtilities.formatSize(this, attachment.mSize));
+            if (allowDelete) {
+                delete.setOnClickListener(this);
+                delete.setTag(view);
+            } else {
+                delete.setVisibility(View.INVISIBLE);
+            }
+            view.setTag(attachment);
+            mAttachmentContentView.addView(view);
         }
-        view.setTag(attachment);
-        mAttachments.addView(view);
         updateAttachmentContainer();
     }
 
     private void updateAttachmentContainer() {
-        mAttachmentContainer.setVisibility(mAttachments.getChildCount() == 0
+        mAttachmentContainer.setVisibility(mAttachmentContentView.getChildCount() == 0
                 ? View.GONE : View.VISIBLE);
     }
 
     private void addAttachmentFromUri(Uri uri) {
-        addAttachment(loadAttachmentInfo(uri), true);
+        addAttachment(loadAttachmentInfo(uri));
     }
 
     /**
@@ -1305,7 +1345,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         final String mimeType = attachment.mMimeType;
         if (!TextUtils.isEmpty(mimeType) && MimeUtility.mimeTypeMatches(mimeType,
                 AttachmentUtilities.ACCEPTABLE_ATTACHMENT_SEND_INTENT_TYPES)) {
-            addAttachment(attachment, true);
+            addAttachment(attachment);
         }
     }
 
@@ -1328,7 +1368,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
         switch (view.getId()) {
             case R.id.attachment_delete:
-                onDeleteAttachment(view); // Needs a view; can't be a menu item
+                onDeleteAttachmentIconClicked(view);
                 break;
         }
     }
@@ -1342,17 +1382,23 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    private void onDeleteAttachment(View delButtonView) {
-        /*
-         * The view is the delete button, and we have previously set the tag of
-         * the delete button to the view that owns it. We don't use parent because the
-         * view is very complex and could change in the future.
-         */
+    private void onDeleteAttachmentIconClicked(View delButtonView) {
         View attachmentView = (View) delButtonView.getTag();
         Attachment attachment = (Attachment) attachmentView.getTag();
-        mAttachments.removeView(attachmentView);
-        updateAttachmentContainer();
-        if (attachment.mMessageKey == mDraft.mId && attachment.isSaved()) {
+        deleteAttachment(attachment);
+        updateAttachmentUi();
+    }
+
+    /**
+     * Removes an attachment from the current message.
+     * If the attachment has previous been saved in the db (i.e. this is a draft message which
+     * has previously been saved), then the draft is deleted from the db.
+     *
+     * This does not update the UI to remove the attachment view.
+     */
+    private void deleteAttachment(Attachment attachment) {
+        mAttachments.remove(attachment);
+        if ((attachment.mMessageKey == mDraft.mId) && attachment.isSaved()) {
             final long attachmentId = attachment.mId;
             EmailAsyncTask.runAsyncParallel(new Runnable() {
                 @Override
@@ -1531,7 +1577,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * When we are launched with an intent that includes a mailto: URI, we can actually
      * gather quite a few of our message fields from it.
      *
-     * @mailToString the href (which must start with "mailto:").
+     * @param mailToString the href (which must start with "mailto:").
      */
     private void initializeFromMailTo(String mailToString) {
 
@@ -1686,6 +1732,51 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
         showCcBccFieldsIfFilled();
         setNewMessageFocus();
+    }
+
+    /**
+     * Processes the source attachments and ensures they're either included or excluded from
+     * a list of active attachments. This can be used to add attachments for a forwarded message, or
+     * to remove them if going from a "Forward" to a "Reply"
+     * Uniqueness is based on filename.
+     *
+     * @param current the list of active attachments on the current message
+     * @param sourceAttachments the list of attachments related with the source message
+     * @param include whether or not the sourceMessages should be included or excluded from the
+     *     current list of active attachments
+     * @return whether or not the current attachments were modified
+     */
+    @VisibleForTesting
+    boolean processSourceMessageAttachments(
+            List<Attachment> current, List<Attachment> sourceAttachments, boolean include) {
+
+        // Build a map of filename to the active attachments.
+        HashMap<String, Attachment> currentNames = new HashMap<String, Attachment>();
+        for (Attachment attachment : current) {
+            currentNames.put(attachment.mFileName, attachment);
+        }
+
+        boolean dirty = false;
+        if (include) {
+            // Needs to make sure it's in the list.
+            for (Attachment attachment : sourceAttachments) {
+                if (!currentNames.containsKey(attachment.mFileName)) {
+                    current.add(attachment);
+                    dirty = true;
+                }
+            }
+        } else {
+            // Need to remove the source attachments.
+            HashSet<String> sourceNames = new HashSet<String>();
+            for (Attachment attachment : sourceAttachments) {
+                if (currentNames.containsKey(attachment.mFileName)) {
+                    deleteAttachment(currentNames.get(attachment.mFileName));
+                    dirty = true;
+                }
+            }
+        }
+
+        return dirty;
     }
 
     /**

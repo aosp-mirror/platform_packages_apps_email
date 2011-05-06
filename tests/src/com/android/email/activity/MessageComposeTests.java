@@ -24,7 +24,9 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.google.android.collect.Lists;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -33,10 +35,13 @@ import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
+
+import java.util.ArrayList;
 
 
 /**
@@ -973,6 +978,40 @@ public class MessageComposeTests
         getInstrumentation().sendStringSync(" ");
         String result = mToView.getText().toString();
         assertEquals(expect, result);
+    }
 
-     }
+
+    private static int sAttachmentId = 1;
+    private Attachment makeAttachment(String filename) {
+        Attachment a = new Attachment();
+        a.mId = sAttachmentId++;
+        a.mFileName = filename;
+        return a;
+    }
+
+    @SmallTest
+    public void testSourceAttachmentsProcessing() {
+        // Attachments currently in the draft.
+        ArrayList<Attachment> currentAttachments = Lists.newArrayList(
+                makeAttachment("a.png"), makeAttachment("b.png"));
+
+        // Attachments in the message being forwarded.
+        Attachment c = makeAttachment("c.png");
+        Attachment d = makeAttachment("d.png");
+        ArrayList<Attachment> sourceAttachments = Lists.newArrayList(c, d);
+
+        // Ensure the source attachments gets added.
+        final MessageCompose a = getActivity();
+        a.processSourceMessageAttachments(currentAttachments, sourceAttachments, true /*include*/);
+
+        assertEquals(4, currentAttachments.size());
+        assertTrue(currentAttachments.contains(c));
+        assertTrue(currentAttachments.contains(d));
+
+        // Now ensure they can be removed (e.g. in the case of switching from forward to reply).
+        a.processSourceMessageAttachments(currentAttachments, sourceAttachments, false /*include*/);
+        assertEquals(2, currentAttachments.size());
+        assertFalse(currentAttachments.contains(c));
+        assertFalse(currentAttachments.contains(d));
+    }
 }

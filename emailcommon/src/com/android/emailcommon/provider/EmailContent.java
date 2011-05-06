@@ -142,7 +142,7 @@ public abstract class EmailContent {
         if (c == null) throw new ProviderUnavailableException();
         try {
             if (c.moveToFirst()) {
-                return (T)getContent(c, klass);
+                return getContent(c, klass);
             } else {
                 return null;
             }
@@ -1161,7 +1161,7 @@ public abstract class EmailContent {
          * that generating a brand-new account object.
          */
         public void refresh(Context context) {
-            Cursor c = context.getContentResolver().query(this.getUri(), Account.CONTENT_PROJECTION,
+            Cursor c = context.getContentResolver().query(getUri(), Account.CONTENT_PROJECTION,
                     null, null, null);
             try {
                 c.moveToFirst();
@@ -1955,7 +1955,8 @@ public abstract class EmailContent {
         public static final String ACCOUNT_KEY = "accountKey";
     }
 
-    public static final class Attachment extends EmailContent implements AttachmentColumns {
+    public static final class Attachment extends EmailContent
+            implements AttachmentColumns, Parcelable {
         public static final String TABLE_NAME = "Attachment";
         @SuppressWarnings("hiding")
         public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/attachment");
@@ -2036,7 +2037,7 @@ public abstract class EmailContent {
          * @param id
          * @return the instantiated Attachment
          */
-        public static Attachment restoreAttachmentWithId (Context context, long id) {
+        public static Attachment restoreAttachmentWithId(Context context, long id) {
             return EmailContent.restoreContentWithId(context, Attachment.class,
                     Attachment.CONTENT_URI, Attachment.CONTENT_PROJECTION, id);
         }
@@ -2133,10 +2134,12 @@ public abstract class EmailContent {
             return values;
         }
 
+        @Override
         public int describeContents() {
              return 0;
         }
 
+        @Override
         public void writeToParcel(Parcel dest, int flags) {
             // mBaseUri is not parceled
             dest.writeLong(mId);
@@ -2183,7 +2186,7 @@ public abstract class EmailContent {
          }
 
         public static final Parcelable.Creator<EmailContent.Attachment> CREATOR
-        = new Parcelable.Creator<EmailContent.Attachment>() {
+                = new Parcelable.Creator<EmailContent.Attachment>() {
             public EmailContent.Attachment createFromParcel(Parcel in) {
                 return new EmailContent.Attachment(in);
             }
