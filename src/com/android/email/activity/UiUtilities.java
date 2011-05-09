@@ -66,6 +66,18 @@ public class UiUtilities {
         }
     }
 
+    /** Generics version of {@link Activity#findViewById} */
+    @SuppressWarnings("unchecked")
+    public static <T extends View> T getViewOrNull(Activity parent, int viewId) {
+        return (T) parent.findViewById(viewId);
+    }
+
+    /** Generics version of {@link View#findViewById} */
+    @SuppressWarnings("unchecked")
+    public static <T extends View> T getViewOrNull(View parent, int viewId) {
+        return (T) parent.findViewById(viewId);
+    }
+
     /**
      * Same as {@link Activity#findViewById}, but crashes if there's no view.
      */
