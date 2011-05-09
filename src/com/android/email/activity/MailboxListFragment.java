@@ -82,13 +82,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static final String ARG_ACCOUNT_ID = "accountId";
     private static final String ARG_PARENT_MAILBOX_ID = "parentMailboxId";
 
-    // TODO Clean up usage of mailbox ID. We use both '-1' and '0' to mean "not selected". To
-    // confuse matters, the database uses '-1' for "no mailbox" and '0' for "invalid mailbox".
-    // Once legacy accounts properly support nested folders, we need to make sure we're only
-    // ever using '-1'.
-    // STOPSHIP Change value to '-1' when legacy protocols support folders
-    private final static long DEFAULT_MAILBOX_ID = 0;
-
     /** Timer to auto-expand folder lists during drag-n-drop */
     private static final Timer sDragTimer = new Timer();
     /** Rectangle used for hit testing children */
@@ -110,7 +103,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static Drawable sDropActiveDrawable;
 
     private long mAccountId = -1;
-    private long mParentMailboxId = DEFAULT_MAILBOX_ID;
+    private long mParentMailboxId = Mailbox.PARENT_KEY_NONE;
     private long mSelectedMailboxId = -1;
 
     // True if a drag is currently in progress
@@ -154,9 +147,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
          *          The ID of the account for which a mailbox was selected
          * @param mailboxId
          *          The ID of the selected mailbox. This may be real mailbox ID [e.g. a number > 0],
-         *          or a special mailbox ID
-         *          [e.g. {@link #ROOT_PARENT_MAILBOX_ID} for "All Folders" to open
-         *          the root folders, {@link Mailbox#QUERY_ALL_INBOXES}, etc...].
+         *          or a combined mailbox ID [e.g. {@link Mailbox#QUERY_ALL_INBOXES}].
          * @param navigate navigate to the mailbox.
          * @param dragDrop true if D&D is in progress.
          */
@@ -289,10 +280,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         if (accountId == -1) {
             throw new InvalidParameterException();
-        }
-        // Normalize -- STOPSHIP should be removed when DEFAULT_MAILBOX_ID becomes -1.
-        if (parentMailboxId == Mailbox.PARENT_KEY_NONE) {
-            parentMailboxId = DEFAULT_MAILBOX_ID;
         }
 
         mAccountId = accountId;
