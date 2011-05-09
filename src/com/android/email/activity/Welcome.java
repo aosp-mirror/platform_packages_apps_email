@@ -25,6 +25,7 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Activity;
 import android.content.Context;
@@ -77,11 +78,13 @@ public class Welcome extends Activity {
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     /**
-     * @return true if the two-pane activity should be used on the current configuration.
+     * @return true if the obsolete phone UI should be used.
+     *
+     * STOPSHIP remove this. temporary support for the old activities.
      */
-    public static boolean useTwoPane(Context context) {
+    public static boolean useOldPhoneActivities(Context context) {
         final int screenLayout = context.getResources().getConfiguration().screenLayout;
-        return (screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) != 0;
+        return (screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) == 0;
     }
 
     /**
@@ -190,7 +193,8 @@ public class Welcome extends Activity {
      *
      * if {@code account} is -1, open the default account.
      */
-    /* package */ static class MainActivityLauncher extends EmailAsyncTask<Void, Void, Void> {
+    @VisibleForTesting
+    static class MainActivityLauncher extends EmailAsyncTask<Void, Void, Void> {
         private final Welcome mFromActivity;
         private final int mDebugPaneMode;
         private final long mAccountId;
@@ -217,7 +221,8 @@ public class Welcome extends Activity {
             return mMessageId != -1;
         }
 
-        /* package */ static long resolveAccountId(Context context, long accountId, String uuid) {
+        @VisibleForTesting
+        static long resolveAccountId(Context context, long accountId, String uuid) {
             if (!TextUtils.isEmpty(uuid)) {
                 accountId = Account.getAccountIdFromUuid(context, uuid);
             }
@@ -239,19 +244,30 @@ public class Welcome extends Activity {
             } else {
                 final long accountId = resolveAccountId(mFromActivity, mAccountId, mAccountUuid);
 
-                final boolean useTwoPane = (mDebugPaneMode == 2)
-                        || (useTwoPane(mFromActivity) && mDebugPaneMode == 0);
+                // Use the old phone activities on x-large devices, only when the debug pane mode
+                // is not specified.
+                // If the debug pane mode is specified, always use EmailActivity.
+                // STOPSHIP remove this. temporary support for the old activities.
+                final boolean useOldPhoneActivities = mDebugPaneMode == 0
+                        && useOldPhoneActivities(mFromActivity);
 
-                if (useTwoPane) {
+                if (!useOldPhoneActivities) {
+                    final Intent i;
                     if (isMessageSelected()) {
-                        EmailActivity.actionOpenMessage(mFromActivity, accountId, mMailboxId,
-                                mMessageId);
+                        i = EmailActivity.createOpenMessageIntent(mFromActivity, accountId,
+                                mMailboxId, mMessageId);
                     } else if (isMailboxSelected()) {
-                        EmailActivity.actionOpenMailbox(mFromActivity, accountId, mMailboxId);
+                        i = EmailActivity.createOpenMailboxIntent(mFromActivity, accountId,
+                                    mMailboxId);
                     } else {
-                        EmailActivity.actionOpenAccount(mFromActivity, accountId);
+                        i = EmailActivity.createOpenAccountIntent(mFromActivity, accountId);
                     }
+                    if (mDebugPaneMode != 0) {
+                        EmailActivity.forcePaneMode(i, mDebugPaneMode == 2);
+                    }
+                    mFromActivity.startActivity(i);
                 } else {
+                    // STOPSHIP remove this. temporary support for the old activities.
                     if (isMessageSelected()) {
                         MessageView.actionView(mFromActivity, mMessageId, mMailboxId);
                     } else if (isMailboxSelected()) {

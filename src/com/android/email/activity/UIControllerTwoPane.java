@@ -41,22 +41,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.Stack;
 
 /**
  * UI Controller for x-large devices.  Supports a multi-pane layout.
- *
- * Note: Always use {@link #commitFragmentTransaction} to commit fragment transactions.  Currently
- * we use synchronous transactions only, but we may want to switch back to asynchronous later.
- *
- * TODO: Test it.  It's testable if we implement MockFragmentTransaction, which may be too early
- * to do so at this point.  (API may not be stable enough yet.)
- *
- * TODO Consider extracting out a separate class to manage the action bar
  */
-class UIControllerTwoPane implements
+class UIControllerTwoPane extends UIControllerBase implements
         MailboxFinder.Callback,
         ThreePaneLayout.Callback,
         MailboxListFragment.Callback,
@@ -71,12 +62,6 @@ class UIControllerTwoPane implements
     /* package */ static final int MAILBOX_REFRESH_MIN_INTERVAL = 30 * 1000; // in milliseconds
     /* package */ static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
 
-    /** No account selected */
-    static final long NO_ACCOUNT = -1;
-    /** No mailbox selected */
-    static final long NO_MAILBOX = -1;
-    /** No message selected */
-    static final long NO_MESSAGE = -1;
     /** Current account id */
     private long mAccountId = NO_ACCOUNT;
 
@@ -117,7 +102,6 @@ class UIControllerTwoPane implements
 
     private MailboxFinder mMailboxFinder;
 
-    private final RefreshManager mRefreshManager;
     private final RefreshListener mRefreshListener = new RefreshListener();
     private MessageOrderManager mOrderManager;
     private final MessageOrderManagerCallback mMessageOrderManagerCallback =
@@ -139,34 +123,20 @@ class UIControllerTwoPane implements
      */
     private int mCurrentMailboxUnreadCount;
 
-    /**
-     * List of fragments that are restored by the framework while the activity is being re-created
-     * for configuration changes (e.g. screen rotation).  We'll install them later when the activity
-     * is created in {@link #installRestoredFragments()}.
-     */
-    private final ArrayList<Fragment> mRestoredFragments = new ArrayList<Fragment>();
-
-    /**
-     * Whether fragment installation should be hold.
-     * We hold installing fragments until {@link #installRestoredFragments()} is called.
-     */
-    private boolean mHoldFragmentInstallation = true;
-
-    /** The owner activity */
-    private final EmailActivity mActivity;
-
-    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
-
     public UIControllerTwoPane(EmailActivity activity) {
-        mActivity = activity;
-        mRefreshManager = RefreshManager.getInstance(mActivity);
+        super(activity);
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.email_activity_two_pane;
     }
 
     // MailboxFinder$Callback
     @Override
     public void onAccountNotFound() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " onAccountNotFound()");
+            Log.d(Logging.LOG_TAG, this + " onAccountNotFound()");
         }
         // Shouldn't happen
     }
@@ -174,7 +144,7 @@ class UIControllerTwoPane implements
     @Override
     public void onAccountSecurityHold(long accountId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " onAccountSecurityHold()");
+            Log.d(Logging.LOG_TAG, this + " onAccountSecurityHold()");
         }
         mActivity.startActivity(AccountSecurity.actionUpdateSecurityIntent(mActivity, accountId,
                 true));
@@ -183,7 +153,7 @@ class UIControllerTwoPane implements
     @Override
     public void onMailboxFound(long accountId, long mailboxId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " onMailboxFound()");
+            Log.d(Logging.LOG_TAG, this + " onMailboxFound()");
         }
         updateMessageList(mailboxId, true, true);
     }
@@ -191,7 +161,7 @@ class UIControllerTwoPane implements
     @Override
     public void onMailboxNotFound(long accountId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " onMailboxNotFound()");
+            Log.d(Logging.LOG_TAG, this + " onMailboxNotFound()");
         }
         // TODO: handle more gracefully.
         Log.e(Logging.LOG_TAG, "unable to find mailbox for account " + accountId);
@@ -411,9 +381,10 @@ class UIControllerTwoPane implements
      * (Due to the complexity regarding class/activity initialization order, we can't do this in
      * the constructor.)  TODO this should no longer be true when we merge activities.
      */
+    @Override
     public void onActivityViewReady() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " onActivityViewReady");
+            Log.d(Logging.LOG_TAG, this + " onActivityViewReady");
         }
         mActionBarController = new ActionBarController(mActivity, mActivity.getLoaderManager(),
                 mActivity.getActionBar(), mActionBarControllerCallback);
@@ -431,6 +402,7 @@ class UIControllerTwoPane implements
      *
      * @see #getActualAccountId()
      */
+    @Override
     public long getUIAccountId() {
         return mAccountId;
     }
@@ -441,6 +413,7 @@ class UIControllerTwoPane implements
      *
      * @see #getUIAccountId()
      */
+    @Override
     public long getActualAccountId() {
         return mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW ? NO_ACCOUNT : mAccountId;
     }
@@ -450,13 +423,29 @@ class UIControllerTwoPane implements
      * IMPORTANT: Do not confuse this with {@link #mMailboxListMailboxId} which is the id used
      * for the mailbox list. The two may be different.
      */
-    public long getMessageListMailboxId() {
+    private long getMessageListMailboxId() {
         return (mMessageListFragment == null)
                 ? Mailbox.NO_MAILBOX
                 : mMessageListFragment.getMailboxId();
     }
 
-    public long getMessageId() {
+    /*
+     * STOPSHIP Remove this -- see the base class method.
+     */
+    @Override
+    public long getMailboxSettingsMailboxId() {
+        return getMessageListMailboxId();
+    }
+
+    /*
+     * STOPSHIP Remove this -- see the base class method.
+     */
+    @Override
+    public long getSearchMailboxId() {
+        return getMessageListMailboxId();
+    }
+
+    private long getMessageId() {
         return mMessageId;
     }
 
@@ -496,85 +485,54 @@ class UIControllerTwoPane implements
     /**
      * Called by the host activity at the end of {@link Activity#onCreate}.
      */
+    @Override
     public void onActivityCreated() {
+        super.onActivityCreated();
         mRefreshManager.registerListener(mRefreshListener);
         mActionBarController.onActivityCreated();
     }
 
-    /**
-     * Install all the fragments kept in {@link #mRestoredFragments}.
-     *
-     * Must be called at the end of {@link EmailActivity#onCreate}.
-     */
-    public void installRestoredFragments() {
-        mHoldFragmentInstallation = false;
-
-        // Install all the fragments restored by the framework.
-        for (Fragment fragment : mRestoredFragments) {
-            installFragment(fragment);
-        }
-        mRestoredFragments.clear();
-    }
-
-    /**
-     * Called by {@link EmailActivity} when a {@link Fragment} is attached.
-     *
-     * If the activity has already been created, we initialize the fragment here.  Otherwise we
-     * keep the fragment in {@link #mRestoredFragments} and initialize it after the activity's
-     * onCreate.
-     */
-    public void onAttachFragment(Fragment fragment) {
-        if (mHoldFragmentInstallation) {
-            // Fragment being restored by the framework during the activity recreation.
-            mRestoredFragments.add(fragment);
-            return;
-        }
-        installFragment(fragment);
-    }
-
-    /**
-     * Called from {@link EmailActivity#onStart}.
-     */
-    public void onStart() {
+    /** {@inheritDoc} */
+    @Override
+    public void onActivityStart() {
+        super.onActivityStart();
         if (isMessageSelected()) {
             updateMessageOrderManager();
         }
     }
 
-    /**
-     * Called from {@link EmailActivity#onResume}.
-     */
-    public void onResume() {
+    /** {@inheritDoc} */
+    @Override
+    public void onActivityResume() {
+        super.onActivityResume();
         refreshActionBar();
     }
 
-    /**
-     * Called from {@link EmailActivity#onPause}.
-     */
-    public void onPause() {
+    /** {@inheritDoc} */
+    @Override
+    public void onActivityPause() {
+        super.onActivityPause();
     }
 
-    /**
-     * Called from {@link EmailActivity#onStop}.
-     */
-    public void onStop() {
+    /** {@inheritDoc} */
+    @Override
+    public void onActivityStop() {
         stopMessageOrderManager();
+        super.onActivityStop();
     }
 
-    /**
-     * Called from {@link EmailActivity#onDestroy}.
-     */
-    public void onDestroy() {
-        mHoldFragmentInstallation = true; // No more fragment installation.
-        mTaskTracker.cancellAllInterrupt();
+    /** {@inheritDoc} */
+    @Override
+    public void onActivityDestroy() {
         closeMailboxFinder();
         mRefreshManager.unregisterListener(mRefreshListener);
+        super.onActivityDestroy();
     }
 
+    /** {@inheritDoc} */
+    @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " onSaveInstanceState");
-        }
+        super.onSaveInstanceState(outState);
         outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mAccountId);
         outState.putLong(BUNDLE_KEY_MAILBOX_ID, mMailboxListMailboxId);
         outState.putLong(BUNDLE_KEY_MESSAGE_ID, mMessageId);
@@ -585,10 +543,10 @@ class UIControllerTwoPane implements
         }
     }
 
+    /** {@inheritDoc} */
+    @Override
     public void restoreInstanceState(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " restoreInstanceState");
-        }
+        super.restoreInstanceState(savedInstanceState);
         mAccountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, NO_ACCOUNT);
         mMailboxListMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, NO_MAILBOX);
         mMessageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, NO_MESSAGE);
@@ -605,7 +563,9 @@ class UIControllerTwoPane implements
         // This probably means we need to start MailboxFinder if mMailboxId == -1.
     }
 
-    private void installFragment(Fragment fragment) {
+    @Override
+    void installFragment(Fragment fragment) {
+        super.installFragment(fragment);
         if (fragment instanceof MailboxListFragment) {
             mMailboxListFragment = (MailboxListFragment) fragment;
             mMailboxListFragment.setCallback(this);
@@ -647,19 +607,12 @@ class UIControllerTwoPane implements
         return ft;
     }
 
-    private void commitFragmentTransaction(FragmentTransaction ft) {
-        ft.commit();
-        mActivity.getFragmentManager().executePendingTransactions();
-    }
-
     /**
-     * Show the default view for the account.
+     * {@inheritDoc}
      *
      * On two-pane, it's the account's root mailboxes on the left pane with Inbox on the right pane.
-     *
-     * @param accountId ID of the account to load.  Can be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
-     *     Must never be {@link #NO_ACCOUNT}.
      */
+    @Override
     public void openAccount(long accountId) {
         mMailboxStack.clear();
         open(accountId, NO_MAILBOX, NO_MESSAGE);
@@ -680,17 +633,12 @@ class UIControllerTwoPane implements
     }
 
     /**
-     * Loads the given account and optionally selects the given mailbox and message.  Used to open
-     * a particular view at a request from outside of the activity, such as the widget.
-     *
-     * @param accountId ID of the account to load.  Can be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
-     *     Must never be {@link #NO_ACCOUNT}.
-     * @param mailboxId ID of the mailbox to load. If {@link #NO_MAILBOX}, load the account's inbox.
-     * @param messageId ID of the message to load. If {@link #NO_MESSAGE}, do not open a message.
+     * {@inheritDoc}
      */
+    @Override
     public void open(long accountId, long mailboxId, long messageId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " open accountId=" + accountId
+            Log.d(Logging.LOG_TAG, this + " open accountId=" + accountId
                     + " mailboxId=" + mailboxId + " messageId=" + messageId);
         }
         if (accountId == NO_ACCOUNT) {
@@ -726,7 +674,7 @@ class UIControllerTwoPane implements
      * @throw IllegalStateException if updateXxx methods can't be called in the current state.
      */
     private void preFragmentTransactionCheck() {
-        if (mHoldFragmentInstallation) {
+        if (!isFragmentInstallable()) {
             // Code assumes mMailboxListFragment/etc are set right within the
             // commitFragmentTransaction() call (because we use synchronous transaction),
             // so updateXxx() can't be called if fragments are not installable yet.
@@ -754,7 +702,7 @@ class UIControllerTwoPane implements
     private void updateMailboxList(long accountId, long parentMailboxId,
             boolean changeVisiblePane, boolean clearDependentPane) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " updateMailboxList accountId=" + accountId
+            Log.d(Logging.LOG_TAG, this + " updateMailboxList accountId=" + accountId
                     + " parentMailboxId=" + parentMailboxId);
         }
         preFragmentTransactionCheck();
@@ -810,7 +758,7 @@ class UIControllerTwoPane implements
     private void updateMessageList(long mailboxId, boolean changeVisiblePane,
             boolean clearDependentPane) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " updateMessageList mMailboxId=" + mailboxId);
+            Log.d(Logging.LOG_TAG, this + " updateMessageList mMailboxId=" + mailboxId);
         }
         preFragmentTransactionCheck();
         if (mailboxId == 0 || mailboxId == -1) {
@@ -847,7 +795,7 @@ class UIControllerTwoPane implements
      */
     private void updateMessageView(long messageId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " updateMessageView messageId=" + messageId);
+            Log.d(Logging.LOG_TAG, this + " updateMessageView messageId=" + messageId);
         }
         preFragmentTransactionCheck();
         if (messageId == NO_MESSAGE) {
@@ -979,14 +927,14 @@ class UIControllerTwoPane implements
     /**
      * Handles {@link android.app.Activity#onCreateOptionsMenu} callback.
      */
+    @Override
     public boolean onCreateOptionsMenu(MenuInflater inflater, Menu menu) {
-        inflater.inflate(R.menu.message_list_xl_option, menu);
+        inflater.inflate(R.menu.email_activity_options, menu);
         return true;
     }
 
-    /**
-     * Handles {@link android.app.Activity#onPrepareOptionsMenu} callback.
-     */
+    /** {@inheritDoc} */
+    @Override
     public boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu) {
         ActivityHelper.updateRefreshMenuIcon(menu.findItem(R.id.refresh),
                 isRefreshEnabled(),
@@ -994,11 +942,8 @@ class UIControllerTwoPane implements
         return true;
     }
 
-    /**
-     * Handles {@link android.app.Activity#onOptionsItemSelected} callback.
-     *
-     * @return true if the option item is handled.
-     */
+    /** {@inheritDoc} */
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -1016,12 +961,8 @@ class UIControllerTwoPane implements
         return false;
     }
 
-    /**
-     * Performs the back action.
-     *
-     * @param isSystemBackKey <code>true</code> if the system back key was pressed.
-     * <code>true</code> if it's caused by the "home" icon click on the action bar.
-     */
+    /** {@inheritDoc} */
+    @Override
     public boolean onBackPressed(boolean isSystemBackKey) {
         if (mThreePane.onBackPressed(isSystemBackKey)) {
             return true;
@@ -1059,8 +1000,9 @@ class UIControllerTwoPane implements
 
     /**
      * Handles the "refresh" option item.  Opens the settings activity.
+     * TODO used by experimental code in the activity -- otherwise can be private.
      */
-    // TODO used by experimental code in the activity -- otherwise can be private.
+    @Override
     public void onRefresh() {
         // Cancel previously running instance if any.
         new RefreshTask(mTaskTracker, mActivity, getActualAccountId(),
