@@ -906,9 +906,11 @@ public class Utility {
      * Updates the last seen message key in the mailbox data base for the INBOX of the currently
      * shown account. If the account is {@link Account#ACCOUNT_ID_COMBINED_VIEW}, the INBOX for
      * all accounts are updated.
+     * @return an {@link EmailAsyncTask} for test only.
      */
-    public static void updateLastSeenMessageKey(final Context context, final long accountId) {
-        EmailAsyncTask.runAsyncParallel(new Runnable() {
+    public static EmailAsyncTask<Void, Void, Void> updateLastSeenMessageKey(final Context context,
+            final long accountId) {
+        return EmailAsyncTask.runAsyncParallel(new Runnable() {
             private void updateLastSeenMessageKeyForAccount(long accountId) {
                 ContentResolver resolver = context.getContentResolver();
                 if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
