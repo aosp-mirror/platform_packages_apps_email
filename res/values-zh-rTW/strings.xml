@@ -367,7 +367,7 @@
     <string name="exchange_name" msgid="1190783774800310346">"公司"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
     <string name="system_account_create_failed" msgid="4917162302393971752">"AccountManager 無法建立帳戶，請再試一次。"</string>
-    <string name="device_admin_label" msgid="8680224994637869414">"傳送電子郵件"</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"電子郵件"</string>
     <string name="device_admin_description" msgid="426727923791430306">"啟用伺服器專用安全性政策"</string>
     <string name="gal_searching_fmt" msgid="6140450617663543464">"搜尋中 <xliff:g id="DOMAIN">%s</xliff:g>…"</string>
   <plurals name="gal_completed_fmt">
