@@ -714,6 +714,8 @@ public abstract class EmailContent {
         public static final int FLAG_SYNC_ADAPTER_MASK = 255 << FLAG_SYNC_ADAPTER_SHIFT;
         /** If set, the outgoing message should *not* include the quoted original message. */
         public static final int FLAG_NOT_INCLUDE_QUOTED_TEXT = 1 << 17;
+        public static final int FLAG_REPLIED_TO = 1 << 18;
+        public static final int FLAG_FORWARDED = 1 << 19;
 
         public Message() {
             mBaseUri = CONTENT_URI;
