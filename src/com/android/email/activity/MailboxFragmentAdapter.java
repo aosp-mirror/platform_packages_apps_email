@@ -174,14 +174,7 @@ import android.widget.TextView;
             Log.d(Logging.LOG_TAG, "MailboxFragmentAdapter#createLoader accountId=" + accountId);
         }
         if (accountId != Account.ACCOUNT_ID_COMBINED_VIEW) {
-            // STOPSHIP remove test when legacy protocols support folders; the parent key
-            // should never equal '0'
-            if (parentKey == 0) {
-                // load all mailboxes at the top level
-                return new MailboxFragmentLoader(context, accountId);
-            } else {
-                return new MailboxFragmentLoader(context, accountId, parentKey);
-            }
+            return new MailboxFragmentLoader(context, accountId, parentKey);
         } else {
             return new CombinedMailboxLoader(context);
         }
@@ -226,21 +219,11 @@ import android.widget.TextView;
         private final long mAccountId;
         private final long mParentKey;
 
-        // STOPSHIP remove when legacy protocols support folders; parent key must always be set
-        MailboxFragmentLoader(Context context, long accountId) {
-            super(context, EmailContent.Mailbox.CONTENT_URI,
-                    MailboxesAdapter.PROJECTION, MAILBOX_SELECTION_NO_PARENT,
-                    new String[] { Long.toString(accountId) },
-                    MAILBOX_ORDER_BY);
-            mContext = context;
-            mAccountId = accountId;
-            mParentKey = 0;
-        }
-
         MailboxFragmentLoader(Context context, long accountId, long parentKey) {
             super(context, EmailContent.Mailbox.CONTENT_URI,
-                    (parentKey > 0) ? MailboxesAdapter.SUBMAILBOX_PROJECTION
-                                    : MailboxesAdapter.PROJECTION,
+                    (parentKey != Mailbox.PARENT_KEY_NONE)
+                            ? MailboxesAdapter.SUBMAILBOX_PROJECTION
+                            : MailboxesAdapter.PROJECTION,
                     MAILBOX_SELECTION_WITH_PARENT,
                     new String[] { Long.toString(accountId), Long.toString(parentKey) },
                     MAILBOX_ORDER_BY);
@@ -260,24 +243,14 @@ import android.widget.TextView;
         public Cursor loadInBackground() {
             final Cursor childMailboxCursor = super.loadInBackground();
 
-            // Add "up" item if we are not viewing the top-level list
-            if (mParentKey > 0) {
-                // STOPSHIP Remove this commented block of code if truly not wanted by UX
-//                // Find the parent's parent ...
-//                Long superParentKey = Utility.getFirstRowLong(getContext(), Mailbox.CONTENT_URI,
-//                        new String[] { MailboxColumns.PARENT_KEY }, MailboxColumns.ID + "=?",
-//                        new String[] { Long.toString(mParentKey) }, null, 0);
-                Long superParentKey = Mailbox.PARENT_KEY_NONE;
-
-                if (superParentKey != null) {
-                    final Cursor parentCursor = getContext().getContentResolver().query(
-                            Mailbox.CONTENT_URI, CURMAILBOX_PROJECTION, MAILBOX_SELECTION,
-                            new String[] { Long.toString(mAccountId), Long.toString(mParentKey) },
-                            null);
-                    final MatrixCursor extraCursor = new MatrixCursor(getProjection());
-                    return Utility.CloseTraceCursorWrapper.get(new MergeCursor(
-                            new Cursor[] { extraCursor, parentCursor, childMailboxCursor }));
-                }
+            // If we're not showing the top level mailboxes, add the "parent" mailbox.
+            if (mParentKey != Mailbox.PARENT_KEY_NONE) {
+                final Cursor parentCursor = getContext().getContentResolver().query(
+                        Mailbox.CONTENT_URI, CURMAILBOX_PROJECTION, MAILBOX_SELECTION,
+                        new String[] { Long.toString(mAccountId), Long.toString(mParentKey) },
+                        null);
+                return Utility.CloseTraceCursorWrapper.get(new MergeCursor(
+                        new Cursor[] { parentCursor, childMailboxCursor }));
             }
 
             // Add "Starred", only if the account has at least one starred message.

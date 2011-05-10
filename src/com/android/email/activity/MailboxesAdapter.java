@@ -110,10 +110,6 @@ import android.widget.CursorAdapter;
     /** All mailboxes for the account */
     /*package*/ static final String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
-    // STOPSHIP This can be removed when legacy protocols support folders
-    /** All top-level mailboxes */
-    /*package*/ static final String MAILBOX_SELECTION_NO_PARENT = ALL_MAILBOX_SELECTION +
-            " AND " + MailboxColumns.PARENT_KEY + "<=0";
     /** All mailboxes with the given parent */
     /*package*/ static final String MAILBOX_SELECTION_WITH_PARENT = ALL_MAILBOX_SELECTION +
             " AND " + MailboxColumns.PARENT_KEY + "=?";
