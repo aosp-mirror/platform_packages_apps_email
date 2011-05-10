@@ -1885,47 +1885,6 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, Account.restoreAccountWithId(c, a5.mId).mNewMessageCount);
     }
 
-    private static Message createMessageWithTimestamp(Context c, Mailbox b, long timestamp) {
-        Message m = ProviderTestUtils.setupMessage("1", b.mAccountKey, b.mId, true, false, c, false,
-                false);
-        m.mTimeStamp = timestamp;
-        m.save(c);
-        return m;
-    }
-
-    public void testMessageGetLatestIncomingMessage() {
-        final Context c = mMockContext;
-
-        // Create 2 accounts with a inbox.
-        Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
-        Account a2 = ProviderTestUtils.setupAccount("a2", true, c);
-
-        Mailbox b1 = ProviderTestUtils.setupMailbox("box1", a1.mId, true, c, Mailbox.TYPE_INBOX);
-        Mailbox b1d = ProviderTestUtils.setupMailbox("box1d", a1.mId, true, c, Mailbox.TYPE_DRAFTS);
-        Mailbox b1o = ProviderTestUtils.setupMailbox("box1o", a1.mId, true, c, Mailbox.TYPE_OUTBOX);
-        Mailbox b1s = ProviderTestUtils.setupMailbox("box1s", a1.mId, true, c, Mailbox.TYPE_SENT);
-        Mailbox b2 = ProviderTestUtils.setupMailbox("box2", a2.mId, true, c, Mailbox.TYPE_MAIL);
-
-        // Create some messages
-        Message m11 = createMessageWithTimestamp(c, b1, 33);
-        Message m12 = createMessageWithTimestamp(c, b1, 10);
-        Message m13 = createMessageWithTimestamp(c, b1, 1000); // latest incoming
-        Message m1d = createMessageWithTimestamp(c, b1d, 2000);
-        Message m1o = createMessageWithTimestamp(c, b1o, 2000);
-        Message m1s = createMessageWithTimestamp(c, b1s, 2000);
-
-        Message m21 = createMessageWithTimestamp(c, b2, 99); // latest incoming
-        Message m22 = createMessageWithTimestamp(c, b2, 1);
-        Message m23 = createMessageWithTimestamp(c, b2, 2);
-
-        // Check!
-        assertEquals(m13.mId, Message.getLatestIncomingMessage(c, a1.mId).mId);
-        assertEquals(m21.mId, Message.getLatestIncomingMessage(c, a2.mId).mId);
-
-        // No such account
-        assertEquals(null, Message.getLatestIncomingMessage(c, 9999999L));
-    }
-
     /**
      * Check if update on ACCOUNT_ID_ADD_TO_FIELD updates the cache properly.
      */

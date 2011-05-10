@@ -946,13 +946,20 @@ public class Utility {
                             new String[] { Long.toString(mailbox.mId) },
                             MessageColumns.ID + " DESC",
                             EmailContent.ID_PROJECTION_COLUMN, 0L);
-                    ContentValues values = mailbox.toContentValues();
-                    values.put(MailboxColumns.LAST_SEEN_MESSAGE_KEY, messageId);
-                    resolver.update(
-                            Mailbox.CONTENT_URI,
-                            values,
-                            EmailContent.ID_SELECTION,
-                            new String[] { Long.toString(mailbox.mId) });
+                    long oldLastSeenMessageId = Utility.getFirstRowLong(
+                            context, ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailbox.mId),
+                            new String[] { MailboxColumns.LAST_SEEN_MESSAGE_KEY },
+                            null, null, null, 0, 0L);
+                    // Only update the db if the value has changed
+                    if (messageId != oldLastSeenMessageId) {
+                        ContentValues values = mailbox.toContentValues();
+                        values.put(MailboxColumns.LAST_SEEN_MESSAGE_KEY, messageId);
+                        resolver.update(
+                                Mailbox.CONTENT_URI,
+                                values,
+                                EmailContent.ID_SELECTION,
+                                new String[] { Long.toString(mailbox.mId) });
+                    }
                 }
             }
 

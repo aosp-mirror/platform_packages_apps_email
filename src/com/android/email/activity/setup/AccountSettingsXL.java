@@ -664,6 +664,8 @@ public class AccountSettingsXL extends PreferenceActivity {
     public void deleteAccount(Account account) {
         // Kick off the work to actually delete the account
 
+        // TODO Do this automatically in the NotificationController as part of a
+        // ContentObserver
         // Clear notifications for the account.
         NotificationController.getInstance(this).cancelNewMessageNotification(account.mId);
 
