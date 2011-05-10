@@ -16,6 +16,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
+    <skip />
+    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
+    <skip />
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"Hozzáférés az e-mail szolgáltató adataihoz"</string>
+    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"Lehetővé teszi az alkalmazás számára, hogy hozzáférjen az e-mail adatbázishoz, köztük a beérkezett és elküldött levelekhez, a felhasználónevekhez és a jelszavakhoz."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Levélírás"</string>
     <string name="debug_title" msgid="5175710493691536719">"Hibakeresés"</string>
@@ -88,7 +94,6 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Kuka"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Elküldve"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Spam"</string>
-    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Összes mappa"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Verzió: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Fiókok"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Beérkezett üzenetek"</string>
@@ -287,11 +292,15 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Mellékletek automatikus letöltése Wi-Fi-kapcsolatnál"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"A telepítés nem fejeződött be."</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Szinkronizálás gyakorisága"</string>
+    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
+    <skip />
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Egy nap"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Három nap"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Egy hét"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Két hét"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Egy hónap"</string>
+    <!-- no translation found for account_setup_options_mail_window_all (5372861827683632364) -->
+    <skip />
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Helytelen felhasználónév vagy jelszó."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Helytelen felhasználónév vagy jelszó."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Nem lehet biztonságos kapcsolatot létesíteni a szerverrel."</string>
@@ -304,7 +313,7 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Biztonsági hiba miatt nem lehet megnyitni a kapcsolatot a szerverhez."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Nem lehet megnyitni a kapcsolatot a szerverhez."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Nem megfelelő szervercímet adott meg, vagy a szerver olyan protokollverziót követel, amelyet az E-mail nem támogat."</string>
-    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Nincs engedélye arra, hogy szinkronizáljon ezzel a szerverrel. Kérjük, forduljon a kiszolgáló rendszergazdájához további információért."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Nincs engedélye arra, hogy szinkronizáljon ezzel a szerverrel. Kérjük, forduljon a szerver rendszergazdájához további információért."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Távoli biztonságkezelés"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"A(z) <xliff:g id="SERVER">%s</xliff:g> szerver engedélyt kér arra, hogy távolról vezérelhesse az Android-eszköz egyes biztonsági funkcióit. Befejezi a fiók konfigurálását?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"Ez a szerver olyan biztonsági funkciókat követel meg, amelyeket az Ön Android készüléke nem támogat; ideértve: <xliff:g id="ERROR">%s</xliff:g>"</string>

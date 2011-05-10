@@ -16,6 +16,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
+    <skip />
+    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
+    <skip />
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"Accesso ai dati del provider di posta"</string>
+    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"Consente a questa applicazione di accedere al database dell\'applicazione Email, inclusi i messaggi ricevuti e inviati, i nomi utente e le password."</string>
     <string name="app_name" msgid="5815426892327290362">"Email"</string>
     <string name="compose_title" msgid="427986915662706899">"Scrivi"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
@@ -88,7 +94,6 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Cestino"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Inviati"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Posta indesiderata"</string>
-    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Tutte le cartelle"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versione: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Account"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Posta in arrivo"</string>
@@ -287,11 +292,14 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Scarica allegati automaticamente quando connesso a Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Impossibile completare l\'impostazione"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Quantità da sincronizzare"</string>
+    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
+    <skip />
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Un giorno"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Tre giorni"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Una settimana"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Due settimane"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Un mese"</string>
+    <!-- outdated translation 5383858972681926166 -->     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tutta la posta"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nome utente o password errata."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nome utente o password errata."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impossibile connettersi correttamente al server."</string>

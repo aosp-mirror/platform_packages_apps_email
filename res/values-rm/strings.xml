@@ -16,6 +16,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
+    <skip />
+    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
+    <skip />
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"Acceder a las datas dal provider dad e-mail"</string>
+    <!-- outdated translation 1513898266889541617 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"\"Permetta a questa applicaziun dad acceder a Vossa banca da datas dad e-mails, inclus messadis retschavids e tramess, nums d\'utilisader e pleds-clav.\""</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Nov messadi"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
@@ -92,8 +98,6 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Chanaster da palpiri"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Tramess"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Nungiavischà"</string>
-    <!-- no translation found for mailbox_name_go_back (2886974252919886501) -->
-    <skip />
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versiun: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Contos"</string>
     <!-- outdated translation 5790553737870057607 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Chascha da brevs cumbinada"</string>
@@ -337,11 +341,14 @@
     <skip />
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Impussibel da terminar l\'installaziun"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Quantitad da sincronisar"</string>
+    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
+    <skip />
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"In di"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Trais dis"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Ina emna"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Duas emnas"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"In mais"</string>
+    <!-- outdated translation 5383858972681926166 -->     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tut ils e-mails"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Num d\'utilisader u pled-clav nuncorrect."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Num d\'utilisader u pled-clav nuncorrect."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impussibel da stabilir ina connexiun segirada cun il server."</string>
