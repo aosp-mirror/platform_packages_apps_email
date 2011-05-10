@@ -16,6 +16,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
+    <skip />
+    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
+    <skip />
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"גש לנתוני ספק הדוא\"ל"</string>
+    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"מאפשר ליישום זה לגשת למסד נתוני הדוא\"ל שלך, כולל הודעות שהתקבלו, הודעות שנשלחו, שמות משתמש וסיסמאות."</string>
     <string name="app_name" msgid="5815426892327290362">"דוא\"ל"</string>
     <string name="compose_title" msgid="427986915662706899">"חבר"</string>
     <string name="debug_title" msgid="5175710493691536719">"ניקוי באגים"</string>
@@ -88,7 +94,6 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"פח אשפה"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"נשלח"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"דואר זבל"</string>
-    <string name="mailbox_name_go_back" msgid="2886974252919886501">"כל התיקיות"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"גרסה: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"חשבונות"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"דואר נכנס"</string>
@@ -287,11 +292,15 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"הורד קבצים מצורפים באופן אוטומטי כאשר יש חיבור ל-Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"ההתקנה לא הסתיימה כראוי"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"כמות לסנכרון"</string>
+    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
+    <skip />
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"יום אחד"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"שלושה ימים"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"שבוע אחד"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"שבועיים"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"חודש אחד"</string>
+    <!-- no translation found for account_setup_options_mail_window_all (5372861827683632364) -->
+    <skip />
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"שם המשתמש או הסיסמה שגויים."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"שם המשתמש או הסיסמה שגויים."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"אין אפשרות להתחבר לשרת באופן בטוח."</string>

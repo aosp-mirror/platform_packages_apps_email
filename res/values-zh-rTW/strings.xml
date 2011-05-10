@@ -16,6 +16,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
+    <skip />
+    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
+    <skip />
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"存取電子郵件供應商資料"</string>
+    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"允許此應用程式存取您的電子郵件資料庫，包括已接收郵件、已傳送郵件、使用者名稱和密碼。"</string>
     <string name="app_name" msgid="5815426892327290362">"電子郵件"</string>
     <string name="compose_title" msgid="427986915662706899">"撰寫郵件"</string>
     <string name="debug_title" msgid="5175710493691536719">"偵錯"</string>
@@ -88,7 +94,6 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"垃圾桶"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"寄件備份"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"垃圾郵件"</string>
-    <string name="mailbox_name_go_back" msgid="2886974252919886501">"所有資料夾"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"帳戶"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"收件匣"</string>
@@ -287,11 +292,14 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"連上 Wi-Fi 時自動下載附件"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"無法完成設定"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"同步數量"</string>
+    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
+    <skip />
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"1 天"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"3 天"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"1 週"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"2 週"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"1 個月"</string>
+    <!-- outdated translation 5383858972681926166 -->     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"所有郵件"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"使用者名稱或密碼不正確。"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"使用者名稱或密碼不正確。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"無法安全地連線至伺服器。"</string>
@@ -304,11 +312,10 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"發生安全性錯誤，無法連線至伺服器。"</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"無法連線至伺服器。"</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"您輸入的伺服器位址不正確，或是電子郵件不支援伺服器所需的通訊協定版本。"</string>
-    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"您沒有與這部伺服器保持同步的權限。如需更多資訊，請與您伺服器的管理員聯絡。"</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"您沒有與這部伺服器保持同步的權限。如需瞭解詳細資訊，請與您的伺服器管理員聯絡。"</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"遠端安全性管理"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"<xliff:g id="SERVER">%s</xliff:g> 伺服器要求您的授權，使其可遠端控制 Android 裝置的一些安全性功能，您要結束這個帳戶的設定程序嗎？"</string>
-    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"您的 Android 裝置不支援這個伺服器所需的安全性功能，包括：<xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"您無法變更帳戶的使用者名稱。如要以其他使用者名稱新增帳戶，請輕觸 [新增帳戶]。"</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"警告：如果停用「電子郵件」應用程式的裝置管理權限，系統將刪除所有需要使用這項權限的「電子郵件」帳戶，以及帳戶中的所有電子郵件、聯絡人、日曆活動和其他資料。"</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"必須更新安全性"</string>

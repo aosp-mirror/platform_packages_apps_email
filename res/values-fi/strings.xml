@@ -16,6 +16,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
+    <skip />
+    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
+    <skip />
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"Sähköpostipalveluntarjoajan tietojen käyttö"</string>
+    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"Sallii sovelluksen käyttää sähköpostitietokantaa sekä sen saapuneita ja lähetettyjä viestejä, käyttäjänimiä ja salasanoja."</string>
     <string name="app_name" msgid="5815426892327290362">"Sähköposti"</string>
     <string name="compose_title" msgid="427986915662706899">"Viestin kirjoitus"</string>
     <string name="debug_title" msgid="5175710493691536719">"Virheenjäljitys"</string>
@@ -88,7 +94,6 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Roskakori"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Lähetetyt"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Roskaposti"</string>
-    <string name="mailbox_name_go_back" msgid="2886974252919886501">"Kaikki kansiot"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versio: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Tilit"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Postilaatikko"</string>
@@ -287,11 +292,15 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Lataa liitteet automaattisesti wifi-yhteyden ollessa käytössä."</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Määrityksiä ei voitu suorittaa loppuun"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Synkronoitava määrä"</string>
+    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
+    <skip />
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Yksi päivä"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Kolme päivää"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Yksi viikko"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Kaksi viikkoa"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Yksi kuukausi"</string>
+    <!-- no translation found for account_setup_options_mail_window_all (5372861827683632364) -->
+    <skip />
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Virheellinen käyttäjänimi tai salasana."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Virheellinen käyttäjänimi tai salasana."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Palvelimeen ei voi muodostaa suojattua yhteyttä."</string>
@@ -307,8 +316,7 @@
     <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Sinulla ei ole lupaa synkronoida tämän palvelimen kanssa. Saat lisätietoja ottamalla yhteyttä palvelimesi järjestelmänvalvojaan."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Suojauksen etähallinta"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Palvelin <xliff:g id="SERVER">%s</xliff:g> vaatii, että sen sallitaan hallita joitakin Android-laitteen suojaustoiminnoista. Haluatko määrittää tämän tilin loppuun?"</string>
-    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"Tämä palvelin edellyttää turvaominaisuuksia, joita Android-laitteesi ei tue, kuten: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"Et voi muuttaa tilin käyttäjänimeä. Voit lisätä tilin eri käyttäjänimellä koskettamalla kohtaa Lisää tili."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"VAROITUS: poistamalla sähköpostisovellukselta oikeuden hallinnoida laitettasi poistetaan kaikki sovellukseen liittyvät sähköpostitilit sekä niiden sähköpostit, yhteystiedot, kalenteritapahtumat ja muut tiedot."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Suojauspäivitys tarvitaan"</string>

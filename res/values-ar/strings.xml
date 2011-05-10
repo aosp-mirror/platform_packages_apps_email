@@ -16,6 +16,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
+    <skip />
+    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
+    <skip />
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"الدخول إلى بيانات موفر البريد الإلكتروني"</string>
+    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"للسماح للتطبيق بالدخول إلى قاعدة بيانات بريدك الإلكتروني، بما في ذلك الرسائل المتلقاة، والرسائل المرسلة، وأسماء المستخدمين وكلمات المرور."</string>
     <string name="app_name" msgid="5815426892327290362">"إرسال رسالة إلكترونية"</string>
     <string name="compose_title" msgid="427986915662706899">"إنشاء"</string>
     <string name="debug_title" msgid="5175710493691536719">"تصحيح الأخطاء"</string>
@@ -88,7 +94,6 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"المهـملات"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"البريد المرسَل"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"البريد غير المهم"</string>
-    <string name="mailbox_name_go_back" msgid="2886974252919886501">"جميع المجلدات"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"الإصدار: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"الحسابات"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"صندوق البريد"</string>
@@ -287,11 +292,15 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"تنزيل المرفقات تلقائيًا عند الاتصال بشبكة Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"تعذر إنهاء الإعداد"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"المقدار المراد مزامنته"</string>
+    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
+    <skip />
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"يوم واحد"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"ثلاثة أيام"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"أسبوع"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"أسبوعان"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"شهر واحد"</string>
+    <!-- no translation found for account_setup_options_mail_window_all (5372861827683632364) -->
+    <skip />
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"اسم المستخدم أو كلمة المرور غير صحيحة."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"اسم المستخدم أو كلمة المرور غير صحيحة."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"لا يمكن الاتصال بالخادم بأمان."</string>
@@ -307,8 +316,7 @@
     <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"ليس لديك إذن للمزامنة مع هذا الخادم. الرجاء الاتصال بمشرف الخادم للحصول على مزيد من المعلومات."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"التحكم عن بعد في إدارة الأمان"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"يتطلب الخادم <xliff:g id="SERVER">%s</xliff:g> أن تسمح له بالتحكم في بعض ميزات الأمان بجهاز Android عن بعد. هل تريد إنهاء إعداد هذا الحساب؟"</string>
-    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
-    <skip />
+    <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"يتطلب هذا الخادم ميزات أمان غير معتمدة على جهاز Android، تتضمن: <xliff:g id="ERROR">%s</xliff:g>"</string>
     <string name="account_setup_username_uneditable_error" msgid="9057508235700936322">"لا يمكنك تغيير اسم المستخدم لأحد الحسابات. لإضافة حساب باسم مستخدم مختلف، المس \"إضافة حساب\"."</string>
     <string name="disable_admin_warning" msgid="4940147098039352135">"تحذير: سيؤدي إلغاء تنشيط صلاحية تطبيق البريد الإلكتروني لإدارة الجهاز إلى حذف جميع حسابات البريد الإلكتروني التي تتطلب الصلاحية، وأيضًا حذف البريد الإلكتروني وجهات الاتصال وأحداث التقويم وغيرها من البيانات."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"تحديث الأمان مطلوب"</string>
