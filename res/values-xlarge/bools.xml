@@ -16,4 +16,7 @@
 
 <resources>
     <bool name="use_two_pane">true</bool>
+
+    <!-- Reply/Reply All/Forward switcher in action bar -->
+    <bool name="message_compose_action_tabs">true</bool>
 </resources>

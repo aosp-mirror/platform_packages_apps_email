@@ -36,6 +36,8 @@ import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -71,10 +73,15 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.WebView;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.MultiAutoCompleteTextView;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,6 +92,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -183,6 +191,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private View mQuotedTextBar;
     private CheckBox mIncludeQuotedTextCheckBox;
     private WebView mQuotedText;
+    private Spinner mActionSpinner;
+    private ActionSpinnerAdapter mActionSpinnerAdapter;
 
     private Controller mController;
     private boolean mDraftNeedsSaving;
@@ -311,10 +321,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             throw new IllegalArgumentException();
         }
         mAccount = account;
-        mFromView.setText(account.mEmailAddress);
         mAddressAdapterTo.setAccount(account);
         mAddressAdapterCc.setAccount(account);
         mAddressAdapterBcc.setAccount(account);
+
+        if (mFromView != null) {
+            // Some configurations don't show the from field.
+            mFromView.setText(account.mEmailAddress);
+        }
     }
 
     @Override
@@ -330,11 +344,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         getActionBar().setDisplayOptions(
                 ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
 
-
         if (savedInstanceState != null) {
             long draftId = savedInstanceState.getLong(STATE_KEY_DRAFT_ID, Message.NOT_SAVED);
             long existingSaveTaskId = savedInstanceState.getLong(STATE_KEY_LAST_SAVE_TASK_ID, -1);
-            mAction = savedInstanceState.getString(STATE_KEY_ACTION);
+            setAction(savedInstanceState.getString(STATE_KEY_ACTION));
             SendOrSaveMessageTask existingSaveTask = sActiveSaveTasks.get(existingSaveTaskId);
 
             if ((draftId != Message.NOT_SAVED) || (existingSaveTask != null)) {
@@ -348,7 +361,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
         } else {
             Intent intent = getIntent();
-            mAction = intent.getAction();
+            setAction(intent.getAction());
             resolveIntent(intent);
         }
 
@@ -399,7 +412,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     @Override
     public void setIntent(Intent intent) {
         super.setIntent(intent);
-        mAction = intent.getAction();
+        setAction(intent.getAction());
     }
 
     @Override
@@ -558,7 +571,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     };
 
     private void initViews() {
-        mFromView = UiUtilities.getView(this, R.id.from);
         mToView = UiUtilities.getView(this, R.id.to);
         mCcView = UiUtilities.getView(this, R.id.cc);
         mBccView = UiUtilities.getView(this, R.id.bcc);
@@ -615,6 +627,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         setFocusShifter(R.id.tap_trap, R.id.message_content);
 
         mMessageContentView.setOnFocusChangeListener(this);
+
+        mFromView = UiUtilities.getViewOrNull(this, R.id.from);
+        mActionSpinner = UiUtilities.getViewOrNull(this, R.id.action_spinner);
 
         updateAttachmentContainer();
         mToView.requestFocus();
@@ -776,13 +791,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     // Use a best guess and infer the action here.
                     String inferredAction = inferAction();
                     if (inferredAction != null) {
-                        mAction = inferredAction;
+                        setAction(inferredAction);
+                        // No need to update the action selector as switching actions should do it.
+                        return;
                     }
                 }
 
-                // TODO: handle updating code when we have a drop down selector.
-                // Update action selector.
-                invalidateOptionsMenu();
+                updateActionSelector();
             }
 
             @Override
@@ -1550,25 +1565,72 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
-    /**
-     * Handles changing from reply/reply all/forward states. Note: this activity cannot transition
-     * from a standard compose state to any of the other three states.
-     */
-    private void onActionChanged(String action) {
-        if (action.equals(mAction)) {
+    private void setAction(String action) {
+        if (Objects.equal(action, mAction)) {
             return;
         }
 
         mAction = action;
-        if (mSource != null) {
-            processSourceMessage(mSource, mAccount);
+        onActionChanged();
+    }
 
-            // Note that the attachments might not be loaded yet, but this will safely noop
-            // if that's the case, and the attachments will be processed when they load.
-            if (processSourceMessageAttachments(mAttachments, mSourceAttachments, isForward())) {
-                updateAttachmentUi();
-                setDraftNeedsSaving(true);
+    /**
+     * Handles changing from reply/reply all/forward states. Note: this activity cannot transition
+     * from a standard compose state to any of the other three states.
+     */
+    private void onActionChanged() {
+        if (!hasSourceMessage()) {
+            return;
+        }
+
+        processSourceMessage(mSource, mAccount);
+
+        // Note that the attachments might not be loaded yet, but this will safely noop
+        // if that's the case, and the attachments will be processed when they load.
+        if (processSourceMessageAttachments(mAttachments, mSourceAttachments, isForward())) {
+            updateAttachmentUi();
+            setDraftNeedsSaving(true);
+        }
+
+        updateActionSelector();
+    }
+
+    /**
+     * Updates UI components that allows the user to switch between reply/reply all/forward.
+     */
+    private void updateActionSelector() {
+        // Update reply/reply all/forward switcher.
+        if (shouldUseActionTabs()) {
+            // Tab-based mode switching.
+            ActionBar actionBar = getActionBar();
+            actionBar.removeAllTabs();
+            createAndAddTab(R.string.reply_action, ACTION_REPLY);
+            createAndAddTab(R.string.reply_all_action, ACTION_REPLY_ALL);
+            createAndAddTab(R.string.forward_action, ACTION_FORWARD);
+
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        } else {
+            // Spinner based mode switching.
+            if (mActionSpinnerAdapter == null) {
+                mActionSpinnerAdapter = new ActionSpinnerAdapter(this);
+                mActionSpinner.setAdapter(mActionSpinnerAdapter);
+                mActionSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(
+                            AdapterView<?> parent, View view, int position, long id) {
+                        setAction(mActionSpinnerAdapter.getAction(position));
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        // Should not happen.
+                    }
+                });
             }
+            int position = mActionSpinnerAdapter.getPosition(mAction);
+            mActionSpinner.setSelection(position);
+            mActionSpinner.setVisibility(View.VISIBLE);
         }
     }
 
@@ -1579,9 +1641,59 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         @Override
         public void onTabSelected(Tab tab, FragmentTransaction ft) {
             String action = (String) tab.getTag();
-            onActionChanged(action);
+            setAction(action);
         }
     };
+
+    private static class ActionSpinnerAdapter extends ArrayAdapter<String> {
+        public ActionSpinnerAdapter(final Context context) {
+            super(context,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    android.R.id.text1,
+                    Lists.newArrayList(ACTION_REPLY, ACTION_REPLY_ALL, ACTION_FORWARD));
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            View result = super.getDropDownView(position, convertView, parent);
+            ((TextView) result.findViewById(android.R.id.text1)).setText(getDisplayValue(position));
+            return result;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View result = super.getView(position, convertView, parent);
+            ((TextView) result.findViewById(android.R.id.text1)).setText(getDisplayValue(position));
+            return result;
+        }
+
+        private String getDisplayValue(int position) {
+            switch (position) {
+                case 0:
+                    return getContext().getString(R.string.reply_action);
+                case 1:
+                    return getContext().getString(R.string.reply_all_action);
+                case 2:
+                    return getContext().getString(R.string.forward_action);
+                default:
+                    throw new IllegalArgumentException("Invalid action type for spinner");
+            }
+        }
+
+        public static String getAction(int position) {
+            switch (position) {
+                case 0:
+                    return ACTION_REPLY;
+                case 1:
+                    return ACTION_REPLY_ALL;
+                case 2:
+                    return ACTION_FORWARD;
+                default:
+                    throw new IllegalArgumentException("Invalid action type for spinner");
+            }
+        }
+
+    }
 
     private Tab createAndAddTab(int labelResource, final String action) {
         ActionBar.Tab tab = getActionBar().newTab();
@@ -1593,30 +1705,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         return tab;
     }
 
+    private boolean shouldUseActionTabs() {
+        return getResources().getBoolean(R.bool.message_compose_action_tabs);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.message_compose_option, menu);
-
-        if (hasSourceMessage()) {
-            // Initialize reply/reply all/forward switcher.
-            final int screenLayout = getResources().getConfiguration().screenLayout;
-            if (getWindow().hasFeature(Window.FEATURE_ACTION_BAR)
-                    && (screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) != 0) {
-
-                // Tab-based mode switching.
-                ActionBar actionBar = getActionBar();
-                actionBar.removeAllTabs();
-                createAndAddTab(R.string.reply_action, ACTION_REPLY);
-                createAndAddTab(R.string.reply_all_action, ACTION_REPLY_ALL);
-                createAndAddTab(R.string.forward_action, ACTION_FORWARD);
-
-                actionBar.setDisplayShowTitleEnabled(false);
-                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-            } else {
-                // TODO: drop down mode switching.
-            }
-        }
         return true;
     }
 

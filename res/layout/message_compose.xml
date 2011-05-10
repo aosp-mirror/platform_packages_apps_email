@@ -28,9 +28,9 @@
             <LinearLayout android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:background="#ededed">
-                <!-- Invisible from field to keep it compatible with the xlarge counterpart. -->
-                <TextView
-                    android:id="@+id/from"
+
+                <Spinner
+                    android:id="@+id/action_spinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="gone"
