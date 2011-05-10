@@ -16,9 +16,9 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.AccountBackupRestore;
 import com.android.email.R;
 import com.android.email.VendorPolicyLoader;
+import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -55,7 +55,7 @@ public class AccountSettingsUtils {
             account.update(context, cv);
         }
         // Update the backup (side copy) of the accounts
-        AccountBackupRestore.backupAccounts(context);
+        AccountBackupRestore.backup(context);
     }
 
     /**

@@ -16,10 +16,10 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
+import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -344,7 +344,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         Account account = SetupData.getAccount();
         account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
         // Update the backup (side copy) of the accounts
-        AccountBackupRestore.backupAccounts(mContext);
+        AccountBackupRestore.backup(mContext);
     }
 
     /**

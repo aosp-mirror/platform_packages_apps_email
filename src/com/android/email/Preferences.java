@@ -20,7 +20,6 @@ import com.android.emailcommon.Logging;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -33,7 +32,6 @@ public class Preferences {
 
     // Preferences field names
     private static final String ACCOUNT_UUIDS = "accountUuids";
-    private static final String DEFAULT_ACCOUNT_UUID = "defaultAccountUuid";
     private static final String ENABLE_DEBUG_LOGGING = "enableDebugLogging";
     private static final String ENABLE_EXCHANGE_LOGGING = "enableExchangeLogging";
     private static final String ENABLE_EXCHANGE_FILE_LOGGING = "enableExchangeFileLogging";
@@ -83,78 +81,12 @@ public class Preferences {
         return sPreferences;
     }
 
-    /**
-     * Returns an array of the accounts on the system. If no accounts are
-     * registered the method returns an empty array.
-     */
-    public Account[] getAccounts() {
-        String accountUuids = mSharedPreferences.getString(ACCOUNT_UUIDS, null);
-        if (accountUuids == null || accountUuids.length() == 0) {
-            return new Account[] {};
-        }
-        String[] uuids = accountUuids.split(",");
-        Account[] accounts = new Account[uuids.length];
-        for (int i = 0, length = uuids.length; i < length; i++) {
-            accounts[i] = new Account(this, uuids[i]);
-        }
-        return accounts;
+    public static String getLegacyBackupPreference(Context context) {
+        return getPreferences(context).mSharedPreferences.getString(ACCOUNT_UUIDS, null);
     }
 
-    /**
-     * Get an account object by Uri, or return null if no account exists
-     * TODO: Merge hardcoded strings with the same strings in Account.java
-     */
-    public Account getAccountByContentUri(Uri uri) {
-        if (!"content".equals(uri.getScheme()) || !"accounts".equals(uri.getAuthority())) {
-            return null;
-        }
-        String uuid = uri.getPath().substring(1);
-        if (uuid == null) {
-            return null;
-        }
-        String accountUuids = mSharedPreferences.getString(ACCOUNT_UUIDS, null);
-        if (accountUuids == null || accountUuids.length() == 0) {
-            return null;
-        }
-        String[] uuids = accountUuids.split(",");
-        for (int i = 0, length = uuids.length; i < length; i++) {
-            if (uuid.equals(uuids[i])) {
-                return new Account(this, uuid);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns the Account marked as default. If no account is marked as default
-     * the first account in the list is marked as default and then returned. If
-     * there are no accounts on the system the method returns null.
-     */
-    public Account getDefaultAccount() {
-        String defaultAccountUuid = mSharedPreferences.getString(DEFAULT_ACCOUNT_UUID, null);
-        Account defaultAccount = null;
-        Account[] accounts = getAccounts();
-        if (defaultAccountUuid != null) {
-            for (Account account : accounts) {
-                if (account.getUuid().equals(defaultAccountUuid)) {
-                    defaultAccount = account;
-                    break;
-                }
-            }
-        }
-
-        if (defaultAccount == null) {
-            if (accounts.length > 0) {
-                defaultAccount = accounts[0];
-                setDefaultAccount(defaultAccount);
-            }
-        }
-
-        return defaultAccount;
-    }
-
-    public void setDefaultAccount(Account account) {
-        mSharedPreferences.edit().putString(DEFAULT_ACCOUNT_UUID, account.getUuid()).apply();
+    public static void clearLegacyBackupPreference(Context context) {
+        getPreferences(context).mSharedPreferences.edit().remove(ACCOUNT_UUIDS).apply();
     }
 
     public void setEnableDebugLogging(boolean value) {

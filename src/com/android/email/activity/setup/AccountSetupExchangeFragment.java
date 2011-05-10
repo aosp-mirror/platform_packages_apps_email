@@ -16,12 +16,12 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.mail.Store;
+import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
@@ -342,7 +342,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             // Nothing to be done if this fails
         }
         // Update the backup (side copy) of the accounts
-        AccountBackupRestore.backupAccounts(mContext);
+        AccountBackupRestore.backup(mContext);
     }
 
     /**

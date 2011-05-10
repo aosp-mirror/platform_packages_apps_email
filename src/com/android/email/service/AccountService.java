@@ -16,12 +16,12 @@
 
 package com.android.email.service;
 
-import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.NotificationController;
 import com.android.email.ResourceHelper;
 import com.android.email.VendorPolicyLoader;
+import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.service.IAccountService;
@@ -61,7 +61,7 @@ public class AccountService extends Service {
 
         @Override
         public void restoreAccountsIfNeeded() {
-            AccountBackupRestore.restoreAccountsIfNeeded(mContext);
+            AccountBackupRestore.restoreIfNeeded(mContext);
         }
 
         @Override

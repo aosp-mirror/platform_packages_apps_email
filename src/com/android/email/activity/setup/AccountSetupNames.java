@@ -16,11 +16,11 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.AccountBackupRestore;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.activity.Welcome;
+import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 
@@ -226,7 +226,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
             mAccount.update(mContext, cv);
 
             // Update the backup (side copy) of the accounts
-            AccountBackupRestore.backupAccounts(AccountSetupNames.this);
+            AccountBackupRestore.backup(AccountSetupNames.this);
 
             return Account.isSecurityHold(mContext, mAccount.mId);
         }

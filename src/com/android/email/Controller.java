@@ -18,6 +18,7 @@ package com.android.email;
 
 import com.android.email.mail.Store;
 import com.android.email.mail.store.Pop3Store.Pop3Message;
+import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Api;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
@@ -1013,7 +1014,7 @@ public class Controller {
      */
     @VisibleForTesting
     protected void backupAccounts(Context context) {
-        AccountBackupRestore.backupAccounts(context);
+        AccountBackupRestore.backup(context);
     }
 
     /**
