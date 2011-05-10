@@ -26,6 +26,7 @@ import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
 import android.database.Cursor;
@@ -199,6 +200,11 @@ public final class DBTestHelper {
             @Override
             public Theme getTheme() {
                 return mRealContext.getTheme();
+            }
+
+            @Override
+            public SharedPreferences getSharedPreferences(String name, int mode) {
+                return new MockSharedPreferences();
             }
         }
 
