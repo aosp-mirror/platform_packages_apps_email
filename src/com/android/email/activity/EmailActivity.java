@@ -64,6 +64,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     private static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
+    private static final String EXTRA_FORCE_PANE_MODE = "FORCE_PANE_MODE";
 
     /** Loader IDs starting with this is safe to use from UIControllers. */
     static final int UI_CONTROLLER_LOADER_ID_BASE = 100;
@@ -78,7 +79,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     private Controller mController;
     private Controller.Result mControllerResult;
 
-    private final UIControllerTwoPane mUIController = new UIControllerTwoPane(this);
+    private UIControllerBase mUIController;
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
@@ -91,45 +92,46 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     private int mDialogSelection = -1;
 
     /**
-     * Launch and open account's inbox.
+     * Create an intent to launch and open account's inbox.
      *
      * @param accountId If -1, default account will be used.
      */
-    public static void actionOpenAccount(Activity fromActivity, long accountId) {
+    public static Intent createOpenAccountIntent(Activity fromActivity, long accountId) {
         Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
         if (accountId != -1) {
             i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         }
-        fromActivity.startActivity(i);
+        return i;
     }
 
     /**
-     * Launch and open a mailbox.
+     * Create an intent to launch and open a mailbox.
      *
      * @param accountId must not be -1.
      * @param mailboxId must not be -1.  Magic mailboxes IDs (such as
      * {@link Mailbox#QUERY_ALL_INBOXES}) don't work.
      */
-    public static void actionOpenMailbox(Activity fromActivity, long accountId, long mailboxId) {
+    public static Intent createOpenMailboxIntent(Activity fromActivity, long accountId,
+            long mailboxId) {
         if (accountId == -1 || mailboxId == -1) {
             throw new InvalidParameterException();
         }
         Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
-        fromActivity.startActivity(i);
+        return i;
     }
 
     /**
-     * Launch and open a message.
+     * Create an intent to launch and open a message.
      *
      * @param accountId must not be -1.
      * @param mailboxId must not be -1.  Magic mailboxes IDs (such as
      * {@link Mailbox#QUERY_ALL_INBOXES}) don't work.
      * @param messageId must not be -1.
      */
-    public static void actionOpenMessage(Activity fromActivity, long accountId, long mailboxId,
-            long messageId) {
+    public static Intent createOpenMessageIntent(Activity fromActivity, long accountId,
+            long mailboxId, long messageId) {
         if (accountId == -1 || mailboxId == -1 || messageId == -1) {
             throw new InvalidParameterException();
         }
@@ -137,15 +139,48 @@ public class EmailActivity extends Activity implements View.OnClickListener {
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         i.putExtra(EXTRA_MESSAGE_ID, messageId);
-        fromActivity.startActivity(i);
+        return i;
+    }
+
+    /**
+     * Set a debug flag to an intent to force open in 1-pane or 2-pane.
+     *
+     * @param useTwoPane true to open in 2-pane.  false to open in 1-pane.
+     */
+    public static void forcePaneMode(Intent i, boolean useTwoPane) {
+        i.putExtra(EXTRA_FORCE_PANE_MODE, useTwoPane ? 2 : 1);
+    }
+
+    /**
+     * Initialize {@link #mUIController}.
+     */
+    private void initUIController() {
+        final boolean twoPane;
+        switch (getIntent().getIntExtra(EXTRA_FORCE_PANE_MODE, -1)) {
+            case 1:
+                twoPane = false;
+                break;
+            case 2:
+                twoPane = true;
+                break;
+            default:
+                twoPane = getResources().getBoolean(R.bool.use_two_pane);
+                break;
+        }
+        mUIController = twoPane ? new UIControllerTwoPane(this) : new UIControllerOnePane(this);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onCreate");
+
+        // UIController is used in onPrepareOptionsMenu(), which can be called from within
+        // super.onCreate(), so we need to initialize it here.
+        initUIController();
+
         super.onCreate(savedInstanceState);
         ActivityHelper.debugSetWindowFlags(this);
-        setContentView(R.layout.message_list_xl);
+        setContentView(mUIController.getLayoutId());
 
         mUIController.onActivityViewReady();
 
@@ -212,7 +247,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     protected void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onStart");
         super.onStart();
-        mUIController.onStart();
+        mUIController.onActivityStart();
 
         // STOPSHIP Temporary search UI
         Intent intent = getIntent();
@@ -245,7 +280,8 @@ public class EmailActivity extends Activity implements View.OnClickListener {
             msg.mTimeStamp = Long.MAX_VALUE; // Sort on top
             msg.save(mContext);
 
-            actionOpenMessage(EmailActivity.this, accountId, searchMailbox.mId, msg.mId);
+            startActivity(createOpenMessageIntent(EmailActivity.this,
+                    accountId, searchMailbox.mId, msg.mId));
             Utility.runAsync(new Runnable() {
                 @Override
                 public void run() {
@@ -260,7 +296,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     protected void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onResume");
         super.onResume();
-        mUIController.onResume();
+        mUIController.onActivityResume();
         /**
          * In {@link MessageList#onResume()}, we go back to {@link Welcome} if an account
          * has been added/removed. We don't need to do that here, because we fetch the most
@@ -273,14 +309,14 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     protected void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onPause");
         super.onPause();
-        mUIController.onPause();
+        mUIController.onActivityPause();
     }
 
     @Override
     protected void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onStop");
         super.onStop();
-        mUIController.onStop();
+        mUIController.onActivityStop();
     }
 
     @Override
@@ -288,7 +324,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onDestroy");
         mController.removeResultCallback(mControllerResult);
         mTaskTracker.cancellAllInterrupt();
-        mUIController.onDestroy();
+        mUIController.onActivityDestroy();
         super.onDestroy();
     }
 
@@ -348,14 +384,13 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     public boolean onSearchRequested() {
         Bundle bundle = new Bundle();
         bundle.putLong(EXTRA_ACCOUNT_ID, mUIController.getActualAccountId());
-        bundle.putLong(EXTRA_MAILBOX_ID, mUIController.getMessageListMailboxId());
+        bundle.putLong(EXTRA_MAILBOX_ID, mUIController.getSearchMailboxId());
         startSearch(null, false, bundle, false);
         return true;
     }
 
     // STOPSHIP Set column from user options
-    private void setMailboxColumn(String column, String value) {
-        final long mailboxId = mUIController.getMessageListMailboxId();
+    private void setMailboxColumn(long mailboxId, String column, String value) {
         if (mailboxId > 0) {
             ContentValues cv = new ContentValues();
             cv.put(column, value);
@@ -397,8 +432,11 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     @Override
     @Deprecated
     protected Dialog onCreateDialog(int id, Bundle args) {
-        Mailbox mailbox
-                = Mailbox.restoreMailboxWithId(this, mUIController.getMessageListMailboxId());
+        final long mailboxId = mUIController.getMailboxSettingsMailboxId();
+        if (mailboxId < 0) {
+            return null;
+        }
+        final Mailbox mailbox = Mailbox.restoreMailboxWithId(this, mailboxId);
         if (mailbox == null) return null;
         switch (id) {
             case MAILBOX_SYNC_FREQUENCY_DIALOG:
@@ -416,7 +454,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
                             mSelectionListener)
                     .setPositiveButton(R.string.okay_action, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            setMailboxColumn(MailboxColumns.SYNC_INTERVAL,
+                            setMailboxColumn(mailboxId, MailboxColumns.SYNC_INTERVAL,
                                     freqValues[mDialogSelection]);
                         }})
                     .setNegativeButton(R.string.cancel_action, mCancelListener)
@@ -435,7 +473,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
                             mSelectionListener)
                     .setPositiveButton(R.string.okay_action, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            setMailboxColumn(MailboxColumns.SYNC_LOOKBACK,
+                            setMailboxColumn(mailboxId, MailboxColumns.SYNC_LOOKBACK,
                                     windowValues[mDialogSelection]);
                         }})
                     .setNegativeButton(R.string.cancel_action, mCancelListener)

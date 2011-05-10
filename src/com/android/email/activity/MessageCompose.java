@@ -299,7 +299,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (accountId == -1) {
             // There are no accounts set up. This should not have happened. Prompt the
             // user to set up an account as an acceptable bailout.
-            AccountFolderList.actionShowAccounts(this);
+            Welcome.actionStart(this);
             finish();
         } else {
             setAccount(Account.restoreAccountWithId(this, accountId));
