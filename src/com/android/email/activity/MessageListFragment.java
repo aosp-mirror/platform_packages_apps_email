@@ -1200,6 +1200,8 @@ public class MessageListFragment extends ListFragment
      * <li>If {@code mailboxId} is not of a magic inbox (i.e. >= 0) and {@code
      * accountId} is valid, reset the count of the specified account.
      * </ul>
+     * TODO Instead of resetting the message count, we should just be suspending the notification
+     *  controller for the correct accounts. Need to ensure we resume notifications appropriately.
      */
     private static void resetNewMessageCount(
             Context context, long mailboxId, long accountId) {

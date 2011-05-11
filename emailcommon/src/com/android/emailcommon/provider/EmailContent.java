@@ -619,21 +619,6 @@ public abstract class EmailContent {
         private static final String ACCOUNT_FAVORITE_SELECTION =
             ACCOUNT_KEY_SELECTION + " AND " + ALL_FAVORITE_SELECTION;
 
-        /**
-         * Selection for latest incoming messages.  In order to tell whether incoming or not,
-         * we need the mailbox type, which is in the mailbox table, not the message table, so
-         * use a subquery.
-         */
-        private static final String LATEST_INCOMING_MESSAGE_SELECTION =
-            MessageColumns.MAILBOX_KEY + " IN (SELECT " + RECORD_ID + " FROM " + Mailbox.TABLE_NAME
-            + " WHERE " + MailboxColumns.ACCOUNT_KEY + "=? AND "
-            + Mailbox.USER_VISIBLE_MAILBOX_SELECTION + " AND "
-            + MailboxColumns.TYPE + " NOT IN ("
-                + Mailbox.TYPE_DRAFTS + ","
-                + Mailbox.TYPE_OUTBOX + ","
-                + Mailbox.TYPE_SENT
-            + "))";
-
         // _id field is in AbstractContent
         public String mDisplayName;
         public long mTimeStamp;
@@ -923,26 +908,6 @@ public abstract class EmailContent {
                 return Long.parseLong(columns[0]);
             }
             return -1;
-        }
-
-        /**
-         * @return the latest messages on an account.
-         */
-        public static Message getLatestIncomingMessage(Context context, Long accountId) {
-            Cursor c = context.getContentResolver().query(Message.CONTENT_URI_LIMIT_1,
-                    Message.CONTENT_PROJECTION,
-                    LATEST_INCOMING_MESSAGE_SELECTION, new String[] {Long.toString(accountId)},
-                    EmailContent.MessageColumns.TIMESTAMP + " DESC");
-            try {
-                if (c.moveToFirst()) {
-                    Message m = new Message();
-                    m.restore(c);
-                    return m;
-                }
-            } finally {
-                c.close();
-            }
-            return null; // not found;
         }
     }
 

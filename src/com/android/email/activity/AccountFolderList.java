@@ -204,6 +204,8 @@ public class AccountFolderList extends Activity implements AccountFolderListFrag
                 public void onClick(DialogInterface dialog, int whichButton) {
                     final long accountId = mSelectedContextAccount.mId;
                     dismissDialog(DIALOG_REMOVE_ACCOUNT);
+                    // TODO Do this automatically in the NotificationController as part of a
+                    // ContentObserver
                     // Dismiss new message notification.
                     NotificationController.getInstance(activity)
                             .cancelNewMessageNotification(accountId);

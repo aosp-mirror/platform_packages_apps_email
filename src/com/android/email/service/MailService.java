@@ -149,8 +149,9 @@ public class MailService extends Service {
      *
      * @param accountId account to clear, or -1 for all accounts
      */
+    @SuppressWarnings("deprecation")
     public static void resetNewMessageCount(final Context context, final long accountId) {
-        NotificationController.getInstance(context).cancelNewMessageNotification(accountId);
+        NotificationController.getInstance(context).resetMessageNotification(accountId);
     }
 
     /**
@@ -211,6 +212,7 @@ public class MailService extends Service {
         mContext = this;
 
         final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        NotificationController.getInstance(mContext).watchForMessages(true);
 
         if (ACTION_CHECK_MAIL.equals(action)) {
             // DB access required to satisfy this intent, so offload from UI thread
@@ -309,11 +311,6 @@ public class MailService extends Service {
             EmailAsyncTask.runAsyncParallel(new Runnable() {
                 @Override
                 public void run() {
-                    // Clear all notifications, in case account list has changed.
-                    NotificationController
-                        .getInstance(MailService.this)
-                        .cancelNewMessageNotification(-1);
-
                     // When called externally, we refresh the sync reports table to pick up
                     // any changes in the account list or account settings
                     refreshSyncReports();
@@ -323,31 +320,10 @@ public class MailService extends Service {
                 }
             });
         } else if (ACTION_NOTIFY_MAIL.equals(action)) {
-            // DB access required to satisfy this intent, so offload from UI thread
-            EmailAsyncTask.runAsyncParallel(new Runnable() {
-                @Override
-                public void run() {
-                    int newMessageCount = intent.getIntExtra(EXTRA_MESSAGE_ID_COUNT, 0);
-                    ArrayList<Long> messageIdList = new ArrayList<Long>();
-                    for (int i = 0; i < newMessageCount; i++) {
-                        final long messageId =
-                                intent.getLongExtra(EXTRA_MESSAGE_ID_PREFIX + i, -1L);
-                        if (messageId <= 0) {
-                            // What else to do here?? This should never happen ...
-                            Log.w(LOG_TAG, "invalid message id in notification; id: " + messageId);
-                            continue;
-                        }
-                        messageIdList.add(messageId);
-                    }
-                    updateAccountReport(accountId, newMessageCount);
-                    notifyNewMessages(accountId, messageIdList);
-                    if (Email.DEBUG) {
-                        Log.d(LOG_TAG, "notify accountId=" + Long.toString(accountId)
-                                + " count=" + newMessageCount);
-                    }
-                    stopSelf(startId);
-                }
-            });
+            // No need to do anything. For now, we need to tickle the MailService so it starts
+            // up the notification controller. It may make sense to put the notification controller
+            // in a place where it can live longer.
+            stopSelf(startId);
         }
 
         // Returning START_NOT_STICKY means that if a mail check is killed (e.g. due to memory
@@ -365,6 +341,7 @@ public class MailService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        NotificationController.getInstance(mContext).watchForMessages(false);
         Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
     }
 
@@ -715,9 +692,6 @@ public class MailService extends Service {
                 if (mailboxId == inboxId) {
                     if (progress == 100) {
                         updateAccountReport(accountId, numNewMessages);
-                        if (numNewMessages > 0) {
-                            notifyNewMessages(accountId, addedMessages);
-                        }
                     } else {
                         updateAccountReport(accountId, -1);
                     }
@@ -743,21 +717,6 @@ public class MailService extends Service {
                 stopSelf(serviceId);
             }
         }
-    }
-
-    /**
-     * Show "new message" notification for an account.  (Notification is shown per account.)
-     */
-    private void notifyNewMessages(final long accountId, ArrayList<Long> addedMessages) {
-        synchronized (mSyncReports) {
-            AccountSyncReport report = mSyncReports.get(accountId);
-            if (report == null || !report.notify) {
-                return;
-            }
-        }
-
-        NotificationController.getInstance(this)
-            .showNewMessageNotification(accountId, addedMessages);
     }
 
     /**
