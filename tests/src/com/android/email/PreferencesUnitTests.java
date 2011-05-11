@@ -21,8 +21,6 @@ import android.net.Uri;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import java.util.HashMap;
-
 /**
  * This is a series of unit tests for the Preferences class.
  *
@@ -44,27 +42,6 @@ public class PreferencesUnitTests extends AndroidTestCase {
         mPreferences = Preferences.getPreferences(mMockContext);
     }
 
-    /** Just because this does exist anywhere else */
-    private void assertEquals(long[] expected, long[] actual) {
-        assertNotNull(actual);
-        assertEquals(expected.length, actual.length);
-        for (int i = expected.length - 1; i >= 0; i--) {
-            if (expected[i] != actual[i]) {
-                fail("expected array element[" + i + "]:<"
-                        + expected[i] + "> but was:<" + actual[i] + '>');
-            }
-        }
-    }
-    private void assertEquals(HashMap<Long, long[]> expected, HashMap<Long, long[]> actual) {
-        assertNotNull(actual);
-        assertEquals(expected.size(), actual.size());
-        for (Long key : expected.keySet()) {
-            assertTrue(actual.containsKey(key));
-            long[] expectedArray = expected.get(key);
-            long[] actualArray = actual.get(key);
-            assertEquals(expectedArray, actualArray);
-        }
-    }
     /**
      * Test the new getAccountByContentUri() API.  This should return null if no
      * accounts are configured, or the Uri doesn't match, and it should return a desired account
@@ -96,143 +73,5 @@ public class PreferencesUnitTests extends AndroidTestCase {
         testAccountUri = Uri.parse("content://accounts/" + account.getUuid() + "-bogus");
         lookup = mPreferences.getAccountByContentUri(testAccountUri);
         assertNull(lookup);
-    }
-
-    public void testSetMessageNotificationTable() {
-        HashMap<Long, long[]> testTable = new HashMap<Long, long[]>();
-        String testString;
-
-        // One account
-        testTable.clear();
-        testTable.put(5L, new long[] { 2L, 3L });
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "value_unset").apply();
-        mPreferences.setMessageNotificationTable(testTable);
-        testString = mPreferences.mSharedPreferences.getString("messageNotificationTable", null);
-        assertEquals("5:2,3", testString);
-
-        // Multiple accounts
-        // NOTE: This assumes a very specific order in the hash map and is fragile; if the hash
-        // map is ever changed, this may break unexpectedly.
-        testTable.clear();
-        testTable.put(5L, new long[] { 2L, 3L });
-        testTable.put(3L, new long[] { 1L, 8L });
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "value_unset").apply();
-        mPreferences.setMessageNotificationTable(testTable);
-        testString = mPreferences.mSharedPreferences.getString("messageNotificationTable", null);
-        assertEquals("5:2,3;3:1,8", testString);
-
-        // Wrong number of elements in the array
-        // NOTE: This assumes a very specific order in the hash map and is fragile; if the hash
-        // map is ever changed, this may break unexpectedly.
-        testTable.clear();
-        testTable.put(5L, new long[] { 2L, 3L, 8L }); // too many
-        testTable.put(3L, new long[] { 1L, 8L });
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "value_unset_1").apply();
-        try {
-            mPreferences.setMessageNotificationTable(testTable);
-            fail("expected an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-        testString = mPreferences.mSharedPreferences.getString("messageNotificationTable", null);
-        assertEquals("value_unset_1", testString);
-        testTable.clear();
-        testTable.put(5L, new long[] { 2L }); // too few
-        testTable.put(3L, new long[] { 1L, 8L });
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "value_unset_2").apply();
-        try {
-            mPreferences.setMessageNotificationTable(testTable);
-            fail("expected an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-        testString = mPreferences.mSharedPreferences.getString("messageNotificationTable", null);
-        assertEquals("value_unset_2", testString);
-
-        // Nulls in strange places
-        testTable.clear();
-        testTable.put(5L, null); // no array
-        testTable.put(3L, new long[] { 1L, 8L });
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "value_unset_3").apply();
-        try {
-            mPreferences.setMessageNotificationTable(testTable);
-            fail("expected an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-        testString = mPreferences.mSharedPreferences.getString("messageNotificationTable", null);
-        assertEquals("value_unset_3", testString);
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "value_unset_4").apply();
-        try {
-            mPreferences.setMessageNotificationTable(null); // no table
-            fail("expected an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-        }
-        testString = mPreferences.mSharedPreferences.getString("messageNotificationTable", null);
-        assertEquals("value_unset_4", testString);
-    }
-
-    public void testGetMessageNotificationTable() {
-        HashMap<Long, long[]> testTable;
-        HashMap<Long, long[]> expectedTable = new HashMap<Long, long[]>();
-
-        // Test initial condition
-        assertFalse(mPreferences.mSharedPreferences.contains("messageNotificationTable"));
-
-        // One account
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "5:2,3").apply();
-        testTable = mPreferences.getMessageNotificationTable();
-        expectedTable.clear();
-        expectedTable.put(5L, new long[] { 2L, 3L });
-        assertEquals(expectedTable, testTable);
-
-        // Multiple accounts
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "5:2,3;3:1,8;6:5,3").apply();
-        testTable = mPreferences.getMessageNotificationTable();
-        expectedTable.clear();
-        expectedTable.put(5L, new long[] { 2L, 3L });
-        expectedTable.put(3L, new long[] { 1L, 8L });
-        expectedTable.put(6L, new long[] { 5L, 3L });
-        assertEquals(expectedTable, testTable);
-
-        // Empty account
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "5:2,3;").apply();
-        testTable = mPreferences.getMessageNotificationTable();
-        expectedTable.clear();
-        expectedTable.put(5L, new long[] { 2L, 3L });
-        assertEquals(expectedTable, testTable);
-
-        // Empty fields
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "5:2,3;3:").apply();
-        testTable = mPreferences.getMessageNotificationTable();
-        expectedTable.clear();
-        expectedTable.put(5L, new long[] { 2L, 3L });
-        assertEquals(expectedTable, testTable);
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "5:2,3;3:1,").apply();
-        testTable = mPreferences.getMessageNotificationTable();
-        expectedTable.clear();
-        expectedTable.put(5L, new long[] { 2L, 3L });
-        assertEquals(expectedTable, testTable);
-
-        // Garbage
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "blahblahblah").apply();
-        testTable = mPreferences.getMessageNotificationTable();
-        expectedTable.clear();
-        assertEquals(expectedTable, testTable); // empty table
-        mPreferences.mSharedPreferences.edit()
-                .putString("messageNotificationTable", "5:2,3;blahblahblah").apply();
-        testTable = mPreferences.getMessageNotificationTable();
-        expectedTable.clear();
-        expectedTable.put(5L, new long[] { 2L, 3L });
-        assertEquals(expectedTable, testTable);
     }
 }

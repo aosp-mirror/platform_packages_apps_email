@@ -75,10 +75,6 @@ public class NotificationController {
         Account.FLAGS + "&" + Account.FLAGS_NOTIFY_NEW_MAIL + " != 0";
     /** special account ID for the new message notification APIs to specify "all accounts" */
     private static final long ALL_ACCOUNTS = -1L;
-    /** Index into notification table returned from system preferences */
-    private static final int NOTIFIED_MESSAGE_ID_INDEX = 0;
-    /** Index into notification table returned from system preferences */
-    private static final int NOTIFIED_MESSAGE_COUNT_INDEX = 1;
 
     private static NotificationThread sNewMessageThread;
     private static Handler sNewMessageHandler;
@@ -212,13 +208,6 @@ public class NotificationController {
                 ContentResolver resolver = mContext.getContentResolver();
                 HashMap<Long, long[]> table;
                 if (!watch) {
-                    table = new HashMap<Long, long[]>();
-                    for (Long key : mNotificationMap.keySet()) {
-                        MessageData data = mNotificationMap.get(key);
-                        table.put(key,
-                                new long[] { data.mNotifiedMessageId, data.mNotifiedMessageCount });
-                    }
-                    Preferences.getPreferences(mContext).setMessageNotificationTable(table);
                     unregisterMessageNotification(ALL_ACCOUNTS);
                     // TODO cancel existing account observers
 
@@ -231,18 +220,6 @@ public class NotificationController {
 
                 // otherwise, start new observers for all notified accounts
                 registerMessageNotification(ALL_ACCOUNTS);
-                // Need to load preferences _after_ starting the notifications. Otherwise, the
-                // notification map will not be built.
-                table = Preferences.getPreferences(mContext).getMessageNotificationTable();
-                for (Long key : table.keySet()) {
-                    MessageData data = mNotificationMap.get(key);
-                    if (data != null) {
-                        long[] value = table.get(key);
-
-                        data.mNotifiedMessageId = value[NOTIFIED_MESSAGE_ID_INDEX];
-                        data.mNotifiedMessageCount = (int) value[NOTIFIED_MESSAGE_COUNT_INDEX];
-                    }
-                }
                 // Loop through the observers and fire them once
                 for (MessageData data : mNotificationMap.values()) {
                     if (data.mObserver != null) {
