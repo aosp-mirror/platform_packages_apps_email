@@ -31,9 +31,11 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.ProviderUnavailableException;
 import com.android.emailcommon.utility.Utility;
+
 import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Notification;
+import android.app.Notification.Builder;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
@@ -122,7 +124,7 @@ public class NotificationController {
      * @param contentText The second line of text. May NOT be {@code null}.
      * @param intent The intent to start if the user clicks on the notification.
      * @param largeIcon A large icon. May be {@code null}
-     * @param number A number to display using {@link Notification.Builder#setNumber(int)}. May
+     * @param number A number to display using {@link Builder#setNumber(int)}. May
      *        be {@code null}.
      * @param enableAudio If {@code false}, do not play any sound. Otherwise, play sound according
      *        to the settings for the given account.
@@ -260,6 +262,10 @@ public class NotificationController {
 
             data = new MessageData();
             Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
+            if (mailbox == null) {
+                Log.w(Logging.LOG_TAG, "Could not load INBOX for account id: " + accountId);
+                return;
+            }
             ContentObserver observer = new MessageContentObserver(
                     sNewMessageHandler, mContext, mailbox.mId, accountId);
             resolver.registerContentObserver(Message.NOTIFIER_URI, true, observer);
