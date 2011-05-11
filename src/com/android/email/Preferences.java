@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import java.util.HashMap;
 import java.util.UUID;
 
 public class Preferences {
@@ -43,7 +42,6 @@ public class Preferences {
     private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
     private static final String TEXT_ZOOM = "textZoom";
     private static final String BACKGROUND_ATTACHMENTS = "backgroundAttachments";
-    private static final String MESSAGE_NOTIFICATION_TABLE = "messageNotificationTable";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;
@@ -183,55 +181,6 @@ public class Preferences {
         mSharedPreferences.edit().putBoolean(BACKGROUND_ATTACHMENTS, allowed).apply();
     }
 
-    public HashMap<Long, long[]> getMessageNotificationTable() {
-        HashMap<Long, long[]> table = new HashMap<Long, long[]>();
-        // The table is encoded as a string with the following format:
-        //   K:V1,V2;K:V1,V2;...
-        // Where 'K' is the table key and 'V1' and 'V2' are the array values associated with the key
-        // Multiple key/value pairs are separated from one another by a ';'.
-        String preference = mSharedPreferences.getString(MESSAGE_NOTIFICATION_TABLE, "");
-        String[] entries = preference.split(";");
-        for (String entry : entries) {
-            try {
-                String hash[] = entry.split(":");
-                if (hash.length != 2) continue;
-                String stringValues[] = hash[1].split(",");
-                if (stringValues.length != 2) continue;
-                long key = Long.parseLong(hash[0]);
-                long[] value = new long[2];
-                value[0] = Long.parseLong(stringValues[0]);
-                value[1] = Long.parseLong(stringValues[1]);
-                table.put(key, value);
-            } catch (NumberFormatException e) {
-                Log.w(Logging.LOG_TAG, "notification table preference corrupt");
-                continue;
-            }
-        }
-        return table;
-    }
-
-    /**
-     * Sets the message notification table.
-     * @throws IllegalArgumentException if the given table is null or any of the value arrays do
-     *      not have exactly 2 elements.
-     */
-    public void setMessageNotificationTable(HashMap<Long, long[]> notificationTable) {
-        StringBuffer sb = new StringBuffer();
-        boolean first = true;
-        if (notificationTable == null) throw new IllegalArgumentException("table cannot be null");
-        for (Long key : notificationTable.keySet()) {
-            if (!first) {
-                sb.append(';');
-            }
-            long[] value = notificationTable.get(key);
-            if (value == null || value.length != 2) {
-                throw new IllegalArgumentException("value array must contain 2 elements");
-            }
-            sb.append(key).append(':').append(value[0]).append(',').append(value[1]);
-            first = false;
-        }
-        mSharedPreferences.edit().putString(MESSAGE_NOTIFICATION_TABLE, sb.toString()).apply();
-    }
     public void save() {
     }
 

@@ -339,6 +339,12 @@
             >
         </service>
 
+        <service
+            android:name=".service.NotificationService"
+            android:enabled="false"
+            >
+        </service>
+
         <!--Required stanza to register the PopImapAuthenticatorService with AccountManager -->
         <service
             android:name=".service.PopImapAuthenticatorService"

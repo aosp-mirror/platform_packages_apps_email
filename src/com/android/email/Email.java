@@ -20,10 +20,12 @@ import com.android.email.activity.AccountShortcutPicker;
 import com.android.email.activity.MessageCompose;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.MailService;
+import com.android.email.service.NotificationService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Application;
@@ -106,7 +108,7 @@ public class Email extends Application {
      * @param context
      */
     public static void setServicesEnabledAsync(final Context context) {
-        Utility.runAsync(new Runnable() {
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
             @Override
             public void run() {
                 setServicesEnabledSync(context);
@@ -172,6 +174,11 @@ public class Email extends Application {
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
+        pm.setComponentEnabledSetting(
+                new ComponentName(context, NotificationService.class),
+                enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP);
         if (enabled && pm.getComponentEnabledSetting(
                 new ComponentName(context, MailService.class)) ==
                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
@@ -181,8 +188,19 @@ public class Email extends Application {
              */
             MailService.actionReschedule(context);
         }
-        // Start/stop the AttachmentDownloadService, depending on whether there are any accounts
-        Intent intent = new Intent(context, AttachmentDownloadService.class);
+
+        // Start/stop the various services depending on whether there are any accounts
+        startOrStopService(enabled, context, new Intent(context, AttachmentDownloadService.class));
+        startOrStopService(enabled, context, new Intent(context, NotificationService.class));
+    }
+
+    /**
+     * Starts or stops the service as necessary.
+     * @param enabled If {@code true}, the service will be started. Otherwise, it will be stopped.
+     * @param context The context to manage the service with.
+     * @param intent The intent of the service to be managed.
+     */
+    private static void startOrStopService(boolean enabled, Context context, Intent intent) {
         if (enabled) {
             context.startService(intent);
         } else {

@@ -212,7 +212,6 @@ public class MailService extends Service {
         mContext = this;
 
         final AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        NotificationController.getInstance(mContext).watchForMessages(true);
 
         if (ACTION_CHECK_MAIL.equals(action)) {
             // DB access required to satisfy this intent, so offload from UI thread
@@ -341,7 +340,6 @@ public class MailService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        NotificationController.getInstance(mContext).watchForMessages(false);
         Controller.getInstance(getApplication()).removeResultCallback(mControllerCallback);
     }
 
