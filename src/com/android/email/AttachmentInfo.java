@@ -40,13 +40,14 @@ import java.util.List;
 public class AttachmentInfo {
     // Projection which can be used with the constructor taking a Cursor argument
     public static final String[] PROJECTION = new String[] {Attachment.RECORD_ID, Attachment.SIZE,
-        Attachment.FILENAME, Attachment.MIME_TYPE, Attachment.ACCOUNT_KEY};
+        Attachment.FILENAME, Attachment.MIME_TYPE, Attachment.ACCOUNT_KEY, Attachment.FLAGS};
     // Offsets into PROJECTION
     public static final int COLUMN_ID = 0;
     public static final int COLUMN_SIZE = 1;
     public static final int COLUMN_FILENAME = 2;
     public static final int COLUMN_MIME_TYPE = 3;
     public static final int COLUMN_ACCOUNT_KEY = 4;
+    public static final int COLUMN_FLAGS = 5;
 
     /** Attachment not denied */
     public static final int ALLOW           = 0x00;
@@ -61,12 +62,15 @@ public class AttachmentInfo {
     // TODO Remove DENY_APKINSTALL when we can install directly from the Email activity
     /** Unable to install any APK */
     public static final int DENY_APKINSTALL = 0x10;
+    /** Security policy prohibits install */
+    public static final int DENY_POLICY = 0x20;
 
     public final long mId;
     public final long mSize;
     public final String mName;
     public final String mContentType;
     public final long mAccountKey;
+    public final int mFlags;
 
     /** Whether or not this attachment can be viewed */
     public final boolean mAllowView;
@@ -79,25 +83,28 @@ public class AttachmentInfo {
 
     public AttachmentInfo(Context context, Attachment attachment) {
         this(context, attachment.mId, attachment.mSize, attachment.mFileName, attachment.mMimeType,
-                attachment.mAccountKey);
+                attachment.mAccountKey, attachment.mFlags);
     }
 
     public AttachmentInfo(Context context, Cursor c) {
         this(context, c.getLong(COLUMN_ID), c.getLong(COLUMN_SIZE), c.getString(COLUMN_FILENAME),
-                c.getString(COLUMN_MIME_TYPE), c.getLong(COLUMN_ACCOUNT_KEY));
+                c.getString(COLUMN_MIME_TYPE), c.getLong(COLUMN_ACCOUNT_KEY),
+                c.getInt(COLUMN_FLAGS));
     }
 
     public AttachmentInfo(Context context, AttachmentInfo info) {
-        this(context, info.mId, info.mSize, info.mName, info.mContentType, info.mAccountKey);
+        this(context, info.mId, info.mSize, info.mName, info.mContentType, info.mAccountKey,
+                info.mFlags);
     }
 
     public AttachmentInfo(Context context, long id, long size, String fileName, String mimeType,
-            long accountKey) {
+            long accountKey, int flags) {
         mSize = size;
         mContentType = AttachmentUtilities.inferMimeType(fileName, mimeType);
         mName = fileName;
         mId = id;
         mAccountKey = accountKey;
+        mFlags = flags;
         boolean canView = true;
         boolean canSave = true;
         boolean canInstall = false;
@@ -124,6 +131,13 @@ public class AttachmentInfo {
             canView = false;
             canSave = false;
             denyFlags |= DENY_MALWARE;
+        }
+
+        // Check for policy restrictions on download
+        if ((flags & Attachment.FLAG_POLICY_DISALLOWS_DOWNLOAD) != 0) {
+            canView = false;
+            canSave = false;
+            denyFlags |= DENY_POLICY;
         }
 
         // Check for installable attachments by filename extension
