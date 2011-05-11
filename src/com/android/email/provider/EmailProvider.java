@@ -1221,9 +1221,7 @@ public class EmailProvider extends ContentProvider {
         }
 
         // Notify all notifier cursors
-        if (match == MESSAGE || match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
-            sendNotifierChange(Message.NOTIFIER_URI, NOTIFICATION_OP_DELETE, id);
-        }
+        sendNotifierChange(getBaseNotificationUri(match), NOTIFICATION_OP_DELETE, id);
 
         // Notify all email content cursors
         resolver.notifyChange(EmailContent.CONTENT_URI, null);
@@ -1358,9 +1356,7 @@ public class EmailProvider extends ContentProvider {
         }
 
         // Notify all notifier cursors
-        if (match == MESSAGE) {
-            sendNotifierChange(Message.NOTIFIER_URI, NOTIFICATION_OP_INSERT, id);
-        }
+        sendNotifierChange(getBaseNotificationUri(match), NOTIFICATION_OP_INSERT, id);
 
         // Notify all existing cursors.
         resolver.notifyChange(EmailContent.CONTENT_URI, null);
@@ -1858,12 +1854,31 @@ public class EmailProvider extends ContentProvider {
         }
 
         // Notify all notifier cursors
-        if (match == MESSAGE || match == MESSAGE_ID || match == SYNCED_MESSAGE_ID) {
-            sendNotifierChange(Message.NOTIFIER_URI, NOTIFICATION_OP_UPDATE, id);
-        }
+        sendNotifierChange(getBaseNotificationUri(match), NOTIFICATION_OP_UPDATE, id);
 
         resolver.notifyChange(notificationUri, null);
         return result;
+    }
+
+    /**
+     * Returns the base notification URI for the given content type.
+     *
+     * @param match The type of content that was modified.
+     */
+    private Uri getBaseNotificationUri(int match) {
+        Uri baseUri = null;
+        switch (match) {
+            case MESSAGE:
+            case MESSAGE_ID:
+            case SYNCED_MESSAGE_ID:
+                baseUri = Message.NOTIFIER_URI;
+                break;
+            case ACCOUNT:
+            case ACCOUNT_ID:
+                baseUri = Account.NOTIFIER_URI;
+                break;
+        }
+        return baseUri;
     }
 
     /**
@@ -1881,6 +1896,8 @@ public class EmailProvider extends ContentProvider {
      *           appended to the base URI.
      */
     private void sendNotifierChange(Uri baseUri, String op, String id) {
+        if (baseUri == null) return;
+
         final ContentResolver resolver = getContext().getContentResolver();
 
         // Append the operation, if specified

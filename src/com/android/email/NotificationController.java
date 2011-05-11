@@ -29,7 +29,6 @@ import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.provider.ProviderUnavailableException;
 import com.android.emailcommon.utility.Utility;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -56,6 +55,7 @@ import android.text.style.TextAppearanceSpan;
 import android.util.Log;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Class that manages notifications.
@@ -78,8 +78,8 @@ public class NotificationController {
     /** special account ID for the new message notification APIs to specify "all accounts" */
     private static final long ALL_ACCOUNTS = -1L;
 
-    private static NotificationThread sNewMessageThread;
-    private static Handler sNewMessageHandler;
+    private static NotificationThread sNotificationThread;
+    private static Handler sNotificationHandler;
     private static NotificationController sInstance;
     private final Context mContext;
     private final NotificationManager mNotificationManager;
@@ -91,6 +91,7 @@ public class NotificationController {
     // INBOX. We should adjust our logic to use the mailbox ID instead.
     /** Maps account id to the message data */
     private final HashMap<Long, MessageData> mNotificationMap;
+    private ContentObserver mAccountObserver;
 
     /** Constructor */
     @VisibleForTesting
@@ -195,41 +196,41 @@ public class NotificationController {
      */
     public void watchForMessages(final boolean watch) {
         // Don't create the thread if we're only going to stop watching
-        if (!watch && sNewMessageHandler == null) return;
+        if (!watch && sNotificationHandler == null) return;
 
         synchronized(sInstance) {
-            if (sNewMessageHandler == null) {
-                sNewMessageThread = new NotificationThread();
-                sNewMessageHandler = new Handler(sNewMessageThread.getLooper());
+            if (sNotificationHandler == null) {
+                sNotificationThread = new NotificationThread();
+                sNotificationHandler = new Handler(sNotificationThread.getLooper());
             }
         }
         // Run this on the message notification handler
-        sNewMessageHandler.post(new Runnable() {
+        sNotificationHandler.post(new Runnable() {
             @Override
             public void run() {
                 ContentResolver resolver = mContext.getContentResolver();
                 HashMap<Long, long[]> table;
                 if (!watch) {
                     unregisterMessageNotification(ALL_ACCOUNTS);
-                    // TODO cancel existing account observers
+                    if (mAccountObserver != null) {
+                        resolver.unregisterContentObserver(mAccountObserver);
+                        mAccountObserver = null;
+                    }
 
                     // tear down the event loop
-                    sNewMessageThread.quit();
-                    sNewMessageHandler = null;
-                    sNewMessageThread = null;
+                    sNotificationThread.quit();
+                    sNotificationHandler = null;
+                    sNotificationThread = null;
                     return;
                 }
 
                 // otherwise, start new observers for all notified accounts
                 registerMessageNotification(ALL_ACCOUNTS);
-                // Loop through the observers and fire them once
-                for (MessageData data : mNotificationMap.values()) {
-                    if (data.mObserver != null) {
-                        data.mObserver.onChange(true);
-                    }
+                // If we're already observing account changes, don't do anything else
+                if (mAccountObserver == null) {
+                    mAccountObserver = new AccountContentObserver(sNotificationHandler, mContext);
+                    resolver.registerContentObserver(Account.NOTIFIER_URI, true, mAccountObserver);
                 }
-                // TODO Add an account observer to track when an account is removed
-                // TODO Add an account observer to track when an account is added
             }
         });
     }
@@ -267,16 +268,19 @@ public class NotificationController {
                 return;
             }
             ContentObserver observer = new MessageContentObserver(
-                    sNewMessageHandler, mContext, mailbox.mId, accountId);
+                    sNotificationHandler, mContext, mailbox.mId, accountId);
             resolver.registerContentObserver(Message.NOTIFIER_URI, true, observer);
             data.mObserver = observer;
             mNotificationMap.put(accountId, data);
+            // Now, ping the observer for any initial notifications
+            data.mObserver.onChange(true);
         }
     }
 
     /**
      * Unregisters the observer for the given account. If the specified account does not have
-     * a registered observer, no action is performed.
+     * a registered observer, no action is performed. This will not clear any existing notification
+     * for the specified account. Use {@link NotificationManager#cancel(int)}.
      * NOTE: This must be called on the notification handler thread.
      * @param accountId The ID of the account to unregister from. May be {@link #ALL_ACCOUNTS} to
      *                  unregister all accounts that have observers.
@@ -300,40 +304,6 @@ public class NotificationController {
     }
 
     /**
-     * Cancels a "new message" notification for the specified account.
-     *
-     * @param accountId The ID of the account to cancel for. If {@link #ALL_ACCOUNTS}, "new message"
-     *                  notifications for all accounts will be canceled.
-     * @deprecated Components should not be invoking the notification controller directly.
-     */
-    @Deprecated
-    public void cancelNewMessageNotification(final long accountId) {
-        synchronized(sInstance) {
-            // If we don't have a handler, we'll figure out the correct accounts to
-            // notify the next time we start the controller.
-            if (sNewMessageHandler == null) return;
-        }
-
-        // Run this on the message notification handler
-        sNewMessageHandler.post(new Runnable() {
-            private void clearNotification(long accountId) {
-                if (accountId == ALL_ACCOUNTS) {
-                    for (long id : mNotificationMap.keySet()) {
-                        clearNotification(id);
-                    }
-                } else {
-                    unregisterMessageNotification(accountId);
-                    mNotificationManager.cancel(getNewMessageNotificationId(accountId));
-                }
-            }
-            @Override
-            public void run() {
-                clearNotification(accountId);
-            }
-        });
-    }
-
-    /**
      * Reset the message notification for the given account to the most recent message ID.
      * This is not complete and will still exhibit the existing (wrong) behaviour of notifying
      * the user even if the Email UX is visible.
@@ -344,14 +314,14 @@ public class NotificationController {
     @Deprecated
     public void resetMessageNotification(final long accountId) {
         synchronized(sInstance) {
-            if (sNewMessageHandler == null) {
-                sNewMessageThread = new NotificationThread();
-                sNewMessageHandler = new Handler(sNewMessageThread.getLooper());
+            if (sNotificationHandler == null) {
+                sNotificationThread = new NotificationThread();
+                sNotificationHandler = new Handler(sNotificationThread.getLooper());
             }
         }
 
         // Run this on the message notification handler
-        sNewMessageHandler.post(new Runnable() {
+        sNotificationHandler.post(new Runnable() {
             private void resetNotification(long accountId) {
                 if (accountId == ALL_ACCOUNTS) {
                     for (long id : mNotificationMap.keySet()) {
@@ -633,7 +603,11 @@ public class NotificationController {
                     MESSAGE_SELECTION,
                     new String[] { Long.toString(mMailboxId), Long.toString(lastSeenMessageId) },
                     MessageColumns.ID + " DESC");
-            if (c == null) throw new ProviderUnavailableException();
+            if (c == null) {
+                // Suspender time ... theoretically, this will never happen
+                Log.wtf(Logging.LOG_TAG, "#onChange(); NULL response for message id query");
+                return;
+            }
             try {
                 int newMessageCount = c.getCount();
                 long newMessageId = 0L;
@@ -643,8 +617,8 @@ public class NotificationController {
 
                 if (newMessageCount == 0) {
                     // No messages to notify for; clear the notification
-                    sInstance.mNotificationManager.cancel(
-                            sInstance.getNewMessageNotificationId(mAccountId));
+                    int notificationId = sInstance.getNewMessageNotificationId(mAccountId);
+                    sInstance.mNotificationManager.cancel(notificationId);
                 } else if (newMessageCount != oldMessageCount
                         || (newMessageId != 0 && newMessageId != oldMessageId)) {
                     // Either the count or last message has changed; update the notification
@@ -661,6 +635,62 @@ public class NotificationController {
                 data.mNotifiedMessageCount = newMessageCount;
             } finally {
                 c.close();
+            }
+        }
+    }
+
+    /**
+     * Observer invoked whenever an account is modified. This could mean the user changed the
+     * notification settings.
+     */
+    private static class AccountContentObserver extends ContentObserver {
+        private final Context mContext;
+        public AccountContentObserver(Handler handler, Context context) {
+            super(handler);
+            mContext = context;
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            final ContentResolver resolver = mContext.getContentResolver();
+            final Cursor c = resolver.query(
+                Account.CONTENT_URI, EmailContent.ID_PROJECTION,
+                NOTIFIED_ACCOUNT_SELECTION, null, null);
+            final HashSet<Long> newAccountList = new HashSet<Long>();
+            final HashSet<Long> removedAccountList = new HashSet<Long>();
+            if (c == null) {
+                // Suspender time ... theoretically, this will never happen
+                Log.wtf(Logging.LOG_TAG, "#onChange(); NULL response for account id query");
+                return;
+            }
+            try {
+                while (c.moveToNext()) {
+                    long accountId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
+                    newAccountList.add(accountId);
+                }
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
+            // NOTE: Looping over three lists is not necessarily the most efficient. However, the
+            // account lists are going to be very small, so, this will not be necessarily bad.
+            // Cycle through existing notification list and adjust as necessary
+            for (long accountId : sInstance.mNotificationMap.keySet()) {
+                if (!newAccountList.remove(accountId)) {
+                    // account id not in the current set of notifiable accounts
+                    removedAccountList.add(accountId);
+                }
+            }
+            // A new account was added to the notification list
+            for (long accountId : newAccountList) {
+                sInstance.registerMessageNotification(accountId);
+            }
+            // An account was removed from the notification list
+            for (long accountId : removedAccountList) {
+                sInstance.unregisterMessageNotification(accountId);
+                int notificationId = sInstance.getNewMessageNotificationId(accountId);
+                sInstance.mNotificationManager.cancel(notificationId);
             }
         }
     }

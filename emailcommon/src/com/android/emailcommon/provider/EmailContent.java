@@ -962,6 +962,8 @@ public abstract class EmailContent {
             Uri.parse(EmailContent.CONTENT_URI + "/accountIdAddToField");
         public static final Uri RESET_NEW_MESSAGE_COUNT_URI =
             Uri.parse(EmailContent.CONTENT_URI + "/resetNewMessageCount");
+        public static final Uri NOTIFIER_URI =
+            Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/account");
 
         /**
          * Value used by UI to represent "combined view".
@@ -1988,7 +1990,6 @@ public abstract class EmailContent {
         public static final int FLAG_SMART_FORWARD = 1<<8;
         // Indicates that the attachment cannot be forwarded due to a policy restriction
         public static final int FLAG_POLICY_DISALLOWS_DOWNLOAD = 1<<9;
-
         /**
          * no public constructor since this is a utility class
          */
