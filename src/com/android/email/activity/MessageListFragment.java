@@ -1263,7 +1263,7 @@ public class MessageListFragment extends ListFragment
             mSelectionMode = mode;
 
             MenuInflater inflater = getActivity().getMenuInflater();
-            inflater.inflate(R.menu.message_list_selection_mode, menu);
+            inflater.inflate(R.menu.message_list_fragment_cab_options, menu);
             mMarkRead = menu.findItem(R.id.mark_read);
             mMarkUnread = menu.findItem(R.id.mark_unread);
             mAddStar = menu.findItem(R.id.add_star);

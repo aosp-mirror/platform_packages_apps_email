@@ -17,12 +17,15 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
+import com.android.email.R;
 import com.android.email.RefreshManager;
+import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.utility.EmailAsyncTask;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,11 +38,16 @@ import java.util.ArrayList;
 /**
  * Base class for the UI controller.
  *
- * Note: Always use {@link #commitFragmentTransaction} to commit fragment transactions.
+ * Note: Always use {@link #commitFragmentTransaction} and {@link #popBackStack} to operate fragment
+ * transactions.
  * (Currently we use synchronous transactions only, but we may want to switch back to asynchronous
  * later.)
  */
 abstract class UIControllerBase {
+    protected static final String BUNDLE_KEY_ACCOUNT_ID = "UIController.state.account_id";
+    protected static final String BUNDLE_KEY_MAILBOX_ID = "UIController.state.mailbox_id";
+    protected static final String BUNDLE_KEY_MESSAGE_ID = "UIController.state.message_id";
+
     /** No account selected */
     static final long NO_ACCOUNT = -1;
     /** No mailbox selected */
@@ -50,9 +58,9 @@ abstract class UIControllerBase {
     /** The owner activity */
     final EmailActivity mActivity;
 
-    final RefreshManager mRefreshManager;
-
     final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
+
+    final RefreshManager mRefreshManager;
 
     /**
      * List of fragments that are restored by the framework while the activity is being re-created
@@ -66,6 +74,19 @@ abstract class UIControllerBase {
      * We hold installing fragments until {@link #installRestoredFragments()} is called.
      */
     private boolean mHoldFragmentInstallation = true;
+
+    private final RefreshManager.Listener mRefreshListener
+            = new RefreshManager.Listener() {
+        @Override
+        public void onMessagingError(final long accountId, long mailboxId, final String message) {
+            updateRefreshProgress();
+        }
+
+        @Override
+        public void onRefreshStatusChanged(long accountId, long mailboxId) {
+            updateRefreshProgress();
+        }
+    };
 
     public UIControllerBase(EmailActivity activity) {
         mActivity = activity;
@@ -101,6 +122,7 @@ abstract class UIControllerBase {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityCreated");
         }
+        mRefreshManager.registerListener(mRefreshListener);
     }
 
     /**
@@ -147,6 +169,7 @@ abstract class UIControllerBase {
             Log.d(Logging.LOG_TAG, this + " onActivityDestroy");
         }
         mHoldFragmentInstallation = true; // No more fragment installation.
+        mRefreshManager.unregisterListener(mRefreshListener);
         mTaskTracker.cancellAllInterrupt();
     }
 
@@ -209,6 +232,11 @@ abstract class UIControllerBase {
         }
     }
 
+    // not used
+    void popBackStack(FragmentManager fm, String name, int flags) {
+        fm.popBackStackImmediate(name, flags);
+    }
+
     void commitFragmentTransaction(FragmentTransaction ft) {
         ft.commit();
         mActivity.getFragmentManager().executePendingTransactions();
@@ -223,14 +251,28 @@ abstract class UIControllerBase {
     public abstract long getUIAccountId();
 
     /**
+     * @return true if an account is selected, or the current view is the combined view.
+     */
+    public final boolean isAccountSelected() {
+        return getUIAccountId() != NO_ACCOUNT;
+    }
+
+    /**
+     * @return if an actual account is selected.  (i.e. {@link Account#ACCOUNT_ID_COMBINED_VIEW}
+     * is not considered "actual".s)
+     */
+    public final boolean isActualAccountSelected() {
+        return isAccountSelected() && (getUIAccountId() != Account.ACCOUNT_ID_COMBINED_VIEW);
+    }
+
+    /**
      * @return the currently selected account ID.  If the current view is the combined view,
      * it'll return {@link #NO_ACCOUNT}.
      *
      * @see #getUIAccountId()
      */
-    public long getActualAccountId() {
-        final long uiAccountId = getUIAccountId();
-        return uiAccountId == Account.ACCOUNT_ID_COMBINED_VIEW ? NO_ACCOUNT : uiAccountId;
+    public final long getActualAccountId() {
+        return isActualAccountSelected() ? getUIAccountId() : NO_ACCOUNT;
     }
 
     /**
@@ -263,19 +305,71 @@ abstract class UIControllerBase {
     /**
      * Handles the {@link android.app.Activity#onCreateOptionsMenu} callback.
      */
-    public abstract boolean onCreateOptionsMenu(MenuInflater inflater, Menu menu);
+    public boolean onCreateOptionsMenu(MenuInflater inflater, Menu menu) {
+        inflater.inflate(R.menu.email_activity_options, menu);
+        return true;
+    }
 
     /**
      * Handles the {@link android.app.Activity#onPrepareOptionsMenu} callback.
      */
-    public abstract boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu);
+    public boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu) {
+
+        // Update the refresh button.
+        MenuItem item = menu.findItem(R.id.refresh);
+        if (isRefreshEnabled()) {
+            item.setVisible(true);
+            if (isRefreshInProgress()) {
+                item.setActionView(R.layout.action_bar_indeterminate_progress);
+            } else {
+                item.setActionView(null);
+            }
+        } else {
+            item.setVisible(false);
+        }
+        return true;
+    }
 
     /**
      * Handles the {@link android.app.Activity#onOptionsItemSelected} callback.
      *
      * @return true if the option item is handled.
      */
-    public abstract boolean onOptionsItemSelected(MenuItem item);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // Comes from the action bar when the app icon on the left is pressed.
+                // It works like a back press, but it won't close the activity.
+                return onBackPressed(false);
+            case R.id.compose:
+                return onCompose();
+            case R.id.refresh:
+                onRefresh();
+                return true;
+            case R.id.account_settings:
+                return onAccountSettings();
+        }
+        return false;
+    }
+
+    /**
+     * Opens the message compose activity.
+     */
+    private boolean onCompose() {
+        if (!isAccountSelected()) {
+            return false; // this shouldn't really happen
+        }
+        MessageCompose.actionCompose(mActivity, getActualAccountId());
+        return true;
+    }
+
+    /**
+     * Handles the "Settings" option item.  Opens the settings activity.
+     */
+    private boolean onAccountSettings() {
+        AccountSettingsXL.actionSettings(mActivity, getActualAccountId());
+        return true;
+    }
 
     /**
      * STOPSHIP For experimental UI.  Remove this.
@@ -292,10 +386,30 @@ abstract class UIControllerBase {
     public abstract long getMailboxSettingsMailboxId();
 
     /**
-     * STOPSHIP For experimental UI.  Remove this.
+     * STOPSHIP For experimental UI.  Make it abstract protected.
      *
      * Performs "refesh".
      */
-    public void onRefresh() {
+    public abstract void onRefresh();
+
+    /**
+     * @return true if refresh is in progress for the current mailbox.
+     */
+    protected abstract boolean isRefreshInProgress();
+
+    /**
+     * @return true if the UI should enable the "refresh" command.
+     */
+    protected abstract boolean isRefreshEnabled();
+
+
+    /**
+     * Start/stop the "refresh" animation on the action bar according to the current refresh state.
+     *
+     * (We start the animation if {@link #isRefreshInProgress} returns true,
+     * and stop otherwise.)
+     */
+    protected void updateRefreshProgress() {
+        mActivity.invalidateOptionsMenu();
     }
 }

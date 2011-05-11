@@ -27,7 +27,7 @@ import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
 
 /**
- * Test case for {@link MessageTestView}.
+ * Test case for {@link MessageFileView}.
  *
  * TODO Add more tests.  Any good way to test fragment??
  */
@@ -49,7 +49,7 @@ public class MessageFileViewTest extends ActivityInstrumentationTestCase2<Messag
     }
 
     private void setUpIntent(Uri uri) {
-        final Intent i = new Intent(getInstrumentation().getTargetContext(), MessageView.class);
+        final Intent i = new Intent(getInstrumentation().getTargetContext(), MessageFileView.class);
         i.setData(uri);
         setActivityIntent(i);
     }

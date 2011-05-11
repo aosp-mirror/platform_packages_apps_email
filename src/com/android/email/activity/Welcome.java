@@ -23,14 +23,12 @@ import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.MailService;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -76,16 +74,6 @@ public class Welcome extends Activity {
     private static final String VIEW_MAILBOX_INTENT_URL_PATH = "/view/mailbox";
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
-
-    /**
-     * @return true if the obsolete phone UI should be used.
-     *
-     * STOPSHIP remove this. temporary support for the old activities.
-     */
-    public static boolean useOldPhoneActivities(Context context) {
-        final int screenLayout = context.getResources().getConfiguration().screenLayout;
-        return (screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) == 0;
-    }
 
     /**
      * Launch this activity.  Note:  It's assumed that this activity is only called as a means to
@@ -244,39 +232,20 @@ public class Welcome extends Activity {
             } else {
                 final long accountId = resolveAccountId(mFromActivity, mAccountId, mAccountUuid);
 
-                // Use the old phone activities on x-large devices, only when the debug pane mode
-                // is not specified.
-                // If the debug pane mode is specified, always use EmailActivity.
-                // STOPSHIP remove this. temporary support for the old activities.
-                final boolean useOldPhoneActivities = mDebugPaneMode == 0
-                        && useOldPhoneActivities(mFromActivity);
-
-                if (!useOldPhoneActivities) {
-                    final Intent i;
-                    if (isMessageSelected()) {
-                        i = EmailActivity.createOpenMessageIntent(mFromActivity, accountId,
-                                mMailboxId, mMessageId);
-                    } else if (isMailboxSelected()) {
-                        i = EmailActivity.createOpenMailboxIntent(mFromActivity, accountId,
-                                    mMailboxId);
-                    } else {
-                        i = EmailActivity.createOpenAccountIntent(mFromActivity, accountId);
-                    }
-                    if (mDebugPaneMode != 0) {
-                        EmailActivity.forcePaneMode(i, mDebugPaneMode == 2);
-                    }
-                    mFromActivity.startActivity(i);
+                final Intent i;
+                if (isMessageSelected()) {
+                    i = EmailActivity.createOpenMessageIntent(mFromActivity, accountId,
+                            mMailboxId, mMessageId);
+                } else if (isMailboxSelected()) {
+                    i = EmailActivity.createOpenMailboxIntent(mFromActivity, accountId,
+                                mMailboxId);
                 } else {
-                    // STOPSHIP remove this. temporary support for the old activities.
-                    if (isMessageSelected()) {
-                        MessageView.actionView(mFromActivity, mMessageId, mMailboxId);
-                    } else if (isMailboxSelected()) {
-                        MessageList.actionHandleMailbox(mFromActivity, mMailboxId);
-                    } else {
-                        MessageList.actionHandleAccount(
-                                mFromActivity, accountId, Mailbox.TYPE_INBOX);
-                    }
+                    i = EmailActivity.createOpenAccountIntent(mFromActivity, accountId);
                 }
+                if (mDebugPaneMode != 0) {
+                    EmailActivity.forcePaneMode(i, mDebugPaneMode == 2);
+                }
+                mFromActivity.startActivity(i);
             }
             return null;
         }

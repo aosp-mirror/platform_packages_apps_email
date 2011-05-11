@@ -134,17 +134,4 @@ public final class ActivityHelper {
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         }
     }
-
-    public static void updateRefreshMenuIcon(MenuItem item, boolean show, boolean animate) {
-        if (show) {
-            item.setVisible(true);
-            if (animate) {
-                item.setActionView(R.layout.action_bar_indeterminate_progress);
-            } else {
-                item.setActionView(null);
-            }
-        } else {
-            item.setVisible(false);
-        }
-    }
 }

@@ -20,7 +20,6 @@ import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
 import com.android.email.MessagingExceptionStrings;
-import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;

@@ -17,37 +17,14 @@
 package com.android.email.activity;
 
 import com.android.email.Controller;
-import com.android.email.R;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 
 /**
- * Base class for {@link MessageView} and {@link MessageFileView}.
- *
- * Class relation diagram:
- * <pre>
- * (activities)                       (fragments)
- * MessageViewBase                    MessageViewFragmentBase
- *   |                                  |     (with nested interface Callback)
- *   |                                  |
- *   |-- MessageFileView  -- owns -->   |-- MessageFileViewFragment : For EML files.
- *   |                                  |     (with nested interface Callback, which implements
- *   |                                  |      MessageViewFragmentBase.Callback)
- *   |                                  |
- *   |-- MessageView      -- owns -->   |-- MessageViewFragment     : For regular messages
- *
- * MessageView is basically same as MessageFileView, but has more operations, such as "delete",
- * "forward", "reply", etc.
- *
- * Similarly, MessageViewFragment has more operations than MessageFileViewFragment does, such as
- * "mark unread", "respond to invite", etc.  Also its Callback interface has more method than
- * MessageViewFragmentBase.Callback does, for the extra operations.
- * </pre>
+ * TODO Now that MessageView is gone, we can merge it with {@link MessageFileView}.
  */
 public abstract class MessageViewBase extends Activity implements MessageViewFragmentBase.Callback {
-    private ProgressDialog mFetchAttachmentProgressDialog;
     private Controller mController;
 
     protected abstract int getLayoutId();
@@ -57,12 +34,6 @@ public abstract class MessageViewBase extends Activity implements MessageViewFra
         super.onCreate(icicle);
         ActivityHelper.debugSetWindowFlags(this);
         setContentView(getLayoutId());
-
-        // TODO Turn it into a "managed" dialog?
-        // Managed dialogs survive activity re-creation.  (e.g. orientation change)
-        mFetchAttachmentProgressDialog = new ProgressDialog(this);
-        mFetchAttachmentProgressDialog.setIndeterminate(true);
-        mFetchAttachmentProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
         mController = Controller.getInstance(getApplication());
     }

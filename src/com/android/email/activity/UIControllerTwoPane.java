@@ -22,7 +22,6 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.activity.setup.AccountSecurity;
-import com.android.email.activity.setup.AccountSettingsXL;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
@@ -36,9 +35,6 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
 import java.security.InvalidParameterException;
 import java.util.Set;
@@ -53,9 +49,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         MailboxListFragment.Callback,
         MessageListFragment.Callback,
         MessageViewFragment.Callback {
-    private static final String BUNDLE_KEY_ACCOUNT_ID = "UIControllerTwoPane.state.account_id";
-    private static final String BUNDLE_KEY_MAILBOX_ID = "UIControllerTwoPane.state.mailbox_id";
-    private static final String BUNDLE_KEY_MESSAGE_ID = "UIControllerTwoPane.state.message_id";
     private static final String BUNDLE_KEY_MAILBOX_STACK
             = "UIControllerTwoPane.state.mailbox_stack";
 
@@ -102,7 +95,6 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     private MailboxFinder mMailboxFinder;
 
-    private final RefreshListener mRefreshListener = new RefreshListener();
     private MessageOrderManager mOrderManager;
     private final MessageOrderManagerCallback mMessageOrderManagerCallback =
         new MessageOrderManagerCallback();
@@ -383,9 +375,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      */
     @Override
     public void onActivityViewReady() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, this + " onActivityViewReady");
-        }
+        super.onActivityViewReady();
         mActionBarController = new ActionBarController(mActivity, mActivity.getLoaderManager(),
                 mActivity.getActionBar(), mActionBarControllerCallback);
 
@@ -405,17 +395,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     @Override
     public long getUIAccountId() {
         return mAccountId;
-    }
-
-    /**
-     * @return the currently selected account ID.  If the current view is the combined view,
-     * it'll return {@link #NO_ACCOUNT}.
-     *
-     * @see #getUIAccountId()
-     */
-    @Override
-    public long getActualAccountId() {
-        return mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW ? NO_ACCOUNT : mAccountId;
     }
 
     /**
@@ -449,25 +428,19 @@ class UIControllerTwoPane extends UIControllerBase implements
         return mMessageId;
     }
 
-    /**
-     * @return true if an account is selected, or the current view is the combined view.
-     */
-    public boolean isAccountSelected() {
-        return getUIAccountId() != NO_ACCOUNT;
-    }
-
-    public boolean isMailboxSelected() {
+    private boolean isMailboxSelected() {
         return getMessageListMailboxId() != NO_MAILBOX;
     }
 
-    public boolean isMessageSelected() {
+    private boolean isMessageSelected() {
         return getMessageId() != NO_MESSAGE;
     }
 
     /**
      * @return true if refresh is in progress for the current mailbox.
      */
-    public boolean isRefreshInProgress() {
+    @Override
+    protected boolean isRefreshInProgress() {
         long messageListMailboxId = getMessageListMailboxId();
         return (messageListMailboxId >= 0)
                 && mRefreshManager.isMessageListRefreshing(messageListMailboxId);
@@ -476,7 +449,8 @@ class UIControllerTwoPane extends UIControllerBase implements
     /**
      * @return true if the UI should enable the "refresh" command.
      */
-    public boolean isRefreshEnabled() {
+    @Override
+    protected boolean isRefreshEnabled() {
         // - Don't show for combined inboxes, but
         // - Show even for non-refreshable mailboxes, in which case we refresh the mailbox list
         return -1 != getActualAccountId();
@@ -488,7 +462,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     @Override
     public void onActivityCreated() {
         super.onActivityCreated();
-        mRefreshManager.registerListener(mRefreshListener);
         mActionBarController.onActivityCreated();
     }
 
@@ -525,7 +498,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     @Override
     public void onActivityDestroy() {
         closeMailboxFinder();
-        mRefreshManager.unregisterListener(mRefreshListener);
         super.onActivityDestroy();
     }
 
@@ -924,43 +896,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         return false;
     }
 
-    /**
-     * Handles {@link android.app.Activity#onCreateOptionsMenu} callback.
-     */
-    @Override
-    public boolean onCreateOptionsMenu(MenuInflater inflater, Menu menu) {
-        inflater.inflate(R.menu.email_activity_options, menu);
-        return true;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu) {
-        ActivityHelper.updateRefreshMenuIcon(menu.findItem(R.id.refresh),
-                isRefreshEnabled(),
-                isRefreshInProgress());
-        return true;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // Comes from the action bar when the app icon on the left is pressed.
-                // It works like a back press, but it won't close the activity.
-                return onBackPressed(false);
-            case R.id.compose:
-                return onCompose();
-            case R.id.refresh:
-                onRefresh();
-                return true;
-            case R.id.account_settings:
-                return onAccountSettings();
-        }
-        return false;
-    }
-
     /** {@inheritDoc} */
     @Override
     public boolean onBackPressed(boolean isSystemBackKey) {
@@ -980,25 +915,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     }
 
     /**
-     * Handles the "Compose" option item.  Opens the message compose activity.
-     */
-    private boolean onCompose() {
-        if (!isAccountSelected()) {
-            return false; // this shouldn't really happen
-        }
-        MessageCompose.actionCompose(mActivity, getActualAccountId());
-        return true;
-    }
-
-    /**
-     * Handles the "Compose" option item.  Opens the settings activity.
-     */
-    private boolean onAccountSettings() {
-        AccountSettingsXL.actionSettings(mActivity, getActualAccountId());
-        return true;
-    }
-
-    /**
      * Handles the "refresh" option item.  Opens the settings activity.
      * TODO used by experimental code in the activity -- otherwise can be private.
      */
@@ -1007,29 +923,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         // Cancel previously running instance if any.
         new RefreshTask(mTaskTracker, mActivity, getActualAccountId(),
                 getMessageListMailboxId()).cancelPreviousAndExecuteParallel();
-    }
-
-    /**
-     * Start/stop the "refresh" animation on the action bar according to the current refresh state.
-     *
-     * (We start the animation if {@link UIControllerTwoPane#isRefreshInProgress} returns true,
-     * and stop otherwise.)
-     */
-    private void updateRefreshProgress() {
-        mActivity.invalidateOptionsMenu();
-    }
-
-    private class RefreshListener
-            implements RefreshManager.Listener {
-        @Override
-        public void onMessagingError(final long accountId, long mailboxId, final String message) {
-            updateRefreshProgress();
-        }
-
-        @Override
-        public void onRefreshStatusChanged(long accountId, long mailboxId) {
-            updateRefreshProgress();
-        }
     }
 
     /**
