@@ -19,6 +19,7 @@ import com.android.emailcommon.utility.Utility;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -113,6 +114,12 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
 
     public static final Policy NO_POLICY = new Policy();
 
+    private static final String[] ATTACHMENT_RESET_PROJECTION =
+        new String[] {EmailContent.RECORD_ID, AttachmentColumns.SIZE, AttachmentColumns.FLAGS};
+    private static final int ATTACHMENT_RESET_PROJECTION_ID = 0;
+    private static final int ATTACHMENT_RESET_PROJECTION_SIZE = 1;
+    private static final int ATTACHMENT_RESET_PROJECTION_FLAGS = 2;
+
     public Policy() {
         mBaseUri = CONTENT_URI;
         // By default, the password mode is "none"
@@ -205,6 +212,48 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
             throw new IllegalStateException("Exception setting account policy.");
         } catch (OperationApplicationException e) {
             // Can't happen; our provider doesn't throw this exception
+        }
+    }
+
+
+    /**
+     * Review all attachment records for this account, and reset the "don't allow download" flag
+     * as required by the account's new security policies
+     * @param context the caller's context
+     * @param account the account whose attachments need to be reviewed
+     * @param policy the new policy for this account
+     */
+    public static void setAttachmentFlagsForNewPolicy(Context context, Account account,
+            Policy policy) {
+        // A nasty bit of work; start with all attachments for a given account
+        ContentResolver resolver = context.getContentResolver();
+        Cursor c = resolver.query(Attachment.CONTENT_URI, ATTACHMENT_RESET_PROJECTION,
+                AttachmentColumns.ACCOUNT_KEY + "=?", new String[] {Long.toString(account.mId)},
+                null);
+        ContentValues cv = new ContentValues();
+        try {
+            // Get maximum allowed size (0 if we don't allow attachments at all)
+            int policyMax = policy.mDontAllowAttachments ? 0 : (policy.mMaxAttachmentSize > 0) ?
+                    policy.mMaxAttachmentSize : Integer.MAX_VALUE;
+            while (c.moveToNext()) {
+                int flags = c.getInt(ATTACHMENT_RESET_PROJECTION_FLAGS);
+                int size = c.getInt(ATTACHMENT_RESET_PROJECTION_SIZE);
+                boolean wasRestricted = (flags & Attachment.FLAG_POLICY_DISALLOWS_DOWNLOAD) != 0;
+                boolean isRestricted = size > policyMax;
+                if (isRestricted != wasRestricted) {
+                    if (isRestricted) {
+                        flags |= Attachment.FLAG_POLICY_DISALLOWS_DOWNLOAD;
+                    } else {
+                        flags &= ~Attachment.FLAG_POLICY_DISALLOWS_DOWNLOAD;
+                    }
+                    long id = c.getLong(ATTACHMENT_RESET_PROJECTION_ID);
+                    cv.put(AttachmentColumns.FLAGS, flags);
+                    resolver.update(ContentUris.withAppendedId(Attachment.CONTENT_URI, id),
+                            cv, null, null);
+                }
+            }
+        } finally {
+            c.close();
         }
     }
 

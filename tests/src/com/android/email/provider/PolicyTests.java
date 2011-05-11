@@ -18,12 +18,18 @@ package com.android.email.provider;
 
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Policy;
 
 import android.content.Context;
 import android.os.Parcel;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+
+import java.util.ArrayList;
 
 /**
  * This is a series of unit tests for the Policy class
@@ -34,6 +40,9 @@ import android.test.suitebuilder.annotation.MediumTest;
 
 @MediumTest
 public class PolicyTests extends ProviderTestCase2<EmailProvider> {
+
+    private static final String CANT_DOWNLOAD_SELECTION = "(" + AttachmentColumns.FLAGS + "&" +
+        Attachment.FLAG_POLICY_DISALLOWS_DOWNLOAD + ")!=0";
 
     private Context mMockContext;
 
@@ -103,6 +112,78 @@ public class PolicyTests extends ProviderTestCase2<EmailProvider> {
         // The account's security sync key should also be null
         assertNull(account.mSecuritySyncKey);
     }
+
+    private Attachment setupSimpleAttachment(String name, long size, Account acct) {
+        Attachment att = ProviderTestUtils.setupAttachment(-1, name, size, false, mMockContext);
+        att.mAccountKey = acct.mId;
+        return att;
+    }
+    public void testSetAttachmentFlagsForNewPolicy() {
+        Account acct = ProviderTestUtils.setupAccount("acct1", true, mMockContext);
+        Policy policy1 = new Policy();
+        policy1.mDontAllowAttachments = true;
+        policy1.setAccountPolicy(mMockContext, acct, "0");
+        Mailbox box = ProviderTestUtils.setupMailbox("box1", acct.mId, true, mMockContext);
+        Message msg1 = ProviderTestUtils.setupMessage("message1", acct.mId, box.mId, false, false,
+                mMockContext);
+        ArrayList<Attachment> atts = new ArrayList<Attachment>();
+        Attachment att1 = setupSimpleAttachment("fileName1", 10001L, acct);
+        atts.add(att1);
+        Attachment att2 = setupSimpleAttachment("fileName2", 20001L, acct);
+        atts.add(att2);
+        msg1.mAttachments = atts;
+        msg1.save(mMockContext);
+        Message msg2 = ProviderTestUtils.setupMessage("message2", acct.mId, box.mId, false, false,
+                mMockContext);
+        atts.clear();
+        Attachment att3 = setupSimpleAttachment("fileName3", 70001L, acct);
+        atts.add(att3);
+        Attachment att4 = setupSimpleAttachment("fileName4", 5001L, acct);
+        atts.add(att4);
+        msg2.mAttachments = atts;
+        msg2.save(mMockContext);
+        // Make sure we've got our 4 attachments
+        assertEquals(4, EmailContent.count(mMockContext, Attachment.CONTENT_URI));
+        // All should be downloadable
+        assertEquals(0, EmailContent.count(mMockContext, Attachment.CONTENT_URI,
+                CANT_DOWNLOAD_SELECTION, null));
+        // Enforce our no-attachments policy
+        Policy.setAttachmentFlagsForNewPolicy(mMockContext, acct, policy1);
+        // None should be downloadable
+        assertEquals(4, EmailContent.count(mMockContext, Attachment.CONTENT_URI,
+                CANT_DOWNLOAD_SELECTION, null));
+
+        Policy policy2 = new Policy();
+        policy2.mMaxAttachmentSize = 20000;
+        // Switch to new policy that sets a limit, but otherwise allows attachments
+        Policy.setAttachmentFlagsForNewPolicy(mMockContext, acct, policy2);
+        // Two shouldn't be downloadable
+        assertEquals(2, EmailContent.count(mMockContext, Attachment.CONTENT_URI,
+                CANT_DOWNLOAD_SELECTION, null));
+        // Make sure they're the right ones (att2 and att3)
+        att2 = Attachment.restoreAttachmentWithId(mMockContext, att2.mId);
+        assertTrue((att2.mFlags & Attachment.FLAG_POLICY_DISALLOWS_DOWNLOAD) != 0);
+        att3 = Attachment.restoreAttachmentWithId(mMockContext, att3.mId);
+        assertTrue((att3.mFlags & Attachment.FLAG_POLICY_DISALLOWS_DOWNLOAD) != 0);
+
+        Policy policy3 = new Policy();
+        policy3.mMaxAttachmentSize = 5001;
+        // Switch to new policy that sets a lower limit
+        Policy.setAttachmentFlagsForNewPolicy(mMockContext, acct, policy3);
+        // Three shouldn't be downloadable
+        assertEquals(3, EmailContent.count(mMockContext, Attachment.CONTENT_URI,
+                CANT_DOWNLOAD_SELECTION, null));
+        // Make sure the right one is downloadable
+        att4 = Attachment.restoreAttachmentWithId(mMockContext, att4.mId);
+        assertTrue((att4.mFlags & Attachment.FLAG_POLICY_DISALLOWS_DOWNLOAD) == 0);
+
+        Policy policy4 = new Policy();
+        // Switch to new policy that is without restrictions
+        Policy.setAttachmentFlagsForNewPolicy(mMockContext, acct, policy4);
+        // Nothing should be blocked now
+        assertEquals(0, EmailContent.count(mMockContext, Attachment.CONTENT_URI,
+                CANT_DOWNLOAD_SELECTION, null));
+   }
 
     public void testParcel() {
         Policy policy = new Policy();
