@@ -55,6 +55,8 @@ public class AttachmentInfoDialog extends DialogFragment {
         // malware).
         if ((denyFlags & AttachmentInfo.DENY_MALWARE) != 0) {
             bodyText = res.getString(R.string.attachment_info_malware);
+        } else if ((denyFlags & AttachmentInfo.DENY_POLICY) != 0) {
+            bodyText = res.getString(R.string.attachment_info_policy);
         } else if ((denyFlags & AttachmentInfo.DENY_NOINTENT) != 0) {
             bodyText = res.getString(R.string.attachment_info_no_intent);
         } else if ((denyFlags & AttachmentInfo.DENY_NOSIDELOAD) != 0) {

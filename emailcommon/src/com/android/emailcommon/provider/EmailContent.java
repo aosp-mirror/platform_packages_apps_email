@@ -2021,6 +2021,9 @@ public abstract class EmailContent {
         // Allow "room" for some additional download-related flags here
         // Indicates that the attachment will be smart-forwarded
         public static final int FLAG_SMART_FORWARD = 1<<8;
+        // Indicates that the attachment cannot be forwarded due to a policy restriction
+        public static final int FLAG_POLICY_DISALLOWS_DOWNLOAD = 1<<9;
+
         /**
          * no public constructor since this is a utility class
          */

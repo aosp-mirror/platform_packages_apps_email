@@ -394,6 +394,10 @@ save attachment.</string>
     <string name="attachment_info_malware">
             Because this type of attachment may contain malicious software,
             you can\'t save or open it.</string>
+    <!-- Message body when the attachment can't be loaded due to security policy restrictions -->
+    <string name="attachment_info_policy">
+            This attachment can\'t be saved or opened due to the security policies
+            in force for this account.</string>
     <!-- Message body when the attachment can only be downloaded over Wi-Fi -->
     <string name="attachment_info_wifi_only">
             This attachment is too large to download over a mobile network.
