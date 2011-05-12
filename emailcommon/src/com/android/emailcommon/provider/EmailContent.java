@@ -1963,16 +1963,20 @@ public abstract class EmailContent {
         };
 
         // All attachments with an empty URI, regardless of mailbox
-        public static final String EMPTY_URI_SELECTION =
+        public static final String PRECACHE_SELECTION =
             AttachmentColumns.CONTENT_URI + " isnull AND " + Attachment.FLAGS + "=0";
         // Attachments with an empty URI that are in an inbox
-        public static final String EMPTY_URI_INBOX_SELECTION =
-            EMPTY_URI_SELECTION + " AND " + AttachmentColumns.MESSAGE_KEY + " IN ("
+        public static final String PRECACHE_INBOX_SELECTION =
+            PRECACHE_SELECTION + " AND " + AttachmentColumns.MESSAGE_KEY + " IN ("
             +     "SELECT " + MessageColumns.ID + " FROM " + Message.TABLE_NAME
             +     " WHERE " + Message.INBOX_SELECTION
             +     ")";
 
         // Bits used in mFlags
+        // WARNING: AttachmentDownloadService relies on the fact that ALL of the flags below
+        // disqualify attachments for precaching.  If you add a flag that does NOT disqualify an
+        // attachment for precaching, you MUST change the PRECACHE_SELECTION definition above
+
         // Instruct Rfc822Output to 1) not use Content-Disposition and 2) use multipart/alternative
         // with this attachment.  This is only valid if there is one and only one attachment and
         // that attachment has this flag set
