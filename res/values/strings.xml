@@ -18,10 +18,42 @@
 
     <!-- Deprecated strings - Move the identifiers to this section, mark as DO NOT TRANSLATE,
          and remove the actual text.  These will be removed in a bulk operation. -->
-    <!-- Do Not Translate.  Unused string. -->
-    <string name="mailbox_name_go_back"></string>
+    <skip />
 
-    <!-- Permissions implicitly granted to invoked intents -->
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="read_unread_action"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="favorite_action"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="deselect_all_action"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="remove_account_action"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="folders_action"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="accounts_action"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="mark_as_read_action"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="add_attachment_action"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="notification_new_title"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="debug_enable_sensitive_logging_label"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_folder_list_separator_accounts"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="account_folder_list_refresh_toast"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="mailbox_list_title"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="gal_completed_limited_fmt"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="open_action"/>
+    <!-- Do Not Translate.  Unused string. -->
+    <string name="dump_settings_action"/>
+
+    <!-- End of deprecated strings. -->
     <skip />
 
     <!-- Permissions label for reading attachments -->
@@ -70,13 +102,9 @@
     <!-- Menu item/button name [CHAR_LIMIT=16] -->
     <string name="save_draft_action">Save draft</string>
     <!-- Menu item/button name -->
-    <string name="read_unread_action">Read/Unread</string>
-    <!-- Menu item/button name -->
     <string name="read_action">Mark read</string>
     <!-- Menu item/button name -->
     <string name="unread_action">Mark unread</string>
-    <!-- Menu item/button name -->
-    <string name="favorite_action">Favorite</string>
     <!-- Menu item/button name -->
     <string name="set_star_action">Add star</string>
     <!-- Menu item/button name -->
@@ -86,35 +114,19 @@
     <!-- Menu item -->
     <string name="add_account_action">Add account</string>
     <!-- Menu item -->
-    <string name="deselect_all_action">Deselect all</string>
-    <!-- Menu item -->
     <string name="compose_action">Compose</string>
     <!-- Menu item/button name -->
     <string name="search_action">Search</string>
-    <!-- Menu item/button name -->
-    <string name="open_action">Open</string>
     <!-- Menu item -->
     <string name="account_settings_action">Account settings</string>
-    <!-- Menu item -->
-    <string name="remove_account_action">Remove account</string>
-    <!-- Menu item -->
-    <string name="folders_action">Folders</string>
-    <!-- Menu item -->
-    <string name="accounts_action">Accounts</string>
-    <!-- Menu item -->
-    <string name="mark_as_read_action">Mark as read</string>
     <!-- Menu item -->
     <string name="mark_as_unread_action">Mark as unread</string>
     <!-- Menu item for moving messages to folders [CHAR LIMIT=10] -->
     <string name="move_action">Move</string>
     <!-- Menu item / button label for adding CC/BCC fields on message compose. [CHAR LIMIT=16] -->
     <string name="add_cc_bcc_action">+ Cc/Bcc</string>
-    <!-- Menu item -->
-    <string name="add_attachment_action">Add attachment</string>
     <!-- Generic button [CHAR LIMIT=16] -->
     <string name="close_action">Close</string>
-    <!-- Menu item (debug screen) -->
-    <string name="dump_settings_action">Dump settings</string>
     <!-- Command shown on Outbox to send all pending messages [CHAR LIMIT=20] -->
     <string name="message_list_send_pending_messages_action">Send all messages</string>
     <!-- Appears in choose attachment dialog title -->
@@ -126,8 +138,6 @@
     <!-- Appears in message list view when there's a network error. -->
     <!-- Also appears in a toast, in the message viewer, when there's a network error. -->
     <string name="status_network_error">Connection error</string>
-    <!-- Notification title in status bar -->
-    <string name="notification_new_title">New email</string>
     <!-- Dialog text when we are unable to load the message for display -->
     <string name="error_loading_message_body">Unexpected error while loading message text.  Message
         may be too large to view.</string>
@@ -213,9 +223,6 @@
     <string name="debug_enable_debug_logging_label" translatable="false">
         Enable extra debug logging?</string>
     <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
-    <string name="debug_enable_sensitive_logging_label" translatable="false">
-        Enable sensitive information debug logging? (May show passwords in logs.)</string>
-    <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
     <string name="debug_enable_exchange_logging_label" translatable="false">
         Enable exchange parser logging? (Extremely verbose)</string>
     <!-- Do Not Translate.  Checkbox label, shown only on debug screen -->
@@ -234,8 +241,6 @@
     <string name="debug_enable_strict_mode_label" translatable="false">
         Enable strict mode (with logging)</string>
 
-    <!-- The text in the small separator between smart folders and the accounts -->
-    <string name="account_folder_list_separator_accounts">Accounts</string>
     <!-- The summary section entry in the AccountFolder list to display all inboxes -->
     <string name="account_folder_list_summary_inbox">Inbox</string>
     <!-- The summary section entry in the AccountFolder list to display all starred
@@ -247,11 +252,7 @@
     <!-- The summary section entry in the AccountFolder list to display all outboxes
         [CHAR LIMIT=200dip] -->
     <string name="account_folder_list_summary_outbox">Outbox</string>
-    <!-- Toast that appears when you select "Refresh" menu option -->
-    <string name="account_folder_list_refresh_toast">Please longpress an account to refresh it</string>
 
-    <!-- Title of the screen that shows a list of mailboxes for an account -->
-    <string name="mailbox_list_title">Mailbox</string>
     <!-- Label shown in the account selector to select "Combined view", which contains
          Combined Inbox, Combined Outbox, etc. [CHAR LIMIT=30] -->
     <string name="mailbox_list_account_selector_combined_view">Combined view</string>
@@ -979,11 +980,6 @@ save attachment.</string>
         <item quantity="other"><xliff:g id="results" example="20">%1$d</xliff:g> results
         from <xliff:g id="domain">%2$s</xliff:g></item>
     </plurals>
-    <!-- Displayed in small separator in to/cc/bcc dropdowns, when searching GAL completes,
-         and a limited amount (not all) of the server results are being displayed.  This is
-         always a larger value because it represents the limit of displayed results.  -->
-    <string name="gal_completed_limited_fmt">First <xliff:g id="results" example="20">%1$d</xliff:g>
-        results from <xliff:g id="domain">%2$s</xliff:g></string>
 
     <!-- General Preferences Screen -->
     <!-- Label in preferences header to describe general preferences [CHAR LIMIT=32] -->
