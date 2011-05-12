@@ -965,14 +965,21 @@ public abstract class EmailContent {
         public static final Uri NOTIFIER_URI =
             Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/account");
 
+        // Define all pseudo account IDs here to avoid conflict with one another.
         /**
-         * Value used by UI to represent "combined view".
+         * Pseudo account ID to represent a "combined account" that includes messages and mailboxes
+         * from all defined accounts.
          *
-         * NOTE: This must be used only by UI, and mustn't be stored in the database.
-         *
-         * This is defined here to avoid conflict with other pseudo account IDs, if any.
+         * <em>IMPORTANT</em>: This must never be stored to the database.
          */
         public static final long ACCOUNT_ID_COMBINED_VIEW = 0x1000000000000000L;
+        /**
+         * Pseudo account ID to represent "no account". This may be used any time the account ID
+         * may not be known or when we want to specifically select "no" account.
+         *
+         * <em>IMPORTANT</em>: This must never be stored to the database.
+         */
+        public static final long PSEUDO_ACCOUNT_ID_NONE = -1L;
 
         // Whether or not the user has asked for notifications of new mail in this account
         public final static int FLAGS_NOTIFY_NEW_MAIL = 1<<0;
@@ -1121,6 +1128,15 @@ public abstract class EmailContent {
         }
 
         /**
+         * Returns {@code true} if the given account ID is a "normal" account. Normal accounts
+         * always have an ID greater than {@code 0} and not equal to any pseudo account IDs
+         * (such as {@link #ACCOUNT_ID_COMBINED_VIEW})
+         */
+        public static boolean isNormalAccount(long accountId) {
+            return (accountId > 0L) && (accountId != ACCOUNT_ID_COMBINED_VIEW);
+        }
+
+        /**
          * Refresh an account that has already been loaded.  This is slightly less expensive
          * that generating a brand-new account object.
          */
@@ -1217,13 +1233,11 @@ public abstract class EmailContent {
             mSignature = signature;
         }
 
-
         /**
          * @return the minutes per check (for polling)
          * TODO define sentinel values for "never", "push", etc.  See Account.java
          */
-        public int getSyncInterval()
-        {
+        public int getSyncInterval() {
             return mSyncInterval;
         }
 
@@ -1232,8 +1246,7 @@ public abstract class EmailContent {
          * TODO define sentinel values for "never", "push", etc.  See Account.java
          * @param minutes the number of minutes between polling checks
          */
-        public void setSyncInterval(int minutes)
-        {
+        public void setSyncInterval(int minutes) {
             mSyncInterval = minutes;
         }
 
@@ -1776,6 +1789,7 @@ public abstract class EmailContent {
         /**
          * Supports Parcelable
          */
+        @Override
         public int describeContents() {
             return 0;
         }
@@ -1785,10 +1799,12 @@ public abstract class EmailContent {
          */
         public static final Parcelable.Creator<EmailContent.Account> CREATOR
                 = new Parcelable.Creator<EmailContent.Account>() {
+            @Override
             public EmailContent.Account createFromParcel(Parcel in) {
                 return new EmailContent.Account(in);
             }
 
+            @Override
             public EmailContent.Account[] newArray(int size) {
                 return new EmailContent.Account[size];
             }
@@ -1797,6 +1813,7 @@ public abstract class EmailContent {
         /**
          * Supports Parcelable
          */
+        @Override
         public void writeToParcel(Parcel dest, int flags) {
             // mBaseUri is not parceled
             dest.writeLong(mId);
@@ -2157,10 +2174,12 @@ public abstract class EmailContent {
 
         public static final Parcelable.Creator<EmailContent.Attachment> CREATOR
                 = new Parcelable.Creator<EmailContent.Attachment>() {
+            @Override
             public EmailContent.Attachment createFromParcel(Parcel in) {
                 return new EmailContent.Attachment(in);
             }
 
+            @Override
             public EmailContent.Attachment[] newArray(int size) {
                 return new EmailContent.Attachment[size];
             }
@@ -2926,6 +2945,7 @@ public abstract class EmailContent {
         /**
          * Supports Parcelable
          */
+        @Override
         public int describeContents() {
             return 0;
         }
@@ -2935,10 +2955,12 @@ public abstract class EmailContent {
          */
         public static final Parcelable.Creator<EmailContent.HostAuth> CREATOR
                 = new Parcelable.Creator<EmailContent.HostAuth>() {
+            @Override
             public EmailContent.HostAuth createFromParcel(Parcel in) {
                 return new EmailContent.HostAuth(in);
             }
 
+            @Override
             public EmailContent.HostAuth[] newArray(int size) {
                 return new EmailContent.HostAuth[size];
             }
@@ -2947,6 +2969,7 @@ public abstract class EmailContent {
         /**
          * Supports Parcelable
          */
+        @Override
         public void writeToParcel(Parcel dest, int flags) {
             // mBaseUri is not parceled
             dest.writeLong(mId);

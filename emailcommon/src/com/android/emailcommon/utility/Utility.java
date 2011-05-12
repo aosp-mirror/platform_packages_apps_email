@@ -546,6 +546,7 @@ public class Utility {
      */
     public static void showToast(final Context context, final String message) {
         getMainThreadHandler().post(new Runnable() {
+            @Override
             public void run() {
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             }
@@ -624,24 +625,28 @@ public class Utility {
     }
 
     private static final CursorGetter<Long> LONG_GETTER = new CursorGetter<Long>() {
+        @Override
         public Long get(Cursor cursor, int column) {
             return cursor.getLong(column);
         }
     };
 
     private static final CursorGetter<Integer> INT_GETTER = new CursorGetter<Integer>() {
+        @Override
         public Integer get(Cursor cursor, int column) {
             return cursor.getInt(column);
         }
     };
 
     private static final CursorGetter<String> STRING_GETTER = new CursorGetter<String>() {
+        @Override
         public String get(Cursor cursor, int column) {
             return cursor.getString(column);
         }
     };
 
     private static final CursorGetter<byte[]> BLOB_GETTER = new CursorGetter<byte[]>() {
+        @Override
         public byte[] get(Cursor cursor, int column) {
             return cursor.getBlob(column);
         }
@@ -925,7 +930,7 @@ public class Utility {
                     } finally {
                         c.close();
                     }
-                } else {
+                } else if (accountId > 0L) {
                     Mailbox mailbox =
                         Mailbox.restoreMailboxOfType(context, accountId, Mailbox.TYPE_INBOX);
 

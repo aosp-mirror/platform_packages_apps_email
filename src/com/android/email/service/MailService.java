@@ -144,17 +144,6 @@ public class MailService extends Service {
     }
 
     /**
-     * Reset new message counts for one or all accounts.  This clears both our local copy and
-     * the values (if any) stored in the account records.
-     *
-     * @param accountId account to clear, or -1 for all accounts
-     */
-    @SuppressWarnings("deprecation")
-    public static void resetNewMessageCount(final Context context, final long accountId) {
-        NotificationController.getInstance(context).resetMessageNotification(accountId);
-    }
-
-    /**
      * Entry point for asynchronous message services (e.g. push mode) to post notifications of new
      * messages.  This assumes that the push provider has already synced the messages into the
      * appropriate database - this simply triggers the notification mechanism.
@@ -162,7 +151,7 @@ public class MailService extends Service {
      * @param context a context
      * @param accountId the id of the account that is reporting new messages
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public static void actionNotifyNewMessages(
                 Context context, long accountId, List messageIdList) {
         Intent i = new Intent(ACTION_NOTIFY_MAIL);

@@ -49,7 +49,7 @@ abstract class UIControllerBase {
     protected static final String BUNDLE_KEY_MESSAGE_ID = "UIController.state.message_id";
 
     /** No account selected */
-    static final long NO_ACCOUNT = -1;
+    static final long NO_ACCOUNT = Account.PSEUDO_ACCOUNT_ID_NONE;
     /** No mailbox selected */
     static final long NO_MAILBOX = -1;
     /** No message selected */

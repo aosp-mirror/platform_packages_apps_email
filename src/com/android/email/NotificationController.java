@@ -75,8 +75,6 @@ public class NotificationController {
     /** Selection to retrieve accounts that should we notify user for changes */
     private final static String NOTIFIED_ACCOUNT_SELECTION =
         Account.FLAGS + "&" + Account.FLAGS_NOTIFY_NEW_MAIL + " != 0";
-    /** special account ID for the new message notification APIs to specify "all accounts" */
-    private static final long ALL_ACCOUNTS = -1L;
 
     private static NotificationThread sNotificationThread;
     private static Handler sNotificationHandler;
@@ -92,6 +90,12 @@ public class NotificationController {
     /** Maps account id to the message data */
     private final HashMap<Long, MessageData> mNotificationMap;
     private ContentObserver mAccountObserver;
+    /**
+     * Suspend notifications for this account. If {@link Account#PSEUDO_ACCOUNT_ID_NONE}, no
+     * account notifications are suspended. If {@link Account#ACCOUNT_ID_COMBINED_VIEW},
+     * notifications for all accounts are suspended.
+     */
+    private long mSuspendAccountId = Account.PSEUDO_ACCOUNT_ID_NONE;
 
     /** Constructor */
     @VisibleForTesting
@@ -192,18 +196,13 @@ public class NotificationController {
      * notification shown to the user. And, when we start observing database changes, we restore
      * the saved state.
      * @param watch If {@code true}, we register observers for all accounts whose settings have
-     * notifications enabled. Otherwise, all observers are unregistered with the database.
+     *              notifications enabled. Otherwise, all observers are unregistered.
      */
     public void watchForMessages(final boolean watch) {
         // Don't create the thread if we're only going to stop watching
-        if (!watch && sNotificationHandler == null) return;
+        if (!watch && sNotificationThread == null) return;
 
-        synchronized(sInstance) {
-            if (sNotificationHandler == null) {
-                sNotificationThread = new NotificationThread();
-                sNotificationHandler = new Handler(sNotificationThread.getLooper());
-            }
-        }
+        ensureHandlerExists();
         // Run this on the message notification handler
         sNotificationHandler.post(new Runnable() {
             @Override
@@ -211,7 +210,7 @@ public class NotificationController {
                 ContentResolver resolver = mContext.getContentResolver();
                 HashMap<Long, long[]> table;
                 if (!watch) {
-                    unregisterMessageNotification(ALL_ACCOUNTS);
+                    unregisterMessageNotification(Account.ACCOUNT_ID_COMBINED_VIEW);
                     if (mAccountObserver != null) {
                         resolver.unregisterContentObserver(mAccountObserver);
                         mAccountObserver = null;
@@ -219,13 +218,12 @@ public class NotificationController {
 
                     // tear down the event loop
                     sNotificationThread.quit();
-                    sNotificationHandler = null;
                     sNotificationThread = null;
                     return;
                 }
 
                 // otherwise, start new observers for all notified accounts
-                registerMessageNotification(ALL_ACCOUNTS);
+                registerMessageNotification(Account.ACCOUNT_ID_COMBINED_VIEW);
                 // If we're already observing account changes, don't do anything else
                 if (mAccountObserver == null) {
                     mAccountObserver = new AccountContentObserver(sNotificationHandler, mContext);
@@ -236,16 +234,60 @@ public class NotificationController {
     }
 
     /**
+     * Temporarily suspend a single account from receiving notifications. NOTE: only a single
+     * account may ever be suspended at a time. So, if this method is invoked a second time,
+     * notifications for the previously suspended account will automatically be re-activated.
+     * @param suspend If {@code true}, suspend notifications for the given account. Otherwise,
+     *              re-activate notifications for the previously suspended account.
+     * @param accountId The ID of the account. If this is the special account ID
+     *              {@link Account#ACCOUNT_ID_COMBINED_VIEW},  notifications for all accounts are
+     *              suspended. If {@code suspend} is {@code false}, the account ID is ignored.
+     */
+    public void suspendMessageNotification(boolean suspend, long accountId) {
+        if (mSuspendAccountId != Account.PSEUDO_ACCOUNT_ID_NONE) {
+            // we're already suspending an account; un-suspend it
+            mSuspendAccountId = Account.PSEUDO_ACCOUNT_ID_NONE;
+        }
+        if (suspend && accountId != Account.PSEUDO_ACCOUNT_ID_NONE && accountId > 0L) {
+            mSuspendAccountId = accountId;
+            if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                // Only go onto the notification handler if we really, absolutely need to
+                ensureHandlerExists();
+                sNotificationHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (long accountId : mNotificationMap.keySet()) {
+                            mNotificationManager.cancel(getNewMessageNotificationId(accountId));
+                        }
+                    }
+                });
+            } else {
+                mNotificationManager.cancel(getNewMessageNotificationId(accountId));
+            }
+        }
+    }
+
+    /**
+     * Ensures the notification handler exists and is ready to handle requests.
+     */
+    private static synchronized void ensureHandlerExists() {
+        if (sNotificationThread == null) {
+            sNotificationThread = new NotificationThread();
+            sNotificationHandler = new Handler(sNotificationThread.getLooper());
+        }
+    }
+
+    /**
      * Registers an observer for changes to the INBOX for the given account. Since accounts
      * may only have a single INBOX, we will never have more than one observer for an account.
      * NOTE: This must be called on the notification handler thread.
      * @param accountId The ID of the account to register the observer for. May be
-     *                  {@link #ALL_ACCOUNTS} to register observers for all accounts that allow
-     *                  for user notification.
+     *                  {@link Account#ACCOUNT_ID_COMBINED_VIEW} to register observers for all
+     *                  accounts that allow for user notification.
      */
     private void registerMessageNotification(long accountId) {
         ContentResolver resolver = mContext.getContentResolver();
-        if (accountId == ALL_ACCOUNTS) {
+        if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
             Cursor c = resolver.query(
                     Account.CONTENT_URI, EmailContent.ID_PROJECTION,
                     NOTIFIED_ACCOUNT_SELECTION, null, null);
@@ -282,12 +324,12 @@ public class NotificationController {
      * a registered observer, no action is performed. This will not clear any existing notification
      * for the specified account. Use {@link NotificationManager#cancel(int)}.
      * NOTE: This must be called on the notification handler thread.
-     * @param accountId The ID of the account to unregister from. May be {@link #ALL_ACCOUNTS} to
-     *                  unregister all accounts that have observers.
+     * @param accountId The ID of the account to unregister from. To unregister all accounts that
+     *                  have observers, specify an ID of {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
      */
     private void unregisterMessageNotification(long accountId) {
         ContentResolver resolver = mContext.getContentResolver();
-        if (accountId == ALL_ACCOUNTS) {
+        if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
             // cancel all existing message observers
             for (MessageData data : mNotificationMap.values()) {
                 ContentObserver observer = data.mObserver;
@@ -301,42 +343,6 @@ public class NotificationController {
                 resolver.unregisterContentObserver(observer);
             }
         }
-    }
-
-    /**
-     * Reset the message notification for the given account to the most recent message ID.
-     * This is not complete and will still exhibit the existing (wrong) behaviour of notifying
-     * the user even if the Email UX is visible.
-     * NOTE: Only for short-term legacy support. To be replaced with a way to temporarily stop
-     * notifications for a mailbox.
-     * @deprecated
-     */
-    @Deprecated
-    public void resetMessageNotification(final long accountId) {
-        synchronized(sInstance) {
-            if (sNotificationHandler == null) {
-                sNotificationThread = new NotificationThread();
-                sNotificationHandler = new Handler(sNotificationThread.getLooper());
-            }
-        }
-
-        // Run this on the message notification handler
-        sNotificationHandler.post(new Runnable() {
-            private void resetNotification(long accountId) {
-                if (accountId == ALL_ACCOUNTS) {
-                    for (long id : mNotificationMap.keySet()) {
-                        resetNotification(id);
-                    }
-                } else {
-                    Utility.updateLastSeenMessageKey(mContext, accountId);
-                    mNotificationManager.cancel(getNewMessageNotificationId(accountId));
-                }
-            }
-            @Override
-            public void run() {
-                resetNotification(accountId);
-            }
-        });
     }
 
     /**
@@ -382,6 +388,7 @@ public class NotificationController {
         final String subject = message.mSubject;
         final Bitmap senderPhoto = getSenderPhoto(message);
         final SpannableString title = getNewMessageTitle(senderName, account.mDisplayName);
+        // TODO Set the intent according to number of unseen messages
         final Intent intent = Welcome.createOpenAccountInboxIntent(mContext, accountId);
         final Bitmap largeIcon = senderPhoto != null ? senderPhoto : mGenericSenderIcon;
         final Integer number = unseenMessageCount > 1 ? unseenMessageCount : null;
@@ -581,7 +588,10 @@ public class NotificationController {
 
         @Override
         public void onChange(boolean selfChange) {
-            super.onChange(selfChange);
+            if (mAccountId == sInstance.mSuspendAccountId
+                    || sInstance.mSuspendAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                return;
+            }
 
             MessageData data = sInstance.mNotificationMap.get(mAccountId);
             if (data == null) {

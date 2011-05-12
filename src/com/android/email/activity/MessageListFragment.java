@@ -18,11 +18,11 @@ package com.android.email.activity;
 
 import com.android.email.Controller;
 import com.android.email.Email;
+import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.data.MailboxAccountLoader;
 import com.android.email.provider.EmailProvider;
-import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -37,7 +37,6 @@ import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.ClipData;
 import android.content.ContentUris;
-import android.content.Context;
 import android.content.Loader;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -238,6 +237,7 @@ public class MessageListFragment extends ListFragment
         return instance;
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -261,6 +261,7 @@ public class MessageListFragment extends ListFragment
         return root;
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -292,6 +293,7 @@ public class MessageListFragment extends ListFragment
         }
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -300,6 +302,7 @@ public class MessageListFragment extends ListFragment
         super.onStart();
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -307,6 +310,7 @@ public class MessageListFragment extends ListFragment
         }
         super.onResume();
         mResumed = true;
+        adjustMessageNotification(false);
 
         // If we're recovering from the stopped state, we don't have to reload.
         // (when mOpenRequested = false)
@@ -315,6 +319,7 @@ public class MessageListFragment extends ListFragment
         }
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -323,8 +328,10 @@ public class MessageListFragment extends ListFragment
         mResumed = false;
         super.onStop();
         mSavedListState = getListView().onSaveInstanceState();
+        adjustMessageNotification(true);
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -333,6 +340,7 @@ public class MessageListFragment extends ListFragment
         super.onStop();
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -349,6 +357,7 @@ public class MessageListFragment extends ListFragment
         super.onDestroy();
     }
 
+    @SuppressWarnings("unused")
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -360,6 +369,7 @@ public class MessageListFragment extends ListFragment
         outState.putLong(BUNDLE_KEY_SELECTED_MESSAGE_ID, mSelectedMessageId);
     }
 
+    @SuppressWarnings("unused")
     @VisibleForTesting
     void restoreInstanceState(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -414,6 +424,7 @@ public class MessageListFragment extends ListFragment
      *     {@link Mailbox#QUERY_ALL_INBOXES}.  -1 is not allowed.
      */
     // STOPSHIP Make it private once phone activities are gone
+    @SuppressWarnings("unused")
     void openMailbox(long mailboxId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment openMailbox");
@@ -446,10 +457,15 @@ public class MessageListFragment extends ListFragment
     }
 
     /**
-     * @return the account id or -1 if it's unknown yet.  It's also -1 if it's a magic mailbox.
+     * Returns the account id of the currently viewed messages. May return
+     * {@link Account#PSEUDO_ACCOUNT_ID_NONE} if the mailbox is not yet known or
+     * {@link Account#ACCOUNT_ID_COMBINED_VIEW} if viewing a combined mailbox.
      */
-    public long getAccountId() {
-        return (mMailbox == null) ? -1 : mMailbox.mAccountKey;
+    private long getAccountId() {
+        return (mMailbox == null)
+                ? (mMailboxId < Mailbox.NO_MAILBOX)
+                        ? Account.ACCOUNT_ID_COMBINED_VIEW : Account.PSEUDO_ACCOUNT_ID_NONE
+                : mMailbox.mAccountKey;
     }
 
     /**
@@ -492,6 +508,7 @@ public class MessageListFragment extends ListFragment
     /**
      * Called when a message is clicked.
      */
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
             MessageListItem itemView = (MessageListItem) view;
@@ -593,6 +610,7 @@ public class MessageListFragment extends ListFragment
         }
     }
 
+    @Override
     public boolean onDrag(View view, DragEvent event) {
         switch(event.getAction()) {
             case DragEvent.ACTION_DRAG_ENDED:
@@ -614,6 +632,7 @@ public class MessageListFragment extends ListFragment
         return false;
     }
 
+    @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
             // Start drag&drop.
@@ -732,7 +751,7 @@ public class MessageListFragment extends ListFragment
             return;
         }
         long accountId = getAccountId();
-        if (accountId != -1) {
+        if (Account.isNormalAccount(accountId)) {
             mRefreshManager.refreshMessageList(accountId, mMailboxId, userRequest);
         }
     }
@@ -753,7 +772,7 @@ public class MessageListFragment extends ListFragment
      */
     private void onLoadMoreMessages() {
         long accountId = getAccountId();
-        if (accountId != -1) {
+        if (Account.isNormalAccount(accountId)) {
             mRefreshManager.loadMoreMessages(accountId, mMailboxId);
         }
     }
@@ -794,10 +813,12 @@ public class MessageListFragment extends ListFragment
     private void toggleRead(Set<Long> selectedSet) {
         toggleMultiple(selectedSet, new MultiToggleHelper() {
 
+            @Override
             public boolean getField(long messageId, Cursor c) {
                 return c.getInt(MessagesAdapter.COLUMN_READ) == 0;
             }
 
+            @Override
             public boolean setField(long messageId, Cursor c, boolean newValue) {
                 boolean oldValue = getField(messageId, c);
                 if (oldValue != newValue) {
@@ -817,10 +838,12 @@ public class MessageListFragment extends ListFragment
     private void toggleFavorite(Set<Long> selectedSet) {
         toggleMultiple(selectedSet, new MultiToggleHelper() {
 
+            @Override
             public boolean getField(long messageId, Cursor c) {
                 return c.getInt(MessagesAdapter.COLUMN_FAVORITE) != 0;
             }
 
+            @Override
             public boolean setField(long messageId, Cursor c, boolean newValue) {
                 boolean oldValue = getField(messageId, c);
                 if (oldValue != newValue) {
@@ -1058,6 +1081,28 @@ public class MessageListFragment extends ListFragment
         showNoMessageText(noItem);
     }
 
+    /**
+     * Adjusts message notification depending upon the state of the fragment and the currently
+     * viewed mailbox. If the fragment is resumed, notifications for the current mailbox may
+     * be suspended. Otherwise, notifications may be re-activated. Not all mailbox types are
+     * supported for notifications. These include (but are not limited to) special mailboxes
+     * such as {@link Mailbox#QUERY_ALL_DRAFTS}, {@link Mailbox#QUERY_ALL_FAVORITES}, etc...
+     *
+     * @param updateLastSeenKey If {@code true}, the last seen message key for the currently
+     *                          viewed mailbox will be updated.
+     */
+    private void adjustMessageNotification(boolean updateLastSeenKey) {
+        if (mMailboxId == Mailbox.QUERY_ALL_INBOXES || mMailboxId > 0) {
+            long id = getAccountId();
+            if (updateLastSeenKey) {
+                Utility.updateLastSeenMessageKey(mActivity, id);
+            }
+            NotificationController notifier = NotificationController.getInstance(mActivity);
+            notifier.suspendMessageNotification(mResumed, id);
+        }
+    }
+
+    @SuppressWarnings("unused")
     private void startLoading() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment startLoading");
@@ -1079,6 +1124,7 @@ public class MessageListFragment extends ListFragment
      */
     private class MailboxAccountLoaderCallback implements LoaderManager.LoaderCallbacks<
             MailboxAccountLoader.Result> {
+        @SuppressWarnings("unused")
         @Override
         public Loader<MailboxAccountLoader.Result> onCreateLoader(int id, Bundle args) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -1088,6 +1134,7 @@ public class MessageListFragment extends ListFragment
             return new MailboxAccountLoader(getActivity().getApplicationContext(), mMailboxId);
         }
 
+        @SuppressWarnings("unused")
         @Override
         public void onLoadFinished(Loader<MailboxAccountLoader.Result> loader,
                 MailboxAccountLoader.Result result) {
@@ -1120,6 +1167,7 @@ public class MessageListFragment extends ListFragment
     private class MessagesLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
         private boolean mIsFirstLoad;
 
+        @SuppressWarnings("unused")
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -1130,12 +1178,16 @@ public class MessageListFragment extends ListFragment
             return MessagesAdapter.createLoader(getActivity(), mMailboxId);
         }
 
+        @SuppressWarnings("unused")
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG,
                         "MessageListFragment onLoadFinished(messages) mailboxId=" + mMailboxId);
             }
+
+            // Suspend message notifications as long as we're resumed
+            adjustMessageNotification(false);
 
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
@@ -1178,8 +1230,6 @@ public class MessageListFragment extends ListFragment
                 lv.onRestoreInstanceState(listState);
             }
 
-            resetNewMessageCount(mActivity, mMailboxId, getAccountId());
-
             // Clear this for next reload triggered by content changed events.
             mIsFirstLoad = false;
 
@@ -1189,26 +1239,6 @@ public class MessageListFragment extends ListFragment
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
             mListAdapter.swapCursor(null);
-        }
-    }
-
-    /**
-     * Reset the "new message" count.
-     * <ul>
-     * <li>If {@code mailboxId} is {@link Mailbox#QUERY_ALL_INBOXES}, reset the
-     * counts of all accounts.
-     * <li>If {@code mailboxId} is not of a magic inbox (i.e. >= 0) and {@code
-     * accountId} is valid, reset the count of the specified account.
-     * </ul>
-     * TODO Instead of resetting the message count, we should just be suspending the notification
-     *  controller for the correct accounts. Need to ensure we resume notifications appropriately.
-     */
-    private static void resetNewMessageCount(
-            Context context, long mailboxId, long accountId) {
-        if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
-            MailService.resetNewMessageCount(context, -1);
-        } else if (mailboxId >= 0 && accountId != -1) {
-            MailService.resetNewMessageCount(context, accountId);
         }
     }
 
