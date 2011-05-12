@@ -237,7 +237,6 @@ public class MessageListFragment extends ListFragment
         return instance;
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -261,7 +260,6 @@ public class MessageListFragment extends ListFragment
         return root;
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -293,7 +291,6 @@ public class MessageListFragment extends ListFragment
         }
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -302,7 +299,6 @@ public class MessageListFragment extends ListFragment
         super.onStart();
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -319,7 +315,6 @@ public class MessageListFragment extends ListFragment
         }
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -331,7 +326,6 @@ public class MessageListFragment extends ListFragment
         adjustMessageNotification(true);
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -340,7 +334,6 @@ public class MessageListFragment extends ListFragment
         super.onStop();
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -357,7 +350,6 @@ public class MessageListFragment extends ListFragment
         super.onDestroy();
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -369,7 +361,6 @@ public class MessageListFragment extends ListFragment
         outState.putLong(BUNDLE_KEY_SELECTED_MESSAGE_ID, mSelectedMessageId);
     }
 
-    @SuppressWarnings("unused")
     @VisibleForTesting
     void restoreInstanceState(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -424,7 +415,6 @@ public class MessageListFragment extends ListFragment
      *     {@link Mailbox#QUERY_ALL_INBOXES}.  -1 is not allowed.
      */
     // STOPSHIP Make it private once phone activities are gone
-    @SuppressWarnings("unused")
     void openMailbox(long mailboxId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment openMailbox");
@@ -1102,7 +1092,6 @@ public class MessageListFragment extends ListFragment
         }
     }
 
-    @SuppressWarnings("unused")
     private void startLoading() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment startLoading");
@@ -1124,7 +1113,6 @@ public class MessageListFragment extends ListFragment
      */
     private class MailboxAccountLoaderCallback implements LoaderManager.LoaderCallbacks<
             MailboxAccountLoader.Result> {
-        @SuppressWarnings("unused")
         @Override
         public Loader<MailboxAccountLoader.Result> onCreateLoader(int id, Bundle args) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -1134,7 +1122,6 @@ public class MessageListFragment extends ListFragment
             return new MailboxAccountLoader(getActivity().getApplicationContext(), mMailboxId);
         }
 
-        @SuppressWarnings("unused")
         @Override
         public void onLoadFinished(Loader<MailboxAccountLoader.Result> loader,
                 MailboxAccountLoader.Result result) {
@@ -1167,7 +1154,6 @@ public class MessageListFragment extends ListFragment
     private class MessagesLoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
         private boolean mIsFirstLoad;
 
-        @SuppressWarnings("unused")
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -1178,7 +1164,6 @@ public class MessageListFragment extends ListFragment
             return MessagesAdapter.createLoader(getActivity(), mMailboxId);
         }
 
-        @SuppressWarnings("unused")
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {

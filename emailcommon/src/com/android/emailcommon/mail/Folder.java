@@ -182,8 +182,7 @@ public abstract class Folder {
      * This is not abstract because most folders do not require this functionality and do not
      * need to implement it.
      */
-    @SuppressWarnings("unused")
-    public void localFolderSetupComplete(Folder localFolder) throws MessagingException {
+    public void localFolderSetupComplete(Folder localFolder) {
         // Do nothing - return immediately
     }
 

@@ -37,6 +37,33 @@ import android.database.Cursor;
 import android.util.Log;
 
 public class Email extends Application {
+    // TODO Move the various DEBUG_ fields to the Logging class
+    /**
+     * If true, logging regarding activity/fragment lifecycle will be enabled.
+     * Do not check in as "true".
+     */
+    public static final boolean DEBUG_LIFECYCLE;
+
+    /**
+     * If this is enabled then logging that normally hides sensitive information
+     * like passwords will show that information.
+     */
+    public static final boolean DEBUG_SENSITIVE;
+
+    /**
+     * Set this to 'true' to enable as much Email logging as possible.
+     * Do not check-in with it set to 'true'!
+     */
+    public static final boolean LOGD;
+
+    static {
+        // Declare values here to avoid dead code warnings; it means we have some extra
+        // "if" statements in the byte code that always evaluate to "if (false)"
+        DEBUG_LIFECYCLE = false;
+        DEBUG_SENSITIVE = false;
+        LOGD = false;
+    }
+
     /**
      * If this is enabled there will be additional logging information sent to
      * Log.d, including protocol dumps.
@@ -49,30 +76,12 @@ public class Email extends Application {
      *
      * TODO: rename this to sUserDebug, and rename LOGD below to DEBUG.
      */
-    public static boolean DEBUG = false;
-
-    /**
-     * If true, logging regarding activity/fragment lifecycle will be enabled.
-     * Do not check in as "true".
-     */
-    public static final boolean DEBUG_LIFECYCLE = false;
-
-    /**
-     * If this is enabled then logging that normally hides sensitive information
-     * like passwords will show that information.
-     */
-    public static final boolean DEBUG_SENSITIVE = false;
-
-    /**
-     * Set this to 'true' to enable as much Email logging as possible.
-     * Do not check-in with it set to 'true'!
-     */
-    public static final boolean LOGD = false;
+    public static boolean DEBUG;
 
     // Exchange debugging flags (passed to Exchange, when available, via EmailServiceProxy)
-    public static boolean DEBUG_EXCHANGE = false;
-    public static boolean DEBUG_EXCHANGE_VERBOSE = false;
-    public static boolean DEBUG_EXCHANGE_FILE = false;
+    public static boolean DEBUG_EXCHANGE;
+    public static boolean DEBUG_EXCHANGE_VERBOSE;
+    public static boolean DEBUG_EXCHANGE_FILE;
 
     /**
      * If true, inhibit hardware graphics acceleration in UI (for a/b testing)

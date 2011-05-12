@@ -455,13 +455,11 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     private static final String PROP_MAILBOX_LIST_LEFT = "mailboxListLeftAnim";
     private static final String PROP_MESSAGE_LIST_WIDTH = "messageListWidthAnim";
 
-    @SuppressWarnings("unused")
     public void setMailboxListLeftAnim(int value) {
         ((ViewGroup.MarginLayoutParams) mLeftPane.getLayoutParams()).leftMargin = value;
         requestLayout();
     }
 
-    @SuppressWarnings("unused")
     public void setMessageListWidthAnim(int value) {
         setViewWidth(mMiddlePane, value);
     }

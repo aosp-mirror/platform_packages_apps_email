@@ -215,7 +215,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Called to do initial creation of a fragment.  This is called after
      * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.
      */
-    @SuppressWarnings("unused")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -242,7 +241,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         return inflater.inflate(R.layout.mailbox_list_fragment, container, false);
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -278,7 +276,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Otherwise, only load the list of top-level mailboxes if the account changes.
      */
     // STOPSHIP Make it private once phone activities are gone
-    @SuppressWarnings("unused")
     void openMailboxes(long accountId, long parentMailboxId) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxListFragment openMailboxes");
@@ -320,7 +317,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     /**
      * Called when the Fragment is visible to the user.
      */
-    @SuppressWarnings("unused")
     @Override
     public void onStart() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -332,7 +328,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     /**
      * Called when the fragment is visible to the user and actively running.
      */
-    @SuppressWarnings("unused")
     @Override
     public void onResume() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -348,7 +343,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onPause() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -362,7 +356,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     /**
      * Called when the Fragment is no longer started.
      */
-    @SuppressWarnings("unused")
     @Override
     public void onStop() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -374,7 +367,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     /**
      * Called when the fragment is no longer in use.
      */
-    @SuppressWarnings("unused")
     @Override
     public void onDestroy() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -383,7 +375,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         super.onDestroy();
     }
 
-    @SuppressWarnings("unused")
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -394,7 +385,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         outState.putParcelable(BUNDLE_LIST_STATE, getListView().onSaveInstanceState());
     }
 
-    @SuppressWarnings("unused")
     private void restoreInstanceState(Bundle savedInstanceState) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxListFragment restoreInstanceState");
@@ -403,7 +393,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
     }
 
-    @SuppressWarnings("unused")
     private void startLoading() {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxListFragment startLoading");
@@ -420,7 +409,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private class MailboxListLoaderCallbacks implements LoaderCallbacks<Cursor> {
         private boolean mIsFirstLoad;
 
-        @SuppressWarnings("unused")
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -430,7 +418,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             return MailboxFragmentAdapter.createLoader(getActivity(), mAccountId, mParentMailboxId);
         }
 
-        @SuppressWarnings("unused")
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
