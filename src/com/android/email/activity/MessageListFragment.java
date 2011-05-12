@@ -95,6 +95,7 @@ public class MessageListFragment extends ListFragment
     private static final int LOADER_ID_MESSAGES_LOADER = 2;
 
     /** Argument name(s) */
+    private static final String ARG_ACCOUNT_ID = "accountId";
     private static final String ARG_MAILBOX_ID = "mailboxId";
 
     // Controller access
@@ -119,7 +120,21 @@ public class MessageListFragment extends ListFragment
 
     private MessagesAdapter mListAdapter;
 
-    private long mMailboxId = -1;
+    /**
+     * Account ID passed to {@link #newInstance}.  Cache of {@link #getAccountIdArg()}, but usable
+     * only after {@link #onCreate}.
+     *
+     * SPECIAL NOTE This holds {@link Account#ACCOUNT_ID_COMBINED_VIEW} for a magic mailbox.
+     */
+    private long mAccountId;
+
+    /**
+     * Mailbox ID passed to {@link #newInstance}.  Cache of {@link #getMailboxIdArg()}, but usable
+     * only after {@link #onCreate}.
+     */
+    private long mMailboxId;
+
+    /** ID of the message to hightlight. */
     private long mSelectedMessageId = -1;
 
     private Account mAccount;
@@ -129,7 +144,6 @@ public class MessageListFragment extends ListFragment
     private int mCountTotalAccounts;
 
     // Misc members
-    private boolean mOpenRequested;
 
     /** Whether "Send all messages" should be shown. */
     private boolean mShowSendCommand;
@@ -227,13 +241,43 @@ public class MessageListFragment extends ListFragment
      * Create a new instance with initialization parameters.
      *
      * This fragment should be created only with this method.  (Arguments should always be set.)
+     *
+     * @param accountId The ID of the account we want to view.
+     *         Pass {@link Account#ACCOUNT_ID_COMBINED_VIEW} for a combined mailbox.
+     * @param mailboxId The ID of the parent mailbox
      */
-    public static MessageListFragment newInstance(long mailboxId) {
+    public static MessageListFragment newInstance(long accountId, long mailboxId) {
+        // sanity check
+        if ((accountId == Account.PSEUDO_ACCOUNT_ID_NONE) || (mailboxId == Mailbox.NO_MAILBOX)) {
+            throw new InvalidParameterException();
+        }
+        if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+            // must be a combined mailbox.
+            if (mailboxId >= 0) {
+                throw new InvalidParameterException();
+            }
+        } else {
+            // must be a regular mailbox.
+            if (mailboxId <= 0) {
+                throw new InvalidParameterException();
+            }
+        }
         final MessageListFragment instance = new MessageListFragment();
         final Bundle args = new Bundle();
+        args.putLong(ARG_ACCOUNT_ID, accountId);
         args.putLong(ARG_MAILBOX_ID, mailboxId);
         instance.setArguments(args);
         return instance;
+    }
+
+    /** @return the account ID passed to {@link #newInstance}. */
+    public long getAccountIdArg() {
+        return getArguments().getLong(ARG_ACCOUNT_ID);
+    }
+
+    /** @return the mailbox ID passed to {@link #newInstance}. */
+    public long getMailboxIdArg() {
+        return getArguments().getLong(ARG_MAILBOX_ID);
     }
 
     @Override
@@ -242,6 +286,10 @@ public class MessageListFragment extends ListFragment
             Log.d(Logging.LOG_TAG, "MessageListFragment onCreate");
         }
         super.onCreate(savedInstanceState);
+
+        mAccountId = getAccountIdArg();
+        mMailboxId = getMailboxIdArg();
+
         mActivity = getActivity();
         setHasOptionsMenu(true);
         mController = Controller.getInstance(mActivity);
@@ -283,11 +331,7 @@ public class MessageListFragment extends ListFragment
             restoreInstanceState(savedInstanceState);
         }
 
-        final Bundle args = getArguments();
-        // STOPSHIP remove the check.  Right now it's needed for the obsolete phone activities.
-        if (args != null) {
-            openMailbox(args.getLong(ARG_MAILBOX_ID));
-        }
+        startLoading();
     }
 
     @Override
@@ -306,12 +350,6 @@ public class MessageListFragment extends ListFragment
         super.onResume();
         mResumed = true;
         adjustMessageNotification(false);
-
-        // If we're recovering from the stopped state, we don't have to reload.
-        // (when mOpenRequested = false)
-        if (mMailboxId != -1 && mOpenRequested) {
-            startLoading();
-        }
     }
 
     @Override
@@ -320,9 +358,9 @@ public class MessageListFragment extends ListFragment
             Log.d(Logging.LOG_TAG, "MessageListFragment onPause");
         }
         mResumed = false;
-        super.onStop();
         mSavedListState = getListView().onSaveInstanceState();
         adjustMessageNotification(true);
+        super.onPause();
     }
 
     @Override
@@ -407,33 +445,6 @@ public class MessageListFragment extends ListFragment
         updateSelectionMode();
     }
 
-    /**
-     * Called by an Activity to open an mailbox.
-     *
-     * @param mailboxId the ID of a mailbox, or one of "special" mailbox IDs like
-     *     {@link Mailbox#QUERY_ALL_INBOXES}.  -1 is not allowed.
-     */
-    // STOPSHIP Make it private once phone activities are gone
-    void openMailbox(long mailboxId) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment openMailbox");
-        }
-        if (mailboxId == -1) {
-            throw new InvalidParameterException();
-        }
-        mOpenRequested = true;
-        mMailboxId = mailboxId;
-
-        // STOPSHIP Clean it up once the phone activities are gone. (See MailboxListFragment)
-        // - Move startLoading() to onActivityCreated
-        // - Remove mOpenRequested
-        // - Remove the mOpenRequested check from onResume
-        // etc...
-        if (mResumed) {
-            startLoading();
-        }
-    }
-
     public void setSelectedMessage(long messageId) {
         mSelectedMessageId = messageId;
         if (mResumed) {
@@ -443,27 +454,6 @@ public class MessageListFragment extends ListFragment
 
     /* package */MessagesAdapter getAdapterForTest() {
         return mListAdapter;
-    }
-
-    /**
-     * Returns the account id of the currently viewed messages. May return
-     * {@link Account#PSEUDO_ACCOUNT_ID_NONE} if the mailbox is not yet known or
-     * {@link Account#ACCOUNT_ID_COMBINED_VIEW} if viewing a combined mailbox.
-     */
-    private long getAccountId() {
-        return (mMailbox == null)
-                ? (mMailboxId < Mailbox.NO_MAILBOX)
-                        ? Account.ACCOUNT_ID_COMBINED_VIEW : Account.PSEUDO_ACCOUNT_ID_NONE
-                : mMailbox.mAccountKey;
-    }
-
-    /**
-     * @return the mailbox id, which is the value set to {@link #openMailbox}.
-     * (Meaning it will never return -1, but may return special values,
-     * eg {@link Mailbox#QUERY_ALL_INBOXES}).
-     */
-    public long getMailboxId() {
-        return mMailboxId;
     }
 
     /**
@@ -711,7 +701,7 @@ public class MessageListFragment extends ListFragment
             if (isCancelled() || type == null) {
                 return;
             }
-            mCallback.onMessageOpen(mMessageId, mMessageMailboxId, getMailboxId(), type);
+            mCallback.onMessageOpen(mMessageId, mMessageMailboxId, mMailboxId, type);
         }
     }
 
@@ -736,12 +726,8 @@ public class MessageListFragment extends ListFragment
      * Note: Manual refresh is enabled even for push accounts.
      */
     public void onRefresh(boolean userRequest) {
-        if (!mIsRefreshable) {
-            return;
-        }
-        long accountId = getAccountId();
-        if (Account.isNormalAccount(accountId)) {
-            mRefreshManager.refreshMessageList(accountId, mMailboxId, userRequest);
+        if (mIsRefreshable) {
+            mRefreshManager.refreshMessageList(mAccountId, mMailboxId, userRequest);
         }
     }
 
@@ -760,25 +746,14 @@ public class MessageListFragment extends ListFragment
      * Load more messages.  NOOP for special mailboxes (e.g. combined inbox).
      */
     private void onLoadMoreMessages() {
-        long accountId = getAccountId();
-        if (Account.isNormalAccount(accountId)) {
-            mRefreshManager.loadMoreMessages(accountId, mMailboxId);
+        if (mIsRefreshable) {
+            mRefreshManager.loadMoreMessages(mAccountId, mMailboxId);
         }
-    }
-
-    /**
-     * @return if it's an outbox or "all outboxes".
-     *
-     * TODO make it private.  It's only used by MessageList, but the callsite is obsolete.
-     */
-    public boolean isOutbox() {
-        return (getMailboxId() == Mailbox.QUERY_ALL_OUTBOX)
-            || ((mMailbox != null) && (mMailbox.mType == Mailbox.TYPE_OUTBOX));
     }
 
     public void onSendPendingMessages() {
         RefreshManager rm = RefreshManager.getInstance(mActivity);
-        if (getMailboxId() == Mailbox.QUERY_ALL_OUTBOX) {
+        if (mMailboxId == Mailbox.QUERY_ALL_OUTBOX) {
             rm.sendPendingMessagesForAllAccounts();
         } else if (mMailbox != null) { // Magic boxes don't have a specific account id.
             rm.sendPendingMessages(mMailbox.mAccountKey);
@@ -1056,7 +1031,9 @@ public class MessageListFragment extends ListFragment
     }
 
     private void showSendCommandIfNecessary() {
-        showSendCommand(isOutbox() && (mListAdapter != null) && (mListAdapter.getCount() > 0));
+        final boolean isOutbox = (mMailboxId == Mailbox.QUERY_ALL_OUTBOX)
+                || ((mMailbox != null) && (mMailbox.mType == Mailbox.TYPE_OUTBOX));
+        showSendCommand(isOutbox && (mListAdapter != null) && (mListAdapter.getCount() > 0));
     }
 
     private void showNoMessageText(boolean visible) {
@@ -1082,12 +1059,11 @@ public class MessageListFragment extends ListFragment
      */
     private void adjustMessageNotification(boolean updateLastSeenKey) {
         if (mMailboxId == Mailbox.QUERY_ALL_INBOXES || mMailboxId > 0) {
-            long id = getAccountId();
             if (updateLastSeenKey) {
-                Utility.updateLastSeenMessageKey(mActivity, id);
+                Utility.updateLastSeenMessageKey(mActivity, mAccountId);
             }
             NotificationController notifier = NotificationController.getInstance(mActivity);
-            notifier.suspendMessageNotification(mResumed, id);
+            notifier.suspendMessageNotification(mResumed, mAccountId);
         }
     }
 
@@ -1095,8 +1071,6 @@ public class MessageListFragment extends ListFragment
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment startLoading");
         }
-        mOpenRequested = false;
-
         // Clear the list. (ListFragment will show the "Loading" animation)
         showNoMessageText(false);
         setListShown(false);

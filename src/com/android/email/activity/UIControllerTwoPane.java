@@ -403,9 +403,8 @@ class UIControllerTwoPane extends UIControllerBase implements
      * for the mailbox list. The two may be different.
      */
     private long getMessageListMailboxId() {
-        return (mMessageListFragment == null)
-                ? Mailbox.NO_MAILBOX
-                : mMessageListFragment.getMailboxId();
+        return (mMessageListFragment == null) ? Mailbox.NO_MAILBOX
+                : mMessageListFragment.getMailboxIdArg();
     }
 
     /*
@@ -748,7 +747,8 @@ class UIControllerTwoPane extends UIControllerBase implements
             uninstallMessageViewFragment(ft);
             mMessageId = NO_MESSAGE;
         }
-        ft.add(mThreePane.getMiddlePaneId(), MessageListFragment.newInstance(mailboxId));
+        ft.add(mThreePane.getMiddlePaneId(), MessageListFragment.newInstance(
+                mAccountId, mailboxId));
         commitFragmentTransaction(ft);
 
         if (changeVisiblePane) {

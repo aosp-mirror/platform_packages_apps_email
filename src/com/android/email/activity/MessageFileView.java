@@ -18,49 +18,33 @@ package com.android.email.activity;
 
 import com.android.email.R;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.app.ActionBar;
-import android.content.Intent;
+import android.app.Activity;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
 /**
  * Activity to show file-based messages.  (i.e. *.eml files, and possibly *.msg files).
- *
- * <p>This class has very limited feature set compared to {@link MessageView}, that is:
- * <ul>
- *   <li>No action buttons (can't reply, forward or delete)
- *   <li>No favorite starring.
- *   <li>No navigating around (no older/newer buttons)
- * </ul>
- *
- * See {@link MessageViewBase} for the class relation diagram.
  */
-public class MessageFileView extends MessageViewBase {
-
+public class MessageFileView extends Activity implements MessageViewFragmentBase.Callback {
     private ActionBar mActionBar;
-
-    /**
-     * URI to the email (i.e. *.eml files, and possibly *.msg files) file that's being
-     */
-    private Uri mFileEmailUri;
 
     private MessageFileViewFragment mFragment;
 
-    private LoadFilenameTask mLoadFilenameTask;
-
-    @Override
-    protected int getLayoutId() {
-        return R.layout.message_file_view;
-    }
+    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        ActivityHelper.debugSetWindowFlags(this);
+        setContentView(R.layout.message_file_view);
 
         mActionBar = getActionBar();
         mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_HOME_AS_UP
@@ -70,20 +54,17 @@ public class MessageFileView extends MessageViewBase {
                 R.id.message_file_view_fragment);
         mFragment.setCallback(this);
 
-        Intent intent = getIntent();
-        mFileEmailUri = intent.getData();
-        if (mFileEmailUri == null) {
+        final Uri fileEmailUri = getIntent().getData();
+        if (fileEmailUri == null) {
             Log.w(Logging.LOG_TAG, "Insufficient intent parameter.  Closing...");
             finish();
             return;
         }
 
-        // Load message.
-        getFragment().openMessage(mFileEmailUri);
+        mFragment.setFileUri(fileEmailUri);
 
         // Set title.
-        mLoadFilenameTask = new LoadFilenameTask(mFileEmailUri);
-        mLoadFilenameTask.execute();
+        new LoadFilenameTask(fileEmailUri).executeParallel();
     }
 
     @Override
@@ -94,7 +75,7 @@ public class MessageFileView extends MessageViewBase {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Utility.cancelTaskInterrupt(mLoadFilenameTask);
+        mTaskTracker.cancellAllInterrupt();
     }
 
     @Override
@@ -108,18 +89,6 @@ public class MessageFileView extends MessageViewBase {
         return super.onOptionsItemSelected(item);
     }
 
-    /** @return always -1, as no accounts are associated with EML files. */
-    @Override
-    protected long getAccountId() {
-        return -1;
-    }
-
-    // Note the return type is a subclass of that of the super class method.
-    @Override
-    protected MessageFileViewFragment getFragment() {
-        return mFragment;
-    }
-
     /**
      * Set the activity title.  ("Viewing FILENAME")
      */
@@ -130,10 +99,11 @@ public class MessageFileView extends MessageViewBase {
     /**
      * Load the filename of the EML, and update the activity title.
      */
-    private class LoadFilenameTask extends AsyncTask<Void, Void, String> {
+    private class LoadFilenameTask extends EmailAsyncTask<Void, Void, String> {
         private final Uri mContentUri;
 
         public LoadFilenameTask(Uri contentUri) {
+            super(mTaskTracker);
             mContentUri = contentUri;
         }
 
@@ -144,10 +114,51 @@ public class MessageFileView extends MessageViewBase {
 
         @Override
         protected void onPostExecute(String filename) {
-            if (filename == null || isCancelled()) {
+            if (filename == null) {
                 return;
             }
             setTitle(filename);
         }
+    }
+
+    @Override
+    public boolean onUrlInMessageClicked(String url) {
+        // EML files don't have the "owner" account, so use the default account as the sender.
+        return ActivityHelper.openUrlInMessage(this, url, Account.PSEUDO_ACCOUNT_ID_NONE);
+    }
+
+    @Override
+    public void onMessageNotExists() { // Probably meessage deleted.
+        finish();
+    }
+
+    @Override
+    public void onMessageViewShown(int mailboxType) {
+        // Not important for EMLs
+    }
+
+    @Override
+    public void onMessageViewGone() {
+        // Not important for EMLs
+    }
+
+    @Override
+    public void onLoadMessageStarted() {
+        // Not important for EMLs
+    }
+
+    @Override
+    public void onLoadMessageFinished() {
+        // Not important for EMLs
+    }
+
+    @Override
+    public void onLoadMessageError(String errorMessage) {
+        // Not important for EMLs
+    }
+
+    @VisibleForTesting
+    MessageFileViewFragment getFragment() {
+        return mFragment;
     }
 }

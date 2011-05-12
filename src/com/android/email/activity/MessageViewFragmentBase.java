@@ -148,7 +148,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private String mHtmlTextWebView;
 
     private boolean mResumed;
-    private boolean mLoadWhenResumed;
 
     private boolean mIsMessageLoadedForTest;
 
@@ -334,6 +333,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         super.onActivityCreated(savedInstanceState);
         mController.addResultCallback(mControllerCallback);
+
+        resetView();
+        new LoadMessageTask(true).executeParallel();
     }
 
     @Override
@@ -352,19 +354,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         super.onResume();
 
         mResumed = true;
-        if (isMessageSpecified()) {
-            if (mLoadWhenResumed) {
-                // Load content which resets all view state; including WebView zoom/pan and
-                // the current tab.
-                loadMessageIfResumed();
-            } else {
-                // We've comes back from other (full-screen) activities. Content has already
-                // been loaded, so don't load it again. However, we need to update the
-                // attachment tab as system settings may have been updated that affect which
-                // options are available to the user.
-                updateAttachmentTab();
-            }
-        }
+
+        // We might have comes back from other full-screen activities.  If so, we need to update
+        // the attachment tab as system settings may have been updated that affect which
+        // options are available to the user.
+        updateAttachmentTab();
     }
 
     @Override
@@ -391,7 +385,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         mCallback.onMessageViewGone();
         mController.removeResultCallback(mControllerCallback);
-        clearContent();
+        cancelAllTasks();
         mMessageContentView.destroy();
         mMessageContentView = null;
         super.onDestroy();
@@ -427,11 +421,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mTaskTracker.cancellAllInterrupt();
     }
 
-    /**
-     * Subclass returns true if which message to open is already specified by the activity.
-     */
-    protected abstract boolean isMessageSpecified();
-
     protected final Controller getController() {
         return mController;
     }
@@ -456,24 +445,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         return mAccountId;
     }
 
-    /**
-     * Clear all the content -- should be called when the fragment is hidden.
-     */
-    protected void clearContent() {
-        cancelAllTasks();
-        resetView();
-    }
-
-    protected final void loadMessageIfResumed() {
-        if (!mResumed) {
-            mLoadWhenResumed = true;
-            return;
-        }
-        mLoadWhenResumed = false;
-        cancelAllTasks();
-        resetView();
-        new LoadMessageTask(true).executeParallel();
-    }
 
     /**
      * Show/hide the content.  We hide all the content (except for the bottom buttons) when loading,
@@ -650,6 +621,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * the sender as a contact.
      */
     private void onClickSender() {
+        if (!isMessageOpen()) return;
         final Address senderEmail = Address.unpackFirst(mMessage.mFrom);
         if (senderEmail == null) return;
 
@@ -896,9 +868,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     private void onShowDetails() {
-        if (mMessage == null) {
-            return; // shouldn't happen
-        }
+        if (!isMessageOpen()) return;
         String subject = mMessage.mSubject;
         String date = formatDate(mMessage.mTimeStamp, true);
 
@@ -961,18 +931,17 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * Start loading contact photo and presence.
      */
     private void queryContactStatus() {
+        if (!isMessageOpen()) return;
         initContactStatusViews(); // Initialize the state, just in case.
 
         // Find the sender email address, and start presence check.
-        if (mMessage != null) {
-            Address sender = Address.unpackFirst(mMessage.mFrom);
-            if (sender != null) {
-                String email = sender.getAddress();
-                if (email != null) {
-                    getLoaderManager().restartLoader(PHOTO_LOADER_ID,
-                            ContactStatusLoaderCallbacks.createArguments(email),
-                            new ContactStatusLoaderCallbacks(this));
-                }
+        Address sender = Address.unpackFirst(mMessage.mFrom);
+        if (sender != null) {
+            String email = sender.getAddress();
+            if (email != null) {
+                getLoaderManager().restartLoader(PHOTO_LOADER_ID,
+                        ContactStatusLoaderCallbacks.createArguments(email),
+                        new ContactStatusLoaderCallbacks(this));
             }
         }
     }
@@ -982,8 +951,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * subclass specific way.
      *
      * NOTE This method is called on a worker thread!  Implementations must properly synchronize
-     * when accessing members.  This method may be called after or even at the same time as
-     * {@link #clearContent()}.
+     * when accessing members.
      *
      * @param activity the parent activity.  Subclass use it as a context, and to show a toast.
      */
@@ -1049,9 +1017,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected Message doInBackground(Void... params) {
-            if (!isMessageSpecified()) { // just in case
-                return null;
-            }
             Activity activity = getActivity();
             if (activity == null) {
                 return null;
@@ -1062,9 +1027,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected void onPostExecute(Message message) {
-            if (isCancelled()) {
-                return;
-            }
             if (message == null || message.mMailboxKey != mMessage.mMailboxKey) {
                 // Message deleted or moved.
                 mCallback.onMessageNotExists();
@@ -1789,8 +1751,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     /**
      * Class to detect update on the current message (e.g. toggle star).  When it gets content
      * change notifications, it kicks {@link ReloadMessageTask}.
-     *
-     * TODO Use the new Throttle class.
      */
     private class MessageObserver extends ContentObserver implements Runnable {
         private final Throttle mThrottle;
@@ -1829,17 +1789,13 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mThrottle.onEvent();
         }
 
-        /**
-         * This method is delay-called by {@link Throttle} on the UI thread.  Need to make
-         * sure if the fragment is still valid.  (i.e. don't reload if clearContent() has been
-         * called.)
-         */
+        /** This method is delay-called by {@link Throttle} on the UI thread. */
         @Override
         public void run() {
-            if (!isMessageSpecified()) {
-                return;
+            // This method is delay-called, so need to make sure if it's still registered.
+            if (mRegistered) {
+                new ReloadMessageTask().cancelPreviousAndExecuteParallel();
             }
-            new ReloadMessageTask().cancelPreviousAndExecuteParallel();
         }
     }
 

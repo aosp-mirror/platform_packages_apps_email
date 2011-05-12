@@ -20,6 +20,7 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
@@ -29,16 +30,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Browser;
-import android.view.MenuItem;
 import android.view.WindowManager;
 
 /**
  * Various methods that are used by both 1-pane and 2-pane activities.
  *
- * <p>Common code used by {@link EmailActivity}, {@link MessageList} and other activities go here.
- * Probably there's a nicer way to do this, if we re-design these classes more throughly.
- * However, without knowing what the phone UI will be, all such work can easily end up being
- * over-designed or totally useless.  For now this pattern will do...
+ * Common code used by the activities and the fragments.
  */
 public final class ActivityHelper {
     private ActivityHelper() {
@@ -58,6 +55,7 @@ public final class ActivityHelper {
      * @param url URL to open
      * @param senderAccountId if the URL is mailto:, we use this account as the sender.
      *        TODO When MessageCompose implements the account selector, this won't be necessary.
+     *        Pass {@link Account#PSEUDO_ACCOUNT_ID_NONE} to use the default account.
      * @return true if the URI has successfully been opened.
      */
     public static boolean openUrlInMessage(Activity activity, String url, long senderAccountId) {

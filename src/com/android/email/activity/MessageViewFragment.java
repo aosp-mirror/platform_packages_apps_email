@@ -70,15 +70,10 @@ public class MessageViewFragment extends MessageViewFragmentBase
     private int mPreviousMeetingResponse = EmailServiceConstants.MEETING_REQUEST_NOT_RESPONDED;
 
     /**
-     * ID of the message that will be loaded.  Protect with {@link #mLock}.
+     * Message ID passed to {@link #newInstance}.  Cache of {@link #getMessageIdArg()}, but usable
+     * only after {@link #onCreate}.
      */
-    private long mMessageIdToOpen = -1;
-
-    /** Lock object to protect {@link #mMessageIdToOpen} */
-    private final Object mLock = new Object();
-
-    /** ID of the currently shown message */
-    private long mCurrentMessageId = -1;
+    private long mMessageId;
 
     /**
      * This class has more call backs than {@link MessageViewFragmentBase}.
@@ -143,6 +138,9 @@ public class MessageViewFragment extends MessageViewFragmentBase
      * This fragment should be created only with this method.  (Arguments should always be set.)
      */
     public static MessageViewFragment newInstance(long messageId) {
+        if (messageId == -1) {
+            throw new InvalidParameterException();
+        }
         final MessageViewFragment instance = new MessageViewFragment();
         final Bundle args = new Bundle();
         args.putLong(ARG_MESSAGE_ID, messageId);
@@ -150,9 +148,16 @@ public class MessageViewFragment extends MessageViewFragmentBase
         return instance;
     }
 
+    /** @return the message ID passed to {@link #newInstance}. */
+    public long getMessageIdArg() {
+        return getArguments().getLong(ARG_MESSAGE_ID);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mMessageId = getMessageIdArg();
 
         final Resources res = getActivity().getResources();
         mFavoriteIconOn = res.getDrawable(R.drawable.btn_star_on_normal_email_holo_light);
@@ -190,22 +195,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        final Bundle args = getArguments();
-        // STOPSHIP remove the check.  Right now it's needed for the obsolete phone activities.
-        if (args != null) {
-            openMessage(args.getLong(ARG_MESSAGE_ID));
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.message_view_fragment_option, menu);
     }
@@ -223,35 +212,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
         super.setCallback(mCallback);
     }
 
-    /** Called by activities to set an id of a message to open. */
-    // STOPSHIP Make it private once phone activities are gone
-    void openMessage(long messageId) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment openMessage");
-        }
-        if (messageId == -1) {
-            throw new InvalidParameterException();
-        }
-        synchronized (mLock) {
-            mMessageIdToOpen = messageId;
-        }
-        loadMessageIfResumed();
-    }
-
-    @Override
-    protected void clearContent() {
-        synchronized (mLock) {
-            super.clearContent();
-            mMessageIdToOpen = -1;
-
-            // Hide the menu.
-            // This isn't really necessary if we're really hiding the fragment.  However,
-            // for now, we're actually *not* hiding the fragment (just hiding the root view of it),
-            // so need to remove menus manually.
-            setHasOptionsMenu(false);
-        }
-    }
-
     @Override
     protected void resetView() {
         super.resetView();
@@ -261,45 +221,27 @@ public class MessageViewFragment extends MessageViewFragmentBase
         mPreviousMeetingResponse = EmailServiceConstants.MEETING_REQUEST_NOT_RESPONDED;
     }
 
-    @Override
-    protected boolean isMessageSpecified() {
-        synchronized (mLock) {
-            return mMessageIdToOpen != -1;
-        }
-    }
-
     /**
      * NOTE See the comment on the super method.  It's called on a worker thread.
      */
     @Override
     protected Message openMessageSync(Activity activity) {
-        synchronized (mLock) {
-            long messageId = mMessageIdToOpen;
-            if (messageId < 0) {
-                return null; // Called after clearContent().
-            }
-            return Message.restoreMessageWithId(activity, messageId);
-        }
+        return Message.restoreMessageWithId(activity, mMessageId);
     }
 
     @Override
     protected void onMessageShown(long messageId, int mailboxType) {
         super.onMessageShown(messageId, mailboxType);
 
-        // Remember the currently shown message ID.
-        mCurrentMessageId = messageId;
-
         // Disable forward/reply buttons as necessary.
         enableReplyForwardButtons(Mailbox.isMailboxTypeReplyAndForwardable(mailboxType));
-
-        // Show the menu when it's showing a message.
-        setHasOptionsMenu(true);
     }
 
     /**
      * Toggle favorite status and write back to provider
      */
     private void onClickFavorite() {
+        if (!isMessageOpen()) return;
         Message message = getMessage();
 
         // Update UI
@@ -315,6 +257,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
      * Set message read/unread.
      */
     public void onMarkMessageAsRead(boolean isRead) {
+        if (!isMessageOpen()) return;
         Message message = getMessage();
         if (message.mFlagRead != isRead) {
             message.mFlagRead = isRead;
@@ -329,6 +272,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
      * Send a service message indicating that a meeting invite button has been clicked.
      */
     private void onRespondToInvite(int response, int toastResId) {
+        if (!isMessageOpen()) return;
         Message message = getMessage();
         // do not send twice in a row the same response
         if (mPreviousMeetingResponse != response) {
@@ -340,6 +284,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     private void onInviteLinkClicked() {
+        if (!isMessageOpen()) return;
         Message message = getMessage();
         String startTime = new PackedString(message.mMeetingInfo).get(MeetingInfo.MEETING_DTSTART);
         if (startTime != null) {
@@ -413,9 +358,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     private void onMove() {
-        // STOPSHIP mCurrentMessageId is not a good one to use here.  See b/4346486
-        // (We use it for now just to keep it consistent with onDelete)
-        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(new long[] {mCurrentMessageId},
+        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(new long[] {mMessageId},
                 this);
         dialog.show(getFragmentManager(), "dialog");
     }
@@ -429,7 +372,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
     private void onDelete() {
         mCallback.onBeforeMessageGone();
-        ActivityHelper.deleteMessage(mContext, mCurrentMessageId);
+        ActivityHelper.deleteMessage(mContext, mMessageId);
     }
 
     private void onMarkAsUnread() {
