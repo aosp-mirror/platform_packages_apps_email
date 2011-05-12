@@ -1594,8 +1594,10 @@ public class Controller {
                 case EmailServiceStatus.ACCESS_DENIED:
                     return new MessagingException(MessagingException.ACCESS_DENIED);
 
-                case EmailServiceStatus.MESSAGE_NOT_FOUND:
                 case EmailServiceStatus.ATTACHMENT_NOT_FOUND:
+                    return new MessagingException(MessagingException.ATTACHMENT_NOT_FOUND);
+
+                case EmailServiceStatus.MESSAGE_NOT_FOUND:
                 case EmailServiceStatus.FOLDER_NOT_DELETED:
                 case EmailServiceStatus.FOLDER_NOT_RENAMED:
                 case EmailServiceStatus.FOLDER_NOT_CREATED:

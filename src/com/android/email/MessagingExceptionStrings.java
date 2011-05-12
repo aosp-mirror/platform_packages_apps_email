@@ -35,6 +35,8 @@ public class MessagingExceptionStrings {
         switch (e.getExceptionType()) {
             case MessagingException.IOERROR:
                 return R.string.account_setup_failed_ioerror;
+            case MessagingException.ATTACHMENT_NOT_FOUND:
+                return R.string.attachment_not_found;
             case MessagingException.TLS_REQUIRED:
                 return R.string.account_setup_failed_tls_required;
             case MessagingException.AUTH_REQUIRED:

@@ -60,6 +60,8 @@ public class MessagingException extends Exception {
     public static final int AUTHENTICATION_FAILED_OR_SERVER_ERROR = 13;
     /** The server refused access */
     public static final int ACCESS_DENIED = 14;
+    /** The server refused access */
+    public static final int ATTACHMENT_NOT_FOUND = 15;
 
     protected int mExceptionType;
     // Exception type-specific data

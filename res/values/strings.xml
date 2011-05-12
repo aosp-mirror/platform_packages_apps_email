@@ -415,6 +415,9 @@ save attachment.</string>
     <string name="attachment_info_apk_install_disabled">
             Applications can\'t be installed directly from Email. First save
             this application and then install it using the Downloads application.</string>
+    <!-- Error banner when an attachment could not be downloaded due to a problem at the server
+            [CHAR LIMIT=100] -->
+    <string name="attachment_not_found">The attachment could not be downloaded.</string>
 
     <!-- String used in place of a message that could not be properly decoded (e.g. bad base64
          data was received.) [CHAR LIMIT=none] -->
