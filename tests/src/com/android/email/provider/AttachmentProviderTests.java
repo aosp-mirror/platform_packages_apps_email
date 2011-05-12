@@ -235,7 +235,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
             // count all attachments with an empty URI, regardless of mailbox location
             c = mMockContext.getContentResolver().query(
                     Attachment.CONTENT_URI, AttachmentInfo.PROJECTION,
-                    EmailContent.Attachment.EMPTY_URI_SELECTION,
+                    EmailContent.Attachment.PRECACHE_SELECTION,
                     null, Attachment.RECORD_ID + " DESC");
             assertEquals(9, c.getCount());
         } finally {
@@ -246,7 +246,7 @@ public class AttachmentProviderTests extends ProviderTestCase2<AttachmentProvide
             // count all attachments with an empty URI, only in an inbox
             c = mMockContext.getContentResolver().query(
                     Attachment.CONTENT_URI, AttachmentInfo.PROJECTION,
-                    EmailContent.Attachment.EMPTY_URI_INBOX_SELECTION,
+                    EmailContent.Attachment.PRECACHE_INBOX_SELECTION,
                     null, Attachment.RECORD_ID + " DESC");
             assertEquals(4, c.getCount());
         } finally {

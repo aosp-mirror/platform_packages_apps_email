@@ -342,7 +342,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
                 Uri lookupUri = EmailContent.uriWithLimit(Attachment.CONTENT_URI,
                         MAX_ATTACHMENTS_TO_CHECK);
                 Cursor c = mContext.getContentResolver().query(lookupUri, AttachmentInfo.PROJECTION,
-                        EmailContent.Attachment.EMPTY_URI_INBOX_SELECTION,
+                        EmailContent.Attachment.PRECACHE_INBOX_SELECTION,
                         null, Attachment.RECORD_ID + " DESC");
                 File cacheDir = mContext.getCacheDir();
                 try {
@@ -481,6 +481,7 @@ public class AttachmentDownloadService extends Service implements Runnable {
             mWatchdogPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
             mAlarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         }
+
         private void cancelDownload(DownloadRequest req) {
             mDownloadsInProgress.remove(req.attachmentId);
             req.inProgress = false;
@@ -572,8 +573,15 @@ public class AttachmentDownloadService extends Service implements Runnable {
                     }
                 }
                 if (statusCode == EmailServiceStatus.MESSAGE_NOT_FOUND) {
-                    // If there's no associated message, delete the attachment
-                    EmailContent.delete(mContext, Attachment.CONTENT_URI, attachment.mId);
+                    Message msg = Message.restoreMessageWithId(mContext, attachment.mMessageKey);
+                    if (msg == null) {
+                        // If there's no associated message, delete the attachment
+                        EmailContent.delete(mContext, Attachment.CONTENT_URI, attachment.mId);
+                    } else {
+                        // If there really is a message, retry
+                        kick();
+                        return;
+                    }
                 } else if (!deleted) {
                     // Clear the download flags, since we're done for now.  Note that this happens
                     // only for non-recoverable errors.  When these occur for forwarded mail, we can
