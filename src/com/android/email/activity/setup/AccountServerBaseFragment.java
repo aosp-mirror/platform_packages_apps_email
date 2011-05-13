@@ -153,19 +153,10 @@ public abstract class AccountServerBaseFragment extends Fragment
         }
     }
 
-    /**
-     * Called when a fragment is first attached to its activity.
-     * {@link #onCreate(Bundle)} will be called after this.
-     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mContext = activity;
-
-        // Notify the activity that we're here.
-        if (activity instanceof AccountSettings) {
-            ((AccountSettings)activity).onAttach(this);
-        }
     }
 
     @Override
