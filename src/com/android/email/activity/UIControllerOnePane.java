@@ -22,7 +22,6 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
@@ -340,17 +339,18 @@ class UIControllerOnePane extends UIControllerBase {
     }
 
     @Override
-    void installFragment(Fragment fragment) {
-        super.installFragment(fragment);
-        if (fragment instanceof MailboxListFragment) {
-            ((MailboxListFragment) fragment).setCallback(mMailboxListFragmentCallback);
-        } else if (fragment instanceof MessageListFragment) {
-            ((MessageListFragment) fragment).setCallback(mMessageListFragmentCallback);
-        } else if (fragment instanceof MessageViewFragment) {
-            ((MessageViewFragment) fragment).setCallback(mMessageViewFragmentCallback);
-        } else {
-            // Ignore -- uninteresting fragments such as dialogs.
-        }
+    protected void installMailboxListFragment(MailboxListFragment fragment) {
+        fragment.setCallback(mMailboxListFragmentCallback);
+    }
+
+    @Override
+    protected void installMessageListFragment(MessageListFragment fragment) {
+        fragment.setCallback(mMessageListFragmentCallback);
+    }
+
+    @Override
+    protected void installMessageViewFragment(MessageViewFragment fragment) {
+        fragment.setCallback(mMessageViewFragmentCallback);
     }
 
     @Override

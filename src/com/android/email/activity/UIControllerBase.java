@@ -99,7 +99,7 @@ abstract class UIControllerBase {
     /**
      * @return true if the UI controller currently can install fragments.
      */
-    boolean isFragmentInstallable() {
+    protected final boolean isFragmentInstallable() {
         return !mHoldFragmentInstallation;
     }
 
@@ -226,22 +226,36 @@ abstract class UIControllerBase {
         installFragment(fragment);
     }
 
-    void installFragment(Fragment fragment) {
+    private void installFragment(Fragment fragment) {
         if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " installFragment  fragment=" + fragment);
         }
+        if (fragment instanceof MailboxListFragment) {
+            installMailboxListFragment((MailboxListFragment) fragment);
+        } else if (fragment instanceof MessageListFragment) {
+            installMessageListFragment((MessageListFragment) fragment);
+        } else if (fragment instanceof MessageViewFragment) {
+            installMessageViewFragment((MessageViewFragment) fragment);
+        } else {
+            // Ignore -- uninteresting fragments such as dialogs.
+        }
     }
 
+    protected abstract void installMailboxListFragment(MailboxListFragment fragment);
+
+    protected abstract void installMessageListFragment(MessageListFragment fragment);
+
+    protected abstract void installMessageViewFragment(MessageViewFragment fragment);
+
     // not used
-    void popBackStack(FragmentManager fm, String name, int flags) {
+    protected final void popBackStack(FragmentManager fm, String name, int flags) {
         fm.popBackStackImmediate(name, flags);
     }
 
-    void commitFragmentTransaction(FragmentTransaction ft) {
+    protected final void commitFragmentTransaction(FragmentTransaction ft) {
         ft.commit();
         mActivity.getFragmentManager().executePendingTransactions();
     }
-
 
     /**
      * @return the currently selected account ID, *or* {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
