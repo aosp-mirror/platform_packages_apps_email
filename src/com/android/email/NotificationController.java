@@ -369,7 +369,7 @@ public class NotificationController {
      * NOTE: DO NOT CALL THIS METHOD FROM THE UI THREAD (DATABASE ACCESS)
      */
     @VisibleForTesting
-    Notification createNewMessageNotification(long accountId, long messageId,
+    Notification createNewMessageNotification(long accountId, long mailboxId, long messageId,
             int unseenMessageCount, boolean enableAudio) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) {
@@ -388,10 +388,14 @@ public class NotificationController {
         final String subject = message.mSubject;
         final Bitmap senderPhoto = getSenderPhoto(message);
         final SpannableString title = getNewMessageTitle(senderName, account.mDisplayName);
-        // TODO Set the intent according to number of unseen messages
-        final Intent intent = Welcome.createOpenAccountInboxIntent(mContext, accountId);
         final Bitmap largeIcon = senderPhoto != null ? senderPhoto : mGenericSenderIcon;
         final Integer number = unseenMessageCount > 1 ? unseenMessageCount : null;
+        final Intent intent;
+        if (unseenMessageCount >= 1) {
+            intent = Welcome.createOpenMessageIntent(mContext, accountId, mailboxId, messageId);
+        } else {
+            intent = Welcome.createOpenAccountInboxIntent(mContext, accountId);
+        }
 
         Notification notification = createAccountNotification(account, null, title, subject,
                 intent, largeIcon, number, enableAudio);
@@ -634,7 +638,7 @@ public class NotificationController {
                     // Either the count or last message has changed; update the notification
                     boolean playAudio = (oldMessageCount == 0); // play audio on first notification
                     Notification n = sInstance.createNewMessageNotification(
-                            mAccountId, newMessageId, newMessageCount, playAudio);
+                            mAccountId, mMailboxId, newMessageId, newMessageCount, playAudio);
                     if (n != null) {
                         // Make the notification visible
                         sInstance.mNotificationManager.notify(
