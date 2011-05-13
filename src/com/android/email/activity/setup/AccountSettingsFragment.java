@@ -47,6 +47,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.RingtonePreference;
@@ -66,6 +67,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
     // Keys used for arguments bundle
     private static final String BUNDLE_KEY_ACCOUNT_ID = "AccountSettingsFragment.AccountId";
+    private static final String BUNDLE_KEY_ACCOUNT_EMAIL = "AccountSettingsFragment.Email";
 
     private static final String PREFERENCE_CATEGORY_TOP = "account_settings";
     public static final String PREFERENCE_DESCRIPTION = "account_description";
@@ -115,6 +117,9 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private boolean mLoaded;
     private boolean mSaveOnExit;
 
+    /** The e-mail of the account being edited. */
+    private String mAccountEmail;
+
     // Async Tasks
     private AsyncTask<?,?,?> mLoadAccountTask;
 
@@ -140,28 +145,22 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
     /**
      * If launching with an arguments bundle, use this method to build the arguments.
-     * @param accountId The account being modified
      */
-    public static Bundle buildArguments(long accountId) {
+    public static Bundle buildArguments(long accountId, String email) {
         Bundle b = new Bundle();
         b.putLong(BUNDLE_KEY_ACCOUNT_ID, accountId);
+        b.putString(BUNDLE_KEY_ACCOUNT_EMAIL, email);
         return b;
     }
 
-    /**
-     * Called when a fragment is first attached to its activity.
-     * {@link #onCreate(Bundle)} will be called after this.
-     */
+    public static String getTitleFromArgs(Bundle args) {
+        return (args == null) ? null : args.getString(BUNDLE_KEY_ACCOUNT_EMAIL);
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
         mContext = activity;
-
-        // Notify the activity that we're here.
-        if (activity instanceof AccountSettings) {
-            ((AccountSettings) activity).onAttach(this);
-        }
     }
 
     /**
@@ -183,6 +182,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         Bundle b = getArguments();
         if (b != null) {
             long accountId = b.getLong(BUNDLE_KEY_ACCOUNT_ID, -1);
+            mAccountEmail = b.getString(BUNDLE_KEY_ACCOUNT_EMAIL);
             if (accountId >= 0 && !mLoaded) {
                 startLoadingAccount(accountId);
             }
@@ -716,5 +716,10 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private void finishDeleteAccount() {
         mSaveOnExit = false;
         mCallback.deleteAccount(mAccount);
+    }
+
+    public String getAccountEmail() {
+        // Get the e-mail address of the account being editted, if this is for an existing account.
+        return mAccountEmail;
     }
 }

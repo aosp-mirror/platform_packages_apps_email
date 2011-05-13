@@ -60,7 +60,6 @@ import java.util.List;
  *   GeneralPreferences
  *   DebugFragment
  *
- * TODO: In Account settings in Phone UI, change action bar title depending on active fragment
  * TODO: Delete account - on single-pane view (phone UX) the account list doesn't update properly
  * TODO: Handle dynamic changes to the account list (exit if necessary).  It probably makes
  *       sense to use a loader for the accounts list, because it would provide better support for
@@ -74,8 +73,9 @@ public class AccountSettings extends PreferenceActivity {
      */
 
     // Intent extras for our internal activity launch
-    private static final String EXTRA_ENABLE_DEBUG = "AccountSettingsXL.enable_debug";
-    private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettingsXL.for_account";
+    private static final String EXTRA_ENABLE_DEBUG = "AccountSettings.enable_debug";
+    private static final String EXTRA_LOGIN_WARNING_FOR_ACCOUNT = "AccountSettings.for_account";
+    private static final String EXTRA_TITLE = "AccountSettings.title";
 
     // Intent extras for launch directly from system account manager
     // NOTE: This string must match the one in res/xml/account_preferences.xml
@@ -178,6 +178,11 @@ public class AccountSettings extends PreferenceActivity {
         }
         mShowDebugMenu = i.getBooleanExtra(EXTRA_ENABLE_DEBUG, false);
 
+        String title = i.getStringExtra(EXTRA_TITLE);
+        if (title != null) {
+            setTitle(title);
+        }
+
         getActionBar().setDisplayOptions(
                 ActionBar.DISPLAY_HOME_AS_UP, ActionBar.DISPLAY_HOME_AS_UP);
     }
@@ -257,6 +262,21 @@ public class AccountSettings extends PreferenceActivity {
         return true;
     }
 
+    @Override
+    public Intent onBuildStartFragmentIntent(String fragmentName, Bundle args,
+            int titleRes, int shortTitleRes) {
+        Intent result = super.onBuildStartFragmentIntent(
+                fragmentName, args, titleRes, shortTitleRes);
+
+        // When opening a sub-settings page (e.g. account specific page), see if we want to modify
+        // the activity title.
+        String title = AccountSettingsFragment.getTitleFromArgs(args);
+        if ((titleRes == 0) && (title != null)) {
+            result.putExtra(EXTRA_TITLE, title);
+        }
+        return result;
+    }
+
     /**
      * Any time we exit via this pathway, and we are showing a server settings fragment,
      * we put up the exit-save-changes dialog.  This will work for the following cases:
@@ -270,10 +290,10 @@ public class AccountSettings extends PreferenceActivity {
     @Override
     public void onBackPressed() {
         if (mCurrentFragment instanceof AccountServerBaseFragment) {
-            boolean changed = ((AccountServerBaseFragment)mCurrentFragment).haveSettingsChanged();
+            boolean changed = ((AccountServerBaseFragment) mCurrentFragment).haveSettingsChanged();
             if (changed) {
                 UnsavedChangesDialogFragment dialogFragment =
-                    UnsavedChangesDialogFragment.newInstanceForBack();
+                        UnsavedChangesDialogFragment.newInstanceForBack();
                 dialogFragment.show(getFragmentManager(), UnsavedChangesDialogFragment.TAG);
                 return; // Prevent "back" from being handled
             }
@@ -427,14 +447,15 @@ public class AccountSettings extends PreferenceActivity {
                         deletingAccountFound = true;
                         continue;
                     }
-                    String title = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
-                    String summary = c.getString(Account.CONTENT_EMAIL_ADDRESS_COLUMN);
+                    String name = c.getString(Account.CONTENT_DISPLAY_NAME_COLUMN);
+                    String email = c.getString(Account.CONTENT_EMAIL_ADDRESS_COLUMN);
                     Header newHeader = new Header();
                     newHeader.id = accountId;
-                    newHeader.title = title;
-                    newHeader.summary = summary;
+                    newHeader.title = name;
+                    newHeader.summary = email;
                     newHeader.fragment = AccountSettingsFragment.class.getCanonicalName();
-                    newHeader.fragmentArguments = AccountSettingsFragment.buildArguments(accountId);
+                    newHeader.fragmentArguments =
+                            AccountSettingsFragment.buildArguments(accountId, email);
 
                     result[index++] = newHeader;
                 }
@@ -517,19 +538,21 @@ public class AccountSettings extends PreferenceActivity {
         onBackPressed();
     }
 
-    /**
-     * Called by fragments at onAttach time
-     */
-    public void onAttach(Fragment f) {
-        mCurrentFragment = f;
-        // dispatch per-fragment setup
+    @Override
+    public void onAttachFragment(Fragment f) {
+        super.onAttachFragment(f);
+
         if (f instanceof AccountSettingsFragment) {
             AccountSettingsFragment asf = (AccountSettingsFragment) f;
             asf.setCallback(mAccountSettingsFragmentCallback);
-        } else if (mCurrentFragment instanceof AccountServerBaseFragment) {
+        } else if (f instanceof AccountServerBaseFragment) {
             AccountServerBaseFragment asbf = (AccountServerBaseFragment) mCurrentFragment;
             asbf.setCallback(mAccountServerSettingsFragmentCallback);
+        } else {
+            // Possibly uninteresting fragment, such as a dialog.
+            return;
         }
+        mCurrentFragment = f;
 
         // When we're changing fragments, enable/disable the add account button
         if (mResumed && hasHeaders()) {
@@ -584,6 +607,7 @@ public class AccountSettings extends PreferenceActivity {
          * After verifying a new server configuration as OK, we return here and continue.  This
          * simply does a "back" to exit the settings screen.
          */
+        @Override
         public void onCheckSettingsComplete(int result, int setupMode) {
             if (result == AccountCheckSettingsFragment.CHECK_SETTINGS_OK) {
                 // Settings checked & saved; clear current fragment
