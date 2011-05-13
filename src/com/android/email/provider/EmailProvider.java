@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.emailcommon.AccountManagerTypes;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -368,7 +369,7 @@ public class EmailProvider extends ContentProvider {
         int match = sURIMatcher.match(uri);
         if (match < 0) {
             throw new IllegalArgumentException("Unknown uri: " + uri);
-        } else if (Email.LOGD) {
+        } else if (Logging.LOGD) {
             Log.v(TAG, methodName + ": uri=" + uri + ", match is " + match);
         }
         return match;

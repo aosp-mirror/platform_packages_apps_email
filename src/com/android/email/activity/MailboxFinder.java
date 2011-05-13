@@ -229,7 +229,7 @@ public class MailboxFinder {
                     }
                     return;
                 case RESULT_MAILBOX_FOUND:
-                    if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+                    if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
                         Log.d(Logging.LOG_TAG, "MailboxFinder: mailbox found: id=" + mailboxId);
                     }
                     try {

@@ -78,7 +78,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupOutgoingFragment onCreate");
         }
         super.onCreate(savedInstanceState);
@@ -92,7 +92,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupOutgoingFragment onCreateView");
         }
         int layoutId = mSettingsMode
@@ -164,7 +164,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupOutgoingFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
@@ -175,7 +175,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onStart() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupOutgoingFragment onStart");
         }
         super.onStart();
@@ -188,7 +188,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onResume() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupOutgoingFragment onResume");
         }
         super.onResume();
@@ -197,7 +197,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
     @Override
     public void onPause() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupOutgoingFragment onPause");
         }
         super.onPause();
@@ -208,7 +208,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onStop() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupOutgoingFragment onStop");
         }
         super.onStop();
@@ -220,7 +220,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onDestroy() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupOutgoingFragment onDestroy");
         }
         super.onDestroy();
@@ -228,7 +228,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupOutgoingFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);

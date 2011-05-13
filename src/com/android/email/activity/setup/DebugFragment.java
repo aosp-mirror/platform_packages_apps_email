@@ -52,7 +52,7 @@ public class DebugFragment extends Fragment implements OnCheckedChangeListener,
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "AccountSetupBasicsFragment onCreateView");
         }
         View view = inflater.inflate(R.layout.debug, container, false);

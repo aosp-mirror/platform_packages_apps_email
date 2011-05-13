@@ -171,7 +171,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onCreate");
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, this + " onCreate");
 
         // UIController is used in onPrepareOptionsMenu(), which can be called from within
         // super.onCreate(), so we need to initialize it here.
@@ -215,7 +215,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
         final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
         final long mailboxId = i.getLongExtra(EXTRA_MAILBOX_ID, -1);
         final long messageId = i.getLongExtra(EXTRA_MESSAGE_ID, -1);
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, String.format("initFromIntent: %d %d", accountId, mailboxId));
         }
 
@@ -226,8 +226,8 @@ public class EmailActivity extends Activity implements View.OnClickListener {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " onSaveInstanceState");
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
         mUIController.onSaveInstanceState(outState);
@@ -235,8 +235,8 @@ public class EmailActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onAttachFragment(Fragment fragment) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " onAttachFragment fragment=" + fragment);
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onAttachFragment fragment=" + fragment);
         }
         super.onAttachFragment(fragment);
         mUIController.onAttachFragment(fragment);
@@ -244,7 +244,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
 
     @Override
     protected void onStart() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onStart");
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, this + " onStart");
         super.onStart();
         mUIController.onActivityStart();
 
@@ -293,7 +293,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
 
     @Override
     protected void onResume() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onResume");
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, this + " onResume");
         super.onResume();
         mUIController.onActivityResume();
         /**
@@ -306,21 +306,21 @@ public class EmailActivity extends Activity implements View.OnClickListener {
 
     @Override
     protected void onPause() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onPause");
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, this + " onPause");
         super.onPause();
         mUIController.onActivityPause();
     }
 
     @Override
     protected void onStop() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onStop");
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, this + " onStop");
         super.onStop();
         mUIController.onActivityStop();
     }
 
     @Override
     protected void onDestroy() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, "" + this + " onDestroy");
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, this + " onDestroy");
         mController.removeResultCallback(mControllerResult);
         mTaskTracker.cancellAllInterrupt();
         mUIController.onActivityDestroy();
@@ -329,8 +329,8 @@ public class EmailActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onBackPressed() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "" + this + " onBackPressed");
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onBackPressed");
         }
         if (!mUIController.onBackPressed(true)) {
             // Not handled by UIController -- perform the default. i.e. close the app.

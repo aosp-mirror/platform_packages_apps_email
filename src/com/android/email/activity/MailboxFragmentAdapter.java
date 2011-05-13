@@ -170,7 +170,7 @@ import android.widget.TextView;
      * contained by this parent mailbox.
      */
     public static Loader<Cursor> createLoader(Context context, long accountId, long parentKey) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxFragmentAdapter#createLoader accountId=" + accountId);
         }
         if (accountId != Account.ACCOUNT_ID_COMBINED_VIEW) {

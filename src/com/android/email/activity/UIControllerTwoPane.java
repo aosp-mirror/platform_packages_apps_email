@@ -127,7 +127,7 @@ class UIControllerTwoPane extends UIControllerBase implements
     // MailboxFinder$Callback
     @Override
     public void onAccountNotFound() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onAccountNotFound()");
         }
         // Shouldn't happen
@@ -135,7 +135,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     @Override
     public void onAccountSecurityHold(long accountId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onAccountSecurityHold()");
         }
         mActivity.startActivity(AccountSecurity.actionUpdateSecurityIntent(mActivity, accountId,
@@ -144,7 +144,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     @Override
     public void onMailboxFound(long accountId, long mailboxId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onMailboxFound()");
         }
         updateMessageList(mailboxId, true, true);
@@ -152,7 +152,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     @Override
     public void onMailboxNotFound(long accountId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onMailboxNotFound()");
         }
         // TODO: handle more gracefully.
@@ -610,7 +610,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      */
     @Override
     public void open(long accountId, long mailboxId, long messageId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " open accountId=" + accountId
                     + " mailboxId=" + mailboxId + " messageId=" + messageId);
         }
@@ -674,7 +674,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     private void updateMailboxList(long accountId, long parentMailboxId,
             boolean changeVisiblePane, boolean clearDependentPane) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " updateMailboxList accountId=" + accountId
                     + " parentMailboxId=" + parentMailboxId);
         }
@@ -730,7 +730,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      */
     private void updateMessageList(long mailboxId, boolean changeVisiblePane,
             boolean clearDependentPane) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " updateMessageList mMailboxId=" + mailboxId);
         }
         preFragmentTransactionCheck();
@@ -767,7 +767,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      * @param messageId ID of the mailbox to load. Must never be {@link #NO_MESSAGE}.
      */
     private void updateMessageView(long messageId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " updateMessageView messageId=" + messageId);
         }
         preFragmentTransactionCheck();

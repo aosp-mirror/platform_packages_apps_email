@@ -566,7 +566,7 @@ class ImapFolder extends Folder {
                             try {
                                 parseBodyStructure(bs, message, ImapConstants.TEXT);
                             } catch (MessagingException e) {
-                                if (Email.LOGD) {
+                                if (Logging.LOGD) {
                                     Log.v(Logging.LOG_TAG, "Error handling message", e);
                                 }
                                 message.setBody(null);

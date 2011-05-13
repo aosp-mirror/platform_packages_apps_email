@@ -18,4 +18,28 @@ package com.android.emailcommon;
 
 public class Logging {
     public static final String LOG_TAG = "Email";
+
+    /**
+     * Set this to 'true' to enable as much Email logging as possible.
+     */
+    public static final boolean LOGD;
+
+    /**
+     * If this is enabled then logging that normally hides sensitive information
+     * like passwords will show that information.
+     */
+    public static final boolean DEBUG_SENSITIVE;
+
+    /**
+     * If true, logging regarding activity/fragment lifecycle will be enabled.
+     */
+    public static final boolean DEBUG_LIFECYCLE;
+
+    static {
+        // Declare values here to avoid dead code warnings; it means we have some extra
+        // "if" statements in the byte code that always evaluate to "if (false)"
+        LOGD = false; // DO NOT CHECK IN WITH TRUE
+        DEBUG_SENSITIVE = false; // DO NOT CHECK IN WITH TRUE
+        DEBUG_LIFECYCLE = false; // DO NOT CHECK IN WITH TRUE
+    }
 }

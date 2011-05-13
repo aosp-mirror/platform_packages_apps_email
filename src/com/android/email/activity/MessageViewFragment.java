@@ -226,7 +226,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
     /** Called by activities to set an id of a message to open. */
     // STOPSHIP Make it private once phone activities are gone
     void openMessage(long messageId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageViewFragment openMessage");
         }
         if (messageId == -1) {

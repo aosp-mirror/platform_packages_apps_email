@@ -555,7 +555,7 @@ public class Controller {
         }
         if (accountId == -1) {
             // probably the message was not found
-            if (Email.LOGD) {
+            if (Logging.LOGD) {
                 Email.log("no account found for message " + messageId);
             }
             return;

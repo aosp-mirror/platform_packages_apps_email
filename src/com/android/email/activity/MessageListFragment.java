@@ -239,7 +239,7 @@ public class MessageListFragment extends ListFragment
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment onCreate");
         }
         super.onCreate(savedInstanceState);
@@ -262,7 +262,7 @@ public class MessageListFragment extends ListFragment
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
@@ -293,7 +293,7 @@ public class MessageListFragment extends ListFragment
 
     @Override
     public void onStart() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment onStart");
         }
         super.onStart();
@@ -301,7 +301,7 @@ public class MessageListFragment extends ListFragment
 
     @Override
     public void onResume() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment onResume");
         }
         super.onResume();
@@ -317,7 +317,7 @@ public class MessageListFragment extends ListFragment
 
     @Override
     public void onPause() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment onPause");
         }
         mResumed = false;
@@ -328,7 +328,7 @@ public class MessageListFragment extends ListFragment
 
     @Override
     public void onStop() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment onStop");
         }
         super.onStop();
@@ -336,7 +336,7 @@ public class MessageListFragment extends ListFragment
 
     @Override
     public void onDestroy() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment onDestroy");
         }
         mTaskTracker.cancellAllInterrupt();
@@ -352,7 +352,7 @@ public class MessageListFragment extends ListFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
@@ -363,7 +363,7 @@ public class MessageListFragment extends ListFragment
 
     @VisibleForTesting
     void restoreInstanceState(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment restoreInstanceState");
         }
         mListAdapter.loadState(savedInstanceState);
@@ -416,7 +416,7 @@ public class MessageListFragment extends ListFragment
      */
     // STOPSHIP Make it private once phone activities are gone
     void openMailbox(long mailboxId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment openMailbox");
         }
         if (mailboxId == -1) {
@@ -1093,7 +1093,7 @@ public class MessageListFragment extends ListFragment
     }
 
     private void startLoading() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageListFragment startLoading");
         }
         mOpenRequested = false;
@@ -1115,7 +1115,7 @@ public class MessageListFragment extends ListFragment
             MailboxAccountLoader.Result> {
         @Override
         public Loader<MailboxAccountLoader.Result> onCreateLoader(int id, Bundle args) {
-            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG,
                         "MessageListFragment onCreateLoader(mailbox) mailboxId=" + mMailboxId);
             }
@@ -1125,7 +1125,7 @@ public class MessageListFragment extends ListFragment
         @Override
         public void onLoadFinished(Loader<MailboxAccountLoader.Result> loader,
                 MailboxAccountLoader.Result result) {
-            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, "MessageListFragment onLoadFinished(mailbox) mailboxId="
                         + mMailboxId);
             }
@@ -1156,7 +1156,7 @@ public class MessageListFragment extends ListFragment
 
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG,
                         "MessageListFragment onCreateLoader(messages) mailboxId=" + mMailboxId);
             }
@@ -1166,7 +1166,7 @@ public class MessageListFragment extends ListFragment
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-            if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+            if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG,
                         "MessageListFragment onLoadFinished(messages) mailboxId=" + mMailboxId);
             }

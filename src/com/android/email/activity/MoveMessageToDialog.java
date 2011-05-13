@@ -94,7 +94,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "" + this + " onCreate  target=" + getTargetFragment());
         }
         super.onCreate(savedInstanceState);

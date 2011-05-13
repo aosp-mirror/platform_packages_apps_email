@@ -110,7 +110,7 @@ abstract class UIControllerBase {
      * the constructor.)
      */
     public void onActivityViewReady() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityViewReady");
         }
     }
@@ -119,7 +119,7 @@ abstract class UIControllerBase {
      * Called at the end of {@link EmailActivity#onCreate}.
      */
     public void onActivityCreated() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityCreated");
         }
         mRefreshManager.registerListener(mRefreshListener);
@@ -129,7 +129,7 @@ abstract class UIControllerBase {
      * Handles the {@link android.app.Activity#onStart} callback.
      */
     public void onActivityStart() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityStart");
         }
     }
@@ -138,7 +138,7 @@ abstract class UIControllerBase {
      * Handles the {@link android.app.Activity#onResume} callback.
      */
     public void onActivityResume() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityResume");
         }
     }
@@ -147,7 +147,7 @@ abstract class UIControllerBase {
      * Handles the {@link android.app.Activity#onPause} callback.
      */
     public void onActivityPause() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityPause");
         }
     }
@@ -156,7 +156,7 @@ abstract class UIControllerBase {
      * Handles the {@link android.app.Activity#onStop} callback.
      */
     public void onActivityStop() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityStop");
         }
     }
@@ -165,7 +165,7 @@ abstract class UIControllerBase {
      * Handles the {@link android.app.Activity#onDestroy} callback.
      */
     public void onActivityDestroy() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityDestroy");
         }
         mHoldFragmentInstallation = true; // No more fragment installation.
@@ -179,7 +179,7 @@ abstract class UIControllerBase {
      * Must be called at the end of {@link EmailActivity#onCreate}.
      */
     public final void installRestoredFragments() {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " installRestoredFragments");
         }
 
@@ -196,7 +196,7 @@ abstract class UIControllerBase {
      * Handles the {@link android.app.Activity#onSaveInstanceState} callback.
      */
     public void onSaveInstanceState(Bundle outState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onSaveInstanceState");
         }
     }
@@ -205,7 +205,7 @@ abstract class UIControllerBase {
      * Handles the {@link android.app.Activity#onRestoreInstanceState} callback.
      */
     public void restoreInstanceState(Bundle savedInstanceState) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " restoreInstanceState");
         }
     }
@@ -227,7 +227,7 @@ abstract class UIControllerBase {
     }
 
     private void installFragment(Fragment fragment) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " installFragment  fragment=" + fragment);
         }
         if (fragment instanceof MailboxListFragment) {

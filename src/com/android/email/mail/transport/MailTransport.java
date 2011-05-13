@@ -292,7 +292,7 @@ public class MailTransport implements Transport {
      */
     public void writeLine(String s, String sensitiveReplacement) throws IOException {
         if (Email.DEBUG) {
-            if (sensitiveReplacement != null && !Email.DEBUG_SENSITIVE) {
+            if (sensitiveReplacement != null && !Logging.DEBUG_SENSITIVE) {
                 Log.d(Logging.LOG_TAG, ">>> " + sensitiveReplacement);
             } else {
                 Log.d(Logging.LOG_TAG, ">>> " + s);

@@ -110,7 +110,7 @@ class MailboxMoveToAdapter extends CursorAdapter {
     }
 
     static Loader<Cursor> createLoader(Context context, long accountId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxDialogAdapter#createLoader accountId=" + accountId);
         }
         return new MailboxMoveToLoader(context, accountId);

@@ -216,7 +216,7 @@ import java.util.Set;
     }
 
     public static Loader<Cursor> createLoader(Context context, long mailboxId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessagesAdapter createLoader mailboxId=" + mailboxId);
         }
         return new MessagesCursorLoader(context, mailboxId);

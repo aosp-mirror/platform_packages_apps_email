@@ -345,7 +345,7 @@ public class MessagingController implements Runnable {
             // Clear authentication notification for this account
             nc.cancelLoginFailedNotification(account.mId);
         } catch (MessagingException e) {
-            if (Email.LOGD) {
+            if (Logging.LOGD) {
                 Log.v(Logging.LOG_TAG, "synchronizeMailbox", e);
             }
             if (e instanceof AuthenticationFailedException) {
@@ -864,7 +864,7 @@ public class MessagingController implements Runnable {
                     processPendingActionsSynchronous(account);
                 }
                 catch (MessagingException me) {
-                    if (Email.LOGD) {
+                    if (Logging.LOGD) {
                         Log.v(Logging.LOG_TAG, "processPendingActions", me);
                     }
                     /*
@@ -1683,7 +1683,7 @@ public class MessagingController implements Runnable {
                     mListeners.loadMessageForViewFinished(messageId);
 
                 } catch (MessagingException me) {
-                    if (Email.LOGD) Log.v(Logging.LOG_TAG, "", me);
+                    if (Logging.LOGD) Log.v(Logging.LOG_TAG, "", me);
                     mListeners.loadMessageForViewFailed(messageId, me.getMessage());
                 } catch (RuntimeException rte) {
                     mListeners.loadMessageForViewFailed(messageId, rte.getMessage());
@@ -1781,7 +1781,7 @@ public class MessagingController implements Runnable {
                     mListeners.loadAttachmentFinished(accountId, messageId, attachmentId);
                 }
                 catch (MessagingException me) {
-                    if (Email.LOGD) Log.v(Logging.LOG_TAG, "", me);
+                    if (Logging.LOGD) Log.v(Logging.LOG_TAG, "", me);
                     mListeners.loadAttachmentFailed(
                             accountId, messageId, attachmentId, me, background);
                 } catch (IOException ioe) {

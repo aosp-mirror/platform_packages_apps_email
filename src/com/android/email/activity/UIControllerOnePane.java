@@ -360,7 +360,7 @@ class UIControllerOnePane extends UIControllerBase {
 
     @Override
     public void open(final long accountId, final long mailboxId, final long messageId) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " open accountId=" + accountId
                     + " mailboxId=" + mailboxId + " messageId=" + messageId);
         }

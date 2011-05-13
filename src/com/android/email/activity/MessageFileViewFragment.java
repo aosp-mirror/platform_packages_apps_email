@@ -65,7 +65,7 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
 
     /** Called by activities with a URI to an EML file. */
     public void openMessage(Uri fileEmailUri) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageFileViewFragment openMessage");
         }
         if (mFileEmailUri != null) {
@@ -95,7 +95,7 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
      */
     @Override
     protected Message openMessageSync(Activity activity) {
-        if (Email.DEBUG_LIFECYCLE && Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessageFileViewFragment openMessageSync");
         }
         Uri messageUri = mFileEmailUri;
