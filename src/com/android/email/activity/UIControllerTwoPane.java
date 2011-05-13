@@ -536,20 +536,21 @@ class UIControllerTwoPane extends UIControllerBase implements
     }
 
     @Override
-    void installFragment(Fragment fragment) {
-        super.installFragment(fragment);
-        if (fragment instanceof MailboxListFragment) {
-            mMailboxListFragment = (MailboxListFragment) fragment;
-            mMailboxListFragment.setCallback(this);
-        } else if (fragment instanceof MessageListFragment) {
-            mMessageListFragment = (MessageListFragment) fragment;
-            mMessageListFragment.setCallback(this);
-        } else if (fragment instanceof MessageViewFragment) {
-            mMessageViewFragment = (MessageViewFragment) fragment;
-            mMessageViewFragment.setCallback(this);
-        } else {
-            // Ignore -- uninteresting fragments such as dialogs.
-        }
+    protected void installMailboxListFragment(MailboxListFragment fragment) {
+        mMailboxListFragment = fragment;
+        mMailboxListFragment.setCallback(this);
+    }
+
+    @Override
+    protected void installMessageListFragment(MessageListFragment fragment) {
+        mMessageListFragment = fragment;
+        mMessageListFragment.setCallback(this);
+    }
+
+    @Override
+    protected void installMessageViewFragment(MessageViewFragment fragment) {
+        mMessageViewFragment = fragment;
+        mMessageViewFragment.setCallback(this);
     }
 
     private FragmentTransaction uninstallMailboxListFragment(FragmentTransaction ft) {
