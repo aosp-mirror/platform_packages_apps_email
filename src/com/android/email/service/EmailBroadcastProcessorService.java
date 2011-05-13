@@ -21,7 +21,7 @@ import com.android.email.ExchangeUtils;
 import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.VendorPolicyLoader;
-import com.android.email.activity.setup.AccountSettingsXL;
+import com.android.email.activity.setup.AccountSettings;
 import com.android.email.mail.Store;
 import com.android.email.widget.WidgetManager;
 import com.android.emailcommon.Logging;
@@ -119,7 +119,7 @@ public class EmailBroadcastProcessorService extends IntentService {
                 enableComponentsIfNecessary();
             } else if (ACTION_SECRET_CODE.equals(broadcastAction)
                     && SECRET_CODE_HOST_DEBUG_SCREEN.equals(broadcastIntent.getData().getHost())) {
-                AccountSettingsXL.actionSettingsWithDebug(this);
+                AccountSettings.actionSettingsWithDebug(this);
             } else if (AccountManager.LOGIN_ACCOUNTS_CHANGED_ACTION.equals(broadcastAction)) {
                 onSystemAccountChanged();
             }

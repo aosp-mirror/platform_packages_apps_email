@@ -17,7 +17,6 @@
 package com.android.email.activity.setup;
 
 import com.android.email.Controller;
-import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.IntentUtilities;
@@ -61,13 +60,13 @@ import java.util.List;
  *   GeneralPreferences
  *   DebugFragment
  *
- * TODO: In Account settings in Phone UI, change title
+ * TODO: In Account settings in Phone UI, change action bar title depending on active fragment
  * TODO: Delete account - on single-pane view (phone UX) the account list doesn't update properly
  * TODO: Handle dynamic changes to the account list (exit if necessary).  It probably makes
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
-public class AccountSettingsXL extends PreferenceActivity {
+public class AccountSettings extends PreferenceActivity {
     /*
      * Intent to open account settings for account=1
         adb shell am start -a android.intent.action.EDIT \
@@ -146,7 +145,7 @@ public class AccountSettingsXL extends PreferenceActivity {
      * Launch generic settings and pre-enable the debug preferences
      */
     public static void actionSettingsWithDebug(Context fromContext) {
-        Intent i = new Intent(fromContext, AccountSettingsXL.class);
+        Intent i = new Intent(fromContext, AccountSettings.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.putExtra(EXTRA_ENABLE_DEBUG, true);
         fromContext.startActivity(i);
@@ -449,13 +448,13 @@ public class AccountSettingsXL extends PreferenceActivity {
 
         @Override
         protected void onPostExecute(Object[] result) {
-            if (this.isCancelled() || result == null) return;
+            if (isCancelled() || result == null) return;
             // Extract the results
             Header[] headers = (Header[]) result[0];
             boolean deletingAccountFound = (Boolean) result[1];
             // report the settings
             mAccountListHeaders = headers;
-            AccountSettingsXL.this.invalidateHeaders();
+            invalidateHeaders();
             if (!deletingAccountFound) {
                 mDeletingAccountId = -1;
             }
@@ -542,20 +541,25 @@ public class AccountSettingsXL extends PreferenceActivity {
      * Callbacks for AccountSettingsFragment
      */
     private class AccountSettingsFragmentCallback implements AccountSettingsFragment.Callback {
+        @Override
         public void onSettingsChanged(Account account, String preference, Object value) {
-            AccountSettingsXL.this.onSettingsChanged(account, preference, value);
+            AccountSettings.this.onSettingsChanged(account, preference, value);
         }
+        @Override
         public void onIncomingSettings(Account account) {
-            AccountSettingsXL.this.onIncomingSettings(account);
+            AccountSettings.this.onIncomingSettings(account);
         }
+        @Override
         public void onOutgoingSettings(Account account) {
-            AccountSettingsXL.this.onOutgoingSettings(account);
+            AccountSettings.this.onOutgoingSettings(account);
         }
+        @Override
         public void abandonEdit() {
             finish();
         }
+        @Override
         public void deleteAccount(Account account) {
-            AccountSettingsXL.this.deleteAccount(account);
+            AccountSettings.this.deleteAccount(account);
         }
     }
 
@@ -692,16 +696,16 @@ public class AccountSettingsXL extends PreferenceActivity {
             Intent intent = params[0];
             android.accounts.Account acct =
                 (android.accounts.Account) intent.getParcelableExtra(EXTRA_ACCOUNT_MANAGER_ACCOUNT);
-            return Utility.getFirstRowLong(AccountSettingsXL.this, Account.CONTENT_URI,
-                    Account.ID_PROJECTION, SELECTION_ACCOUNT_EMAIL_ADDRESS, new String[] {acct.name},
-                    null, Account.ID_PROJECTION_COLUMN, -1L);
+            return Utility.getFirstRowLong(AccountSettings.this, Account.CONTENT_URI,
+                    Account.ID_PROJECTION, SELECTION_ACCOUNT_EMAIL_ADDRESS,
+                    new String[] {acct.name}, null, Account.ID_PROJECTION_COLUMN, -1L);
         }
 
         @Override
         protected void onPostExecute(Long accountId) {
             if (accountId != -1 && !isCancelled()) {
                 mRequestedAccountId = accountId;
-                AccountSettingsXL.this.invalidateHeaders();
+                invalidateHeaders();
             }
         }
     }
@@ -731,7 +735,7 @@ public class AccountSettingsXL extends PreferenceActivity {
 
         /**
          * Creates a save changes dialog when the user navigates "back".
-         * {@link AccountSettingsXL#onBackPressed()} defines in which case this may be triggered.
+         * {@link #onBackPressed()} defines in which case this may be triggered.
          */
         public static UnsavedChangesDialogFragment newInstanceForBack() {
             UnsavedChangesDialogFragment f = new UnsavedChangesDialogFragment();
@@ -747,7 +751,7 @@ public class AccountSettingsXL extends PreferenceActivity {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final AccountSettingsXL activity = (AccountSettingsXL) getActivity();
+            final AccountSettings activity = (AccountSettings) getActivity();
             final int position = getArguments().getInt(BUNDLE_KEY_HEADER);
             final boolean isBack = getArguments().getBoolean(BUNDLE_KEY_BACK);
 

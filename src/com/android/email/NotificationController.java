@@ -19,7 +19,7 @@ package com.android.email;
 import com.android.email.activity.ContactStatusLoader;
 import com.android.email.activity.Welcome;
 import com.android.email.activity.setup.AccountSecurity;
-import com.android.email.activity.setup.AccountSettingsXL;
+import com.android.email.activity.setup.AccountSettings;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.provider.EmailContent;
@@ -490,7 +490,7 @@ public class NotificationController {
                 mContext.getString(R.string.login_failed_ticker, account.mDisplayName),
                 mContext.getString(R.string.login_failed_title),
                 account.getDisplayName(),
-                AccountSettingsXL.createAccountSettingsIntent(mContext, accountId,
+                AccountSettings.createAccountSettingsIntent(mContext, accountId,
                         account.mDisplayName),
                 getLoginFailedNotificationId(accountId));
     }
