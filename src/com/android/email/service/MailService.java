@@ -18,7 +18,6 @@ package com.android.email.service;
 
 import com.android.email.Controller;
 import com.android.email.Email;
-import com.android.email.NotificationController;
 import com.android.email.Preferences;
 import com.android.email.SecurityPolicy;
 import com.android.email.SingleRunningTask;
@@ -71,8 +70,6 @@ public class MailService extends Service {
         "com.android.email.intent.action.MAIL_SERVICE_RESCHEDULE";
     private static final String ACTION_CANCEL =
         "com.android.email.intent.action.MAIL_SERVICE_CANCEL";
-    private static final String ACTION_NOTIFY_MAIL =
-        "com.android.email.intent.action.MAIL_SERVICE_NOTIFY";
     private static final String ACTION_SEND_PENDING_MAIL =
         "com.android.email.intent.action.MAIL_SERVICE_SEND_PENDING";
     private static final String ACTION_DELETE_EXCHANGE_ACCOUNTS =
@@ -81,22 +78,19 @@ public class MailService extends Service {
     private static final String EXTRA_ACCOUNT = "com.android.email.intent.extra.ACCOUNT";
     private static final String EXTRA_ACCOUNT_INFO = "com.android.email.intent.extra.ACCOUNT_INFO";
     private static final String EXTRA_DEBUG_WATCHDOG = "com.android.email.intent.extra.WATCHDOG";
-    private static final String EXTRA_MESSAGE_ID_COUNT =
-        "com.android.email.intent.extra.MESSAGE_ID_COUNT";
-    private static final String EXTRA_MESSAGE_ID_PREFIX =
-        "com.android.email.intent.extra.MESSAGE_ID_";
 
     /** Time between watchdog checks; in milliseconds */
     private static final long WATCHDOG_DELAY = 10 * 60 * 1000;   // 10 minutes
 
-    // Sentinel value asking to update mSyncReports if it's currently empty
-    /*package*/ static final int SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY = -1;
-    // Sentinel value asking that mSyncReports be rebuilt
-    /*package*/ static final int SYNC_REPORTS_RESET = -2;
+    /** Sentinel value asking to update mSyncReports if it's currently empty */
+    @VisibleForTesting
+    static final int SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY = -1;
+    /** Sentinel value asking that mSyncReports be rebuilt */
+    @VisibleForTesting
+    static final int SYNC_REPORTS_RESET = -2;
 
-    private static MailService sMailService;
-
-    /*package*/ Controller mController;
+    @VisibleForTesting
+    Controller mController;
     private final Controller.Result mControllerCallback = new ControllerResults();
     private ContentResolver mContentResolver;
     private Context mContext;
@@ -143,42 +137,9 @@ public class MailService extends Service {
         context.startService(i);
     }
 
-    /**
-     * Entry point for asynchronous message services (e.g. push mode) to post notifications of new
-     * messages.  This assumes that the push provider has already synced the messages into the
-     * appropriate database - this simply triggers the notification mechanism.
-     *
-     * @param context a context
-     * @param accountId the id of the account that is reporting new messages
-     */
-    @SuppressWarnings("rawtypes")
-    public static void actionNotifyNewMessages(
-                Context context, long accountId, List messageIdList) {
-        Intent i = new Intent(ACTION_NOTIFY_MAIL);
-        i.setClass(context, MailService.class);
-        i.putExtra(EXTRA_ACCOUNT, accountId);
-        int listSize = 0;
-        if (messageIdList != null) {
-            listSize = messageIdList.size();
-            for (int j = 0; j < listSize; j++) {
-                long messageId = (Long) messageIdList.get(j);
-                i.putExtra(EXTRA_MESSAGE_ID_PREFIX + j, messageId);
-            }
-        }
-        i.putExtra(EXTRA_MESSAGE_ID_COUNT, listSize);
-        context.startService(i);
-    }
-
-    /*package*/ static MailService getMailServiceForTest() {
-        return sMailService;
-    }
-
     @Override
     public int onStartCommand(final Intent intent, int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
-
-        // Save the service away (for unit tests)
-        sMailService = this;
 
         // Restore accounts, if it has not happened already
         AccountBackupRestore.restoreIfNeeded(this);
@@ -261,6 +222,7 @@ public class MailService extends Service {
                 Log.d(LOG_TAG, "action: delete exchange accounts");
             }
             EmailAsyncTask.runAsyncParallel(new Runnable() {
+                @Override
                 public void run() {
                     Cursor c = mContentResolver.query(Account.CONTENT_URI, Account.ID_PROJECTION,
                             null, null, null);
@@ -285,6 +247,7 @@ public class MailService extends Service {
                 Log.d(LOG_TAG, "action: send pending mail");
             }
             EmailAsyncTask.runAsyncParallel(new Runnable() {
+                @Override
                 public void run() {
                     mController.sendPendingMessages(accountId);
                 }
@@ -307,11 +270,6 @@ public class MailService extends Service {
                     stopSelf(startId);
                 }
             });
-        } else if (ACTION_NOTIFY_MAIL.equals(action)) {
-            // No need to do anything. For now, we need to tickle the MailService so it starts
-            // up the notification controller. It may make sense to put the notification controller
-            // in a place where it can live longer.
-            stopSelf(startId);
         }
 
         // Returning START_NOT_STICKY means that if a mail check is killed (e.g. due to memory
@@ -341,7 +299,7 @@ public class MailService extends Service {
     /**
      * Refresh the sync reports, to pick up any changes in the account list or account settings.
      */
-    /*package*/ void refreshSyncReports() {
+    private void refreshSyncReports() {
         synchronized (mSyncReports) {
             // Make shallow copy of sync reports so we can recover the prev sync times
             HashMap<Long,AccountSyncReport> oldSyncReports =
@@ -367,7 +325,7 @@ public class MailService extends Service {
      *
      * @param alarmMgr passed in so we can mock for testing.
      */
-    /* package */ void reschedule(AlarmManager alarmMgr) {
+    private void reschedule(AlarmManager alarmMgr) {
         // restore the reports if lost
         setupSyncReports(SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY);
         synchronized (mSyncReports) {
@@ -443,8 +401,7 @@ public class MailService extends Service {
      * (in order for the intent to be recognized by the alarm manager) but the extras can
      * be different, and are passed in here as parameters.
      */
-    /* package */ PendingIntent createAlarmIntent(long checkId, long[] accountInfo,
-            boolean isWatchdog) {
+    private PendingIntent createAlarmIntent(long checkId, long[] accountInfo, boolean isWatchdog) {
         Intent i = new Intent();
         i.setClass(this, MailService.class);
         i.setAction(ACTION_CHECK_MAIL);
@@ -490,15 +447,13 @@ public class MailService extends Service {
         long nextSyncTime;
         /** Minimum time between syncs; in minutes. */
         int syncInterval;
-        /** If {@code true}, show system notifications. */
-        boolean notify;
         /** If {@code true}, auto sync is enabled. */
         boolean syncEnabled;
 
         /**
          * Sets the next sync time using the previous sync time and sync interval.
          */
-        void setNextSyncTime() {
+        private void setNextSyncTime() {
             if (syncInterval > 0 && prevSyncTime != 0) {
                 nextSyncTime = prevSyncTime + (syncInterval * 1000 * 60);
             }
@@ -517,7 +472,7 @@ public class MailService extends Service {
      * @param accountId -1 will rebuild the list if empty.  other values will force loading
      *   of a single account (e.g if it was created after the original list population)
      */
-    /* package */ void setupSyncReports(long accountId) {
+    private void setupSyncReports(long accountId) {
         synchronized (mSyncReports) {
             setupSyncReportsLocked(accountId, mContext);
         }
@@ -526,7 +481,8 @@ public class MailService extends Service {
     /**
      * Handle the work of setupSyncReports.  Must be synchronized on mSyncReports.
      */
-    /*package*/ void setupSyncReportsLocked(long accountId, Context context) {
+    @VisibleForTesting
+    void setupSyncReportsLocked(long accountId, Context context) {
         ContentResolver resolver = context.getContentResolver();
         if (accountId == SYNC_REPORTS_RESET) {
             // For test purposes, force refresh of mSyncReports
@@ -588,7 +544,6 @@ public class MailService extends Service {
                 report.nextSyncTime = (syncInterval > 0) ? 0 : -1;  // 0 == ASAP -1 == no sync
 
                 report.syncInterval = syncInterval;
-                report.notify = (account.mFlags & Account.FLAGS_NOTIFY_NEW_MAIL) != 0;
 
                 // See if the account is enabled for sync in AccountManager
                 android.accounts.Account accountManagerAccount =
@@ -612,7 +567,7 @@ public class MailService extends Service {
      * @param newCount the number of new messages, or -1 if not being reported (don't update)
      * @return the report for the updated account, or null if it doesn't exist (e.g. deleted)
      */
-    /* package */ AccountSyncReport updateAccountReport(long accountId, int newCount) {
+    private AccountSyncReport updateAccountReport(long accountId, int newCount) {
         // restore the reports if lost
         setupSyncReports(accountId);
         synchronized (mSyncReports) {
@@ -640,7 +595,7 @@ public class MailService extends Service {
      *
      * @param restoreIntent the intent with the list
      */
-    /* package */ void restoreSyncReports(Intent restoreIntent) {
+    private void restoreSyncReports(Intent restoreIntent) {
         // restore the reports if lost
         setupSyncReports(SYNC_REPORTS_ALL_ACCOUNTS_IF_EMPTY);
         synchronized (mSyncReports) {
@@ -716,6 +671,7 @@ public class MailService extends Service {
     }
 
     public class EmailSyncStatusObserver implements SyncStatusObserver {
+        @Override
         public void onStatusChanged(int which) {
             // We ignore the argument (we can only get called in one case - when settings change)
         }

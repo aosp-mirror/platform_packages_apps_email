@@ -21,7 +21,6 @@ import android.os.Bundle;
 interface IAccountService {
     oneway void notifyLoginFailed(long accountId);
     oneway void notifyLoginSucceeded(long accountId);
-    oneway void notifyNewMessages(long accountId, in List messageIdList);
 
     void accountDeleted();
     void restoreAccountsIfNeeded();
