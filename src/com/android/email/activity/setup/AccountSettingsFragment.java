@@ -159,8 +159,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
         mContext = activity;
 
         // Notify the activity that we're here.
-        if (activity instanceof AccountSettingsXL) {
-            ((AccountSettingsXL)activity).onAttach(this);
+        if (activity instanceof AccountSettings) {
+            ((AccountSettings) activity).onAttach(this);
         }
     }
 
@@ -586,7 +586,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
      * Generic onPreferenceChanged listener for the preferences (above) that just need
      * to be written, without extra tweaks
      */
-    private Preference.OnPreferenceChangeListener mPreferenceChangeListener =
+    private final Preference.OnPreferenceChangeListener mPreferenceChangeListener =
         new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 onPreferenceChanged(preference.getKey(), newValue);
@@ -613,7 +613,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
                         Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_VIBRATE_WHEN_SILENT |
                         Account.FLAGS_BACKGROUND_ATTACHMENTS);
 
-        newFlags |= mAccountBackgroundAttachments.isChecked() ? 
+        newFlags |= mAccountBackgroundAttachments.isChecked() ?
                 Account.FLAGS_BACKGROUND_ATTACHMENTS : 0;
         mAccount.setDefaultAccount(mAccountDefault.isChecked());
         // If the display name has been cleared, we'll reset it to the default value (email addr)

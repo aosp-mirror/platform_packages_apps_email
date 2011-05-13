@@ -19,7 +19,7 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
-import com.android.email.activity.setup.AccountSettingsXL;
+import com.android.email.activity.setup.AccountSettings;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.utility.EmailAsyncTask;
@@ -381,7 +381,7 @@ abstract class UIControllerBase {
      * Handles the "Settings" option item.  Opens the settings activity.
      */
     private boolean onAccountSettings() {
-        AccountSettingsXL.actionSettings(mActivity, getActualAccountId());
+        AccountSettings.actionSettings(mActivity, getActualAccountId());
         return true;
     }
 

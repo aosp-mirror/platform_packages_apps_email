@@ -163,8 +163,8 @@ public abstract class AccountServerBaseFragment extends Fragment
         mContext = activity;
 
         // Notify the activity that we're here.
-        if (activity instanceof AccountSettingsXL) {
-            ((AccountSettingsXL)activity).onAttach(this);
+        if (activity instanceof AccountSettings) {
+            ((AccountSettings)activity).onAttach(this);
         }
     }
 

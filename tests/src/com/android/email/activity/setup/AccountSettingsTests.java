@@ -16,7 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.activity.IntentUtilities;
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.utility.Utility;
@@ -42,7 +41,7 @@ import java.net.URISyntaxException;
  * To execute:  runtest -c com.android.email.activity.setup.AccountSettingsXLTests email
  */
 @MediumTest
-public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<AccountSettingsXL> {
+public class AccountSettingsTests extends ActivityInstrumentationTestCase2<AccountSettings> {
 
     private long mAccountId;
     private Account mAccount;
@@ -52,8 +51,8 @@ public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<Acc
 
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
 
-    public AccountSettingsXLTests() {
-        super(AccountSettingsXL.class);
+    public AccountSettingsTests() {
+        super(AccountSettings.class);
     }
 
     /**
@@ -63,7 +62,7 @@ public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<Acc
     protected void setUp() throws Exception {
         super.setUp();
 
-        mContext = this.getInstrumentation().getTargetContext();
+        mContext = getInstrumentation().getTargetContext();
     }
 
     /**
@@ -86,7 +85,7 @@ public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<Acc
     public void disable_testPushOptionPOP() throws Throwable {
         Intent i = getTestIntent("Name", "pop3://user:password@server.com",
                 "smtp://user:password@server.com");
-        this.setActivityIntent(i);
+        setActivityIntent(i);
 
         getActivityAndFields();
 
@@ -100,7 +99,7 @@ public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<Acc
     public void disable_testPushOptionIMAP() throws Throwable {
         Intent i = getTestIntent("Name", "imap://user:password@server.com",
                 "smtp://user:password@server.com");
-        this.setActivityIntent(i);
+        setActivityIntent(i);
 
         getActivityAndFields();
 
@@ -113,14 +112,14 @@ public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<Acc
      */
     public void disable_testPushOptionEAS() throws Throwable {
         // This test should only be run if EAS is supported
-        if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext())
+        if (Store.StoreInfo.getStoreInfo("eas", getInstrumentation().getTargetContext())
                 == null) {
             return;
         }
 
         Intent i = getTestIntent("Name", "eas://user:password@server.com",
                 "eas://user:password@server.com");
-        this.setActivityIntent(i);
+        setActivityIntent(i);
 
         getActivityAndFields();
 
@@ -132,12 +131,12 @@ public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<Acc
      * Get the activity (which causes it to be started, using our intent) and get the UI fields
      */
     private void getActivityAndFields() throws Throwable {
-        final AccountSettingsXL theActivity = getActivity();
+        final AccountSettings theActivity = getActivity();
 
         runTestOnUiThread(new Runnable() {
             public void run() {
                 PreferenceFragment f = (PreferenceFragment) theActivity.mCurrentFragment;
-                AccountSettingsXLTests.this.mCheckFrequency =
+                mCheckFrequency =
                     (ListPreference) f.findPreference(PREFERENCE_FREQUENCY);
             }
         });
@@ -170,7 +169,7 @@ public class AccountSettingsXLTests extends ActivityInstrumentationTestCase2<Acc
         mAccount.save(mContext);
         mAccountId = mAccount.mId;
 
-        return AccountSettingsXL.createAccountSettingsIntent(mContext, mAccountId, null);
+        return AccountSettings.createAccountSettingsIntent(mContext, mAccountId, null);
     }
 
 }
