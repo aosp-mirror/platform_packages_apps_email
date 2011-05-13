@@ -41,9 +41,9 @@ import android.net.Uri;
     private static final int ID_NAME_COLUMN_NAME = 1;
 
     private static enum ViewType {
-        TYPE_ALL_UNREAD(false, Message.UNREAD_SELECTION, R.string.widget_unread, false),
+        TYPE_ALL_UNREAD(false, Message.ALL_UNREAD_SELECTION, R.string.widget_unread, false),
         TYPE_ALL_STARRED(false, Message.ALL_FAVORITE_SELECTION, R.string.widget_starred, false),
-        TYPE_ALL_INBOX(false, Message.INBOX_SELECTION, R.string.widget_all_mail, true),
+        TYPE_ALL_INBOX(false, Message.ALL_INBOX_SELECTION, R.string.widget_all_mail, true),
         TYPE_ACCOUNT_INBOX(true, Message.PER_ACCOUNT_INBOX_SELECTION, 0, true) {
             @Override public String getTitle(Context context, String accountName) {
                 return accountName;

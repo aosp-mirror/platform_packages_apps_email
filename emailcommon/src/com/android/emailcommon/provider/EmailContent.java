@@ -586,7 +586,14 @@ public abstract class EmailContent {
         private static final String ACCOUNT_KEY_SELECTION =
             MessageColumns.ACCOUNT_KEY + "=?";
 
-        /** Selection for messages that are loaded */
+        /**
+         * Selection for messages that are loaded
+         *
+         * POP messages at the initial stage have very little information. (Server UID only)
+         * Use this to make sure they're not visible on any UI.
+         * This means unread counts on the mailbox list can be different from the
+         * number of messages in the message list, but it should be transient...
+         */
         public static final String FLAG_LOADED_SELECTION =
             MessageColumns.FLAG_LOADED + " IN ("
             +     Message.FLAG_LOADED_PARTIAL + "," + Message.FLAG_LOADED_COMPLETE
@@ -599,19 +606,37 @@ public abstract class EmailContent {
             +     " WHERE " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_TRASH
             +     ")"
             + " AND " + FLAG_LOADED_SELECTION;
+
         /** Selection to retrieve all messages in "inbox" for any account */
-        public static final String INBOX_SELECTION =
+        public static final String ALL_INBOX_SELECTION =
             MessageColumns.MAILBOX_KEY + " IN ("
             +     "SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME
             +     " WHERE " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX
             +     ")"
             + " AND " + FLAG_LOADED_SELECTION;
+
+        /** Selection to retrieve all messages in "drafts" for any account */
+        public static final String ALL_DRAFT_SELECTION =
+            MessageColumns.MAILBOX_KEY + " IN ("
+            +     "SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME
+            +     " WHERE " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_DRAFTS
+            +     ")"
+            + " AND " + FLAG_LOADED_SELECTION;
+
+        /** Selection to retrieve all messages in "outbox" for any account */
+        public static final String ALL_OUTBOX_SELECTION =
+            MessageColumns.MAILBOX_KEY + " IN ("
+            +     "SELECT " + MailboxColumns.ID + " FROM " + Mailbox.TABLE_NAME
+            +     " WHERE " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_OUTBOX
+            +     ")"; // NOTE No flag_loaded test for outboxes.
+
         /** Selection to retrieve unread messages in "inbox" for any account */
-        public static final String UNREAD_SELECTION =
-            MessageColumns.FLAG_READ + "=0 AND " + INBOX_SELECTION;
+        public static final String ALL_UNREAD_SELECTION =
+            MessageColumns.FLAG_READ + "=0 AND " + ALL_INBOX_SELECTION;
+
         /** Selection to retrieve all messages in "inbox" for one account */
         public static final String PER_ACCOUNT_INBOX_SELECTION =
-            ACCOUNT_KEY_SELECTION + " AND " + INBOX_SELECTION;
+            ACCOUNT_KEY_SELECTION + " AND " + ALL_INBOX_SELECTION;
 
         private static final String ACCOUNT_FAVORITE_SELECTION =
             ACCOUNT_KEY_SELECTION + " AND " + ALL_FAVORITE_SELECTION;
@@ -905,6 +930,40 @@ public abstract class EmailContent {
                 return Long.parseLong(columns[0]);
             }
             return -1;
+        }
+
+        /**
+         * Returns the where clause for a message list selection.
+         *
+         * Accesses the detabase to determine the mailbox type.  DO NOT CALL FROM UI THREAD.
+         */
+        public static String buildMessageListSelection(Context context, long mailboxId) {
+
+            if (mailboxId == Mailbox.QUERY_ALL_INBOXES) {
+                return Message.ALL_INBOX_SELECTION;
+            }
+            if (mailboxId == Mailbox.QUERY_ALL_DRAFTS) {
+                return Message.ALL_DRAFT_SELECTION;
+            }
+            if (mailboxId == Mailbox.QUERY_ALL_OUTBOX) {
+                return Message.ALL_OUTBOX_SELECTION;
+            }
+            if (mailboxId == Mailbox.QUERY_ALL_UNREAD) {
+                return Message.ALL_UNREAD_SELECTION;
+            }
+            if (mailboxId == Mailbox.QUERY_ALL_FAVORITES) {
+                return Message.ALL_FAVORITE_SELECTION;
+            }
+
+            // Now it's a regular mailbox.
+            final StringBuilder selection = new StringBuilder();
+
+            selection.append(MessageColumns.MAILBOX_KEY).append('=').append(mailboxId);
+
+            if (Mailbox.getMailboxType(context, mailboxId) != Mailbox.TYPE_OUTBOX) {
+                selection.append(" AND ").append(Message.FLAG_LOADED_SELECTION);
+            }
+            return selection.toString();
         }
     }
 
@@ -1983,7 +2042,7 @@ public abstract class EmailContent {
         public static final String PRECACHE_INBOX_SELECTION =
             PRECACHE_SELECTION + " AND " + AttachmentColumns.MESSAGE_KEY + " IN ("
             +     "SELECT " + MessageColumns.ID + " FROM " + Message.TABLE_NAME
-            +     " WHERE " + Message.INBOX_SELECTION
+            +     " WHERE " + Message.ALL_INBOX_SELECTION
             +     ")";
 
         // Bits used in mFlags

@@ -76,11 +76,6 @@ public class MessageOrderManagerTest extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, mom.getTotalMessageCount());
     }
 
-    public void testSelection() {
-        MessageOrderManagerForTest mom = new MessageOrderManagerForTest(getContext(), 5, mCallback);
-        assertEquals("mailboxKey=5 AND flagLoaded IN (2,1)", mom.getQuerySelection());
-    }
-
     /**
      * Test with actual message list.
      *

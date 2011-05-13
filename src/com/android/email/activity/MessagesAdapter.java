@@ -251,8 +251,8 @@ import java.util.Set;
                 canHaveMessages = (box != null) && (box.mFlags & Mailbox.FLAG_HOLDS_MAIL) != 0;
             }
             if (canHaveMessages) {
-                // Determine the where clause.  (Can't do this on the UI thread.)
-                setSelection(Utility.buildMailboxIdSelection(mContext, mMailboxId));
+                // Build the where cause (which can't be done on the UI thread.)
+                setSelection(Message.buildMessageListSelection(mContext, mMailboxId));
                 // Then do a query to get the cursor
                 returnCursor = super.loadInBackground();
             } else {

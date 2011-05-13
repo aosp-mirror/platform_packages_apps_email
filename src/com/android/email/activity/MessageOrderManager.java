@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentResolver;
@@ -292,10 +293,6 @@ public class MessageOrderManager {
         }
     }
 
-    /* package */ String getQuerySelection() { // Extracted for testing
-        return Utility.buildMailboxIdSelection(mContext, mMailboxId);
-    }
-
     /**
      * Open a new cursor for a message list.
      *
@@ -303,8 +300,8 @@ public class MessageOrderManager {
      */
     private Cursor openNewCursor() {
         final Cursor cursor = mContentResolver.query(EmailContent.Message.CONTENT_URI,
-                EmailContent.ID_PROJECTION, getQuerySelection(), null,
-                EmailContent.MessageColumns.TIMESTAMP + " DESC");
+                EmailContent.ID_PROJECTION, Message.buildMessageListSelection(mContext, mMailboxId),
+                null, EmailContent.MessageColumns.TIMESTAMP + " DESC");
         return cursor;
     }
 
