@@ -34,7 +34,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 
 import java.io.IOException;
-import java.util.List;
 
 public class AccountService extends Service {
 
@@ -51,12 +50,6 @@ public class AccountService extends Service {
         @Override
         public void notifyLoginSucceeded(long accountId) {
             NotificationController.getInstance(mContext).cancelLoginFailedNotification(accountId);
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public void notifyNewMessages(long accountId, List messageIdList) {
-            MailService.actionNotifyNewMessages(mContext, accountId, messageIdList);
         }
 
         @Override
