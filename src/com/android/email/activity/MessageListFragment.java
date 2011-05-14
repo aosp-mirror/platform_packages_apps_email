@@ -24,10 +24,9 @@ import com.android.email.RefreshManager;
 import com.android.email.data.MailboxAccountLoader;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
@@ -698,9 +697,9 @@ public class MessageListFragment extends ListFragment
             // we don't have mMailbox for combined mailbox.
             // ("All Starred" can contain any kind of messages.)
             switch (Mailbox.getMailboxType(mActivity, mMessageMailboxId)) {
-                case EmailContent.Mailbox.TYPE_DRAFTS:
+                case Mailbox.TYPE_DRAFTS:
                     return Callback.TYPE_DRAFT;
-                case EmailContent.Mailbox.TYPE_TRASH:
+                case Mailbox.TYPE_TRASH:
                     return Callback.TYPE_TRASH;
                 default:
                     return Callback.TYPE_REGULAR;

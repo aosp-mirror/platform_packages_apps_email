@@ -18,7 +18,7 @@ package com.android.email.data;
 
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;

@@ -25,9 +25,9 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
@@ -220,7 +220,7 @@ import android.widget.TextView;
         private final long mParentKey;
 
         MailboxFragmentLoader(Context context, long accountId, long parentKey) {
-            super(context, EmailContent.Mailbox.CONTENT_URI,
+            super(context, Mailbox.CONTENT_URI,
                     (parentKey != Mailbox.PARENT_KEY_NONE)
                             ? MailboxesAdapter.SUBMAILBOX_PROJECTION
                             : MailboxesAdapter.PROJECTION,

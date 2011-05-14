@@ -32,7 +32,7 @@ import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
 
 import org.apache.commons.io.IOUtils;
@@ -458,13 +458,13 @@ public class LegacyConversions {
                     Mailbox.TYPE_JUNK);
         }
         if (mailboxName == null || mailboxName.length() == 0) {
-            return EmailContent.Mailbox.TYPE_MAIL;
+            return Mailbox.TYPE_MAIL;
         }
         String lowerCaseName = mailboxName.toLowerCase();
         Integer type = sServerMailboxNames.get(lowerCaseName);
         if (type != null) {
             return type;
         }
-        return EmailContent.Mailbox.TYPE_MAIL;
+        return Mailbox.TYPE_MAIL;
     }
 }

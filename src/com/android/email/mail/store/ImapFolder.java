@@ -47,7 +47,7 @@ import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
 import java.io.IOException;

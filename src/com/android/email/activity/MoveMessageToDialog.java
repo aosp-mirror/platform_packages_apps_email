@@ -20,8 +20,8 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;

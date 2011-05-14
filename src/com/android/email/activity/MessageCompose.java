@@ -25,13 +25,13 @@ import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeUtility;
 import com.android.emailcommon.mail.Address;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
@@ -1167,7 +1167,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                     Body.updateBodyWithMessageId(MessageCompose.this, mDraft.mId, values);
                 } else {
                     // mDraft.mId is set upon return of saveToMailbox()
-                    mController.saveToMailbox(mDraft, EmailContent.Mailbox.TYPE_DRAFTS);
+                    mController.saveToMailbox(mDraft, Mailbox.TYPE_DRAFTS);
                 }
                 // For any unloaded attachment, set the flag saying we need it loaded
                 boolean hasUnloadedAttachments = false;

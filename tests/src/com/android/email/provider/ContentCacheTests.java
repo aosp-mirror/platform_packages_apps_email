@@ -21,7 +21,7 @@ import com.android.email.provider.ContentCache.CachedCursor;
 import com.android.email.provider.ContentCache.TokenList;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;

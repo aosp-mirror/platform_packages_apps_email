@@ -18,8 +18,8 @@ package com.android.email;
 
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.app.Notification;
 import android.content.Context;

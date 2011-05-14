@@ -17,7 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.R;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.content.Context;
 import android.content.res.Resources;

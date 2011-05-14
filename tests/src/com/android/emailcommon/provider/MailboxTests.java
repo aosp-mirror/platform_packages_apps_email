@@ -20,7 +20,6 @@ import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
@@ -98,7 +97,7 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         Mailbox box1 = ProviderTestUtils.setupMailbox("box1", account1Id, true, c);
         long box1Id = box1.mId;
 
-        Mailbox box2 = EmailContent.Mailbox.restoreMailboxWithId(c, box1Id);
+        Mailbox box2 = Mailbox.restoreMailboxWithId(c, box1Id);
 
         ProviderTestUtils.assertMailboxEqual("testMailboxSave", box1, box2);
     }

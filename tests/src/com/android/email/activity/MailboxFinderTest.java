@@ -22,9 +22,8 @@ import com.android.email.Email;
 import com.android.email.TestUtils;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.content.Context;
 import android.test.InstrumentationTestCase;
@@ -107,7 +106,7 @@ public class MailboxFinderTest extends InstrumentationTestCase {
      * Create a mailbox and return the ID.
      */
     private long createMailbox(long accountId, int mailboxType) {
-        EmailContent.Mailbox box = new EmailContent.Mailbox();
+        Mailbox box = new Mailbox();
         box.mServerId = box.mDisplayName = "mailbox";
         box.mAccountKey = accountId;
         box.mType = mailboxType;

@@ -18,7 +18,7 @@ package com.android.email.service;
 
 import com.android.email.Controller;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
@@ -92,7 +92,7 @@ public class PopImapSyncAdapterService extends Service {
             if (c.moveToNext()) {
                 // If we have one, find the inbox and start it syncing
                 long accountId = c.getLong(EmailContent.Account.ID_PROJECTION_COLUMN);
-                long mailboxId = EmailContent.Mailbox.findMailboxOfType(context, accountId,
+                long mailboxId = Mailbox.findMailboxOfType(context, accountId,
                         Mailbox.TYPE_INBOX);
                 if (mailboxId > 0) {
                     Log.d(TAG, "Starting manual sync for account " + emailAddress);

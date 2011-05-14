@@ -30,12 +30,12 @@ import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.LegacyPolicySet;
 import com.google.common.annotations.VisibleForTesting;
@@ -199,7 +199,7 @@ public class EmailProvider extends ContentProvider {
     // MESSAGE_BASE = 0x1000, etc.)
     private static final String[] TABLE_NAMES = {
         EmailContent.Account.TABLE_NAME,
-        EmailContent.Mailbox.TABLE_NAME,
+        Mailbox.TABLE_NAME,
         EmailContent.Message.TABLE_NAME,
         EmailContent.Attachment.TABLE_NAME,
         EmailContent.HostAuth.TABLE_NAME,

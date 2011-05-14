@@ -23,8 +23,8 @@ import com.android.email.RefreshManager;
 import com.android.email.provider.EmailProvider;
 import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 

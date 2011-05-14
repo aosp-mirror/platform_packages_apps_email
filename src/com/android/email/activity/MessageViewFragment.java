@@ -21,8 +21,8 @@ import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MeetingInfo;
 import com.android.emailcommon.mail.PackedString;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceConstants;
 import com.android.emailcommon.utility.Utility;
 

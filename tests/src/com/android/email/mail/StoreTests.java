@@ -21,7 +21,7 @@ import com.android.email.mail.Store.StoreInfo;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;

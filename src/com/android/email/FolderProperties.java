@@ -16,7 +16,7 @@
 
 package com.android.email;
 
-import com.android.emailcommon.provider.EmailContent.Mailbox;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.content.Context;
 import android.content.res.TypedArray;

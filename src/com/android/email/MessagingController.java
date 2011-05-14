@@ -38,10 +38,10 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.ConversionUtilities;
 import com.android.emailcommon.utility.Utility;
@@ -247,7 +247,7 @@ public class MessagingController implements Runnable {
 
                     // Step 2: Get local mailboxes
                     localFolderCursor = mContext.getContentResolver().query(
-                            EmailContent.Mailbox.CONTENT_URI,
+                            Mailbox.CONTENT_URI,
                             MAILBOX_PROJECTION,
                             EmailContent.MailboxColumns.ACCOUNT_KEY + "=?",
                             new String[] { String.valueOf(account.mId) },
@@ -302,11 +302,11 @@ public class MessagingController implements Runnable {
      * @param listener
      */
     public void synchronizeMailbox(final EmailContent.Account account,
-            final EmailContent.Mailbox folder, MessagingListener listener) {
+            final Mailbox folder, MessagingListener listener) {
         /*
          * We don't ever sync the Outbox.
          */
-        if (folder.mType == EmailContent.Mailbox.TYPE_OUTBOX) {
+        if (folder.mType == Mailbox.TYPE_OUTBOX) {
             return;
         }
         mListeners.synchronizeMailboxStarted(account.mId, folder.mId);
@@ -325,7 +325,7 @@ public class MessagingController implements Runnable {
      * @param folder
      */
     private void synchronizeMailboxSynchronous(final EmailContent.Account account,
-            final EmailContent.Mailbox folder) {
+            final Mailbox folder) {
         mListeners.synchronizeMailboxStarted(account.mId, folder.mId);
         if ((folder.mFlags & Mailbox.FLAG_HOLDS_MAIL) == 0) {
             // We don't hold messages, so, nothing to synchronize
@@ -408,7 +408,7 @@ public class MessagingController implements Runnable {
      * @throws MessagingException
      */
     private SyncResults synchronizeMailboxGeneric(
-            final EmailContent.Account account, final EmailContent.Mailbox folder)
+            final EmailContent.Account account, final Mailbox folder)
             throws MessagingException {
 
         /*
@@ -764,7 +764,7 @@ public class MessagingController implements Runnable {
      *        EmailContent.Message.LOADED)
      */
     public void copyOneMessageToProvider(Message message, EmailContent.Account account,
-            EmailContent.Mailbox folder, int loadStatus) {
+            Mailbox folder, int loadStatus) {
         EmailContent.Message localMessage = null;
         Cursor c = null;
         try {
@@ -1637,8 +1637,8 @@ public class MessagingController implements Runnable {
                     // TODO combine with common code in loadAttachment
                     EmailContent.Account account =
                         EmailContent.Account.restoreAccountWithId(mContext, message.mAccountKey);
-                    EmailContent.Mailbox mailbox =
-                        EmailContent.Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
+                    Mailbox mailbox =
+                        Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
                     if (account == null || mailbox == null) {
                         mListeners.loadMessageForViewFailed(messageId, "null account or mailbox");
                         return;
@@ -1720,8 +1720,8 @@ public class MessagingController implements Runnable {
                     // TODO all of these could be narrower projections
                     EmailContent.Account account =
                         EmailContent.Account.restoreAccountWithId(mContext, accountId);
-                    EmailContent.Mailbox mailbox =
-                        EmailContent.Mailbox.restoreMailboxWithId(mContext, mailboxId);
+                    Mailbox mailbox =
+                        Mailbox.restoreMailboxWithId(mContext, mailboxId);
                     EmailContent.Message message =
                         EmailContent.Message.restoreMessageWithId(mContext, messageId);
 
@@ -1933,8 +1933,8 @@ public class MessagingController implements Runnable {
                     // TODO we already know this in Controller, can we pass it in?
                     inboxId = Mailbox.findMailboxOfType(mContext, accountId, Mailbox.TYPE_INBOX);
                     if (inboxId != Mailbox.NO_MAILBOX) {
-                        EmailContent.Mailbox mailbox =
-                            EmailContent.Mailbox.restoreMailboxWithId(mContext, inboxId);
+                        Mailbox mailbox =
+                            Mailbox.restoreMailboxWithId(mContext, inboxId);
                         if (mailbox != null) {
                             synchronizeMailboxSynchronous(account, mailbox);
                         }

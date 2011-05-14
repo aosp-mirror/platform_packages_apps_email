@@ -23,8 +23,8 @@ import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.HostAuth;
-import com.android.emailcommon.provider.EmailContent.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.content.Context;
 import android.net.Uri;
@@ -202,13 +202,13 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
 
         Mailbox trashBox = ProviderTestUtils.setupMailbox("box2", account1Id, false,
                 mProviderContext);
-        trashBox.mType = EmailContent.Mailbox.TYPE_TRASH;
+        trashBox.mType = Mailbox.TYPE_TRASH;
         trashBox.save(mProviderContext);
         long trashBoxId = trashBox.mId;
 
         Mailbox draftBox = ProviderTestUtils.setupMailbox("box3", account1Id, false,
                 mProviderContext);
-        draftBox.mType = EmailContent.Mailbox.TYPE_DRAFTS;
+        draftBox.mType = Mailbox.TYPE_DRAFTS;
         draftBox.save(mProviderContext);
         long draftBoxId = draftBox.mId;
 
@@ -289,9 +289,9 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         // check the new mailbox and see if it looks right
         assertFalse(-1 == message1get.mMailboxKey);
         assertFalse(box1Id == message1get.mMailboxKey);
-        Mailbox mailbox2get = EmailContent.Mailbox.restoreMailboxWithId(mProviderContext,
+        Mailbox mailbox2get = Mailbox.restoreMailboxWithId(mProviderContext,
                 message1get.mMailboxKey);
-        assertEquals(EmailContent.Mailbox.TYPE_TRASH, mailbox2get.mType);
+        assertEquals(Mailbox.TYPE_TRASH, mailbox2get.mType);
     }
 
     /**
