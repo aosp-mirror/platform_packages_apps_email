@@ -27,11 +27,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import java.security.InvalidParameterException;
 
-public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns {
+public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns, Parcelable {
     public static final String TABLE_NAME = "Mailbox";
     @SuppressWarnings("hiding")
     public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
@@ -470,4 +472,66 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
              = mLastSeenMessageKey;
         return hash;
     }
+
+    // Parcelable
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    // Parcelable
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(mBaseUri, flags);
+        dest.writeLong(mId);
+        dest.writeString(mDisplayName);
+        dest.writeString(mServerId);
+        dest.writeString(mParentServerId);
+        dest.writeLong(mParentKey);
+        dest.writeLong(mAccountKey);
+        dest.writeInt(mType);
+        dest.writeInt(mDelimiter);
+        dest.writeString(mSyncKey);
+        dest.writeInt(mSyncLookback);
+        dest.writeInt(mSyncInterval);
+        dest.writeLong(mSyncTime);
+        dest.writeInt(mFlagVisible ? 1 : 0);
+        dest.writeInt(mFlags);
+        dest.writeInt(mVisibleLimit);
+        dest.writeString(mSyncStatus);
+        dest.writeLong(mLastSeenMessageKey);
+    }
+
+    public Mailbox(Parcel in) {
+        mBaseUri = in.readParcelable(null);
+        mId = in.readLong();
+        mDisplayName = in.readString();
+        mServerId = in.readString();
+        mParentServerId = in.readString();
+        mParentKey = in.readLong();
+        mAccountKey = in.readLong();
+        mType = in.readInt();
+        mDelimiter = in.readInt();
+        mSyncKey = in.readString();
+        mSyncLookback = in.readInt();
+        mSyncInterval = in.readInt();
+        mSyncTime = in.readLong();
+        mFlagVisible = in.readInt() == 1;
+        mFlags = in.readInt();
+        mVisibleLimit = in.readInt();
+        mSyncStatus = in.readString();
+        mLastSeenMessageKey = in.readLong();
+    }
+
+    public static final Parcelable.Creator<Mailbox> CREATOR = new Parcelable.Creator<Mailbox>() {
+        @Override
+        public Mailbox createFromParcel(Parcel source) {
+            return new Mailbox(source);
+        }
+
+        @Override
+        public Mailbox[] newArray(int size) {
+            return new Mailbox[size];
+        }
+    };
 }

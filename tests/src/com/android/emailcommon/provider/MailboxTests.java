@@ -29,9 +29,12 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Parcel;
 import android.test.MoreAsserts;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import java.util.Arrays;
 
 /**
  * Unit tests for the Mailbox inner class.
@@ -495,14 +498,17 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(start + 1, Mailbox.restoreMailboxWithId(c, b1.mId).mSyncInterval);
     }
 
-    public void testGetHashes() {
-        final Context c = mMockContext;
-        Mailbox testMailbox;
+    private Mailbox buildTestMailbox(String serverId) {
+        return buildTestMailbox(serverId, null);
+    }
 
-        testMailbox = new Mailbox();
-        testMailbox.mDisplayName = TEST_DISPLAY_NAME;
+    private Mailbox buildTestMailbox(String serverId, String name) {
+        name = (name == null) ? TEST_DISPLAY_NAME : name;
+
+        Mailbox testMailbox = new Mailbox();
+        testMailbox.mServerId = serverId;
+        testMailbox.mDisplayName = name;
         testMailbox.mParentServerId = TEST_PARENT_SERVER_ID;
-        testMailbox.mServerId = TEST_SERVER_ID;
         testMailbox.mSyncKey = TEST_SYNC_KEY;
         testMailbox.mSyncStatus = TEST_SYNC_STATUS;
         testMailbox.mAccountKey = 1L;
@@ -515,6 +521,14 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         testMailbox.mSyncTime = 6L;
         testMailbox.mType = 7;
         testMailbox.mVisibleLimit = 8;
+        testMailbox.mLastSeenMessageKey = 9L;
+
+        return testMailbox;
+    }
+
+    public void testGetHashes() {
+        final Context c = mMockContext;
+        Mailbox testMailbox = buildTestMailbox(TEST_SERVER_ID);
         testMailbox.save(c);
 
         Object[] testHash;
@@ -523,7 +537,7 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
                 TEST_PARENT_SERVER_ID, 1L /*mAccountKey*/, 7 /*mType */,
                 (int)'/' /*mDelimiter */, TEST_SYNC_KEY, 5 /*mSyncLookback*/,
                 4 /*mSyncInterval*/,  6L /*mSyncTime*/, true /*mFlagVisible*/, 2 /*mFlags*/,
-                8 /*mVisibleLimit*/, TEST_SYNC_STATUS, 3L /*mParentKey*/
+                8 /*mVisibleLimit*/, TEST_SYNC_STATUS, 3L /*mParentKey*/, 9L /*mLastSeen*/
         };
         MoreAsserts.assertEquals(testHash, testMailbox.getHashes());
 
@@ -540,9 +554,43 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
                 null /*mParentServerId*/, 1L /*mAccountKey*/, 7 /*mType */,
                 (int)'/' /*mDelimiter */, null /*mSyncKey*/, 5 /*mSyncLookback*/,
                 4 /*mSyncInterval*/,  6L /*mSyncTime*/, false /*mFlagVisible*/, 2 /*mFlags*/,
-                8 /*mVisibleLimit*/, null /*mSyncStatus*/, 3L /*mParentKey*/
+                8 /*mVisibleLimit*/, null /*mSyncStatus*/, 3L /*mParentKey*/, 9L /*mLastSeen*/
         };
         MoreAsserts.assertEquals(testHash, testMailbox.getHashes());
+    }
+
+    public void testParcelling() {
+        Mailbox original = buildTestMailbox("serverId", "display name for mailbox");
+
+        Parcel p = Parcel.obtain();
+        original.writeToParcel(p, 0 /* flags */);
+
+        // Reset.
+        p.setDataPosition(0);
+
+        Mailbox unparcelled = Mailbox.CREATOR.createFromParcel(p);
+        MoreAsserts.assertEquals(original.getHashes(), unparcelled.getHashes());
+
+        Mailbox phony = buildTestMailbox("different ID", "display name for mailbox");
+        assertFalse(Arrays.equals(phony.getHashes(), unparcelled.getHashes()));
+
+        p.recycle();
+    }
+
+    public void testParcellingWithPartialMailbox() {
+        Mailbox unpopulated = new Mailbox();
+        unpopulated.mDisplayName = "the only thing filled in for some reason";
+
+        Parcel p = Parcel.obtain();
+        unpopulated.writeToParcel(p, 0 /* flags */);
+
+        // Reset.
+        p.setDataPosition(0);
+
+        Mailbox unparcelled = Mailbox.CREATOR.createFromParcel(p);
+        MoreAsserts.assertEquals(unpopulated.getHashes(), unparcelled.getHashes());
+
+        p.recycle();
     }
 }
 
