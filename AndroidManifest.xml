@@ -180,12 +180,6 @@
         </activity>
 
         <activity
-            android:name=".activity.AccountFolderList"
-            android:launchMode="singleTop"
-            >
-        </activity>
-
-        <activity
             android:name=".activity.AccountShortcutPicker"
             android:label="@string/account_shortcut_picker_title"
             android:enabled="false"
@@ -199,26 +193,12 @@
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".activity.MailboxList"
-            >
-        </activity>
-
-        <activity
-            android:name=".activity.MessageList"
-            >
-        </activity>
         <activity
             android:name=".activity.EmailActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
             <meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
-        </activity>
-        <activity
-            android:name=".activity.MessageView"
-            >
         </activity>
         <activity
             android:name=".activity.MessageFileView"
