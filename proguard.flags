@@ -61,12 +61,6 @@
   *** setContext(android.content.Context);
 }
 
--keep class com.android.emailcommon.service.PolicySet {
-  <init>(com.android.emailcommon.provider.EmailContent$Account);
-  <init>(int, int, int, int, boolean, int, int, boolean);
-  *** writeAccount(com.android.emailcommon.provider.EmailContent$Account, java.lang.String, boolean, android.content.Context);
-}
-
 -keepclasseswithmembers class com.android.email.MessagingController {
   *** injectMockController(com.android.email.MessagingController);
 }
@@ -96,10 +90,6 @@
 
 -keepclasseswithmembers class com.android.email.service.AttachmentDownloadService$AccountManagerStub {
   *** setNumberOfAccounts(int);
-}
-
--keepclasseswithmembers class com.android.email.Account {
-  *** getContentUri();
 }
 
 -keepclasseswithmembers class com.android.email.Preferences {
