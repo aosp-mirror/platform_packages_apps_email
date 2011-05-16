@@ -535,13 +535,6 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     }
 
     /**
-     * Lightweight test to confirm that IMAP isn't requesting structure prefetch.
-     */
-    public void testNoStructurePrefetch() {
-        assertFalse(mStore.requireStructurePrefetch());
-    }
-
-    /**
      * Lightweight test to confirm that IMAP is requesting sent-message-upload.
      * TODO: Implement Gmail-specific cases and handle this server-side
      */

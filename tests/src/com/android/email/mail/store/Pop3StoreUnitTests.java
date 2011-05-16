@@ -334,13 +334,6 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
     }
 
     /**
-     * Lightweight test to confirm that POP3 isn't requesting structure prefetch.
-     */
-    public void testNoStructurePrefetch() {
-        assertFalse(mStore.requireStructurePrefetch());
-    }
-
-    /**
      * Lightweight test to confirm that POP3 is requesting sent-message-upload.
      */
     public void testSentUploadRequested() {

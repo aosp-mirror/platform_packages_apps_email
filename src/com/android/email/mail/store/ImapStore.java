@@ -67,8 +67,8 @@ import java.util.regex.Pattern;
  * TODO Need to start keeping track of UIDVALIDITY
  * TODO Need a default response handler for things like folder updates
  * TODO In fetch(), if we need a ImapMessage and were given
+ *      something else we can try to do a pre-fetch first.
  * TODO Collect ALERT messages and show them to users.
- * something else we can try to do a pre-fetch first.
  *
  * ftp://ftp.isi.edu/in-notes/rfc2683.txt When a client asks for
  * certain information in a FETCH command, the server may return the requested
@@ -79,30 +79,16 @@ import java.util.regex.Pattern;
  * </pre>
  */
 public class ImapStore extends Store {
+    /** Charset used for converting folder names to and from UTF-7 as defined by RFC 3501. */
+    private static final Charset MODIFIED_UTF_7_CHARSET =
+            new CharsetProvider().charsetForName("X-RFC-3501");
 
-    // Always check in FALSE
-    static final boolean DEBUG_FORCE_SEND_ID = false;
-
-    static final int COPY_BUFFER_SIZE = 16*1024;
-
-    static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
-    final Context mContext;
-    private final Account mAccount;
-    Transport mRootTransport;
     @VisibleForTesting static String sImapId = null;
     @VisibleForTesting String mPathPrefix;
     @VisibleForTesting String mPathSeparator;
-    private String mUsername;
-    private String mPassword;
 
     private final ConcurrentLinkedQueue<ImapConnection> mConnectionPool =
             new ConcurrentLinkedQueue<ImapConnection>();
-
-    /**
-     * Charset used for converting folder names to and from UTF-7 as defined by RFC 3501.
-     */
-    private static final Charset MODIFIED_UTF_7_CHARSET =
-            new CharsetProvider().charsetForName("X-RFC-3501");
 
     /**
      * Cache of ImapFolder objects. ImapFolders are attached to a given folder on the server
@@ -121,7 +107,8 @@ public class ImapStore extends Store {
     }
 
     /**
-     * Creates a new store for the given account.
+     * Creates a new store for the given account. Always use
+     * {@link #newInstance(Account, Context, PersistentDataCallbacks)} to create an IMAP store.
      */
     private ImapStore(Context context, Account account) throws MessagingException {
         mContext = context;
@@ -147,10 +134,10 @@ public class ImapStore extends Store {
         if (recvAuth.mPort != HostAuth.PORT_UNKNOWN) {
             port = recvAuth.mPort;
         }
-        mRootTransport = new MailTransport("IMAP");
-        mRootTransport.setHost(recvAuth.mAddress);
-        mRootTransport.setPort(port);
-        mRootTransport.setSecurity(connectionSecurity, trustCertificates);
+        mTransport = new MailTransport("IMAP");
+        mTransport.setHost(recvAuth.mAddress);
+        mTransport.setPort(port);
+        mTransport.setSecurity(connectionSecurity, trustCertificates);
 
         String[] userInfo = recvAuth.getLogin();
         if (userInfo != null) {
@@ -176,7 +163,7 @@ public class ImapStore extends Store {
      */
     @VisibleForTesting
     void setTransportForTest(Transport testTransport) {
-        mRootTransport = testTransport;
+        mTransport = testTransport;
     }
 
     /**
@@ -511,6 +498,11 @@ public class ImapStore extends Store {
         return mContext;
     }
 
+    /** Returns a clone of the transport associated with this store. */
+    Transport cloneTransport() {
+        return mTransport.clone();
+    }
+
     /**
      * Fixes the path prefix, if necessary. The path prefix must always end with the
      * path separator.
@@ -549,7 +541,8 @@ public class ImapStore extends Store {
     }
 
     /**
-     * Save a {@link ImapConnection} in the pool for reuse.
+     * Save a {@link ImapConnection} in the pool for reuse. Any responses associated with the
+     * connection are destroyed before adding the connection to the pool.
      */
     void poolConnection(ImapConnection connection) {
         if (connection != null) {
@@ -561,7 +554,7 @@ public class ImapStore extends Store {
     /**
      * Prepends the folder name with the given prefix and UTF-7 encodes it.
      */
-    /* package */ static String encodeFolderName(String name, String prefix) {
+    static String encodeFolderName(String name, String prefix) {
         // do NOT add the prefix to the special name "INBOX"
         if (ImapConstants.INBOX.equalsIgnoreCase(name)) return name;
 
@@ -581,7 +574,7 @@ public class ImapStore extends Store {
     /**
      * UTF-7 decodes the folder name and removes the given path prefix.
      */
-    /* package */ static String decodeFolderName(String name, String prefix) {
+    static String decodeFolderName(String name, String prefix) {
         // TODO bypass the conversion if name doesn't have special char.
         String folder;
         folder = MODIFIED_UTF_7_CHARSET.decode(ByteBuffer.wrap(Utility.toAscii(name))).toString();
@@ -594,7 +587,7 @@ public class ImapStore extends Store {
     /**
      * Returns UIDs of Messages joined with "," as the separator.
      */
-    /* package */ static String joinMessageUids(Message[] messages) {
+    static String joinMessageUids(Message[] messages) {
         StringBuilder sb = new StringBuilder();
         boolean notFirst = false;
         for (Message m : messages) {

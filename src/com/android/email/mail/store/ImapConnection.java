@@ -46,6 +46,9 @@ import javax.net.ssl.SSLException;
  * A cacheable class that stores the details for a single IMAP connection.
  */
 class ImapConnection {
+    // Always check in FALSE
+    private static final boolean DEBUG_FORCE_SEND_ID = false;
+
     /** ID capability per RFC 2971*/
     public static final int CAPABILITY_ID        = 1 << 0;
     /** NAMESPACE capability per RFC 2342 */
@@ -100,7 +103,7 @@ class ImapConnection {
         try {
             // copy configuration into a clean transport, if necessary
             if (mTransport == null) {
-                mTransport = mImapStore.mRootTransport.clone();
+                mTransport = mImapStore.cloneTransport();
             }
 
             mTransport.open();
@@ -306,7 +309,7 @@ class ImapConnection {
 
         if (mUserAgent != null) {
             mIdPhrase = ImapConstants.ID + " (" + mUserAgent + ")";
-        } else if (ImapStore.DEBUG_FORCE_SEND_ID) {
+        } else if (DEBUG_FORCE_SEND_ID) {
             mIdPhrase = ImapConstants.ID + " " + ImapConstants.NIL;
         }
         // else: mIdPhrase = null, no ID will be emitted

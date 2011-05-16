@@ -67,6 +67,12 @@ public abstract class Store {
     @VisibleForTesting
     static final HashMap<String, Store> sStores = new HashMap<String, Store>();
 
+    protected Context mContext;
+    protected Account mAccount;
+    protected Transport mTransport;
+    protected String mUsername;
+    protected String mPassword;
+
     /**
      * Static named constructor.  It should be overrode by extending class.
      * Because this method will be called through reflection, it can not be protected.
@@ -240,17 +246,6 @@ public abstract class Store {
     public Class<? extends android.app.Activity> getSettingActivityClass() {
         // default SettingActivity class
         return com.android.email.activity.setup.AccountSetupIncoming.class;
-    }
-
-    /**
-     * Some stores cannot download a message based only on the uid, and need the message structure
-     * to be preloaded and provided to them.  This method allows a remote store to signal this
-     * requirement.  Most stores do not need this and do not need to overload this method, which
-     * simply returns "false" in the base class.
-     * @return Return true if the remote store requires structure prefetch
-     */
-    public boolean requireStructurePrefetch() {
-        return false;
     }
 
     /**

@@ -55,16 +55,11 @@ public class Pop3Store extends Store {
     private static final Flag[] PERMANENT_FLAGS = { Flag.DELETED };
     /** The name of the only mailbox available to POP3 accounts */
     private static final String POP3_MAILBOX_NAME = "INBOX";
-    private final Context mContext;
-    private final Account mAccount;
-    private Transport mTransport;
-    private String mUsername;
-    private String mPassword;
     private final HashMap<String, Folder> mFolders = new HashMap<String, Folder>();
 
 //    /**
 //     * Detected latency, used for usage scaling.
-//     * Usage scaling occurs when it is neccesary to get information about
+//     * Usage scaling occurs when it is necessary to get information about
 //     * messages that could result in large data loads. This value allows
 //     * the code that loads this data to decide between using large downloads
 //     * (high latency) or multiple round trips (low latency) to accomplish
@@ -76,7 +71,7 @@ public class Pop3Store extends Store {
 //
 //    /**
 //     * Detected throughput, used for usage scaling.
-//     * Usage scaling occurs when it is neccesary to get information about
+//     * Usage scaling occurs when it is necessary to get information about
 //     * messages that could result in large data loads. This value allows
 //     * the code that loads this data to decide between using large downloads
 //     * (high latency) or multiple round trips (low latency) to accomplish

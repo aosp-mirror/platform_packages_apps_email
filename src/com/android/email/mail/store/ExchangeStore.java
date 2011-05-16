@@ -39,7 +39,7 @@ import java.util.HashMap;
  */
 public class ExchangeStore extends Store {
     public static final String LOG_TAG = "ExchangeStore";
-
+    @SuppressWarnings("hiding")
     private final ExchangeTransport mTransport;
 
     /**
@@ -80,16 +80,6 @@ public class ExchangeStore extends Store {
     @Override
     public Class<? extends android.app.Activity> getSettingActivityClass() {
         return com.android.email.activity.setup.AccountSetupExchange.class;
-    }
-
-    /**
-     * Inform MessagingController that this store requires message structures to be prefetched
-     * before it can fetch message bodies (this is due to EAS protocol restrictions.)
-     * @return always true for EAS
-     */
-    @Override
-    public boolean requireStructurePrefetch() {
-        return true;
     }
 
     /**

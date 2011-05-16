@@ -60,6 +60,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 class ImapFolder extends Folder {
+    private final static Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
+    private static final int COPY_BUFFER_SIZE = 16*1024;
+
     private final ImapStore mStore;
     private final String mName;
     private int mMessageCount = -1;
@@ -619,7 +622,7 @@ class ImapFolder extends Folder {
         BinaryTempFileBody tempBody = new BinaryTempFileBody();
         OutputStream out = tempBody.getOutputStream();
         try {
-            byte[] buffer = new byte[ImapStore.COPY_BUFFER_SIZE];
+            byte[] buffer = new byte[COPY_BUFFER_SIZE];
             int n = 0;
             int count = 0;
             while (-1 != (n = in.read(buffer))) {
@@ -640,7 +643,7 @@ class ImapFolder extends Folder {
 
     @Override
     public Flag[] getPermanentFlags() {
-        return ImapStore.PERMANENT_FLAGS;
+        return PERMANENT_FLAGS;
     }
 
     /**
