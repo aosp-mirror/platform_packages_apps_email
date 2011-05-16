@@ -79,11 +79,12 @@ public class MailTransport implements Transport {
     }
 
     /**
-     * Get a new transport, using an existing one as a model.  The new transport is configured as if
-     * setUri() and setSecurity() have been called, but not opened or connected in any way.
-     * @return a new Transport ready to open()
+     * Returns a new transport, using the current transport as a model. The new transport is
+     * configured identically (as if {@link #setSecurity(int, boolean)}, {@link #setPort(int)}
+     * and {@link #setHost(String)} were invoked), but not opened or connected in any way.
      */
-    public Transport newInstanceWithConfiguration() {
+    @Override
+    public Transport clone() {
         MailTransport newObject = new MailTransport(mDebugLabel);
 
         newObject.mDebugLabel = mDebugLabel;
@@ -107,31 +108,38 @@ public class MailTransport implements Transport {
         mPort = port;
     }
 
+    @Override
     public String getHost() {
         return mHost;
     }
 
+    @Override
     public int getPort() {
         return mPort;
     }
 
+    @Override
     public void setSecurity(int connectionSecurity, boolean trustAllCertificates) {
         mConnectionSecurity = connectionSecurity;
         mTrustCertificates = trustAllCertificates;
     }
 
+    @Override
     public int getSecurity() {
         return mConnectionSecurity;
     }
 
+    @Override
     public boolean canTrySslSecurity() {
         return mConnectionSecurity == CONNECTION_SECURITY_SSL;
     }
 
+    @Override
     public boolean canTryTlsSecurity() {
         return mConnectionSecurity == Transport.CONNECTION_SECURITY_TLS;
     }
 
+    @Override
     public boolean canTrustAllCertificates() {
         return mTrustCertificates;
     }
@@ -140,6 +148,7 @@ public class MailTransport implements Transport {
      * Attempts to open a connection using the Uri supplied for connection parameters.  Will attempt
      * an SSL connection if indicated.
      */
+    @Override
     public void open() throws MessagingException, CertificateValidationException {
         if (Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "*** " + mDebugLabel + " open " +
@@ -182,6 +191,7 @@ public class MailTransport implements Transport {
      *
      * TODO should we explicitly close the old socket?  This seems funky to abandon it.
      */
+    @Override
     public void reopenTls() throws MessagingException {
         try {
             mSocket = SSLUtils.getSSLSocketFactory(canTrustAllCertificates())
@@ -246,10 +256,12 @@ public class MailTransport implements Transport {
      * @param timeoutMilliseconds the read timeout value if greater than {@code 0}, or
      *            {@code 0} for an infinite timeout.
      */
+    @Override
     public void setSoTimeout(int timeoutMilliseconds) throws SocketException {
         mSocket.setSoTimeout(timeoutMilliseconds);
     }
 
+    @Override
     public boolean isOpen() {
         return (mIn != null && mOut != null &&
                 mSocket != null && mSocket.isConnected() && !mSocket.isClosed());
@@ -258,6 +270,7 @@ public class MailTransport implements Transport {
     /**
      * Close the connection.  MUST NOT return any exceptions - must be "best effort" and safe.
      */
+    @Override
     public void close() {
         try {
             mIn.close();
@@ -279,10 +292,12 @@ public class MailTransport implements Transport {
         mSocket = null;
     }
 
+    @Override
     public InputStream getInputStream() {
         return mIn;
     }
 
+    @Override
     public OutputStream getOutputStream() {
         return mOut;
     }
@@ -290,6 +305,7 @@ public class MailTransport implements Transport {
     /**
      * Writes a single line to the server using \r\n termination.
      */
+    @Override
     public void writeLine(String s, String sensitiveReplacement) throws IOException {
         if (Email.DEBUG) {
             if (sensitiveReplacement != null && !Logging.DEBUG_SENSITIVE) {
@@ -310,6 +326,7 @@ public class MailTransport implements Transport {
      * Reads a single line from the server, using either \r\n or \n as the delimiter.  The
      * delimiter char(s) are not included in the result.
      */
+    @Override
     public String readLine() throws IOException {
         StringBuffer sb = new StringBuffer();
         InputStream in = getInputStream();
@@ -333,6 +350,7 @@ public class MailTransport implements Transport {
         return ret;
     }
 
+    @Override
     public InetAddress getLocalAddress() {
         if (isOpen()) {
             return mSocket.getLocalAddress();

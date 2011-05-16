@@ -38,7 +38,7 @@ import java.net.SocketException;
  *  Interpretation of URI
  *  Support for SSL and TLS wireline security
  */
-public interface Transport {
+public interface Transport extends Cloneable {
 
     /**
      * Connection security options for transport that supports SSL and/or TLS
@@ -52,7 +52,7 @@ public interface Transport {
      * setUri() and setSecurity() have been called, but not opened or connected in any way.
      * @return a new Transport ready to open()
      */
-    public Transport newInstanceWithConfiguration();
+    public Transport clone();
 
     /**
      * Sets the host

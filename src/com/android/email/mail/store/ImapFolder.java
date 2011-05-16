@@ -22,7 +22,6 @@ import android.util.Base64DataException;
 import android.util.Log;
 
 import com.android.email.Email;
-import com.android.email.mail.store.ImapStore.ImapConnection;
 import com.android.email.mail.store.ImapStore.ImapException;
 import com.android.email.mail.store.ImapStore.ImapMessage;
 import com.android.email.mail.store.imap.ImapConstants;
@@ -151,7 +150,6 @@ class ImapFolder extends Folder {
         // TODO implement expunge
         mMessageCount = -1;
         synchronized (this) {
-            destroyResponses();
             mStore.poolConnection(mConnection);
             mConnection = null;
         }
@@ -1040,7 +1038,6 @@ class ImapFolder extends Folder {
         if (Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "IO Exception detected: ", ioe);
         }
-        connection.destroyResponses();
         connection.close();
         if (connection == mConnection) {
             mConnection = null; // To prevent close() from returning the connection to the pool.

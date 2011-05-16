@@ -21,7 +21,6 @@ import com.android.email.MockSharedPreferences;
 import com.android.email.MockVendorPolicy;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Transport;
-import com.android.email.mail.store.ImapStore.ImapConnection;
 import com.android.email.mail.store.ImapStore.ImapMessage;
 import com.android.email.mail.store.imap.ImapResponse;
 import com.android.email.mail.store.imap.ImapTestUtils;
@@ -97,7 +96,8 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     private ImapFolder mFolder = null;
     private Context mTestContext;
 
-    private int mNextTag;
+    /** The tag for the current IMAP command; used for mock transport responses */
+    private int mTag;
     // Fields specific to the CopyMessages tests
     private MockTransport mCopyMock;
     private Folder mCopyToFolder;
@@ -156,7 +156,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         testAccount.mHostAuthRecv = testAuth;
         mStore = (ImapStore) ImapStore.newInstance(testAccount, mTestContext, null);
         mFolder = (ImapFolder) mStore.getFolder(FOLDER_NAME);
-        mNextTag = 1;
+        resetTag();
     }
 
     public void testJoinMessageUids() throws Exception {
@@ -571,7 +571,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         MockTransport mockTransport = new MockTransport();
         mockTransport.setSecurity(connectionSecurity, trustAllCertificates);
         mockTransport.setHost("mock.server.com");
-        mStore.setTransport(mockTransport);
+        mStore.setTransportForTest(mockTransport);
         return mockTransport;
     }
 
@@ -702,8 +702,22 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
      * @return a string containing the current tag
      */
     public String getNextTag(boolean advance)  {
-        if (advance) ++mNextTag;
-        return Integer.toString(mNextTag);
+        if (advance) ++mTag;
+        return Integer.toString(mTag);
+    }
+
+    /**
+     * Resets the tag back to it's starting value. Do this after the test connection has been
+     * closed.
+     */
+    private int resetTag() {
+        return resetTag(1);
+    }
+
+    private int resetTag(int tag) {
+        int oldTag = mTag;
+        mTag = tag;
+        return oldTag;
     }
 
     /**
@@ -1676,7 +1690,8 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 new String[] {
                     getNextTag(true) + " oK UID COPY completed",
                 });
-        // New connection, so, we need to login again
+        // New connection, so, we need to login again & the tag count gets reset
+        int saveTag = resetTag();
         expectLogin(mCopyMock, new String[] {"* iD nIL", "oK"}, false);
         // Select destination folder
         expectSelect(mCopyMock, "&ZeVnLIqe-", "rEAD-wRITE");
@@ -1691,6 +1706,8 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                     "* sEaRcH 1818",
                     getNextTag(true) + " oK UID SEARCH completed (1 msgs in 2.71828 secs)",
                 });
+        // Resume commands on the initial connection
+        resetTag(saveTag);
         // Select the original folder
         expectSelect(mCopyMock, FOLDER_ENCODED, "rEAD-wRITE");
 
@@ -1708,7 +1725,8 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 new String[] {
                     getNextTag(true) + " oK UID COPY completed",
                 });
-        // New connection, so, we need to login again
+        // New connection, so, we need to login again & the tag count gets reset
+        int saveTag = resetTag();
         expectLogin(mCopyMock, new String[] {"* iD nIL", "oK"}, false);
         // Select destination folder
         expectSelect(mCopyMock, "&ZeVnLIqe-", "rEAD-wRITE");
@@ -1723,6 +1741,8 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                     "* sEaRcH",
                     getNextTag(true) + " oK UID SEARCH completed (0 msgs in 2.99792 secs)",
                 });
+        // Resume commands on the initial connection
+        resetTag(saveTag);
         // Select the original folder
         expectSelect(mCopyMock, FOLDER_ENCODED, "rEAD-wRITE");
 
@@ -1740,7 +1760,8 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 new String[] {
                     getNextTag(true) + " oK UID COPY completed",
                 });
-        // New connection, so, we need to login again
+        // New connection, so, we need to login again & the tag count gets reset
+        int saveTag = resetTag();
         expectLogin(mCopyMock, new String[] {"* iD nIL", "oK"}, false);
         // Select destination folder
         expectSelect(mCopyMock, "&ZeVnLIqe-", "rEAD-wRITE");
@@ -1753,6 +1774,8 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 new String[] {
                     getNextTag(true) + " BaD search failed"
                 });
+        // Resume commands on the initial connection
+        resetTag(saveTag);
         // Select the original folder
         expectSelect(mCopyMock, FOLDER_ENCODED, "rEAD-wRITE");
 
@@ -2004,6 +2027,9 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         // con1 != con2
         assertNotSame(con1, con2);
 
+        // New connection, so, we need to login again & the tag count gets reset
+        int saveTag = resetTag();
+
         // Open con2
         expectLogin(mock);
         con2.open();
@@ -2016,6 +2042,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         assertEquals(1, mStore.getConnectionPoolForTest().size());
 
         // Get another connection.  Should get con1, after verifying the connection.
+        saveTag = resetTag(saveTag);
         mock.expect(getNextTag(false) + " NOOP", new String[] {getNextTag(true) + " oK success"});
 
         final ImapConnection con1b = mStore.getConnection();
@@ -2026,6 +2053,9 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         // Save con2.
         mStore.poolConnection(con2);
         assertEquals(1, mStore.getConnectionPoolForTest().size());
+
+        // Resume con2 tags ...
+        resetTag(saveTag);
 
         // Try to get connection, but this time, connection gets closed.
         mock.expect(getNextTag(false) + " NOOP", new String[] {getNextTag(true) + "* bYE bye"});
@@ -2044,6 +2074,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         expectLogin(mock);
         mStore.checkSettings();
 
+        resetTag();
         expectLogin(mock, false, false, false,
                 new String[] {"* iD nIL", "oK"}, "nO authentication failed");
         try {
@@ -2203,6 +2234,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
      */
     public void testFetchIOException() throws Exception {
         runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            @Override
             public void run(MockTransport mockTransport) throws Exception {
                 mockTransport.expectIOException();
 
@@ -2220,6 +2252,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
      */
     public void testUnreadMessageCountIOException() throws Exception {
         runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            @Override
             public void run(MockTransport mockTransport) throws Exception {
                 mockTransport.expectIOException();
 
@@ -2233,6 +2266,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
      */
     public void testCopyMessagesIOException() throws Exception {
         runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            @Override
             public void run(MockTransport mockTransport) throws Exception {
                 mockTransport.expectIOException();
 
@@ -2249,6 +2283,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
      */
     public void testSearchForUidsIOException() throws Exception {
         runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            @Override
             public void run(MockTransport mockTransport) throws Exception {
                 mockTransport.expectIOException();
 
@@ -2262,6 +2297,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
      */
     public void testExpungeIOException() throws Exception {
         runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            @Override
             public void run(MockTransport mockTransport) throws Exception {
                 mockTransport.expectIOException();
 
@@ -2275,6 +2311,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
      */
     public void testOpenIOException() throws Exception {
         runAndExpectMessagingException(new RunAndExpectMessagingExceptionTarget() {
+            @Override
             public void run(MockTransport mockTransport) throws Exception {
                 mockTransport.expectIOException();
                 final Folder folder = mStore.getFolder("test");

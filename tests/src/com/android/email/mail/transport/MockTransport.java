@@ -192,6 +192,7 @@ public class MockTransport implements Transport {
         mInputOpen = false;
     }
 
+    @Override
     public void close() {
         mOpen = false;
         mInputOpen = false;
@@ -232,7 +233,7 @@ public class MockTransport implements Transport {
      * don't have to worry about dealing with test metadata like the expects list or socket state.
      */
     @Override
-    public Transport newInstanceWithConfiguration() {
+    public Transport clone() {
          return this;
     }
 
@@ -322,6 +323,7 @@ public class MockTransport implements Transport {
         mTrustCertificates = trustAllCertificates;
     }
 
+    @Override
     public void setSoTimeout(int timeoutMilliseconds) /* throws SocketException */ {
     }
 

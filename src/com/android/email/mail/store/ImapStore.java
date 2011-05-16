@@ -16,24 +16,18 @@
 
 package com.android.email.mail.store;
 
-import com.android.email.Email;
 import com.android.email.LegacyConversions;
 import com.android.email.Preferences;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
 import com.android.email.mail.store.imap.ImapConstants;
-import com.android.email.mail.store.imap.ImapList;
 import com.android.email.mail.store.imap.ImapResponse;
-import com.android.email.mail.store.imap.ImapResponseParser;
 import com.android.email.mail.store.imap.ImapString;
-import com.android.email.mail.store.imap.ImapUtility;
-import com.android.email.mail.transport.DiscourseLogger;
 import com.android.email.mail.transport.MailTransport;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeMessage;
 import com.android.emailcommon.mail.AuthenticationFailedException;
-import com.android.emailcommon.mail.CertificateValidationException;
 import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.Message;
@@ -60,17 +54,13 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import javax.net.ssl.SSLException;
 
 /**
  * <pre>
@@ -91,21 +81,19 @@ import javax.net.ssl.SSLException;
 public class ImapStore extends Store {
 
     // Always check in FALSE
-    private static final boolean DEBUG_FORCE_SEND_ID = false;
+    static final boolean DEBUG_FORCE_SEND_ID = false;
 
     static final int COPY_BUFFER_SIZE = 16*1024;
 
     static final Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
-    private final Context mContext;
+    final Context mContext;
     private final Account mAccount;
-    private Transport mRootTransport;
+    Transport mRootTransport;
+    @VisibleForTesting static String sImapId = null;
+    @VisibleForTesting String mPathPrefix;
+    @VisibleForTesting String mPathSeparator;
     private String mUsername;
     private String mPassword;
-    private String mLoginPhrase;
-    private String mIdPhrase = null;
-    @VisibleForTesting static String sImapId = null;
-    /*package*/ String mPathPrefix;
-    /*package*/ String mPathSeparator;
 
     private final ConcurrentLinkedQueue<ImapConnection> mConnectionPool =
             new ConcurrentLinkedQueue<ImapConnection>();
@@ -123,14 +111,6 @@ public class ImapStore extends Store {
      * folder name.
      */
     private final HashMap<String, ImapFolder> mFolderCache = new HashMap<String, ImapFolder>();
-
-    /**
-     * Next tag to use.  All connections associated to the same ImapStore instance share the same
-     * counter to make tests simpler.
-     * (Some of the tests involve multiple connections but only have a single counter to track the
-     * tag.)
-     */
-    private final AtomicInteger mNextCommandTag = new AtomicInteger(0);
 
     /**
      * Static named constructor.
@@ -172,20 +152,19 @@ public class ImapStore extends Store {
         mRootTransport.setPort(port);
         mRootTransport.setSecurity(connectionSecurity, trustCertificates);
 
-        String[] userInfoParts = recvAuth.getLogin();
-        if (userInfoParts != null) {
-            mUsername = userInfoParts[0];
-            mPassword = userInfoParts[1];
-
-            // build the LOGIN string once (instead of over-and-over again.)
-            // apply the quoting here around the built-up password
-            mLoginPhrase = ImapConstants.LOGIN + " " + mUsername + " "
-                    + ImapUtility.imapQuoted(mPassword);
+        String[] userInfo = recvAuth.getLogin();
+        if (userInfo != null) {
+            mUsername = userInfo[0];
+            mPassword = userInfo[1];
+        } else {
+            mUsername = null;
+            mPassword = null;
         }
         mPathPrefix = recvAuth.mDomain;
     }
 
-    /* package */ Collection<ImapConnection> getConnectionPoolForTest() {
+    @VisibleForTesting
+    Collection<ImapConnection> getConnectionPoolForTest() {
         return mConnectionPool;
     }
 
@@ -195,7 +174,8 @@ public class ImapStore extends Store {
      * should already be set up and ready to use.  Do not use for real code.
      * @param testTransport The Transport to inject and use for all future communication.
      */
-    /* package */ void setTransport(Transport testTransport) {
+    @VisibleForTesting
+    void setTransportForTest(Transport testTransport) {
         mRootTransport = testTransport;
     }
 
@@ -223,8 +203,8 @@ public class ImapStore extends Store {
      * @param capabilities a list of the capabilities from the server
      * @return a String for use in an IMAP ID message.
      */
-    @VisibleForTesting static String getImapId(Context context, String userName, String host,
-            String capabilities) {
+    @VisibleForTesting
+    static String getImapId(Context context, String userName, String host, String capabilities) {
         // The first section is global to all IMAP connections, and generates the fixed
         // values in any IMAP ID message
         synchronized (ImapStore.class) {
@@ -284,7 +264,8 @@ public class ImapStore extends Store {
      * @param networkOperator TelephonyManager.getNetworkOperatorName()
      * @return the static (never changes) portion of the IMAP ID
      */
-    @VisibleForTesting static String makeCommonImapId(String packageName, String version,
+    @VisibleForTesting
+    static String makeCommonImapId(String packageName, String version,
             String codeName, String model, String id, String vendor, String networkOperator) {
 
         // Before building up IMAP ID string, pre-filter the input strings for "legal" chars
@@ -484,7 +465,6 @@ public class ImapStore extends Store {
             throw afe;
         } finally {
             if (connection != null) {
-                connection.destroyResponses();
                 poolConnection(connection);
             }
         }
@@ -494,7 +474,7 @@ public class ImapStore extends Store {
     public Bundle checkSettings() throws MessagingException {
         int result = MessagingException.NO_ERROR;
         Bundle bundle = new Bundle();
-        ImapConnection connection = new ImapConnection();
+        ImapConnection connection = new ImapConnection(this, mUsername, mPassword);
         try {
             connection.open();
             connection.close();
@@ -509,10 +489,33 @@ public class ImapStore extends Store {
     }
 
     /**
+     * Returns whether or not the prefix has been set by the user. This can be determined by
+     * the fact that the prefix is set, but, the path separator is not set.
+     */
+    boolean isUserPrefixSet() {
+        return TextUtils.isEmpty(mPathSeparator) && !TextUtils.isEmpty(mPathPrefix);
+    }
+
+    /** Sets the path separator */
+    void setPathSeparator(String pathSeparator) {
+        mPathSeparator = pathSeparator;
+    }
+
+    /** Sets the prefix */
+    void setPathPrefix(String pathPrefix) {
+        mPathPrefix = pathPrefix;
+    }
+
+    /** Gets the context for this store */
+    Context getContext() {
+        return mContext;
+    }
+
+    /**
      * Fixes the path prefix, if necessary. The path prefix must always end with the
      * path separator.
      */
-    /*package*/ void ensurePrefixIsValid() {
+    void ensurePrefixIsValid() {
         // Make sure the path prefix ends with the path separator
         if (!TextUtils.isEmpty(mPathPrefix) && !TextUtils.isEmpty(mPathSeparator)) {
             if (!mPathPrefix.endsWith(mPathSeparator)) {
@@ -524,24 +527,23 @@ public class ImapStore extends Store {
     /**
      * Gets a connection if one is available from the pool, or creates a new one if not.
      */
-    /* package */ ImapConnection getConnection() {
+    ImapConnection getConnection() {
         ImapConnection connection = null;
         while ((connection = mConnectionPool.poll()) != null) {
             try {
+                connection.setStore(this, mUsername, mPassword);
                 connection.executeSimpleCommand(ImapConstants.NOOP);
                 break;
             } catch (MessagingException e) {
                 // Fall through
             } catch (IOException e) {
                 // Fall through
-            } finally {
-                connection.destroyResponses();
             }
             connection.close();
             connection = null;
         }
         if (connection == null) {
-            connection = new ImapConnection();
+            connection = new ImapConnection(this, mUsername, mPassword);
         }
         return connection;
     }
@@ -549,8 +551,9 @@ public class ImapStore extends Store {
     /**
      * Save a {@link ImapConnection} in the pool for reuse.
      */
-    /* package */ void poolConnection(ImapConnection connection) {
+    void poolConnection(ImapConnection connection) {
         if (connection != null) {
+            connection.destroyResponses();
             mConnectionPool.add(connection);
         }
     }
@@ -602,373 +605,6 @@ public class ImapStore extends Store {
             notFirst = true;
         }
         return sb.toString();
-    }
-
-    /**
-     * A cacheable class that stores the details for a single IMAP connection.
-     */
-    class ImapConnection {
-        /** ID capability per RFC 2971*/
-        public static final int CAPABILITY_ID        = 1 << 0;
-        /** NAMESPACE capability per RFC 2342 */
-        public static final int CAPABILITY_NAMESPACE = 1 << 1;
-        /** STARTTLS capability per RFC 3501 */
-        public static final int CAPABILITY_STARTTLS  = 1 << 2;
-        /** UIDPLUS capability per RFC 4315 */
-        public static final int CAPABILITY_UIDPLUS   = 1 << 3;
-
-        /** The capabilities supported; a set of CAPABILITY_* values. */
-        private int mCapabilities;
-        private static final String IMAP_DEDACTED_LOG = "[IMAP command redacted]";
-        Transport mTransport;
-        private ImapResponseParser mParser;
-        /** # of command/response lines to log upon crash. */
-        private static final int DISCOURSE_LOGGER_SIZE = 64;
-        private final DiscourseLogger mDiscourse = new DiscourseLogger(DISCOURSE_LOGGER_SIZE);
-
-        public void open() throws IOException, MessagingException {
-            if (mTransport != null && mTransport.isOpen()) {
-                return;
-            }
-
-            try {
-                // copy configuration into a clean transport, if necessary
-                if (mTransport == null) {
-                    mTransport = mRootTransport.newInstanceWithConfiguration();
-                }
-
-                mTransport.open();
-                mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
-
-                createParser();
-
-                // BANNER
-                mParser.readResponse();
-
-                // CAPABILITY
-                ImapResponse capabilities = queryCapabilities();
-
-                boolean hasStartTlsCapability =
-                    capabilities.contains(ImapConstants.STARTTLS);
-
-                // TLS
-                ImapResponse newCapabilities = doStartTls(hasStartTlsCapability);
-                if (newCapabilities != null) {
-                    capabilities = newCapabilities;
-                }
-
-                // NOTE: An IMAP response MUST be processed before issuing any new IMAP
-                // requests. Subsequent requests may destroy previous response data. As
-                // such, we save away capability information here for future use.
-                setCapabilities(capabilities);
-                String capabilityString = capabilities.flatten();
-
-                // ID
-                doSendId(isCapable(CAPABILITY_ID), capabilityString);
-
-                // LOGIN
-                doLogin();
-
-                // NAMESPACE (only valid in the Authenticated state)
-                doGetNamespace(isCapable(CAPABILITY_NAMESPACE));
-
-                // Gets the path separator from the server
-                doGetPathSeparator();
-
-                ensurePrefixIsValid();
-            } catch (SSLException e) {
-                if (Email.DEBUG) {
-                    Log.d(Logging.LOG_TAG, e.toString());
-                }
-                throw new CertificateValidationException(e.getMessage(), e);
-            } catch (IOException ioe) {
-                // NOTE:  Unlike similar code in POP3, I'm going to rethrow as-is.  There is a lot
-                // of other code here that catches IOException and I don't want to break it.
-                // This catch is only here to enhance logging of connection-time issues.
-                if (Email.DEBUG) {
-                    Log.d(Logging.LOG_TAG, ioe.toString());
-                }
-                throw ioe;
-            } finally {
-                destroyResponses();
-            }
-        }
-
-        public void close() {
-            if (mTransport != null) {
-                mTransport.close();
-                mTransport = null;
-            }
-        }
-
-        /**
-         * Returns whether or not the specified capability is supported by the server.
-         */
-        public boolean isCapable(int capability) {
-            return (mCapabilities & capability) != 0;
-        }
-
-        /**
-         * Sets the capability flags according to the response provided by the server.
-         * Note: We only set the capability flags that we are interested in. There are many IMAP
-         * capabilities that we do not track.
-         */
-        private void setCapabilities(ImapResponse capabilities) {
-            if (capabilities.contains(ImapConstants.ID)) {
-                mCapabilities |= CAPABILITY_ID;
-            }
-            if (capabilities.contains(ImapConstants.NAMESPACE)) {
-                mCapabilities |= CAPABILITY_NAMESPACE;
-            }
-            if (capabilities.contains(ImapConstants.UIDPLUS)) {
-                mCapabilities |= CAPABILITY_UIDPLUS;
-            }
-            if (capabilities.contains(ImapConstants.STARTTLS)) {
-                mCapabilities |= CAPABILITY_STARTTLS;
-            }
-        }
-
-        /**
-         * Create an {@link ImapResponseParser} from {@code mTransport.getInputStream()} and
-         * set it to {@link #mParser}.
-         *
-         * If we already have an {@link ImapResponseParser}, we
-         * {@link #destroyResponses()} and throw it away.
-         */
-        private void createParser() {
-            destroyResponses();
-            mParser = new ImapResponseParser(mTransport.getInputStream(), mDiscourse);
-        }
-
-        public void destroyResponses() {
-            if (mParser != null) {
-                mParser.destroyResponses();
-            }
-        }
-
-        /* package */ boolean isTransportOpenForTest() {
-            return mTransport != null ? mTransport.isOpen() : false;
-        }
-
-        public ImapResponse readResponse() throws IOException, MessagingException {
-            return mParser.readResponse();
-        }
-
-        /**
-         * Send a single command to the server.  The command will be preceded by an IMAP command
-         * tag and followed by \r\n (caller need not supply them).
-         *
-         * @param command The command to send to the server
-         * @param sensitive If true, the command will not be logged
-         * @return Returns the command tag that was sent
-         */
-        public String sendCommand(String command, boolean sensitive)
-            throws MessagingException, IOException {
-            open();
-            String tag = Integer.toString(mNextCommandTag.incrementAndGet());
-            String commandToSend = tag + " " + command;
-            mTransport.writeLine(commandToSend, sensitive ? IMAP_DEDACTED_LOG : null);
-            mDiscourse.addSentCommand(sensitive ? IMAP_DEDACTED_LOG : commandToSend);
-            return tag;
-        }
-
-        /*package*/ List<ImapResponse> executeSimpleCommand(String command) throws IOException,
-                MessagingException {
-            return executeSimpleCommand(command, false);
-        }
-
-        /*package*/ List<ImapResponse> executeSimpleCommand(String command, boolean sensitive)
-                throws IOException, MessagingException {
-            String tag = sendCommand(command, sensitive);
-            ArrayList<ImapResponse> responses = new ArrayList<ImapResponse>();
-            ImapResponse response;
-            do {
-                response = mParser.readResponse();
-                responses.add(response);
-            } while (!response.isTagged());
-            if (!response.isOk()) {
-                final String toString = response.toString();
-                final String alert = response.getAlertTextOrEmpty().getString();
-                destroyResponses();
-                throw new ImapException(toString, alert);
-            }
-            return responses;
-        }
-
-        /**
-         * Query server for capabilities.
-         */
-        private ImapResponse queryCapabilities() throws IOException, MessagingException {
-            ImapResponse capabilityResponse = null;
-            for (ImapResponse r : executeSimpleCommand(ImapConstants.CAPABILITY)) {
-                if (r.is(0, ImapConstants.CAPABILITY)) {
-                    capabilityResponse = r;
-                    break;
-                }
-            }
-            if (capabilityResponse == null) {
-                throw new MessagingException("Invalid CAPABILITY response received");
-            }
-            return capabilityResponse;
-        }
-
-        /**
-         * Sends client identification information to the IMAP server per RFC 2971. If
-         * the server does not support the ID command, this will perform no operation.
-         *
-         * Interoperability hack:  Never send ID to *.secureserver.net, which sends back a
-         * malformed response that our parser can't deal with.
-         */
-        private void doSendId(boolean hasIdCapability, String capabilities)
-                throws MessagingException {
-            if (!hasIdCapability) return;
-
-            // Never send ID to *.secureserver.net
-            String host = mRootTransport.getHost();
-            if (host.toLowerCase().endsWith(".secureserver.net")) return;
-
-            // Assign user-agent string (for RFC2971 ID command)
-            String mUserAgent = getImapId(mContext, mUsername, host, capabilities);
-
-            if (mUserAgent != null) {
-                mIdPhrase = ImapConstants.ID + " (" + mUserAgent + ")";
-            } else if (DEBUG_FORCE_SEND_ID) {
-                mIdPhrase = ImapConstants.ID + " " + ImapConstants.NIL;
-            }
-            // else: mIdPhrase = null, no ID will be emitted
-
-            // Send user-agent in an RFC2971 ID command
-            if (mIdPhrase != null) {
-                try {
-                    executeSimpleCommand(mIdPhrase);
-                } catch (ImapException ie) {
-                    // Log for debugging, but this is not a fatal problem.
-                    if (Email.DEBUG) {
-                        Log.d(Logging.LOG_TAG, ie.toString());
-                    }
-                } catch (IOException ioe) {
-                    // Special case to handle malformed OK responses and ignore them.
-                    // A true IOException will recur on the following login steps
-                    // This can go away after the parser is fixed - see bug 2138981
-                }
-            }
-        }
-
-        /**
-         * Gets the user's Personal Namespace from the IMAP server per RFC 2342. If the user
-         * explicitly sets a namespace (using setup UI) or if the server does not support the
-         * namespace command, this will perform no operation.
-         */
-        private void doGetNamespace(boolean hasNamespaceCapability) throws MessagingException {
-            // user did not specify a hard-coded prefix; try to get it from the server
-            if (hasNamespaceCapability && TextUtils.isEmpty(mPathPrefix)) {
-                List<ImapResponse> responseList = Collections.emptyList();
-
-                try {
-                    responseList = executeSimpleCommand(ImapConstants.NAMESPACE);
-                } catch (ImapException ie) {
-                    // Log for debugging, but this is not a fatal problem.
-                    if (Email.DEBUG) {
-                        Log.d(Logging.LOG_TAG, ie.toString());
-                    }
-                } catch (IOException ioe) {
-                    // Special case to handle malformed OK responses and ignore them.
-                }
-
-                for (ImapResponse response: responseList) {
-                    if (response.isDataResponse(0, ImapConstants.NAMESPACE)) {
-                        ImapList namespaceList = response.getListOrEmpty(1);
-                        ImapList namespace = namespaceList.getListOrEmpty(0);
-                        String namespaceString = namespace.getStringOrEmpty(0).getString();
-                        if (!TextUtils.isEmpty(namespaceString)) {
-                            mPathPrefix = decodeFolderName(namespaceString, null);
-                            mPathSeparator = namespace.getStringOrEmpty(1).getString();
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
-         * Logs into the IMAP server
-         */
-        private void doLogin()
-                throws IOException, MessagingException, AuthenticationFailedException {
-            try {
-                // TODO eventually we need to add additional authentication
-                // options such as SASL
-                executeSimpleCommand(mLoginPhrase, true);
-            } catch (ImapException ie) {
-                if (Email.DEBUG) {
-                    Log.d(Logging.LOG_TAG, ie.toString());
-                }
-                throw new AuthenticationFailedException(ie.getAlertText(), ie);
-
-            } catch (MessagingException me) {
-                throw new AuthenticationFailedException(null, me);
-            }
-        }
-
-        /**
-         * Gets the path separator per the LIST command in RFC 3501. If the path separator
-         * was obtained while obtaining the namespace or there is no prefix defined, this
-         * will perform no operation.
-         */
-        private void doGetPathSeparator() throws MessagingException {
-            // user did not specify a hard-coded prefix; try to get it from the server
-            if (TextUtils.isEmpty(mPathSeparator) && !TextUtils.isEmpty(mPathPrefix)) {
-                List<ImapResponse> responseList = Collections.emptyList();
-
-                try {
-                    responseList = executeSimpleCommand(ImapConstants.LIST + " \"\" \"\"");
-                } catch (ImapException ie) {
-                    // Log for debugging, but this is not a fatal problem.
-                    if (Email.DEBUG) {
-                        Log.d(Logging.LOG_TAG, ie.toString());
-                    }
-                } catch (IOException ioe) {
-                    // Special case to handle malformed OK responses and ignore them.
-                }
-
-                for (ImapResponse response: responseList) {
-                    if (response.isDataResponse(0, ImapConstants.LIST)) {
-                        mPathSeparator = response.getStringOrEmpty(2).getString();
-                    }
-                }
-            }
-        }
-
-        /**
-         * Starts a TLS session with the IMAP server per RFC 3501. If the user has not opted
-         * to use TLS or the server does not support the TLS capability, this will perform
-         * no operation.
-         */
-        private ImapResponse doStartTls(boolean hasStartTlsCapability)
-                throws IOException, MessagingException {
-            if (mTransport.canTryTlsSecurity()) {
-                if (hasStartTlsCapability) {
-                    // STARTTLS
-                    executeSimpleCommand(ImapConstants.STARTTLS);
-
-                    mTransport.reopenTls();
-                    mTransport.setSoTimeout(MailTransport.SOCKET_READ_TIMEOUT);
-                    createParser();
-                    // Per RFC requirement (3501-6.2.1) gather new capabilities
-                    return(queryCapabilities());
-                } else {
-                    if (Email.DEBUG) {
-                        Log.d(Logging.LOG_TAG, "TLS not supported but required");
-                    }
-                    throw new MessagingException(MessagingException.TLS_REQUIRED);
-                }
-            }
-            return null;
-        }
-
-        /** @see DiscourseLogger#logLastDiscourse() */
-        public void logLastDiscourse() {
-            mDiscourse.logLastDiscourse();
-        }
     }
 
     static class ImapMessage extends MimeMessage {
