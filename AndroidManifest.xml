@@ -256,6 +256,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activity.MessageList"
+            >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
         <receiver
             android:name=".service.AttachmentDownloadService$Watchdog"
             android:enabled="true"/>

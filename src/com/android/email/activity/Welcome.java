@@ -211,6 +211,8 @@ public class Welcome extends Activity {
 
         @VisibleForTesting
         static long resolveAccountId(Context context, long accountId, String uuid) {
+            // TODO show "account may have been removed" toast when an account is specified but
+            // can't find it.
             if (!TextUtils.isEmpty(uuid)) {
                 accountId = Account.getAccountIdFromUuid(context, uuid);
             }

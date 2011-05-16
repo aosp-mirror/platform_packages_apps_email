@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.R;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 
@@ -28,6 +29,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -37,12 +39,18 @@ import android.widget.SimpleCursorAdapter;
 
 /**
  * This class implements a launcher shortcut for directly accessing a single account.
- *
- * TODO Handle upgraded shortcuts for the phone UI release.  Shortcuts used to launch MessageList
- * directly.  We need to detect this and redirect to Welcome.
  */
 public class AccountShortcutPicker extends ListActivity
         implements OnClickListener, OnItemClickListener, LoaderCallbacks<Cursor> {
+
+    /**
+     * Debug flag -- if true, create pre-honeycomb style shortcuts.
+     *
+     * This allows developers to test launching the app from old style shortcuts (which point at
+     * MessageList rather than Welcome) without actually carrying over shortcuts from previous
+     * versions.
+     */
+    private static final boolean TEST_CREATE_OLD_STYLE_SHORTCUT = false; // DO NOT SUBMIT WITH TRUE
 
     @SuppressWarnings("hiding")
     private SimpleCursorAdapter mAdapter;
@@ -132,7 +140,13 @@ public class AccountShortcutPicker extends ListActivity
      */
     private void setupShortcut(Account account) {
         // First, set up the shortcut intent.
-        Intent shortcutIntent = Welcome.createAccountShortcutIntent(this, account);
+        final Intent shortcutIntent;
+        if (TEST_CREATE_OLD_STYLE_SHORTCUT) {
+            shortcutIntent = MessageList.createFroyoIntent(this, account);
+            Log.d(Logging.LOG_TAG, "Created old style intent: " + shortcutIntent);
+        } else {
+            shortcutIntent = Welcome.createAccountShortcutIntent(this, account);
+        }
 
         // Then, set up the container intent (the response to the caller)
         Intent intent = new Intent();
@@ -140,6 +154,7 @@ public class AccountShortcutPicker extends ListActivity
         intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, account.getDisplayName());
         Parcelable iconResource
                 = Intent.ShortcutIconResource.fromContext(this, R.mipmap.ic_launcher_email);
+
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
 
         // Now, return the result to the launcher

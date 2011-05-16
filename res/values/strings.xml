@@ -943,6 +943,11 @@ save attachment.</string>
     <!-- Title of activity/dialog containing shortcut picker (list of accounts) [CHAR_LIMIT=20] -->
     <string name="account_shortcut_picker_title">Select an account</string>
 
+    <!-- Toast shown when the selected account no longer exists.  This is used when, for example,
+         a shotcut or a widget is stale and points at a deleted account.
+         [CHAR_LIMIT=none]-->
+    <string name="toast_account_not_found">Account not found. It may have been removed.</string>
+
     <!-- Message that appears when adding a Windows Live Hotmail Plus account -->
     <string name="provider_note_live">Only some \"Plus\" accounts include POP access
         allowing this program to connect. If you are not able to sign in with
