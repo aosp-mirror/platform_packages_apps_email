@@ -31,12 +31,10 @@ import java.security.InvalidParameterException;
 
 /**
  * A {@link MessageViewFragmentBase} subclass for file based messages. (aka EML files)
- *
- * See {@link MessageViewBase} for the class relation diagram.
  */
 public class MessageFileViewFragment extends MessageViewFragmentBase {
     /**
-     * URI of message to open.  Protect with {@link #mLock}.
+     * URI of message to open.
      */
     private Uri mFileEmailUri;
 
@@ -53,6 +51,14 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
     }
 
     @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        if (mFileEmailUri == null) { // sanity check.  setFileUri() must have been called.
+            throw new IllegalStateException();
+        }
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
 
@@ -63,31 +69,24 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
         }
     }
 
-    /** Called by activities with a URI to an EML file. */
-    public void openMessage(Uri fileEmailUri) {
+    /**
+     * Called by the host activity to set the URL to the EML file to open.
+     * Must be called before {@link #onActivityCreated(Bundle)}.
+     *
+     * Note: We don't use the fragment transaction for this fragment, so we can't use
+     * {@link #getArguments()} to pass arguments.
+     */
+    public void setFileUri(Uri fileEmailUri) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageFileViewFragment openMessage");
+            Log.d(Logging.LOG_TAG, this + " openMessage");
         }
         if (mFileEmailUri != null) {
-            // Unlike MessageViewFragment, this fragment doesn't support loading another message
-            // once it opens a message, even after clearContent().
             throw new IllegalStateException();
         }
         if (fileEmailUri == null) {
             throw new InvalidParameterException();
         }
         mFileEmailUri = fileEmailUri;
-        loadMessageIfResumed();
-    }
-
-    @Override
-    protected void clearContent() {
-        super.clearContent();
-    }
-
-    @Override
-    protected boolean isMessageSpecified() {
-        return mFileEmailUri != null;
     }
 
     /**
@@ -96,17 +95,13 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
     @Override
     protected Message openMessageSync(Activity activity) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageFileViewFragment openMessageSync");
-        }
-        Uri messageUri = mFileEmailUri;
-        if (messageUri == null) {
-            return null; // Called after clearContent().
+            Log.d(Logging.LOG_TAG, this + " openMessageSync");
         }
         // Put up a toast; this can take a little while...
         Utility.showToast(activity, R.string.message_view_parse_message_toast);
-        Message msg = getController().loadMessageFromUri(messageUri);
+        Message msg = getController().loadMessageFromUri(mFileEmailUri);
         if (msg == null) {
-            // Indicate that the attachment couldn't be loaded
+            // Indicate that the EML couldn't be loaded
             Utility.showToast(activity, R.string.message_view_display_attachment_toast);
             return null;
         }

@@ -387,7 +387,8 @@ class UIControllerOnePane extends UIControllerBase {
             ft.replace(R.id.fragment_placeholder, MessageViewFragment.newInstance(messageId));
 
         } else if (mailboxId != NO_MAILBOX) {
-            ft.replace(R.id.fragment_placeholder, MessageListFragment.newInstance(mailboxId));
+            ft.replace(R.id.fragment_placeholder, MessageListFragment.newInstance(
+                    accountId, mailboxId));
 
         } else {
             ft.replace(R.id.fragment_placeholder,

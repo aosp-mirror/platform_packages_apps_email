@@ -21,8 +21,8 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.provider.EmailProvider;
-import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
@@ -34,7 +34,6 @@ import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ClipData;
 import android.content.ClipDescription;
-import android.content.Context;
 import android.content.Loader;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -104,8 +103,19 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static Integer sDropTrashColor;
     private static Drawable sDropActiveDrawable;
 
-    private long mAccountId = -1;
-    private long mParentMailboxId = Mailbox.PARENT_KEY_NONE;
+    /**
+     * Account ID passed to {@link #newInstance}.  Cache of {@link #getAccountIdArg()}, but usable
+     * only after {@link #onCreate}.
+     */
+    private long mAccountId;
+
+    /**
+     * Mailbox ID passed to {@link #newInstance}.  Cache of {@link #getParentMailboxIdArg()}, but
+     * usable only after {@link #onCreate}.
+     */
+    private long mParentMailboxId;
+
+    /** ID of the mailbox to hightlight. */
     private long mSelectedMailboxId = -1;
 
     // True if a drag is currently in progress
@@ -201,14 +211,31 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Create a new instance with initialization parameters.
      *
      * This fragment should be created only with this method.  (Arguments should always be set.)
+     *
+     * @param accountId The ID of the account we want to view
+     * @param parentMailboxId The ID of the parent mailbox.  Use {@link Mailbox#PARENT_KEY_NONE}
+     *     to open the root.
      */
     public static MailboxListFragment newInstance(long accountId, long parentMailboxId) {
+        if (accountId == Account.PSEUDO_ACCOUNT_ID_NONE) {
+            throw new InvalidParameterException();
+        }
         final MailboxListFragment instance = new MailboxListFragment();
         final Bundle args = new Bundle();
         args.putLong(ARG_ACCOUNT_ID, accountId);
         args.putLong(ARG_PARENT_MAILBOX_ID, parentMailboxId);
         instance.setArguments(args);
         return instance;
+    }
+
+    /** @return the account ID passed to {@link #newInstance}. */
+    public long getAccountIdArg() {
+        return getArguments().getLong(ARG_ACCOUNT_ID);
+    }
+
+    /** @return the mailbox ID passed to {@link #newInstance}. */
+    public long getParentMailboxIdArg() {
+        return getArguments().getLong(ARG_PARENT_MAILBOX_ID);
     }
 
     /**
@@ -221,6 +248,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Logging.LOG_TAG, "MailboxListFragment onCreate");
         }
         super.onCreate(savedInstanceState);
+
+        mAccountId = getAccountIdArg();
+        mParentMailboxId = getParentMailboxIdArg();
 
         mActivity = getActivity();
         mRefreshManager = RefreshManager.getInstance(mActivity);
@@ -254,38 +284,11 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mListView.setOnDragListener(this);
         registerForContextMenu(mListView);
 
-        final Bundle args = getArguments();
-        // STOPSHIP remove the check.  Right now it's needed for the obsolete phone activities.
-        if (args != null) {
-            openMailboxes(args.getLong(ARG_ACCOUNT_ID), args.getLong(ARG_PARENT_MAILBOX_ID));
-        }
         startLoading();
     }
 
     public void setCallback(Callback callback) {
         mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
-    }
-
-    /**
-     * Opens the top-level mailboxes for the given account ID. If the account is currently
-     * loaded, the list of top-level mailbox will not be reloaded unless <code>forceReload</code>
-     * is <code>true</code>.
-     * @param accountId The ID of the account we want to view
-     * @param parentMailboxId The ID of the parent mailbox.  Use {@link Mailbox#PARENT_KEY_NONE}
-     *     to open the root.
-     * Otherwise, only load the list of top-level mailboxes if the account changes.
-     */
-    // STOPSHIP Make it private once phone activities are gone
-    void openMailboxes(long accountId, long parentMailboxId) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment openMailboxes");
-        }
-        if (accountId == -1) {
-            throw new InvalidParameterException();
-        }
-
-        mAccountId = accountId;
-        mParentMailboxId = parentMailboxId;
     }
 
     /**
