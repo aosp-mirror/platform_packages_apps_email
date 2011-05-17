@@ -65,6 +65,9 @@ public class SecurityPolicy {
     public synchronized static SecurityPolicy getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new SecurityPolicy(context.getApplicationContext());
+            // STOPSHIP: This is a workaround for b/4445007
+            // Make sure the DPM has our active policies
+            sInstance.setActivePolicies();
         }
         return sInstance;
     }
