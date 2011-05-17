@@ -918,8 +918,15 @@ class ImapFolder extends Folder {
                 if (messageId == null || messageId.length() == 0) {
                     continue;
                 }
-                String[] uids = searchForUids(
-                        String.format("(HEADER MESSAGE-ID %s)", messageId));
+                // Most servers don't care about parenthesis in the search query [and, some
+                // fail to work if they are used]
+                String[] uids = searchForUids(String.format("HEADER MESSAGE-ID %s", messageId));
+                if (uids.length > 0) {
+                    message.setUid(uids[0]);
+                }
+                // However, there's at least one server [AOL] that fails to work unless there
+                // are parenthesis, so, try this as a last resort
+                uids = searchForUids(String.format("(HEADER MESSAGE-ID %s)", messageId));
                 if (uids.length > 0) {
                     message.setUid(uids[0]);
                 }
