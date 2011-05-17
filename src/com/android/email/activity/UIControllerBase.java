@@ -22,6 +22,8 @@ import com.android.email.RefreshManager;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 
 import android.app.Fragment;
@@ -47,13 +49,6 @@ abstract class UIControllerBase {
     protected static final String BUNDLE_KEY_ACCOUNT_ID = "UIController.state.account_id";
     protected static final String BUNDLE_KEY_MAILBOX_ID = "UIController.state.mailbox_id";
     protected static final String BUNDLE_KEY_MESSAGE_ID = "UIController.state.message_id";
-
-    /** No account selected */
-    static final long NO_ACCOUNT = Account.PSEUDO_ACCOUNT_ID_NONE;
-    /** No mailbox selected */
-    static final long NO_MAILBOX = -1;
-    /** No message selected */
-    static final long NO_MESSAGE = -1;
 
     /** The owner activity */
     final EmailActivity mActivity;
@@ -268,7 +263,7 @@ abstract class UIControllerBase {
      * @return true if an account is selected, or the current view is the combined view.
      */
     public final boolean isAccountSelected() {
-        return getUIAccountId() != NO_ACCOUNT;
+        return getUIAccountId() != Account.NO_ACCOUNT;
     }
 
     /**
@@ -281,19 +276,19 @@ abstract class UIControllerBase {
 
     /**
      * @return the currently selected account ID.  If the current view is the combined view,
-     * it'll return {@link #NO_ACCOUNT}.
+     * it'll return {@link Account#NO_ACCOUNT}.
      *
      * @see #getUIAccountId()
      */
     public final long getActualAccountId() {
-        return isActualAccountSelected() ? getUIAccountId() : NO_ACCOUNT;
+        return isActualAccountSelected() ? getUIAccountId() : Account.NO_ACCOUNT;
     }
 
     /**
      * Show the default view for the given account.
      *
      * @param accountId ID of the account to load.  Can be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
-     *     Must never be {@link #NO_ACCOUNT}.
+     *     Must never be {@link Account#NO_ACCOUNT}.
      */
     public abstract void openAccount(long accountId);
 
@@ -302,9 +297,11 @@ abstract class UIControllerBase {
      * a particular view at a request from outside of the activity, such as the widget.
      *
      * @param accountId ID of the account to load.  Can be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
-     *     Must never be {@link #NO_ACCOUNT}.
-     * @param mailboxId ID of the mailbox to load. If {@link #NO_MAILBOX}, load the account's inbox.
-     * @param messageId ID of the message to load. If {@link #NO_MESSAGE}, do not open a message.
+     *     Must never be {@link Account#NO_ACCOUNT}.
+     * @param mailboxId ID of the mailbox to load. If {@link Mailbox#NO_MAILBOX},
+     *     load the account's inbox.
+     * @param messageId ID of the message to load. If {@link Message#NO_MESSAGE},
+     *     do not open a message.
      */
     public abstract void open(long accountId, long mailboxId, long messageId);
 

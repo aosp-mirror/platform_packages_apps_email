@@ -124,7 +124,7 @@ public class MessageFileView extends Activity implements MessageViewFragmentBase
     @Override
     public boolean onUrlInMessageClicked(String url) {
         // EML files don't have the "owner" account, so use the default account as the sender.
-        return ActivityHelper.openUrlInMessage(this, url, Account.PSEUDO_ACCOUNT_ID_NONE);
+        return ActivityHelper.openUrlInMessage(this, url, Account.NO_ACCOUNT);
     }
 
     @Override
