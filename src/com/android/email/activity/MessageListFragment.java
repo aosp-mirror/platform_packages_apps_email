@@ -247,7 +247,7 @@ public class MessageListFragment extends ListFragment
      */
     public static MessageListFragment newInstance(long accountId, long mailboxId) {
         // sanity check
-        if ((accountId == Account.PSEUDO_ACCOUNT_ID_NONE) || (mailboxId == Mailbox.NO_MAILBOX)) {
+        if ((accountId == Account.NO_ACCOUNT) || (mailboxId == Mailbox.NO_MAILBOX)) {
             throw new IllegalArgumentException();
         }
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {

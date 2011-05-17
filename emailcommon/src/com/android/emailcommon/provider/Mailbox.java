@@ -126,8 +126,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     // Push-Hold indicates an EAS push or ping Mailbox shouldn't sync just yet
     public static final int CHECK_INTERVAL_PUSH_HOLD = -4;
 
-    // Sentinels for PARENT_KEY
-    public static final long PARENT_KEY_NONE = -1L;
+    // Sentinel for PARENT_KEY.  Use NO_MAILBOX for toplevel mailboxes (i.e. no parents).
     public static final long PARENT_KEY_UNINITIALIZED = 0L;
 
     private static final String WHERE_TYPE_AND_ACCOUNT_KEY =

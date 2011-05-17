@@ -91,11 +91,11 @@ public class NotificationController {
     private final HashMap<Long, MessageData> mNotificationMap;
     private ContentObserver mAccountObserver;
     /**
-     * Suspend notifications for this account. If {@link Account#PSEUDO_ACCOUNT_ID_NONE}, no
+     * Suspend notifications for this account. If {@link Account#NO_ACCOUNT}, no
      * account notifications are suspended. If {@link Account#ACCOUNT_ID_COMBINED_VIEW},
      * notifications for all accounts are suspended.
      */
-    private long mSuspendAccountId = Account.PSEUDO_ACCOUNT_ID_NONE;
+    private long mSuspendAccountId = Account.NO_ACCOUNT;
 
     /** Constructor */
     @VisibleForTesting
@@ -244,11 +244,11 @@ public class NotificationController {
      *              suspended. If {@code suspend} is {@code false}, the account ID is ignored.
      */
     public void suspendMessageNotification(boolean suspend, long accountId) {
-        if (mSuspendAccountId != Account.PSEUDO_ACCOUNT_ID_NONE) {
+        if (mSuspendAccountId != Account.NO_ACCOUNT) {
             // we're already suspending an account; un-suspend it
-            mSuspendAccountId = Account.PSEUDO_ACCOUNT_ID_NONE;
+            mSuspendAccountId = Account.NO_ACCOUNT;
         }
-        if (suspend && accountId != Account.PSEUDO_ACCOUNT_ID_NONE && accountId > 0L) {
+        if (suspend && accountId != Account.NO_ACCOUNT && accountId > 0L) {
             mSuspendAccountId = accountId;
             if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
                 // Only go onto the notification handler if we really, absolutely need to

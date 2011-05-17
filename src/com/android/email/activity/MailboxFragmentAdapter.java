@@ -221,7 +221,7 @@ import android.widget.TextView;
 
         MailboxFragmentLoader(Context context, long accountId, long parentKey) {
             super(context, Mailbox.CONTENT_URI,
-                    (parentKey != Mailbox.PARENT_KEY_NONE)
+                    (parentKey != Mailbox.NO_MAILBOX)
                             ? MailboxesAdapter.SUBMAILBOX_PROJECTION
                             : MailboxesAdapter.PROJECTION,
                     MAILBOX_SELECTION_WITH_PARENT,
@@ -244,7 +244,7 @@ import android.widget.TextView;
             final Cursor childMailboxCursor = super.loadInBackground();
 
             // If we're not showing the top level mailboxes, add the "parent" mailbox.
-            if (mParentKey != Mailbox.PARENT_KEY_NONE) {
+            if (mParentKey != Mailbox.NO_MAILBOX) {
                 final Cursor parentCursor = getContext().getContentResolver().query(
                         Mailbox.CONTENT_URI, CURMAILBOX_PROJECTION, MAILBOX_SELECTION,
                         new String[] { Long.toString(mAccountId), Long.toString(mParentKey) },

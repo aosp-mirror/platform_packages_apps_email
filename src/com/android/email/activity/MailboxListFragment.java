@@ -216,7 +216,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      *     to open the root.
      */
     public static MailboxListFragment newInstance(long accountId, long parentMailboxId) {
-        if (accountId == Account.PSEUDO_ACCOUNT_ID_NONE) {
+        if (accountId == Account.NO_ACCOUNT) {
             throw new IllegalArgumentException();
         }
         final MailboxListFragment instance = new MailboxListFragment();

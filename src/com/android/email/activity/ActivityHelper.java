@@ -55,7 +55,7 @@ public final class ActivityHelper {
      * @param url URL to open
      * @param senderAccountId if the URL is mailto:, we use this account as the sender.
      *        TODO When MessageCompose implements the account selector, this won't be necessary.
-     *        Pass {@link Account#PSEUDO_ACCOUNT_ID_NONE} to use the default account.
+     *        Pass {@link Account#NO_ACCOUNT} to use the default account.
      * @return true if the URI has successfully been opened.
      */
     public static boolean openUrlInMessage(Activity activity, String url, long senderAccountId) {

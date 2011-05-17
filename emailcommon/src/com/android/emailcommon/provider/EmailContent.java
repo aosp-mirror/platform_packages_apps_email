@@ -724,6 +724,9 @@ public abstract class EmailContent {
         public static final int FLAG_REPLIED_TO = 1 << 18;
         public static final int FLAG_FORWARDED = 1 << 19;
 
+        /** a pseudo ID for "no message". */
+        public static final long NO_MESSAGE = -1L;
+
         public Message() {
             mBaseUri = CONTENT_URI;
         }
@@ -1035,7 +1038,7 @@ public abstract class EmailContent {
          *
          * <em>IMPORTANT</em>: This must never be stored to the database.
          */
-        public static final long PSEUDO_ACCOUNT_ID_NONE = -1L;
+        public static final long NO_ACCOUNT = -1L;
 
         // Whether or not the user has asked for notifications of new mail in this account
         public final static int FLAGS_NOTIFY_NEW_MAIL = 1<<0;

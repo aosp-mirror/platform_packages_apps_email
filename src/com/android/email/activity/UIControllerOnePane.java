@@ -19,6 +19,8 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
@@ -54,9 +56,9 @@ class UIControllerOnePane extends UIControllerBase {
      * Don't use them directly; use the accessors instead, as we might want to get them from the
      * topmost fragment in the future.
      */
-    private long mCurrentAccountId = NO_ACCOUNT;
-    private long mCurrentMailboxId = NO_MAILBOX;
-    private long mCurrentMessageId = NO_MESSAGE;
+    private long mCurrentAccountId = Account.NO_ACCOUNT;
+    private long mCurrentMailboxId = Mailbox.NO_MAILBOX;
+    private long mCurrentMessageId = Message.NO_MESSAGE;
 
     private MessageCommandButtonView mMessageCommandButtons;
 
@@ -74,7 +76,7 @@ class UIControllerOnePane extends UIControllerBase {
         @Override
         public void onMailboxSelected(
                 long accountId, long mailboxId, boolean navigate, boolean dragDrop) {
-            open(accountId, mailboxId, NO_MESSAGE);
+            open(accountId, mailboxId, Message.NO_MESSAGE);
         }
     };
 
@@ -99,7 +101,7 @@ class UIControllerOnePane extends UIControllerBase {
 
         @Override
         public void onMailboxNotFound() {
-            open(getUIAccountId(), NO_MAILBOX, NO_MESSAGE);
+            open(getUIAccountId(), Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
         }
 
         @Override
@@ -257,9 +259,9 @@ class UIControllerOnePane extends UIControllerBase {
     @Override
     public void restoreInstanceState(Bundle savedInstanceState) {
         super.restoreInstanceState(savedInstanceState);
-        mCurrentAccountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, NO_ACCOUNT);
-        mCurrentMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, NO_MAILBOX);
-        mCurrentMessageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, NO_MESSAGE);
+        mCurrentAccountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, Account.NO_ACCOUNT);
+        mCurrentMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, Mailbox.NO_MAILBOX);
+        mCurrentMessageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, Message.NO_MESSAGE);
     }
 
     @Override
@@ -310,24 +312,24 @@ class UIControllerOnePane extends UIControllerBase {
     }
 
     private boolean isMailboxListVisible() {
-        return (getMailboxId() == NO_MAILBOX);
+        return (getMailboxId() == Mailbox.NO_MAILBOX);
     }
 
     private boolean isMessageListVisible() {
-        return (getMailboxId() != NO_MAILBOX) && (getMessageId() == NO_MESSAGE);
+        return (getMailboxId() != Mailbox.NO_MAILBOX) && (getMessageId() == Message.NO_MESSAGE);
     }
 
     private boolean isMessageViewVisible() {
-        return (getMailboxId() != NO_MAILBOX) && (getMessageId() != NO_MESSAGE);
+        return (getMailboxId() != Mailbox.NO_MAILBOX) && (getMessageId() != Message.NO_MESSAGE);
     }
 
     @Override
     public boolean onBackPressed(boolean isSystemBackKey) {
         if (isMessageViewVisible()) {
-            open(getUIAccountId(), getMailboxId(), NO_MESSAGE);
+            open(getUIAccountId(), getMailboxId(), Message.NO_MESSAGE);
             return true;
         } else if (isMessageListVisible()) {
-            open(getUIAccountId(), NO_MAILBOX, NO_MESSAGE);
+            open(getUIAccountId(), Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
             return true;
         } else {
             // STOPSHIP Remove this and return false.  This is so that the app can be closed
@@ -355,7 +357,7 @@ class UIControllerOnePane extends UIControllerBase {
 
     @Override
     public void openAccount(long accountId) {
-        open(accountId, NO_MAILBOX, NO_MESSAGE);
+        open(accountId, Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
     }
 
     @Override
@@ -364,7 +366,7 @@ class UIControllerOnePane extends UIControllerBase {
             Log.d(Logging.LOG_TAG, this + " open accountId=" + accountId
                     + " mailboxId=" + mailboxId + " messageId=" + messageId);
         }
-        if (accountId == NO_ACCOUNT) {
+        if (accountId == Account.NO_ACCOUNT) {
             throw new IllegalArgumentException();
         }
 
@@ -383,16 +385,16 @@ class UIControllerOnePane extends UIControllerBase {
         final FragmentManager fm = mActivity.getFragmentManager();
         final FragmentTransaction ft = fm.beginTransaction();
 
-        if (messageId != NO_MESSAGE) {
+        if (messageId != Message.NO_MESSAGE) {
             ft.replace(R.id.fragment_placeholder, MessageViewFragment.newInstance(messageId));
 
-        } else if (mailboxId != NO_MAILBOX) {
+        } else if (mailboxId != Mailbox.NO_MAILBOX) {
             ft.replace(R.id.fragment_placeholder, MessageListFragment.newInstance(
                     accountId, mailboxId));
 
         } else {
             ft.replace(R.id.fragment_placeholder,
-                    MailboxListFragment.newInstance(accountId, Mailbox.PARENT_KEY_NONE));
+                    MailboxListFragment.newInstance(accountId, Mailbox.NO_MAILBOX));
         }
 
         mCurrentAccountId = accountId;
@@ -411,7 +413,7 @@ class UIControllerOnePane extends UIControllerBase {
     public long getMailboxSettingsMailboxId() {
         // Mailbox settings is still experimental, and doesn't have to work on the phone.
         Utility.showToast(mActivity, "STOPSHIP: Mailbox settings not supported on 1 pane");
-        return -1;
+        return Mailbox.NO_MAILBOX;
     }
 
     /*
@@ -421,7 +423,7 @@ class UIControllerOnePane extends UIControllerBase {
     public long getSearchMailboxId() {
         // Search is still experimental, and doesn't have to work on the phone.
         Utility.showToast(mActivity, "STOPSHIP: Search not supported on 1 pane");
-        return -1;
+        return Mailbox.NO_MAILBOX;
     }
 
     private class CommandButtonCallback implements MessageCommandButtonView.Callback {
