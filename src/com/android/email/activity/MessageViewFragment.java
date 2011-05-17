@@ -41,8 +41,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 
-import java.security.InvalidParameterException;
-
 /**
  * A {@link MessageViewFragmentBase} subclass for regular email messages.  (regular as in "not eml
  * files").
@@ -139,7 +137,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
      */
     public static MessageViewFragment newInstance(long messageId) {
         if (messageId == -1) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         final MessageViewFragment instance = new MessageViewFragment();
         final Bundle args = new Bundle();

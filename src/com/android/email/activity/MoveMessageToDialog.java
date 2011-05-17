@@ -39,8 +39,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
-import java.security.InvalidParameterException;
-
 /**
  * "Move (messages) to" dialog.
  *
@@ -79,7 +77,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     public static <T extends Fragment & Callback> MoveMessageToDialog newInstance(long[] messageIds,
             T callbackFragment) {
         if (messageIds.length == 0) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         if (callbackFragment == null) {
             throw new IllegalArgumentException(); // fail fast

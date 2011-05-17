@@ -21,7 +21,6 @@ import com.android.emailcommon.Logging;
 import android.os.Handler;
 import android.util.Log;
 
-import java.security.InvalidParameterException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -84,7 +83,7 @@ public class Throttle {
     /* package */ Throttle(String name, Runnable callback, Handler handler,int minTimeout,
             int maxTimeout, Clock clock, Timer timer) {
         if (maxTimeout < minTimeout) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         mName = name;
         mCallback = callback;

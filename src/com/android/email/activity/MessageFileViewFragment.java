@@ -27,8 +27,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.security.InvalidParameterException;
-
 /**
  * A {@link MessageViewFragmentBase} subclass for file based messages. (aka EML files)
  */
@@ -84,7 +82,7 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
             throw new IllegalStateException();
         }
         if (fileEmailUri == null) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         mFileEmailUri = fileEmailUri;
     }

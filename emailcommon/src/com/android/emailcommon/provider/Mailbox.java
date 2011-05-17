@@ -31,8 +31,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import java.security.InvalidParameterException;
-
 public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns, Parcelable {
     public static final String TABLE_NAME = "Mailbox";
     @SuppressWarnings("hiding")
@@ -407,7 +405,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
      */
     public static boolean canMoveFrom(Context context, long mailboxId) {
         if (mailboxId < 0) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         Uri url = ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId);
         int type = Utility.getFirstRowInt(context, url, MAILBOX_TYPE_PROJECTION,

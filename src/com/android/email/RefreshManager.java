@@ -24,7 +24,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -194,14 +193,14 @@ public class RefreshManager {
 
     public void registerListener(Listener listener) {
         if (listener == null) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         mListeners.add(listener);
     }
 
     public void unregisterListener(Listener listener) {
         if (listener == null) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         mListeners.remove(listener);
     }

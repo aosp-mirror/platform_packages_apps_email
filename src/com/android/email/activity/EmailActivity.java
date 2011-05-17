@@ -50,7 +50,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
 /**
@@ -113,7 +112,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     public static Intent createOpenMailboxIntent(Activity fromActivity, long accountId,
             long mailboxId) {
         if (accountId == -1 || mailboxId == -1) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
@@ -132,7 +131,7 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     public static Intent createOpenMessageIntent(Activity fromActivity, long accountId,
             long mailboxId, long messageId) {
         if (accountId == -1 || mailboxId == -1 || messageId == -1) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);

@@ -58,7 +58,6 @@ import android.util.Log;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -797,7 +796,7 @@ public class Controller {
     public EmailAsyncTask<Void, Void, Void> moveMessages(final long[] messageIds,
             final long newMailboxId) {
         if (messageIds == null || messageIds.length == 0) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         return EmailAsyncTask.runAsyncParallel(new Runnable() {
             public void run() {

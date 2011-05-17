@@ -69,7 +69,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -249,17 +248,17 @@ public class MessageListFragment extends ListFragment
     public static MessageListFragment newInstance(long accountId, long mailboxId) {
         // sanity check
         if ((accountId == Account.PSEUDO_ACCOUNT_ID_NONE) || (mailboxId == Mailbox.NO_MAILBOX)) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
             // must be a combined mailbox.
             if (mailboxId >= 0) {
-                throw new InvalidParameterException();
+                throw new IllegalArgumentException();
             }
         } else {
             // must be a regular mailbox.
             if (mailboxId <= 0) {
-                throw new InvalidParameterException();
+                throw new IllegalArgumentException();
             }
         }
         final MessageListFragment instance = new MessageListFragment();

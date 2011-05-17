@@ -29,14 +29,12 @@ import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.security.InvalidParameterException;
 import java.util.Set;
 import java.util.Stack;
 
@@ -679,7 +677,7 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
         preFragmentTransactionCheck();
         if (accountId == NO_ACCOUNT) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
 
         // TODO Check if the current fragment has been initialized with the same parameters, and
@@ -734,7 +732,7 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
         preFragmentTransactionCheck();
         if (mailboxId == 0 || mailboxId == -1) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
 
         // TODO Check if the current fragment has been initialized with the same parameters, and
@@ -772,7 +770,7 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
         preFragmentTransactionCheck();
         if (messageId == NO_MESSAGE) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
 
         // TODO Check if the current fragment has been initialized with the same parameters, and

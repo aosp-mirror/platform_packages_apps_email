@@ -23,8 +23,6 @@ import com.android.emailcommon.provider.Mailbox;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 
-import java.security.InvalidParameterException;
-
 
 /**
  * Loader to load {@link Mailbox} and {@link Account}.
@@ -55,7 +53,7 @@ public class MailboxAccountLoader extends AsyncTaskLoader<MailboxAccountLoader.R
     public MailboxAccountLoader(Context context, long mailboxId) {
         super(context);
         if (mailboxId == -1) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         mContext = context;
         mMailboxId = mailboxId;

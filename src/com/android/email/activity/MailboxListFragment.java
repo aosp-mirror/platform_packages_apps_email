@@ -52,7 +52,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import java.security.InvalidParameterException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -218,7 +217,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      */
     public static MailboxListFragment newInstance(long accountId, long parentMailboxId) {
         if (accountId == Account.PSEUDO_ACCOUNT_ID_NONE) {
-            throw new InvalidParameterException();
+            throw new IllegalArgumentException();
         }
         final MailboxListFragment instance = new MailboxListFragment();
         final Bundle args = new Bundle();
