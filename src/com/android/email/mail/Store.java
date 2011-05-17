@@ -31,7 +31,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -64,6 +63,7 @@ public abstract class Store {
      * should be returned on FetchProfile.Item.BODY_SANE requests.
      */
     public static final int FETCH_BODY_SANE_SUGGESTED_SIZE = (50 * 1024);
+
     @VisibleForTesting
     static final HashMap<String, Store> sStores = new HashMap<String, Store>();
 
@@ -162,36 +162,25 @@ public abstract class Store {
         }
     }
 
-    /**
-     * Gets a unique key for the given account.
-     * @throws MessagingException If the account is not setup properly (i.e. there is no address
-     * or login)
-     */
     protected static String getStoreKey(Context context, Account account)
             throws MessagingException {
-        final StringBuffer key = new StringBuffer();
-        final HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
-        if (recvAuth.mAddress == null) {
-            throw new MessagingException("Cannot find store for account " + account.mDisplayName);
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
+        String key = recvAuth.getStoreUri();
+        if (key == null) {
+            throw new MessagingException("Could not find store for account: " +
+                    account.mDisplayName);
         }
-        final String address = recvAuth.mAddress.trim();
-        if (TextUtils.isEmpty(address)) {
-            throw new MessagingException("Cannot find store for account " + account.mDisplayName);
-        }
-        key.append(address);
-        if (recvAuth.mLogin != null) {
-            key.append(recvAuth.mLogin.trim());
-        }
-        return key.toString();
+        return key;
     }
 
     /**
      * Get an instance of a mail store for the given account. The account must be valid (i.e. has
      * at least an incoming server name).
      *
-     * Username, password, and host are as expected.
-     * Resource is protocol specific.  For example, IMAP uses it as the path prefix.  EAS uses it
-     * as the domain.
+     * NOTE: The internal algorithm used to find a cached store depends upon the URI of the
+     * account's HostAuth object. If this ever changes (e.g. such as the user updating the
+     * host name or port), we will leak entries. This should not be typical, so, it is not
+     * a critical problem. However, it is something we should consider fixing.
      *
      * @param account The account of the store.
      * @return an initialized store of the appropriate class
@@ -233,10 +222,9 @@ public abstract class Store {
      *
      * @throws MessagingException If the store cannot be removed or if the account is invalid.
      */
-    public synchronized static void removeInstance(Account account, Context context)
+    public synchronized static Store removeInstance(Account account, Context context)
             throws MessagingException {
-        final String storeKey = getStoreKey(context, account);
-        sStores.remove(storeKey);
+        return sStores.remove(account.mId);
     }
 
     /**

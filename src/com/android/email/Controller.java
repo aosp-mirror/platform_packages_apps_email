@@ -1030,10 +1030,11 @@ public class Controller {
             }
 
             try {
-                // Delete Remote store at first.
-                Store.getInstance(account, context, null).delete();
-                // Remove the Store instance from cache.
-                Store.removeInstance(account, context);
+                // Remove the store instance from cache
+                Store oldStore = Store.removeInstance(account, context);
+                if (oldStore != null) {
+                    oldStore.delete();   // If the store was removed, delete it
+                }
             } catch (MessagingException e) {
                 Log.w(Logging.LOG_TAG, "Failed to delete store", e);
             }
