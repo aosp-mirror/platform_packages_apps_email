@@ -16,12 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
-    <skip />
-    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
-    <skip />
+    <string name="permission_read_attachment_label" msgid="618768999416116023">"E-mailbijlagen lezen"</string>
+    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"Staat deze app toe uw e-mailbijlagen te lezen."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Gegevens e-mailprovider openen"</string>
-    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"Hiermee geeft u deze toepassing toegang tot uw e-maildatabase, inclusief ontvangen berichten, verzonden berichten, gebruikersnamen en wachtwoorden."</string>
+    <string name="permission_access_provider_desc" msgid="2549843731779487336">"Geeft deze app toegang tot uw e-maildatabase, waaronder ontvangen berichten, verzonden berichten, gebruikersnamen en wachtwoorden."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Opstellen"</string>
     <string name="debug_title" msgid="5175710493691536719">"Foutopsporing"</string>
@@ -37,35 +35,24 @@
     <string name="done_action" msgid="7497990549515580249">"Gereed"</string>
     <string name="discard_action" msgid="6532206074859505968">"Weggooien"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Concept opslaan"</string>
-    <string name="read_unread_action" msgid="4721446664849165077">"Gelezen/ongelezen"</string>
     <string name="read_action" msgid="4701484794504781686">"Markeren als gelezen"</string>
     <string name="unread_action" msgid="6280399049357552826">"Markeren als ongelezen"</string>
-    <string name="favorite_action" msgid="2911296685862420689">"Favoriet"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Ster toevoegen"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Ster verwijderen"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Vernieuwen"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Account toevoegen"</string>
-    <string name="deselect_all_action" msgid="253663239459688238">"Selectie van alle items ongedaan maken"</string>
     <string name="compose_action" msgid="4045702519637388045">"Opstellen"</string>
     <string name="search_action" msgid="6325101454876682308">"Zoeken"</string>
-    <string name="open_action" msgid="936766723989190816">"Open"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Accountinstellingen"</string>
-    <string name="remove_account_action" msgid="3789169090601376209">"Account verwijderen"</string>
-    <string name="folders_action" msgid="7502431531355227666">"Mappen"</string>
-    <string name="accounts_action" msgid="901105887272231493">"Accounts"</string>
-    <string name="mark_as_read_action" msgid="5031651846998842419">"Markeren als gelezen"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Markeren als ongelezen"</string>
     <string name="move_action" msgid="3059189775933985898">"Verpl."</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
-    <string name="add_attachment_action" msgid="2696013743130573897">"Bijlage toevoegen"</string>
     <string name="close_action" msgid="533058985745238100">"Sluiten"</string>
-    <string name="dump_settings_action" msgid="4478192525236169829">"Dumpinstellingen"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Alle berichten verzenden"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Bijlage kiezen"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Verplaatsen naar"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Berichten laden..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Verbindingsfout"</string>
-    <string name="notification_new_title" msgid="2200257910380529139">"Nieuwe e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Onverwachte fout bij laden van berichttekst. Bericht is mogelijk te groot om weer te geven."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Bericht verplaatsen"</item>
@@ -95,13 +82,10 @@
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Verzonden"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Ongewenst"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versie: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Accounts"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Postvak IN"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Met ster"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Concepten"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Postvak UIT"</string>
-    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Druk lang op een account om het te vernieuwen"</string>
-    <string name="mailbox_list_title" msgid="8299608543467211089">"Mailbox"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Gecombineerde weergave"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Meer berichten laden"</string>
   <plurals name="message_view_selected_message_count">
@@ -168,10 +152,14 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Applicatie-instellingen"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Kan bijlage niet openen."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Aangezien dit type bijlage schadelijke software kan bevatten, kunt u de bijlage niet opslaan of openen."</string>
+    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <skip />
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Deze bijlage is te groot om te downloaden via een mobiel netwerk. U kunt de bijlage downloaden wanneer u weer verbinding maakt met een Wi-Fi-netwerk."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Er is geen applicatie geïnstalleerd waarmee deze bijlage kan worden geopend. Probeer een geschikte applicatie te downloaden via Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Deze bijlage is een applicatie. U moet het selectievakje \'Onbekende bronnen\' in \'Instellingen\', onder \'Applicaties\' aanvinken voordat u de applicatie kunt installeren."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Applicaties kunnen niet rechtstreeks vanuit E-mail worden geïnstalleerd. Sla de applicatie eerst op en installeer deze via de applicatie \'Downloads\'."</string>
+    <!-- no translation found for attachment_not_found (2593390852574725378) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"Fout tijdens decoderen van bericht."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g> is geopend"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Ber. weggooien"</string>
@@ -292,14 +280,13 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Bijlagen automatisch downloaden indien verbonden met Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Instellen is niet voltooid"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Hoeveelheid om te synchroniseren"</string>
-    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
-    <skip />
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatisch"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Eén dag"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Drie dagen"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Eén week"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Twee weken"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Eén maand"</string>
-    <!-- outdated translation 5383858972681926166 -->     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alle e-mail"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alles"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Gebruikersnaam of wachtwoord is onjuist."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Gebruikersnaam of wachtwoord is onjuist."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Kan geen veilige verbinding met de server tot stand brengen."</string>
@@ -386,7 +373,6 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultaat van <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultaten van <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Eerste <xliff:g id="RESULTS">%1$d</xliff:g> resultaten van <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"E-mailvoorkeuren"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Toepassingsvoorkeuren"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Automatisch doorgaan"</string>

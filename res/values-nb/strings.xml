@@ -16,12 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
-    <skip />
-    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
-    <skip />
+    <string name="permission_read_attachment_label" msgid="618768999416116023">"Les e-postvedlegg"</string>
+    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"Gir applikasjonen tilgang til å lese e-postvedleggene dine."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"få tilgang til epostleverandørdata"</string>
-    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"Gir programmet tilgang til e-postdatabasen, herunder mottatte og sendte meldinger samt brukernavn og passord."</string>
+    <string name="permission_access_provider_desc" msgid="2549843731779487336">"Gir applikasjonen tilgang til e-postdatabasen din, herunder mottatte og sendte meldinger samt brukernavn og passord."</string>
     <string name="app_name" msgid="5815426892327290362">"E-post"</string>
     <string name="compose_title" msgid="427986915662706899">"Skriv e-post"</string>
     <string name="debug_title" msgid="5175710493691536719">"Debug"</string>
@@ -37,35 +35,24 @@
     <string name="done_action" msgid="7497990549515580249">"Ferdig"</string>
     <string name="discard_action" msgid="6532206074859505968">"Forkast"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Lagre utkast"</string>
-    <string name="read_unread_action" msgid="4721446664849165077">"Lest/ikke lest"</string>
     <string name="read_action" msgid="4701484794504781686">"Merk som lest"</string>
     <string name="unread_action" msgid="6280399049357552826">"Merk som ulest"</string>
-    <string name="favorite_action" msgid="2911296685862420689">"Favoritt"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Legg til stjerne"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Fjern stjerne"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Oppdater"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Legg til konto"</string>
-    <string name="deselect_all_action" msgid="253663239459688238">"Avmerk alle"</string>
     <string name="compose_action" msgid="4045702519637388045">"Skriv e-post"</string>
     <string name="search_action" msgid="6325101454876682308">"Søk"</string>
-    <string name="open_action" msgid="936766723989190816">"Åpne"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Kontoinnstillinger"</string>
-    <string name="remove_account_action" msgid="3789169090601376209">"Fjern konto"</string>
-    <string name="folders_action" msgid="7502431531355227666">"Mapper"</string>
-    <string name="accounts_action" msgid="901105887272231493">"Kontoer"</string>
-    <string name="mark_as_read_action" msgid="5031651846998842419">"Merk som lest"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Merk som ulest"</string>
     <string name="move_action" msgid="3059189775933985898">"Flytt"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Kopi/blindkopi"</string>
-    <string name="add_attachment_action" msgid="2696013743130573897">"Legg til vedlegg"</string>
     <string name="close_action" msgid="533058985745238100">"Lukk"</string>
-    <string name="dump_settings_action" msgid="4478192525236169829">"Dump innstillinger"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Send alle meldinger"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Velg vedlegg"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Flytt til"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Laster inn meldinger ..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Feil ved tilkobling"</string>
-    <string name="notification_new_title" msgid="2200257910380529139">"Ny e-post"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Uventet feil under lastingen av meldingstekst. Det kan være meldingen er for stor."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Flytt melding"</item>
@@ -95,13 +82,10 @@
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Sendt"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Nettsøppel"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versjon: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Kontoer"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Innboks"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Stjernemerket"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Utkast"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Utboks"</string>
-    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Trykk på og hold inne en konto for å oppdatere den"</string>
-    <string name="mailbox_list_title" msgid="8299608543467211089">"Postboks"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Kombinert visning"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Hent flere meldinger"</string>
   <plurals name="message_view_selected_message_count">
@@ -168,10 +152,14 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Appinnstillinger"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Kan ikke åpne vedlegget."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Denne typen vedlegg kan inneholde skadelig programvare, og du kan derfor ikke lagre eller åpne det."</string>
+    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <skip />
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Vedlegget er for stort for nedlasting over mobilnettverk. Du kan laste det ned neste gang du er koblet til et Wi-Fi-nettverk."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Ingen apper kan åpne dette vedlegget. Prøv å laste ned riktig app fra Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Vedlegget er en app. Du må kontrollere Ukjente kilder under Apper i Innstillinger før du installerer det."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Apper kan ikke installeres direkte fra e-post. Lagre appen først, og installer den deretter ved å bruke appen Nedlastinger."</string>
+    <!-- no translation found for attachment_not_found (2593390852574725378) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"Feil under dekoding av melding."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Viser <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Forkast melding"</string>
@@ -292,14 +280,13 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Last ned vedlegg automatisk når tilkoblet til trådløst nettverk"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Kunne ikke fullføre oppsettet"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Mengde som skal synkroniseres"</string>
-    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
-    <skip />
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatisk"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Én dag"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Tre dager"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Én uke"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"To uker"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Én måned"</string>
-    <!-- outdated translation 5383858972681926166 -->     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"All e-post"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Alle"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Feil brukernavn eller passord."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Feil brukernavn eller passord."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Kan ikke åpne en sikker tilkobling til tjeneren."</string>
@@ -386,7 +373,6 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Første <xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"Innstillinger for e-post"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Innstillinger for program"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Autoflytting"</string>

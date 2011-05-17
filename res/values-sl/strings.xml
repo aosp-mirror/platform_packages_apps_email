@@ -16,12 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
-    <skip />
-    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
-    <skip />
+    <string name="permission_read_attachment_label" msgid="618768999416116023">"Branje e-poštnih prilog"</string>
+    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"Dovoli temu programu branje e-poštnih prilog."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Dostop do podatkov e-poštnega ponudnika"</string>
-    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"Tej aplikaciji omogoči dostop do vaše e-poštne podatkovne zbirke, vključno s prejetimi in poslanimi sporočili, uporabniškimi imeni in gesli."</string>
+    <string name="permission_access_provider_desc" msgid="2549843731779487336">"Dovoli programu dostop do e-poštne zbirke podatkov, vključno s prejetimi in poslanimi sporočili, uporabniškimi imeni in gesli."</string>
     <string name="app_name" msgid="5815426892327290362">"E-pošta"</string>
     <string name="compose_title" msgid="427986915662706899">"Novo"</string>
     <string name="debug_title" msgid="5175710493691536719">"Odpravljanje napak"</string>
@@ -37,35 +35,24 @@
     <string name="done_action" msgid="7497990549515580249">"Dokončano"</string>
     <string name="discard_action" msgid="6532206074859505968">"Zavrzi"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Shrani osnutek"</string>
-    <string name="read_unread_action" msgid="4721446664849165077">"Prebrano/neprebrano"</string>
     <string name="read_action" msgid="4701484794504781686">"Označi kot prebrano"</string>
     <string name="unread_action" msgid="6280399049357552826">"Označi kot neprebrano"</string>
-    <string name="favorite_action" msgid="2911296685862420689">"Priljubljen"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Dodaj zvezdico"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Odstrani zvezdico"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Osveži"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Dodaj račun"</string>
-    <string name="deselect_all_action" msgid="253663239459688238">"Prekliči celoten izbor"</string>
     <string name="compose_action" msgid="4045702519637388045">"Novo sporočilo"</string>
     <string name="search_action" msgid="6325101454876682308">"Iskanje"</string>
-    <string name="open_action" msgid="936766723989190816">"Odpri"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Nastavitve računa"</string>
-    <string name="remove_account_action" msgid="3789169090601376209">"Odstrani račun"</string>
-    <string name="folders_action" msgid="7502431531355227666">"Mape"</string>
-    <string name="accounts_action" msgid="901105887272231493">"Računi"</string>
-    <string name="mark_as_read_action" msgid="5031651846998842419">"Označi kot prebrano"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Označi kot neprebrano"</string>
     <string name="move_action" msgid="3059189775933985898">"Premakni"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Kp/Skp"</string>
-    <string name="add_attachment_action" msgid="2696013743130573897">"Dodaj prilogo"</string>
     <string name="close_action" msgid="533058985745238100">"Zapri"</string>
-    <string name="dump_settings_action" msgid="4478192525236169829">"Nastavitve izvoza ob zrušitvi"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Pošlji vsa sporočila"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Izberite prilogo"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Premakni v"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Nalaganje sporočil ..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Napaka povezave"</string>
-    <string name="notification_new_title" msgid="2200257910380529139">"Nova e-pošta"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Nepričakovana napaka pri nalaganju sporočila. Sporočilo je morda predolgo za prikaz."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Premikanje sporočil"</item>
@@ -95,13 +82,10 @@
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Poslano"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Vsiljena pošta"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Različica: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Računi"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Prejeto"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Z zvezdico"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Osnutki"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Odpošlji"</string>
-    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Za osvežitev pritisnite in pridržite račun"</string>
-    <string name="mailbox_list_title" msgid="8299608543467211089">"Nabiralnik"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Kombiniran pogled"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Naloži več sporočil"</string>
   <plurals name="message_view_selected_message_count">
@@ -168,10 +152,14 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Programske nastavitve"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Priloge ni mogoče odpreti."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Ker lahko tovrstne priloge vsebujejo zlonamerno programsko opremo, je ne morete shraniti ali odpreti."</string>
+    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <skip />
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Ta priloga je prevelika, da bi jo bilo mogoče prenesti prek mobilnega omrežja. Lahko jo prenesete naslednjič, ko se povežete v omrežje Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Ni nameščenih programov, s katerimi bi lahko odprli to prilogo. Poskusite prenesti ustrezen program iz tržnice Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Ta priloga je program. Namestite ga lahko šele, ko v razdelku »Programi« v nastavitvah potrdite polje »Neznani viri«."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Programov ni mogoče namestiti neposredno iz e-pošte. Program najprej shranite, nato pa namestite s programom Prenosi."</string>
+    <!-- no translation found for attachment_not_found (2593390852574725378) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"Napaka pri dekodiranju sporočila."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Ogledovanje <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Zavrzi sporočilo"</string>
@@ -292,15 +280,13 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Samodejni prenos prilog, ko je na voljo povezava Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Namestitve ni bilo mogoče končati"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Količina za sihnroniziranje"</string>
-    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
-    <skip />
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Samodejno"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"En dan"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Tri dni"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"En teden"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Dva tedna"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"En mesec"</string>
-    <!-- no translation found for account_setup_options_mail_window_all (5372861827683632364) -->
-    <skip />
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Vse"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nepravilno uporabniško ime ali geslo."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nepravilno uporabniško ime ali geslo."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Ni se mogoče varno povezati s strežnikom."</string>
@@ -387,7 +373,6 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> rezultat z <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> rezultatov iz <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Prvih <xliff:g id="RESULTS">%1$d</xliff:g> rezultatov z <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"E-poštne nastavitve"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Nastavitve programa"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Samodejno napredovanje"</string>

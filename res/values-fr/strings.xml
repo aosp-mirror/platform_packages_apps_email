@@ -16,12 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
-    <skip />
-    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
-    <skip />
+    <string name="permission_read_attachment_label" msgid="618768999416116023">"Lire les pièces jointes"</string>
+    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"Permet à cette application de lire les pièces jointes aux e-mails."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Accéder aux données du client de messagerie"</string>
-    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"Autorise l\'application à accéder à la base de données de votre messagerie électronique, y compris aux messages reçus et envoyés, aux noms d\'utilisateur et aux mots de passe."</string>
+    <string name="permission_access_provider_desc" msgid="2549843731779487336">"Permet à cette application d\'accéder à la base de données de votre messagerie électronique, y compris aux messages reçus et envoyés, aux noms d\'utilisateur et aux mots de passe."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
     <string name="compose_title" msgid="427986915662706899">"Nouveau message"</string>
     <string name="debug_title" msgid="5175710493691536719">"Débogage"</string>
@@ -37,35 +35,24 @@
     <string name="done_action" msgid="7497990549515580249">"OK"</string>
     <string name="discard_action" msgid="6532206074859505968">"Supprimer"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Enregistrer"</string>
-    <string name="read_unread_action" msgid="4721446664849165077">"Lus/non lus"</string>
     <string name="read_action" msgid="4701484794504781686">"Marquer comme lu"</string>
     <string name="unread_action" msgid="6280399049357552826">"Marquer comme non lu"</string>
-    <string name="favorite_action" msgid="2911296685862420689">"Favori"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Activer le suivi"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Désactiver le suivi"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Actualiser"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Ajouter un compte"</string>
-    <string name="deselect_all_action" msgid="253663239459688238">"Tout désélectionner"</string>
     <string name="compose_action" msgid="4045702519637388045">"Composer"</string>
     <string name="search_action" msgid="6325101454876682308">"Rechercher"</string>
-    <string name="open_action" msgid="936766723989190816">"Ouvrir"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Paramètres du compte"</string>
-    <string name="remove_account_action" msgid="3789169090601376209">"Supprimer le compte"</string>
-    <string name="folders_action" msgid="7502431531355227666">"Dossiers"</string>
-    <string name="accounts_action" msgid="901105887272231493">"Comptes"</string>
-    <string name="mark_as_read_action" msgid="5031651846998842419">"Marquer comme lu"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marquer comme non lu"</string>
     <string name="move_action" msgid="3059189775933985898">"Déplacer"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Cci"</string>
-    <string name="add_attachment_action" msgid="2696013743130573897">"Ajouter une pièce jointe"</string>
     <string name="close_action" msgid="533058985745238100">"Fermer"</string>
-    <string name="dump_settings_action" msgid="4478192525236169829">"Paramètres d\'image mémoire"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Envoyer tous messages"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Choisir une pièce jointe"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Déplacer vers"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"Chargement des messages..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"Erreur de connexion"</string>
-    <string name="notification_new_title" msgid="2200257910380529139">"Nouvel e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Une erreur inattendue s\'est produite lors du chargement du message. Il se peut que ce dernier soit trop volumineux."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"Déplacer le message"</item>
@@ -95,13 +82,10 @@
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Éléments envoyés"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Spam"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Version : <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Comptes"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Boîte de réception"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Suivis"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Brouillons"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Boîte d\'envoi"</string>
-    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Appuyez de manière prolongée sur un compte pour l\'actualiser."</string>
-    <string name="mailbox_list_title" msgid="8299608543467211089">"Boîtes aux lettres"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Vue combinée"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Charger plus de messages"</string>
   <plurals name="message_view_selected_message_count">
@@ -139,7 +123,7 @@
     <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Charger"</string>
     <string name="message_view_attachment_info_action" msgid="3908148393469626740">"Infos"</string>
     <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Enregistrer"</string>
-    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Enregistrée"</string>
+    <string name="message_view_attachment_saved" msgid="3432810414785232025">"Enregistré"</string>
     <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Arrêter"</string>
     <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"PJ enregistrée sous <xliff:g id="FILENAME">%s</xliff:g>."</string>
     <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Impossible d\'enregistrer la pièce jointe."</string>
@@ -168,10 +152,14 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Paramètres applications"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Impossible d\'ouvrir la pièce jointe."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Ce type de pièce jointe peut contenir des logiciels malveillants. Il vous est donc impossible de l\'enregistrer ni de l\'ouvrir."</string>
+    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <skip />
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Cette pièce jointe est trop volumineuse pour être téléchargée via un réseau pour mobile. Vous pourrez la télécharger lors de votre prochaine connexion à un réseau Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Aucune application installée ne peut ouvrir cette pièce jointe. Téléchargez une application adaptée sur Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Cette pièce jointe est une application. Avant de l\'installer, vous devez cocher la case Sources inconnues dans Paramètres, sous Applications."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Impossible d\'installer les applications directement depuis la messagerie électronique. Enregistrez d\'abord l\'application, puis installez-la à l\'aide de l\'application Téléchargements."</string>
+    <!-- no translation found for attachment_not_found (2593390852574725378) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"Une erreur s\'est produite lors du décodage du message."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Affichage de <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Supprimer message"</string>
@@ -292,14 +280,13 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"Télécharger automatiquement les pièces jointes une fois connecté au Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"Échec de la configuration"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Nombre de messages à synchroniser"</string>
-    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
-    <skip />
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"Automatique"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Un jour"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Trois jours"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Une semaine"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Deux semaines"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Un mois"</string>
-    <!-- outdated translation 5383858972681926166 -->     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tous les messages"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Tous"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Nom d\'utilisateur ou mot de passe incorrect."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nom d\'utilisateur ou mot de passe incorrect."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impossible d\'établir une connexion sécurisée avec le serveur."</string>
@@ -312,7 +299,7 @@
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Impossible d\'établir une connexion avec le serveur en raison d\'une erreur de sécurité."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Impossible d\'établir une connexion avec le serveur."</string>
     <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"L\'adresse de serveur saisie est incorrecte ou le serveur exige une version du protocole non prise en charge par la messagerie électronique."</string>
-    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Vous n\'êtes pas autorisé à synchroniser votre compte avec ce serveur. Veuillez contacter l\'administrateur de votre serveur pour en savoir plus."</string>
+    <string name="account_setup_failed_access_denied" msgid="2571826611383388336">"Vous n\'êtes pas autorisé à synchroniser votre compte avec ce serveur. Veuillez contacter l\'administrateur du serveur pour en savoir plus."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Administration de la sécurité à distance"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Vous devez autoriser le serveur <xliff:g id="SERVER">%s</xliff:g> à contrôler à distance certaines fonctionnalités de sécurité de votre mobile Android. Voulez-vous terminer la configuration de ce compte ?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="6647663405501663019">"Ce serveur nécessite des fonctionnalités de sécurité incompatibles avec votre appareil Android, dont : <xliff:g id="ERROR">%s</xliff:g>"</string>
@@ -386,7 +373,6 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> résultat de <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> résultats de <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="RESULTS">%1$d</xliff:g> premiers résultats de <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"Préférences de messagerie"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Préférences des applications"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Avancer automatiquement"</string>

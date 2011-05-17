@@ -16,12 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
-    <skip />
-    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
-    <skip />
+    <string name="permission_read_attachment_label" msgid="618768999416116023">"خواندن پیوست های ایمیل"</string>
+    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"به این برنامه کاربردی اجازه می دهد پیوست های ایمیل شما را بخواند."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"دسترسی به داده های ارائه دهنده ایمیل"</string>
-    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"به این برنامه کاربردی اجازه می دهد به پایگاه داده ایمیل شما از جمله پیام های دریافتی، ارسالی و رمزهای ورود و نام های کاربری دسترسی پیدا کند."</string>
+    <string name="permission_access_provider_desc" msgid="2549843731779487336">"به این برنامه کاربردی اجازه می دهد به پایگاه داده ایمیل شما دسترسی یابد، از جمله پیام های دریافتی، پیامهای ارسالی، نام های کاربری و رمزهای ورود."</string>
     <string name="app_name" msgid="5815426892327290362">"ایمیل"</string>
     <string name="compose_title" msgid="427986915662706899">"نگاشتن"</string>
     <string name="debug_title" msgid="5175710493691536719">"رفع خطا"</string>
@@ -37,35 +35,24 @@
     <string name="done_action" msgid="7497990549515580249">"انجام شد"</string>
     <string name="discard_action" msgid="6532206074859505968">"صرفنظر"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"ذخیره پیش نویس"</string>
-    <string name="read_unread_action" msgid="4721446664849165077">"خوانده شده/خوانده نشده"</string>
     <string name="read_action" msgid="4701484794504781686">"علامت گذاری بعنوان خوانده شده"</string>
     <string name="unread_action" msgid="6280399049357552826">"علامت گذاری بعنوان خوانده نشده"</string>
-    <string name="favorite_action" msgid="2911296685862420689">"مورد دلخواه"</string>
     <string name="set_star_action" msgid="4660317166196258160">"افزودن ستاره"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"حذف ستاره"</string>
     <string name="refresh_action" msgid="5951383001436708175">"تازه کردن"</string>
     <string name="add_account_action" msgid="8835736309476033727">"افزودن حساب"</string>
-    <string name="deselect_all_action" msgid="253663239459688238">"لغو انتخاب همه"</string>
     <string name="compose_action" msgid="4045702519637388045">"نگاشتن"</string>
     <string name="search_action" msgid="6325101454876682308">"جستجو"</string>
-    <string name="open_action" msgid="936766723989190816">"باز کردن"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"تنظیمات حساب"</string>
-    <string name="remove_account_action" msgid="3789169090601376209">"حذف حساب"</string>
-    <string name="folders_action" msgid="7502431531355227666">"پوشه ها"</string>
-    <string name="accounts_action" msgid="901105887272231493">"حساب ها"</string>
-    <string name="mark_as_read_action" msgid="5031651846998842419">"علامت گذاری بعنوان خوانده شده"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"علامت گذاری بعنوان خوانده نشده"</string>
     <string name="move_action" msgid="3059189775933985898">"انتقال"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ Cc/Bcc"</string>
-    <string name="add_attachment_action" msgid="2696013743130573897">"افزودن پیوست"</string>
     <string name="close_action" msgid="533058985745238100">"بستن"</string>
-    <string name="dump_settings_action" msgid="4478192525236169829">"تنظیمات نسخه برداری"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"ارسال تمام پیام ها"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"انتخاب پیوست"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"انتقال به"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"در حال بارگیری پیام ها..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"خطای اتصال"</string>
-    <string name="notification_new_title" msgid="2200257910380529139">"ایمیل جدید"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"خطای پیش بینی نشده در حین بارگیری متن پیام. پیام ممکن است خیلی بزرگ باشد و نشان داده نشود."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"انتقال پیام"</item>
@@ -95,13 +82,10 @@
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"ارسال شد"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"ناخواسته"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"نسخه: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"حساب ها"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"صندوق ورودی"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"ستاره دار"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"پیش نویس ها"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"صندوق خروجی"</string>
-    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"لطفاً یک حساب را برای تازه کردن به صورت طولانی فشار دهید."</string>
-    <string name="mailbox_list_title" msgid="8299608543467211089">"صندوق پستی"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"نمای مرکب"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"بارگیری پیام های بیشتر"</string>
   <plurals name="message_view_selected_message_count">
@@ -168,10 +152,14 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"تنظیمات برنامه کاربردی"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"پیوست باز نمی شود."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"چون این نوع پیوست ممکن است حاوی بد افزار باشد، نمیتوانید آن را ذخیره یا باز کنید."</string>
+    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <skip />
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"این پیوست برای دانلود از طریق شبکه تلفن همراه خیلی بزرگ است. می توانید دفعه دیگر که به یک شبکه Wi-Fi متصل می شوید، آنرا دانلود کنید."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"هیچ برنامه کاربردی نصب شده ای در دستگاه شما وجود ندارد که بتواند این پیوست را باز کند. یک برنامه مناسب را از Android Market دانلود کنید."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"این پیوست یک برنامه کاربردی است. قبل از نصب آن، باید منابع ناشناس را در تنظیمات، زیر برنامه های کاربردی بررسی کنید."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"برنامه های کاربردی مستقیماً از ایمیل نصب نمی شوند. ابتدا این برنامه کاربردی را ذخیره کنید و سپس با استفاده از برنامه کاربردی دانلودها آن را نصب کنید."</string>
+    <!-- no translation found for attachment_not_found (2593390852574725378) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"خطا در رمزگشایی پیام."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"مشاهده <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"صرفنظر کردن از پیام"</string>
@@ -292,15 +280,13 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"دانلود خودکار پیوست ها هنگام اتصال به Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"تنظیم پایان نیافت"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"مقدار همگام سازی"</string>
-    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
-    <skip />
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"خودکار"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"یک روز"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"سه روز"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"یک هفته"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"دو هفته"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"یک ماه"</string>
-    <!-- no translation found for account_setup_options_mail_window_all (5372861827683632364) -->
-    <skip />
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"همه"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"نام کاربری یا رمز ورود نادرست است."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"نام کاربری یا رمز ورود نادرست است. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"اتصال امن به سرور امکان پذیر نیست."</string>
@@ -387,7 +373,6 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> نتیجه از <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> نتیجه از <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="RESULTS">%1$d</xliff:g> نتیجه اول از <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"موارد برگزیده ایمیل"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"موارد برگزیده برنامه کاربردی"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"پیشرفته خودکار"</string>
