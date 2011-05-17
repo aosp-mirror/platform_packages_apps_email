@@ -44,6 +44,8 @@ public class StoreTests extends AndroidTestCase {
 
         // Make sure to set the host auth; otherwise we create entries in the hostauth db
         testAccount.mHostAuthRecv = testAuth;
+        testAuth.mProtocol = "protocol";
+        testAuth.mPort = 80;
 
         // No address defined; throws an exception
         try {
@@ -63,13 +65,15 @@ public class StoreTests extends AndroidTestCase {
         // Address defined, no login
         testAuth.mAddress = "a.valid.address.com";
         testKey = Store.getStoreKey(mContext, testAccount);
-        assertEquals("a.valid.address.com", testKey);
+        assertEquals("protocol://a.valid.address.com:80", testKey);
 
         // Address & login defined
         testAuth.mAddress = "address.org";
+        testAuth.mFlags = HostAuth.FLAG_AUTHENTICATE;
         testAuth.mLogin = "auser";
+        testAuth.mPassword = "password";
         testKey = Store.getStoreKey(mContext, testAccount);
-        assertEquals("address.orgauser", testKey);
+        assertEquals("protocol://auser:password@address.org:80", testKey);
     }
 
     public void testGetStoreInfo() {
@@ -111,7 +115,7 @@ public class StoreTests extends AndroidTestCase {
         testAuth.mProtocol = "pop3";
         testStore = Store.getInstance(testAccount, getContext(), null);
         assertEquals(1, Store.sStores.size());
-        assertSame(testStore, Store.sStores.get("pop3.google.com"));
+        assertSame(testStore, Store.sStores.get(testAuth.getStoreUri()));
         Store.sStores.clear();
 
         // IMAP
@@ -119,7 +123,19 @@ public class StoreTests extends AndroidTestCase {
         testAuth.mProtocol = "imap";
         testStore = Store.getInstance(testAccount, getContext(), null);
         assertEquals(1, Store.sStores.size());
-        assertSame(testStore, Store.sStores.get("imap.google.com"));
+        assertSame(testStore, Store.sStores.get(testAuth.getStoreUri()));
+        Store.sStores.clear();
+
+        // IMAP; host auth changes
+        testAuth.mAddress = "imap.google.com";
+        testAuth.mProtocol = "imap";
+        testStore = Store.getInstance(testAccount, getContext(), null); // cache first store
+        assertEquals(1, Store.sStores.size());
+        assertSame(testStore, Store.sStores.get(testAuth.getStoreUri()));
+        testAuth.mAddress = "mail.google.com";   // change the auth hostname
+        Store.getInstance(testAccount, getContext(), null); // cache second store
+        assertEquals(2, Store.sStores.size());   // Now there are two entries ...
+        assertNotSame(testStore, Store.sStores.get(testAuth.getStoreUri()));
         Store.sStores.clear();
 
         // Unknown
