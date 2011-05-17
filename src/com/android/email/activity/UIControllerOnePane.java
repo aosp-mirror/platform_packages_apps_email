@@ -45,7 +45,7 @@ import java.util.Set;
  * - TODO Proper Navigation model, including retaining fragments to keep state such as the scroll
  *        position and batch selection.
  * - TODO Nested folders
- * - TODO Newer/Older for message view
+ * - TODO Newer/Older for message view with swipe!
  * - TODO Implement callbacks
  */
 class UIControllerOnePane extends UIControllerBase {
@@ -66,7 +66,7 @@ class UIControllerOnePane extends UIControllerBase {
             new MailboxListFragment.Callback() {
         @Override
         public void onAccountSelected(long accountId) {
-            openAccount(accountId);
+            switchAccount(accountId);
         }
 
         @Override
@@ -197,7 +197,6 @@ class UIControllerOnePane extends UIControllerBase {
         }
     };
 
-
     // This is all temporary as we'll have a different action bar controller for 1-pane.
     private final ActionBarController.Callback mActionBarControllerCallback
             = new ActionBarController.Callback() {
@@ -234,7 +233,7 @@ class UIControllerOnePane extends UIControllerBase {
 
         @Override
         public void onAccountSelected(long accountId) {
-            openAccount(accountId);
+            switchAccount(accountId);
         }
 
         @Override
@@ -353,11 +352,6 @@ class UIControllerOnePane extends UIControllerBase {
     @Override
     protected void installMessageViewFragment(MessageViewFragment fragment) {
         fragment.setCallback(mMessageViewFragmentCallback);
-    }
-
-    @Override
-    public void openAccount(long accountId) {
-        open(accountId, Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
     }
 
     @Override
