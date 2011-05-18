@@ -20,8 +20,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-    <ListView
-        android:id="@android:id/list"
+    <fragment android:name="com.android.email.activity.AccountShortcutPickerFragment"
+        android:id="@+id/shortcut_list"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
