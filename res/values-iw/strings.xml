@@ -16,12 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
-    <skip />
-    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
-    <skip />
+    <string name="permission_read_attachment_label" msgid="618768999416116023">"קרא קבצים מצורפים לדוא\"ל"</string>
+    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"מאפשר ליישום זה לקרוא את הקבצים המצורפים להודעות הדוא\"ל שלך."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"גש לנתוני ספק הדוא\"ל"</string>
-    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"מאפשר ליישום זה לגשת למסד נתוני הדוא\"ל שלך, כולל הודעות שהתקבלו, הודעות שנשלחו, שמות משתמש וסיסמאות."</string>
+    <string name="permission_access_provider_desc" msgid="2549843731779487336">"מאפשר ליישום זה לגשת למסד נתוני הדוא\"ל שלך, כולל הודעות שהתקבלו, הודעות שנשלחו, שמות משתמשים וסיסמאות."</string>
     <string name="app_name" msgid="5815426892327290362">"דוא\"ל"</string>
     <string name="compose_title" msgid="427986915662706899">"חבר"</string>
     <string name="debug_title" msgid="5175710493691536719">"ניקוי באגים"</string>
@@ -37,35 +35,24 @@
     <string name="done_action" msgid="7497990549515580249">"בוצע"</string>
     <string name="discard_action" msgid="6532206074859505968">"מחק"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"שמור טיוטה"</string>
-    <string name="read_unread_action" msgid="4721446664849165077">"נקראה/לא נקראה"</string>
     <string name="read_action" msgid="4701484794504781686">"סמן כנקרא"</string>
     <string name="unread_action" msgid="6280399049357552826">"סמן כלא נקרא"</string>
-    <string name="favorite_action" msgid="2911296685862420689">"מועדף"</string>
     <string name="set_star_action" msgid="4660317166196258160">"הוסף כוכב"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"הסר כוכב"</string>
     <string name="refresh_action" msgid="5951383001436708175">"רענן"</string>
     <string name="add_account_action" msgid="8835736309476033727">"הוסף חשבון"</string>
-    <string name="deselect_all_action" msgid="253663239459688238">"בטל בחירת הכל"</string>
     <string name="compose_action" msgid="4045702519637388045">"חבר"</string>
     <string name="search_action" msgid="6325101454876682308">"חיפוש"</string>
-    <string name="open_action" msgid="936766723989190816">"פתח"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"הגדרות חשבון"</string>
-    <string name="remove_account_action" msgid="3789169090601376209">"הסרת חשבון"</string>
-    <string name="folders_action" msgid="7502431531355227666">"תיקיות"</string>
-    <string name="accounts_action" msgid="901105887272231493">"חשבונות"</string>
-    <string name="mark_as_read_action" msgid="5031651846998842419">"סמן כפריט שנקרא"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"סמן כלא נקרא"</string>
     <string name="move_action" msgid="3059189775933985898">"העבר"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ עותק/עותק מוסתר"</string>
-    <string name="add_attachment_action" msgid="2696013743130573897">"הוסף קובץ מצורף"</string>
     <string name="close_action" msgid="533058985745238100">"סגור"</string>
-    <string name="dump_settings_action" msgid="4478192525236169829">"הגדרות קובץ Dump"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"שלח את כל ההודעות"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"בחר קובץ מצורף"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"העבר אל"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"טוען הודעות..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"שגיאת התחברות"</string>
-    <string name="notification_new_title" msgid="2200257910380529139">"דוא\"ל חדש"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"שגיאה לא צפויה במהלך הורדה של הודעת טקסט. ייתכן שההודעה גדולה מדי לתצוגה."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"העבר הודעה"</item>
@@ -95,13 +82,10 @@
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"נשלח"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"דואר זבל"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"גרסה: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"חשבונות"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"דואר נכנס"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"מסומן בכוכב"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"טיוטות"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"תיבת דואר יוצא"</string>
-    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"לחץ לחיצה ארוכה על חשבון כדי לרענן אותו"</string>
-    <string name="mailbox_list_title" msgid="8299608543467211089">"תיבת דואר"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"תצוגה משולבת"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"טען הודעות נוספות"</string>
   <plurals name="message_view_selected_message_count">
@@ -168,10 +152,14 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"הגדרות יישום"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"לא ניתן לפתוח את הקובץ המצורף."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"מכיוון שסוג זה של קובץ מצורף עשוי להכיל תוכנה זדונית, אינך יכול לשמור או לפתוח אותו."</string>
+    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <skip />
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"קובץ מצורף זה גדול מדי להורדה דרך רשת לנייד. תוכל להוריד אותו בפעם הבאה שתתחבר לרשת Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"לא קיים יישום מותקן שיכול לפתוח קובץ מצורף זה. נסה להוריד יישום מתאים מ\'חנות Android\'."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"קובץ מצורף זה הוא יישום. עליך לבדוק מקורות לא ידועים ב\'הגדרות\', בקטע \'יישומים\', לפני שתוכל להתקין אותו."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"לא ניתן להתקין יישומים ישירות מהדוא\"ל. שמור יישום זה תחילה ולאחר מכן התקן אותו באמצעות היישום \'הורדות\'."</string>
+    <!-- no translation found for attachment_not_found (2593390852574725378) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"שגיאה במהלך פענוח ההודעה."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"צופה ב-<xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"מחק הודעה"</string>
@@ -292,15 +280,13 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"הורד קבצים מצורפים באופן אוטומטי כאשר יש חיבור ל-Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"ההתקנה לא הסתיימה כראוי"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"כמות לסנכרון"</string>
-    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
-    <skip />
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"אוטומטי"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"יום אחד"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"שלושה ימים"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"שבוע אחד"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"שבועיים"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"חודש אחד"</string>
-    <!-- no translation found for account_setup_options_mail_window_all (5372861827683632364) -->
-    <skip />
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"הכל"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"שם המשתמש או הסיסמה שגויים."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"שם המשתמש או הסיסמה שגויים."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"אין אפשרות להתחבר לשרת באופן בטוח."</string>
@@ -387,7 +373,6 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> תוצאה מ-<xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> תוצאות של <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"<xliff:g id="RESULTS">%1$d</xliff:g> התוצאות הראשונות מ-<xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"העדפות דוא\"ל"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"העדפות יישום"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"התקדמות אוטומטית"</string>

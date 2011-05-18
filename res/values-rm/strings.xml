@@ -38,38 +38,27 @@
     <string name="done_action" msgid="7497990549515580249">"Terminà"</string>
     <string name="discard_action" msgid="6532206074859505968">"Sbittar"</string>
     <!-- outdated translation 812855865552028622 -->     <string name="save_draft_action" msgid="6413714270991417223">"Memorisar sco sboz"</string>
-    <string name="read_unread_action" msgid="4721446664849165077">"Legì/nunlegì"</string>
     <string name="read_action" msgid="4701484794504781686">"Marcar sco legì"</string>
     <string name="unread_action" msgid="6280399049357552826">"Marcà sco nunlegì"</string>
-    <string name="favorite_action" msgid="2911296685862420689">"Favurit"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Agiuntar ina staila"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"Allontanar la staila"</string>
     <string name="refresh_action" msgid="5951383001436708175">"Actualisar"</string>
     <string name="add_account_action" msgid="8835736309476033727">"Agiuntar in conto"</string>
-    <string name="deselect_all_action" msgid="253663239459688238">"Annullar la tscherna"</string>
     <string name="compose_action" msgid="4045702519637388045">"Nov messadi"</string>
     <string name="search_action" msgid="6325101454876682308">"Tschertgar"</string>
-    <string name="open_action" msgid="936766723989190816">"Avrir"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"Parameters dal conto"</string>
-    <string name="remove_account_action" msgid="3789169090601376209">"Stizzar il conto"</string>
-    <string name="folders_action" msgid="7502431531355227666">"Ordinatur"</string>
-    <string name="accounts_action" msgid="901105887272231493">"Contos"</string>
-    <string name="mark_as_read_action" msgid="5031651846998842419">"Marcar sco legì"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"Marcar sco nunlegì"</string>
     <!-- no translation found for move_action (3059189775933985898) -->
     <skip />
     <!-- outdated translation 5569074812077509737 -->     <string name="add_cc_bcc_action" msgid="413546910281713891">"Agiuntar «Cc»/«Bcc»"</string>
-    <string name="add_attachment_action" msgid="2696013743130573897">"Agiuntar ina agiunta"</string>
     <!-- no translation found for close_action (533058985745238100) -->
     <skip />
-    <string name="dump_settings_action" msgid="4478192525236169829">"Parameters per in maletg da memoria (dump)"</string>
     <!-- outdated translation 9100624762133992435 -->     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Trametter ils messadis sortints"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Tscherner ina agiunta"</string>
     <!-- no translation found for move_to_folder_dialog_title (2614318192482193898) -->
     <skip />
     <string name="status_loading_messages" msgid="6552307237621292344">"Ils messadis vegnan chargiads…"</string>
     <string name="status_network_error" msgid="6045933332005067021">"Errur da connexiun"</string>
-    <string name="notification_new_title" msgid="2200257910380529139">"Nov e-mail"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"Ina errur nunspetgada è cumparida cun chargiar il text dal messadi. Eventualmain è il text memia lung per vegnir mussà."</string>
     <!-- no translation found for move_messages:one (320885379869442589) -->
     <!-- no translation found for move_messages:other (371256717624461324) -->
@@ -99,13 +88,10 @@
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Tramess"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Nungiavischà"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versiun: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"Contos"</string>
     <!-- outdated translation 5790553737870057607 -->     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Chascha da brevs cumbinada"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Cun staila"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Sbozs"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Posta sortida"</string>
-    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"Smatgar ditg sin in conto per l\'actualisar"</string>
-    <string name="mailbox_list_title" msgid="8299608543467211089">"Chascha da brevs"</string>
     <!-- no translation found for mailbox_list_account_selector_combined_view (1556327299894225044) -->
     <skip />
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Chargiar ulteriurs messadis"</string>
@@ -196,6 +182,8 @@
     <skip />
     <!-- no translation found for attachment_info_malware (1478505616946912328) -->
     <skip />
+    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <skip />
     <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
     <skip />
     <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
@@ -203,6 +191,8 @@
     <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
     <skip />
     <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
+    <skip />
+    <!-- no translation found for attachment_not_found (2593390852574725378) -->
     <skip />
     <!-- no translation found for message_decode_error (7812862491622388416) -->
     <skip />
@@ -462,7 +452,6 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> resultat da <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> resultats da <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Ils emprims <xliff:g id="RESULTS">%1$d</xliff:g> resultats da <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"Preferenzas dad e-mail"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"Preferenzas dad applicaziun"</string>
     <!-- no translation found for general_preference_auto_advance_label (213945004511666631) -->

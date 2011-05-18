@@ -16,12 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
-    <skip />
-    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
-    <skip />
+    <string name="permission_read_attachment_label" msgid="618768999416116023">"قراءة مرفقات البريد الإلكتروني"</string>
+    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"للسماح لهذا التطبيق بقراءة مرفقات البريد الإلكتروني."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"الدخول إلى بيانات موفر البريد الإلكتروني"</string>
-    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"للسماح للتطبيق بالدخول إلى قاعدة بيانات بريدك الإلكتروني، بما في ذلك الرسائل المتلقاة، والرسائل المرسلة، وأسماء المستخدمين وكلمات المرور."</string>
+    <string name="permission_access_provider_desc" msgid="2549843731779487336">"للسماح لهذا التطبيق بالدخول إلى قاعدة بيانات بريدك الإلكتروني، بما في ذلك الرسائل الواردة، والرسائل المرسلة، وأسماء المستخدمين وكلمات المرور."</string>
     <string name="app_name" msgid="5815426892327290362">"إرسال رسالة إلكترونية"</string>
     <string name="compose_title" msgid="427986915662706899">"إنشاء"</string>
     <string name="debug_title" msgid="5175710493691536719">"تصحيح الأخطاء"</string>
@@ -37,35 +35,24 @@
     <string name="done_action" msgid="7497990549515580249">"تم"</string>
     <string name="discard_action" msgid="6532206074859505968">"إلغاء"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"حفظ المسودة"</string>
-    <string name="read_unread_action" msgid="4721446664849165077">"مقروءة/غير مقروءة"</string>
     <string name="read_action" msgid="4701484794504781686">"وضع علامة كـ \"مقروءة\""</string>
     <string name="unread_action" msgid="6280399049357552826">"وضع علامة كـ \"غير مقروءة\""</string>
-    <string name="favorite_action" msgid="2911296685862420689">"وضع في المُفضلة"</string>
     <string name="set_star_action" msgid="4660317166196258160">"إضافة نجمة"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"إزالة النجمة"</string>
     <string name="refresh_action" msgid="5951383001436708175">"تحديث"</string>
     <string name="add_account_action" msgid="8835736309476033727">"إضافة حساب"</string>
-    <string name="deselect_all_action" msgid="253663239459688238">"إلغاء تحديد الكل"</string>
     <string name="compose_action" msgid="4045702519637388045">"إنشاء"</string>
     <string name="search_action" msgid="6325101454876682308">"بحث"</string>
-    <string name="open_action" msgid="936766723989190816">"فتح"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"إعدادات الحساب"</string>
-    <string name="remove_account_action" msgid="3789169090601376209">"إزالة الحساب"</string>
-    <string name="folders_action" msgid="7502431531355227666">"مجلدات"</string>
-    <string name="accounts_action" msgid="901105887272231493">"الحسابات"</string>
-    <string name="mark_as_read_action" msgid="5031651846998842419">"وضع علامة عليها كـ \"مقروءة\""</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"تعليمها بـ \"غير مقروءة\""</string>
     <string name="move_action" msgid="3059189775933985898">"نقل"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"+ نسخة إلى/نسخة مخفية الوجهة"</string>
-    <string name="add_attachment_action" msgid="2696013743130573897">"إضافة مرفق"</string>
     <string name="close_action" msgid="533058985745238100">"إغلاق"</string>
-    <string name="dump_settings_action" msgid="4478192525236169829">"إعدادات التفريغ"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"إرسال جميع الرسائل"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"اختيار مرفق"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"نقل إلى"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"جارٍ تحميل الرسائل..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"خطأ في الاتصال"</string>
-    <string name="notification_new_title" msgid="2200257910380529139">"رسالة إلكترونية جديدة"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"حدث خطأ غير متوقع أثناء تحميل نص الرسالة. ربما تكون الرسالة كبيرة جدًا بحيث لا يمكن عرضها."</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"نقل رسالة"</item>
@@ -95,13 +82,10 @@
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"البريد المرسَل"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"البريد غير المهم"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"الإصدار: <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"الحسابات"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"صندوق البريد"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"مميّزة بنجمة"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"المسودات"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"البريد الصادر"</string>
-    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"الرجاء الضغط لفترة طويلة على حساب لتحديثه"</string>
-    <string name="mailbox_list_title" msgid="8299608543467211089">"صندوق البريد"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"عرض مجمّع"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"تحميل المزيد من الرسائل"</string>
   <plurals name="message_view_selected_message_count">
@@ -168,10 +152,14 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"إعدادات التطبيق"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"لا يمكن فتح المرفق."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"لا يمكن حفظ المرفق أو فتحه، لأن هذا النوع من المرفقات قد يحتوي على برامج ضارة."</string>
+    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <skip />
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"هذا المرفق كبير جدًا بحيث لا يمكن تنزيله عبر شبكة جوال. يمكنك تنزيله في المرة التالية التي تتصل فيها بشبكة Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"ليس هناك تطبيق مثبت يمكنه فتح هذا المرفق. جرّب تنزيل أحد التطبيقات المناسبة من Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"إن هذا المرفق تطبيق. ويجب تحديد \"مصادر غير معروفة\" في \"الإعدادات\" ضمن \"التطبيقات\"، قبل أن تتمكن من تثبيته."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"لا يمكن تثبيت التطبيقات مباشرة من البريد الإلكتروني. احفظ هذا التطبيق أولاً، ثم ثبته باستخدام تطبيق \"التنزيلات\"."</string>
+    <!-- no translation found for attachment_not_found (2593390852574725378) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"حدث خطأ أثناء فك تشفير الرسالة."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"عرض <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"إلغاء الرسالة"</string>
@@ -292,15 +280,13 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"تنزيل المرفقات تلقائيًا عند الاتصال بشبكة Wi-Fi"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"تعذر إنهاء الإعداد"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"المقدار المراد مزامنته"</string>
-    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
-    <skip />
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"تلقائي"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"يوم واحد"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"ثلاثة أيام"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"أسبوع"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"أسبوعان"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"شهر واحد"</string>
-    <!-- no translation found for account_setup_options_mail_window_all (5372861827683632364) -->
-    <skip />
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"الكل"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"اسم المستخدم أو كلمة المرور غير صحيحة."</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"اسم المستخدم أو كلمة المرور غير صحيحة."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"لا يمكن الاتصال بالخادم بأمان."</string>
@@ -387,7 +373,6 @@
     <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> نتيجة من <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
     <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> من النتائج من <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"أول <xliff:g id="RESULTS">%1$d</xliff:g> من النتائج من <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"تفضيلات البريد الإلكتروني"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"تفضيلات التطبيقات"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"التقدم التلقائي"</string>

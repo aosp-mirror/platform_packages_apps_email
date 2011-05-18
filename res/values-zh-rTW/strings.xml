@@ -16,12 +16,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
-    <skip />
-    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
-    <skip />
+    <string name="permission_read_attachment_label" msgid="618768999416116023">"讀取電子郵件附件"</string>
+    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"允許應用程式讀取您的電子郵件附件。"</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"存取電子郵件供應商資料"</string>
-    <!-- outdated translation 9012922622699298084 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"允許此應用程式存取您的電子郵件資料庫，包括已接收郵件、已傳送郵件、使用者名稱和密碼。"</string>
+    <string name="permission_access_provider_desc" msgid="2549843731779487336">"允許應用程式存取您的電子郵件資料庫，包括已接收的郵件、已發郵件、使用者名稱和密碼。"</string>
     <string name="app_name" msgid="5815426892327290362">"電子郵件"</string>
     <string name="compose_title" msgid="427986915662706899">"撰寫郵件"</string>
     <string name="debug_title" msgid="5175710493691536719">"偵錯"</string>
@@ -37,35 +35,24 @@
     <string name="done_action" msgid="7497990549515580249">"完成"</string>
     <string name="discard_action" msgid="6532206074859505968">"捨棄"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"儲存草稿"</string>
-    <string name="read_unread_action" msgid="4721446664849165077">"設為讀取/未讀取"</string>
     <string name="read_action" msgid="4701484794504781686">"標示為已讀取"</string>
     <string name="unread_action" msgid="6280399049357552826">"標示為未讀取"</string>
-    <string name="favorite_action" msgid="2911296685862420689">"加入到最愛"</string>
     <string name="set_star_action" msgid="4660317166196258160">"標上星號"</string>
     <string name="remove_star_action" msgid="6689770999647007163">"移除星號"</string>
     <string name="refresh_action" msgid="5951383001436708175">"重新整理"</string>
     <string name="add_account_action" msgid="8835736309476033727">"新增帳戶"</string>
-    <string name="deselect_all_action" msgid="253663239459688238">"全部取消選取"</string>
     <string name="compose_action" msgid="4045702519637388045">"撰寫郵件"</string>
     <string name="search_action" msgid="6325101454876682308">"搜尋"</string>
-    <string name="open_action" msgid="936766723989190816">"開啟"</string>
     <string name="account_settings_action" msgid="4494079183315085171">"帳戶設定"</string>
-    <string name="remove_account_action" msgid="3789169090601376209">"移除帳戶"</string>
-    <string name="folders_action" msgid="7502431531355227666">"資料夾"</string>
-    <string name="accounts_action" msgid="901105887272231493">"帳戶"</string>
-    <string name="mark_as_read_action" msgid="5031651846998842419">"標示為已讀取"</string>
     <string name="mark_as_unread_action" msgid="3766298115778767554">"標示為未讀取"</string>
     <string name="move_action" msgid="3059189775933985898">"移動"</string>
     <string name="add_cc_bcc_action" msgid="413546910281713891">"新增副本/密件副本"</string>
-    <string name="add_attachment_action" msgid="2696013743130573897">"新增附件"</string>
     <string name="close_action" msgid="533058985745238100">"關閉"</string>
-    <string name="dump_settings_action" msgid="4478192525236169829">"傾印設定"</string>
     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"傳送所有郵件"</string>
     <string name="choose_attachment_dialog_title" msgid="81937507117528954">"選擇附件"</string>
     <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"移至"</string>
     <string name="status_loading_messages" msgid="6552307237621292344">"正在載入郵件..."</string>
     <string name="status_network_error" msgid="6045933332005067021">"連線錯誤"</string>
-    <string name="notification_new_title" msgid="2200257910380529139">"新郵件"</string>
     <string name="error_loading_message_body" msgid="2265140604109272914">"載入郵件文字時發生未預期的錯誤，郵件可能過大以致於無法檢視。"</string>
   <plurals name="move_messages">
     <item quantity="one" msgid="320885379869442589">"移動郵件"</item>
@@ -95,13 +82,10 @@
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"寄件備份"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"垃圾郵件"</string>
     <string name="debug_version_fmt" msgid="6160213145745376955">"版本：<xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="account_folder_list_separator_accounts" msgid="7568820182396669244">"帳戶"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"收件匣"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"已加星號"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"草稿"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"寄件匣"</string>
-    <string name="account_folder_list_refresh_toast" msgid="8158352329765828902">"請按住您要重新整理的帳戶"</string>
-    <string name="mailbox_list_title" msgid="8299608543467211089">"信箱"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"合併檢視"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"載入更多郵件"</string>
   <plurals name="message_view_selected_message_count">
@@ -168,10 +152,14 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"應用程式設定"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"無法開啟附件。"</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"這類附件可能含有惡意軟體，因此您無法儲存或開啟附件。"</string>
+    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <skip />
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"這個附件過大，無法透過行動網路下載，您可以在下次連上 WiFi 網路時重新下載。"</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"您所安裝的應用程式均無法開啟這個附件，不妨從 Android Market 下載適用的應用程式試試看。"</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"這個附件是應用程式，您必須在 [設定] 部分的 [應用程式] 中勾選 [不明的來源]，才能安裝這個應用程式。"</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"您無法直接透過「電子郵件」安裝應用程式，請先儲存這個應用程式，然後使用「下載」應用程式進行安裝。"</string>
+    <!-- no translation found for attachment_not_found (2593390852574725378) -->
+    <skip />
     <string name="message_decode_error" msgid="7812862491622388416">"為郵件解碼時發生錯誤。"</string>
     <string name="eml_view_title" msgid="8827210108543430336">"檢視 <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"捨棄郵件"</string>
@@ -292,14 +280,13 @@
     <string name="account_setup_options_background_attachments_label" msgid="5247749298276451846">"連上 Wi-Fi 時自動下載附件"</string>
     <string name="account_setup_failed_dlg_title" msgid="7827583313117521383">"無法完成設定"</string>
     <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"同步數量"</string>
-    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
-    <skip />
+    <string name="account_setup_options_mail_window_auto" msgid="4188895354366183790">"自動"</string>
     <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"1 天"</string>
     <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"3 天"</string>
     <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"1 週"</string>
     <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"2 週"</string>
     <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"1 個月"</string>
-    <!-- outdated translation 5383858972681926166 -->     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"所有郵件"</string>
+    <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"全部"</string>
     <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"使用者名稱或密碼不正確。"</string>
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"使用者名稱或密碼不正確。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"無法安全地連線至伺服器。"</string>
@@ -386,8 +373,7 @@
     <item quantity="one" msgid="7496785524617037642">"只有 <xliff:g id="RESULTS">%1$d</xliff:g> 個來自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的搜尋結果"</item>
     <item quantity="other" msgid="7816121892960632123">"共有 <xliff:g id="RESULTS">%1$d</xliff:g> 個來自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的搜尋結果"</item>
   </plurals>
-    <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"前 <xliff:g id="RESULTS">%1$d</xliff:g> 個來自 <xliff:g id="DOMAIN">%2$s</xliff:g> 的搜尋結果"</string>
-    <string name="header_label_general_preferences" msgid="7548527595339881066">"電子郵件偏好設定"</string>
+    <string name="header_label_general_preferences" msgid="7548527595339881066">"電子郵件接收設定"</string>
     <string name="category_general_preferences" msgid="6810399722493971651">"應用程式偏好設定"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"自動推進"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"選取在您刪除郵件後所要顯示的畫面"</string>
