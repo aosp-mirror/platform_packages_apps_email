@@ -17,12 +17,14 @@
 package com.android.email.activity;
 
 import com.android.email.R;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 
 import android.app.ListActivity;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -40,16 +42,17 @@ import android.widget.SimpleCursorAdapter;
  * directly.  We need to detect this and redirect to Welcome.
  */
 public class AccountShortcutPicker extends ListActivity
-        implements OnClickListener, OnItemClickListener {
+        implements OnClickListener, OnItemClickListener, LoaderCallbacks<Cursor> {
 
-    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
+    @SuppressWarnings("hiding")
+    private SimpleCursorAdapter mAdapter;
 
     /**
      * Support for list adapter
      */
     private final static String[] FROM_COLUMNS = new String[] {
-            EmailContent.AccountColumns.DISPLAY_NAME,
-            EmailContent.AccountColumns.EMAIL_ADDRESS,
+            AccountColumns.DISPLAY_NAME,
+            AccountColumns.EMAIL_ADDRESS,
     };
     private final static int[] TO_IDS = new int[] {
             R.id.description,
@@ -60,6 +63,7 @@ public class AccountShortcutPicker extends ListActivity
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        // TODO Relax this test slightly in order to re-use this activity for widget creation
         // finish() immediately if we aren't supposed to be here
         if (!Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction())) {
             finish();
@@ -73,24 +77,13 @@ public class AccountShortcutPicker extends ListActivity
         listView.setOnItemClickListener(this);
         listView.setItemsCanFocus(false);
 
-        new AccountTask().executeParallel();
+        mAdapter = new SimpleCursorAdapter(this,
+            R.layout.account_shortcut_picker_item, null, FROM_COLUMNS, TO_IDS, 0);
+        setListAdapter(mAdapter);
+
+        getLoaderManager().initLoader(0, null, this);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // Cleanup running async task (if any)
-        mTaskTracker.cancellAllInterrupt();
-        // Cleanup accounts cursor (if any)
-        SimpleCursorAdapter adapter = (SimpleCursorAdapter) getListAdapter();
-        if (adapter != null) {
-            adapter.changeCursor(null);
-        }
-    }
-
-    /**
-     * Implements View.OnClickListener
-     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -100,6 +93,7 @@ public class AccountShortcutPicker extends ListActivity
         }
     }
 
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Cursor cursor = (Cursor)parent.getItemAtPosition(position);
         Account account = new Account();
@@ -108,45 +102,6 @@ public class AccountShortcutPicker extends ListActivity
         finish();
     }
 
-    /**
-     * Load the accounts and create the adapter.
-     */
-    private class AccountTask extends EmailAsyncTask<Void, Void, Cursor> {
-        public AccountTask() {
-            super(mTaskTracker);
-        }
-
-        @Override
-        protected Cursor doInBackground(Void... params) {
-            Cursor cursor = AccountShortcutPicker.this.getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI,
-                    EmailContent.Account.CONTENT_PROJECTION,
-                    null, null, null);
-            if (isCancelled()) {
-                cursor.close();
-                cursor = null;
-            }
-            return cursor;
-        }
-
-        @Override
-        protected void onPostExecute(Cursor cursor) {
-            // If canceled, get out immediately
-            if (cursor == null || cursor.isClosed()) {
-                return;
-            }
-            // If there are no accounts, we should never have been here - exit the activity
-            if (cursor.getCount() == 0) {
-                finish();
-                return;
-            }
-            // Create an adapter and connect to the ListView
-            AccountShortcutPicker activity = AccountShortcutPicker.this;
-            SimpleCursorAdapter adapter = new SimpleCursorAdapter(activity,
-                    R.layout.account_shortcut_picker_item, cursor, FROM_COLUMNS, TO_IDS);
-            activity.getListView().setAdapter(adapter);
-        }
-    }
 
     /**
      * This function creates a shortcut and returns it to the caller.  There are actually two
@@ -183,11 +138,33 @@ public class AccountShortcutPicker extends ListActivity
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
         intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, account.getDisplayName());
-        Parcelable iconResource = Intent.ShortcutIconResource.fromContext(this, R.mipmap.ic_launcher_email);
+        Parcelable iconResource
+                = Intent.ShortcutIconResource.fromContext(this, R.mipmap.ic_launcher_email);
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
 
         // Now, return the result to the launcher
 
         setResult(RESULT_OK, intent);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(
+                this, Account.CONTENT_URI, Account.CONTENT_PROJECTION, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        // No accounts; close the dialog
+        if (data.getCount() == 0) {
+            finish();
+            return;
+        }
+        mAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.swapCursor(null);
     }
 }
