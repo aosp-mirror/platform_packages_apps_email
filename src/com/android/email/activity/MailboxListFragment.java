@@ -102,18 +102,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static Integer sDropTrashColor;
     private static Drawable sDropActiveDrawable;
 
-    /**
-     * Account ID passed to {@link #newInstance}.  Cache of {@link #getAccountIdArg()}, but usable
-     * only after {@link #onCreate}.
-     */
-    private long mAccountId;
-
-    /**
-     * Mailbox ID passed to {@link #newInstance}.  Cache of {@link #getParentMailboxIdArg()}, but
-     * usable only after {@link #onCreate}.
-     */
-    private long mParentMailboxId;
-
     /** ID of the mailbox to hightlight. */
     private long mSelectedMailboxId = -1;
 
@@ -212,7 +200,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * This fragment should be created only with this method.  (Arguments should always be set.)
      *
      * @param accountId The ID of the account we want to view
-     * @param parentMailboxId The ID of the parent mailbox.  Use {@link Mailbox#PARENT_KEY_NONE}
+     * @param parentMailboxId The ID of the parent mailbox.  Use {@link Mailbox#NO_MAILBOX}
      *     to open the root.
      */
     public static MailboxListFragment newInstance(long accountId, long parentMailboxId) {
@@ -227,14 +215,40 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         return instance;
     }
 
-    /** @return the account ID passed to {@link #newInstance}. */
-    public long getAccountIdArg() {
-        return getArguments().getLong(ARG_ACCOUNT_ID);
+    // Cached arguments.  DO NOT use them directly.  ALWAYS use getXxxIdArg().
+    private boolean mArgCacheInitialized;
+    private long mCachedAccountId;
+    private long mCachedParentMailboxId;
+
+    private void initializeArgCache() {
+        if (!mArgCacheInitialized) {
+            mArgCacheInitialized = true;
+            mCachedAccountId = getArguments().getLong(ARG_ACCOUNT_ID);
+            mCachedParentMailboxId = getArguments().getLong(ARG_PARENT_MAILBOX_ID);
+        }
     }
 
-    /** @return the mailbox ID passed to {@link #newInstance}. */
-    public long getParentMailboxIdArg() {
-        return getArguments().getLong(ARG_PARENT_MAILBOX_ID);
+    /**
+     * @return the account ID passed to {@link #newInstance}.  Safe to call even before onCreate.
+     */
+    public long getAccountId() {
+        initializeArgCache();
+        return mCachedAccountId;
+    }
+
+    /**
+     * @return the mailbox ID passed to {@link #newInstance}.  Safe to call even before onCreate.
+     */
+    public long getParentMailboxId() {
+        initializeArgCache();
+        return mCachedParentMailboxId;
+    }
+
+    /**
+     * @return true if the top level mailboxes are shown.  Safe to call even before onCreate.
+     */
+    public boolean isRoot() {
+        return getParentMailboxId() == Mailbox.NO_MAILBOX;
     }
 
     /**
@@ -247,9 +261,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Logging.LOG_TAG, "MailboxListFragment onCreate");
         }
         super.onCreate(savedInstanceState);
-
-        mAccountId = getAccountIdArg();
-        mParentMailboxId = getParentMailboxIdArg();
 
         mActivity = getActivity();
         mRefreshManager = RefreshManager.getInstance(mActivity);
@@ -340,8 +351,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         // Fetch the latest mailbox list from the server here if stale so that the user always
         // sees the (reasonably) up-to-date mailbox list, without pressing "refresh".
-        if (mRefreshManager.isMailboxListStale(mAccountId)) {
-            mRefreshManager.refreshMailboxList(mAccountId);
+        final long accountId = getAccountId();
+        if (mRefreshManager.isMailboxListStale(accountId)) {
+            mRefreshManager.refreshMailboxList(accountId);
         }
     }
 
@@ -417,7 +429,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 Log.d(Logging.LOG_TAG, "MailboxListFragment onCreateLoader");
             }
             mIsFirstLoad = true;
-            return MailboxFragmentAdapter.createLoader(getActivity(), mAccountId, mParentMailboxId);
+            return MailboxFragmentAdapter.createLoader(getActivity(), getAccountId(),
+                    getParentMailboxId());
         }
 
         @Override
@@ -484,7 +497,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         } else {
             // STOPSHIP On phone, we need a way to open a message list without navigating to the
             // mailbox.
-            mCallback.onMailboxSelected(mAccountId, id, isNavigable(id), false);
+            mCallback.onMailboxSelected(getAccountId(), id, isNavigable(id), false);
         }
     }
 
@@ -557,8 +570,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                             stopDragTimer();
                             // STOPSHIP Revisit this -- probably we need a different callback
                             // so that when D&D finishes we can go back to the original mailbox.
-                            mCallback.onMailboxSelected(mAccountId, newTarget.mMailboxId, true,
-                                    true);
+                            mCallback.onMailboxSelected(getAccountId(), newTarget.mMailboxId,
+                                    true, true);
                         }
                     });
                 }

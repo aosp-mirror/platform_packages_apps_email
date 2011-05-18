@@ -18,7 +18,6 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MeetingInfo;
 import com.android.emailcommon.mail.PackedString;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -30,7 +29,6 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,8 +42,6 @@ import android.widget.ImageView;
 /**
  * A {@link MessageViewFragmentBase} subclass for regular email messages.  (regular as in "not eml
  * files").
- *
- * See {@link MessageViewBase} for the class relation diagram.
  */
 public class MessageViewFragment extends MessageViewFragmentBase
         implements CheckBox.OnCheckedChangeListener, MoveMessageToDialog.Callback {
@@ -66,12 +62,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
     private Drawable mFavoriteIconOff;
 
     private int mPreviousMeetingResponse = EmailServiceConstants.MEETING_REQUEST_NOT_RESPONDED;
-
-    /**
-     * Message ID passed to {@link #newInstance}.  Cache of {@link #getMessageIdArg()}, but usable
-     * only after {@link #onCreate}.
-     */
-    private long mMessageId;
 
     /**
      * This class has more call backs than {@link MessageViewFragmentBase}.
@@ -146,16 +136,28 @@ public class MessageViewFragment extends MessageViewFragmentBase
         return instance;
     }
 
-    /** @return the message ID passed to {@link #newInstance}. */
-    public long getMessageIdArg() {
-        return getArguments().getLong(ARG_MESSAGE_ID);
+    // Cached argument.  DO NOT use them directly.  ALWAYS use getXxxIdArg().
+    private boolean mArgCacheInitialized;
+    private long mCachedMessageId;
+
+    private void initializeArgCache() {
+        if (!mArgCacheInitialized) {
+            mArgCacheInitialized = true;
+            mCachedMessageId = getArguments().getLong(ARG_MESSAGE_ID);
+        }
+    }
+
+    /**
+     * @return the message ID passed to {@link #newInstance}.  Safe to call even before onCreate.
+     */
+    public long getMessageId() {
+        initializeArgCache();
+        return mCachedMessageId;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mMessageId = getMessageIdArg();
 
         final Resources res = getActivity().getResources();
         mFavoriteIconOn = res.getDrawable(R.drawable.btn_star_on_normal_email_holo_light);
@@ -224,7 +226,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
      */
     @Override
     protected Message openMessageSync(Activity activity) {
-        return Message.restoreMessageWithId(activity, mMessageId);
+        return Message.restoreMessageWithId(activity, getMessageId());
     }
 
     @Override
@@ -356,7 +358,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
     }
 
     private void onMove() {
-        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(new long[] {mMessageId},
+        MoveMessageToDialog dialog = MoveMessageToDialog.newInstance(new long[] {getMessageId()},
                 this);
         dialog.show(getFragmentManager(), "dialog");
     }
@@ -370,7 +372,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
     private void onDelete() {
         mCallback.onBeforeMessageGone();
-        ActivityHelper.deleteMessage(mContext, mMessageId);
+        ActivityHelper.deleteMessage(mContext, getMessageId());
     }
 
     private void onMarkAsUnread() {

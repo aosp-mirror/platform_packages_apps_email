@@ -29,6 +29,7 @@ import com.android.emailcommon.utility.EmailAsyncTask;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -287,10 +288,32 @@ abstract class UIControllerBase {
     /**
      * Show the default view for the given account.
      *
+     * No-op if the given account is already selected.
+     *
      * @param accountId ID of the account to load.  Can be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
      *     Must never be {@link Account#NO_ACCOUNT}.
      */
-    public abstract void openAccount(long accountId);
+    public final void switchAccount(long accountId) {
+        if (accountId == getUIAccountId()) {
+            // Do nothing if the account is already selected.  Not even going back to the inbox.
+            return;
+        }
+        openAccount(accountId);
+    }
+
+    /**
+     * Shortcut for {@link #open} with {@link Mailbox#NO_MAILBOX} and {@link Message#NO_MESSAGE}.
+     */
+    protected final void openAccount(long accountId) {
+        open(accountId, Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
+    }
+
+    /**
+     * Shortcut for {@link #open} with {@link Message#NO_MESSAGE}.
+     */
+    protected final void openMailbox(long accountId, long mailboxId) {
+        open(accountId, mailboxId, Message.NO_MESSAGE);
+    }
 
     /**
      * Loads the given account and optionally selects the given mailbox and message.  Used to open
@@ -304,6 +327,36 @@ abstract class UIControllerBase {
      *     do not open a message.
      */
     public abstract void open(long accountId, long mailboxId, long messageId);
+
+    /**
+     * Navigates to the parent mailbox list of the given mailbox.
+     */
+    protected final void navigateToParentMailboxList(final long currentMailboxId) {
+        final long accountId = getUIAccountId();
+        final Context context = mActivity.getApplicationContext(); // for DB access only.
+
+        // Get the upper level mailbox ID, and navigate to it.
+
+        // Unfortunately if the screen rotates while the task is running, we just cancel the task
+        // so navigation request will be gone.  But we'll live with it as it's not too critical.
+        new EmailAsyncTask<Void, Void, Long>(mTaskTracker) {
+            @Override protected Long doInBackground(Void... params) {
+                final Mailbox mailbox = Mailbox.restoreMailboxWithId(context, currentMailboxId);
+                if (mailbox == null) {
+                    return null;
+                }
+                return mailbox.mParentKey;
+            }
+
+            @Override protected void onPostExecute(Long mailboxId) {
+                if (mailboxId == null) {
+                    // Mailbox removed, just show the root for the account.
+                    mailboxId = Mailbox.NO_MAILBOX;
+                }
+                openMailbox(accountId, mailboxId);
+            }
+        }.cancelPreviousAndExecuteSerial();
+    }
 
     /**
      * Performs the back action.
