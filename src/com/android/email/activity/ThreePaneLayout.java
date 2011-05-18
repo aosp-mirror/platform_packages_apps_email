@@ -37,7 +37,8 @@ import android.widget.LinearLayout;
 /**
  * The "three pane" layout used on tablet.
  *
- * It'll encapsulate the behavioral differences between portrait mode and landscape mode.
+ * This layout can show up to two panes at any given time, and operates in two different modes.
+ * See {@link #isPaneCollapsible()} for details on the two modes.
  *
  * TODO Unit tests, when UX is settled.
  */
@@ -50,14 +51,21 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     /** Uninitialized state -- {@link #changePaneState} hasn't been called yet. */
     private static final int STATE_UNINITIALIZED = -1;
 
-    /** Mailbox list + message list */
+    /** Mailbox list + message list both visible. */
     private static final int STATE_LEFT_VISIBLE = 0;
 
-    /** Message view on portrait, + message list on landscape. */
+    /**
+     * A view where the MessageView is visible. The MessageList is visible if
+     * {@link #isPaneCollapsible} is false, but is otherwise collapsed and hidden.
+     */
     private static final int STATE_RIGHT_VISIBLE = 1;
 
-    /** Portrait mode only: message view + expanded message list */
-    private static final int STATE_PORTRAIT_MIDDLE_EXPANDED = 2;
+    /**
+     * A view where the MessageView is partially visible and a collapsible MessageList on the left
+     * has been expanded to be in view. {@link #isPaneCollapsible} must return true for this
+     * state to be active.
+     */
+    private static final int STATE_MIDDLE_EXPANDED = 2;
 
     // Flags for getVisiblePanes()
     public static final int PANE_LEFT = 1 << 2;
@@ -75,7 +83,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     private View mRightPane;
     private MessageCommandButtonView mMessageCommandButtons;
 
-    // Views used only on portrait
+    // Views used only when the left pane is collapsible.
     private View mFoggedGlass;
 
     private boolean mFirstSizeChangedDone;
@@ -84,8 +92,8 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     private int mMailboxListWidth;
     /**
      * Message list width, on:
-     * - the message list + message view mode, on landscape.
-     * - the message view + expanded message list mode, on portrait.
+     * - the message list + message view mode, when the left pane is not collapsible
+     * - the message view + expanded message list mode, when the left pane is collapsible
      * Comes from resources.
      */
     private int mMessageListWidth;
@@ -152,14 +160,14 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                 (MessageCommandButtonView) findViewById(R.id.message_command_buttons);
 
         mFoggedGlass = findViewById(R.id.fogged_glass);
-        if (mFoggedGlass != null) { // If it's around, it's portrait.
+        if (mFoggedGlass != null) {
             mRightPane = findViewById(R.id.right_pane_with_fog);
             mFoggedGlass.setOnClickListener(this);
-        } else { // landscape
+        } else {
             mRightPane = findViewById(R.id.right_pane);
         }
 
-        if (isLandscape()) {
+        if (!isPaneCollapsible()) {
             mShowHideViews = new View[][][] {
                     // STATE_LEFT_VISIBLE
                     {
@@ -173,7 +181,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                         {mLeftPane}, // Invisible
                         {}, // Gone
                     },
-                    // STATE_PORTRAIT_MIDDLE_EXPANDED -- not used in landscape
+                    // STATE_MIDDLE_EXPANDED
                     {
                         {}, // Visible
                         {}, // Invisible
@@ -194,7 +202,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                         {mLeftPane, mMiddlePane, mFoggedGlass}, // Invisible
                         {}, // Gone
                     },
-                    // STATE_PORTRAIT_MIDDLE_EXPANDED
+                    // STATE_MIDDLE_EXPANDED
                     {
                         {mMiddlePane, mRightPane, mMessageCommandButtons, mFoggedGlass}, // Visible
                         {mLeftPane}, // Invisible
@@ -216,8 +224,11 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
     }
 
-    private boolean isLandscape() {
-        return mFoggedGlass == null;
+    /**
+     * Return whether or not the left pane should be collapsible.
+     */
+    private boolean isPaneCollapsible() {
+        return mFoggedGlass != null;
     }
 
     public MessageCommandButtonView getMessageCommandButtons() {
@@ -268,7 +279,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
      * @return true if the event is handled.
      */
     public boolean onBackPressed(boolean isSystemBackKey) {
-        if (isLandscape()) {
+        if (!isPaneCollapsible()) {
             switch (mPaneState) {
             case STATE_RIGHT_VISIBLE:
                 changePaneState(STATE_LEFT_VISIBLE, true); // Close the right pane
@@ -280,10 +291,10 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                     if (isSystemBackKey) {
                         changePaneState(STATE_LEFT_VISIBLE, true);
                     } else {
-                        changePaneState(STATE_PORTRAIT_MIDDLE_EXPANDED, true);
+                        changePaneState(STATE_MIDDLE_EXPANDED, true);
                     }
                     return true;
-                case STATE_PORTRAIT_MIDDLE_EXPANDED:
+                case STATE_MIDDLE_EXPANDED:
                     changePaneState(STATE_LEFT_VISIBLE, true);
                     return true;
                 }
@@ -319,7 +330,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     }
 
     private void changePaneState(int newState, boolean animate) {
-        if (isLandscape() && (newState == STATE_PORTRAIT_MIDDLE_EXPANDED)) {
+        if (!isPaneCollapsible() && (newState == STATE_MIDDLE_EXPANDED)) {
             newState = STATE_RIGHT_VISIBLE;
         }
         if (!mFirstSizeChangedDone) {
@@ -349,7 +360,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
 
         final String animatorLabel; // for debug purpose
 
-        if (isLandscape()) { // Landscape
+        if (!isPaneCollapsible()) {
             setViewWidth(mLeftPane, mMailboxListWidth);
             setViewWidth(mRightPane, totalWidth - mMessageListWidth);
 
@@ -370,7 +381,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                     throw new IllegalStateException();
             }
 
-        } else { // Portrait
+        } else {
             setViewWidth(mLeftPane, mMailboxListWidth);
             setViewWidth(mRightPane, totalWidth);
 
@@ -381,7 +392,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                     expectedMailboxLeft = 0;
                     expectedMessageListWidth = totalWidth - mMailboxListWidth;
                     break;
-                case STATE_PORTRAIT_MIDDLE_EXPANDED:
+                case STATE_MIDDLE_EXPANDED:
                     // mailbox + message list -> message list + message view
                     animatorLabel = "moving to [message list + message view]";
                     expectedMailboxLeft = -mMailboxListWidth;
@@ -439,7 +450,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fogged_glass:
-                if (isLandscape()) {
+                if (!isPaneCollapsible()) {
                     return; // Shouldn't happen
                 }
                 changePaneState(STATE_RIGHT_VISIBLE, true);

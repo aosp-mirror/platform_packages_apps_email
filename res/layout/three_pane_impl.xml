@@ -16,12 +16,10 @@
 
 <!-- ThreePaneLayout is based on LinearLayout with the orientation always horizontal -->
 
-<!-- for landscape -->
+<!-- Implementation of a three pane layout where two panes are always visible at
+     any given time. -->
 <!-- Note the width of each pane is set by code at runtime.  -->
-<com.android.email.activity.ThreePaneLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:splitMotionEvents="true"
-    >
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <fragment
         android:name="com.android.email.activity.MailboxListFragment"
@@ -52,4 +50,4 @@
         android:layout_width="0dip"
         android:layout_height="match_parent"
         />
-</com.android.email.activity.ThreePaneLayout>
+</merge>

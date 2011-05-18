@@ -15,7 +15,7 @@
 -->
 
 <!-- Common data-entry area of account name setup screen - account nickname, user name. -->
-<!-- xlarge version -->
+<!-- tablet version -->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
