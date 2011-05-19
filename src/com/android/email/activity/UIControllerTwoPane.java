@@ -136,7 +136,7 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onMailboxFound()");
         }
-        updateMessageList(mailboxId, true);
+        updateMessageList(accountId, mailboxId, true);
     }
 
     // MailboxFinder$Callback
@@ -169,19 +169,18 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     // MailboxListFragment$Callback
     @Override
-    public void onMailboxSelected(long mailboxId, boolean navigate) {
-        final long accountId = getUIAccountId();
-        if (mailboxId == Mailbox.NO_MAILBOX) {
-            // reload the top-level message list.  Always implies navigate.
-            openAccount(accountId);
-        } else if (navigate) {
+    public void onMailboxSelected(long accountId, long mailboxId, boolean navigate) {
+        if ((accountId == Account.NO_ACCOUNT) || (mailboxId == Mailbox.NO_MAILBOX)) {
+            throw new IllegalArgumentException(); // Shouldn't happen.
+        }
+        if (navigate) {
             if (mailboxId != getMailboxListMailboxId()) {
                 // Don't navigate to the same mailbox id twice in a row
                 openMailbox(accountId, mailboxId);
             }
         } else {
             // Regular case -- just open the mailbox on the message list.
-            updateMessageList(mailboxId, true);
+            updateMessageList(accountId, mailboxId, true);
         }
     }
 
@@ -610,7 +609,7 @@ class UIControllerTwoPane extends UIControllerBase implements
             // Show the appropriate message list
             if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
                 // When opening the Combined view, the right pane will be "combined inbox".
-                updateMessageList(Mailbox.QUERY_ALL_INBOXES, true);
+                updateMessageList(accountId, Mailbox.QUERY_ALL_INBOXES, true);
             } else {
                 // Try to find the inbox for the account
                 closeMailboxFinder();
@@ -621,13 +620,13 @@ class UIControllerTwoPane extends UIControllerBase implements
         } else if (messageId == Message.NO_MESSAGE) {
             // STOPSHIP Use the appropriate parent mailbox ID
             updateMailboxList(accountId, mailboxId, true);
-            updateMessageList(mailboxId, true);
+            updateMessageList(accountId, mailboxId, true);
 
             mThreePane.showLeftPane();
         } else {
             // STOPSHIP Use the appropriate parent mailbox ID
             updateMailboxList(accountId, mailboxId, true);
-            updateMessageList(mailboxId, true);
+            updateMessageList(accountId, mailboxId, true);
             updateMessageView(messageId);
 
             mThreePane.showRightPane();
@@ -699,18 +698,16 @@ class UIControllerTwoPane extends UIControllerBase implements
     }
 
     /**
-     * Selects the specified mailbox and optionally loads a message within it. If a message is
-     * not loaded, a list of the messages contained within the mailbox is shown. Otherwise the
-     * given message is shown. If <code>navigateToMailbox<code> is <code>true</code>, the
-     * mailbox is navigated to and any contained mailboxes are shown.
+     * Show the message list fragment for the given mailbox.
      *
-     * @param mailboxId ID of the mailbox to load. Must never be <code>0</code> or
-     *     {@link Mailbox#NO_MAILBOX}.
+     * @param accountId ID of the owner account for the mailbox.  Must never be
+     *     {@link Account#NO_ACCOUNT}.
+     * @param mailboxId ID of the mailbox to load. Must never be {@link Mailbox#NO_MAILBOX}.
      * @param clearDependentPane if true, the message view will be cleared
      *
      * STOPSHIP Need to stop mailbox finder if it's still running
      */
-    private void updateMessageList(long mailboxId, boolean clearDependentPane) {
+    private void updateMessageList(long accountId, long mailboxId, boolean clearDependentPane) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " updateMessageList mMailboxId=" + mailboxId);
         }
@@ -724,7 +721,7 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (mailboxId != getMessageListMailboxId()) {
             uninstallMessageListFragment(ft);
             ft.add(mThreePane.getMiddlePaneId(), MessageListFragment.newInstance(
-                    getUIAccountId(), mailboxId));
+                    accountId, mailboxId));
         }
         if (clearDependentPane) {
             uninstallMessageViewFragment(ft);

@@ -137,12 +137,15 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         /**
          * Called when any mailbox (even a combined mailbox) is selected.
          *
+         * @param accountId
+         *          The ID of the owner account of the selected mailbox.
+         *          Or {@link Account#ACCOUNT_ID_COMBINED_VIEW} if it's a combined mailbox.
          * @param mailboxId
          *          The ID of the selected mailbox. This may be real mailbox ID [e.g. a number > 0],
          *          or a combined mailbox ID [e.g. {@link Mailbox#QUERY_ALL_INBOXES}].
          * @param navigate navigate to the mailbox.
          */
-        public void onMailboxSelected(long mailboxId, boolean navigate);
+        public void onMailboxSelected(long accountId, long mailboxId, boolean navigate);
 
         /**
          * Called when a mailbox is selected during D&D.
@@ -158,13 +161,18 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
          *
          * Note the reason why it's separated from onMailboxSelected is because this needs to be
          * reported when the unread count changes without changing the current mailbox.
+         *
+         * @param mailboxId ID for the selected mailbox.  It'll never be of a combined mailbox,
+         *     and the owner account ID is always the same as
+         *     {@link MailboxListFragment#getAccountId()}.
          */
         public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount);
     }
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onMailboxSelected(long mailboxId, boolean navigate) { }
+        @Override public void onMailboxSelected(long accountId, long mailboxId, boolean navigate) {
+        }
         @Override public void onMailboxSelectedForDnD(long mailboxId) { }
         @Override public void onAccountSelected(long accountId) { }
         @Override public void onCurrentMailboxUpdated(long mailboxId, String mailboxName,
@@ -496,7 +504,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         } else {
             // STOPSHIP On phone, we need a way to open a message list without navigating to the
             // mailbox.
-            mCallback.onMailboxSelected(id, isNavigable(id));
+            mCallback.onMailboxSelected(mListAdapter.getAccountId(position), id,
+                    isNavigable(id));
         }
     }
 

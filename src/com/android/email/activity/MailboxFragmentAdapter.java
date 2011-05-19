@@ -68,14 +68,16 @@ import android.widget.TextView;
         final boolean isAccount = isAccountRow(cursor);
         final int type = cursor.getInt(COLUMN_TYPE);
         final long id = cursor.getLong(COLUMN_ID);
+        final long accountId = cursor.getLong(COLUMN_ACCOUNT_ID);
         final int flags = cursor.getInt(COLUMN_FLAGS);
         final int rowType = cursor.getInt(COLUMN_ROW_TYPE);
         final boolean hasVisibleChildren = (flags & Mailbox.FLAG_HAS_CHILDREN) != 0
                 && (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0;
 
         MailboxListItem listItem = (MailboxListItem)view;
-        listItem.mMailboxId = id;
+        listItem.mMailboxId = isAccountRow(cursor) ? Mailbox.NO_MAILBOX : id;
         listItem.mMailboxType = type;
+        listItem.mAccountId = accountId;
         listItem.mIsValidDropTarget = (id >= 0)
                 && !Utility.arrayContains(Mailbox.INVALID_DROP_TARGETS, type)
                 && (flags & Mailbox.FLAG_ACCEPTS_MOVED_MAIL) != 0;
@@ -111,7 +113,7 @@ import android.widget.TextView;
 
         final ImageView mailboxExpandedIcon =
                 (ImageView) view.findViewById(R.id.folder_expanded_icon);
-        switch (cursor.getInt(COLUMN_ROW_TYPE)) {
+        switch (rowType) {
             case ROW_TYPE_SUBMAILBOX:
                 if (hasVisibleChildren) {
                     mailboxExpandedIcon.setVisibility(View.VISIBLE);
@@ -129,7 +131,7 @@ import android.widget.TextView;
                 folderIcon.setVisibility(View.GONE);
                 break;
             case ROW_TYPE_MAILBOX:
-            default:
+            default: // Includes ROW_TYPE_ACCOUNT
                 if (hasVisibleChildren) {
                     mailboxExpandedIcon.setVisibility(View.VISIBLE);
                     mailboxExpandedIcon.setImageResource(
@@ -184,7 +186,8 @@ import android.widget.TextView;
      * Adds a new row into the given cursor.
      */
     private static void addMailboxRow(MatrixCursor cursor, long mailboxId, String displayName,
-            int mailboxType, int unreadCount, int messageCount, int rowType, int flags) {
+            int mailboxType, int unreadCount, int messageCount, int rowType, int flags,
+            long accountId) {
         long listId = mailboxId;
         if (mailboxId < 0) {
             listId = Long.MAX_VALUE + mailboxId; // IDs for the list view must be positive
@@ -198,16 +201,18 @@ import android.widget.TextView;
         row.add(messageCount);
         row.add(rowType);
         row.add(flags);
+        row.add(accountId);
     }
 
-    private static void addSummaryMailboxRow(MatrixCursor cursor, long id, int mailboxType,
+    private static void addCombinedMailboxRow(MatrixCursor cursor, long id, int mailboxType,
             int count, boolean showAlways) {
         if (id >= 0) {
             throw new IllegalArgumentException(); // Must be QUERY_ALL_*, which are all negative
         }
         if (showAlways || (count > 0)) {
             addMailboxRow(
-                    cursor, id, "", mailboxType, count, count, ROW_TYPE_MAILBOX, Mailbox.FLAG_NONE);
+                    cursor, id, "", mailboxType, count, count, ROW_TYPE_MAILBOX, Mailbox.FLAG_NONE,
+                    Account.ACCOUNT_ID_COMBINED_VIEW);
         }
     }
 
@@ -260,7 +265,7 @@ import android.widget.TextView;
             if (accountStarredCount > 0) {
                 final MatrixCursor starredCursor = new MatrixCursor(getProjection());
                 final int totalStarredCount = Message.getFavoriteMessageCount(mContext);
-                addSummaryMailboxRow(starredCursor, Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
+                addCombinedMailboxRow(starredCursor, Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
                         totalStarredCount, true);
                 return Utility.CloseTraceCursorWrapper.get(
                         new MergeCursor(new Cursor[] { starredCursor, childMailboxCursor }));
@@ -290,8 +295,11 @@ import android.widget.TextView;
         @Override
         public Cursor loadInBackground() {
             final Cursor accounts = super.loadInBackground();
-            final MatrixCursor combinedWithAccounts = getCursor(mContext, accounts);
 
+            // Build combined mailbox rows.
+            final MatrixCursor combinedWithAccounts = buildCombinedMailboxes(mContext, accounts);
+
+            // Add account rows.
             accounts.moveToPosition(-1);
             while (accounts.moveToNext()) {
                 final long accountId = accounts.getLong(COLUMN_ACCOUND_ID);
@@ -299,28 +307,29 @@ import android.widget.TextView;
                 final int unreadCount = Mailbox.getUnreadCountByAccountAndMailboxType(
                         mContext, accountId, Mailbox.TYPE_INBOX);
                 addMailboxRow(combinedWithAccounts, accountId, accountName, Mailbox.TYPE_NONE,
-                        unreadCount, unreadCount, ROW_TYPE_ACCOUNT, Mailbox.FLAG_NONE);
+                        unreadCount, unreadCount, ROW_TYPE_ACCOUNT, Mailbox.FLAG_NONE,
+                        accountId);
             }
             return Utility.CloseTraceCursorWrapper.get(combinedWithAccounts);
         }
 
-        /*package*/ static MatrixCursor getCursor(Context context,
+        /*package*/ static MatrixCursor buildCombinedMailboxes(Context context,
                 Cursor innerCursor) {
             MatrixCursor cursor = new ClosingMatrixCursor(PROJECTION, innerCursor);
             // Combined inbox -- show unread count
-            addSummaryMailboxRow(cursor, Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
+            addCombinedMailboxRow(cursor, Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
                     Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX), true);
 
             // Favorite (starred) -- show # of favorites
-            addSummaryMailboxRow(cursor, Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
+            addCombinedMailboxRow(cursor, Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
                     Message.getFavoriteMessageCount(context), false);
 
             // Drafts -- show # of drafts
-            addSummaryMailboxRow(cursor, Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS,
+            addCombinedMailboxRow(cursor, Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS,
                     Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS), false);
 
             // Outbox -- # of outstanding messages
-            addSummaryMailboxRow(cursor, Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX,
+            addCombinedMailboxRow(cursor, Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX,
                     Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX), false);
 
             return cursor;

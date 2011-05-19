@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.R;
+import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.Mailbox;
 
 import android.content.Context;
@@ -33,6 +34,15 @@ public class MailboxListItem extends RelativeLayout {
     private static Integer sTextPrimaryColor;
     private static Integer sTextSecondaryColor;
 
+    /**
+     * Owner account ID for the mailbox, {@link Account#ACCOUNT_ID_COMBINED_VIEW} for a combined
+     * mailbox, or the ID for the current account, if it's an account row.
+     */
+    public long mAccountId;
+
+    /**
+     * ID for the current mailbox, or {@link Mailbox#NO_MAILBOX} if it's an account row.
+     */
     public long mMailboxId;
     public Integer mMailboxType;
     /** If {@code true} this item can be used as a drop target. Otherwise, drop is prohibited. */
@@ -77,8 +87,8 @@ public class MailboxListItem extends RelativeLayout {
      * not forbidden by the system (see {@link Mailbox#INVALID_DROP_TARGETS}) will return
      * {@code true}.
      */
-    public boolean isDropTarget(long itemMailbox) {
-        return mIsValidDropTarget && (itemMailbox != mMailboxId);
+    public boolean isDropTarget(long itemMailboxId) {
+        return mIsValidDropTarget && (itemMailboxId != mMailboxId);
     }
 
     /**

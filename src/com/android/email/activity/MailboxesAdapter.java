@@ -18,8 +18,10 @@ package com.android.email.activity;
 
 import com.android.email.FolderProperties;
 import com.android.email.ResourceHelper;
+import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -80,7 +82,7 @@ import android.widget.CursorAdapter;
             MailboxColumns.ID + " AS org_mailbox_id",
             MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
             MailboxColumns.MESSAGE_COUNT, ROW_TYPE_MAILBOX + " AS row_type",
-            MailboxColumns.FLAGS };
+            MailboxColumns.FLAGS, MailboxColumns.ACCOUNT_KEY };
     // STOPSHIP May need to adjust sub-folder projection depending upon final UX
     /**
      * Projection used to retrieve immediate children for a mailbox. The columns need to
@@ -91,14 +93,18 @@ import android.widget.CursorAdapter;
         MailboxColumns.ID + " AS org_mailbox_id",
         MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
         MailboxColumns.MESSAGE_COUNT, ROW_TYPE_SUBMAILBOX + " AS row_type",
-        MailboxColumns.FLAGS };
+        MailboxColumns.FLAGS, MailboxColumns.ACCOUNT_KEY };
     /*package*/ static final String[] CURMAILBOX_PROJECTION = new String[] { MailboxColumns.ID,
         MailboxColumns.ID + " AS org_mailbox_id",
         MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
         MailboxColumns.MESSAGE_COUNT, ROW_TYPE_CURMAILBOX + " AS row_type",
-        MailboxColumns.FLAGS };
+        MailboxColumns.FLAGS, MailboxColumns.ACCOUNT_KEY };
 
     // Column 0 is only for ListView; we don't use it in our code.
+    /**
+     * ID for the current row.  Normally it's the ID for the current mailbox, but if it's an account
+     * row on the combined view, it's the ID for the account.
+     */
     /*package*/ static final int COLUMN_ID = 1;
     /*package*/ static final int COLUMN_DISPLAY_NAME = 2;
     /*package*/ static final int COLUMN_TYPE = 3;
@@ -106,6 +112,12 @@ import android.widget.CursorAdapter;
     /*package*/ static final int COLUMN_MESSAGE_COUNT = 5;
     /*package*/ static final int COLUMN_ROW_TYPE = 6;
     /*package*/ static final int COLUMN_FLAGS = 7;
+    /**
+     * ID for the owner account of the mailbox.  If it's a combined mailbox, it's
+     * {@link Account#ACCOUNT_ID_COMBINED_VIEW}.  If it's an account row on the combined view,
+     * it's the ID for the account.
+     */
+    /*package*/ static final int COLUMN_ACCOUNT_ID = 8;
 
     /** All mailboxes for the account */
     /*package*/ static final String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
@@ -222,6 +234,12 @@ import android.widget.CursorAdapter;
         return c.getLong(COLUMN_ID);
     }
 
+    /** @see #COLUMN_ACCOUNT_ID */
+    public long getAccountId(int position) {
+        Cursor c = (Cursor) getItem(position);
+        return c.getLong(COLUMN_ACCOUNT_ID);
+    }
+
     /**
      * Turn on and off list updates; during a drag operation, we do NOT want to the list of
      * mailboxes to update, as this would be visually jarring
@@ -260,5 +278,10 @@ import android.widget.CursorAdapter;
 
     /*package*/ static int getUnreadCountForTest(Cursor cursor) {
         return cursor.getInt(COLUMN_UNREAD_COUNT);
+    }
+
+    @VisibleForTesting
+    static long getAccountId(Cursor cursor) {
+        return cursor.getLong(COLUMN_ACCOUNT_ID);
     }
 }

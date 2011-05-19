@@ -74,8 +74,8 @@ class UIControllerOnePane extends UIControllerBase {
         }
 
         @Override
-        public void onMailboxSelected(long mailboxId, boolean navigate) {
-            openMailbox(getUIAccountId(), mailboxId);
+        public void onMailboxSelected(long accountId, long mailboxId, boolean navigate) {
+            openMailbox(accountId, mailboxId);
         }
 
         @Override

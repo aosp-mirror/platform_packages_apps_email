@@ -29,11 +29,11 @@ import android.test.ProviderTestCase2;
 
 import junit.framework.Assert;
 
-public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
+public class MailboxFragmentAdapterTest extends ProviderTestCase2<EmailProvider> {
 
     private Context mMockContext;
 
-    public MailboxesAdapterTest() {
+    public MailboxFragmentAdapterTest() {
         super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
@@ -43,7 +43,7 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         mMockContext = getMockContext();
     }
 
-    public void testAddSummaryMailboxRow() {
+    public void testBuildCombinedMailboxes() {
         final Context c = mMockContext;
 
         // Prepare test data
@@ -79,7 +79,8 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         createMessage(c, b2t, true, true, Message.FLAG_LOADED_UNLOADED);
 
         // Kick the method
-        Cursor cursor = MailboxFragmentAdapter.CombinedMailboxLoader.getCursor(c, null);
+        Cursor cursor = MailboxFragmentAdapter.CombinedMailboxLoader.buildCombinedMailboxes(c,
+                null);
 
         // Check the result
         assertEquals(4, cursor.getCount());
@@ -118,5 +119,7 @@ public class MailboxesAdapterTest extends ProviderTestCase2<EmailProvider> {
         Assert.assertEquals(type, MailboxesAdapter.getTypeForTest(cursor));
         Assert.assertEquals(count, MailboxesAdapter.getMessageCountForTest(cursor));
         Assert.assertEquals(count, MailboxesAdapter.getUnreadCountForTest(cursor));
+        Assert.assertEquals(Account.ACCOUNT_ID_COMBINED_VIEW,
+                MailboxesAdapter.getAccountId(cursor));
     }
 }
