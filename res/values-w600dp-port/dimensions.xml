@@ -14,11 +14,8 @@
      limitations under the License.
 -->
 
-<!-- xlarge, portrait -->
 <resources>
     <dimen name="message_compose_field_label_width">120dip</dimen>
-
-    <!-- XL activity dimensions -->
 
     <!-- width of mailbox list -->
     <dimen name="mailbox_list_width">206dip</dimen>
