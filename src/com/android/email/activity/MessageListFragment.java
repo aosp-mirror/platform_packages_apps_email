@@ -197,6 +197,18 @@ public class MessageListFragment extends ListFragment
          * @param affectedMessages the messages the operation will apply to
          */
         public void onAdvancingOpAccepted(Set<Long> affectedMessages);
+
+        /**
+         * Called when a drag & drop is initiated.
+         *
+         * @return true if drag & drop is allowed
+         */
+        public boolean onDragStarted();
+
+        /**
+         * Called when a drag & drop is ended.
+         */
+        public void onDragEnded();
     }
 
     private static final class EmptyCallback implements Callback {
@@ -219,6 +231,15 @@ public class MessageListFragment extends ListFragment
 
         @Override
         public void onAdvancingOpAccepted(Set<Long> affectedMessages) {
+        }
+
+        @Override
+        public boolean onDragStarted() {
+            return false; // We don't know -- err on the safe side.
+        }
+
+        @Override
+        public void onDragEnded() {
         }
     }
 
@@ -296,7 +317,7 @@ public class MessageListFragment extends ListFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment onCreate");
+            Log.d(Logging.LOG_TAG, this + " onCreate");
         }
         super.onCreate(savedInstanceState);
 
@@ -320,7 +341,7 @@ public class MessageListFragment extends ListFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment onActivityCreated");
+            Log.d(Logging.LOG_TAG, this + " onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
 
@@ -347,7 +368,7 @@ public class MessageListFragment extends ListFragment
     @Override
     public void onStart() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment onStart");
+            Log.d(Logging.LOG_TAG, this + " onStart");
         }
         super.onStart();
     }
@@ -355,7 +376,7 @@ public class MessageListFragment extends ListFragment
     @Override
     public void onResume() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment onResume");
+            Log.d(Logging.LOG_TAG, this + " onResume");
         }
         super.onResume();
         mResumed = true;
@@ -365,7 +386,7 @@ public class MessageListFragment extends ListFragment
     @Override
     public void onPause() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment onPause");
+            Log.d(Logging.LOG_TAG, this + " onPause");
         }
         mResumed = false;
         mSavedListState = getListView().onSaveInstanceState();
@@ -376,7 +397,7 @@ public class MessageListFragment extends ListFragment
     @Override
     public void onStop() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment onStop");
+            Log.d(Logging.LOG_TAG, this + " onStop");
         }
         super.onStop();
     }
@@ -384,7 +405,7 @@ public class MessageListFragment extends ListFragment
     @Override
     public void onDestroy() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment onDestroy");
+            Log.d(Logging.LOG_TAG, this + " onDestroy");
         }
         mTaskTracker.cancellAllInterrupt();
         mRefreshManager.unregisterListener(mRefreshListener);
@@ -400,7 +421,7 @@ public class MessageListFragment extends ListFragment
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment onSaveInstanceState");
+            Log.d(Logging.LOG_TAG, this + " onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
         mListAdapter.onSaveInstanceState(outState);
@@ -411,7 +432,7 @@ public class MessageListFragment extends ListFragment
     @VisibleForTesting
     void restoreInstanceState(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment restoreInstanceState");
+            Log.d(Logging.LOG_TAG, this + " restoreInstanceState");
         }
         mListAdapter.loadState(savedInstanceState);
         mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
@@ -599,6 +620,7 @@ public class MessageListFragment extends ListFragment
                 if (event.getResult()) {
                     onDeselectAll(); // Clear the selection
                 }
+                mCallback.onDragEnded();
                 break;
         }
         return false;
@@ -617,8 +639,9 @@ public class MessageListFragment extends ListFragment
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         if (view != mListFooterView) {
-            // Start drag&drop.
-
+            if (!mCallback.onDragStarted()) {
+                return false; // D&D not allowed.
+            }
             // We can't move from combined accounts view
             // We also need to check the actual mailbox to see if we can move items from it
             final long mailboxId = getMailboxId();
@@ -631,6 +654,8 @@ public class MessageListFragment extends ListFragment
             if (!mListAdapter.isSelected(listItem)) {
                 toggleSelection(listItem);
             }
+            // Start drag&drop.
+
             // Create ClipData with the Uri of the message we're long clicking
             ClipData data = ClipData.newUri(mActivity.getContentResolver(),
                     MessageListItem.MESSAGE_LIST_ITEMS_CLIP_LABEL, Message.CONTENT_URI.buildUpon()
@@ -1075,7 +1100,7 @@ public class MessageListFragment extends ListFragment
 
     private void startLoading() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageListFragment startLoading");
+            Log.d(Logging.LOG_TAG, this + " startLoading");
         }
         // Clear the list. (ListFragment will show the "Loading" animation)
         showNoMessageText(false);
@@ -1096,8 +1121,8 @@ public class MessageListFragment extends ListFragment
         public Loader<MailboxAccountLoader.Result> onCreateLoader(int id, Bundle args) {
             final long mailboxId = getMailboxId();
             if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG,
-                        "MessageListFragment onCreateLoader(mailbox) mailboxId=" + mailboxId);
+                Log.d(Logging.LOG_TAG, MessageListFragment.this
+                        + " onCreateLoader(mailbox) mailboxId=" + mailboxId);
             }
             return new MailboxAccountLoader(getActivity().getApplicationContext(), mailboxId);
         }
@@ -1106,8 +1131,8 @@ public class MessageListFragment extends ListFragment
         public void onLoadFinished(Loader<MailboxAccountLoader.Result> loader,
                 MailboxAccountLoader.Result result) {
             if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "MessageListFragment onLoadFinished(mailbox) mailboxId="
-                        + getMailboxId());
+                Log.d(Logging.LOG_TAG, MessageListFragment.this
+                        + " onLoadFinished(mailbox) mailboxId=" + getMailboxId());
             }
             if (!result.mIsFound) {
                 mCallback.onMailboxNotFound();
@@ -1138,8 +1163,8 @@ public class MessageListFragment extends ListFragment
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             final long mailboxId = getMailboxId();
             if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG,
-                        "MessageListFragment onCreateLoader(messages) mailboxId=" + mailboxId);
+                Log.d(Logging.LOG_TAG, MessageListFragment.this
+                        + " onCreateLoader(messages) mailboxId=" + mailboxId);
             }
             mIsFirstLoad = true;
             return MessagesAdapter.createLoader(getActivity(), mailboxId);
@@ -1148,9 +1173,8 @@ public class MessageListFragment extends ListFragment
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG,
-                        "MessageListFragment onLoadFinished(messages) mailboxId="
-                        + getMailboxId());
+                Log.d(Logging.LOG_TAG, MessageListFragment.this
+                        + " onLoadFinished(messages) mailboxId=" + getMailboxId());
             }
 
             // Suspend message notifications as long as we're resumed
@@ -1205,6 +1229,10 @@ public class MessageListFragment extends ListFragment
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
+            if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Logging.LOG_TAG, MessageListFragment.this
+                        + " onLoaderReset(messages)");
+            }
             mListAdapter.swapCursor(null);
         }
     }
