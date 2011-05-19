@@ -24,7 +24,7 @@ import com.android.email.service.MailService.AccountSyncReport;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
 import android.accounts.AccountManager;

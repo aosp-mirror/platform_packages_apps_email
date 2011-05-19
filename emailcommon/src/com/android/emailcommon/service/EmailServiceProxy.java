@@ -19,7 +19,7 @@ package com.android.emailcommon.service;
 import com.android.emailcommon.Api;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Policy;
 
 import android.content.Context;

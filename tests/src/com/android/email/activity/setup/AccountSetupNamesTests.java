@@ -28,7 +28,6 @@ is not properly constructed.  (empty address)
 //
 //import com.android.email.R;
 //import com.android.email.provider.EmailContent;
-//import com.android.email.provider.EmailContent.HostAuth;
 //
 //import android.content.ContentUris;
 //import android.content.Context;

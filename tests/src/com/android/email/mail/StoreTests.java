@@ -20,7 +20,7 @@ import com.android.email.Email;
 import com.android.email.mail.Store.StoreInfo;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 
 import android.test.AndroidTestCase;

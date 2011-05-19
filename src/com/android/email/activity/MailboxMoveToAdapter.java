@@ -22,7 +22,6 @@ import com.android.email.data.ThrottlingCursorLoader;
 import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;

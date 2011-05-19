@@ -20,7 +20,7 @@ import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.HostAuth;
 
 import org.xmlpull.v1.XmlPullParserException;
 
