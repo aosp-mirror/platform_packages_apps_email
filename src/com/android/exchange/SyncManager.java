@@ -1773,6 +1773,9 @@ public class SyncManager extends Service implements Runnable {
             // Run the reconciler and clean up any mismatched accounts - if we weren't running when
             // accounts were deleted, it won't have been called.
             runAccountReconciler();
+            // Work around framework bug in which a call to onStartCommand is not guaranteed unless
+            // there is a posted Intent
+            startService(new Intent(this, SyncManager.class));
         }
     }
 
