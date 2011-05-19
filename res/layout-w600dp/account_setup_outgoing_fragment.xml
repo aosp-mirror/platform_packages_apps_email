@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- Incoming server settings - xlarge - see layout/ for phone UX variant -->
+<!-- Incoming server settings - tablet - see layout/ for phone UX variant -->
 <!-- This is used directly by the account setup activity, but during settings it is
      wrapped in an outer layout (account_settings_outgoing_fragment) -->
 <TableLayout  xmlns:android="http://schemas.android.com/apk/res/android"

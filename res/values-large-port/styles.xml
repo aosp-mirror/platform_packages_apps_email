@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2011 The Android Open Source Project
+<!-- Copyright (C) 2009 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
      limitations under the License.
 -->
 
-<!-- xlarge, landscape -->
-
 <resources>
-    <!-- Use fixed width in landscape -->
-    <style name="message_compose_scroll">
-        <item name="android:layout_width">800dip</item>
+    <style name="accountSetupTypePrevious" parent="@style/accountSetupButton">
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_marginBottom">48dip</item>
+        <item name="android:layout_marginLeft">48dip</item>
     </style>
 </resources>
+
+

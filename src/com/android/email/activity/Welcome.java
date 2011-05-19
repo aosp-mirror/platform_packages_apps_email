@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.AccountBackupRestore;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
+import com.android.email.R;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.service.MailService;
 import com.android.emailcommon.provider.EmailContent;
@@ -29,7 +30,6 @@ import com.android.emailcommon.utility.Utility;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -84,8 +84,7 @@ public class Welcome extends Activity {
      * @return true if the two-pane activity should be used on the current configuration.
      */
     public static boolean useTwoPane(Context context) {
-        final int screenLayout = context.getResources().getConfiguration().screenLayout;
-        return (screenLayout & Configuration.SCREENLAYOUT_SIZE_XLARGE) != 0;
+        return context.getResources().getBoolean(R.bool.use_two_pane);
     }
 
     /**
