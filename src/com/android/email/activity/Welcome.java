@@ -18,12 +18,14 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
+import com.android.email.R;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.MailService;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Activity;
@@ -210,16 +212,31 @@ public class Welcome extends Activity {
         }
 
         @VisibleForTesting
-        static long resolveAccountId(Context context, long accountId, String uuid) {
-            // TODO show "account may have been removed" toast when an account is specified but
-            // can't find it.
+        static long resolveAccountId(Context context, long inputAccountId, String uuid) {
+            final long accountId;
+
             if (!TextUtils.isEmpty(uuid)) {
                 accountId = Account.getAccountIdFromUuid(context, uuid);
-            }
-            if (accountId == -1 || !Account.isValidId(context, accountId)) {
+                // accountId will be NO_ACCOUNT if the UUID is invalid.
+
+            } else if (inputAccountId != Account.NO_ACCOUNT) {
+                if (Account.isValidId(context, inputAccountId)) {
+                    accountId = inputAccountId;
+                } else {
+                    accountId = Account.NO_ACCOUNT;
+                }
+            } else {
+                // Use the default (without showing the toast)
                 accountId = EmailContent.Account.getDefaultAccountId(context);
             }
-            return accountId;
+            if (accountId != Account.NO_ACCOUNT) {
+                // Okay, the given account is valid.
+                return accountId;
+            } else {
+                // No, it's invalid.  Show the warning toast and use the default.
+                Utility.showToast(context, R.string.toast_account_not_found);
+                return EmailContent.Account.getDefaultAccountId(context);
+            }
         }
 
         @Override
