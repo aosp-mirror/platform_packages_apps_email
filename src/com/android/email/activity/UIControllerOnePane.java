@@ -74,9 +74,13 @@ class UIControllerOnePane extends UIControllerBase {
         }
 
         @Override
-        public void onMailboxSelected(
-                long accountId, long mailboxId, boolean navigate, boolean dragDrop) {
-            open(accountId, mailboxId, Message.NO_MESSAGE);
+        public void onMailboxSelected(long mailboxId, boolean navigate) {
+            openMailbox(getUIAccountId(), mailboxId);
+        }
+
+        @Override
+        public void onMailboxSelectedForDnD(long mailboxId) {
+            // No drag&drop on 1-pane
         }
     };
 
@@ -112,6 +116,17 @@ class UIControllerOnePane extends UIControllerBase {
             } else {
                 open(getUIAccountId(), getMailboxId(), messageId);
             }
+        }
+
+        @Override
+        public boolean onDragStarted() {
+            // No drag&drop on 1-pane
+            return false;
+        }
+
+        @Override
+        public void onDragEnded() {
+            // No drag&drop on 1-pane
         }
     };
 

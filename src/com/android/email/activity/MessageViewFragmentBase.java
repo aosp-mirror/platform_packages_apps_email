@@ -257,7 +257,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment onCreate");
+            Log.d(Logging.LOG_TAG, this + " onCreate");
         }
         super.onCreate(savedInstanceState);
 
@@ -278,7 +278,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment onCreateView");
+            Log.d(Logging.LOG_TAG, this + " onCreateView");
         }
         final View view = inflater.inflate(R.layout.message_view_fragment, container, false);
 
@@ -329,7 +329,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment onActivityCreated");
+            Log.d(Logging.LOG_TAG, this + " onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
         mController.addResultCallback(mControllerCallback);
@@ -341,7 +341,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onStart() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment onStart");
+            Log.d(Logging.LOG_TAG, this + " onStart");
         }
         super.onStart();
     }
@@ -349,7 +349,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onResume() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment onResume");
+            Log.d(Logging.LOG_TAG, this + " onResume");
         }
         super.onResume();
 
@@ -364,7 +364,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onPause() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment onPause");
+            Log.d(Logging.LOG_TAG, this + " onPause");
         }
         mResumed = false;
         super.onPause();
@@ -373,7 +373,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onStop() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment onStop");
+            Log.d(Logging.LOG_TAG, this + " onStop");
         }
         super.onStop();
     }
@@ -381,7 +381,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onDestroy() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment onDestroy");
+            Log.d(Logging.LOG_TAG, this + " onDestroy");
         }
         mCallback.onMessageViewGone();
         mController.removeResultCallback(mControllerCallback);
@@ -394,7 +394,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment onSaveInstanceState");
+            Log.d(Logging.LOG_TAG, this + " onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
         outState.putInt(BUNDLE_KEY_CURRENT_TAB, mCurrentTab);
@@ -403,7 +403,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     private void restoreInstanceState(Bundle state) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessageViewFragment restoreInstanceState");
+            Log.d(Logging.LOG_TAG, this + " restoreInstanceState");
         }
         // At this point (in onCreate) no tabs are visible (because we don't know if the message has
         // an attachment or invite before loading it).  We just remember the tab here.

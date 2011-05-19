@@ -135,23 +135,19 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      */
     public interface Callback {
         /**
-         * STOPSHIP split this into separate callbacks.
-         * - Drill in to a mailbox and open a mailbox (= show message list) are different operations
-         *   on the phone
-         * - Regular navigation and navigation for D&D are different; the latter case we probably
-         *   want to go back to the original mailbox afterwards.  (Need another callback for this)
-         *
          * Called when any mailbox (even a combined mailbox) is selected.
-         * @param accountId
-         *          The ID of the account for which a mailbox was selected
+         *
          * @param mailboxId
          *          The ID of the selected mailbox. This may be real mailbox ID [e.g. a number > 0],
          *          or a combined mailbox ID [e.g. {@link Mailbox#QUERY_ALL_INBOXES}].
          * @param navigate navigate to the mailbox.
-         * @param dragDrop true if D&D is in progress.
          */
-        public void onMailboxSelected(long accountId, long mailboxId, boolean navigate,
-                boolean dragDrop);
+        public void onMailboxSelected(long mailboxId, boolean navigate);
+
+        /**
+         * Called when a mailbox is selected during D&D.
+         */
+        public void onMailboxSelectedForDnD(long mailboxId);
 
         /** Called when an account is selected on the combined view. */
         public void onAccountSelected(long accountId);
@@ -168,9 +164,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onMailboxSelected(long accountId, long mailboxId, boolean navigate,
-                boolean dragDrop) {
-        }
+        @Override public void onMailboxSelected(long mailboxId, boolean navigate) { }
+        @Override public void onMailboxSelectedForDnD(long mailboxId) { }
         @Override public void onAccountSelected(long accountId) { }
         @Override public void onCurrentMailboxUpdated(long mailboxId, String mailboxName,
                 int unreadCount) { }
@@ -258,7 +253,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment onCreate");
+            Log.d(Logging.LOG_TAG, this + " onCreate");
         }
         super.onCreate(savedInstanceState);
 
@@ -284,7 +279,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment onActivityCreated");
+            Log.d(Logging.LOG_TAG, this + " onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
 
@@ -333,7 +328,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onStart() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment onStart");
+            Log.d(Logging.LOG_TAG, this + " onStart");
         }
         super.onStart();
     }
@@ -344,7 +339,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onResume() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment onResume");
+            Log.d(Logging.LOG_TAG, this + " onResume");
         }
         super.onResume();
         mResumed = true;
@@ -360,7 +355,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onPause() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment onPause");
+            Log.d(Logging.LOG_TAG, this + " onPause");
         }
         mResumed = false;
         super.onPause();
@@ -373,7 +368,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onStop() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment onStop");
+            Log.d(Logging.LOG_TAG, this + " onStop");
         }
         super.onStop();
     }
@@ -384,7 +379,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onDestroy() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment onDestroy");
+            Log.d(Logging.LOG_TAG, this + " onDestroy");
         }
         super.onDestroy();
     }
@@ -392,7 +387,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment onSaveInstanceState");
+            Log.d(Logging.LOG_TAG, this + " onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
         outState.putLong(BUNDLE_KEY_SELECTED_MAILBOX_ID, mSelectedMailboxId);
@@ -401,7 +396,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private void restoreInstanceState(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment restoreInstanceState");
+            Log.d(Logging.LOG_TAG, this + " restoreInstanceState");
         }
         mSelectedMailboxId = savedInstanceState.getLong(BUNDLE_KEY_SELECTED_MAILBOX_ID);
         mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
@@ -409,7 +404,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private void startLoading() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxListFragment startLoading");
+            Log.d(Logging.LOG_TAG, this + " startLoading");
         }
         // Clear the list.  (ListFragment will show the "Loading" animation)
         setListShown(false);
@@ -426,7 +421,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "MailboxListFragment onCreateLoader");
+                Log.d(Logging.LOG_TAG, MailboxListFragment.this + " onCreateLoader");
             }
             mIsFirstLoad = true;
             return MailboxFragmentAdapter.createLoader(getActivity(), getAccountId(),
@@ -436,7 +431,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
             if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "MailboxListFragment onLoadFinished");
+                Log.d(Logging.LOG_TAG, MailboxListFragment.this + " onLoadFinished  count="
+                        + cursor.getCount());
             }
             // Save list view state (primarily scroll position)
             final ListView lv = getListView();
@@ -478,6 +474,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
+            if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(Logging.LOG_TAG, MailboxListFragment.this + " onLoaderReset");
+            }
             mListAdapter.swapCursor(null);
         }
     }
@@ -497,7 +496,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         } else {
             // STOPSHIP On phone, we need a way to open a message list without navigating to the
             // mailbox.
-            mCallback.onMailboxSelected(getAccountId(), id, isNavigable(id), false);
+            mCallback.onMailboxSelected(id, isNavigable(id));
         }
     }
 
@@ -568,10 +567,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                         @Override
                         public void run() {
                             stopDragTimer();
-                            // STOPSHIP Revisit this -- probably we need a different callback
-                            // so that when D&D finishes we can go back to the original mailbox.
-                            mCallback.onMailboxSelected(getAccountId(), newTarget.mMailboxId,
-                                    true, true);
+                            mCallback.onMailboxSelectedForDnD(newTarget.mMailboxId);
                         }
                     });
                 }

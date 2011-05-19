@@ -169,16 +169,9 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     // MailboxListFragment$Callback
     @Override
-    public void onMailboxSelected(long accountId, long mailboxId, boolean navigate,
-            boolean dragDrop) {
-        if (dragDrop) {
-            // We don't want to change the message list for D&D.
-
-            // STOPSHIP fixit: the new mailbox list created here doesn't know D&D is in progress.
-
-            updateMailboxList(accountId, mailboxId,
-                    false /* don't clear message list and message view */);
-        } else if (mailboxId == Mailbox.NO_MAILBOX) {
+    public void onMailboxSelected(long mailboxId, boolean navigate) {
+        final long accountId = getUIAccountId();
+        if (mailboxId == Mailbox.NO_MAILBOX) {
             // reload the top-level message list.  Always implies navigate.
             openAccount(accountId);
         } else if (navigate) {
@@ -190,6 +183,13 @@ class UIControllerTwoPane extends UIControllerBase implements
             // Regular case -- just open the mailbox on the message list.
             updateMessageList(mailboxId, true);
         }
+    }
+
+    public void onMailboxSelectedForDnD(long mailboxId) {
+        // STOPSHIP the new mailbox list created here doesn't know D&D is in progress. b/4332725
+
+        updateMailboxList(getUIAccountId(), mailboxId,
+                false /* don't clear message list and message view */);
     }
 
     // MailboxListFragment$Callback
@@ -276,6 +276,29 @@ class UIControllerTwoPane extends UIControllerBase implements
     // MessageListFragment$Callback
     @Override
     public void onListLoaded() {
+    }
+
+    // MessageListFragment$Callback
+    @Override
+    public boolean onDragStarted() {
+        Log.w(Logging.LOG_TAG, "Drag started");
+
+        if ((mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_LEFT) == 0) {
+            // Mailbox list hidden.  D&D not allowed.
+            return false;
+        }
+
+        // STOPSHIP Save the current mailbox list
+
+        return true;
+    }
+
+    // MessageListFragment$Callback
+    @Override
+    public void onDragEnded() {
+        Log.w(Logging.LOG_TAG, "Drag ended");
+
+        // STOPSHIP Restore the saved mailbox list
     }
 
     // MessageViewFragment$Callback
