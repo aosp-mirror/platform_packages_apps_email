@@ -19,7 +19,7 @@ package com.android.email.activity.setup;
 import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentUris;

@@ -28,13 +28,13 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
-import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.LegacyPolicySet;
@@ -202,7 +202,7 @@ public class EmailProvider extends ContentProvider {
         Mailbox.TABLE_NAME,
         EmailContent.Message.TABLE_NAME,
         EmailContent.Attachment.TABLE_NAME,
-        EmailContent.HostAuth.TABLE_NAME,
+        HostAuth.TABLE_NAME,
         EmailContent.Message.UPDATED_TABLE_NAME,
         EmailContent.Message.DELETED_TABLE_NAME,
         Policy.TABLE_NAME,

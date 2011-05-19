@@ -17,7 +17,6 @@
 package com.android.emailcommon.provider;
 
 import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.EmailContent.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
 import android.test.AndroidTestCase;

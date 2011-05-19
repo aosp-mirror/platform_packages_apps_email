@@ -24,7 +24,7 @@ import com.android.email.activity.UiUtilities;
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.HostAuth;
+import com.android.emailcommon.provider.HostAuth;
 
 import android.app.Activity;
 import android.content.Intent;
