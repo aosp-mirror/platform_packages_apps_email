@@ -18,6 +18,7 @@ package com.android.emailcommon.utility;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
@@ -32,6 +33,12 @@ import java.io.IOException;
 import java.util.List;
 
 public class AccountReconciler {
+    // AccountManager accounts with a name beginning with this constant are ignored for purposes
+    // of reconcilation.  This is for unit test purposes only; the caller may NOT be in the same
+    // package as this class, so we make the constant public.
+    @VisibleForTesting
+    public static final String ACCOUNT_MANAGER_ACCOUNT_TEST_PREFIX = " _";
+
     /**
      * Compare our account list (obtained from EmailProvider) with the account list owned by
      * AccountManager.  If there are any orphans (an account in one list without a corresponding
@@ -88,6 +95,9 @@ public class AccountReconciler {
                 if (cachedEasAccount.mEmailAddress.equalsIgnoreCase(accountManagerAccountName)) {
                     found = true;
                 }
+            }
+            if (accountManagerAccountName.startsWith(ACCOUNT_MANAGER_ACCOUNT_TEST_PREFIX)) {
+                found = true;
             }
             if (!found) {
                 // This account has been deleted from the EmailProvider database

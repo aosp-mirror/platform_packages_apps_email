@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.emailcommon.AccountManagerTypes;
+import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -58,6 +59,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import java.io.File;
@@ -137,7 +139,9 @@ public class EmailProvider extends ContentProvider {
     //             Account's policy when the Account is deleted
     // Version 20: Add new policies to Policy table
     // Version 21: Add lastSeenMessageKey column to Mailbox table
-    public static final int DATABASE_VERSION = 21;
+    // Version 22: Upgrade path for IMAP/POP accounts to integrate with AccountManager
+
+    public static final int DATABASE_VERSION = 22;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -1070,6 +1074,10 @@ public class EmailProvider extends ContentProvider {
                 upgradeFromVersion20ToVersion21(db);
                 oldVersion = 21;
             }
+            if (oldVersion == 21) {
+                upgradeFromVersion21ToVersion22(db, mContext);
+                oldVersion = 22;
+            }
         }
 
         @Override
@@ -2000,6 +2008,63 @@ public class EmailProvider extends ContentProvider {
         try {
             db.execSQL("alter table " + Mailbox.TABLE_NAME
                     + " add column " + Mailbox.LAST_SEEN_MESSAGE_KEY + " integer;");
+        } catch (SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 20 to 21 " + e);
+        }
+    }
+
+    /**
+     * Upgrade the database from v21 to v22
+     * This entails creating AccountManager accounts for all pop3 and imap accounts
+     */
+
+    private static final String[] RECV_PROJECTION =
+        new String[] {AccountColumns.HOST_AUTH_KEY_RECV};
+    private static final int EMAIL_AND_RECV_COLUMN_RECV = 0;
+
+    static private void createAccountManagerAccount(Context context, HostAuth hostAuth) {
+        AccountManager accountManager = AccountManager.get(context);
+        android.accounts.Account amAccount =
+            new android.accounts.Account(hostAuth.mLogin, AccountManagerTypes.TYPE_POP_IMAP);
+        accountManager.addAccountExplicitly(amAccount, hostAuth.mPassword, null);
+        ContentResolver.setIsSyncable(amAccount, EmailContent.AUTHORITY, 1);
+        ContentResolver.setSyncAutomatically(amAccount, EmailContent.AUTHORITY, true);
+        ContentResolver.setIsSyncable(amAccount, ContactsContract.AUTHORITY, 0);
+        ContentResolver.setIsSyncable(amAccount, CalendarProviderStub.AUTHORITY, 0);
+    }
+
+    @VisibleForTesting
+    static void upgradeFromVersion21ToVersion22(SQLiteDatabase db, Context accountManagerContext) {
+        try {
+            // Loop through accounts, looking for pop/imap accounts
+            Cursor accountCursor = db.query(Account.TABLE_NAME, RECV_PROJECTION, null,
+                    null, null, null, null);
+            try {
+                String[] hostAuthArgs = new String[1];
+                while (accountCursor.moveToNext()) {
+                    hostAuthArgs[0] = accountCursor.getString(EMAIL_AND_RECV_COLUMN_RECV);
+                    // Get the "receive" HostAuth for this account
+                    Cursor hostAuthCursor = db.query(HostAuth.TABLE_NAME,
+                            HostAuth.CONTENT_PROJECTION, HostAuth.RECORD_ID + "=?", hostAuthArgs,
+                            null, null, null);
+                    try {
+                        if (hostAuthCursor.moveToFirst()) {
+                            HostAuth hostAuth = new HostAuth();
+                            hostAuth.restore(hostAuthCursor);
+                            String protocol = hostAuth.mProtocol;
+                            // If this is a pop3 or imap account, create the account manager account
+                            if ("imap".equals(protocol) || "pop3".equals(protocol)) {
+                                createAccountManagerAccount(accountManagerContext, hostAuth);
+                            }
+                        }
+                    } finally {
+                        hostAuthCursor.close();
+                    }
+                }
+            } finally {
+                accountCursor.close();
+            }
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
             Log.w(TAG, "Exception upgrading EmailProvider.db from 20 to 21 " + e);

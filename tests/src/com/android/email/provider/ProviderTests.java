@@ -16,6 +16,7 @@
 
 package com.android.email.provider;
 
+import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
@@ -28,9 +29,13 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.AccountReconciler;
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
 
+import android.accounts.AccountManager;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -2228,5 +2233,106 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         // No LOADED check for outboxes.
         assertEquals(Message.MAILBOX_KEY + "=" + out.mId,
                 Message.buildMessageListSelection(c, out.mId));
+    }
+
+    /**
+     * Determine whether a list of AccountManager accounts includes a given EmailProvider account
+     * @param amAccountList a list of AccountManager accounts
+     * @param account an EmailProvider account
+     * @param context the caller's context (our test provider's context)
+     * @return whether or not the EmailProvider account is represented in AccountManager
+     */
+    private boolean amAccountListHasAccount(android.accounts.Account[] amAccountList,
+            Account account, Context context) {
+        HostAuth hostAuth = HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
+        if (hostAuth == null) return false;
+        String login = hostAuth.mLogin;
+        for (android.accounts.Account amAccount: amAccountList) {
+            if (amAccount.name.equals(login)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Remove a single pop/imap account from the AccountManager
+     * @param accountManager our AccountManager
+     * @param name the name of the test account to remove
+     */
+    private void removeAccountManagerAccount(AccountManager accountManager, String name) {
+        try {
+            accountManager.removeAccount(
+                    new android.accounts.Account(name, AccountManagerTypes.TYPE_POP_IMAP),
+                    null, null).getResult();
+        } catch (OperationCanceledException e) {
+        } catch (AuthenticatorException e) {
+        } catch (IOException e) {
+        }
+    }
+
+    /**
+     * Remove all test accounts from the AccountManager
+     * @param accountManager the AccountManager
+     */
+    private void cleanupTestAccountManagerAccounts(AccountManager accountManager) {
+        android.accounts.Account[] amAccountList =
+            accountManager.getAccountsByType(AccountManagerTypes.TYPE_POP_IMAP);
+        for (android.accounts.Account account: amAccountList) {
+            if (account.name.startsWith(AccountReconciler.ACCOUNT_MANAGER_ACCOUNT_TEST_PREFIX)) {
+                removeAccountManagerAccount(accountManager, account.name);
+            }
+        }
+    }
+
+    /** Verifies updating the DB from v21 to v22 works as expected */
+    public void testUpgradeFromVersion21ToVersion22() {
+        String imapTestLogin =
+            AccountReconciler.ACCOUNT_MANAGER_ACCOUNT_TEST_PREFIX + "imap.host.com";
+        String pop3TestLogin =
+            AccountReconciler.ACCOUNT_MANAGER_ACCOUNT_TEST_PREFIX + "pop3.host.com";
+        AccountManager accountManager = AccountManager.get(mContext);
+
+        // Create provider accounts (one of each type)
+        Account a1 = createAccount(mMockContext, "exchange",
+                ProviderTestUtils.setupHostAuth("eas", "exchange.host.com", true, mMockContext),
+                null);
+        HostAuth h2 =
+            ProviderTestUtils.setupHostAuth("imap", "imap.host.com", false, mMockContext);
+        h2.mLogin = imapTestLogin;
+        h2.save(mMockContext);
+        Account a2 = createAccount(mMockContext, "imap", h2,
+                ProviderTestUtils.setupHostAuth("smtp", "smtp.host.com", true, mMockContext));
+        HostAuth h3 =
+            ProviderTestUtils.setupHostAuth("pop3", "pop3.host.com", false, mMockContext);
+        h3.mLogin = pop3TestLogin;
+        h3.save(mMockContext);
+        Account a3 = createAccount(mMockContext, "pop3", h3,
+                ProviderTestUtils.setupHostAuth("smtp", "smtp.host.com", true, mMockContext));
+
+        // Get the current list of AccountManager accounts (we have to use the real context here),
+        // whereas we use the mock context for EmailProvider (this is because the mock context
+        // doesn't implement AccountManager hooks)
+        android.accounts.Account[] amAccountList =
+            accountManager.getAccountsByType(AccountManagerTypes.TYPE_POP_IMAP);
+        // There shouldn't be AccountManager accounts for these
+        assertFalse(amAccountListHasAccount(amAccountList, a1, mMockContext));
+        assertFalse(amAccountListHasAccount(amAccountList, a2, mMockContext));
+        assertFalse(amAccountListHasAccount(amAccountList, a3, mMockContext));
+
+        amAccountList = null;
+        try {
+            // Upgrade the database
+            SQLiteDatabase db = getProvider().getDatabase(mMockContext);
+            EmailProvider.upgradeFromVersion21ToVersion22(db, getContext());
+
+            // The pop3 and imap account should now be in account manager
+            amAccountList = accountManager.getAccountsByType(AccountManagerTypes.TYPE_POP_IMAP);
+            assertFalse(amAccountListHasAccount(amAccountList, a1, mMockContext));
+            assertTrue(amAccountListHasAccount(amAccountList, a2, mMockContext));
+            assertTrue(amAccountListHasAccount(amAccountList, a3, mMockContext));
+        } finally {
+            cleanupTestAccountManagerAccounts(accountManager);
+        }
     }
 }
