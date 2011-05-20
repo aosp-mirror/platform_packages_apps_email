@@ -546,7 +546,7 @@ public class AccountSettings extends PreferenceActivity {
             AccountSettingsFragment asf = (AccountSettingsFragment) f;
             asf.setCallback(mAccountSettingsFragmentCallback);
         } else if (f instanceof AccountServerBaseFragment) {
-            AccountServerBaseFragment asbf = (AccountServerBaseFragment) mCurrentFragment;
+            AccountServerBaseFragment asbf = (AccountServerBaseFragment) f;
             asbf.setCallback(mAccountServerSettingsFragmentCallback);
         } else {
             // Possibly uninteresting fragment, such as a dialog.
