@@ -153,7 +153,6 @@ public abstract class ShortcutPickerFragment extends ListFragment
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
 
         // Now, return the result to the launcher
-
         myActivity.setResult(Activity.RESULT_OK, intent);
     }
 
@@ -172,17 +171,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-            Account account = new Account();
-            account.restore(cursor);
-            ShortcutPickerFragment fragment = new MailboxShortcutPickerFragment();
-            final Bundle args = new Bundle();
-            args.putParcelable(MailboxShortcutPickerFragment.ARG_ACCOUNT, account);
-            fragment.setArguments(args);
-            getFragmentManager()
-                .beginTransaction()
-                    .replace(R.id.shortcut_list, fragment)
-                    .addToBackStack(null)
-                    .commit();
+            selectAccountCursor(cursor);
         }
 
         @Override
@@ -194,8 +183,33 @@ public abstract class ShortcutPickerFragment extends ListFragment
         }
 
         @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            // if there is only one account, auto-select it
+            if (data.getCount() == 1 && data.moveToFirst()) {
+                selectAccountCursor(data);
+                return;
+            }
+            super.onLoadFinished(loader, data);
+        }
+
+        @Override
         String[] getFromColumns() {
             return ACCOUNT_FROM_COLUMNS;
+        }
+
+        /** Selects the account specified by the given cursor */
+        private void selectAccountCursor(Cursor cursor) {
+            Account account = new Account();
+            account.restore(cursor);
+            ShortcutPickerFragment fragment = new MailboxShortcutPickerFragment();
+            final Bundle args = new Bundle();
+            args.putParcelable(MailboxShortcutPickerFragment.ARG_ACCOUNT, account);
+            fragment.setArguments(args);
+            getFragmentManager()
+                .beginTransaction()
+                    .replace(R.id.shortcut_list, fragment)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
@@ -261,6 +275,18 @@ public abstract class ShortcutPickerFragment extends ListFragment
             return new CursorLoader(
                 context, Mailbox.CONTENT_URI, projection, ALL_MAILBOX_SELECTION,
                 new String[] { Long.toString(mAccount.mId) }, orderBy);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            // if there is only one mailbox, auto-select it
+            if (data.getCount() == 1 && data.moveToFirst()) {
+                long mailboxId = data.getLong(Mailbox.CONTENT_ID_COLUMN);
+                setupShortcut(mAccount, mailboxId);
+                getActivity().finish();
+                return;
+            }
+            super.onLoadFinished(loader, data);
         }
 
         @Override
