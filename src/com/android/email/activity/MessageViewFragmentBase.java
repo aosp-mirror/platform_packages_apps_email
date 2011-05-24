@@ -93,8 +93,6 @@ import java.util.regex.Pattern;
 
 /**
  * Base class for {@link MessageViewFragment} and {@link MessageFileViewFragment}.
- *
- * See {@link MessageViewBase} for the class relation diagram.
  */
 public abstract class MessageViewFragmentBase extends Fragment implements View.OnClickListener {
     private static final String BUNDLE_KEY_CURRENT_TAB = "MessageViewFragmentBase.currentTab";
@@ -209,11 +207,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private static final float[] ZOOM_SCALE_ARRAY = new float[] {0.8f, 0.9f, 1.0f, 1.2f, 1.5f};
 
     public interface Callback {
-        /** Called when the fragment is about to show up, or show a different message. */
-        public void onMessageViewShown(int mailboxType);
+        /** Called when a message is about to be shown. */
+        public void onMessageShown();
 
         /** Called when the fragment is about to be destroyed. */
-        public void onMessageViewGone();
+        public void onMessageViewDestroyed();
 
         /**
          * Called when a link in a message is clicked.
@@ -240,8 +238,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     public static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onMessageViewShown(int mailboxType) {}
-        @Override public void onMessageViewGone() {}
+        @Override public void onMessageShown() {}
+        @Override public void onMessageViewDestroyed() {}
         @Override public void onLoadMessageError(String errorMessage) {}
         @Override public void onLoadMessageFinished() {}
         @Override public void onLoadMessageStarted() {}
@@ -383,7 +381,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroy");
         }
-        mCallback.onMessageViewGone();
+        mCallback.onMessageViewDestroyed();
         mController.removeResultCallback(mControllerCallback);
         cancelAllTasks();
         mMessageContentView.destroy();
@@ -1041,7 +1039,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      * Called when a message is shown to the user.
      */
     protected void onMessageShown(long messageId, int mailboxType) {
-        mCallback.onMessageViewShown(mailboxType);
+        mCallback.onMessageShown();
     }
 
     /**

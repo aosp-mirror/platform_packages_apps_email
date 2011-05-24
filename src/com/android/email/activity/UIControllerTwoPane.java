@@ -302,14 +302,14 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     // MessageViewFragment$Callback
     @Override
-    public void onMessageViewShown(int mailboxType) {
+    public void onMessageShown() {
         updateMessageOrderManager();
         updateNavigationArrows();
     }
 
     // MessageViewFragment$Callback
     @Override
-    public void onMessageViewGone() {
+    public void onMessageViewDestroyed() {
         stopMessageOrderManager();
     }
 
