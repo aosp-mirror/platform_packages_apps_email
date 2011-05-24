@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.R;
+import com.android.email.activity.ShortcutPickerFragment.AccountShortcutPickerFragment;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -27,27 +28,31 @@ import android.view.View.OnClickListener;
 /**
  * This class implements a launcher shortcut for directly accessing a single account.
  */
-public class AccountShortcutPicker extends Activity implements OnClickListener {
+public class ShortcutPicker extends Activity implements OnClickListener {
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
         // TODO Relax this test slightly in order to re-use this activity for widget creation
-        // finish() immediately if we aren't supposed to be here
         if (!Intent.ACTION_CREATE_SHORTCUT.equals(getIntent().getAction())) {
+            // finish() immediately if we aren't supposed to be here
             finish();
             return;
         }
 
+        // Set handler for the "cancel" button
         setContentView(R.layout.account_shortcut_picker);
         findViewById(R.id.cancel).setOnClickListener(this);
+
+        if (getFragmentManager().findFragmentById(R.id.shortcut_list) == null) {
+            // Load the account picking fragment
+            // NOTE: do not add to history as this is the first fragment in the flow
+            AccountShortcutPickerFragment fragment = new AccountShortcutPickerFragment();
+            getFragmentManager().beginTransaction().add(R.id.shortcut_list, fragment).commit();
+        }
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
     @Override
     public void onClick(View v) {
         switch (v.getId()) {

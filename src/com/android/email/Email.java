@@ -16,7 +16,7 @@
 
 package com.android.email;
 
-import com.android.email.activity.AccountShortcutPicker;
+import com.android.email.activity.ShortcutPicker;
 import com.android.email.activity.MessageCompose;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.email.service.MailService;
@@ -142,7 +142,7 @@ public class Email extends Application {
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);
         pm.setComponentEnabledSetting(
-                new ComponentName(context, AccountShortcutPicker.class),
+                new ComponentName(context, ShortcutPicker.class),
                 enabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP);

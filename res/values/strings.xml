@@ -940,8 +940,10 @@ save attachment.</string>
     <!-- Strings used for account shortcut picker -->
     <!-- String displayed in launcher [CHAR_LIMIT=10] -->
     <string name="account_shortcut_picker_name">Email account</string>
-    <!-- Title of activity/dialog containing shortcut picker (list of accounts) [CHAR_LIMIT=20] -->
+    <!-- Title of the account list for the shortcut picker [CHAR_LIMIT=20] -->
     <string name="account_shortcut_picker_title">Select an account</string>
+    <!-- Title of mailbox list for the shortcut picker [CHAR_LIMIT=20] -->
+    <string name="mailbox_shortcut_picker_title">Select a mailbox</string>
 
     <!-- Toast shown when the selected account no longer exists.  This is used when, for example,
          a shotcut or a widget is stale and points at a deleted account.

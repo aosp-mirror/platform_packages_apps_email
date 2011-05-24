@@ -179,9 +179,9 @@
             >
         </activity>
 
+        <!-- Don't need to set the title; it will be set programatically -->
         <activity
-            android:name=".activity.AccountShortcutPicker"
-            android:label="@string/account_shortcut_picker_title"
+            android:name=".activity.ShortcutPicker"
             android:enabled="false"
             android:theme="@android:style/Theme.Holo.DialogWhenLarge"
             >

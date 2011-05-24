@@ -20,7 +20,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-    <fragment android:name="com.android.email.activity.AccountShortcutPickerFragment"
+    <FrameLayout
         android:id="@+id/shortcut_list"
         android:layout_width="match_parent"
         android:layout_height="0dip"

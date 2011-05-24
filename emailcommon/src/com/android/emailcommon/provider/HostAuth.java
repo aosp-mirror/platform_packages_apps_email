@@ -35,6 +35,12 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public static final String TABLE_NAME = "HostAuth";
     @SuppressWarnings("hiding")
     public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/hostauth");
+    // TODO the three following constants duplicate constants in Store.java; remove those and
+    //      just reference these.
+    public static final String SCHEME_IMAP = "imap";
+    public static final String SCHEME_POP3 = "pop3";
+    public static final String SCHEME_EAS = "eas";
+    public static final String SCHEME_SMTP = "smtp";
 
     public static final int PORT_UNKNOWN = -1;
 
@@ -267,16 +273,21 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
             // block cannot easily be moved because we get process URIs from other sources
             // (e.g. for tests, provider templates and account restore) that may or may not
             // have a port specified.
-            if ("pop3".equals(mProtocol)) {
+            if (SCHEME_POP3.equals(mProtocol)) {
                 mPort = useSSL ? 995 : 110;
-            } else if ("imap".equals(mProtocol)) {
+            } else if (SCHEME_IMAP.equals(mProtocol)) {
                 mPort = useSSL ? 993 : 143;
-            } else if ("eas".equals(mProtocol)) {
+            } else if (SCHEME_EAS.equals(mProtocol)) {
                 mPort = useSSL ? 443 : 80;
-            }  else if ("smtp".equals(mProtocol)) {
+            } else if (SCHEME_SMTP.equals(mProtocol)) {
                 mPort = useSSL ? 465 : 587;
             }
         }
+    }
+
+    /** Returns {@code true} if this is an EAS connection; otherwise, {@code false}. */
+    public boolean isEasConnection() {
+        return SCHEME_EAS.equals(mProtocol);
     }
 
     /**

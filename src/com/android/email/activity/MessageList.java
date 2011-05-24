@@ -79,7 +79,7 @@ public class MessageList extends Activity {
 
     /**
      * Create a froyo/gingerbread style account shortcut intent.  Used by unit tests and
-     * test code in {@link AccountShortcutPicker}.
+     * test code in {@link ShortcutPicker}.
      */
     @VisibleForTesting
     static Intent createFroyoIntent(Context context, Account account) {

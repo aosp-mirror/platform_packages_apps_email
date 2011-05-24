@@ -122,10 +122,11 @@ public class Welcome extends Activity {
      * Create an {@link Intent} for account shortcuts.  The returned intent stores the account's
      * UUID rather than the account ID, which will be changed after account restore.
      */
-    public static Intent createAccountShortcutIntent(Context context, Account account) {
+    public static Intent createAccountShortcutIntent(Context context, String uuid, long mailboxId) {
         final Uri.Builder b = IntentUtilities.createActivityIntentUrlBuilder(
                 VIEW_MAILBOX_INTENT_URL_PATH);
-        IntentUtilities.setAccountUuid(b, account.mCompatibilityUuid);
+        IntentUtilities.setAccountUuid(b, uuid);
+        IntentUtilities.setMailboxId(b, mailboxId);
         return IntentUtilities.createRestartAppIntent(b.build());
     }
 
