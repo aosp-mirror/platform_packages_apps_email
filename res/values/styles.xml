@@ -16,6 +16,9 @@
 
 <!-- See also values-xlarge for specializations for xlarge screens -->
 <resources>
+    <style name="EmailTheme" parent="@android:style/Theme.Holo.Light">
+    </style>
+
     <style name="unreadCount">
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>
