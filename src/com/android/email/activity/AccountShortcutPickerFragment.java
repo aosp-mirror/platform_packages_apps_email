@@ -51,11 +51,9 @@ public class AccountShortcutPickerFragment extends ListFragment
 
     private final static String[] FROM_COLUMNS = new String[] {
             AccountColumns.DISPLAY_NAME,
-            AccountColumns.EMAIL_ADDRESS,
     };
     private final static int[] TO_IDS = new int[] {
-            R.id.description,
-            R.id.email,
+            android.R.id.text1,
     };
     private SimpleCursorAdapter mAdapter;
 
@@ -70,7 +68,7 @@ public class AccountShortcutPickerFragment extends ListFragment
         String[] fromColumns;
         fromColumns = FROM_COLUMNS;
         mAdapter = new SimpleCursorAdapter(getActivity(),
-            R.layout.account_shortcut_picker_item, null, fromColumns, TO_IDS, 0);
+            android.R.layout.simple_expandable_list_item_1, null, fromColumns, TO_IDS, 0);
         setListAdapter(mAdapter);
 
         getLoaderManager().initLoader(0, null, this);
