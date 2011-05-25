@@ -253,6 +253,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private Callback mCallback = EmptyCallback.INSTANCE;
 
     @Override
+    public void onAttach(Activity activity) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onAttach");
+        }
+        super.onAttach(activity);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onCreate");
@@ -377,6 +385,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     @Override
+    public void onDestroyView() {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onDestroyView");
+        }
+        super.onDestroyView();
+    }
+
+    @Override
     public void onDestroy() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroy");
@@ -387,6 +403,14 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mMessageContentView.destroy();
         mMessageContentView = null;
         super.onDestroy();
+    }
+
+    @Override
+    public void onDetach() {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onDetach");
+        }
+        super.onDetach();
     }
 
     @Override

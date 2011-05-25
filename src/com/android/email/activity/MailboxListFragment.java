@@ -23,9 +23,7 @@ import com.android.email.RefreshManager;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
@@ -57,6 +55,15 @@ import java.util.TimerTask;
 
 /**
  * This fragment presents a list of mailboxes for a given account.
+ *
+ * Note that when a fragment is put in the back stack, it'll lose the content view but the fragment
+ * itself is not destroyed.  If you call {@link #getListView()} in this state it'll throw
+ * an {@link IllegalStateException}.  So,
+ * - If code is supposed to be executed only when the fragment has the content view, use
+ *   {@link #getListView()} directly to make sure it doesn't accidentally get executed when there's
+ *   no views.
+ * - Otherwise, make sure to check if the fragment has views with {@link #isViewCreated()}
+ *   before touching any views.
  */
 public class MailboxListFragment extends ListFragment implements OnItemClickListener,
         OnDragListener {
@@ -93,10 +100,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private Activity mActivity;
     private MailboxesAdapter mListAdapter;
     private Callback mCallback = EmptyCallback.INSTANCE;
-
-    private ListView mListView;
-
-    private boolean mResumed;
 
     // Colors used for drop targets
     private static Integer sDropTrashColor;
@@ -254,6 +257,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         return getParentMailboxId() == Mailbox.NO_MAILBOX;
     }
 
+    @Override
+    public void onAttach(Activity activity) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onAttach");
+        }
+        super.onAttach(activity);
+    }
+
     /**
      * Called to do initial creation of a fragment.  This is called after
      * {@link #onAttach(Activity)} and before {@link #onActivityCreated(Bundle)}.
@@ -268,6 +279,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mActivity = getActivity();
         mRefreshManager = RefreshManager.getInstance(mActivity);
         mListAdapter = new MailboxFragmentAdapter(mActivity, mMailboxesAdapterCallback);
+        setListAdapter(mListAdapter); // It's safe to do even before the list view is created.
         if (savedInstanceState != null) {
             restoreInstanceState(savedInstanceState);
         }
@@ -281,7 +293,18 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onCreateView");
+        }
         return inflater.inflate(R.layout.mailbox_list_fragment, container, false);
+    }
+
+    /**
+     * @return true if the content view is created and not destroyed yet. (i.e. between
+     * {@link #onCreateView} and {@link #onDestroyView}.
+     */
+    private boolean isViewCreated() {
+        return getView() != null;
     }
 
     @Override
@@ -291,11 +314,12 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         super.onActivityCreated(savedInstanceState);
 
-        mListView = getListView();
-        mListView.setOnItemClickListener(this);
-        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        mListView.setOnDragListener(this);
-        registerForContextMenu(mListView);
+        // Note we can't do this in onCreateView.
+        // getListView() is only usable after onCreateView().
+        final ListView lv = getListView();
+        lv.setOnItemClickListener(this);
+        lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        lv.setOnDragListener(this);
 
         startLoading();
     }
@@ -308,9 +332,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Returns whether or not the specified mailbox can be navigated to.
      */
     private boolean isNavigable(long mailboxId) {
-        final int count = mListView.getCount();
+        final ListView lv = getListView();
+        final int count = lv.getCount();
         for (int i = 0; i < count; i++) {
-            final MailboxListItem item = (MailboxListItem) mListView.getChildAt(i);
+            final MailboxListItem item = (MailboxListItem) lv.getChildAt(i);
             if (item.mMailboxId != mailboxId) {
                 continue;
             }
@@ -325,9 +350,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      */
     public void setSelectedMailbox(long mailboxId) {
         mSelectedMailboxId = mailboxId;
-        if (mResumed) {
-            highlightSelectedMailbox(true);
-        }
+        highlightSelectedMailbox(true);
     }
 
     /**
@@ -350,7 +373,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Logging.LOG_TAG, this + " onResume");
         }
         super.onResume();
-        mResumed = true;
 
         // Fetch the latest mailbox list from the server here if stale so that the user always
         // sees the (reasonably) up-to-date mailbox list, without pressing "refresh".
@@ -365,9 +387,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onPause");
         }
-        mResumed = false;
-        super.onPause();
         mSavedListState = getListView().onSaveInstanceState();
+        super.onPause();
     }
 
     /**
@@ -379,6 +400,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Logging.LOG_TAG, this + " onStop");
         }
         super.onStop();
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onDestroyView");
+        }
+        super.onDestroyView();
     }
 
     /**
@@ -393,13 +422,23 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     @Override
+    public void onDetach() {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onDetach");
+        }
+        super.onDetach();
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
         outState.putLong(BUNDLE_KEY_SELECTED_MAILBOX_ID, mSelectedMailboxId);
-        outState.putParcelable(BUNDLE_LIST_STATE, getListView().onSaveInstanceState());
+        if (isViewCreated()) {
+            outState.putParcelable(BUNDLE_LIST_STATE, getListView().onSaveInstanceState());
+        }
     }
 
     private void restoreInstanceState(Bundle savedInstanceState) {
@@ -414,8 +453,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " startLoading");
         }
-        // Clear the list.  (ListFragment will show the "Loading" animation)
-        setListShown(false);
 
         final LoaderManager lm = getLoaderManager();
         lm.initLoader(MAILBOX_LOADER_ID, null, new MailboxListLoaderCallbacks());
@@ -442,15 +479,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 Log.d(Logging.LOG_TAG, MailboxListFragment.this + " onLoadFinished  count="
                         + cursor.getCount());
             }
-            // Save list view state (primarily scroll position)
-            final ListView lv = getListView();
-            final Parcelable listState;
-            if (mSavedListState != null) {
-                listState = mSavedListState;
-                mSavedListState = null;
-            } else {
-                listState = lv.onSaveInstanceState();
-            }
+            // Note at this point we can assume the view is created.
+            // The loader manager doesn't deliver results when a fragment is stopped.
 
             if (cursor.getCount() == 0) {
                 // If there's no row, don't set it to the ListView.
@@ -460,7 +490,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             } else {
                 // Set the adapter.
                 mListAdapter.swapCursor(cursor);
-                setListAdapter(mListAdapter);
                 setListShown(true);
 
                 // We want to make visible the selection only for the first load.
@@ -472,9 +501,11 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             mDropTargetId = NO_DROP_TARGET;
             mDropTargetView = null;
 
-            // Restore the state
-            if (listState != null) {
-                lv.onRestoreInstanceState(listState);
+            // Restore the state.  Need to do it manually so that the position will be restored
+            // even after orientation changes.
+            if (mSavedListState != null) {
+                getListView().onRestoreInstanceState(mSavedListState);
+                mSavedListState = null;
             }
 
             mIsFirstLoad = false;
@@ -513,21 +544,25 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Highlight the selected mailbox.
      */
     private void highlightSelectedMailbox(boolean ensureSelectionVisible) {
+        if (!isViewCreated()) {
+            return; // Nothing to highlight
+        }
+        final ListView lv = getListView();
         String mailboxName = "";
         int unreadCount = 0;
         if (mSelectedMailboxId == -1) {
             // No mailbox selected
-            mListView.clearChoices();
+            lv.clearChoices();
         } else {
             // TODO Don't mix list view & list adapter indices. This is a recipe for disaster.
-            final int count = mListView.getCount();
+            final int count = lv.getCount();
             for (int i = 0; i < count; i++) {
                 if (mListAdapter.getId(i) != mSelectedMailboxId) {
                     continue;
                 }
-                mListView.setItemChecked(i, true);
+                lv.setItemChecked(i, true);
                 if (ensureSelectionVisible) {
-                    Utility.listViewSmoothScrollToPosition(getActivity(), mListView, i);
+                    Utility.listViewSmoothScrollToPosition(getActivity(), lv, i);
                 }
                 mailboxName = mListAdapter.getDisplayName(mActivity, i);
                 unreadCount = mListAdapter.getUnreadCount(i);
@@ -544,13 +579,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * a valid target, except red if the trash; standard background otherwise)
      */
     private void updateChildViews() {
-        int itemCount = mListView.getChildCount();
+        final ListView lv = getListView();
+        int itemCount = lv.getChildCount();
         // Lazily initialize the height of our list items
         if (itemCount > 0 && mDragItemHeight < 0) {
-            mDragItemHeight = mListView.getChildAt(0).getHeight();
+            mDragItemHeight = lv.getChildAt(0).getHeight();
         }
         for (int i = 0; i < itemCount; i++) {
-            MailboxListItem item = (MailboxListItem)mListView.getChildAt(i);
+            MailboxListItem item = (MailboxListItem) lv.getChildAt(i);
             item.setDropTargetBackground(mDragInProgress, mDragItemMailboxId);
         }
     }
@@ -619,6 +655,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Called while dragging;  highlight possible drop targets, and auto scroll the list.
      */
     private void onDragLocation(DragEvent event) {
+        final ListView lv = getListView();
         // TODO The list may be changing while in drag-n-drop; temporarily suspend drag-n-drop
         // if the list is being updated [i.e. navigated to another mailbox]
         if (mDragItemHeight <= 0) {
@@ -629,7 +666,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         // Find out which item we're in and highlight as appropriate
         final int rawTouchX = (int) event.getX();
         final int rawTouchY = (int) event.getY();
-        final int viewIndex = pointToIndex(mListView, rawTouchX, rawTouchY);
+        final int viewIndex = pointToIndex(lv, rawTouchX, rawTouchY);
         int targetId = viewIndex;
         if (targetId != mDropTargetId) {
             if (DEBUG_DRAG_DROP) {
@@ -641,13 +678,13 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 mDropTargetView = null;
             }
             // Get the new target mailbox view
-            final MailboxListItem newTarget = (MailboxListItem) mListView.getChildAt(viewIndex);
+            final MailboxListItem newTarget = (MailboxListItem) lv.getChildAt(viewIndex);
             if (newTarget == null) {
                 // In any event, we're no longer dragging in the list view if newTarget is null
                 if (DEBUG_DRAG_DROP) {
                     Log.d(TAG, "=== Drag off the list");
                 }
-                final int childCount = mListView.getChildCount();
+                final int childCount = lv.getChildCount();
                 if (viewIndex >= childCount) {
                     // Touching beyond the end of the list; may happen for small lists
                     onDragExited();
@@ -681,20 +718,20 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
         // This is a quick-and-dirty implementation of drag-under-scroll; something like this
         // should eventually find its way into the framework
-        int scrollDiff = rawTouchY - (mListView.getHeight() - SCROLL_ZONE_SIZE);
+        int scrollDiff = rawTouchY - (lv.getHeight() - SCROLL_ZONE_SIZE);
         boolean scrollDown = (scrollDiff > 0);
         boolean scrollUp = (SCROLL_ZONE_SIZE > rawTouchY);
         if (!mTargetScrolling && scrollDown) {
-            int itemsToScroll = mListView.getCount() - mListView.getLastVisiblePosition();
+            int itemsToScroll = lv.getCount() - lv.getLastVisiblePosition();
             int pixelsToScroll = (itemsToScroll + 1) * mDragItemHeight;
-            mListView.smoothScrollBy(pixelsToScroll, pixelsToScroll * SCROLL_SPEED);
+            lv.smoothScrollBy(pixelsToScroll, pixelsToScroll * SCROLL_SPEED);
             if (DEBUG_DRAG_DROP) {
                 Log.d(TAG, "=== Start scrolling list down");
             }
             mTargetScrolling = true;
         } else if (!mTargetScrolling && scrollUp) {
-            int pixelsToScroll = (mListView.getFirstVisiblePosition() + 1) * mDragItemHeight;
-            mListView.smoothScrollBy(-pixelsToScroll, pixelsToScroll * SCROLL_SPEED);
+            int pixelsToScroll = (lv.getFirstVisiblePosition() + 1) * mDragItemHeight;
+            lv.smoothScrollBy(-pixelsToScroll, pixelsToScroll * SCROLL_SPEED);
             if (DEBUG_DRAG_DROP) {
                 Log.d(TAG, "=== Start scrolling list up");
             }
@@ -708,13 +745,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Indicate that scrolling has stopped
      */
     private void stopScrolling() {
+        final ListView lv = getListView();
         if (mTargetScrolling) {
             mTargetScrolling = false;
             if (DEBUG_DRAG_DROP) {
                 Log.d(TAG, "=== Stop scrolling list");
             }
             // Stop the scrolling
-            mListView.smoothScrollBy(0, 0);
+            lv.smoothScrollBy(0, 0);
         }
     }
 

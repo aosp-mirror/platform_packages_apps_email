@@ -69,7 +69,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -315,6 +314,14 @@ public class MessageListFragment extends ListFragment
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onAttach");
+        }
+        super.onAttach(activity);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onCreate");
@@ -331,6 +338,9 @@ public class MessageListFragment extends ListFragment
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onCreateView");
+        }
         // Use a custom layout, which includes the original layout with "send messages" panel.
         View root = inflater.inflate(R.layout.message_list_fragment,null);
         mListPanel = root.findViewById(R.id.list_panel);
@@ -403,6 +413,14 @@ public class MessageListFragment extends ListFragment
     }
 
     @Override
+    public void onDestroyView() {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onDestroyView");
+        }
+        super.onDestroyView();
+    }
+
+    @Override
     public void onDestroy() {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroy");
@@ -416,6 +434,14 @@ public class MessageListFragment extends ListFragment
         // called.  Consider doing it in onDestroyView instead.
         finishSelectionMode();
         super.onDestroy();
+    }
+
+    @Override
+    public void onDetach() {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onDetach");
+        }
+        super.onDetach();
     }
 
     @Override
