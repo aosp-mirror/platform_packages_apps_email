@@ -133,12 +133,12 @@ public class MessageFileView extends Activity implements MessageViewFragmentBase
     }
 
     @Override
-    public void onMessageViewShown(int mailboxType) {
+    public void onMessageShown() {
         // Not important for EMLs
     }
 
     @Override
-    public void onMessageViewGone() {
+    public void onMessageViewDestroyed() {
         // Not important for EMLs
     }
 

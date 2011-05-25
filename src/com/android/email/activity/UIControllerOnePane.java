@@ -200,13 +200,13 @@ class UIControllerOnePane extends UIControllerBase {
         }
 
         @Override
-        public void onMessageViewGone() {
+        public void onMessageViewDestroyed() {
             // TODO Auto-generated method stub
 
         }
 
         @Override
-        public void onMessageViewShown(int mailboxType) {
+        public void onMessageShown() {
             // TODO Auto-generated method stub
 
         }
