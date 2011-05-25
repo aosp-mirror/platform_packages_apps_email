@@ -849,13 +849,10 @@ public class MessageListFragment extends ListFragment
     }
 
     private void deleteMessages(Set<Long> selectedSet) {
-        // Clone the set, because deleting is going to thrash things
-        HashSet<Long> cloneSet = new HashSet<Long>(selectedSet);
-        for (Long id : cloneSet) {
-            mController.deleteMessage(id, -1);
-        }
+        final long[] messageIds = Utility.toPrimitiveLongArray(selectedSet);
+        mController.deleteMessages(messageIds);
         Toast.makeText(mActivity, mActivity.getResources().getQuantityString(
-                R.plurals.message_deleted_toast, cloneSet.size()), Toast.LENGTH_SHORT).show();
+                R.plurals.message_deleted_toast, messageIds.length), Toast.LENGTH_SHORT).show();
         selectedSet.clear();
         // Message deletion is async... Can't refresh the list immediately.
     }

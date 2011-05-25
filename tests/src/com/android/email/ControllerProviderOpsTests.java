@@ -218,7 +218,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                     true, mProviderContext);
             long messageId = message.mId;
 
-            mTestController.deleteMessageSync(messageId, account1Id);
+            mTestController.deleteMessageSync(messageId);
 
             // now read back a fresh copy and confirm it's in the trash
             Message restored = EmailContent.Message.restoreMessageWithId(mProviderContext,
@@ -227,38 +227,24 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         }
 
         {
-            // Case 2: Message in a regular mailbox, account *un*known.
-            Message message = ProviderTestUtils.setupMessage("message2", account1Id, boxId, false,
-                    true, mProviderContext);
-            long messageId = message.mId;
-
-            mTestController.deleteMessageSync(messageId, -1);
-
-            // now read back a fresh copy and confirm it's in the trash
-            Message restored = EmailContent.Message.restoreMessageWithId(mProviderContext,
-                    messageId);
-            assertEquals(trashBoxId, restored.mMailboxKey);
-        }
-
-        {
-            // Case 3: Already in trash
+            // Case 2: Already in trash
             Message message = ProviderTestUtils.setupMessage("message3", account1Id, trashBoxId,
                     false, true, mProviderContext);
             long messageId = message.mId;
 
-            mTestController.deleteMessageSync(messageId, account1Id);
+            mTestController.deleteMessageSync(messageId);
 
             // Message should be deleted.
             assertNull(EmailContent.Message.restoreMessageWithId(mProviderContext, messageId));
         }
 
         {
-            // Case 4: Draft
+            // Case 3: Draft
             Message message = ProviderTestUtils.setupMessage("message3", account1Id, draftBoxId,
                     false, true, mProviderContext);
             long messageId = message.mId;
 
-            mTestController.deleteMessageSync(messageId, account1Id);
+            mTestController.deleteMessageSync(messageId);
 
             // Message should be deleted.
             assertNull(EmailContent.Message.restoreMessageWithId(mProviderContext, messageId));
@@ -280,7 +266,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
                         mProviderContext);
         long message1Id = message1.mId;
 
-        mTestController.deleteMessageSync(message1Id, account1Id);
+        mTestController.deleteMessageSync(message1Id);
 
         // now read back a fresh copy and confirm it's in the trash
         Message message1get =

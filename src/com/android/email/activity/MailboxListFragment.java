@@ -791,24 +791,12 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             long id = Long.parseLong(msgNum);
             messageIds[i] = id;
         }
-        final MailboxListItem targetItem = mDropTargetView;
         // Call either deleteMessage or moveMessage, depending on the target
-        EmailAsyncTask.runAsyncSerial(new Runnable() {
-            @Override
-            public void run() {
-                if (targetItem.mMailboxType == Mailbox.TYPE_TRASH) {
-                    for (long messageId: messageIds) {
-                        // TODO Get this off UI thread (put in clip)
-                        Message msg = Message.restoreMessageWithId(mActivity, messageId);
-                        if (msg != null) {
-                            controller.deleteMessage(messageId, msg.mAccountKey);
-                        }
-                    }
-                } else {
-                    controller.moveMessages(messageIds, targetItem.mMailboxId);
-                }
-            }
-        });
+        if (mDropTargetView.mMailboxType == Mailbox.TYPE_TRASH) {
+            controller.deleteMessages(messageIds);
+        } else {
+            controller.moveMessages(messageIds, mDropTargetView.mMailboxId);
+        }
         return true;
     }
 

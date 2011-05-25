@@ -1306,7 +1306,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // first save, we give it an ID at this point for the first time (and last time).
             // Which means it's possible for a draft to not have an ID in onDiscard(),
             // but here.
-            mController.deleteMessage(mDraft.mId, mDraft.mAccountKey);
+            mController.deleteMessage(mDraft.mId);
         }
         Utility.showToast(MessageCompose.this, R.string.message_discarded_toast);
         setDraftNeedsSaving(false);

@@ -722,6 +722,33 @@ public class Controller {
     }
 
     /**
+     * Async version of {@link #deleteMessageSync}.
+     */
+    public void deleteMessage(final long messageId) {
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
+            public void run() {
+                deleteMessageSync(messageId);
+            }
+        });
+    }
+
+    /**
+     * Batch & async version of {@link #deleteMessageSync}.
+     */
+    public void deleteMessages(final long[] messageIds) {
+        if (messageIds == null || messageIds.length == 0) {
+            throw new IllegalArgumentException();
+        }
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
+            public void run() {
+                for (long messageId: messageIds) {
+                    deleteMessageSync(messageId);
+                }
+            }
+        });
+    }
+
+    /**
      * Delete a single message by moving it to the trash, or really delete it if it's already in
      * trash or a draft message.
      *
@@ -729,20 +756,8 @@ public class Controller {
      * is reflected entirely by changes to one or more cursors.
      *
      * @param messageId The id of the message to "delete".
-     * @param accountId The id of the message's account, or -1 if not known by caller
      */
-    public void deleteMessage(final long messageId, final long accountId) {
-        Utility.runAsync(new Runnable() {
-            public void run() {
-                deleteMessageSync(messageId, accountId);
-            }
-        });
-    }
-
-    /**
-     * Synchronous version of {@link #deleteMessage} for tests.
-     */
-    /* package */ void deleteMessageSync(long messageId, long accountId) {
+    /* package */ void deleteMessageSync(long messageId) {
         // 1. Get the message's account
         Account account = Account.getAccountForMessageId(mProviderContext, messageId);
 
