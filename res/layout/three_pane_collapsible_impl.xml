@@ -16,12 +16,10 @@
 
 <!-- ThreePaneLayout is based on LinearLayout with the orientation always horizontal -->
 
-<!-- for portrait -->
+<!-- Implementation of a three pane layout where in some modes, the left pane is
+     collapsible. -->
 <!-- Note the width of each pane is set by code at runtime.  -->
-<com.android.email.activity.ThreePaneLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:splitMotionEvents="true"
-    >
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <FrameLayout
         android:id="@+id/left_pane"
@@ -62,4 +60,4 @@
             android:background="@android:color/transparent"
             />
     </FrameLayout>
-</com.android.email.activity.ThreePaneLayout>
+</merge>

@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- xlarge, landscape -->
+<!-- tablet, landscape -->
 <resources>
     <dimen name="message_compose_field_label_width">120dip</dimen>
 
