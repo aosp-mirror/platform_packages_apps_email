@@ -18,8 +18,6 @@
 <resources>
     <dimen name="message_compose_field_label_width">120dip</dimen>
 
-    <!-- XL activity dimensions -->
-
     <!-- width of mailbox list -->
     <dimen name="mailbox_list_width">304dip</dimen>
     <!-- width of the message list, on the message list + message view mode. -->
@@ -35,6 +33,7 @@
 
     <!-- Account Setup Activities -->
     <dimen name="setup_padding_top">16dip</dimen>
-    <dimen name="setup_padding_left">128dip</dimen>
-    <dimen name="setup_padding_right">128dip</dimen>
+    <dimen name="setup_padding_left">64dip</dimen>
+    <dimen name="setup_padding_right">64dip</dimen>
+
 </resources>
