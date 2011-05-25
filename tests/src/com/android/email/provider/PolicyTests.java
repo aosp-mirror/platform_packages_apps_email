@@ -68,10 +68,10 @@ public class PolicyTests extends ProviderTestCase2<EmailProvider> {
         // Setup two accounts with policies
         Account account1 = ProviderTestUtils.setupAccount("acct1", true, mMockContext);
         Policy policy1 = new Policy();
-        policy1.setAccountPolicy(mMockContext, account1, securitySyncKey);
+        Policy.setAccountPolicy(mMockContext, account1, policy1, securitySyncKey);
         Account account2 = ProviderTestUtils.setupAccount("acct2", true, mMockContext);
         Policy policy2 = new Policy();
-        policy2.setAccountPolicy(mMockContext, account2, securitySyncKey);
+        Policy.setAccountPolicy(mMockContext, account2, policy2, securitySyncKey);
         // Get the accounts back from the database
         account1.refresh(mMockContext);
         account2.refresh(mMockContext);
@@ -92,7 +92,7 @@ public class PolicyTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(0, account.mPolicyKey);
         assertEquals(0, EmailContent.count(mMockContext, Policy.CONTENT_URI));
         Policy policy = new Policy();
-        policy.setAccountPolicy(mMockContext, account, securitySyncKey);
+        Policy.setAccountPolicy(mMockContext, account, policy, securitySyncKey);
         account.refresh(mMockContext);
         // We should have a policyKey now
         assertTrue(account.mPolicyKey > 0);
@@ -122,7 +122,7 @@ public class PolicyTests extends ProviderTestCase2<EmailProvider> {
         Account acct = ProviderTestUtils.setupAccount("acct1", true, mMockContext);
         Policy policy1 = new Policy();
         policy1.mDontAllowAttachments = true;
-        policy1.setAccountPolicy(mMockContext, acct, "0");
+        Policy.setAccountPolicy(mMockContext, acct, policy1, null);
         Mailbox box = ProviderTestUtils.setupMailbox("box1", acct.mId, true, mMockContext);
         Message msg1 = ProviderTestUtils.setupMessage("message1", acct.mId, box.mId, false, false,
                 mMockContext);

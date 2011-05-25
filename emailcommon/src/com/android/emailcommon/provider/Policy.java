@@ -145,34 +145,54 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         return super.save(context);
     }
 
+    static public void clearAccountPolicy(Context context, Account account) {
+        setAccountPolicy(context, account, null, null);
+    }
+
     /**
-     * Associate the policy with an account; this also removes any other policy associated with
-     * the account and sets the policy key for the account.  This is all done atomically
+     * Set the policy for an account atomically; this also removes any other policy associated with
+     * the account and sets the policy key for the account.  If policy is null, the policyKey is
+     * set to 0 and the securitySyncKey to null
      * @param context the caller's context
      * @param account the account whose policy is to be set
-     * @param securitySyncKey the current security sync key for this account
+     * @param policy the policy to set, or null if we're clearing the policy
+     * @param securitySyncKey the security sync key for this account (ignored if policy is null)
      */
-    public void setAccountPolicy(Context context, Account account, String securitySyncKey) {
+    static public void setAccountPolicy(Context context, Account account, Policy policy,
+            String securitySyncKey) {
         if (DEBUG_POLICY) {
-            Log.d(TAG, "Set policy for account " + account.mDisplayName + ": " + toString());
+            Log.d(TAG, "Set policy for account " + account.mDisplayName + ": " +
+                    ((policy == null) ? "none" : policy.toString()));
         }
-        // Make sure this is a valid policy set
-        normalize();
         ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-        // Add the new policy (no account will yet reference this)
-        ops.add(ContentProviderOperation.newInsert(
-                Policy.CONTENT_URI).withValues(toContentValues()).build());
+
+        // Make sure this is a valid policy set
+        if (policy != null) {
+            policy.normalize();
+            // Add the new policy (no account will yet reference this)
+            ops.add(ContentProviderOperation.newInsert(
+                    Policy.CONTENT_URI).withValues(policy.toContentValues()).build());
+            // Make the policyKey of the account our newly created policy, and set the sync key
+            ops.add(ContentProviderOperation.newUpdate(
+                    ContentUris.withAppendedId(Account.CONTENT_URI, account.mId))
+                    .withValueBackReference(AccountColumns.POLICY_KEY, 0)
+                    .withValue(AccountColumns.SECURITY_SYNC_KEY, securitySyncKey)
+                    .build());
+        } else {
+            ops.add(ContentProviderOperation.newUpdate(
+                    ContentUris.withAppendedId(Account.CONTENT_URI, account.mId))
+                    .withValue(AccountColumns.SECURITY_SYNC_KEY, null)
+                    .withValue(AccountColumns.POLICY_KEY, 0)
+                    .build());
+        }
+
         // Delete the previous policy associated with this account, if any
         if (account.mPolicyKey > 0) {
             ops.add(ContentProviderOperation.newDelete(
-                    ContentUris.withAppendedId(Policy.CONTENT_URI, account.mPolicyKey)).build());
+                    ContentUris.withAppendedId(
+                            Policy.CONTENT_URI, account.mPolicyKey)).build());
         }
-        // Make the policyKey of the account our newly created policy, and set the sync key
-        ops.add(ContentProviderOperation.newUpdate(
-                ContentUris.withAppendedId(Account.CONTENT_URI, account.mId))
-                .withValueBackReference(AccountColumns.POLICY_KEY, 0)
-                .withValue(AccountColumns.SECURITY_SYNC_KEY, securitySyncKey)
-                .build());
+
         try {
             context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
         } catch (RemoteException e) {
@@ -182,39 +202,6 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
             // Can't happen; our provider doesn't throw this exception
         }
     }
-
-    /**
-     * Clear any existing policy for a given account and clear the account's security sync key,
-     * and do so atomically
-     * @param context the caller's context
-     * @param account the account whose policy is to be cleared
-     */
-    public static void clearAccountPolicy(Context context, Account account) {
-        if (DEBUG_POLICY) {
-            Log.d(TAG, "Clearing policy for account: " + account.mDisplayName);
-        }
-        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-        // Delete the previous policy associated with this account, if any
-        if (account.mPolicyKey > 0) {
-            ops.add(ContentProviderOperation.newDelete(
-                    ContentUris.withAppendedId(Policy.CONTENT_URI, account.mPolicyKey)).build());
-        }
-        // Clear the security sync key and policy key
-        ops.add(ContentProviderOperation.newUpdate(
-                ContentUris.withAppendedId(Account.CONTENT_URI, account.mId))
-                .withValue(AccountColumns.SECURITY_SYNC_KEY, null)
-                .withValue(AccountColumns.POLICY_KEY, 0)
-                .build());
-        try {
-            context.getContentResolver().applyBatch(EmailContent.AUTHORITY, ops);
-        } catch (RemoteException e) {
-            // This is fatal to a remote process
-            throw new IllegalStateException("Exception setting account policy.");
-        } catch (OperationApplicationException e) {
-            // Can't happen; our provider doesn't throw this exception
-        }
-    }
-
 
     /**
      * Review all attachment records for this account, and reset the "don't allow download" flag
