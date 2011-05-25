@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.FolderProperties;
 import com.android.email.R;
 import com.android.email.data.ClosingMatrixCursor;
+import com.android.email.data.CursorWithExtras;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
@@ -36,6 +37,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MatrixCursor.RowBuilder;
 import android.database.MergeCursor;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -217,7 +219,7 @@ import android.widget.TextView;
     }
 
     /**
-     * Loader for mailboxes of an account.
+     * Loads mailboxes that are the children of a given mailbox ID.
      */
     private static class MailboxFragmentLoader extends ThrottlingCursorLoader {
         private final Context mContext;
@@ -247,6 +249,17 @@ import android.widget.TextView;
         @Override
         public Cursor loadInBackground() {
             final Cursor childMailboxCursor = super.loadInBackground();
+            final Cursor returnCursor;
+            final Bundle extras = new Bundle();
+
+            // Setup the extras to return along with the cursor
+            int cursorCount = childMailboxCursor.getCount();
+            extras.putInt(CursorWithExtras.EXTRA_MAILBOX_CHILD_COUNT, cursorCount);
+            long nextParentKey = findParentWithChildren(mParentKey);
+            extras.putLong(CursorWithExtras.EXTRA_MAILBOX_NEXT_PARENT_ID, nextParentKey);
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mParentKey);
+            long grandParentKey = mailbox == null ? Mailbox.NO_MAILBOX : mailbox.mParentKey;
+            extras.putLong(CursorWithExtras.EXTRA_MAILBOX_PARENT_ID, grandParentKey);
 
             // If we're not showing the top level mailboxes, add the "parent" mailbox.
             if (mParentKey != Mailbox.NO_MAILBOX) {
@@ -254,24 +267,47 @@ import android.widget.TextView;
                         Mailbox.CONTENT_URI, CURMAILBOX_PROJECTION, MAILBOX_SELECTION,
                         new String[] { Long.toString(mAccountId), Long.toString(mParentKey) },
                         null);
-                return Utility.CloseTraceCursorWrapper.get(new MergeCursor(
-                        new Cursor[] { parentCursor, childMailboxCursor }));
+                returnCursor = new MergeCursor(new Cursor[] { parentCursor, childMailboxCursor });
+            } else {
+                // Add "Starred", only if the account has at least one starred message.
+                // TODO It's currently "combined starred", but the plan is to make it per-account
+                // starred.
+                final int accountStarredCount
+                        = Message.getFavoriteMessageCount(mContext, mAccountId);
+                if (accountStarredCount > 0) {
+                    final MatrixCursor starredCursor = new MatrixCursor(getProjection());
+                    final int totalStarredCount = Message.getFavoriteMessageCount(mContext);
+                    addCombinedMailboxRow(starredCursor, Mailbox.QUERY_ALL_FAVORITES,
+                            Mailbox.TYPE_MAIL, totalStarredCount, true);
+                    returnCursor
+                            = new MergeCursor(new Cursor[] { starredCursor, childMailboxCursor });
+                } else {
+                    returnCursor = childMailboxCursor; // no starred message
+                }
             }
 
-            // Add "Starred", only if the account has at least one starred message.
-            // TODO It's currently "combined starred", but the plan is to make it per-account
-            // starred.
-            final int accountStarredCount = Message.getFavoriteMessageCount(mContext, mAccountId);
-            if (accountStarredCount > 0) {
-                final MatrixCursor starredCursor = new MatrixCursor(getProjection());
-                final int totalStarredCount = Message.getFavoriteMessageCount(mContext);
-                addCombinedMailboxRow(starredCursor, Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
-                        totalStarredCount, true);
-                return Utility.CloseTraceCursorWrapper.get(
-                        new MergeCursor(new Cursor[] { starredCursor, childMailboxCursor }));
-            }
+            return new CursorWithExtras(Utility.CloseTraceCursorWrapper.get(returnCursor), extras);
+        }
 
-            return Utility.CloseTraceCursorWrapper.get(childMailboxCursor); // no starred message
+        /**
+         * Returns the next parent mailbox with at least one child mailbox. If the given
+         * mailbox does not exist in the database, returns {@link Mailbox#NO_MAILBOX}. If
+         * we reach the root parent and we still don't have children, returns
+         * {@link Mailbox#NO_MAILBOX}.
+         */
+        private long findParentWithChildren(long mailboxId) {
+            int childCount = Mailbox.count(mContext, Mailbox.CONTENT_URI,
+                MAILBOX_SELECTION_WITH_PARENT,
+                new String[] {  Long.toString(mAccountId), Long.toString(mailboxId) });
+            if (childCount == 0 && mailboxId != Mailbox.NO_MAILBOX) {
+                // There are no children; select parent
+                Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+                if (mailbox == null) {
+                    return Mailbox.NO_MAILBOX;
+                }
+                return findParentWithChildren(mailbox.mParentKey);
+            }
+            return mailboxId;
         }
     }
 
@@ -297,7 +333,7 @@ import android.widget.TextView;
             final Cursor accounts = super.loadInBackground();
 
             // Build combined mailbox rows.
-            final MatrixCursor combinedWithAccounts = buildCombinedMailboxes(mContext, accounts);
+            final MatrixCursor returnCursor = buildCombinedMailboxes(mContext, accounts);
 
             // Add account rows.
             accounts.moveToPosition(-1);
@@ -306,11 +342,11 @@ import android.widget.TextView;
                 final String accountName = accounts.getString(COLUMN_ACCOUNT_DISPLAY_NAME);
                 final int unreadCount = Mailbox.getUnreadCountByAccountAndMailboxType(
                         mContext, accountId, Mailbox.TYPE_INBOX);
-                addMailboxRow(combinedWithAccounts, accountId, accountName, Mailbox.TYPE_NONE,
+                addMailboxRow(returnCursor, accountId, accountName, Mailbox.TYPE_NONE,
                         unreadCount, unreadCount, ROW_TYPE_ACCOUNT, Mailbox.FLAG_NONE,
                         accountId);
             }
-            return Utility.CloseTraceCursorWrapper.get(combinedWithAccounts);
+            return Utility.CloseTraceCursorWrapper.get(returnCursor);
         }
 
         /*package*/ static MatrixCursor buildCombinedMailboxes(Context context,

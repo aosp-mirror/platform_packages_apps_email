@@ -20,6 +20,7 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
+import com.android.email.data.CursorWithExtras;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -120,7 +121,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private int mDragItemHeight = -1;
     /** Task that actually does the work to auto-expand folder lists during drag-n-drop */
     private TimerTask mDragTimerTask;
-    // True if we are currently scrolling under the drag item
+    /** {@code true} if we are currently scrolling under the drag item */
     private boolean mTargetScrolling;
 
     private Parcelable mSavedListState;
@@ -149,6 +150,15 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
          * @param navigate navigate to the mailbox.
          */
         public void onMailboxSelected(long accountId, long mailboxId, boolean navigate);
+
+        /**
+         * Called if the mailbox ID is being requested to change. This could occur for several
+         * reasons; such as if the current, navigated mailbox has no more children.
+         * @param newMailboxId The new mailbox ID to use for displaying in the mailbox list
+         * @param selectedMailboxId The new mailbox ID to highlight. If  {@link Mailbox#NO_MAILBOX},
+         *      the receiver may select any mailbox it chooses.
+         */
+        public void requestMailboxChange(long newMailboxId, long selectedMailboxId);
 
         /**
          * Called when a mailbox is selected during D&D.
@@ -180,6 +190,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         @Override public void onAccountSelected(long accountId) { }
         @Override public void onCurrentMailboxUpdated(long mailboxId, String mailboxName,
                 int unreadCount) { }
+        @Override public void requestMailboxChange(long newMailboxId, long selectedMailboxId) { }
     }
 
     /**
@@ -461,6 +472,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     // TODO This class probably should be made static. There are many calls into the enclosing
     // class and we need to be cautious about what we call while in these callbacks
     private class MailboxListLoaderCallbacks implements LoaderCallbacks<Cursor> {
+        /** Whether or not the loader has finished at least once */
         private boolean mIsFirstLoad;
 
         @Override
@@ -481,6 +493,28 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             }
             // Note at this point we can assume the view is created.
             // The loader manager doesn't deliver results when a fragment is stopped.
+
+            // Validate the cursor and make sure we're showing the "right thing"
+            if (cursor instanceof CursorWithExtras) {
+                CursorWithExtras c = (CursorWithExtras) cursor;
+                int childCount = c.getInt(CursorWithExtras.EXTRA_MAILBOX_CHILD_COUNT, -1);
+                if (childCount == 0) {
+                    long nextParentId = c.getLong(CursorWithExtras.EXTRA_MAILBOX_NEXT_PARENT_ID);
+                    long grandParentId = c.getLong(CursorWithExtras.EXTRA_MAILBOX_PARENT_ID);
+                    long highlightId;
+                    // Only set a mailbox highlight if we're choosing our immediate parent
+                    if (grandParentId == nextParentId) {
+                        highlightId = getParentMailboxId();
+                    } else {
+                        highlightId = Mailbox.NO_MAILBOX;
+                    }
+                    // If the next parent w/ children isn't us, request a change
+                    if (nextParentId != getParentMailboxId()) {
+                        mCallback.requestMailboxChange(nextParentId, highlightId);
+                        return;
+                    }
+                }
+            }
 
             if (cursor.getCount() == 0) {
                 // If there's no row, don't set it to the ListView.
