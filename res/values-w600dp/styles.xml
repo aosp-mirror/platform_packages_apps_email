@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- Specializations for xlarge screens - most colors are in values/colors.xml -->
+<!-- Specializations for tablet screens - most colors are in values/colors.xml -->
 <resources>
     <!-- The headline at the top of every account settings fragments (in preferences) -->
     <style name="accountSettingsHeadline">
@@ -133,5 +133,10 @@
         <item name="android:textColor">@color/text_ternary_color</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="accountSetupTypePrevious" parent="@style/accountSetupButton">
+        <item name="android:layout_toRightOf">@+id/main_content"</item>
+        <item name="android:layout_alignParentRight">true</item>
     </style>
 </resources>
