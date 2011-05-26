@@ -82,6 +82,10 @@ class UIControllerOnePane extends UIControllerBase {
         public void onMailboxSelectedForDnD(long mailboxId) {
             // No drag&drop on 1-pane
         }
+
+        @Override
+        public void requestMailboxChange(long newMailboxId, long selectedMailboxId) {
+        }
     };
 
     private final MessageListFragment.Callback mMessageListFragmentCallback =

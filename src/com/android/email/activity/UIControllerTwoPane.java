@@ -184,11 +184,31 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
     }
 
+    @Override
     public void onMailboxSelectedForDnD(long mailboxId) {
         // STOPSHIP the new mailbox list created here doesn't know D&D is in progress. b/4332725
 
         updateMailboxList(getUIAccountId(), mailboxId,
                 false /* don't clear message list and message view */);
+    }
+
+    @Override
+    public void requestMailboxChange(final long newMailboxId, final long selectedMailboxId) {
+        // Unfortunately if the screen rotates while the task is running, we just cancel the task
+        // so mailbox change request will be gone.  But we'll live with it as it's not too critical.
+        new EmailAsyncTask<Void, Void, Void>(mTaskTracker) {
+            @Override protected Void doInBackground(Void... params) { return null; }
+            @Override protected void onPostExecute(Void mailboxId) {
+                if (selectedMailboxId == getMailboxListMailboxId()) {
+                    // We're not changing selections; just the contents of the mailbox list
+                    updateMailboxList(getActualAccountId(), newMailboxId, false);
+                    mMailboxListFragment.setSelectedMailbox(selectedMailboxId);
+                } else {
+                    // Select a whole new mailbox
+                    openMailbox(getActualAccountId(), newMailboxId);
+                }
+            }
+        }.cancelPreviousAndExecuteSerial();
     }
 
     // MailboxListFragment$Callback
