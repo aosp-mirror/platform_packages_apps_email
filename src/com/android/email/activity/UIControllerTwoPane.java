@@ -309,12 +309,6 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     // MessageViewFragment$Callback
     @Override
-    public void onMessageViewDestroyed() {
-        stopMessageOrderManager();
-    }
-
-    // MessageViewFragment$Callback
-    @Override
     public boolean onUrlInMessageClicked(String url) {
         return ActivityHelper.openUrlInMessage(mActivity, url, getActualAccountId());
     }
@@ -589,6 +583,8 @@ class UIControllerTwoPane extends UIControllerBase implements
             mMessageViewFragment.setCallback(null);
             mMessageViewFragment = null;
         }
+        // Don't need it when there's no message view.
+        stopMessageOrderManager();
         return ft;
     }
 

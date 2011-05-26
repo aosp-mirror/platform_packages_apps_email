@@ -210,9 +210,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         /** Called when a message is about to be shown. */
         public void onMessageShown();
 
-        /** Called when the fragment is about to be destroyed. */
-        public void onMessageViewDestroyed();
-
         /**
          * Called when a link in a message is clicked.
          *
@@ -239,7 +236,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     public static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
         @Override public void onMessageShown() {}
-        @Override public void onMessageViewDestroyed() {}
         @Override public void onLoadMessageError(String errorMessage) {}
         @Override public void onLoadMessageFinished() {}
         @Override public void onLoadMessageStarted() {}
@@ -269,10 +265,13 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         mContext = getActivity().getApplicationContext();
 
+        // Initialize components, but don't "start" them.  Registering the controller callbacks
+        // and starting MessageObserver, should be done in onActivityCreated or later and be stopped
+        // in onDestroyView to prevent from getting callbacks when the fragment is in the back
+        // stack, but they'll start again when it's back from the back stack.
+        mController = Controller.getInstance(mContext);
         mControllerCallback = new ControllerResultUiThreadWrapper<ControllerResults>(
                 new Handler(), new ControllerResults());
-
-        mController = Controller.getInstance(mContext);
         mMessageObserver = new MessageObserver(new Handler(), mContext);
 
         if (savedInstanceState != null) {
@@ -389,6 +388,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroyView");
         }
+        mController.removeResultCallback(mControllerCallback);
+        cancelAllTasks();
+        mMessageContentView.destroy();
+        mMessageContentView = null;
+
         super.onDestroyView();
     }
 
@@ -397,11 +401,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroy");
         }
-        mCallback.onMessageViewDestroyed();
-        mController.removeResultCallback(mControllerCallback);
-        cancelAllTasks();
-        mMessageContentView.destroy();
-        mMessageContentView = null;
         super.onDestroy();
     }
 
@@ -466,7 +465,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     public long getAccountId() {
         return mAccountId;
     }
-
 
     /**
      * Show/hide the content.  We hide all the content (except for the bottom buttons) when loading,

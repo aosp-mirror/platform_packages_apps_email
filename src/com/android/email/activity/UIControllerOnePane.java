@@ -199,11 +199,6 @@ class UIControllerOnePane extends UIControllerBase {
 
         }
 
-        @Override
-        public void onMessageViewDestroyed() {
-            // TODO Auto-generated method stub
-
-        }
 
         @Override
         public void onMessageShown() {
