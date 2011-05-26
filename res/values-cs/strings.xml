@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Nastavení aplikací"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Přílohu nelze otevřít."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Protože tento typ přílohy může obsahovat škodlivý software, nelze ji uložit ani otevřít."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Tuto přílohu nelze uložit nebo otevřít kvůli zásadám zabezpečení, které platí pro tento účet."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Tato příloha je příliš velká, aby ji bylo možné stáhnout pomocí mobilní sítě. Můžete ji stáhnout při příštím připojení k síti Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Není nainstalována žádná aplikace, pomocí které by bylo možné otevřít tuto přílohu. Zkuste stáhnout odpovídající aplikaci ze služby Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Tato příloha je aplikace. Než ji bude možné nainstalovat, je třeba v nastaveních v části Aplikace zaškrtnout políčko Neznámé zdroje."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Aplikace nelze instalovat přímo z e-mailu. Nejdříve aplikaci uložte a poté ji nainstalujte pomocí aplikace Stažené."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Přílohu nelze stáhnout."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Při dekódování zprávy došlo k chybě."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Zobraz. souboru <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Zrušit zprávu"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Odebrat účet"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mailový účet"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Vybrat účet"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Účet nenalezen. Je možné, že byl odstraněn."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Pouze některé účty typu Plus obsahují přístup POP umožňující připojení tohoto programu. Pokud se nemůžete přihlásit se správnou e-mailovou adresou a heslem, pravděpodobně nemáte placený účet Plus. Spusťte webový prohlížeč a vyhledejte přístup k těmto poštovním účtům."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Před nastavením tohoto e-mailového účtu navštivte web T-Online a vytvořte heslo pro e-mailový přístup POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Firemní"</string>

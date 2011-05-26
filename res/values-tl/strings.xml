@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Setting ng application"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Hindi mabuksan ang attachment."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Dahil maaaring maglaman ang uri ng attachment na ito ng nakapanghahamak na software, hindi mo ito maaaring i-save o buksan."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Hindi ma-save o mabuksan ang attachment na ito dahil sa mga patakaran sa seguridad na ipinapatupad para sa account na ito."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Masyadong malaki ang attachment na ito upang i-download sa isang mobile network. Maaari mo itong i-download sa susunod na oras na kumonekta ka sa isang Wi-Fi network."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Walang mga naka-install na application na maaaring magbukas sa attachment na ito. Subukang mag-download ng naaangkop na application mula sa Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Application ang attachment na ito. Dapat mong suriin ang Mga Hindi kilalang pinagmulan sa Mga Setting, sa ilalim ng Mga Application, bago mo ito maaaring i-install."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Hindi ma-install ang mga application nang direkta mula sa Email. I-save muna ang application na ito at pagkatapos ay i-install ito gamit ang application na Mga Download."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Hindi ma-download ang attachment."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Error habang dine-decode ang mensahe."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Tinitingnan <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Itapon mensahe"</string>
@@ -361,6 +359,10 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Alisin ang account"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Email account"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Pumili ng account"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <!-- no translation found for toast_account_not_found (2483831308629565584) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"Ang ilan lang na \"Plus\" account ang kinabibilangan ng access sa POP at nagbibigay-daan sa programang ito na makakonekta. Kung hindi mo magawang mag-sign in gamit ang iyong tamang email address at password, maaaring wala kang bayad na \"Plus\" account. Pakilunsad ang Web browser upang makakuha ng access sa mga mail account na ito."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Bago ang pag-set up ng email account na ito, pakibisita ang T-Online Web site at lumikha ng password para sa access sa POP3 email."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>

@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"إعدادات التطبيق"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"لا يمكن فتح المرفق."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"لا يمكن حفظ المرفق أو فتحه، لأن هذا النوع من المرفقات قد يحتوي على برامج ضارة."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"لا يمكن حفظ المرفق أو فتحه بسبب سياسات الأمان التي يتم تطبيقها على هذا الحساب."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"هذا المرفق كبير جدًا بحيث لا يمكن تنزيله عبر شبكة جوال. يمكنك تنزيله في المرة التالية التي تتصل فيها بشبكة Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"ليس هناك تطبيق مثبت يمكنه فتح هذا المرفق. جرّب تنزيل أحد التطبيقات المناسبة من Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"إن هذا المرفق تطبيق. ويجب تحديد \"مصادر غير معروفة\" في \"الإعدادات\" ضمن \"التطبيقات\"، قبل أن تتمكن من تثبيته."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"لا يمكن تثبيت التطبيقات مباشرة من البريد الإلكتروني. احفظ هذا التطبيق أولاً، ثم ثبته باستخدام تطبيق \"التنزيلات\"."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"تعذر تنزيل المرفق."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"حدث خطأ أثناء فك تشفير الرسالة."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"عرض <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"إلغاء الرسالة"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"إزالة الحساب"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"حساب بريد"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"حدد حسابًا"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"لم يتم العثور على الحساب. ربما تمت إزالته."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"تتضمن بعض حسابات \"Plus\" الوصول عبر بروتوكول POP والذي يسمح لهذا البرنامج بالاتصال. إذا تعذر عليك تسجيل الدخول باستخدام عنوان البريد الإلكتروني وكلمة المرور الصحيحين، فقد تكون غير ممتلك لحساب \"Plus\" مدفوع. يُرجى تشغيل متصفح الويب لتتمكن من الدخول إلى حسابات البريد هذه."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"قبل إعداد حساب البريد الإلكتروني هذا، يُرجى زيارة موقع ويب T-Online وإنشاء كلمة مرور للوصول إلى البريد الإلكتروني عبر بروتوكول POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"الشركة"</string>

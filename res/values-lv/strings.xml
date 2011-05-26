@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Lietojumpr. iestatījumi"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Nevar atvērt pielikumu."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Tā kā šāda veida pielikums var saturēt ļaunprātīgu programmatūru, to nevar saglabāt vai atvērt."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Šo pielikumu nevar saglabāt vai atvērt ar šo kontu saistīto spēkā esošo politiku dēļ."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Šis pielikums ir pārāk liels, lai to lejupielādētu mobilajā tīklā. Varat to lejupielādēt nākamreiz, kad pievienosieties Wi-Fi tīklam."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Nav instalēta lietojumprogramma, ar kuru var atvērt šo pielikumu. Lejupielādējiet atbilstošu lietojumprogrammu no platformas Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Šis pielikums ir lietojumprogramma. Pirms tās instalēšanas ir jānoņem atzīme no vienuma Nezināmi avoti, kas atrodas sadaļas Iestatījumi apakšsadaļā Lietojumprogrammas."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Lietojumprogrammas nevar instalēt tieši no e-pasta. Vispirms saglabājiet šo lietojumprogrammu un pēc tam instalējiet to, izmantojot lietojumprogrammu Lejupielādes."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Pielikumu nevarēja lejupielādēt."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Kļūda, dekodējot ziņojumu."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Tiek skat.: <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Ziņoj. atmešana"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Noņemt kontu"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-pasta k."</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Atlasīt kontu"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Konts nav atrasts. Iespējams, tas ir noņemts."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Tikai dažiem “Plus” kontiem ir POP piekļuve, kas ļauj šai programmai izveidot savienojumu. Ja nevarat pierakstīties, izmantojot pareizu e-pasta adresi un paroli, iespējams, jums nav apmaksāta “Plus” konta. Lūdzu, palaidiet tīmekļa pārlūkprogrammu, lai piekļūtu šiem pasta kontiem."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Pirms šī e-pasta konta iestatīšana, lūdzu, apmeklējiet T-Online vietni un izveidojiet POP3 e-pasta piekļuvei paredzētu paroli."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Korporatīvs"</string>

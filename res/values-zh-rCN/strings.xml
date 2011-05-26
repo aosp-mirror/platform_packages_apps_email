@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"应用程序设置"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"无法打开附件。"</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"该类型的附件中可能包含恶意软件，因此您无法保存或打开此附件。"</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"由于此帐户所采用的安全政策的限制，系统无法保存或打开该附件。"</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"附件过大，无法通过移动网络下载。您可以在下次连接到 Wi-Fi 网络时下载。"</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"已安装的应用程序都无法打开此附件。请尝试从“Android 电子市场”下载一个合适的应用程序。"</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"此附件是应用程序。要想安装该应用程序，您需要先在“设置”中的“应用程序”下选中“未知来源”。"</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"无法直接从电子邮件中安装应用程序。请先保存此应用程序，然后使用“下载内容”应用程序进行安装。"</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"无法下载该附件。"</string>
     <string name="message_decode_error" msgid="7812862491622388416">"解码电子邮件时出现错误。"</string>
     <string name="eml_view_title" msgid="8827210108543430336">"查看 <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"舍弃邮件"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"删除帐户"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"电子邮件帐户"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"选择帐户"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"未找到帐户。该帐户可能已删除。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"只有某些“Plus”帐户支持 POP 访问而允许此程序进行连接。如果您使用正确的电子邮件地址和密码无法登录，则可能还未开通付费的“Plus”帐户。请启动网络浏览器以获取对这些邮件帐户的访问权限。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"在设置此电子邮件帐户之前，请访问 T-Online 网站，为访问 POP3 电子邮件创建密码。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"公司"</string>

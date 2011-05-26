@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"تنظیمات برنامه کاربردی"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"پیوست باز نمی شود."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"چون این نوع پیوست ممکن است حاوی بد افزار باشد، نمیتوانید آن را ذخیره یا باز کنید."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"به دلیل خط مشی های امنیتی موجود برای این حساب، امکان ذخیره یا باز کردن این پیوست وجود ندارد."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"این پیوست برای دانلود از طریق شبکه تلفن همراه خیلی بزرگ است. می توانید دفعه دیگر که به یک شبکه Wi-Fi متصل می شوید، آنرا دانلود کنید."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"هیچ برنامه کاربردی نصب شده ای در دستگاه شما وجود ندارد که بتواند این پیوست را باز کند. یک برنامه مناسب را از Android Market دانلود کنید."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"این پیوست یک برنامه کاربردی است. قبل از نصب آن، باید منابع ناشناس را در تنظیمات، زیر برنامه های کاربردی بررسی کنید."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"برنامه های کاربردی مستقیماً از ایمیل نصب نمی شوند. ابتدا این برنامه کاربردی را ذخیره کنید و سپس با استفاده از برنامه کاربردی دانلودها آن را نصب کنید."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"پیوست بارگیری نمی شود."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"خطا در رمزگشایی پیام."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"مشاهده <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"صرفنظر کردن از پیام"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"حذف حساب"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"حساب ایمیل"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"انتخاب یک حساب"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"حساب یافت نشد. ممکن است حذف شده باشد."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"فقط برخی از حساب های \"Plus\" از جمله دسترسی POP به این برنامه اجازه می دهند متصل شود. اگر شما نمی توانید با رمز ورود و آدرس ایمیل درست خود به سیستم وارد شوید، ممکن است فاقد یک حساب \"Plus\" پولی باشید. لطفاً مرورگر وب را برای دسترسی به این حساب های ایمیل راه اندازی کنید."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"قبل از تنظیم این حساب ایمیل، لطفاً از وب سایت T-Online بازدید کرده و یک رمز ورود برای دسترسی ایمیل POP3 ایجاد کنید."</string>
     <string name="exchange_name" msgid="1190783774800310346">"شرکت"</string>

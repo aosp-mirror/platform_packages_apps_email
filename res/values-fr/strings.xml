@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Paramètres applications"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Impossible d\'ouvrir la pièce jointe."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Ce type de pièce jointe peut contenir des logiciels malveillants. Il vous est donc impossible de l\'enregistrer ni de l\'ouvrir."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Impossible d\'ouvrir ni d\'enregistrer la pièce jointe en raison des règles de sécurité en vigueur pour ce compte."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Cette pièce jointe est trop volumineuse pour être téléchargée via un réseau pour mobile. Vous pourrez la télécharger lors de votre prochaine connexion à un réseau Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Aucune application installée ne peut ouvrir cette pièce jointe. Téléchargez une application adaptée sur Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Cette pièce jointe est une application. Avant de l\'installer, vous devez cocher la case Sources inconnues dans Paramètres, sous Applications."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Impossible d\'installer les applications directement depuis la messagerie électronique. Enregistrez d\'abord l\'application, puis installez-la à l\'aide de l\'application Téléchargements."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Impossible de télécharger la pièce jointe"</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Une erreur s\'est produite lors du décodage du message."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Affichage de <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Supprimer message"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Supprimer le compte"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Compte"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Sélectionner un compte"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Ce compte est introuvable. Il a peut-être été supprimé."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Seuls certains comptes \"Plus\" comportent un accès POP permettant à ce programme de se connecter. Si vous ne parvenez pas à vous connecter avec l\'adresse e-mail et le mot de passe corrects, vous ne disposez peut-être pas d\'un compte payant \"Plus\". Pour accéder à ces comptes de messagerie, lancez votre navigateur Web."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Avant de configurer ce compte de messagerie, veuillez consulter le site de T-Online et créer un mot de passe de messagerie POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Entreprise"</string>

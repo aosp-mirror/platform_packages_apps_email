@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Настройки на приложение"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Прикаченият файл не може да се отвори."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Не можете да запазите или да отворите този тип прикачен файл, защото може да съдържа зловреден софтуер."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Прикаченият файл не може да бъде запазен или отворен поради защитните правила в сила за този профил."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Прикаченият файл е твърде голям за изтегляне през мобилна мрежа. Можете да го изтеглите при следващото си свързване с Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Няма инсталирано приложение, което може да отвори този прикачен файл. Опитайте да изтеглите подходящо от Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Този прикачен файл е приложение. Трябва да отметнете „Неизвестни източници“ в „Настройки“ в „Приложения“, преди да можете да го инсталирате."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Приложенията не могат да бъдат инсталирани директно от електронната поща. Първо запазете това приложение и след това го инсталирайте посредством „Изтегляния“."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Прикаченият файл не можа да бъде изтеглен."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"При декодирането на съобщението възникна грешка."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Преглед на <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Отхвърляне"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Премахване на профила"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Имейл"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Избор на профил"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Профилът не е намерен. Може да е премахнат."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Само някои „Plus“ профили включват достъп чрез POP, позволявайки на тази програма да се свърже. Ако не можете да влезете с правилния си имейл адрес и парола, може да не сте платили за такъв профил. Моля, стартирайте уеб браузъра, за да получите достъп до тези пощенски профили."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Преди да настроите този имейл профил, моля, посетете уебсайта на T-Online и създайте парола за достъп до имейл чрез POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Фирмен"</string>

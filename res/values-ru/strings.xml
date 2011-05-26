@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Настройки приложений"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Не удается открыть прикрепленный файл."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Поскольку приложение такого типа может содержать вирусы, его нельзя сохранять или открывать."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Невозможно сохранить или открыть прикрепленный файл из-за политики безопасности в отношении этого аккаунта."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Слишком большой прикрепленный файл для загрузки через мобильную сеть. Вы можете загрузить его при следующем подключении к сети Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Приложение для открытия этого прикрепленного файла не установлено. Попробуйте загрузить нужное приложение из Android Маркета."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Прикрепленный файл является приложением. Прежде чем его установить, вы должны выбрать \"Неизвестные источники\" в настройках приложений."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Приложения нельзя устанавливать непосредственно из Email. Сначала сохраните приложение, а затем установите его с помощью приложения \"Загрузки\"."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Не удалось загрузить прикрепленный файл."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Ошибка при расшифровке сообщения."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Просмотр файла <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Удалить сбщ."</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Удалить аккаунт"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Аккаунт эл. почты"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Выберите аккаунт"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Аккаунт не найден. Возможно, он был удален."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Доступ по протоколу POP, позволяющий этой программе подключаться, разрешен только в некоторых аккаунтах Plus. Если вам не удается войти со своим адресом электронной почты и паролем, скорее всего, у вас бесплатный аккаунт (не Plus). Доступ к такому аккаунту возможен через браузер."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Прежде чем настраивать аккаунт электронной почты, посетите веб-сайт оператора связи и установите пароль для доступа к электронной почте по протоколу POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Корпоративный"</string>

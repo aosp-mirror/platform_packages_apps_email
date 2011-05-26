@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Uygulama ayarları"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Ek açılamıyor."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Bu tür bir ek, kötü amaçlı yazılımlar içerebileceğinden bunu kaydedemez veya açamazsınız."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Bu hesapla ilgili uygulanan güvenlik politikaları nedeniyle bu ek kaydedilemez."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Bu ek, mobil ağ üzerinden indirilemeyecek kadar büyük. Bu eki kablosuz ağa tekrar bağlandığınızda indirebilirsiniz."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Bu eki açabilecek yüklü bir uygulama yok. Android Market\'ten uygun bir uygulama indirmeyi deneyin."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Bu ek bir uygulamadır. Yüklemeden önce Uygulamalar altındaki Ayarlar\'da bulunan Bilinmeyen kaynaklar\'ı işaretlemeniz gerekir."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Uygulamalar doğrudan E-posta üzerinden yüklenemez. Önce bu uygulamayı kaydedin, ardından İndirilenler uygulamasını kullanarak yükleyin."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Ek indirilemedi."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Mesajın kodu çözülürken hata oluştu."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g> görüntüleniyor"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"İletiyi sil"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Hesabı kaldır"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Eposta hes"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Bir hesap seçin"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Hesap bulunamadı. Kaldırılmış olabilir."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Yalnızca bazı \"Plus\" hesapları bu programın bağlanmasına izin veren POP erişimi içerir. Doğru e-posta adresinizle ve şifrenizle oturum açamıyorsanız, ödemeli bir \"Plus\" hesabına sahip olmayabilirsiniz. Lütfen bu posta hesaplarına erişmek için Web tarayıcıyı başlatın."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Bu e-posta hesabını ayarlamadan önce lütfen T-Online Web sitesini ziyaret edin ve POP3 e-posta erişimi için bir şifre oluşturun."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Kurumsal"</string>

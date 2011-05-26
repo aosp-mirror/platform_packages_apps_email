@@ -16,8 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="permission_read_attachment_label" msgid="618768999416116023">"Citiţi ataşamentele mesajelor de e-mail"</string>
-    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"Permite aplicaţiei citirea ataşamentelor mesajelor de e-mail."</string>
+    <string name="permission_read_attachment_label" msgid="618768999416116023">"Citiţi ataşamentele e-mailurilor"</string>
+    <string name="permission_read_attachment_desc" msgid="7079397473503113579">"Permite aplicaţiei citirea ataşamentelor de e-mail."</string>
     <string name="permission_access_provider_label" msgid="4274353114641168675">"Accesaţi datele de la furnizorul de e-mail"</string>
     <string name="permission_access_provider_desc" msgid="2549843731779487336">"Permite acestei aplicaţii accesul la baza de date a adresei de e-mail, incluzând mesajele primite, mesajele trimise, numele de utilizatori şi parolele."</string>
     <string name="app_name" msgid="5815426892327290362">"E-mail"</string>
@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Setările aplicaţiei"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Nu se poate deschide ataşamentul."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Nu puteţi salva sau deschide acest ataşament, deoarece acest tip de ataşament poate conţine software rău intenţionat."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Acest ataşament nu poate fi salvat sau deschis din cauza politicilor de securitate în vigoare pentru acest cont."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Acest ataşament este prea mare pentru a fi descărcat prin reţeaua mobilă. Îl puteţi descărca cu proxima ocazie când vă conectaţi la o reţea Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Nu este instalată o aplicaţie care să poată deschide acest ataşament. Încercaţi să descărcaţi o aplicaţie adecvată de pe Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Acest ataşament este o aplicaţie. Înainte de a o putea instala, trebuie să bifaţi Surse necunoscute, în Setări, sub Aplicaţii."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Aplicaţiile nu pot fi instalate direct din e-mail. Salvaţi mai întâi această aplicaţie, apoi instalaţi-o utilizând aplicaţia Descărcări."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Ataşamentul nu a putut fi descărcat."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Eroare la decodarea mesajului."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Vizualizaţi <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Renunţaţi"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Eliminaţi contul"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mail"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Selectaţi un cont"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Contul nu a fost găsit şi este posibil să fi fost eliminat."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Numai unele conturi de tip „Plus” includ accesul de tip POP, permiţând conectarea acestui program. Dacă nu reuşiţi să vă conectaţi cu adresa de e-mail şi parola corecte, este posibil să nu aveţi un cont de tip „Plus” plătit. Lansaţi browserul web pentru a obţine accesul la aceste conturi de e-mail."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Înainte de configurarea acestui cont de e-mail, vizitaţi T-Online pe web şi creaţi-vă o parolă pentru accesul la serviciile de e-mail POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporaţie"</string>

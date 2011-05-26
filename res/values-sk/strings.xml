@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Nastavenia aplikácií"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Nepodarilo sa otvoriť prílohu."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Tento typ prílohy môže obsahovať škodlivý softvér, preto ho nemôžete uložiť ani otvoriť."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Túto prílohu nie je možné uložiť alebo otvoriť kvôli pravidlám zabezpečenia, ktoré platia pre tento účet."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Táto príloha je príliš veľká na to, aby sa dala prevziať prostredníctvom mobilnej siete. Môžete ju prevziať pri ďalšom pripojení k sieti Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Nemáte nainštalovanú žiadnu aplikáciu, ktorá by mohla otvoriť túto prílohu. Skúste prevziať príslušnú aplikáciu zo služby Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Táto príloha obsahuje aplikáciu. Ak ju chcete nainštalovať, musíte na karte Aplikácie v Nastaveniach začiarknuť možnosť Neznáme zdroje."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Aplikácie nie je možné inštalovať priamo z e-mailu. Túto aplikáciu musíte najskôr uložiť a potom nainštalovať pomocou aplikácie Prevzaté položky."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Prílohu nie je možné prevziať."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Počas dekódovania správy sa vyskytla chyba."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Zobraz. súbor: <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Zahodiť správu"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Odstrániť účet"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mail. účet"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Výber účtu"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Účet sa nenašiel. Je možné, že bol odstránený."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Prístup prostredníctvom protokolu POP, umožňujúci pripojenie tohto programu, obsahujú iba niektoré účty Plus. Ak sa nemôžete prihlásiť so správnou e-mailovou adresou a heslom, pravdepodobne nemáte platený účet Plus. Ak chcete pristupovať k týmto poštovým účtom, vykonajte to prostredníctvom webového prehliadača."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Pred nastavením tohto e-mailového účtu navštívte webové stránky T-Online a vytvorte heslo pre e-mailový prístup POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Firemný"</string>

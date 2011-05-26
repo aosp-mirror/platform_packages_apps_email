@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Programske nastavitve"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Priloge ni mogoče odpreti."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Ker lahko tovrstne priloge vsebujejo zlonamerno programsko opremo, je ne morete shraniti ali odpreti."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Te priloge ni mogoče shraniti ali je odpreti zaradi varnostnih pravilnikov za ta račun."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Ta priloga je prevelika, da bi jo bilo mogoče prenesti prek mobilnega omrežja. Lahko jo prenesete naslednjič, ko se povežete v omrežje Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Ni nameščenih programov, s katerimi bi lahko odprli to prilogo. Poskusite prenesti ustrezen program iz tržnice Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Ta priloga je program. Namestite ga lahko šele, ko v razdelku »Programi« v nastavitvah potrdite polje »Neznani viri«."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Programov ni mogoče namestiti neposredno iz e-pošte. Program najprej shranite, nato pa namestite s programom Prenosi."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Priloge ni bilo mogoče prenesti."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Napaka pri dekodiranju sporočila."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Ogledovanje <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Zavrzi sporočilo"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Odstrani račun"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-pošti račun"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Izberite račun"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Računa ni mogoče najti. Morda je bil odstranjen."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Samo nekateri računi »Plus« vsebujejo tudi dostop do strežnika POP, da se ta program lahko poveže. Če ste pravilno vnesli svoj e-poštni naslov in geslo in se ne morete prijaviti, morda nimate plačljivega računa »Plus«. Zaženite brskalnik, če želite dostopati do teh e-poštnih računov."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Preden nastavite ta e-poštni račun, obiščite spletno mesto T-Online in ustvarite geslo za e-poštni dostop POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Podjetje"</string>

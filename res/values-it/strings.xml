@@ -359,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Rimuovi account"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Account email"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Seleziona un account"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Account non trovato. Potrebbe essere stato rimosso."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Solo alcuni account \"Plus\" includono l\'accesso POP che consente la connessione del programma. Se non riesci ad accedere con l\'indirizzo email e la password corretti, potresti non disporre di un account \"Plus\" a pagamento. Avvia il browser web per avere accesso a questi account di posta."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Prima di impostare questo account email, visita il sito web T-Online e crea una password per l\'accesso email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Aziendale"</string>

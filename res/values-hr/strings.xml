@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Postavke aplikacija"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Nije moguće otvoriti privitak."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Ne možete spremiti ili otvoriti ovu vrstu aplikacije jer može sadržavati zlonamjerni softver."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Ovaj prilog ne može se spremiti ili otvoriti zbog sigurnosnih pravila za ovaj račun."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Ovaj je privitak prevelik za preuzimanje putem mobilne mreže. Možete ga preuzeti sljedeći put kad se spojite na Wi-Fi mrežu."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Nema instalirane aplikacije koja može otvoriti ovaj privitak. Pokušajte preuzeti odgovarajuću aplikaciju s usluge Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Ovaj privitak je aplikacija. Prije nego što ćete je moći instalirati, u Postavkama, pod stavkom Aplikacije, morate uključiti potvrdni okvir za Nepoznate izvore."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Nije moguće instalirati aplikacije izravno iz e-pošte. Prvo spremite aplikaciju, a zatim je instalirajte pomoću aplikacije Preuzimanja."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Privitak se ne može preuzeti."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Pogreška prilikom dekodiranja poruke."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Prikaz <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Odbaci poruku"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Brisanje računa"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"R. e-pošte"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Odaberite račun"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Račun nije pronađen. Možda je uklonjen."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Samo neki \"Plus\" računi uključuju POP pristup koji ovom programu omogućuje povezivanje. Ako se ne možete prijaviti sa svojom ispravnom adresom e-pošte i zaporkom, možda niste platili \"Plus\" račun. Pokrenite web-preglednik kako biste dobili pristup ovim računima e-pošte."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Prije postavljanja ovog računa e-pošte posjetite web-lokaciju T-Online i izradite zaporku za POP3 pristup e-pošti."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Korporacijski"</string>
