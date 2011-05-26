@@ -275,17 +275,26 @@ public class MessageListFragment extends ListFragment
         return instance;
     }
 
-    // Cached arguments.  DO NOT use them directly.  ALWAYS use getXxxIdArg().
-    private boolean mArgCacheInitialized;
-    private long mCachedAccountId;
-    private long mCachedMailboxId;
+    /**
+     * The account ID the mailbox is associated with. Do not use directly; instead, use
+     * {@link #getAccountId()}.
+     * <p><em>NOTE:</em> Although we cannot force these to be immutable using Java language
+     * constructs, this <em>must</em> be considered immutable.
+     */
+    private Long mImmutableAccountId;
+    /**
+     * We will display the messages contained by this mailbox. May be one of the special mailbox
+     * constants such as {@link Mailbox#QUERY_ALL_INBOXES} for combined views. Do NOT use directly;
+     * instead, use {@link #getMailboxId()}.
+     * <p><em>NOTE:</em> Although we cannot force these to be immutable using Java language
+     * constructs, this <em>must</em> be considered immutable.
+     */
+    private Long mImmutableMailboxId;
 
     private void initializeArgCache() {
-        if (!mArgCacheInitialized) {
-            mArgCacheInitialized = true;
-            mCachedAccountId = getArguments().getLong(ARG_ACCOUNT_ID);
-            mCachedMailboxId = getArguments().getLong(ARG_MAILBOX_ID);
-        }
+        if (mImmutableAccountId != null) return;
+        mImmutableAccountId = getArguments().getLong(ARG_ACCOUNT_ID);
+        mImmutableMailboxId = getArguments().getLong(ARG_MAILBOX_ID);
     }
 
     /**
@@ -295,7 +304,7 @@ public class MessageListFragment extends ListFragment
      */
     public long getAccountId() {
         initializeArgCache();
-        return mCachedAccountId;
+        return mImmutableAccountId;
     }
 
     /**
@@ -303,7 +312,7 @@ public class MessageListFragment extends ListFragment
      */
     public long getMailboxId() {
         initializeArgCache();
-        return mCachedMailboxId;
+        return mImmutableMailboxId;
     }
 
     /**
@@ -714,10 +723,11 @@ public class MessageListFragment extends ListFragment
     /**
      * Called when a message on the list is selected
      *
-     * @param messageMailboxId the actual mailbox ID of the message.  Note it's different from
-     * {@link #mMailboxId} in combined mailboxes.  ({@link #mMailboxId} can take values such as
-     * {@link Mailbox#QUERY_ALL_INBOXES})
-     * @param messageId ID of the msesage to open.
+     * @param messageMailboxId the actual mailbox ID of the message.  Note it's different than
+     *        what is returned by {@link #getMailboxId()} for combined mailboxes.
+     *        ({@link #getMailboxId()} may return special mailbox values such as
+     *        {@link Mailbox#QUERY_ALL_INBOXES})
+     * @param messageId ID of the message to open.
      */
     private void onMessageOpen(final long messageMailboxId, final long messageId) {
         new MessageOpenTask(messageMailboxId, messageId).cancelPreviousAndExecuteParallel();

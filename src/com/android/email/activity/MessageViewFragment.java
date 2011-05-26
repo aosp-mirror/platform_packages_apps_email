@@ -20,6 +20,7 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.emailcommon.mail.MeetingInfo;
 import com.android.emailcommon.mail.PackedString;
+import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceConstants;
@@ -136,15 +137,17 @@ public class MessageViewFragment extends MessageViewFragmentBase
         return instance;
     }
 
-    // Cached argument.  DO NOT use them directly.  ALWAYS use getXxxIdArg().
-    private boolean mArgCacheInitialized;
-    private long mCachedMessageId;
+    /**
+     * We will display the message for this ID. This must never be a special message ID such as
+     * {@link Message#NO_MESSAGE}. Do NOT use directly; instead, use {@link #getMessageId()}.
+     * <p><em>NOTE:</em> Although we cannot force these to be immutable using Java language
+     * constructs, this <em>must</em> be considered immutable.
+     */
+    private Long mImmutableMessageId;
 
     private void initializeArgCache() {
-        if (!mArgCacheInitialized) {
-            mArgCacheInitialized = true;
-            mCachedMessageId = getArguments().getLong(ARG_MESSAGE_ID);
-        }
+        if (mImmutableMessageId != null) return;
+        mImmutableMessageId = getArguments().getLong(ARG_MESSAGE_ID);
     }
 
     /**
@@ -152,7 +155,7 @@ public class MessageViewFragment extends MessageViewFragmentBase
      */
     public long getMessageId() {
         initializeArgCache();
-        return mCachedMessageId;
+        return mImmutableMessageId;
     }
 
     @Override

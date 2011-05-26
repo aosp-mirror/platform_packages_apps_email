@@ -232,17 +232,28 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         return instance;
     }
 
-    // Cached arguments.  DO NOT use them directly.  ALWAYS use getXxxIdArg().
-    private boolean mArgCacheInitialized;
-    private long mCachedAccountId;
-    private long mCachedParentMailboxId;
+    /**
+     * The account ID the mailbox is associated with. Do not use directly; instead, use
+     * {@link #getAccountId()}.
+     * <p><em>NOTE:</em> Although we cannot force these to be immutable using Java language
+     * constructs, this <em>must</em> be considered immutable.
+     */
+    private Long mImmutableAccountId;
+    /**
+     * We will display the children of this mailbox. May be {@link Mailbox#NO_MAILBOX} to display
+     * all of the top-level mailboxes. Do NOT use directly; instead, use
+     * {@link #getParentMailboxId()}.
+     * <p><em>NOTE:</em> Although we cannot force these to be immutable using Java language
+     * constructs, this <em>must</em> be considered immutable.
+     */
+    private Long mImmutableParentMailboxId;
 
     private void initializeArgCache() {
-        if (!mArgCacheInitialized) {
-            mArgCacheInitialized = true;
-            mCachedAccountId = getArguments().getLong(ARG_ACCOUNT_ID);
-            mCachedParentMailboxId = getArguments().getLong(ARG_PARENT_MAILBOX_ID);
-        }
+        if (mImmutableAccountId != null) return;
+        mImmutableAccountId
+                = getArguments().getLong(ARG_ACCOUNT_ID, Account.NO_ACCOUNT);
+        mImmutableParentMailboxId
+                = getArguments().getLong(ARG_PARENT_MAILBOX_ID, Mailbox.NO_MAILBOX);
     }
 
     /**
@@ -250,7 +261,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      */
     public long getAccountId() {
         initializeArgCache();
-        return mCachedAccountId;
+        return mImmutableAccountId;
     }
 
     /**
@@ -258,7 +269,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      */
     public long getParentMailboxId() {
         initializeArgCache();
-        return mCachedParentMailboxId;
+        return mImmutableParentMailboxId;
     }
 
     /**
