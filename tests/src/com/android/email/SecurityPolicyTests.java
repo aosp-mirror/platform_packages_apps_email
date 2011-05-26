@@ -139,7 +139,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a3 = ProviderTestUtils.setupAccount("sec-3", true, mMockContext);
         Policy p3ain = setupPolicy(10, Policy.PASSWORD_MODE_SIMPLE, 0, 0, false, 0, 0, 0,
                 false, false);
-        p3ain.setAccountPolicy(mMockContext, a3, "0");
+        Policy.setAccountPolicy(mMockContext, a3, p3ain, null);
         Policy p3aout = mSecurityPolicy.computeAggregatePolicy();
         assertNotNull(p3aout);
         assertEquals(p3ain, p3aout);
@@ -147,7 +147,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         // Repeat that test with fully-populated policies
         Policy p3bin = setupPolicy(10, Policy.PASSWORD_MODE_SIMPLE, 15, 16, false, 6, 2, 3,
                 false, false);
-        p3bin.setAccountPolicy(mMockContext, a3, "0");
+        Policy.setAccountPolicy(mMockContext, a3, p3bin, null);
         Policy p3bout = mSecurityPolicy.computeAggregatePolicy();
         assertNotNull(p3bout);
         assertEquals(p3bin, p3bout);
@@ -163,7 +163,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Policy p4in = setupPolicy(20, Policy.PASSWORD_MODE_STRONG, 25, 26, false, 0, 5, 7,
                 false, false);
         Account a4 = ProviderTestUtils.setupAccount("sec-4", true, mMockContext);
-        p4in.setAccountPolicy(mMockContext, a4, "0");
+        Policy.setAccountPolicy(mMockContext, a4, p4in, null);
         Policy p4out = mSecurityPolicy.computeAggregatePolicy();
         assertNotNull(p4out);
         assertEquals(20, p4out.mPasswordMinLength);
@@ -188,7 +188,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Policy p5in = setupPolicy(4, Policy.PASSWORD_MODE_SIMPLE, 5, 6, true, 1, 0, 0,
                 true, false);
         Account a5 = ProviderTestUtils.setupAccount("sec-5", true, mMockContext);
-        p5in.setAccountPolicy(mMockContext, a5, "0");
+        Policy.setAccountPolicy(mMockContext, a5, p5in, null);
         Policy p5out = mSecurityPolicy.computeAggregatePolicy();
         assertNotNull(p5out);
         assertEquals(20, p5out.mPasswordMinLength);
@@ -206,7 +206,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Policy p6in = setupPolicy(0, Policy.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0,
                 false, true);
         Account a6 = ProviderTestUtils.setupAccount("sec-6", true, mMockContext);
-        p6in.setAccountPolicy(mMockContext, a6, "0");
+        Policy.setAccountPolicy(mMockContext, a6, p6in, null);
         Policy p6out = mSecurityPolicy.computeAggregatePolicy();
         assertNotNull(p6out);
         assertTrue(p6out.mRequireEncryptionExternal);
@@ -273,12 +273,12 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a1 = ProviderTestUtils.setupAccount("disable-1", true, mMockContext);
         Policy p1 = setupPolicy(10, Policy.PASSWORD_MODE_SIMPLE, 0, 0, false, 0, 0, 0,
                 false, false);
-        p1.setAccountPolicy(mMockContext, a1, "security-sync-key-1");
+        Policy.setAccountPolicy(mMockContext, a1, p1, "security-sync-key-1");
 
         Account a2 = ProviderTestUtils.setupAccount("disable-2", true, mMockContext);
         Policy p2 = setupPolicy(20, Policy.PASSWORD_MODE_STRONG, 25, 26, false, 0, 0, 0,
                 false, false);
-        p2.setAccountPolicy(mMockContext, a2, "security-sync-key-2");
+        Policy.setAccountPolicy(mMockContext, a2, p2, "security-sync-key-2");
 
         Account a3 = ProviderTestUtils.setupAccount("disable-3", true, mMockContext);
         Policy.clearAccountPolicy(mMockContext, a3);
@@ -334,7 +334,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
             ProviderTestUtils.setupAccount("expiring-2", true, mMockContext);
         Policy p2 = setupPolicy(20, Policy.PASSWORD_MODE_STRONG, 25, 26, false, 30, 0, 0,
                 false, false);
-        p2.setAccountPolicy(mMockContext, a2, "0");
+        Policy.setAccountPolicy(mMockContext, a2, p2, null);
 
         // The expiring account should be returned
         nextExpiringAccountId = SecurityPolicy.findShortestExpiration(mMockContext);
@@ -344,7 +344,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a3 = ProviderTestUtils.setupAccount("expiring-3", true, mMockContext);
         Policy p3 = setupPolicy(20, Policy.PASSWORD_MODE_STRONG, 25, 26, false, 60, 0, 0,
                 false, false);
-        p3.setAccountPolicy(mMockContext, a3, "0");
+        Policy.setAccountPolicy(mMockContext, a3, p3, null);
 
         // The original expiring account (a2) should be returned
         nextExpiringAccountId = SecurityPolicy.findShortestExpiration(mMockContext);
@@ -354,7 +354,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a4 = ProviderTestUtils.setupAccount("expiring-4", true, mMockContext);
         Policy p4 = setupPolicy(20, Policy.PASSWORD_MODE_STRONG, 25, 26, false, 15, 0, 0,
                 false, false);
-        p4.setAccountPolicy(mMockContext, a4, "0");
+        Policy.setAccountPolicy(mMockContext, a4, p4, null);
 
         // The new expiring account (a4) should be returned
         nextExpiringAccountId = SecurityPolicy.findShortestExpiration(mMockContext);
@@ -384,7 +384,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a2 = ProviderTestUtils.setupAccount("expired-2", true, mMockContext);
         Policy p2 = setupPolicy(20, Policy.PASSWORD_MODE_STRONG, 25, 26, false, 0, 0, 0,
                 false, false);
-        p2.setAccountPolicy(mMockContext, a2, "0");
+        Policy.setAccountPolicy(mMockContext, a2, p2, null);
 
         // Add a mailbox & messages to each account
         long account1Id = a1.mId;
@@ -410,7 +410,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Account a3 = ProviderTestUtils.setupAccount("expired-3", true, mMockContext);
         Policy p3 = setupPolicy(20, Policy.PASSWORD_MODE_STRONG, 25, 26, false, 30, 0, 0,
                 false, false);
-        p3.setAccountPolicy(mMockContext, a3, "0");
+        Policy.setAccountPolicy(mMockContext, a3, p3, null);
 
         // Add mailbox & messages to 3rd account
         long account3Id = a3.mId;

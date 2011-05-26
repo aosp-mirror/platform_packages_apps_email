@@ -1687,7 +1687,7 @@ public abstract class EmailContent {
         public int update(Context context, ContentValues cv) {
             if (mPolicy != null && mPolicyKey <= 0) {
                 // If a policy is set and there's no policy, link it to the account
-                mPolicy.setAccountPolicy(context, this, null);
+                Policy.setAccountPolicy(context, this, mPolicy, null);
             }
             if (cv.containsKey(AccountColumns.IS_DEFAULT) &&
                     cv.getAsBoolean(AccountColumns.IS_DEFAULT)) {
