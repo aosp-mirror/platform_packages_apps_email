@@ -263,7 +263,7 @@
     <string name="account_setup_exchange_title" msgid="396004732514751781">"Kontoeinrichtung"</string>
     <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Servereinstellungen"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Server"</string>
-    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domain-/Benutzername"</string>
+    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domain-/Nutzername"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Sichere Verbindung (SSL) verwenden"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Alle SSL-Zertifikate akzeptieren"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Mobilgerät-ID"</string>
