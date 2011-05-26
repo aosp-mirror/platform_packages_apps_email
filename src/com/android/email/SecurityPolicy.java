@@ -291,10 +291,6 @@ public class SecurityPolicy {
      * @return true if the requested policies are active, false if not.
      */
     public boolean isActive(PolicySet policies) {
-        // Since the DPM reports password failures erroneously, we add this workaround that
-        // ensures that our most recent aggregate policy is set before checking whether those
-        // policies are in force
-        setActivePolicies();
         int reasons = getInactiveReasons(policies);
         return reasons == 0;
     }
