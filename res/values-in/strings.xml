@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Setelan aplikasi"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Tidak dapat membuka lampiran."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Karena jenis lampiran ini mungkin berisi program hasad, Anda tidak dapat menyimpan atau membukanya."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Lampiran ini tidak dapat disimpan atau dibuka karena kebijakan keamanan yang berlaku untuk akun ini."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Lampiran ini terlalu besar untuk diunduh melalui jaringan seluler. Anda dapat mengunduhnya saat tersambung lagi ke jaringan Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Tidak ada aplikasi terpasang yang dapat membuka lampiran ini. Cobalah unduh aplikasi yang tepat dari Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Lampiran ini sebuah aplikasi. Anda harus mencentang Sumber tak dikenal di Setelan, dalam Aplikasi, sebelum dapat memasangnya."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Aplikasi tidak dapat dipasang langsung dari Email. Simpanlah dulu aplikasi ini, lalu pasang dengan menggunakan aplikasi Unduhan."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Lampiran tidak dapat diunduh."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Terjadi galat saat mengawasandikan pesan."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Melihat <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Buang pesan"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Hapus akun"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Akun email"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Pilih akun"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Akun tidak ditemukan. Akun mungkin telah dihapus."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Hanya beberapa akun \"Plus\" termasuk akses POP yang memungkinkan program ini terhubung. Jika tidak dapat masuk dengan alamat dan sandi email yang benar, Anda mungkin tidak memiliki akun \"Plus\" berbayar. Buka peramban Web untuk mendapat akses ke akun surat ini."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Sebelum menyiapkan akun email ini, kunjungi Situs web T-Online dan buat sandi untuk akses email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Perusahaan"</string>

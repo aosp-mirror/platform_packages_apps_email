@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for permission_read_attachment_label (618768999416116023) -->
+    <skip />
+    <!-- no translation found for permission_read_attachment_desc (7079397473503113579) -->
+    <skip />
+    <string name="permission_access_provider_label" msgid="4274353114641168675">"Finyelela kudatha yomhlinzeki we-Imeyili"</string>
+    <!-- outdated translation 1513898266889541617 -->     <string name="permission_access_provider_desc" msgid="2549843731779487336">"Ivumela lolu hlelo lokusebenza ukufinyelela kumininingo yakho egciniwe ye-Imeyili, kuhlanganise imiyalezo etholiwe, imiyalezo ethunyelwe, amagama abasebenzisi kanye namaphasiwe."</string>
+    <!-- no translation found for app_name (5815426892327290362) -->
+    <skip />
+    <!-- no translation found for compose_title (427986915662706899) -->
+    <skip />
+    <!-- no translation found for debug_title (5175710493691536719) -->
+    <skip />
+    <!-- no translation found for next_action (3931301986364184415) -->
+    <skip />
+    <!-- no translation found for okay_action (8365197396795675617) -->
+    <skip />
+    <!-- no translation found for cancel_action (6967435583794021865) -->
+    <skip />
+    <!-- no translation found for previous_action (5181616311579820981) -->
+    <skip />
+    <!-- no translation found for send_action (1729766205562446418) -->
+    <skip />
+    <!-- no translation found for reply_action (4262472229221507619) -->
+    <skip />
+    <!-- no translation found for reply_all_action (6192179825726332152) -->
+    <skip />
+    <!-- no translation found for delete_action (8421026208288857155) -->
+    <skip />
+    <!-- no translation found for forward_action (669174181042344116) -->
+    <skip />
+    <!-- no translation found for done_action (7497990549515580249) -->
+    <skip />
+    <!-- no translation found for discard_action (6532206074859505968) -->
+    <skip />
+    <!-- no translation found for save_draft_action (6413714270991417223) -->
+    <skip />
+    <string name="read_action" msgid="4701484794504781686">"Beka uphawu njengokufundiwe"</string>
+    <string name="unread_action" msgid="6280399049357552826">"Beka uphawu njengokungafundiwe"</string>
+    <string name="set_star_action" msgid="4660317166196258160">"Faka inkanyezi"</string>
+    <string name="remove_star_action" msgid="6689770999647007163">"Khipha inkanyezi"</string>
+    <!-- no translation found for refresh_action (5951383001436708175) -->
+    <skip />
+    <!-- no translation found for add_account_action (8835736309476033727) -->
+    <skip />
+    <!-- no translation found for compose_action (4045702519637388045) -->
+    <skip />
+    <!-- no translation found for search_action (6325101454876682308) -->
+    <skip />
+    <!-- no translation found for account_settings_action (4494079183315085171) -->
+    <skip />
+    <!-- no translation found for mark_as_unread_action (3766298115778767554) -->
+    <skip />
+    <!-- no translation found for move_action (3059189775933985898) -->
+    <skip />
+    <!-- no translation found for add_cc_bcc_action (413546910281713891) -->
+    <skip />
+    <!-- no translation found for close_action (533058985745238100) -->
+    <skip />
+    <!-- outdated translation 9100624762133992435 -->     <string name="message_list_send_pending_messages_action" msgid="8502942186631824114">"Thumela imiyalezo ephumayo."</string>
+    <string name="choose_attachment_dialog_title" msgid="81937507117528954">"Khetha isinamathiseli"</string>
+    <string name="move_to_folder_dialog_title" msgid="2614318192482193898">"Hambisa ku"</string>
+    <string name="status_loading_messages" msgid="6552307237621292344">"Ilayisha imiyalezo..."</string>
+    <!-- no translation found for status_network_error (6045933332005067021) -->
+    <skip />
+    <string name="error_loading_message_body" msgid="2265140604109272914">"Iphutha elingaziwe ngenkathi ilayisha umbhalo womyalezo. Umyalezo ungabe ube mkhulu kakhulu ukuba ungabukwa."</string>
+    <!-- no translation found for move_messages:one (320885379869442589) -->
+    <!-- no translation found for move_messages:other (371256717624461324) -->
+    <!-- no translation found for cannot_move_protocol_not_supported_toast (8321714399405096556) -->
+    <skip />
+    <!-- no translation found for cannot_move_multiple_accounts_toast (4111097224275445005) -->
+    <skip />
+    <!-- no translation found for cannot_move_special_mailboxes_toast (2533188790446456804) -->
+    <skip />
+  <plurals name="notification_new_one_account_fmt">
+    <item quantity="one" msgid="3422945912787702191">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> Akufundiwe (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="few" msgid="6543078667692990869">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> akufundiwe (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+    <item quantity="other" msgid="6937673814351448076">"<xliff:g id="UNREAD_MESSAGE_COUNT">%1$d</xliff:g> akufundiwe (<xliff:g id="ACCOUNT">%2$s</xliff:g>)"</item>
+  </plurals>
+  <plurals name="notification_new_multi_account_fmt">
+    <item quantity="few" msgid="1991747245324120305">"kuma-akhawunti angu-<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>"</item>
+    <item quantity="other" msgid="2723797835410343458">"kuma-akhawunti angu-<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>"</item>
+  </plurals>
+    <!-- no translation found for notification_to_account (2078557719010667913) -->
+    <skip />
+    <!-- no translation found for number_of_accounts:one (6343953132237244947) -->
+    <!-- no translation found for number_of_accounts:other (8548760449976444566) -->
+    <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Ibhokisi lemiyalezo engenayo"</string>
+    <string name="mailbox_name_display_outbox" msgid="2826214174661417662">"Ibhokisi lemiyalezo ephumayo"</string>
+    <string name="mailbox_name_display_drafts" msgid="4868718300700514319">"Okungaphelele"</string>
+    <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Udoti"</string>
+    <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Thunyelwe"</string>
+    <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Okungafuneki"</string>
+    <!-- no translation found for debug_version_fmt (6160213145745376955) -->
+    <skip />
+    <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Ibhokisi lemiyalezo engenayo"</string>
+    <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Okunenkanyezi"</string>
+    <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Okungaphelele"</string>
+    <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Ibhokisi lemiyalezo ephumayo"</string>
+    <!-- no translation found for mailbox_list_account_selector_combined_view (1556327299894225044) -->
+    <skip />
+    <!-- no translation found for message_list_load_more_messages_action (7428302707908825692) -->
+    <skip />
+  <plurals name="message_view_selected_message_count">
+    <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> khethiwe"</item>
+    <item quantity="other" msgid="7901361399231876038">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> khethiwe"</item>
+  </plurals>
+    <!-- no translation found for message_list_no_messages (7846910091922523867) -->
+    <skip />
+    <!-- no translation found for message_compose_to_hint (2891895306418177013) -->
+    <skip />
+    <!-- no translation found for message_compose_cc_hint (8481884461031434144) -->
+    <skip />
+    <!-- no translation found for message_compose_bcc_hint (9177337492358841680) -->
+    <skip />
+    <!-- no translation found for message_compose_subject_hint (6993487234024160782) -->
+    <skip />
+    <!-- no translation found for message_compose_from_label (4084843296548498041) -->
+    <skip />
+    <!-- no translation found for message_compose_to_label (6806045787441348009) -->
+    <skip />
+    <!-- no translation found for message_compose_cc_label (5608567337432359209) -->
+    <skip />
+    <!-- no translation found for message_compose_bcc_label (8619598628773345338) -->
+    <skip />
+    <!-- no translation found for message_compose_subject_label (1592314202889683309) -->
+    <skip />
+    <string name="message_compose_body_hint" msgid="7575406246484103697">"Qamba Imeyili"</string>
+    <string name="message_compose_fwd_header_fmt" msgid="5181300290654579434">\n\n"-------- Umyalezo Wangempela --------"\n"Isihloko: <xliff:g id="SUBJECT">%1$s</xliff:g>"\n"Kusuka ku: <xliff:g id="SENDER">%2$s</xliff:g>"\n"Kuya ku: <xliff:g id="TO">%3$s</xliff:g>"\n"CC: <xliff:g id="CC_0">%4$s</xliff:g>"\n\n</string>
+    <string name="message_compose_reply_header_fmt" msgid="8815624773273454573">\n\n"<xliff:g id="SENDER">%s</xliff:g>ubhale:"\n\n</string>
+    <!-- no translation found for message_compose_quoted_text_label (5722467956990009520) -->
+    <skip />
+    <!-- no translation found for message_compose_include_quoted_text_checkbox_label (8165567368956050390) -->
+    <skip />
+    <!-- no translation found for message_compose_error_no_recipients (4903715888250785486) -->
+    <skip />
+    <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Amanye amakheli e-imeyili awalungile."</string>
+    <string name="message_compose_attachment_size" msgid="4401081828287333647">"Ifayela inkulu kakhulu ukuba inamathiselwe."</string>
+    <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> kanye nabanye abangu-<xliff:g id="NUMBER">%2$d</xliff:g>"</string>
+    <!-- no translation found for message_view_to_label (6485191743265527381) -->
+    <skip />
+    <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
+    <string name="message_view_bcc_label" msgid="7577479221285310198">"Bcc:"</string>
+    <!-- no translation found for message_view_date_label (7033814961837313339) -->
+    <skip />
+    <!-- no translation found for message_view_from_label (6055076379282772675) -->
+    <skip />
+    <!-- no translation found for message_view_subject_label (3731022187530000852) -->
+    <skip />
+    <string name="message_view_attachment_view_action" msgid="4408093860407096078">"Buka"</string>
+    <!-- no translation found for message_view_attachment_install_action (381211378884166381) -->
+    <skip />
+    <!-- no translation found for message_view_attachment_play_action (5214215414665114061) -->
+    <skip />
+    <string name="message_view_attachment_load_action" msgid="8645178445048233745">"Layisha"</string>
+    <!-- no translation found for message_view_attachment_info_action (3908148393469626740) -->
+    <skip />
+    <string name="message_view_attachment_save_action" msgid="4704436274670997903">"Londoloza"</string>
+    <!-- no translation found for message_view_attachment_saved (3432810414785232025) -->
+    <skip />
+    <string name="message_view_attachment_cancel_action" msgid="316700885943712101">"Misa"</string>
+    <string name="message_view_status_attachment_saved" msgid="8878790392556284868">"Isinamathiseli silondolozwe njenge-<xliff:g id="FILENAME">%s</xliff:g>."</string>
+    <string name="message_view_status_attachment_not_saved" msgid="2253752149762341579">"Ayikwazi ukugcina isinamathiseli"</string>
+    <string name="message_view_attachment_background_load" msgid="756797444835526487">"Yazi: Eyodwa noma eyengeziwe yezinamathiseli kumyalezo wakho odluliselwe izolandwa ngaphambi kokuthumelwa."</string>
+    <!-- no translation found for message_view_show_message_action (5134222901019191436) -->
+    <skip />
+    <!-- no translation found for message_view_show_invite_action (8862797393776226777) -->
+    <skip />
+    <!-- no translation found for message_view_show_attachments_action:one (7594476368958824007) -->
+    <!-- no translation found for message_view_show_attachments_action:other (974463163535515223) -->
+    <!-- no translation found for message_view_show_pictures_action (5059936981743072545) -->
+    <skip />
+    <string name="message_view_invite_view" msgid="5521032519960111675">"Buka Ekhalendeni"</string>
+    <string name="message_view_invite_title" msgid="5024473745902772299">"Isimemo Sekhalenda"</string>
+    <string name="message_view_invite_text" msgid="1212799906603873708">"Uyahamba?"</string>
+    <string name="message_view_invite_accept" msgid="744546668021679819">" Yebo"</string>
+    <string name="message_view_invite_maybe" msgid="7555189462441562318">" Mhlawumbe"</string>
+    <string name="message_view_invite_decline" msgid="6119797303297149463">" Cha"</string>
+    <string name="message_view_invite_toast_yes" msgid="1900593767157209498">"Wamukele lesi simemo"</string>
+    <string name="message_view_invite_toast_maybe" msgid="8324044318669610540">"Uphendule \"mhlawumbe\" kulesi simemo"</string>
+    <string name="message_view_invite_toast_no" msgid="7511491076936887064">"Unqabe lesi simemo"</string>
+    <!-- no translation found for message_view_show_details (6287415596441037095) -->
+    <skip />
+    <!-- no translation found for message_view_message_details_dialog_title (5306529501287351018) -->
+    <skip />
+    <!-- no translation found for attachment_info_dialog_default_title (4995755709689009622) -->
+    <skip />
+    <!-- no translation found for attachment_info_dialog_wifi_title (3174350153882915382) -->
+    <skip />
+    <!-- no translation found for attachment_info_wifi_settings (96432970927503597) -->
+    <skip />
+    <!-- no translation found for attachment_info_application_settings (9128108769497191200) -->
+    <skip />
+    <!-- no translation found for attachment_info_unknown (8342655396805943320) -->
+    <skip />
+    <!-- no translation found for attachment_info_malware (1478505616946912328) -->
+    <skip />
+    <!-- no translation found for attachment_info_policy (328224012587376154) -->
+    <skip />
+    <!-- no translation found for attachment_info_wifi_only (1481120960014563617) -->
+    <skip />
+    <!-- no translation found for attachment_info_no_intent (5277484372596654977) -->
+    <skip />
+    <!-- no translation found for attachment_info_sideload_disabled (1884647432057183615) -->
+    <skip />
+    <!-- no translation found for attachment_info_apk_install_disabled (9077383681081393067) -->
+    <skip />
+    <!-- no translation found for attachment_not_found (2593390852574725378) -->
+    <skip />
+    <!-- no translation found for message_decode_error (7812862491622388416) -->
+    <skip />
+    <!-- no translation found for eml_view_title (8827210108543430336) -->
+    <skip />
+    <!-- no translation found for message_delete_dialog_title (7189172554183139772) -->
+    <skip />
+    <!-- no translation found for message_delete_confirm:one (8452608582303152000) -->
+    <!-- no translation found for message_delete_confirm:other (5071164417794016228) -->
+  <plurals name="message_deleted_toast">
+    <item quantity="one" msgid="710742672464447084">"Umyalezo ususiwe."</item>
+    <item quantity="other" msgid="6574961322865652255">"Imiyalezo isusiwe."</item>
+  </plurals>
+    <!-- no translation found for message_discarded_toast (3891461729325584026) -->
+    <skip />
+    <!-- no translation found for message_saved_toast (8443125659172627665) -->
+    <skip />
+    <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Lesi sinamathiseli asikwazi ukuboniswa."</string>
+    <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"Isinamathiseli \" <xliff:g id="FILENAME">%s</xliff:g> \" asikwazanga ukulayiswa."</string>
+    <string name="message_view_parse_message_toast" msgid="8830378966553031281">"Ivula umyalezo..."</string>
+  <plurals name="message_moved_toast">
+    <item quantity="one" msgid="3098493230185412871">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> umyalezo uhambiswe e-<xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
+    <item quantity="other" msgid="2286739630865943494">"<xliff:g id="NUM_MESSAGE">%1$d</xliff:g> imiyalezo ihambiswe e-<xliff:g id="MAILBOX_NAME">%2$s</xliff:g>"</item>
+  </plurals>
+    <!-- no translation found for forward_download_failed_ticker (328380505427633405) -->
+    <skip />
+    <!-- no translation found for forward_download_failed_title (6139701848515572511) -->
+    <skip />
+    <!-- no translation found for login_failed_ticker (7452091306512654139) -->
+    <skip />
+    <!-- no translation found for login_failed_title (6948780582524747622) -->
+    <skip />
+  <plurals name="message_view_attachment_bytes">
+    <item quantity="one" msgid="8914124732074848509">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
+    <item quantity="other" msgid="4613385949384337840">"<xliff:g id="SIZE_IN_BYTES">%d</xliff:g>B"</item>
+  </plurals>
+  <plurals name="message_view_attachment_kilobytes">
+    <item quantity="one" msgid="869981846437074463">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
+    <item quantity="other" msgid="8869993299924901593">"<xliff:g id="SIZE_IN_KILOBYTES">%d</xliff:g>KB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_megabytes">
+    <item quantity="one" msgid="7527095670565758434">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
+    <item quantity="other" msgid="4365876866570165282">"<xliff:g id="SIZE_IN_MEGABYTES">%d</xliff:g>MB"</item>
+  </plurals>
+  <plurals name="message_view_attachment_gigabytes">
+    <item quantity="one" msgid="6261986598249539093">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
+    <item quantity="other" msgid="1041353825053598633">"<xliff:g id="SIZE_IN_GIGABYTES">%d</xliff:g>GB"</item>
+  </plurals>
+    <!-- no translation found for message_view_move_to_newer (2190862552581773765) -->
+    <skip />
+    <!-- no translation found for message_view_move_to_older (4993043091356700890) -->
+    <skip />
+    <!-- no translation found for message_list_subject_snippet_divider (1783589062530679520) -->
+    <skip />
+    <!-- no translation found for account_setup_basics_title (3578333196594678422) -->
+    <skip />
+    <string name="account_setup_basics_exchange_title" msgid="1147638872869594157">"Yengeza i-akhawunti Yokushintshanisa"</string>
+    <string name="account_setup_basics_exchange_title_alternate" msgid="4980422714586153809">"Yengeza i-akhawunti Yokuvumelanisa Okusebenzsayo Kokushintshanisa"</string>
+    <!-- no translation found for account_setup_basics_headline (6726590205905464015) -->
+    <skip />
+    <string name="accounts_welcome" msgid="5901437782383439370">"Ungase umise i-Imeyili yamanye ama-akhawunti ngezinyathelo ezimbalwa."</string>
+    <string name="accounts_welcome_exchange" msgid="4414121583987233733">"Ungamisa i-akhawunti Yokushintsha ngezinyathelo ezimbalwa nje."</string>
+    <string name="accounts_welcome_exchange_alternate" msgid="1324339567986452000">"Ungamisa i-akhawunti Yokuvumelanisa Okusebenzayo Kokushintshanisa ngezinyathelo ezimbalwa nje."</string>
+    <!-- no translation found for account_setup_basics_email_label (3454164053624112047) -->
+    <skip />
+    <!-- no translation found for account_setup_basics_password_label (9133549799291519298) -->
+    <skip />
+    <!-- no translation found for account_setup_basics_default_label (5924790142029806711) -->
+    <skip />
+    <!-- no translation found for account_setup_basics_manual_setup_action (8053852205391155912) -->
+    <skip />
+    <string name="account_setup_username_password_toast" msgid="4441448542557889481">"Sicela uthayiphe ikheli le-imeyili elilungile kanye nephasiwedi."</string>
+    <string name="account_duplicate_dlg_title" msgid="3176749833792312641">"I-akhawunti Ephindiwe"</string>
+    <string name="account_duplicate_dlg_message_fmt" msgid="1920726613701479851">"Lokhu kungena kakade kusebenziselwa i-akhawunti \"<xliff:g id="DUPLICATE">%s</xliff:g>\""</string>
+    <!-- no translation found for account_password_spaces_error (8928309156658903257) -->
+    <skip />
+    <!-- no translation found for account_setup_check_settings_retr_info_msg (4121970450267725664) -->
+    <skip />
+    <!-- no translation found for account_setup_check_settings_check_incoming_msg (5356212700221438863) -->
+    <skip />
+    <!-- no translation found for account_setup_check_settings_check_outgoing_msg (4033015234096725343) -->
+    <skip />
+    <!-- no translation found for account_setup_names_title (8483517350241119291) -->
+    <skip />
+    <!-- no translation found for account_setup_names_headline (2413440250372658881) -->
+    <skip />
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Nike le-akhawunti igama (okokuzikhethela)"</string>
+    <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Igama lakho (liboniswa emiyalezweni ephumayo)"</string>
+    <!-- no translation found for account_setup_names_user_name_empty_error (1251952000604599298) -->
+    <skip />
+    <!-- no translation found for account_setup_account_type_title (7156551693961182124) -->
+    <skip />
+    <!-- no translation found for account_setup_account_type_headline (3574102329184831086) -->
+    <skip />
+    <!-- no translation found for account_setup_account_type_instructions (114515540798408760) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_title (6796626791039136005) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_headline (6183711037633407184) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_username_label (5700581386104070302) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_password_label (6365327603172559859) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_pop_server_label (4917504440057879152) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_imap_server_label (8685076830847734322) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_port_label (8214738923690447796) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_label (2110260791086007424) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_security_none_label (8300169413118264895) -->
+    <skip />
+    <string name="account_setup_incoming_security_ssl_trust_certificates_label" msgid="3581382268191377346">"I-SSL (Yamukela zonke izitifikethi)"</string>
+    <string name="account_setup_incoming_security_ssl_label" msgid="8886698397743061682">"I-SSL"</string>
+    <string name="account_setup_incoming_security_tls_trust_certificates_label" msgid="1089227022489257055">"I-TLS (Yamukela wonke amasitifikethi)"</string>
+    <string name="account_setup_incoming_security_tls_label" msgid="8638006172590036487">"I-TLS"</string>
+    <string name="account_setup_incoming_delete_policy_label" msgid="9213590134693857912">"Susa i-imeyili kwisiphakeli"</string>
+    <!-- no translation found for account_setup_incoming_delete_policy_never_label (3222897501875871041) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_delete_policy_delete_label (222216840911785631) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_imap_path_prefix_label (401167247072926810) -->
+    <skip />
+    <!-- no translation found for account_setup_incoming_imap_path_prefix_hint (9190845919067906033) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_title (7208495965665711539) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_headline (2025001060935366394) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_smtp_server_label (6035137446691195177) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_port_label (7573207437835827876) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_security_label (911398071120720589) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_require_login_label (6371514297854287948) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_username_label (3309680794731596981) -->
+    <skip />
+    <!-- no translation found for account_setup_outgoing_password_label (227844585493317550) -->
+    <skip />
+    <!-- outdated translation 2492853474738063453 -->     <string name="account_setup_exchange_title" msgid="396004732514751781">"Izilungiselelo Zeseva"</string>
+    <!-- no translation found for account_setup_exchange_headline (6099049671599242131) -->
+    <skip />
+    <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Iseva"</string>
+    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Isizinda/Igama lomsebenzisi"</string>
+    <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Sebenzisa uxhumano oluphephile (I-SSL)"</string>
+    <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Yamukela zonke izitifikethi ze-SSL"</string>
+    <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"i-ID Yedivaysi Yefoni"</string>
+    <!-- no translation found for account_setup_options_title (9016600767888846051) -->
+    <skip />
+    <!-- no translation found for account_setup_options_headline (4181274232835368085) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_label (4824859792882810053) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_never (287951859480505416) -->
+    <skip />
+    <string name="account_setup_options_mail_check_frequency_push" msgid="5934525907736008673">"Okuzenzakalelayo (Dudula)"</string>
+    <!-- no translation found for account_setup_options_mail_check_frequency_5min (6388939895878539307) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_10min (5344463157247877480) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_15min (5052776740089741793) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_30min (1097088928685931864) -->
+    <skip />
+    <!-- no translation found for account_setup_options_mail_check_frequency_1hour (3767715356039692899) -->
+    <skip />
+    <!-- no translation found for account_setup_options_default_label (8869166381331276697) -->
+    <skip />
+    <!-- no translation found for account_setup_options_notify_label (1247525794828820038) -->
+    <skip />
+    <string name="account_setup_options_sync_contacts_label" msgid="7467467090023434271">"Vumelanisa othintana nabo kusuka kule akhawunti."</string>
+    <string name="account_setup_options_sync_calendar_label" msgid="3195979658426293931">"Vumelanisa ikhalenda kule akhawunti."</string>
+    <string name="account_setup_options_sync_email_label" msgid="3930927721878987383">"Vumelanisa i-imeyli kule akhawunti."</string>
+    <!-- no translation found for account_setup_options_background_attachments_label (5247749298276451846) -->
+    <skip />
+    <!-- no translation found for account_setup_failed_dlg_title (7827583313117521383) -->
+    <skip />
+    <string name="account_setup_options_mail_window_label" msgid="8764417340954006086">"Inani okumele livumelaniswe"</string>
+    <!-- no translation found for account_setup_options_mail_window_auto (4188895354366183790) -->
+    <skip />
+    <string name="account_setup_options_mail_window_1day" msgid="3965715241135811407">"Usuku olulodwa"</string>
+    <string name="account_setup_options_mail_window_3days" msgid="736181102295878114">"Izinsuku ezintathu"</string>
+    <string name="account_setup_options_mail_window_1week" msgid="5639718031108023741">"Iviki elilodwa"</string>
+    <string name="account_setup_options_mail_window_2weeks" msgid="4567049268124213035">"Amaviki amabili"</string>
+    <string name="account_setup_options_mail_window_1month" msgid="5846359669750047081">"Inyanga eyodwa"</string>
+    <!-- outdated translation 5383858972681926166 -->     <string name="account_setup_options_mail_window_all" msgid="5372861827683632364">"Yonke Imeyili"</string>
+    <string name="account_setup_failed_dlg_auth_message" msgid="42827150104879570">"Igama lomsebenzisi noma iphasiwedi ayilungile."</string>
+    <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Igama lomsebenzisi noma iphasiwedi ayilungile."\n"<xliff:g id="ERROR">%s</xliff:g>"</string>
+    <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Ayikwazi ukuxhuma ngokuphephile kwiseva."</string>
+    <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Ayikwazi ukuxhuma ngokuphephile kwiseva. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_check_credentials_message (1364052504743821082) -->
+    <skip />
+    <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Ayikwazi ukuxhuma kwiseva."</string>
+    <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Ayikwazi ukuxhuma kwiseva. "\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <string name="account_setup_failed_tls_required" msgid="307030406688611327">"I-TLS iyadingeka kodwa ayisekelwa isiphakeli."</string>
+    <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Izindlelo zokuqinisekisa azisekelwa yiseva."</string>
+    <string name="account_setup_failed_security" msgid="6142264248671379943">"Ayikwazi ukuvula uxhumano kwisiphakeli ngenxa yephutha lokuphepha."</string>
+    <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Ayikwazi ukuvula uxhumano kwiseva."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Ufake ikheli leseva elingalungile noma isiphakeli sidinga inguqulo yomthetho olandelwayo lowo i-Imeyli engawusekeli."</string>
+    <!-- no translation found for account_setup_failed_access_denied (2571826611383388336) -->
+    <skip />
+    <string name="account_setup_security_required_title" msgid="1850321535870447468">"Ukuphatha ukuphepha kokulawula okukude"</string>
+    <!-- no translation found for account_setup_security_policies_required_fmt (5410714107656671761) -->
+    <skip />
+    <!-- no translation found for account_setup_failed_security_policies_unsupported (6647663405501663019) -->
+    <skip />
+    <!-- no translation found for account_setup_username_uneditable_error (9057508235700936322) -->
+    <skip />
+    <!-- no translation found for disable_admin_warning (4940147098039352135) -->
+    <skip />
+    <!-- no translation found for account_security_dialog_title (1340675800634074043) -->
+    <skip />
+    <!-- no translation found for account_security_dialog_content_fmt (7950790060554861792) -->
+    <skip />
+    <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"i-Akhawunti \" <xliff:g id="ACCOUNT">%s</xliff:g> \" idinga ukubuyekeza izilungiselelo zokuphepha."</string>
+    <!-- outdated translation 8096231937552848281 -->     <string name="security_notification_content_title" msgid="3352841884304076235">"Buyekeza Izilungiselelo Zokuphepha"</string>
+    <string name="account_security_title" msgid="4441470647344315196">"Ukuphepha kweDivaysi"</string>
+    <!-- no translation found for account_security_policy_explanation_fmt (6932627044314460766) -->
+    <skip />
+    <!-- no translation found for account_setup_failed_dlg_edit_details_action (5355993309841479360) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_ticker_fmt (7367710094579526056) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_content_title (7174669014074849304) -->
+    <skip />
+    <!-- no translation found for password_expired_ticker (4230570412974108968) -->
+    <skip />
+    <!-- no translation found for password_expired_content_title (4349518706602252979) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_dialog_title (1687074175399798189) -->
+    <skip />
+    <!-- no translation found for password_expire_warning_dialog_content_fmt (4595246020880351045) -->
+    <skip />
+    <!-- no translation found for password_expired_dialog_title (2186547998125938084) -->
+    <skip />
+    <!-- no translation found for password_expired_dialog_content_fmt (5982207349002500211) -->
+    <skip />
+    <string name="account_settings_exit_server_settings" msgid="8006323251094711431">"Lahla izinguquko ezingagciniwe?"</string>
+    <!-- no translation found for account_settings_login_dialog_title (3348853165458574221) -->
+    <skip />
+    <!-- no translation found for account_settings_login_dialog_content_fmt (3492735234999710234) -->
+    <skip />
+    <!-- no translation found for account_settings_title_fmt (1702058877284382340) -->
+    <skip />
+    <!-- no translation found for account_settings_default_label (3575963379680943640) -->
+    <skip />
+    <!-- no translation found for account_settings_default_summary (1531901438624688482) -->
+    <skip />
+    <!-- no translation found for account_settings_background_attachments_label (6044567979405738536) -->
+    <skip />
+    <!-- no translation found for account_settings_background_attachments_summary (8036004124395110306) -->
+    <skip />
+    <!-- no translation found for account_settings_notify_label (1630001017303007974) -->
+    <skip />
+    <string name="account_settings_summary" msgid="8403582255413830007">"Ukuvama kokuvumelanisa, isaziso, nokunye."</string>
+    <!-- no translation found for account_settings_notify_summary (6301122709602752038) -->
+    <skip />
+    <!-- no translation found for account_settings_mail_check_frequency_label (8271462919214560616) -->
+    <skip />
+    <!-- no translation found for account_settings_incoming_label (7858928031806297542) -->
+    <skip />
+    <!-- no translation found for account_settings_incoming_summary (2923044634831881068) -->
+    <skip />
+    <!-- no translation found for account_settings_outgoing_label (4464829249980026745) -->
+    <skip />
+    <!-- no translation found for account_settings_outgoing_summary (3572093624332724311) -->
+    <skip />
+    <!-- no translation found for account_settings_description_label (8894815221204511715) -->
+    <skip />
+    <!-- no translation found for account_settings_name_label (8186406122590008449) -->
+    <skip />
+    <string name="account_settings_signature_label" msgid="4091969938785803201">"Isiginesha"</string>
+    <string name="account_settings_signature_hint" msgid="7262183168962779403">"Jobelela umbhalo emiyalezweni oyithumelayo"</string>
+    <!-- no translation found for account_settings_notifications (1042620094281375043) -->
+    <skip />
+    <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Vumelanisa Othintana Nabo"</string>
+    <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Vumelanisa othintana nabo bale akhawunti"</string>
+    <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Vumelanisa Ikhalenda"</string>
+    <string name="account_settings_sync_calendar_summary" msgid="5241995538395965804">"Vumelanisa ikhalenda yale akhawunti"</string>
+    <string name="account_settings_sync_email_enable" msgid="4305222662654506074">"Vumelanisa i-Imeyli"</string>
+    <string name="account_settings_sync_email_summary" msgid="262964076412310990">"Vumelanisa i-imeyli yale akhawunti"</string>
+    <string name="account_settings_vibrate_when_label" msgid="708477308761702671">"Dlidliza"</string>
+    <string name="account_settings_vibrate_when_summary" msgid="3991584445166247189">"Iyadlidliza futhi lapho i-imeyli ifika"</string>
+    <string name="account_settings_vibrate_when_always" msgid="6739506816960483174">"Njalo"</string>
+    <string name="account_settings_vibrate_when_silent" msgid="6417076436551648924">"Kuphela uma ithulile"</string>
+    <string name="account_settings_vibrate_when_never" msgid="3759680093309511614">"Akusoze"</string>
+    <string name="account_settings_vibrate_when_dlg_title" msgid="308167729046312952">"Dlidliza"</string>
+    <!-- no translation found for account_settings_ringtone (7922187231467500404) -->
+    <skip />
+    <!-- no translation found for account_settings_servers (4925493817981624242) -->
+    <skip />
+    <string name="account_delete_dlg_title" msgid="6806087520856396608">"Khipha i-akhawunti"</string>
+    <string name="account_delete_dlg_instructions_fmt" msgid="8236846322040271280">"I-akhawunti\"<xliff:g id="ACCOUNT">%s</xliff:g>\" izokhishwa kwi-Imeyili"</string>
+    <string name="account_settings_category_delete_account" msgid="5128545184407925226">"Khipha i-akhawunti"</string>
+    <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Susa i-akhawunti"</string>
+    <!-- no translation found for account_shortcut_picker_name (1994861845225243190) -->
+    <skip />
+    <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
+    <skip />
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <!-- no translation found for toast_account_not_found (2483831308629565584) -->
+    <skip />
+    <string name="provider_note_live" msgid="3584841823811425060">"Kuphela amanye ama-akhawunti \"Okuhlanganisa\" ahlanganisa ukufinyelela i-POP okuvumela lolu hlelo ukuxhuma. Uma ungakwazi ukungena ngekheli lakho le-imeyili elilungile kanye nephasiwedi, kungase kwenzeke awunayo i-akhawunti ekhokhelwe \"Hlanganisa\". Sicela uqalise isipheqululis seWebhu ukuthola ukufinyelela kulama akhawunti e-imeyili."</string>
+    <string name="provider_note_t_online" msgid="1973701903400232774">"Ngaphambi kokuhlela le-akhawunti ye-imeyili, sicela uvakashele Iwebhusayithi ye-T-Online bese wenza iphasiwedi ukufinyelel i-imeyili ye-POP3."</string>
+    <string name="exchange_name" msgid="1190783774800310346">"Inhlangano"</string>
+    <string name="exchange_name_alternate" msgid="5772529644749041052">"Ukuvumelanisa Okusebenzayo Kokushintshanisa kwe-Microsoft"</string>
+    <string name="system_account_create_failed" msgid="4917162302393971752">"Umphathi we-Akhawunti akakwazi ukwenza i-Akhawunti; sicela uzame futhi."</string>
+    <string name="device_admin_label" msgid="8680224994637869414">"I-imeyli"</string>
+    <string name="device_admin_description" msgid="426727923791430306">"Ivumela isiphakeli sezinqubomgomo zokuphepha okucacisiwe"</string>
+    <string name="gal_searching_fmt" msgid="6140450617663543464">"Iyasesha <xliff:g id="DOMAIN">%s</xliff:g>..."</string>
+  <plurals name="gal_completed_fmt">
+    <item quantity="one" msgid="7496785524617037642">"<xliff:g id="RESULTS">%1$d</xliff:g> imiphumela ephuma <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
+    <item quantity="other" msgid="7816121892960632123">"<xliff:g id="RESULTS">%1$d</xliff:g> imiphumela ephuma <xliff:g id="DOMAIN">%2$s</xliff:g>"</item>
+  </plurals>
+    <string name="header_label_general_preferences" msgid="7548527595339881066">"Izintandokazi ze-Imeyli"</string>
+    <string name="category_general_preferences" msgid="6810399722493971651">"Izintandokazi Zohlelo Lokusebenza"</string>
+    <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Okuseqophelweni okuzenzakalelayo"</string>
+    <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Khetha ukuthi isiphi isikrini esizoboniswa emuva kokuba ususe umyalezo"</string>
+    <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Dlulela ku"</string>
+    <string name="general_preference_auto_advance_newer" msgid="1336720027570509885">"Umyalezo omusha"</string>
+    <string name="general_preference_auto_advance_older" msgid="8273143493185128646">"Umyalezo wakudala"</string>
+    <string name="general_preference_auto_advance_message_list" msgid="7834069275897767359">"Uhlu lomyalezo"</string>
+    <!-- no translation found for general_preference_text_zoom_label (4021955890499565713) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_summary_array:0 (1728778773460367725) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:1 (8239633518447359057) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:2 (55959821477704302) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:3 (446236334663020508) -->
+    <!-- no translation found for general_preference_text_zoom_summary_array:4 (235926149071179467) -->
+    <!-- no translation found for general_preference_text_zoom_dialog_title (7446841758331151643) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_tiny (2948174583663330937) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_small (6618520238223144876) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_normal (1765540147950855479) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_large (6874323663381586918) -->
+    <skip />
+    <!-- no translation found for general_preference_text_zoom_huge (4270503132355963031) -->
+    <skip />
+    <!-- no translation found for position_of_count (7989353140376877792) -->
+    <skip />
+    <!-- no translation found for widget_other_views (2265335608760083337) -->
+    <skip />
+    <!-- no translation found for widget_all_mail (4352573990283094963) -->
+    <skip />
+    <!-- no translation found for widget_unread (4404711399009077833) -->
+    <skip />
+    <!-- no translation found for widget_starred (8290352707134011791) -->
+    <skip />
+    <!-- no translation found for widget_loading (2340962056927255554) -->
+    <skip />
+    <!-- no translation found for widget_touch_to_configure (3272115577715211268) -->
+    <skip />
+    <!-- no translation found for more_than_999 (8704425397397918798) -->
+    <skip />
+    <!-- no translation found for search_title (353141588517762921) -->
+    <skip />
+    <!-- no translation found for search_hint (2200412192574686497) -->
+    <skip />
+    <!-- no translation found for mailbox_options_lookback_label (1207031465051138008) -->
+    <skip />
+</resources>

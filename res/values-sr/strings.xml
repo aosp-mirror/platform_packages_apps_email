@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Подешавања апликације"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Није могуће отворити прилог."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Будући да овај тип прилога можда садржи злонамерни софтвер, не можете да га сачувате или отворите."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Прилог не може да се сачува или отвори због безбедносних смерница које су на снази за овај налог."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Овај прилог је превелик да бисте га преузели преко мобилне мреже. Можете да га преузмете када се следећи пут повежете са Wi-Fi мрежом."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Немате инсталирану апликацију која може да отвори овај прилог. Покушајте да преузмете одговарајућу апликацију са Android Market-а."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Овај прилог је апликација. Потребно је да проверите Непознате изворе у Подешавањима, у оквиру Апликација, да бисте могли да га инсталирате."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Не можете да инсталирате апликације директно из Е-поште. Прво сачувајте ову апликацију, а затим је инсталирајте помоћу апликације Преузимања."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Није било могуће преузети прилог."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Грешка при дешифровању поруке."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Преглед датотеке <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Одбаци поруку"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Уклони налог"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Е-пошта"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Избор налога"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Налог није пронађен. Можда је уклоњен."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Само неки „Плус“ налози подржавају приступ преко POP протокола, што омогућава повезивање овог програма. Ако не можете да се пријавите користећи тачну адресу е-поште и лозинку, можда немате плаћени „Плус“ налог. Покрените веб прегледач да бисте приступили овим налозима е-поште."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Пре него што конфигуришете овај налог е-поште, посетите T-Online веб сајт и одредите лозинку за приступ е-пошти преко POP3 протокола."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporate"</string>

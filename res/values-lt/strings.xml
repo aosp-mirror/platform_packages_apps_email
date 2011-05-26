@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Programos nustatymai"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Nepavyksta atidaryti priedo."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Negalite išsaugoti ar atidaryti šio priedo, nes tokio tipo prieduose gali būti kenkėjiškos programinės įrangos."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Šio priedo negalima išsaugoti ar atidaryti dėl šiai paskyrai taikomos saugumo politikos."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Šis priedas yra per didelis, todėl jo atsisiųsti mobiliuoju tinklu negalima. Jį atsisiųsti galėsite, kai kitą kartą prisijungsite prie „Wi-Fi“ tinklo."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Nėra įdiegtos programos, kurią naudojant būtų galima atidaryti šį priedą. Pabandykite atsisiųsti tinkamą programą iš „Android“ prekyvietės."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Šis priedas yra programa. Prieš ją įdiegdami turite pažymėti „Nežinomi šaltiniai“ „Programų“ skiltyje „Nustatymai“."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Tiesiogiai iš el. pašto programų įdiegti negalima. Pirmiausia išsaugokite šią programą ir įdiekite ją naudodami programą „Atsisiuntimai“."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Apgailestaujame, nepavyko atsisiųsti priedo."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Iššifruojant pranešimą įvyko klaida."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Peržiūrimas <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Atmesti praneš."</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Pašalinti paskyrą"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"El. p. pask."</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Pasirinkti paskyrą"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Paskyra nerasta. Galbūt ji buvo pašalinta."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Tik kai kuriose „Plus“ paskyrose yra POP prieiga, leidžianti prisijungti šiai programai. Jei negalite prisijungti su teisingu el. pašto adresu ir slaptažodžiu, galbūt neapmokėjote „Plus“ paskyros. Paleiskite žiniatinklio naršyklę, kad gautumėte prieigą prie šių pašto paskyrų."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Prieš nustatydami šią el. pašto paskyrą, apsilankykite „T-Online“ svetainėje ir sukurkite POP3 el. pašto prieigos slaptažodį."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Įmonės"</string>

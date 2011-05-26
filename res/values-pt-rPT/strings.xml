@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Definições da aplicação"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Não é possível abrir o anexo."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Uma vez que este tipo de anexo pode conter software malicioso, não o pode guardar ou abrir."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Não é possível guardar nem abrir este anexo devido às políticas de segurança em vigor para esta conta."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Este anexo é demasiado grande para ser transferido através de uma rede de telemóvel. Pode transferi-lo da próxima vez que se ligar a uma rede Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Não está instalada nenhuma aplicação capaz de abrir este anexo. Tente transferir uma aplicação apropriada do Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Este anexo é uma aplicação. Deve marcar Fontes desconhecidas em Definições, em Aplicações, antes de a poder instalar."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"As aplicações não podem ser instaladas diretamente a partir de um e-mail. Comece por guardar esta aplicação e depois pode instalá-la usando a aplicação Transferências."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Não foi possível transferir o anexo."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Erro ao descodificar a mensagem."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"A visualizar <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Rejeitar mensag."</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Remover conta"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Conta de e-mail"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Seleccione uma conta"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Conta não encontrada; pode ter sido removida."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Apenas algumas contas \"Plus\" incluem acesso POP, permitindo a ligação deste programa. Se não conseguir iniciar sessão com o seu endereço de e-mail e a palavra-passe correctos, é possível que não tenha uma conta \"Plus\" paga. Inicie o browser para obter acesso a essas contas de correio."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Antes de configurar esta conta de e-mail, visite o Web site T-Online e crie uma palavra-passe para o acesso a e-mail POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Empresa"</string>

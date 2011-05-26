@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"การตั้งค่าแอปพลิเคชัน"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"ไม่สามารถเปิดเอกสารแนบ"</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"เนื่องจากเอกสารแนบประเภทนี้อาจมีซอฟต์แวร์ที่เป็นอันตราย คุณจึงไม่สามารถบันทึกหรือเปิดเอกสารแนบได้"</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"เอกสารแนบนี้ไม่สามารถบันทึกหรือเปิดได้เนื่องจากการบังคับใช้นโยบายด้านความปลอดภัยสำหรับบัญชีนี้"</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"เอกสารแนบนี้มีขนาดใหญ่เกินกว่าจะดาวน์โหลดผ่านเครือข่ายมือถือ คุณสามารถดาวน์โหลดเอกสารแนบในครั้งถัดไปที่คุณเชื่อมต่อเครือข่าย Wi-Fi"</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"ไม่มีแอปพลิเคชันที่ติดตั้งไว้ที่สามารถเปิดเอกสารแนบนี้ ให้ลองดาวน์โหลดแอปพลิเคชันที่เหมาะสมจาก Android Market"</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"เอกสารแนบนี้เป็นแอปพลิเคชัน คุณต้องตรวจสอบแหล่งที่มาที่ไม่รู้จักใน การตั้งค่า ในส่วน แอปพลิเคชัน ก่อนจึงจะสามารถติดตั้งแอปพลิเคชันได้"</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"ไม่สามารถติดตั้งแอปพลิเคชันจากอีเมลโดยตรง ให้บันทึกแอปพลิเคชันนี้ก่อน แล้วติดตั้งโดยใช้แอปพลิเคชันดาวน์โหลด"</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"ดาวน์โหลดเอกสารแนบไม่ได้"</string>
     <string name="message_decode_error" msgid="7812862491622388416">"เกิดข้อผิดพลาดในขณะถอดรหัสข้อความ"</string>
     <string name="eml_view_title" msgid="8827210108543430336">"กำลังดู <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"ยกเลิกข้อความ"</string>
@@ -361,6 +359,10 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"นำบัญชีออก"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"บัญชีอีเมล"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"เลือกบัญชี"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <!-- no translation found for toast_account_not_found (2483831308629565584) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"มีเพียงบัญชีแบบ \"Plus\" บางประเภทเท่านั้นที่มีการเข้าถึงแบบ POP ที่โปรแกรมสามารถเชื่อมต่อได้ ถ้าคุณไม่สามารถลงชื่อเข้าใช้ด้วยที่อยู่อีเมลและรหัสผ่านที่ถูกต้อง อาจเป็นเพราะคุณไม่มีบัญชี \"Plus\" แบบมีค่าใช้จ่าย โปรดเปิดเว็บเบราว์เซอร์เพื่อเข้าถึงบัญชีอีเมลเหล่านี้"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"ก่อนที่จะตั้งค่าบัญชีอีเมลนี้ โปรดเข้าสู่เว็บไซต์ T-Online และสร้างรหัสผ่านสำหรับการเข้าถึงอีเมลแบบ POP3"</string>
     <string name="exchange_name" msgid="1190783774800310346">"องค์กร"</string>

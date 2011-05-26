@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Configuració de l\'aplicació"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"No es pot obrir el fitxer adjunt."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Com que aquest tipus de fitxer adjunt pot contenir programari maliciós, no pots desar-lo ni obrir-lo."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"No es pot desar ni obrir aquest fitxer adjunt a causa de les polítiques de seguretat del compte."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Aquest fitxer adjunt és massa gran per baixar-lo a través d\'una xarxa de telefonia mòbil. Podràs baixar-lo la propera vegada que et connectis a una xarxa Wi-Fi."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"No hi ha cap aplicació instal·lada que pugui obrir aquest fitxer adjunt. Prova de baixar una aplicació adient des d\'Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Aquest fitxer adjunt és una aplicació. Per poder instal·lar-la, abans has de marcar \"Orígens desconeguts\" a \"Configuració\", a la secció \"Aplicacions\"."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"No es poden instal·lar aplicacions directament des del correu electrònic. Primer has de desar l\'aplicació i, a continuació, instal·lar-la mitjançant l\'aplicació Baixades."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"No s\'ha pogut baixar el fitxer adjunt."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Error en descodificar el missatge."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Es mostra <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Descarta el missatge"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Elimina el compte"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Compte"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Selecciona un compte"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Compte no trobat. És possible que s\'hagi eliminat."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Només alguns comptes \"Plus\" inclouen l\'accés POP que permet que aquest programa s\'hi connecti. Si no podeu iniciar la sessió amb l\'adreça electrònica i la contrasenya correctes, pot ser que no tingueu un compte \"Plus\" de pagament. Inicieu el navegador web per accedir a aquests comptes de correu."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Abans de configurar aquest compte de correu electrònic, visiteu el lloc web de T-Online i creeu una contrasenya per a l\'accés al correu electrònic POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Corporatiu"</string>

@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Anwendungseinstellungen"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Anhang kann nicht geöffnet werden."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Da diese Art von Anhang möglicherweise schädliche Software enthält, können Sie ihn nicht speichern oder öffnen."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Dieser Anhang kann aufgrund der für dieses Konto geltenden Sicherheitsrichtlinien nicht gespeichert oder geöffnet werden."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Dieser Anhang ist zu groß, um ihn über ein Mobilfunknetz herunterzuladen. Sie können ihn herunterladen, sobald Sie das nächste Mal mit einem WLAN-Netzwerk verbunden sind."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Keine der installierten Anwendungen kann diesen Anhang öffnen. Laden Sie eine geeignete Anwendung von Android Market herunter und wiederholen Sie den Vorgang."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Dieser Anhang ist eine Anwendung. Sie müssen zuerst die unbekannten Quellen unter Anwendungen &gt; Einstellungen überprüfen, bevor Sie sie installieren können."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Anwendungen können nicht direkt aus E-Mails installiert werden. Speichern Sie zunächst die Anwendung und installieren Sie sie dann mithilfe der Downloads-Anwendung."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Der Anhang konnte nicht heruntergeladen werden."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Fehler beim Entschlüsseln der Nachricht"</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Anzeige von <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Nachr. verwerfen"</string>
@@ -258,7 +256,7 @@
     <string name="account_setup_exchange_title" msgid="396004732514751781">"Kontoeinrichtung"</string>
     <string name="account_setup_exchange_headline" msgid="6099049671599242131">"Servereinstellungen"</string>
     <string name="account_setup_exchange_server_label" msgid="795137797983360826">"Server"</string>
-    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domain-/Benutzername"</string>
+    <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domain-/Nutzername"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Sichere Verbindung (SSL) verwenden"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Alle SSL-Zertifikate akzeptieren"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Mobilgerät-ID"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Konto entfernen"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-Mail-Konto"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Konto auswählen"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Konto wurde nicht gefunden. Möglicherweise wurde es entfernt."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Nur einige \"Plus\"-Konten ermöglichen einen POP-Zugang und damit diesem Programm, eine Verbindung aufzubauen. Sollten Sie nicht dazu in der Lage sein, sich mit Ihrer korrekten E-Mail-Adresse und dem richtigen Password anzumelden, verfügen Sie möglicherweise nicht über ein kostenpflichtiges \"Plus\"-Konto. Starten Sie Ihren Webbrowser, um Zugriff auf diese Konten zu erlangen."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Vor Erstellung des E-Mail Kontos bitte \\\"eMail-Passwort\\\" für den POP3-Zugang auf der T-Online-Startseite einrichten."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Geschäftlich"</string>

@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Sovellusasetukset"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Liitteen avaaminen epäonnistui."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Tämän tyyppinen liite voi sisältää haittaohjelman, eikä sitä voi tallentaa tai avata."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Tätä liitetiedostoa ei voi tallentaa tai avata tilin suojauskäytäntöjen vuoksi."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Tämä liite on liian suuri ladattavaksi mobiiliverkon kautta. Voit ladata sen muodostaessasi wifi-yhteyden seuraavan kerran."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Laitteeseen ei ole asennettu tämän liitteen avaamiseen sopivaa sovellusta. Kokeile ladata sopiva sovellus Android Marketista."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Tämä liite on sovellus. Voit asentaa sovelluksen ottamalla Sovelluksien Asetukset-kohdasta käyttöön Tuntemattomat lähteet."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Sovelluksia ei voi asentaa suoraan sähköpostin kautta. Tallenna sovellus ja asenna se Lataukset-sovelluksen avulla."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Liitetiedostoa ei voi ladata."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Virhe purettaessa viestin koodausta."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Avoinna <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Hylkää viesti"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Poista tili"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Sähköpostitili"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Valitse tili"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Tiliä ei löydy. Se on saatettu poistaa."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Vain joihinkin Plus-tileihin sisältyy POP-käyttö, joka sallii tämän ohjelman muodostaa yhteyden. Jos et pysty kirjautumaan tiliisi sähköpostiosoitteellasi ja salasanallasi, sinulla ei ehkä ole maksullista Plus-tiliä. Pääset käyttämään näitä sähköpostitilejä käynnistämällä verkkoselaimen."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Käy ennen tämän sähköpostitilin luomista T-Onlinen sivustossa ja luo salasana sähköpostin POP3-käyttöä varten."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Yritys"</string>

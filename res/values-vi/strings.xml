@@ -359,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Xóa tài khoản"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Tài khoản email"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Chọn tài khoản"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Không tìm thấy tài khoản. Tài khoản có thể đã bị xóa."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Chỉ một số tài khoản \"Plus\" mới có quyền truy cập POP nhằm cho phép chương trình này kết nối. Nếu bạn không thể đăng nhập bằng địa chỉ email và mật khẩu chính xác của mình, bạn có thể không có tài khoản \"Plus\" trả tiền. Vui lòng khởi chạy trình duyệt Web để yêu cầu quyền truy cập vào các tài khoản thư này."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Trước khi thiết lập tài khoản email này, vui lòng truy cập trang Web T-Online và tạo mật khẩu để truy cập email POP3."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Doanh nghiệp"</string>

@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Appinställningar"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Det går inte att öppna den bifogade filen."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Den här typen av bifogade filer kan innehålla skadlig programvara och därför går det inte att spara eller öppna dem."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Bilagan kan inte sparas eller öppnas på grund av kontots säkerhetsprinciper."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Den bifogade filen är så stor att du inte kan hämta den via det mobila nätverket. Du kan hämta den nästa gång som enheten ansluts till ett Wi-Fi-nätverk."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Den bifogade filen kan inte öppnas med någon av de appar som är installerade på enheten. Prova att hämta en lämplig app från Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Den bifogade filen är en app. Du måste kontrollera Okända källor under Appar i Inställningar innan du kan installera det."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Det går inte att installera appar direkt från E-post. Du måste först spara appen och sedan installera den med hjälp av appen Hämtningar."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Det gick inte att hämta bilagan."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Det gick inte att avkoda meddelandet."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Visar <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Släng meddelande"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Ta bort konto"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Epostkonto"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Välj ett konto"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"Kontot kunde inte hittas. Det kan ha tagits bort."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"POP-åtkomst, som gör så att detta program kan ansluta, ingår bara i vissa pluskonton. Om det inte går att logga in med rätt e-postadress och lösenord kanske du inte har betalat för ett pluskonto. Öppna webbläsaren igen om du vill få åtkomst tills dessa e-postkonton."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Innan du skapar e-postkontot besöker du T-Onlines webbplats och skapar ett lösenord för POP3-åtkomst till e-post."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Företag"</string>

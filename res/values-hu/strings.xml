@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Alkalmazásbeállítások"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"A melléklet nem nyitható meg."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Nem nyithatja meg és nem mentheti ezt a melléklettípust, mert lehet, hogy rosszindulatú szoftvert tartalmaz."</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"Az erre a fiókra érvényes biztonsági irányelvek miatt nem lehet menteni vagy megnyitni ezt a mellékletet."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"A melléklet túl nagy mobilhálózatról való letöltéshez. Letöltheti, amikor legközelebb Wi-Fi hálózatra kapcsolódik."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Nincs telepített alkalmazás a melléklet megnyitásához. Próbáljon meg letölteni egy megfelelő alkalmazást az Android Marketről."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Ez a melléklet egy alkalmazás. Telepítés előtt jelölje be az Ismeretlen források lehetőséget a Beállítások menüben."</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Alkalmazást nem lehet közvetlenül e-mailből telepíteni. Először mentse az alkalmazást, majd telepítse a Letöltések alkalmazással."</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"Nem sikerült letölteni a mellékletet."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Hiba történt az üzenet dekódolása közben."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g> megtekintése"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Üzenet elvetése"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Fiók törlése"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mail fiók"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Fiók kiválasztása"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"A fiók nem található. Lehet, hogy törölték."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Csak bizonyos \"Plus\" típusú fiókok rendelkeznek olyan POP-hozzáféréssel, amely lehetővé teszi a program számára a kapcsolódást. Ha nem tud bejelentkezni a megfelelő e-mail címmel és jelszóval, valószínűleg nem fizetett elő \"Plus\" típusú fiókra. Kérjük, indítsa el a webböngészőt az ilyen e-mail fiókok eléréséhez."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Kérjük, az e-mail fiók beállítása előtt keresse fel a T-Online webhelyét, és hozzon létre jelszót a POP3-alapú hozzáféréshez."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Vállalati"</string>

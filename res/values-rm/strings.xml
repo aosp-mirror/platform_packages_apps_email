@@ -440,6 +440,10 @@
     <skip />
     <!-- no translation found for account_shortcut_picker_title (8799411733165525683) -->
     <skip />
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <!-- no translation found for toast_account_not_found (2483831308629565584) -->
+    <skip />
     <string name="provider_note_live" msgid="3584841823811425060">"Mo tscherts contos «plus» includan l\'access POP e permettan uschia a quest program da stabilir ina connexiun. Sche Vus na pudais betg s\'annunziar cun Vossa adressa d\'e-mail ed il pled-clav correct n\'avais Vus eventualmain betg in conto «plus» (che custa). Aviai Voss navigatur da web per acceder quests contos dad e-mail."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Visitai per plaschair la pagina d\'internet da T-Online e creai in pled-clav per l\'access dad e-mail POP avant che configurar quest conto dad e-mail."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Da fatschenta"</string>

@@ -152,14 +152,12 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"アプリケーションの設定"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"添付ファイルを開けません。"</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"この形式の添付ファイルには不正なソフトウェアが含まれている可能性があるため、保存または開くことはできません。"</string>
-    <!-- no translation found for attachment_info_policy (328224012587376154) -->
-    <skip />
+    <string name="attachment_info_policy" msgid="328224012587376154">"このアカウントに適用されているセキュリティポリシーにより、この添付ファイルは保存や開くことができません。"</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"この添付ファイルはモバイルネットワークでダウンロードするには大きすぎます。Wi-Fiネットワークに次回接続したときにダウンロードできます。"</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"この添付ファイルを開くアプリケーションはインストールされていません。Androidマーケットから必要なアプリケーションをダウンロードしてください。"</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"この添付ファイルはアプリケーションです。インストールする前に、[設定]の[アプリケーション]で[提供元不明のアプリ]チェックボックスをオンにする必要があります。"</string>
     <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"アプリケーションを直接メールからインストールすることはできません。アプリケーションを保存してから、ダウンロードアプリケーションを使用してインストールしてください。"</string>
-    <!-- no translation found for attachment_not_found (2593390852574725378) -->
-    <skip />
+    <string name="attachment_not_found" msgid="2593390852574725378">"添付ファイルをダウンロードできませんでした。"</string>
     <string name="message_decode_error" msgid="7812862491622388416">"メッセージのデコード中にエラーが発生しました。"</string>
     <string name="eml_view_title" msgid="8827210108543430336">"<xliff:g id="FILENAME">%s</xliff:g>を表示"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"メッセージの破棄"</string>
@@ -361,6 +359,9 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"アカウントを削除"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"メール"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"アカウントを選択"</string>
+    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
+    <skip />
+    <string name="toast_account_not_found" msgid="2483831308629565584">"アカウントが見つかりません。削除された可能性があります。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"このプログラムでPOPアクセスが許可されているのは一部の「Plus」アカウントだけです。有料の「Plus」アカウントがなければ、正しいメールアドレスとパスワードを入力してもログインできません。これらのアカウントにはブラウザからアクセスしてください。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"このメールアカウントを設定する前にT-Onlineサイトにアクセスして、POP3メールアクセス用のパスワードを作成してください。"</string>
     <string name="exchange_name" msgid="1190783774800310346">"コーポレート"</string>
