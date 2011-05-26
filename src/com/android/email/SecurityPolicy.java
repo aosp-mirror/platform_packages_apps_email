@@ -287,10 +287,6 @@ public class SecurityPolicy {
      * @return true if the requested policies are active, false if not.
      */
     public boolean isActive(Policy policy) {
-        // Since the DPM reports password failures erroneously, we add this workaround that
-        // ensures that our most recent aggregate policy is set before checking whether those
-        // policies are in force
-        setActivePolicies();
         int reasons = getInactiveReasons(policy);
         if (Email.DEBUG && (reasons != 0)) {
             StringBuilder sb = new StringBuilder("isActive for " + policy + ": ");
