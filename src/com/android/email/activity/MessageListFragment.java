@@ -81,6 +81,9 @@ import java.util.Set;
  * </ul>
  * We run them sequentially.  i.e. First starts {@link MailboxAccountLoader}, and when it finishes
  * starts the other.
+ *
+ * See the class javadoc for {@link MailboxListFragment} for notes on {@link #getListView()} and
+ * {@link #isViewCreated()}.
  */
 public class MessageListFragment extends ListFragment
         implements OnItemClickListener, OnItemLongClickListener, MessagesAdapter.Callback,
@@ -105,7 +108,6 @@ public class MessageListFragment extends ListFragment
     private Activity mActivity;
     private Callback mCallback = EmptyCallback.INSTANCE;
 
-    private ListView mListView;
     private View mListFooterView;
     private TextView mListFooterText;
     private View mListFooterProgress;
@@ -333,6 +335,9 @@ public class MessageListFragment extends ListFragment
         mController = Controller.getInstance(mActivity);
         mRefreshManager = RefreshManager.getInstance(mActivity);
         mRefreshManager.registerListener(mRefreshListener);
+
+        mListAdapter = new MessagesAdapter(mActivity, this);
+        setListAdapter(mListAdapter);
     }
 
     @Override
@@ -348,6 +353,14 @@ public class MessageListFragment extends ListFragment
         return root;
     }
 
+    /**
+     * @return true if the content view is created and not destroyed yet. (i.e. between
+     * {@link #onCreateView} and {@link #onDestroyView}.
+     */
+    private boolean isViewCreated() {
+        return getView() != null;
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -355,17 +368,16 @@ public class MessageListFragment extends ListFragment
         }
         super.onActivityCreated(savedInstanceState);
 
-        mListView = getListView();
-        mListView.setOnItemClickListener(this);
-        mListView.setOnItemLongClickListener(this);
-        mListView.setOnTouchListener(this);
-        mListView.setItemsCanFocus(false);
-        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        final ListView lv = getListView();
+        lv.setOnItemClickListener(this);
+        lv.setOnItemLongClickListener(this);
+        lv.setOnTouchListener(this);
+        lv.setItemsCanFocus(false);
+        lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-        mListAdapter = new MessagesAdapter(mActivity, this);
 
         mListFooterView = getActivity().getLayoutInflater().inflate(
-                R.layout.message_list_item_footer, mListView, false);
+                R.layout.message_list_item_footer, lv, false);
 
         if (savedInstanceState != null) {
             // Fragment doesn't have this method.  Call it manually.
@@ -428,10 +440,6 @@ public class MessageListFragment extends ListFragment
         mTaskTracker.cancellAllInterrupt();
         mRefreshManager.unregisterListener(mRefreshListener);
 
-        // Make sure to exit CAB
-        // TODO: This is a questionable place to do this for the phone UI.  We want to hide the CAB
-        // when the fragment is put in the back stack as well, in which case onDestroy() won't be
-        // called.  Consider doing it in onDestroyView instead.
         finishSelectionMode();
         super.onDestroy();
     }
@@ -451,7 +459,9 @@ public class MessageListFragment extends ListFragment
         }
         super.onSaveInstanceState(outState);
         mListAdapter.onSaveInstanceState(outState);
-        outState.putParcelable(BUNDLE_LIST_STATE, getListView().onSaveInstanceState());
+        if (isViewCreated()) {
+            outState.putParcelable(BUNDLE_LIST_STATE, getListView().onSaveInstanceState());
+        }
         outState.putLong(BUNDLE_KEY_SELECTED_MESSAGE_ID, mSelectedMessageId);
     }
 
@@ -786,12 +796,8 @@ public class MessageListFragment extends ListFragment
         }
     }
 
-    public void onDeselectAll() {
-        if ((mListAdapter == null) || (mListAdapter.getSelectedSet().size() == 0)) {
-            return;
-        }
-        mListAdapter.getSelectedSet().clear();
-        getListView().invalidateViews();
+    private void onDeselectAll() {
+        mListAdapter.clearSelection();
         if (isInSelectionMode()) {
             finishSelectionMode();
         }
@@ -1029,6 +1035,7 @@ public class MessageListFragment extends ListFragment
     }
 
     private void addFooterView() {
+        // Only called from onLoadFinished -- always has views.
         ListView lv = getListView();
         if (mListFooterView != null) {
             lv.removeFooterView(mListFooterView);
@@ -1093,12 +1100,6 @@ public class MessageListFragment extends ListFragment
         mListPanel.setVisibility(visible ? View.GONE : View.VISIBLE);
     }
 
-    private void showNoMessageTextIfNecessary() {
-        boolean noItem = (mListFooterMode == LIST_FOOTER_MODE_NONE)
-                && (mListView.getCount() == 0);
-        showNoMessageText(noItem);
-    }
-
     /**
      * Adjusts message notification depending upon the state of the fragment and the currently
      * viewed mailbox. If the fragment is resumed, notifications for the current mailbox may
@@ -1127,7 +1128,6 @@ public class MessageListFragment extends ListFragment
         }
         // Clear the list. (ListFragment will show the "Loading" animation)
         showNoMessageText(false);
-        setListShown(false);
         showSendCommand(false);
 
         // Start loading...
@@ -1203,16 +1203,6 @@ public class MessageListFragment extends ListFragment
             // Suspend message notifications as long as we're resumed
             adjustMessageNotification(false);
 
-            // Save list view state (primarily scroll position)
-            final ListView lv = getListView();
-            final Parcelable listState;
-            if (mSavedListState != null) {
-                listState = mSavedListState;
-                mSavedListState = null;
-            } else {
-                listState = lv.onSaveInstanceState();
-            }
-
             // If this is a search mailbox, set the query; otherwise, clear it
             if (mMailbox != null && mMailbox.mType == Mailbox.TYPE_SEARCH) {
                 mListAdapter.setQuery(mMailbox.mDisplayName);
@@ -1224,15 +1214,14 @@ public class MessageListFragment extends ListFragment
             mListAdapter.swapCursor(cursor);
             // Show chips if combined view.
             mListAdapter.setShowColorChips(isCombinedMailbox() && mCountTotalAccounts > 1);
-            setListAdapter(mListAdapter);
-            setListShown(true);
 
             // Various post processing...
             autoRefreshStaleMailbox();
             addFooterView();
             updateSelectionMode();
             showSendCommandIfNecessary();
-            showNoMessageTextIfNecessary();
+            showNoMessageText((cursor.getCount() == 0)
+                    && (mListFooterMode == LIST_FOOTER_MODE_NONE));
 
             // We want to make visible the selection only for the first load.
             // Re-load caused by content changed events shouldn't scroll the list.
@@ -1240,8 +1229,9 @@ public class MessageListFragment extends ListFragment
 
             // Restore the state -- this step has to be the last, because Some of the
             // "post processing" seems to reset the scroll position.
-            if (listState != null) {
-                lv.onRestoreInstanceState(listState);
+            if (mSavedListState != null) {
+                getListView().onRestoreInstanceState(mSavedListState);
+                mSavedListState = null;
             }
 
             // Clear this for next reload triggered by content changed events.
@@ -1399,20 +1389,25 @@ public class MessageListFragment extends ListFragment
      * Highlight the selected message.
      */
     private void highlightSelectedMessage(boolean ensureSelectionVisible) {
-        if (mSelectedMessageId == -1) {
-            // No mailbox selected
-            mListView.clearChoices();
+        if (!isViewCreated()) {
             return;
         }
 
-        final int count = mListView.getCount();
+        final ListView lv = getListView();
+        if (mSelectedMessageId == -1) {
+            // No message selected
+            lv.clearChoices();
+            return;
+        }
+
+        final int count = lv.getCount();
         for (int i = 0; i < count; i++) {
-            if (mListView.getItemIdAtPosition(i) != mSelectedMessageId) {
+            if (lv.getItemIdAtPosition(i) != mSelectedMessageId) {
                 continue;
             }
-            mListView.setItemChecked(i, true);
+            lv.setItemChecked(i, true);
             if (ensureSelectionVisible) {
-                Utility.listViewSmoothScrollToPosition(getActivity(), mListView, i);
+                Utility.listViewSmoothScrollToPosition(getActivity(), lv, i);
             }
             break;
         }
