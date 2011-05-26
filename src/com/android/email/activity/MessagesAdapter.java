@@ -100,21 +100,16 @@ import java.util.Set;
     }
 
     public void onSaveInstanceState(Bundle outState) {
-        Set<Long> checkedset = getSelectedSet();
-        long[] checkedarray = new long[checkedset.size()];
-        int i = 0;
-        for (Long l : checkedset) {
-            checkedarray[i] = l;
-            i++;
-        }
-        outState.putLongArray(STATE_CHECKED_ITEMS, checkedarray);
+        outState.putLongArray(STATE_CHECKED_ITEMS, Utility.toPrimitiveLongArray(getSelectedSet()));
     }
 
     public void loadState(Bundle savedInstanceState) {
         Set<Long> checkedset = getSelectedSet();
+        checkedset.clear();
         for (long l: savedInstanceState.getLongArray(STATE_CHECKED_ITEMS)) {
             checkedset.add(l);
         }
+        notifyDataSetChanged();
     }
 
     /**
@@ -132,8 +127,20 @@ import java.util.Set;
         return mSelectedSet;
     }
 
+    /**
+     * Clear the selection.  It's preferable to calling {@link Set#clear()} on
+     * {@link #getSelectedSet()}, because it also notifies observers.
+     */
+    public void clearSelection() {
+        Set<Long> checkedset = getSelectedSet();
+        if (checkedset.size() > 0) {
+            checkedset.clear();
+            notifyDataSetChanged();
+        }
+    }
+
     public boolean isSelected(MessageListItem itemView) {
-        return mSelectedSet.contains(itemView.mMessageId);
+        return getSelectedSet().contains(itemView.mMessageId);
     }
 
     @Override
