@@ -59,6 +59,17 @@ public class WidgetManager {
         }
     }
 
+    public synchronized void deleteWidgets(Context context, int[] widgetIds) {
+        for (int widgetId : widgetIds) {
+            // Find the widget in the map
+            final EmailWidget widget = WidgetManager.getInstance().get(widgetId);
+            if (widget != null) {
+                // Stop loading and remove the widget from the map
+                widget.onDeleted();
+            }
+        }
+    }
+
     public EmailWidget getOrCreateWidget(Context context, int widgetId) {
         EmailWidget widget = WidgetManager.getInstance().get(widgetId);
         if (widget == null) {

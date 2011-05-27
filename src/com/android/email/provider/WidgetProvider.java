@@ -25,7 +25,6 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViewsService;
 
@@ -34,41 +33,46 @@ import java.io.PrintWriter;
 
 public class WidgetProvider extends AppWidgetProvider {
     @Override
+    public void onEnabled(final Context context) {
+        if (Email.DEBUG) {
+            Log.d(EmailWidget.TAG, "onEnabled");
+        }
+        super.onEnabled(context);
+    }
+
+    @Override
     public void onDisabled(Context context) {
-        super.onDisabled(context);
         if (Email.DEBUG) {
             Log.d(EmailWidget.TAG, "onDisabled");
         }
         context.stopService(new Intent(context, WidgetService.class));
+        super.onDisabled(context);
     }
 
     @Override
-    public void onEnabled(final Context context) {
-        super.onEnabled(context);
+    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         if (Email.DEBUG) {
-            Log.d(EmailWidget.TAG, "onEnabled");
+            Log.d(EmailWidget.TAG, "onUpdate");
         }
+        super.onUpdate(context, appWidgetManager, appWidgetIds);
+        WidgetManager.getInstance().getOrCreateWidgets(context, appWidgetIds);
+    }
+
+    @Override
+    public void onDeleted(Context context, int[] appWidgetIds) {
+        if (Email.DEBUG) {
+            Log.d(EmailWidget.TAG, "onDeleted");
+        }
+        WidgetManager.getInstance().deleteWidgets(context, appWidgetIds);
+        super.onDeleted(context, appWidgetIds);
     }
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-        String action = intent.getAction();
-        Bundle extras = intent.getExtras();
-        if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(action) && extras != null) {
-            final int[] appWidgetIds = extras.getIntArray(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-            if (appWidgetIds != null && appWidgetIds.length > 0) {
-                WidgetManager.getInstance().getOrCreateWidgets(context, appWidgetIds);
-            }
-        } else if (AppWidgetManager.ACTION_APPWIDGET_DELETED.equals(action) && extras != null
-                && extras.containsKey(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
-            final int widgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
-            // Find the widget in the map
-            EmailWidget widget = WidgetManager.getInstance().get(widgetId);
-            if (widget != null) {
-                // Stop loading and remove the widget from the map
-                widget.onDeleted();
-            }
+        if (Email.DEBUG) {
+            Log.d(EmailWidget.TAG, "onReceive");
         }
+        super.onReceive(context, intent);
     }
 
     /**
