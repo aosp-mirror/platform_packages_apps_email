@@ -1603,7 +1603,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (shouldUseActionTabs()) {
             // Tab-based mode switching.
             ActionBar actionBar = getActionBar();
-            actionBar.removeAllTabs();
+
+            if (actionBar.getTabCount() > 0) {
+                actionBar.removeAllTabs();
+            }
             createAndAddTab(R.string.reply_action, ACTION_REPLY);
             createAndAddTab(R.string.reply_all_action, ACTION_REPLY_ALL);
             createAndAddTab(R.string.forward_action, ACTION_FORWARD);
