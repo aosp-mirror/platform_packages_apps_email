@@ -163,7 +163,11 @@ public class Rfc822Output {
             }
         }
         messageBody[INDEX_BODY_TEXT] = text;
-        messageBody[INDEX_BODY_HTML] = getHtmlAlternate(body, useSmartReply);
+        // Exchange 2003 doesn't seem to support multipart w/SmartReply and SmartForward, so
+        // we'll skip this.  Really, it would only matter if we could compose HTML replies
+        if (!useSmartReply) {
+            messageBody[INDEX_BODY_HTML] = getHtmlAlternate(body, useSmartReply);
+        }
         return messageBody;
     }
 
