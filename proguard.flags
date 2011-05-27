@@ -176,6 +176,15 @@
 
 -keepclasseswithmembers class com.android.emailcommon.provider.EmailContent$Account {
   *** getShortcutSafeUri();
+  *** refresh(android.content.Context);
+}
+
+-keepclasseswithmembers class com.android.emailcommon.provider.Policy {
+  *** setAttachmentFlagsForNewPolicy(android.content.Context,
+    com.android.emailcommon.provider.EmailContent$Account,
+    com.android.emailcommon.provider.Policy);
+  *** clearAccountPolicy(android.content.Context,
+    com.android.emailcommon.provider.EmailContent$Account);
 }
 
 -keep class org.apache.james.mime4j.field.Field {
