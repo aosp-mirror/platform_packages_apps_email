@@ -26,10 +26,15 @@ import com.android.emailcommon.provider.Mailbox;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.database.MergeCursor;
+import android.database.MatrixCursor.RowBuilder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -104,6 +109,51 @@ public abstract class ShortcutPickerFragment extends ListFragment
     /** Returns the cursor columns to map into list */
     abstract String[] getFromColumns();
 
+    // TODO if we add meta-accounts to the database, remove this class entirely
+    private static final class AccountPickerLoader extends CursorLoader {
+        public AccountPickerLoader(Context context, Uri uri, String[] projection, String selection,
+                String[] selectionArgs, String sortOrder) {
+            super(context, uri, projection, selection, selectionArgs, sortOrder);
+        }
+
+        @Override
+        public Cursor loadInBackground() {
+            Cursor parentCursor = super.loadInBackground();
+            Cursor returnCursor;
+
+            if (parentCursor.getCount() > 1) {
+                // Only add "All accounts" if there is more than 1 account defined
+                MatrixCursor allAccountCursor = new MatrixCursor(getProjection());
+                addCombinedAccountRow(allAccountCursor);
+                returnCursor = new MergeCursor(new Cursor[] { allAccountCursor, parentCursor });
+            } else {
+                returnCursor = parentCursor;
+            }
+            return returnCursor;
+        }
+
+        /** Adds a row for "All Accounts" into the given cursor */
+        private void addCombinedAccountRow(MatrixCursor cursor) {
+            Context context = getContext();
+            Account account = new Account();
+            account.mId = Account.ACCOUNT_ID_COMBINED_VIEW;
+            account.mDisplayName = context.getString(R.string.account_name_display_all);
+            ContentValues values = account.toContentValues();
+            RowBuilder row = cursor.newRow();
+            for (String rowName : cursor.getColumnNames()) {
+                // special case some of the rows ...
+                if (AccountColumns.ID.equals(rowName)) {
+                    row.add(Account.ACCOUNT_ID_COMBINED_VIEW);
+                    continue;
+                } else if (AccountColumns.IS_DEFAULT.equals(rowName)) {
+                    row.add(0);
+                    continue;
+                }
+                row.add(values.get(rowName));
+            }
+        }
+    }
+
     /** Account picker */
     public static class AccountShortcutPickerFragment extends ShortcutPickerFragment {
         private final static String[] ACCOUNT_FROM_COLUMNS = new String[] {
@@ -125,8 +175,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             Context context = getActivity();
-            // TODO Add ability to insert special account "all accounts"
-            return new CursorLoader(
+            return new AccountPickerLoader(
                 context, Account.CONTENT_URI, Account.CONTENT_PROJECTION, null, null, null);
         }
 
@@ -163,6 +212,41 @@ public abstract class ShortcutPickerFragment extends ListFragment
                     .replace(R.id.shortcut_list, fragment)
                     .addToBackStack(null)
                     .commit();
+        }
+    }
+
+    // TODO if we add meta-mailboxes to the database, remove this class entirely
+    private static final class MailboxPickerLoader extends CursorLoader {
+        private final long mAccountId;
+        public MailboxPickerLoader(Context context, Uri uri, String[] projection, String selection,
+                String[] selectionArgs, String sortOrder, long accountId) {
+            super(context, uri, projection, selection, selectionArgs, sortOrder);
+            mAccountId = accountId;
+        }
+
+        @Override
+        public Cursor loadInBackground() {
+            if (mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                // Do something special for the "combined" view
+                Context context = getContext();
+                MatrixCursor combinedMailboxesCursor = new MatrixCursor(getProjection());
+                // For the special mailboxes, their ID is < 0. The UI list does not deal with
+                // negative values very well, so, add MAX_VALUE to ensure they're positive, but,
+                // don't clash with legitimate mailboxes.
+                String mailboxName = context.getString(R.string.mailbox_name_display_inbox);
+                combinedMailboxesCursor.addRow(
+                        new Object[] {Integer.MAX_VALUE + Mailbox.QUERY_ALL_INBOXES, mailboxName});
+                // TODO Temporarily commented out. This will be added to the widget selection, so
+                // keeping the code around for now. If this isn't uncommented by July 1, 2011,
+                // feel free to remove it and this TODO
+//                mailboxName = context.getString(R.string.mailbox_name_display_unread);
+//                combinedMailboxesCursor.addRow(
+//                        new Object[] {Integer.MAX_VALUE + Mailbox.QUERY_ALL_UNREAD, mailboxName});
+                return combinedMailboxesCursor;
+            }
+
+            // Loading for a regular account; perform a normal load
+            return super.loadInBackground();
         }
     }
 
@@ -211,7 +295,6 @@ public abstract class ShortcutPickerFragment extends ListFragment
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             Context context = getActivity();
-            // TODO Add ability to insert special mailboxes like "starred", etc...
             // TODO Create a fully-qualified path name for Exchange accounts [code should also work
             //      for MoveMessageToDialog.java]
             HostAuth recvAuth = mAccount.getOrCreateHostAuthRecv(context);
@@ -224,9 +307,9 @@ public abstract class ShortcutPickerFragment extends ListFragment
                 projection = IMAP_PROJECTION;
                 orderBy = MailboxColumns.SERVER_ID;
             }
-            return new CursorLoader(
+            return new MailboxPickerLoader(
                 context, Mailbox.CONTENT_URI, projection, ALL_MAILBOX_SELECTION,
-                new String[] { Long.toString(mAccount.mId) }, orderBy);
+                new String[] { Long.toString(mAccount.mId) }, orderBy, mAccount.mId);
         }
 
         @Override

@@ -21,6 +21,7 @@ import com.android.email.activity.ShortcutPickerFragment.AccountShortcutPickerFr
 import com.android.email.activity.ShortcutPickerFragment.PickerCallback;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -121,8 +122,18 @@ public class ShortcutPicker extends Activity implements OnClickListener, PickerC
             shortcutIntent = MessageList.createFroyoIntent(myActivity, account);
             Log.d(Logging.LOG_TAG, "Created old style intent: " + shortcutIntent);
         } else {
-            String uuid = account.mCompatibilityUuid;
-            shortcutIntent = Welcome.createAccountShortcutIntent(myActivity, uuid, mailboxId);
+            // TODO if we add meta-mailboxes/accounts to the database, remove this special case
+            if (account.mId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                // For the special mailboxes, their ID is < 0. The UI list does not deal with
+                // negative values very well, so, add MAX_VALUE to ensure they're positive, but,
+                // don't clash with legitimate mailboxes. Undo that here.
+                long realMailboxId = mailboxId - Integer.MAX_VALUE;
+                shortcutIntent = Welcome.createOpenMessageIntent(
+                        myActivity, account.mId, realMailboxId, Message.NO_MESSAGE);
+            } else {
+                String uuid = account.mCompatibilityUuid;
+                shortcutIntent = Welcome.createAccountShortcutIntent(myActivity, uuid, mailboxId);
+            }
         }
 
         // Then, set up the container intent (the response to the caller)

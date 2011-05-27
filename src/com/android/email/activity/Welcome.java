@@ -221,7 +221,9 @@ public class Welcome extends Activity {
                 // accountId will be NO_ACCOUNT if the UUID is invalid.
 
             } else if (inputAccountId != Account.NO_ACCOUNT) {
-                if (Account.isValidId(context, inputAccountId)) {
+                // TODO if we add meta-mailboxes/accounts to the database, remove this special case
+                if (inputAccountId == Account.ACCOUNT_ID_COMBINED_VIEW
+                        || Account.isValidId(context, inputAccountId)) {
                     accountId = inputAccountId;
                 } else {
                     accountId = Account.NO_ACCOUNT;

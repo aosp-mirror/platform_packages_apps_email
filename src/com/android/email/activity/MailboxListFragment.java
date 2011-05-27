@@ -276,7 +276,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * @return true if the top level mailboxes are shown.  Safe to call even before onCreate.
      */
     public boolean isRoot() {
-        return getParentMailboxId() == Mailbox.NO_MAILBOX;
+        // TODO if we add meta-mailboxes to the database, remove special test for account ID
+        return getParentMailboxId() == Mailbox.NO_MAILBOX
+                || getAccountId() == Account.ACCOUNT_ID_COMBINED_VIEW;
     }
 
     @Override
