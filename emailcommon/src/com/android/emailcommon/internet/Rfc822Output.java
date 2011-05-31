@@ -87,6 +87,20 @@ public class Rfc822Output {
     }
 
     /**
+     * Encodes a payload to be HTML safe with custom modifications. Specifically:
+     * <ul>
+     * <li> Replaces newlines with HTML line break tags
+     * <li> Replaces the apostrophe entity with the unicode escape entity equivalent, since
+     * &ampapos; is not a support HTML entity in Exchange2007.
+     * </ul>
+     */
+    private static String htmlEncodeForAlternate(String s) {
+        return TextUtils.htmlEncode(s)
+                .replaceAll("\\r?\\n", "<br>")
+                .replaceAll("&apos;", "&#39;");
+    }
+
+    /**
      * Returns an HTML encoded message alternate
      */
     /*package*/ static String getHtmlAlternate(Body body, boolean useSmartReply) {
@@ -94,11 +108,10 @@ public class Rfc822Output {
             return null;
         }
         StringBuffer altMessage = new StringBuffer();
-        String htmlContent = TextUtils.htmlEncode(body.mTextContent); // Escape HTML reserved chars
-        altMessage.append(htmlContent.replaceAll("\\r?\\n", "<br>"));
+        altMessage.append(htmlEncodeForAlternate(body.mTextContent));
         if (body.mIntroText != null) {
             String htmlIntro = TextUtils.htmlEncode(body.mIntroText);
-            altMessage.append(htmlIntro.replaceAll("\\r?\\n", "<br>"));
+            altMessage.append(htmlEncodeForAlternate(htmlIntro));
         }
         if (!useSmartReply) {
             String htmlBody = getHtmlBody(body.mHtmlReply);
