@@ -17,6 +17,7 @@
 package com.android.email.widget;
 
 import com.android.email.Email;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.EmailContent.Account;
 
@@ -71,8 +72,8 @@ public class WidgetManager {
     public synchronized EmailWidget getOrCreateWidget(Context context, int widgetId) {
         EmailWidget widget = WidgetManager.getInstance().get(widgetId);
         if (widget == null) {
-            if (Email.DEBUG) {
-                Log.d(EmailWidget.TAG, "Creating EmailWidget for id #" + widgetId);
+            if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+                Log.d(EmailWidget.TAG, "Create email widget; ID: " + widgetId);
             }
             widget = new EmailWidget(context, widgetId);
             WidgetManager.getInstance().put(widgetId, widget);
@@ -123,17 +124,23 @@ public class WidgetManager {
         editor.apply();   // just want to clean up; don't care when preferences are actually removed
     }
 
-    /** Gets the saved account ID for the given widget */
+    /**
+     * Returns the saved account ID for the given widget. Otherwise, {@link Account#NO_ACCOUNT} if
+     * the account ID was not previously saved.
+     */
     static long loadAccountIdPref(Context context, int appWidgetId) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
         long accountId = prefs.getLong(ACCOUNT_ID_PREFIX + appWidgetId, Account.NO_ACCOUNT);
         return accountId;
     }
 
-    /** Gets the saved mailbox ID for the given widget */
+    /**
+     * Returns the saved mailbox ID for the given widget. Otherwise, {@link Mailbox#NO_MAILBOX} if
+     * the mailbox ID was not previously saved.
+     */
     static long loadMailboxIdPref(Context context, int appWidgetId) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        long accountId = prefs.getLong(MAILBOX_ID_PREFIX + appWidgetId, Mailbox.NO_MAILBOX);
-        return accountId;
+        long mailboxId = prefs.getLong(MAILBOX_ID_PREFIX + appWidgetId, Mailbox.NO_MAILBOX);
+        return mailboxId;
     }
 }

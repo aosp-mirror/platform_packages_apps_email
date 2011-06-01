@@ -23,8 +23,8 @@ import com.android.email.activity.MessageCompose;
 import com.android.email.activity.UiUtilities;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.WidgetProvider.WidgetService;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
@@ -32,7 +32,6 @@ import com.android.emailcommon.utility.EmailAsyncTask;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.Loader.OnLoadCompleteListener;
@@ -92,15 +91,8 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     private static final Uri COMMAND_URI_VIEW_MESSAGE =
             COMMAND_URI.buildUpon().appendPath(COMMAND_NAME_VIEW_MESSAGE).build();
 
+    // TODO Can this be moved to the loader and made a database 'LIMIT'?
     private static final int MAX_MESSAGE_LIST_COUNT = 25;
-
-    // TODO Temporary selection / projection to pick the first account defined. Remove once the
-    // account / mailbox picker activity is added
-    private static final String SORT_ID_ASCENDING = AccountColumns.ID + " ASC";
-    private static final String[] ID_NAME_PROJECTION =
-            { AccountColumns.ID, AccountColumns.DISPLAY_NAME };
-    private static final int ID_NAME_COLUMN_ID = 0;
-    private static final int ID_NAME_COLUMN_NAME = 1;
 
     private static String sSubjectSnippetDivider;
     @SuppressWarnings("unused")
@@ -161,27 +153,20 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         mResourceHelper = ResourceHelper.getInstance(mContext);
     }
 
+    /**
+     * Start loading the data.  At this point nothing on the widget changes -- the current view
+     * will remain valid until the loader loads the latest data.
+     */
     public void start() {
-        // TODO By default, pick an account to display the widget for. This should all be removed
-        // once the widget configuration activity is hooked up.
-        CursorLoader accountLoader = new CursorLoader(
-                mContext, Account.CONTENT_URI, ID_NAME_PROJECTION, null, null, SORT_ID_ASCENDING);
-        accountLoader.registerListener(1, new OnLoadCompleteListener<Cursor>() {
-            @Override
-            public void onLoadComplete(android.content.Loader<Cursor> loader, Cursor data) {
-                long accountId = Account.NO_ACCOUNT;
-                String accountName = null;
-                if (data != null && data.moveToFirst()) {
-                    accountId = data.getLong(ID_NAME_COLUMN_ID);
-                    accountName = data.getString(ID_NAME_COLUMN_NAME);
-                }
-                WidgetManager.saveWidgetPrefs(
-                        mContext, mWidgetId, accountId, Mailbox.QUERY_ALL_INBOXES);
-                loadView();
-                loader.reset();
-            }
-        });
-        accountLoader.startLoading();
+        long accountId = WidgetManager.loadAccountIdPref(mContext, mWidgetId);
+        long mailboxId = WidgetManager.loadMailboxIdPref(mContext, mWidgetId);
+        // Legacy support; if preferences haven't been saved for this widget, load something
+        if (accountId == Account.NO_ACCOUNT) {
+            accountId = Account.ACCOUNT_ID_COMBINED_VIEW;
+            mailboxId = Mailbox.QUERY_ALL_INBOXES;
+        }
+        mAccountId = accountId;
+        mLoader.load(mAccountId, mailboxId);
     }
 
     private boolean isCursorValid() {
@@ -197,16 +182,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         mAccountName = mCursor.getAccountName();
         updateHeader();
         mWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
-    }
-
-    /**
-     * Start loading the data.  At this point nothing on the widget changes -- the current view
-     * will remain valid until the loader loads the latest data.
-     */
-    private void loadView() {
-        mAccountId = WidgetManager.loadAccountIdPref(mContext, mWidgetId);
-        final long mailboxId = WidgetManager.loadMailboxIdPref(mContext, mWidgetId);
-        mLoader.load(mAccountId, mailboxId);
     }
 
     /**
@@ -304,7 +279,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
      */
     private void updateHeader() {
         if (Email.DEBUG) {
-            Log.d(TAG, "updateWidget " + mWidgetId);
+            Log.d(TAG, "#updateHeader(); widgetId: " + mWidgetId);
         }
 
         // Get the widget layout
@@ -505,6 +480,10 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     }
 
     public void onDeleted() {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(TAG, "#onDeleted(); widgetId: " + mWidgetId);
+        }
+
         if (mLoader != null) {
             mLoader.reset();
         }
@@ -512,6 +491,10 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
 
     @Override
     public void onDestroy() {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(TAG, "#onDestroy(); widgetId: " + mWidgetId);
+        }
+
         if (mLoader != null) {
             mLoader.reset();
         }
@@ -519,6 +502,9 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
 
     @Override
     public void onCreate() {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(TAG, "#onCreate(); widgetId: " + mWidgetId);
+        }
     }
 
     @Override

@@ -437,6 +437,19 @@
             />
 
         <!-- Email AppWidget definitions -->
+        <activity
+            android:name=".widget.WidgetConfiguration"
+            android:enabled="false"
+            android:theme="@android:style/Theme.Holo.DialogWhenLarge"
+            >
+            <intent-filter
+                android:label="@string/account_shortcut_picker_name">
+                <action
+                    android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <service
             android:name=".provider.WidgetProvider$WidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS"

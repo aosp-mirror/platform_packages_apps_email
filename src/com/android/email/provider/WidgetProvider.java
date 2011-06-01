@@ -19,6 +19,7 @@ package com.android.email.provider;
 import com.android.email.Email;
 import com.android.email.widget.EmailWidget;
 import com.android.email.widget.WidgetManager;
+import com.android.emailcommon.Logging;
 
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
@@ -34,7 +35,7 @@ import java.io.PrintWriter;
 public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onEnabled(final Context context) {
-        if (Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(EmailWidget.TAG, "onEnabled");
         }
         super.onEnabled(context);
@@ -42,7 +43,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onDisabled(Context context) {
-        if (Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(EmailWidget.TAG, "onDisabled");
         }
         context.stopService(new Intent(context, WidgetService.class));
@@ -51,7 +52,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        if (Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(EmailWidget.TAG, "onUpdate");
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds);
@@ -60,7 +61,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
-        if (Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(EmailWidget.TAG, "onDeleted");
         }
         WidgetManager.getInstance().deleteWidgets(context, appWidgetIds);
@@ -69,7 +70,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-        if (Email.DEBUG) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(EmailWidget.TAG, "onReceive");
         }
         super.onReceive(context, intent);
