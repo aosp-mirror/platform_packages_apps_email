@@ -121,8 +121,9 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     private final EmailWidgetLoader mLoader;
     private final ResourceHelper mResourceHelper;
 
+    /** The account ID of this widget. May be {@link Account#ACCOUNT_ID_COMBINED_VIEW}. */
     private long mAccountId = Account.NO_ACCOUNT;
-    private long mMailboxId = Mailbox.NO_MAILBOX;
+    /** The display name of this account */
     private String mAccountName;
 
     /**
@@ -131,9 +132,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
      * Note this cursor can be closed any time by the loader.  Always use {@link #isCursorValid()}
      * before touching its contents.
      */
-    private EmailWidgetLoader.CursorWithCounts mCursor;
-
-    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
+    private EmailWidgetLoader.WidgetCursor mCursor;
 
     public EmailWidget(Context context, int _widgetId) {
         super();
@@ -176,7 +175,10 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
                     accountId = data.getLong(ID_NAME_COLUMN_ID);
                     accountName = data.getString(ID_NAME_COLUMN_NAME);
                 }
-                loadView(accountId, accountName);
+                WidgetManager.saveWidgetPrefs(
+                        mContext, mWidgetId, accountId, Mailbox.QUERY_ALL_INBOXES);
+                loadView();
+                loader.reset();
             }
         });
         accountLoader.startLoading();
@@ -191,13 +193,9 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
      */
     @Override
     public void onLoadComplete(Loader<Cursor> loader, Cursor cursor) {
-        // Save away the cursor
-        mCursor = (EmailWidgetLoader.CursorWithCounts) cursor;
-
-        RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.widget);
+        mCursor = (EmailWidgetLoader.WidgetCursor) cursor;   // Save away the cursor
+        mAccountName = mCursor.getAccountName();
         updateHeader();
-        setupTitleAndCount(views);
-        mWidgetManager.partiallyUpdateAppWidget(mWidgetId, views);
         mWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
     }
 
@@ -205,10 +203,10 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
      * Start loading the data.  At this point nothing on the widget changes -- the current view
      * will remain valid until the loader loads the latest data.
      */
-    private void loadView(long accountId, String accountName) {
-        mAccountId = accountId;
-        mAccountName = accountName;
-        mLoader.load(mAccountId, mMailboxId);
+    private void loadView() {
+        mAccountId = WidgetManager.loadAccountIdPref(mContext, mWidgetId);
+        final long mailboxId = WidgetManager.loadMailboxIdPref(mContext, mWidgetId);
+        mLoader.load(mAccountId, mailboxId);
     }
 
     /**
@@ -299,6 +297,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         }
         views.setTextViewText(R.id.widget_count, count);
     }
+
     /**
      * Update the "header" of the widget (i.e. everything that doesn't include the scrolling
      * message list)
@@ -376,8 +375,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
      * @param read whether or not the message is read
      * @return a CharSequence suitable for use in RemoteViews.setTextViewText()
      */
-    private CharSequence getStyledSubjectSnippet (String subject, String snippet,
-            boolean read) {
+    private CharSequence getStyledSubjectSnippet(String subject, String snippet, boolean read) {
         SpannableStringBuilder ssb = new SpannableStringBuilder();
         boolean hasSubject = false;
         if (!TextUtils.isEmpty(subject)) {
@@ -517,7 +515,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         if (mLoader != null) {
             mLoader.reset();
         }
-        mTaskTracker.cancellAllInterrupt();
     }
 
     @Override

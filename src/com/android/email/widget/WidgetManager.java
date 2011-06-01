@@ -17,8 +17,11 @@
 package com.android.email.widget;
 
 import com.android.email.Email;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.EmailContent.Account;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.io.FileDescriptor;
@@ -30,6 +33,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * Class that maintains references to all widgets.
  */
 public class WidgetManager {
+    private static final String PREFS_NAME = "com.android.email.widget.WidgetManager";
+    private static final String ACCOUNT_ID_PREFIX = "accountId_";
+    private static final String MAILBOX_ID_PREFIX = "mailboxId_";
+
     private final static WidgetManager sInstance = new WidgetManager();
 
     // Widget ID -> Widget
@@ -57,7 +64,7 @@ public class WidgetManager {
                 // Stop loading and remove the widget from the map
                 widget.onDeleted();
             }
-            remove(widgetId);
+            remove(context, widgetId);
         }
     }
 
@@ -82,8 +89,9 @@ public class WidgetManager {
         mWidgets.put(widgetId, widget);
     }
 
-    private void remove(int widgetId) {
+    private void remove(Context context, int widgetId) {
         mWidgets.remove(widgetId);
+        WidgetManager.removeWidgetPrefs(context, widgetId);
     }
 
     public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
@@ -92,5 +100,40 @@ public class WidgetManager {
             writer.println("Widget #" + (++n));
             writer.println("    " + widget.toString());
         }
+    }
+
+    /** Saves shared preferences for the given widget */
+    static void saveWidgetPrefs(Context context, int appWidgetId, long accountId, long mailboxId) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        prefs.edit()
+            .putLong(ACCOUNT_ID_PREFIX + appWidgetId, accountId)
+            .putLong(MAILBOX_ID_PREFIX + appWidgetId, mailboxId)
+            .commit();    // preferences must be committed before we return
+    }
+
+    /** Removes shared preferences for the given widget */
+    static void removeWidgetPrefs(Context context, int appWidgetId) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = prefs.edit();
+        for (String key : prefs.getAll().keySet()) {
+            if (key.endsWith("_" + appWidgetId)) {
+                editor.remove(key);
+            }
+        }
+        editor.apply();   // just want to clean up; don't care when preferences are actually removed
+    }
+
+    /** Gets the saved account ID for the given widget */
+    static long loadAccountIdPref(Context context, int appWidgetId) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        long accountId = prefs.getLong(ACCOUNT_ID_PREFIX + appWidgetId, Account.NO_ACCOUNT);
+        return accountId;
+    }
+
+    /** Gets the saved mailbox ID for the given widget */
+    static long loadMailboxIdPref(Context context, int appWidgetId) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        long accountId = prefs.getLong(MAILBOX_ID_PREFIX + appWidgetId, Mailbox.NO_MAILBOX);
+        return accountId;
     }
 }
