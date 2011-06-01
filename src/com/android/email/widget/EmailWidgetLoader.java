@@ -18,6 +18,7 @@ package com.android.email.widget;
 
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.Mailbox;
@@ -61,23 +62,31 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
     private long mMailboxId;
 
     /**
-     * The actual data returned by this loader.
+     * Cursor data specifically for use by the Email widget. Contains a cursor of messages in
+     * addition to a message count and account name. The later elements were opportunistically
+     * placed in this cursor. We could have defined multiple loaders for these items.
      */
-    static class CursorWithCounts extends CursorWrapper {
+    static class WidgetCursor extends CursorWrapper {
         private final int mMessageCount;
+        private final String mAccountName;
 
-        public CursorWithCounts(Cursor cursor, int messageCount) {
+        public WidgetCursor(Cursor cursor, int messageCount, String accountName) {
             super(cursor);
             mMessageCount = messageCount;
+            mAccountName = accountName;
         }
 
         /**
-         * @return The count that should be shown on the widget header.
-         *     Note depending on the view, it may be the unread count, which is different from
-         *     the record count (i.e. {@link #getCount()}}.
+         * Gets the count to be shown on the widget header. If the currently viewed mailbox ID is
+         * not {@link Mailbox#QUERY_ALL_FAVORITES}, it is the unread count, which is different from
+         * number of records returned by {@link #getCount()}.
          */
         public int getMessageCount() {
             return mMessageCount;
+        }
+        /** Gets the display name of the account */
+        public String getAccountName() {
+            return mAccountName;
         }
     }
 
@@ -105,8 +114,15 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
             // Just use the number of all messages shown.
             messageCount = messagesCursor.getCount();
         }
+        Account account = Account.restoreAccountWithId(mContext, mAccountId);
+        final String accountName;
+        if (account != null) {
+            accountName = account.mDisplayName;
+        } else {
+            accountName = null;
+        }
 
-        return new CursorWithCounts(messagesCursor, messageCount);
+        return new WidgetCursor(messagesCursor, messageCount, accountName);
     }
 
     /**
@@ -114,15 +130,44 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
      *
      * Must be called from the UI thread
      *
-     * @param accountId
-     * @param mailboxId
+     * @param accountId The ID of the account. May be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
+     * @param mailboxId The mailbox to load; may be one of the special mailbox IDs.
      */
     void load(long accountId, long mailboxId) {
         reset();
         mAccountId = accountId;
         mMailboxId = mailboxId;
-        setSelection(Message.PER_ACCOUNT_UNREAD_SELECTION);
-        setSelectionArgs(new String[]{ Long.toString(mAccountId) });
+        setSelectionAndArgs();
         startLoading();
+    }
+
+    /** Sets the loader's selection and arguments depending upon the account and mailbox */
+    private void setSelectionAndArgs() {
+        if (mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+            if (mMailboxId == Mailbox.QUERY_ALL_INBOXES) {
+                setSelection(Message.ALL_INBOX_SELECTION);
+            } else if (mMailboxId == Mailbox.QUERY_ALL_FAVORITES) {
+                setSelection(Message.ALL_FAVORITE_SELECTION);
+            } else { // default to all unread
+                setSelection(Message.ALL_UNREAD_SELECTION);
+            }
+            setSelectionArgs(null);
+        } else {
+            if (mMailboxId > 0L) {
+                // Simple mailbox selection
+                setSelection(MessageColumns.ACCOUNT_KEY + "=? AND " + MessageColumns.ID + "=?");
+                setSelectionArgs(
+                        new String[] { Long.toString(mAccountId), Long.toString(mMailboxId) });
+            } else {
+                if (mMailboxId == Mailbox.QUERY_ALL_INBOXES) {
+                    setSelection(Message.PER_ACCOUNT_INBOX_SELECTION);
+                } else if (mMailboxId == Mailbox.QUERY_ALL_FAVORITES) {
+                    setSelection(Message.PER_ACCOUNT_FAVORITE_SELECTION);
+                } else { // default to all unread for the account's inbox
+                    setSelection(Message.PER_ACCOUNT_UNREAD_SELECTION);
+                }
+                setSelectionArgs(new String[] { Long.toString(mAccountId) });
+            }
+        }
     }
 }

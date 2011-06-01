@@ -633,13 +633,13 @@ public abstract class EmailContent {
 
         /** Selection to retrieve unread messages in "inbox" for one account */
         public static final String PER_ACCOUNT_UNREAD_SELECTION =
-                ACCOUNT_KEY_SELECTION + " AND " + ALL_UNREAD_SELECTION;
+            ACCOUNT_KEY_SELECTION + " AND " + ALL_UNREAD_SELECTION;
 
         /** Selection to retrieve all messages in "inbox" for one account */
         public static final String PER_ACCOUNT_INBOX_SELECTION =
             ACCOUNT_KEY_SELECTION + " AND " + ALL_INBOX_SELECTION;
 
-        private static final String ACCOUNT_FAVORITE_SELECTION =
+        public static final String PER_ACCOUNT_FAVORITE_SELECTION =
             ACCOUNT_KEY_SELECTION + " AND " + ALL_FAVORITE_SELECTION;
 
         // _id field is in AbstractContent
@@ -923,7 +923,7 @@ public abstract class EmailContent {
          * @return number of favorite (starred) messages for an account
          */
         public static int getFavoriteMessageCount(Context context, long accountId) {
-            return count(context, Message.CONTENT_URI, ACCOUNT_FAVORITE_SELECTION,
+            return count(context, Message.CONTENT_URI, PER_ACCOUNT_FAVORITE_SELECTION,
                     new String[]{Long.toString(accountId)});
         }
 
