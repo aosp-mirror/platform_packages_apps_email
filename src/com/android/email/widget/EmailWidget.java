@@ -23,15 +23,16 @@ import com.android.email.activity.MessageCompose;
 import com.android.email.activity.UiUtilities;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.WidgetProvider.WidgetService;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.Utility;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.content.ContentUris;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.Loader.OnLoadCompleteListener;
@@ -57,11 +58,8 @@ import java.util.List;
 
 /**
  * The email widget.
- *
- * Threading notes:
- * - All methods must be called on the UI thread, except for {@link WidgetUpdater#doInBackground}.
- * - {@link WidgetUpdater#doInBackground} must not read/write any members of {@link EmailWidget}.
- * - (So no synchronizations are required in this class)
+ * <p><em>NOTE</em>: All methods must be called on the UI thread so synchronization is NOT required
+ * in this class)
  */
 public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         OnLoadCompleteListener<Cursor> {
@@ -90,16 +88,22 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     private static final Uri COMMAND_URI = Uri.parse("widget://command");
 
     // Command names and Uri's built upon COMMAND_URI
-    private static final String COMMAND_NAME_SWITCH_LIST_VIEW = "switch_list_view";
-    private static final Uri COMMAND_URI_SWITCH_LIST_VIEW =
-            COMMAND_URI.buildUpon().appendPath(COMMAND_NAME_SWITCH_LIST_VIEW).build();
     private static final String COMMAND_NAME_VIEW_MESSAGE = "view_message";
     private static final Uri COMMAND_URI_VIEW_MESSAGE =
             COMMAND_URI.buildUpon().appendPath(COMMAND_NAME_VIEW_MESSAGE).build();
 
     private static final int MAX_MESSAGE_LIST_COUNT = 25;
 
+    // TODO Temporary selection / projection to pick the first account defined. Remove once the
+    // account / mailbox picker activity is added
+    private static final String SORT_ID_ASCENDING = AccountColumns.ID + " ASC";
+    private static final String[] ID_NAME_PROJECTION =
+            { AccountColumns.ID, AccountColumns.DISPLAY_NAME };
+    private static final int ID_NAME_COLUMN_ID = 0;
+    private static final int ID_NAME_COLUMN_NAME = 1;
+
     private static String sSubjectSnippetDivider;
+    @SuppressWarnings("unused")
     private static String sConfigureText;
     private static int sSenderFontSize;
     private static int sSubjectFontSize;
@@ -117,6 +121,10 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     private final EmailWidgetLoader mLoader;
     private final ResourceHelper mResourceHelper;
 
+    private long mAccountId = Account.NO_ACCOUNT;
+    private long mMailboxId = Mailbox.NO_MAILBOX;
+    private String mAccountName;
+
     /**
      * The cursor for the messages, with some extra info such as the number of accounts.
      *
@@ -124,9 +132,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
      * before touching its contents.
      */
     private EmailWidgetLoader.CursorWithCounts mCursor;
-
-    /** The current view type */
-    /* package */ WidgetView mWidgetView = WidgetView.UNINITIALIZED_VIEW;
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
@@ -158,9 +163,23 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     }
 
     public void start() {
-        // The default view is UNINITIALIZED_VIEW, and we switch to the next one, which should
-        // be the initial view.  (the first view shown to the user.)
-        switchView();
+        // TODO By default, pick an account to display the widget for. This should all be removed
+        // once the widget configuration activity is hooked up.
+        CursorLoader accountLoader = new CursorLoader(
+                mContext, Account.CONTENT_URI, ID_NAME_PROJECTION, null, null, SORT_ID_ASCENDING);
+        accountLoader.registerListener(1, new OnLoadCompleteListener<Cursor>() {
+            @Override
+            public void onLoadComplete(android.content.Loader<Cursor> loader, Cursor data) {
+                long accountId = Account.NO_ACCOUNT;
+                String accountName = null;
+                if (data != null && data.moveToFirst()) {
+                    accountId = data.getLong(ID_NAME_COLUMN_ID);
+                    accountName = data.getString(ID_NAME_COLUMN_NAME);
+                }
+                loadView(accountId, accountName);
+            }
+        });
+        accountLoader.startLoading();
     }
 
     private boolean isCursorValid() {
@@ -174,7 +193,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     public void onLoadComplete(Loader<Cursor> loader, Cursor cursor) {
         // Save away the cursor
         mCursor = (EmailWidgetLoader.CursorWithCounts) cursor;
-        mWidgetView = mLoader.getLoadingWidgetView();
 
         RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.widget);
         updateHeader();
@@ -187,25 +205,10 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
      * Start loading the data.  At this point nothing on the widget changes -- the current view
      * will remain valid until the loader loads the latest data.
      */
-    private void loadView(WidgetView view) {
-        mLoader.load(view);
-    }
-
-    /**
-     * Convenience method for creating an onClickPendingIntent that executes a command via
-     * our command Uri.  Used for the "next view" command; appends the widget id to the command
-     * Uri.
-     *
-     * @param views The RemoteViews we're inflating
-     * @param buttonId the id of the button view
-     * @param data the command Uri
-     */
-    private void setCommandIntent(RemoteViews views, int buttonId, Uri data) {
-        Intent intent = new Intent(mContext, WidgetService.class);
-        intent.setDataAndType(ContentUris.withAppendedId(data, mWidgetId), WIDGET_DATA_MIME_TYPE);
-        PendingIntent pendingIntent = PendingIntent.getService(mContext, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        views.setOnClickPendingIntent(buttonId, pendingIntent);
+    private void loadView(long accountId, String accountName) {
+        mAccountId = accountId;
+        mAccountName = accountName;
+        mLoader.load(mAccountId, mMailboxId);
     }
 
     /**
@@ -263,12 +266,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
             if (EmailWidget.COMMAND_NAME_VIEW_MESSAGE.equals(command)) {
                 // "view", <message id>, <mailbox id>
                 openMessage(context, Long.parseLong(pathSegments.get(2)), arg1);
-            } else if (EmailWidget.COMMAND_NAME_SWITCH_LIST_VIEW.equals(command)) {
-                // "next_view", <widget id>
-                EmailWidget widget = WidgetManager.getInstance().get((int)arg1);
-                if (widget != null) {
-                    widget.switchView();
-                }
             }
         } catch (NumberFormatException e) {
             // Shouldn't happen as we construct all of the Uri's
@@ -279,7 +276,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
 
     private static void openMessage(final Context context, final long mailboxId,
             final long messageId) {
-        Utility.runAsync(new Runnable() {
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
             @Override
             public void run() {
                 Mailbox mailbox = Mailbox.restoreMailboxWithId(context, mailboxId);
@@ -292,8 +289,10 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
 
     private void setupTitleAndCount(RemoteViews views) {
         // Set up the title (view type + count of messages)
-        views.setTextViewText(R.id.widget_title, mWidgetView.getTitle(mContext));
-        views.setTextViewText(R.id.widget_tap, sConfigureText);
+        views.setTextViewText(R.id.widget_title, mAccountName);
+        // TODO Temporary UX; need to make this visible and create the correct UX
+        //views.setTextViewText(R.id.widget_tap, sConfigureText);
+        views.setViewVisibility(R.id.widget_tap, View.INVISIBLE);
         String count = "";
         if (isCursorValid()) {
             count = UiUtilities.getMessageCountForUi(mContext, mCursor.getMessageCount(), false);
@@ -317,11 +316,11 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         Intent intent = new Intent(mContext, WidgetService.class);
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mWidgetId);
         intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
-        views.setRemoteAdapter(mWidgetId, R.id.message_list, intent);
+        views.setRemoteAdapter(R.id.message_list, intent);
 
         setupTitleAndCount(views);
 
-        if (!isCursorValid() || mCursor.getAccountCount() == 0) {
+        if (!isCursorValid() || mAccountId == Account.NO_ACCOUNT) {
             // Hide compose icon & show "touch to configure" text
             views.setViewVisibility(R.id.widget_compose, View.INVISIBLE);
             views.setViewVisibility(R.id.message_list, View.GONE);
@@ -338,8 +337,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
             intent = MessageCompose.getMessageComposeIntent(mContext, -1);
             setActivityIntent(views, R.id.widget_compose, intent);
         }
-        // Create click intent for "view rotation" target
-        setCommandIntent(views, R.id.widget_logo, COMMAND_URI_SWITCH_LIST_VIEW);
 
         // Use a bare intent for our template; we need to fill everything in
         intent = new Intent(mContext, WidgetService.class);
@@ -452,7 +449,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         views.setViewVisibility(R.id.widget_attachment,
                 hasAttachment ? View.VISIBLE : View.GONE);
 
-        if (mCursor.getAccountCount() <= 1 || mWidgetView.isPerAccount()) {
+        if (mAccountId != Account.ACCOUNT_ID_COMBINED_VIEW) {
             views.setViewVisibility(R.id.color_chip, View.INVISIBLE);
         } else {
             long accountId = mCursor.getLong(EmailWidgetLoader.WIDGET_COLUMN_ACCOUNT_KEY);
@@ -513,7 +510,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         if (mLoader != null) {
             mLoader.reset();
         }
-        WidgetManager.getInstance().remove(mWidgetId);
     }
 
     @Override
@@ -522,57 +518,14 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
             mLoader.reset();
         }
         mTaskTracker.cancellAllInterrupt();
-        WidgetManager.getInstance().remove(mWidgetId);
     }
 
     @Override
     public void onCreate() {
     }
 
-    /**
-     * Update the widget.  If the current view is invalid, switch to the next view, then update.
-     */
-    /* package */ void validateAndUpdate() {
-        new WidgetUpdater(this, false).cancelPreviousAndExecuteParallel();
-    }
-
-    /**
-     * Switch to the next view.
-     */
-    /* package */ void switchView() {
-        new WidgetUpdater(this, true).cancelPreviousAndExecuteParallel();
-    }
-
-    /**
-     * Update the widget.  If {@code switchToNextView} is set true, or the current view is invalid,
-     * switch to the next view.
-     */
-    private static class WidgetUpdater extends EmailAsyncTask<Void, Void, WidgetView> {
-        private final EmailWidget mParent;
-        private final WidgetView mCurrentView;
-        private final boolean mSwitchToNextView;
-
-        public WidgetUpdater(EmailWidget parent, boolean switchToNextView) {
-            super(parent.mTaskTracker);
-            mParent = parent;
-            mCurrentView = mParent.mWidgetView;
-            mSwitchToNextView = switchToNextView;
-        }
-
-        @Override
-        protected WidgetView doInBackground(Void... params) {
-            if (mSwitchToNextView || !mCurrentView.isValid(mParent.mContext)) {
-                return mCurrentView.getNext(mParent.mContext);
-            } else {
-                return mCurrentView; // Reload the same view.
-            }
-        }
-
-        @Override
-        protected void onPostExecute(WidgetView nextView) {
-            if (nextView != null) {
-                mParent.loadView(nextView);
-            }
-        }
+    @Override
+    public String toString() {
+        return "View=" + mAccountName;
     }
 }

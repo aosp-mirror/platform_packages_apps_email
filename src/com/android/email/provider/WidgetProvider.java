@@ -55,7 +55,7 @@ public class WidgetProvider extends AppWidgetProvider {
             Log.d(EmailWidget.TAG, "onUpdate");
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds);
-        WidgetManager.getInstance().getOrCreateWidgets(context, appWidgetIds);
+        WidgetManager.getInstance().createWidgets(context, appWidgetIds);
     }
 
     @Override

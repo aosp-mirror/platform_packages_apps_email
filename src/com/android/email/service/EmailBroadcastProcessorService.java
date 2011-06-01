@@ -225,8 +225,5 @@ public class EmailBroadcastProcessorService extends IntentService {
         // If the exchange service wasn't already running, starting it will cause exchange account
         // reconciliation to be performed.  The service stops itself it there are no EAS accounts.
         ExchangeUtils.startExchangeService(this);
-
-        // Let all of the widgets update
-        WidgetManager.getInstance().updateAllWidgets();
     }
 }

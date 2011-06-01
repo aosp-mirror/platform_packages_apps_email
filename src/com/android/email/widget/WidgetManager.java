@@ -43,19 +43,9 @@ public class WidgetManager {
         return sInstance;
     }
 
-    /**
-     * Updates all active widgets. If no widgets are active, does nothing.
-     */
-    public synchronized void updateAllWidgets() {
-        for (EmailWidget widget: mWidgets.values()) {
-            // Anything could have changed; update widget & validate the current view
-            widget.validateAndUpdate();
-        }
-    }
-
-    public synchronized void getOrCreateWidgets(Context context, int[] widgetIds) {
+    public synchronized void createWidgets(Context context, int[] widgetIds) {
         for (int widgetId : widgetIds) {
-            getOrCreateWidget(context, widgetId).validateAndUpdate();
+            getOrCreateWidget(context, widgetId);
         }
     }
 
@@ -67,10 +57,11 @@ public class WidgetManager {
                 // Stop loading and remove the widget from the map
                 widget.onDeleted();
             }
+            remove(widgetId);
         }
     }
 
-    public EmailWidget getOrCreateWidget(Context context, int widgetId) {
+    public synchronized EmailWidget getOrCreateWidget(Context context, int widgetId) {
         EmailWidget widget = WidgetManager.getInstance().get(widgetId);
         if (widget == null) {
             if (Email.DEBUG) {
@@ -83,15 +74,15 @@ public class WidgetManager {
         return widget;
     }
 
-    public EmailWidget get(int widgetId) {
+    private EmailWidget get(int widgetId) {
         return mWidgets.get(widgetId);
     }
 
-    /* package */ void put(int widgetId, EmailWidget widget) {
+    private void put(int widgetId, EmailWidget widget) {
         mWidgets.put(widgetId, widget);
     }
 
-    /* package */ void remove(int widgetId) {
+    private void remove(int widgetId) {
         mWidgets.remove(widgetId);
     }
 
@@ -99,7 +90,7 @@ public class WidgetManager {
         int n = 0;
         for (EmailWidget widget : mWidgets.values()) {
             writer.println("Widget #" + (++n));
-            writer.println("    View=" + widget.mWidgetView);
+            writer.println("    " + widget.toString());
         }
     }
 }

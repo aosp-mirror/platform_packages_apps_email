@@ -18,9 +18,9 @@ package com.android.email.widget;
 
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -35,7 +35,7 @@ import android.database.CursorWrapper;
  *   It's currently just the same as the message count, but this will be updated to the unread
  *   counts for inboxes.
  */
-/* package */ class EmailWidgetLoader extends ThrottlingCursorLoader {
+class EmailWidgetLoader extends ThrottlingCursorLoader {
     private static final String SORT_TIMESTAMP_DESCENDING = MessageColumns.TIMESTAMP + " DESC";
 
     // The projection to be used by the WidgetLoader
@@ -57,21 +57,18 @@ import android.database.CursorWrapper;
     public static final int WIDGET_COLUMN_ACCOUNT_KEY = 9;
     public static final int WIDGET_COLUMN_FLAGS = 10;
 
+    private long mAccountId;
+    private long mMailboxId;
+
     /**
      * The actual data returned by this loader.
      */
-    public static class CursorWithCounts extends CursorWrapper {
-        private final int mAccountCount;
+    static class CursorWithCounts extends CursorWrapper {
         private final int mMessageCount;
 
-        public CursorWithCounts(Cursor cursor, int accountCount, int messageCount) {
+        public CursorWithCounts(Cursor cursor, int messageCount) {
             super(cursor);
-            mAccountCount = accountCount;
             mMessageCount = messageCount;
-        }
-
-        public int getAccountCount() {
-            return mAccountCount;
         }
 
         /**
@@ -86,9 +83,7 @@ import android.database.CursorWrapper;
 
     private final Context mContext;
 
-    private WidgetView mLoadingWidgetView;
-
-    public EmailWidgetLoader(Context context) {
+    EmailWidgetLoader(Context context) {
         super(context, Message.CONTENT_URI, WIDGET_PROJECTION, null,
                 null, SORT_TIMESTAMP_DESCENDING);
         mContext = context;
@@ -101,17 +96,17 @@ import android.database.CursorWrapper;
         // Reset the notification Uri to our Message table notifier URI
         messagesCursor.setNotificationUri(mContext.getContentResolver(), Message.NOTIFIER_URI);
 
-        final int accountCount = EmailContent.count(mContext, Account.CONTENT_URI);
-
         final int messageCount;
-        if (mLoadingWidgetView.useUnreadCount()) {
-            messageCount = mLoadingWidgetView.getUnreadCount(mContext);
+        if (mMailboxId != Mailbox.QUERY_ALL_FAVORITES) {
+            String selection = "(" + getSelection() + " ) AND " + MessageColumns.FLAG_READ + " = 0";
+            messageCount = EmailContent.count(mContext, Message.CONTENT_URI, selection,
+                    getSelectionArgs());
         } else {
             // Just use the number of all messages shown.
             messageCount = messagesCursor.getCount();
         }
 
-        return new CursorWithCounts(messagesCursor, accountCount, messageCount);
+        return new CursorWithCounts(messagesCursor, messageCount);
     }
 
     /**
@@ -119,22 +114,15 @@ import android.database.CursorWrapper;
      *
      * Must be called from the UI thread
      *
-     * @param view the current ViewType
+     * @param accountId
+     * @param mailboxId
      */
-    public void load(WidgetView view) {
+    void load(long accountId, long mailboxId) {
         reset();
-        mLoadingWidgetView = view;
-        setSelection(view.getSelection());
-        setSelectionArgs(view.getSelectionArgs());
+        mAccountId = accountId;
+        mMailboxId = mailboxId;
+        setSelection(Message.PER_ACCOUNT_UNREAD_SELECTION);
+        setSelectionArgs(new String[]{ Long.toString(mAccountId) });
         startLoading();
-    }
-
-    /**
-     * @return the {@link WidgetView} that is (being) loaded.
-     *
-     * Must be called from the UI thread
-     */
-    public WidgetView getLoadingWidgetView() {
-        return mLoadingWidgetView;
     }
 }

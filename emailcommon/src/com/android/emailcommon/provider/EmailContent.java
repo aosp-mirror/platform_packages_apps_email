@@ -631,6 +631,10 @@ public abstract class EmailContent {
         public static final String ALL_UNREAD_SELECTION =
             MessageColumns.FLAG_READ + "=0 AND " + ALL_INBOX_SELECTION;
 
+        /** Selection to retrieve unread messages in "inbox" for one account */
+        public static final String PER_ACCOUNT_UNREAD_SELECTION =
+                ACCOUNT_KEY_SELECTION + " AND " + ALL_UNREAD_SELECTION;
+
         /** Selection to retrieve all messages in "inbox" for one account */
         public static final String PER_ACCOUNT_INBOX_SELECTION =
             ACCOUNT_KEY_SELECTION + " AND " + ALL_INBOX_SELECTION;
