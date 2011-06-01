@@ -1612,7 +1612,10 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             createAndAddTab(R.string.forward_action, ACTION_FORWARD);
 
             actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            try { // STOPSHIP workaround b/4520517
+                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            } catch (RuntimeException ignore) {
+            }
         } else {
             // Spinner based mode switching.
             if (mActionSpinnerAdapter == null) {
