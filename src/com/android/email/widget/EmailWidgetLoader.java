@@ -155,7 +155,9 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
         } else {
             if (mMailboxId > 0L) {
                 // Simple mailbox selection
-                setSelection(MessageColumns.ACCOUNT_KEY + "=? AND " + MessageColumns.ID + "=?");
+                setSelection(
+                    MessageColumns.ACCOUNT_KEY + "=? AND " +
+                    MessageColumns.MAILBOX_KEY + "=?");
                 setSelectionArgs(
                         new String[] { Long.toString(mAccountId), Long.toString(mMailboxId) });
             } else {
