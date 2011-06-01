@@ -20,7 +20,6 @@ import com.android.email.Email;
 import com.android.email.FolderProperties;
 import com.android.email.R;
 import com.android.email.data.ClosingMatrixCursor;
-import com.android.email.data.CursorWithExtras;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
@@ -34,10 +33,10 @@ import com.android.emailcommon.utility.Utility;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.database.MatrixCursor;
 import android.database.MatrixCursor.RowBuilder;
 import android.database.MergeCursor;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +60,24 @@ import android.widget.TextView;
 /*package*/ class MailboxFragmentAdapter extends MailboxesAdapter {
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + MailboxColumns.ID + "=?";
+
+    /**
+     * {@link Cursor} with extra information which is returned by the loader created by
+     * {@link MailboxFragmentAdapter#createMailboxesLoader}.
+     */
+    public static class CursorWithExtras extends CursorWrapper {
+        /**
+         * The number of mailboxes in the cursor if the cursor contains top-level mailboxes.
+         * Otherwise, the number of *child* mailboxes.
+         */
+        public final int mChildCount;
+
+        CursorWithExtras(Cursor cursor, int childCount) {
+            super(cursor);
+            mChildCount = childCount;
+        }
+    }
+
     public MailboxFragmentAdapter(Context context, Callback callback) {
         super(context, callback);
     }
@@ -169,19 +186,32 @@ import android.widget.TextView;
     }
 
     /**
-     * Returns a cursor loader for the mailboxes of the given account. If <code>parentKey</code>
+     * Returns a cursor loader for the mailboxes of the given account.  If <code>parentKey</code>
      * refers to a valid mailbox ID [e.g. non-zero], restrict the loader to only those mailboxes
      * contained by this parent mailbox.
+     *
+     * Note the returned loader always returns a {@link CursorWithExtras}.
      */
-    public static Loader<Cursor> createLoader(Context context, long accountId, long parentKey) {
+    public static Loader<Cursor> createMailboxesLoader(Context context, long accountId,
+            long parentMailboxId) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxFragmentAdapter#createLoader accountId=" + accountId);
+            Log.d(Logging.LOG_TAG, "MailboxFragmentAdapter#CursorWithExtras accountId=" + accountId
+                    + " parentMailboxId=" + parentMailboxId);
         }
-        if (accountId != Account.ACCOUNT_ID_COMBINED_VIEW) {
-            return new MailboxFragmentLoader(context, accountId, parentKey);
-        } else {
-            return new CombinedMailboxLoader(context);
+        if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+            throw new IllegalArgumentException();
         }
+        return new MailboxFragmentLoader(context, accountId, parentMailboxId);
+    }
+
+    /**
+     * Returns a cursor loader for the combined view.
+     */
+    public static Loader<Cursor> createCombinedViewLoader(Context context) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "MailboxFragmentAdapter#createCombinedViewLoader");
+        }
+        return new CombinedMailboxLoader(context);
     }
 
     /**
@@ -220,6 +250,8 @@ import android.widget.TextView;
 
     /**
      * Loads mailboxes that are the children of a given mailbox ID.
+     *
+     * The returned {@link Cursor} is always a {@link CursorWithExtras}.
      */
     private static class MailboxFragmentLoader extends ThrottlingCursorLoader {
         private final Context mContext;
@@ -248,25 +280,20 @@ import android.widget.TextView;
 
         @Override
         public Cursor loadInBackground() {
+            boolean parentRemoved = false;
+
             final Cursor childMailboxCursor = super.loadInBackground();
             final Cursor returnCursor;
-            final Bundle extras = new Bundle();
 
-            // Setup the extras to return along with the cursor
-            int cursorCount = childMailboxCursor.getCount();
-            extras.putInt(CursorWithExtras.EXTRA_MAILBOX_CHILD_COUNT, cursorCount);
-            long nextParentKey = findParentWithChildren(mParentKey);
-            extras.putLong(CursorWithExtras.EXTRA_MAILBOX_NEXT_PARENT_ID, nextParentKey);
-            Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mParentKey);
-            long grandParentKey = mailbox == null ? Mailbox.NO_MAILBOX : mailbox.mParentKey;
-            extras.putLong(CursorWithExtras.EXTRA_MAILBOX_PARENT_ID, grandParentKey);
+            final int childCount = childMailboxCursor.getCount();
 
-            // If we're not showing the top level mailboxes, add the "parent" mailbox.
             if (mParentKey != Mailbox.NO_MAILBOX) {
+                // If we're not showing the top level mailboxes, add the "parent" mailbox.
                 final Cursor parentCursor = getContext().getContentResolver().query(
                         Mailbox.CONTENT_URI, CURMAILBOX_PROJECTION, MAILBOX_SELECTION,
                         new String[] { Long.toString(mAccountId), Long.toString(mParentKey) },
                         null);
+
                 returnCursor = new MergeCursor(new Cursor[] { parentCursor, childMailboxCursor });
             } else {
                 // Add "Starred", only if the account has at least one starred message.
@@ -286,28 +313,8 @@ import android.widget.TextView;
                 }
             }
 
-            return new CursorWithExtras(Utility.CloseTraceCursorWrapper.get(returnCursor), extras);
-        }
-
-        /**
-         * Returns the next parent mailbox with at least one child mailbox. If the given
-         * mailbox does not exist in the database, returns {@link Mailbox#NO_MAILBOX}. If
-         * we reach the root parent and we still don't have children, returns
-         * {@link Mailbox#NO_MAILBOX}.
-         */
-        private long findParentWithChildren(long mailboxId) {
-            int childCount = Mailbox.count(mContext, Mailbox.CONTENT_URI,
-                MAILBOX_SELECTION_WITH_PARENT,
-                new String[] {  Long.toString(mAccountId), Long.toString(mailboxId) });
-            if (childCount == 0 && mailboxId != Mailbox.NO_MAILBOX) {
-                // There are no children; select parent
-                Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
-                if (mailbox == null) {
-                    return Mailbox.NO_MAILBOX;
-                }
-                return findParentWithChildren(mailbox.mParentKey);
-            }
-            return mailboxId;
+            return new CursorWithExtras(Utility.CloseTraceCursorWrapper.get(returnCursor),
+                    childCount);
         }
     }
 

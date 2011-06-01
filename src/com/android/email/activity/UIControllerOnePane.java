@@ -74,17 +74,16 @@ class UIControllerOnePane extends UIControllerBase {
         }
 
         @Override
-        public void onMailboxSelected(long accountId, long mailboxId, boolean navigate) {
+        public void onMailboxSelected(long accountId, long mailboxId, boolean nestedNavigation) {
+            if (nestedNavigation) {
+                return; // Nothing to do on 1-pane.
+            }
             openMailbox(accountId, mailboxId);
         }
 
         @Override
-        public void onMailboxSelectedForDnD(long mailboxId) {
-            // No drag&drop on 1-pane
-        }
-
-        @Override
-        public void requestMailboxChange(long newMailboxId, long selectedMailboxId) {
+        public void onParentMailboxChanged() {
+            refreshActionBar();
         }
     };
 
@@ -98,7 +97,6 @@ class UIControllerOnePane extends UIControllerBase {
         @Override
         public void onEnterSelectionMode(boolean enter) {
             // TODO Auto-generated method stub
-
         }
 
         @Override
@@ -345,6 +343,8 @@ class UIControllerOnePane extends UIControllerBase {
             open(getUIAccountId(), Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
             return true;
         } else {
+            // TODO Call MailboxListFragment.navigateUp().
+
             // STOPSHIP Remove this and return false.  This is so that the app can be closed
             // with the UP press.  (usuful when the device doesn't have a HW back key.)
             mActivity.finish();
@@ -402,7 +402,7 @@ class UIControllerOnePane extends UIControllerBase {
 
         } else {
             ft.replace(R.id.fragment_placeholder,
-                    MailboxListFragment.newInstance(accountId, Mailbox.NO_MAILBOX));
+                    MailboxListFragment.newInstance(accountId, Mailbox.NO_MAILBOX, false));
         }
 
         mCurrentAccountId = accountId;

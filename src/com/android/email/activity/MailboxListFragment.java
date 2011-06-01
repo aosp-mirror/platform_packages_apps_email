@@ -20,12 +20,13 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
-import com.android.email.data.CursorWithExtras;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Activity;
 import android.app.ListFragment;
@@ -33,6 +34,7 @@ import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.Context;
 import android.content.Loader;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -55,7 +57,90 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * This fragment presents a list of mailboxes for a given account.
+ * This fragment presents a list of mailboxes for a given account or the combined mailboxes.
+ *
+ * This fragment has several parameters that determine the current view.
+ *
+ * <pre>
+ * Parameters:
+ * - Account ID.
+ *   - Set via {@link #newInstance}.
+ *   - Can be obtained with {@link #getAccountId()}.
+ *   - Will not change throughout fragment lifecycle.
+ *   - Either an actual account ID, or {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
+ *
+ * - "Highlight enabled?" flag
+ *   - Set via {@link #newInstance}.
+ *   - Can be obtained with {@link #getEnableHighlight()}.
+ *   - Will not change throughout fragment lifecycle.
+ *   - If {@code true}, we highlight the "selected" mailbox (used only on 2-pane).
+ *   - Note even if it's {@code true}, there may be no highlighted mailbox.
+ *     (This usually happens on 2-pane before the UI controller finds the Inbox to highlight.)
+ *
+ * - "Parent" mailbox ID
+ *   - Stored in {@link #mParentMailboxId}
+ *   - Changes as the user navigates through nested mailboxes.
+ *   - Initialized using the {@code mailboxId} parameter for {@link #newInstance}
+ *     in {@link #setInitialParentAndHighlight()}.
+ *
+ * - "Highlighted" mailbox
+ *   - Only used when highlighting is enabled.  (Otherwise always {@link Mailbox#NO_MAILBOX}.)
+ *     i.e. used only on two-pane.
+ *   - Stored in {@link #mHighlightedMailboxId}
+ *   - Initialized using the {@code mailboxId} parameter for {@link #newInstance}
+ *     in {@link #setInitialParentAndHighlight()}.
+ *
+ *   - Can be changed any time, using {@link #setHighlightedMailbox(long)}.
+ *
+ *   - If set, it's considered "selected", and we highlight the list item.
+ *
+ *   - (It should always be the ID of the list item selected in the list view, but we store it in
+ *     a member for efficiency.)
+ *
+ *   - Sometimes, we need to set the highlighted mailbox while we're still loading data.
+ *     In this case, we can't update {@link #mHighlightedMailboxId} right away, but need to do so
+ *     in when the next data set arrives, in
+ *     {@link MailboxListFragment.MailboxListLoaderCallbacks#onLoadFinished}.  For this, we use
+ *     we store the mailbox ID in {@link #mNextHighlightedMailboxId} and update
+ *     {@link #mHighlightedMailboxId} in onLoadFinished.
+ *
+ *
+ * The "selected" is defined using the "parent" and "highlighted" mailboxes.
+ * - "Selected" mailbox  (also sometimes called "current".)
+ *   - This is what the user thinks it's now selected.
+ *
+ *   - Can be obtained with {@link #getSelectedMailboxId()}
+ *   - If the "highlighted" mailbox exists, it's the "selected."  Otherwise, the "parent"
+ *     is considered "selected."
+ *   - This is what is passed to {@link Callback#onMailboxSelected}.
+ * </pre>
+ *
+ *
+ * This fragment shows the content in one of the three following views, depending on the
+ * parameters above.
+ *
+ * <pre>
+ * 1. Combined view
+ *   - Used if the account ID == {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
+ *   - Parent mailbox is always {@link Mailbox#NO_MAILBOX}.
+ *   - List contains:
+ *     - combined mailboxes
+ *     - all accounts
+ *
+ * 2. Root view for an account
+ *   - Used if the account ID != {@link Account#ACCOUNT_ID_COMBINED_VIEW} and
+ *     Parent mailbox == {@link Mailbox#NO_MAILBOX}
+ *   - List contains
+ *     - all the top level mailboxes for the selected account.
+ *
+ * 3. Root view for a mailbox.  (nested view)
+ *   - Used if the account ID != {@link Account#ACCOUNT_ID_COMBINED_VIEW} and
+ *     Parent mailbox != {@link Mailbox#NO_MAILBOX}
+ *   - List contains:
+ *     - parent mailbox (determined by "parent" mailbox ID)
+ *     - all child mailboxes of the parent mailbox.
+ * </pre>
+ *
  *
  * Note that when a fragment is put in the back stack, it'll lose the content view but the fragment
  * itself is not destroyed.  If you call {@link #getListView()} in this state it'll throw
@@ -65,14 +150,20 @@ import java.util.TimerTask;
  *   no views.
  * - Otherwise, make sure to check if the fragment has views with {@link #isViewCreated()}
  *   before touching any views.
+ *
+ * TODO Remove the nested folder navigation code during drag&drop.
  */
 public class MailboxListFragment extends ListFragment implements OnItemClickListener,
         OnDragListener {
     private static final String TAG = "MailboxListFragment";
-    private static final String BUNDLE_KEY_SELECTED_MAILBOX_ID
+
+    private static final String BUNDLE_KEY_PARENT_MAILBOX_ID
+            = "MailboxListFragment.state.parent_mailbox_id";
+    private static final String BUNDLE_KEY_HIGHLIGHTED_MAILBOX_ID
             = "MailboxListFragment.state.selected_mailbox_id";
     private static final String BUNDLE_LIST_STATE = "MailboxListFragment.state.listState";
     private static final boolean DEBUG_DRAG_DROP = false; // MUST NOT SUBMIT SET TO TRUE
+
     /** While in drag-n-drop, amount of time before it auto expands; in ms */
     private static final long AUTO_EXPAND_DELAY = 750L;
 
@@ -88,7 +179,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     /** Argument name(s) */
     private static final String ARG_ACCOUNT_ID = "accountId";
-    private static final String ARG_PARENT_MAILBOX_ID = "parentMailboxId";
+    private static final String ARG_ENABLE_HIGHLIGHT = "enablehighlight";
+    private static final String ARG_INITIAL_CURRENT_MAILBOX_ID = "initialParentMailboxId";
+
+    private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     /** Timer to auto-expand folder lists during drag-n-drop */
     private static final Timer sDragTimer = new Timer();
@@ -106,8 +200,14 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private static Integer sDropTrashColor;
     private static Drawable sDropActiveDrawable;
 
-    /** ID of the mailbox to hightlight. */
-    private long mSelectedMailboxId = -1;
+    // See the class javadoc
+    private long mParentMailboxId;
+    private long mHighlightedMailboxId;
+
+    /**
+     * ID of the mailbox that should be highlighted when the next cursor is loaded.
+     */
+    private long mNextHighlightedMailboxId = Mailbox.NO_MAILBOX;
 
     // True if a drag is currently in progress
     private boolean mDragInProgress;
@@ -147,28 +247,20 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
          * @param mailboxId
          *          The ID of the selected mailbox. This may be real mailbox ID [e.g. a number > 0],
          *          or a combined mailbox ID [e.g. {@link Mailbox#QUERY_ALL_INBOXES}].
-         * @param navigate navigate to the mailbox.
+         * @param nestedNavigation {@code true} if the event is caused by nested mailbox navigation,
+         *          that is, going up or drilling-in to a child mailbox.
          */
-        public void onMailboxSelected(long accountId, long mailboxId, boolean navigate);
-
-        /**
-         * Called if the mailbox ID is being requested to change. This could occur for several
-         * reasons; such as if the current, navigated mailbox has no more children.
-         * @param newMailboxId The new mailbox ID to use for displaying in the mailbox list
-         * @param selectedMailboxId The new mailbox ID to highlight. If  {@link Mailbox#NO_MAILBOX},
-         *      the receiver may select any mailbox it chooses.
-         */
-        public void requestMailboxChange(long newMailboxId, long selectedMailboxId);
-
-        /**
-         * Called when a mailbox is selected during D&D.
-         */
-        public void onMailboxSelectedForDnD(long mailboxId);
+        public void onMailboxSelected(long accountId, long mailboxId, boolean nestedNavigation);
 
         /** Called when an account is selected on the combined view. */
         public void onAccountSelected(long accountId);
 
         /**
+         * TODO Remove it.  The behavior is not well-defined.  (Won't get called when highlight is
+         *      disabled.)
+         *      It was added only to update the action bar with the current mailbox name and the
+         *      message count.  Remove it and make the action bar watch the mailbox by itself.
+         *
          * Called when the list updates to propagate the current mailbox name and the unread count
          * for it.
          *
@@ -180,17 +272,22 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
          *     {@link MailboxListFragment#getAccountId()}.
          */
         public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount);
+
+        /**
+         * Called when the parent mailbox is changing.
+         */
+        public void onParentMailboxChanged();
     }
 
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
-        @Override public void onMailboxSelected(long accountId, long mailboxId, boolean navigate) {
-        }
-        @Override public void onMailboxSelectedForDnD(long mailboxId) { }
+        @Override public void onMailboxSelected(long accountId, long mailboxId,
+                boolean nestedNavigation) { }
         @Override public void onAccountSelected(long accountId) { }
         @Override public void onCurrentMailboxUpdated(long mailboxId, String mailboxName,
                 int unreadCount) { }
-        @Override public void requestMailboxChange(long newMailboxId, long selectedMailboxId) { }
+        @Override
+        public void onParentMailboxChanged() { }
     }
 
     /**
@@ -217,17 +314,18 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * This fragment should be created only with this method.  (Arguments should always be set.)
      *
      * @param accountId The ID of the account we want to view
-     * @param parentMailboxId The ID of the parent mailbox.  Use {@link Mailbox#NO_MAILBOX}
-     *     to open the root.
+     * @param initialCurrentMailboxId ID of the mailbox of interest.
+     *        Pass {@link Mailbox#NO_MAILBOX} to show top-level mailboxes.
+     * @param enableHighlight {@code true} if highlighting is enabled on the current screen
+     *        configuration.  (We don't highlight mailboxes on one-pane.)
      */
-    public static MailboxListFragment newInstance(long accountId, long parentMailboxId) {
-        if (accountId == Account.NO_ACCOUNT) {
-            throw new IllegalArgumentException();
-        }
+    public static MailboxListFragment newInstance(long accountId, long initialCurrentMailboxId,
+            boolean enableHighlight) {
         final MailboxListFragment instance = new MailboxListFragment();
         final Bundle args = new Bundle();
         args.putLong(ARG_ACCOUNT_ID, accountId);
-        args.putLong(ARG_PARENT_MAILBOX_ID, parentMailboxId);
+        args.putLong(ARG_INITIAL_CURRENT_MAILBOX_ID, initialCurrentMailboxId);
+        args.putBoolean(ARG_ENABLE_HIGHLIGHT, enableHighlight);
         instance.setArguments(args);
         return instance;
     }
@@ -239,25 +337,32 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * constructs, this <em>must</em> be considered immutable.
      */
     private Long mImmutableAccountId;
+
     /**
-     * We will display the children of this mailbox. May be {@link Mailbox#NO_MAILBOX} to display
-     * all of the top-level mailboxes. Do NOT use directly; instead, use
-     * {@link #getParentMailboxId()}.
+     * {@code initialCurrentMailboxId} passed to {@link #newInstance}.
+     * Do not use directly; instead, use {@link #getInitialCurrentMailboxId()}.
      * <p><em>NOTE:</em> Although we cannot force these to be immutable using Java language
      * constructs, this <em>must</em> be considered immutable.
      */
-    private Long mImmutableParentMailboxId;
+    private long mImmutableInitialCurrentMailboxId;
+
+    /**
+     * {@code enableHighlight} passed to {@link #newInstance}.
+     * Do not use directly; instead, use {@link #getEnableHighlight()}.
+     * <p><em>NOTE:</em> Although we cannot force these to be immutable using Java language
+     * constructs, this <em>must</em> be considered immutable.
+     */
+    private boolean mImmutableEnableHighlight;
 
     private void initializeArgCache() {
         if (mImmutableAccountId != null) return;
-        mImmutableAccountId
-                = getArguments().getLong(ARG_ACCOUNT_ID, Account.NO_ACCOUNT);
-        mImmutableParentMailboxId
-                = getArguments().getLong(ARG_PARENT_MAILBOX_ID, Mailbox.NO_MAILBOX);
+        mImmutableAccountId = getArguments().getLong(ARG_ACCOUNT_ID);
+        mImmutableInitialCurrentMailboxId = getArguments().getLong(ARG_INITIAL_CURRENT_MAILBOX_ID);
+        mImmutableEnableHighlight = getArguments().getBoolean(ARG_ENABLE_HIGHLIGHT);
     }
 
     /**
-     * @return the account ID passed to {@link #newInstance}.  Safe to call even before onCreate.
+     * @return {@code accountId} passed to {@link #newInstance}.  Safe to call even before onCreate.
      */
     public long getAccountId() {
         initializeArgCache();
@@ -265,20 +370,21 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     /**
-     * @return the mailbox ID passed to {@link #newInstance}.  Safe to call even before onCreate.
+     * @return {@code initialCurrentMailboxId} passed to {@link #newInstance}.
+     * Safe to call even before onCreate.
      */
-    public long getParentMailboxId() {
+    public long getInitialCurrentMailboxId() {
         initializeArgCache();
-        return mImmutableParentMailboxId;
+        return mImmutableInitialCurrentMailboxId;
     }
 
     /**
-     * @return true if the top level mailboxes are shown.  Safe to call even before onCreate.
+     * @return {@code enableHighlight} passed to {@link #newInstance}.
+     * Safe to call even before onCreate.
      */
-    public boolean isRoot() {
-        // TODO if we add meta-mailboxes to the database, remove special test for account ID
-        return getParentMailboxId() == Mailbox.NO_MAILBOX
-                || getAccountId() == Account.ACCOUNT_ID_COMBINED_VIEW;
+    public boolean getEnableHighlight() {
+        initializeArgCache();
+        return mImmutableEnableHighlight;
     }
 
     @Override
@@ -304,13 +410,35 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         mRefreshManager = RefreshManager.getInstance(mActivity);
         mListAdapter = new MailboxFragmentAdapter(mActivity, mMailboxesAdapterCallback);
         setListAdapter(mListAdapter); // It's safe to do even before the list view is created.
-        if (savedInstanceState != null) {
+
+        if (savedInstanceState == null) {
+            setInitialParentAndHighlight();
+        } else {
             restoreInstanceState(savedInstanceState);
         }
+
         if (sDropTrashColor == null) {
             Resources res = getResources();
             sDropTrashColor = res.getColor(R.color.mailbox_drop_destructive_bg_color);
             sDropActiveDrawable = res.getDrawable(R.drawable.list_activated_holo);
+        }
+    }
+
+    /**
+     * Set {@link #mParentMailboxId} and {@link #mHighlightedMailboxId} from the fragment arguments.
+     */
+    private void setInitialParentAndHighlight() {
+        if (getAccountId() == Account.ACCOUNT_ID_COMBINED_VIEW) {
+            // For the combined view, always show the top-level, but highlight the "current".
+            mParentMailboxId = Mailbox.NO_MAILBOX;
+        } else {
+            // Otherwise, try using the "current" as the "parent" (and also highlight it).
+            // If it has no children, we go up in onLoadFinished().
+            mParentMailboxId = getInitialCurrentMailboxId();
+        }
+        // Highlight the mailbox of interest
+        if (getEnableHighlight()) {
+            mHighlightedMailboxId = getInitialCurrentMailboxId();
         }
     }
 
@@ -345,7 +473,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         lv.setOnDragListener(this);
 
-        startLoading();
+        startLoading(mParentMailboxId, mHighlightedMailboxId);
     }
 
     public void setCallback(Callback callback) {
@@ -366,15 +494,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             return item.isNavigable();
         }
         return false;
-    }
-
-    /**
-     * Sets the selected mailbox to the given ID. Sub-folders will not be loaded.
-     * @param mailboxId The ID of the mailbox to select.
-     */
-    public void setSelectedMailbox(long mailboxId) {
-        mSelectedMailboxId = mailboxId;
-        highlightSelectedMailbox(true);
     }
 
     /**
@@ -442,6 +561,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroy");
         }
+        mTaskTracker.cancellAllInterrupt();
         super.onDestroy();
     }
 
@@ -459,7 +579,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             Log.d(Logging.LOG_TAG, this + " onSaveInstanceState");
         }
         super.onSaveInstanceState(outState);
-        outState.putLong(BUNDLE_KEY_SELECTED_MAILBOX_ID, mSelectedMailboxId);
+        outState.putLong(BUNDLE_KEY_PARENT_MAILBOX_ID, mParentMailboxId);
+        outState.putLong(BUNDLE_KEY_HIGHLIGHTED_MAILBOX_ID, mHighlightedMailboxId);
         if (isViewCreated()) {
             outState.putParcelable(BUNDLE_LIST_STATE, getListView().onSaveInstanceState());
         }
@@ -469,23 +590,197 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " restoreInstanceState");
         }
-        mSelectedMailboxId = savedInstanceState.getLong(BUNDLE_KEY_SELECTED_MAILBOX_ID);
+        mParentMailboxId = savedInstanceState.getLong(BUNDLE_KEY_PARENT_MAILBOX_ID);
+        mHighlightedMailboxId = savedInstanceState.getLong(BUNDLE_KEY_HIGHLIGHTED_MAILBOX_ID);
         mSavedListState = savedInstanceState.getParcelable(BUNDLE_LIST_STATE);
     }
 
-    private void startLoading() {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, this + " startLoading");
+    /**
+     * @return "Selected" mailbox ID.
+     */
+    public long getSelectedMailboxId() {
+        return (mHighlightedMailboxId != Mailbox.NO_MAILBOX) ? mHighlightedMailboxId
+                : mParentMailboxId;
+    }
+
+    /**
+     * @return {@code true} if top-level mailboxes are shown.  {@code false} otherwise.
+     */
+    public boolean isRoot() {
+        return mParentMailboxId == Mailbox.NO_MAILBOX;
+    }
+
+    /**
+     * Navigate one level up in the mailbox hierarchy. Does nothing if at the root account view.
+     */
+    public boolean navigateUp() {
+        if (isRoot()) {
+            return false;
+        }
+        FindParentMailboxTask.ResultCallback callback = new FindParentMailboxTask.ResultCallback() {
+            @Override public void onResult(long nextParentMailboxId,
+                    long nextHighlightedMailboxId, long nextSelectedMailboxId) {
+
+                startLoading(nextParentMailboxId, nextHighlightedMailboxId);
+
+                if (nextSelectedMailboxId != Mailbox.NO_MAILBOX) {
+                    mCallback.onMailboxSelected(getAccountId(), nextSelectedMailboxId, true);
+                }
+            }
+        };
+        new FindParentMailboxTask(
+                getActivity().getApplicationContext(), mTaskTracker, getAccountId(),
+                getEnableHighlight(), mParentMailboxId, mHighlightedMailboxId, callback
+                ).cancelPreviousAndExecuteParallel((Void[]) null);
+        return true;
+    }
+
+    /**
+     * A task to determine what parent mailbox ID/highlighted mailbox ID to use for the "UP"
+     * navigation, given the current parent mailbox ID, the highlighted mailbox ID, and {@link
+     * #mEnableHighlight}.
+     */
+    @VisibleForTesting
+    static class FindParentMailboxTask extends EmailAsyncTask<Void, Void, Long[]> {
+        public interface ResultCallback {
+            /**
+             * Callback to get the result.
+             *
+             * @param nextParentMailboxId ID of the mailbox to use
+             * @param nextHighlightedMailboxId ID of the mailbox to highlight
+             * @param nextSelectedMailboxId ID of the mailbox to notify with
+             *        {@link Callback#onMailboxSelected}.
+             */
+            public void onResult(long nextParentMailboxId, long nextHighlightedMailboxId,
+                    long nextSelectedMailboxId);
         }
 
+        private final Context mContext;
+        private final long mAccountId;
+        private final boolean mEnableHighlight;
+        private final long mParentMailboxId;
+        private final long mHighlightedMailboxId;
+        private final ResultCallback mCallback;
+
+        public FindParentMailboxTask(Context context, EmailAsyncTask.Tracker taskTracker,
+                long accountId, boolean enableHighlight, long parentMailboxId,
+                long highlightedMailboxId, ResultCallback callback) {
+            super(taskTracker);
+            mContext = context;
+            mAccountId = accountId;
+            mEnableHighlight = enableHighlight;
+            mParentMailboxId = parentMailboxId;
+            mHighlightedMailboxId = highlightedMailboxId;
+            mCallback = callback;
+        }
+
+        @Override
+        protected Long[] doInBackground(Void... params) {
+            Mailbox parentMailbox = Mailbox.restoreMailboxWithId(mContext, mParentMailboxId);
+            final long nextParentId = (parentMailbox == null) ? Mailbox.NO_MAILBOX
+                    : parentMailbox.mParentKey;
+            final long nextHighlightedId;
+            final long nextSelectedId;
+            if (mEnableHighlight) {
+                // If the "parent" is highlighted before the transition, it should still be
+                // highlighted after the upper level view.
+                if (mParentMailboxId == mHighlightedMailboxId) {
+                    nextHighlightedId = mParentMailboxId;
+                } else {
+                    // Otherwise, the next parent will be highlighted, unless we're going up to
+                    // the root, in which case Inbox should be highlighted.
+                    if (nextParentId == Mailbox.NO_MAILBOX) {
+                        nextHighlightedId = Mailbox.findMailboxOfType(mContext, mAccountId,
+                                Mailbox.TYPE_INBOX);
+                    } else {
+                        nextHighlightedId = nextParentId;
+                    }
+                }
+
+                // Highlighted one will be "selected".
+                nextSelectedId = nextHighlightedId;
+
+            } else { // !mEnableHighlight
+                nextHighlightedId = Mailbox.NO_MAILBOX;
+
+                // Parent will be selected.
+                nextSelectedId = nextParentId;
+            }
+            return new Long[]{nextParentId, nextHighlightedId, nextSelectedId};
+        }
+
+        @Override
+        protected void onPostExecute(Long[] result) {
+            mCallback.onResult(result[0], result[1], result[2]);
+        }
+    }
+
+    /**
+     * Starts the loader.
+     *
+     * @param parentMailboxId Mailbox ID to be used as the "parent" mailbox
+     * @param highlightedMailboxId Mailbox ID that should be highlighted when the data is loaded.
+     */
+    private void startLoading(long parentMailboxId, long highlightedMailboxId
+            ) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " startLoading  parent=" + parentMailboxId
+                    + " highlighted=" + highlightedMailboxId);
+        }
         final LoaderManager lm = getLoaderManager();
+        boolean parentMailboxChanging = false;
+
+        // Parent mailbox changing -- destroy the current loader to force reload.
+        if (mParentMailboxId != parentMailboxId) {
+            lm.destroyLoader(MAILBOX_LOADER_ID);
+            setListShown(false);
+            parentMailboxChanging = true;
+        }
+        mParentMailboxId = parentMailboxId;
+        if (getEnableHighlight()) {
+            mNextHighlightedMailboxId = highlightedMailboxId;
+        }
+
         lm.initLoader(MAILBOX_LOADER_ID, null, new MailboxListLoaderCallbacks());
+
+        if (parentMailboxChanging) {
+            mCallback.onParentMailboxChanged();
+        }
+    }
+
+    /**
+     * Highlight the given mailbox.
+     *
+     * If data is already loaded, it just sets {@link #mHighlightedMailboxId} and highlight the
+     * corresponding list item.  (And if the corresponding list item is not found,
+     * {@link #mHighlightedMailboxId} is set to {@link Mailbox#NO_MAILBOX})
+     *
+     * If we're still loading data, it sets {@link #mNextHighlightedMailboxId} instead, and then
+     * it'll be set to {@link #mHighlightedMailboxId} in
+     * {@link MailboxListLoaderCallbacks#onLoadFinished}.
+     *
+     * @param mailboxId The ID of the mailbox to highlight.
+     */
+    public void setHighlightedMailbox(long mailboxId) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " setHighlightedMailbox  mailbox=" + mailboxId);
+        }
+        if (!getEnableHighlight()) {
+            return;
+        }
+        if (mListAdapter.getCursor() == null) {
+            // List not loaded yet.  Just remember the ID here and let onLoadFinished() update
+            // mHighlightedMailboxId.
+            mNextHighlightedMailboxId = mailboxId;
+            return;
+        }
+        mHighlightedMailboxId = mailboxId;
+        updateHighlightedMailbox(true);
     }
 
     // TODO This class probably should be made static. There are many calls into the enclosing
     // class and we need to be cautious about what we call while in these callbacks
     private class MailboxListLoaderCallbacks implements LoaderCallbacks<Cursor> {
-        /** Whether or not the loader has finished at least once */
         private boolean mIsFirstLoad;
 
         @Override
@@ -494,8 +789,12 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 Log.d(Logging.LOG_TAG, MailboxListFragment.this + " onCreateLoader");
             }
             mIsFirstLoad = true;
-            return MailboxFragmentAdapter.createLoader(getActivity(), getAccountId(),
-                    getParentMailboxId());
+            if (getAccountId() == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                return MailboxFragmentAdapter.createCombinedViewLoader(getActivity());
+            } else {
+                return MailboxFragmentAdapter.createMailboxesLoader(getActivity(), getAccountId(),
+                        mParentMailboxId);
+            }
         }
 
         @Override
@@ -504,44 +803,43 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 Log.d(Logging.LOG_TAG, MailboxListFragment.this + " onLoadFinished  count="
                         + cursor.getCount());
             }
-            // Note at this point we can assume the view is created.
+            // Note in onLoadFinished we can assume the view is created.
             // The loader manager doesn't deliver results when a fragment is stopped.
 
-            // Validate the cursor and make sure we're showing the "right thing"
-            if (cursor instanceof CursorWithExtras) {
-                CursorWithExtras c = (CursorWithExtras) cursor;
-                int childCount = c.getInt(CursorWithExtras.EXTRA_MAILBOX_CHILD_COUNT, -1);
-                if (childCount == 0) {
-                    long nextParentId = c.getLong(CursorWithExtras.EXTRA_MAILBOX_NEXT_PARENT_ID);
-                    long grandParentId = c.getLong(CursorWithExtras.EXTRA_MAILBOX_PARENT_ID);
-                    long highlightId;
-                    // Only set a mailbox highlight if we're choosing our immediate parent
-                    if (grandParentId == nextParentId) {
-                        highlightId = getParentMailboxId();
-                    } else {
-                        highlightId = Mailbox.NO_MAILBOX;
-                    }
-                    // If the next parent w/ children isn't us, request a change
-                    if (nextParentId != getParentMailboxId()) {
-                        mCallback.requestMailboxChange(nextParentId, highlightId);
-                        return;
-                    }
+            // If we're showing a nested mailboxes, and the current parent mailbox has no children,
+            // go up.
+            if (getAccountId() != Account.ACCOUNT_ID_COMBINED_VIEW) {
+                MailboxFragmentAdapter.CursorWithExtras c =
+                        (MailboxFragmentAdapter.CursorWithExtras) cursor;
+                if ((c.mChildCount == 0) && !isRoot()) {
+                    navigateUp();
+                    return;
                 }
             }
 
             if (cursor.getCount() == 0) {
-                // If there's no row, don't set it to the ListView.
-                // Instead use setListShown(false) to make ListFragment show progress icon.
+                // There's no row -- call setListShown(false) to make ListFragment show progress
+                // icon.
                 mListAdapter.swapCursor(null);
                 setListShown(false);
             } else {
-                // Set the adapter.
                 mListAdapter.swapCursor(cursor);
                 setListShown(true);
 
+                // Update the highlighted mailbox
+                if (mNextHighlightedMailboxId != Mailbox.NO_MAILBOX) {
+                    mHighlightedMailboxId = mNextHighlightedMailboxId;
+                    mNextHighlightedMailboxId = Mailbox.NO_MAILBOX;
+                }
+
                 // We want to make visible the selection only for the first load.
                 // Re-load caused by content changed events shouldn't scroll the list.
-                highlightSelectedMailbox(mIsFirstLoad);
+                if (!updateHighlightedMailbox(mIsFirstLoad)) {
+
+                    // TODO We should just select the parent mailbox, or Inbox if it's already
+                    // top-level.  Make sure to call onMailboxSelected().
+                    return;
+                }
             }
 
             // List has been reloaded; clear any drop target information
@@ -580,33 +878,50 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (mListAdapter.isAccountRow(position)) {
             mCallback.onAccountSelected(id);
         } else {
-            // STOPSHIP On phone, we need a way to open a message list without navigating to the
-            // mailbox.
-            mCallback.onMailboxSelected(mListAdapter.getAccountId(position), id,
-                    isNavigable(id));
+            // Save account-id.  (Need to do this before startLoading() below, which will destroy
+            // the current loader and make the mListAdapter lose the cursor.
+            // Note, don't just use getAccountId().  A mailbox may tied to a different account ID
+            // from getAccountId().  (Currently "Starred" does so.)
+            final long accountId = mListAdapter.getAccountId(position);
+            boolean nestedNavigation = false;
+            if (isNavigable(id) && (id != mParentMailboxId)) {
+                // Drill-in.  Selected one will be the next parent, and it'll also be highlighted.
+                startLoading(id, id);
+                nestedNavigation = true;
+            }
+            mCallback.onMailboxSelected(accountId, id, nestedNavigation);
         }
     }
 
     /**
-     * Highlight the selected mailbox.
+     * Really highlight the mailbox for {@link #mHighlightedMailboxId} on the list view.
+     *
+     * Note if a list item for {@link #mHighlightedMailboxId} is not found,
+     * {@link #mHighlightedMailboxId} will be set to {@link Mailbox#NO_MAILBOX}.
+     *
+     * @return false when the highlighted mailbox seems to be gone; i.e. if
+     *         {@link #mHighlightedMailboxId} is set but not found in the list.
      */
-    private void highlightSelectedMailbox(boolean ensureSelectionVisible) {
-        if (!isViewCreated()) {
-            return; // Nothing to highlight
+    private boolean updateHighlightedMailbox(boolean ensureSelectionVisible) {
+        if (!getEnableHighlight() || !isViewCreated()) {
+            return true; // Nothing to highlight
         }
         final ListView lv = getListView();
+        boolean found = false;
         String mailboxName = "";
         int unreadCount = 0;
-        if (mSelectedMailboxId == -1) {
+        if (mHighlightedMailboxId == Mailbox.NO_MAILBOX) {
             // No mailbox selected
             lv.clearChoices();
+            found = true;
         } else {
             // TODO Don't mix list view & list adapter indices. This is a recipe for disaster.
             final int count = lv.getCount();
             for (int i = 0; i < count; i++) {
-                if (mListAdapter.getId(i) != mSelectedMailboxId) {
+                if (mListAdapter.getId(i) != mHighlightedMailboxId) {
                     continue;
                 }
+                found = true;
                 lv.setItemChecked(i, true);
                 if (ensureSelectionVisible) {
                     Utility.listViewSmoothScrollToPosition(getActivity(), lv, i);
@@ -616,7 +931,12 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 break;
             }
         }
-        mCallback.onCurrentMailboxUpdated(mSelectedMailboxId, mailboxName, unreadCount);
+        if (found) {
+            mCallback.onCurrentMailboxUpdated(mHighlightedMailboxId, mailboxName, unreadCount);
+        } else {
+            mHighlightedMailboxId = Mailbox.NO_MAILBOX;
+        }
+        return found;
     }
 
     // Drag & Drop handling
@@ -659,7 +979,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                         @Override
                         public void run() {
                             stopDragTimer();
-                            mCallback.onMailboxSelectedForDnD(newTarget.mMailboxId);
                         }
                     });
                 }
