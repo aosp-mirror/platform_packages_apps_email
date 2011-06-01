@@ -522,6 +522,9 @@ public class MessageListFragment extends ListFragment
     }
 
     public void setSelectedMessage(long messageId) {
+        if (mSelectedMessageId == messageId) {
+            return;
+        }
         mSelectedMessageId = messageId;
         if (mResumed) {
             highlightSelectedMessage(true);

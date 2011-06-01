@@ -41,10 +41,8 @@ import java.util.ArrayList;
 /**
  * Base class for the UI controller.
  *
- * Note: Always use {@link #commitFragmentTransaction} and {@link #popBackStack} to operate fragment
- * transactions.
- * (Currently we use synchronous transactions only, but we may want to switch back to asynchronous
- * later.)
+ * Note: Always use {@link #commitFragmentTransaction} to operate fragment transactions,
+ * so that we can easily switch between synchronous and asynchronous transactions.
  */
 abstract class UIControllerBase {
     protected static final String BUNDLE_KEY_ACCOUNT_ID = "UIController.state.account_id";
@@ -243,14 +241,13 @@ abstract class UIControllerBase {
 
     protected abstract void installMessageViewFragment(MessageViewFragment fragment);
 
-    // not used
-    protected final void popBackStack(FragmentManager fm, String name, int flags) {
-        fm.popBackStackImmediate(name, flags);
-    }
-
-    protected final void commitFragmentTransaction(FragmentTransaction ft) {
+    /**
+     * Commit a {@link FragmentTransaction}.
+     * Subclass may override this and optionally call
+     * {@link FragmentManager#executePendingTransactions}.
+     */
+    protected void commitFragmentTransaction(FragmentTransaction ft) {
         ft.commit();
-        mActivity.getFragmentManager().executePendingTransactions();
     }
 
     /**

@@ -259,6 +259,17 @@ class UIControllerOnePane extends UIControllerBase {
         super(activity);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * At this point we use synchronous transactions.
+     */
+    @Override
+    protected void commitFragmentTransaction(FragmentTransaction ft) {
+        super.commitFragmentTransaction(ft);
+        mActivity.getFragmentManager().executePendingTransactions();
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
