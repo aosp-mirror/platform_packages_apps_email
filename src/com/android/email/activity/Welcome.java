@@ -64,8 +64,12 @@ public class Welcome extends Activity {
      *  Open a message (account id=1, mailbox id=2, message id=3)
         adb shell am start -a android.intent.action.MAIN \
             -d '"content://ui.email.android.com/view/mailbox?ACCOUNT_ID=1&MAILBOX_ID=2&MESSAGE_ID=3"' \
-            -e DEBUG_PANE_MODE 2 \
+            -e DEBUG_PANE_MODE 2
 
+     *  Open the combined starred on the combined view
+        adb shell am start -a android.intent.action.MAIN \
+            -d '"content://ui.email.android.com/view/mailbox?ACCOUNT_ID=1152921504606846976&MAILBOX_ID=-4"' \
+            -e DEBUG_PANE_MODE 2
      */
 
     /**
