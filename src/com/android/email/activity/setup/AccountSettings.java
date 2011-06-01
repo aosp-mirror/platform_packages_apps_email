@@ -64,7 +64,8 @@ import java.util.List;
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
-public class AccountSettings extends PreferenceActivity {
+public class AccountSettings extends PreferenceActivity
+        implements AccountSettingsEditQuickResponsesFragment.Callback {
     /*
      * Intent to open account settings for account=1
         adb shell am start -a android.intent.action.EDIT \
@@ -82,6 +83,9 @@ public class AccountSettings extends PreferenceActivity {
         "com.android.email.activity.setup.ACCOUNT_MANAGER_ENTRY";
     // NOTE: This constant should eventually be defined in android.accounts.Constants
     private static final String EXTRA_ACCOUNT_MANAGER_ACCOUNT = "account";
+
+    // Key for arguments bundle for QuickResponse editing
+    private static final String QUICK_RESPONSE_ACCOUNT_KEY = "account";
 
     // Key codes used to open a debug settings fragment.
     private static final int[] SECRET_KEY_CODES = {
@@ -568,6 +572,10 @@ public class AccountSettings extends PreferenceActivity {
             AccountSettings.this.onSettingsChanged(account, preference, value);
         }
         @Override
+        public void onEditQuickResponses(Account account) {
+            AccountSettings.this.onEditQuickResponses(account);
+        }
+        @Override
         public void onIncomingSettings(Account account) {
             AccountSettings.this.onIncomingSettings(account);
         }
@@ -631,6 +639,28 @@ public class AccountSettings extends PreferenceActivity {
                 }
             }
         }
+    }
+
+    /**
+     * Dispatch to edit quick responses.
+     */
+    public void onEditQuickResponses(Account account) {
+        try {
+            Bundle args = new Bundle();
+            args.putParcelable(QUICK_RESPONSE_ACCOUNT_KEY, account);
+            startPreferencePanel(AccountSettingsEditQuickResponsesFragment.class.getName(), args,
+                    R.string.account_settings_edit_quick_responses_label, null, null, 0);
+        } catch (Exception e) {
+            Log.d(Logging.LOG_TAG, "Error while trying to invoke edit quick responses.", e);
+        }
+    }
+
+    /**
+     * Implements AccountSettingsEditQuickResponsesFragment.Callback
+     */
+    @Override
+    public void onEditQuickResponsesDone() {
+        getFragmentManager().popBackStack();
     }
 
     /**

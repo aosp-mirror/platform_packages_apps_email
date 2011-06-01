@@ -1299,6 +1299,13 @@ public abstract class EmailContent {
         public static final String POLICY_KEY = "policyKey";
     }
 
+    public interface QuickResponseColumns {
+        // The QuickResponse text
+        static final String TEXT = "quickResponse";
+        // A foreign key into the Account table owning the QuickResponse
+        static final String ACCOUNT_KEY = "accountKey";
+    }
+
     public interface MailboxColumns {
         public static final String ID = "_id";
         // The display name of this mailbox [INDEX]

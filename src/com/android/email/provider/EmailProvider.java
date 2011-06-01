@@ -29,6 +29,8 @@ import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.BodyColumns;
+import com.android.emailcommon.provider.QuickResponse;
+import com.android.emailcommon.provider.EmailContent.QuickResponseColumns;
 import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -142,8 +144,9 @@ public class EmailProvider extends ContentProvider {
     // Version 22: Upgrade path for IMAP/POP accounts to integrate with AccountManager
     // Version 23: Add column to mailbox table for time of last access
     // Version 24: Add column to hostauth table for client cert alias
+    // Version 25: Added QuickResponse table
 
-    public static final int DATABASE_VERSION = 24;
+    public static final int DATABASE_VERSION = 25;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -191,8 +194,13 @@ public class EmailProvider extends ContentProvider {
     private static final int POLICY = POLICY_BASE;
     private static final int POLICY_ID = POLICY_BASE + 1;
 
+    private static final int QUICK_RESPONSE_BASE = 0x8000;
+    private static final int QUICK_RESPONSE = QUICK_RESPONSE_BASE;
+    private static final int QUICK_RESPONSE_ID = QUICK_RESPONSE_BASE + 1;
+    private static final int QUICK_RESPONSE_ACCOUNT_ID = QUICK_RESPONSE_BASE + 2;
+
     // MUST ALWAYS EQUAL THE LAST OF THE PREVIOUS BASE CONSTANTS
-    private static final int LAST_EMAIL_PROVIDER_DB_BASE = POLICY_BASE;
+    private static final int LAST_EMAIL_PROVIDER_DB_BASE = QUICK_RESPONSE_BASE;
 
     // DO NOT CHANGE BODY_BASE!!
     private static final int BODY_BASE = LAST_EMAIL_PROVIDER_DB_BASE + 0x1000;
@@ -212,6 +220,7 @@ public class EmailProvider extends ContentProvider {
         EmailContent.Message.UPDATED_TABLE_NAME,
         EmailContent.Message.DELETED_TABLE_NAME,
         Policy.TABLE_NAME,
+        QuickResponse.TABLE_NAME,
         EmailContent.Body.TABLE_NAME
     };
 
@@ -225,6 +234,7 @@ public class EmailProvider extends ContentProvider {
         null, // Updated message
         null, // Deleted message
         sCachePolicy,
+        null,  // Quick response
         null  // Body
     };
 
@@ -363,6 +373,14 @@ public class EmailProvider extends ContentProvider {
 
         matcher.addURI(EmailContent.AUTHORITY, "policy", POLICY);
         matcher.addURI(EmailContent.AUTHORITY, "policy/#", POLICY_ID);
+
+        // All quick responses
+        matcher.addURI(EmailContent.AUTHORITY, "quickresponse", QUICK_RESPONSE);
+        // A specific quick response
+        matcher.addURI(EmailContent.AUTHORITY, "quickresponse/#", QUICK_RESPONSE_ID);
+        // All quick responses associated with a particular account id
+        matcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
+                QUICK_RESPONSE_ACCOUNT_ID);
     }
 
 
@@ -688,6 +706,14 @@ public class EmailProvider extends ContentProvider {
         createAttachmentTable(db);
     }
 
+    static void createQuickResponseTable(SQLiteDatabase db) {
+        String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
+                + QuickResponseColumns.TEXT + " text, "
+                + QuickResponseColumns.ACCOUNT_KEY + " integer"
+                + ");";
+        db.execSQL("create table " + QuickResponse.TABLE_NAME + s);
+    }
+
     static void createBodyTable(SQLiteDatabase db) {
         String s = " (" + EmailContent.RECORD_ID + " integer primary key autoincrement, "
             + BodyColumns.MESSAGE_KEY + " integer, "
@@ -859,6 +885,7 @@ public class EmailProvider extends ContentProvider {
             createHostAuthTable(db);
             createAccountTable(db);
             createPolicyTable(db);
+            createQuickResponseTable(db);
         }
 
         @Override
@@ -1090,6 +1117,10 @@ public class EmailProvider extends ContentProvider {
                 upgradeFromVersion23ToVersion24(db);
                 oldVersion = 24;
             }
+            if (oldVersion == 24) {
+                upgradeFromVersion24ToVersion25(db);
+                oldVersion = 25;
+            }
         }
 
         @Override
@@ -1148,6 +1179,7 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
                 case POLICY_ID:
+                case QUICK_RESPONSE_ID:
                     id = uri.getPathSegments().get(1);
                     if (match == SYNCED_MESSAGE_ID) {
                         // For synced messages, first copy the old message to the deleted table and
@@ -1328,6 +1360,7 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT:
                 case HOSTAUTH:
                 case POLICY:
+                case QUICK_RESPONSE:
                     longId = db.insert(TABLE_NAMES[table], "foo", values);
                     resultUri = ContentUris.withAppendedId(uri, longId);
                     // Clients shouldn't normally be adding rows to these tables, as they are
@@ -1480,6 +1513,7 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT:
                 case HOSTAUTH:
                 case POLICY:
+                case QUICK_RESPONSE:
                     c = db.query(tableName, projection,
                             selection, selectionArgs, null, null, sortOrder, limit);
                     break;
@@ -1492,6 +1526,7 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
                 case POLICY_ID:
+                case QUICK_RESPONSE_ID:
                     id = uri.getPathSegments().get(1);
                     if (cache != null) {
                         c = cache.getCachedCursor(id, projection);
@@ -1514,6 +1549,13 @@ public class EmailProvider extends ContentProvider {
                     c = db.query(Attachment.TABLE_NAME, projection,
                             whereWith(Attachment.MESSAGE_KEY + "=" + id, selection),
                             selectionArgs, null, null, sortOrder, limit);
+                    break;
+                case QUICK_RESPONSE_ACCOUNT_ID:
+                    // All quick responses for the given account
+                    id = uri.getPathSegments().get(2);
+                    c = db.query(QuickResponse.TABLE_NAME, projection,
+                            whereWith(QuickResponse.ACCOUNT_KEY + "=" + id, selection),
+                            selectionArgs, null, null, sortOrder);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
@@ -1784,6 +1826,7 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX_ID:
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
+                case QUICK_RESPONSE_ID:
                     id = uri.getPathSegments().get(1);
                     if (cache != null) {
                         cache.lock(id);
@@ -2102,6 +2145,16 @@ public class EmailProvider extends ContentProvider {
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
             Log.w(TAG, "Exception upgrading EmailProvider.db from 23 to 24 " + e);
+        }
+    }
+
+    /** Upgrades the database from v24 to v25 by creating table for quick responses */
+    private static void upgradeFromVersion24ToVersion25(SQLiteDatabase db) {
+        try {
+            createQuickResponseTable(db);
+        } catch (SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 24 to 25 " + e);
         }
     }
 }

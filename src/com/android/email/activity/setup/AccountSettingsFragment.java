@@ -71,6 +71,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     public static final String PREFERENCE_DESCRIPTION = "account_description";
     private static final String PREFERENCE_NAME = "account_name";
     private static final String PREFERENCE_SIGNATURE = "account_signature";
+    private static final String PREFERENCE_QUICK_RESPONSES = "account_quick_responses";
     private static final String PREFERENCE_FREQUENCY = "account_check_frequency";
     private static final String PREFERENCE_BACKGROUND_ATTACHMENTS =
             "account_background_attachments";
@@ -126,6 +127,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
      */
     public interface Callback {
         public void onSettingsChanged(Account account, String preference, Object value);
+        public void onEditQuickResponses(Account account);
         public void onIncomingSettings(Account account);
         public void onOutgoingSettings(Account account);
         public void abandonEdit();
@@ -135,6 +137,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
     private static class EmptyCallback implements Callback {
         public static final Callback INSTANCE = new EmptyCallback();
         @Override public void onSettingsChanged(Account account, String preference, Object value) {}
+        @Override public void onEditQuickResponses(Account account) {}
         @Override public void onIncomingSettings(Account account) {}
         @Override public void onOutgoingSettings(Account account) {}
         @Override public void abandonEdit() {}
@@ -437,6 +440,16 @@ public class AccountSettingsFragment extends PreferenceFragment {
             }
         });
 
+        findPreference(PREFERENCE_QUICK_RESPONSES).setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        mAccountDirty = true;
+                        mCallback.onEditQuickResponses(mAccount);
+                        return true;
+                    }
+                });
+
         // Add check window preference
         mSyncWindow = null;
         if (HostAuth.SCHEME_EAS.equals(protocol)) {
@@ -446,7 +459,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
             mSyncWindow.setEntryValues(R.array.account_settings_mail_window_values);
             mSyncWindow.setValue(String.valueOf(mAccount.getSyncLookback()));
             mSyncWindow.setSummary(mSyncWindow.getEntry());
-            mSyncWindow.setOrder(4);
+            mSyncWindow.setOrder(5);
             mSyncWindow.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     final String summary = newValue.toString();
