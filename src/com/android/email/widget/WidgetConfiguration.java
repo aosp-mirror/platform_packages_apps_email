@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import com.android.email.R;
+import com.android.email.activity.ShortcutPickerFragment;
 import com.android.email.activity.ShortcutPickerFragment.AccountShortcutPickerFragment;
 import com.android.email.activity.ShortcutPickerFragment.PickerCallback;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -61,6 +62,11 @@ public class WidgetConfiguration extends Activity implements OnClickListener, Pi
             // Load the account picking fragment if we haven't created a fragment yet
             // NOTE: do not add to history as this will be the first fragment in the flow
             AccountShortcutPickerFragment fragment = new AccountShortcutPickerFragment();
+            Bundle args = new Bundle();
+            args.putInt(ShortcutPickerFragment.ARG_FILTER,
+                ShortcutPickerFragment.FILTER_INBOX_ONLY
+                | ShortcutPickerFragment.FILTER_ALLOW_UNREAD);
+            fragment.setArguments(args);
             getFragmentManager().beginTransaction().add(R.id.shortcut_list, fragment).commit();
         }
     }

@@ -124,12 +124,8 @@ public class ShortcutPicker extends Activity implements OnClickListener, PickerC
         } else {
             // TODO if we add meta-mailboxes/accounts to the database, remove this special case
             if (account.mId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-                // For the special mailboxes, their ID is < 0. The UI list does not deal with
-                // negative values very well, so, add MAX_VALUE to ensure they're positive, but,
-                // don't clash with legitimate mailboxes. Undo that here.
-                long realMailboxId = mailboxId - Integer.MAX_VALUE;
                 shortcutIntent = Welcome.createOpenMessageIntent(
-                        myActivity, account.mId, realMailboxId, Message.NO_MESSAGE);
+                        myActivity, account.mId, mailboxId, Message.NO_MESSAGE);
             } else {
                 String uuid = account.mCompatibilityUuid;
                 shortcutIntent = Welcome.createAccountShortcutIntent(myActivity, uuid, mailboxId);
