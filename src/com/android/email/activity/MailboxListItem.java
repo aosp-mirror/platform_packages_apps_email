@@ -33,6 +33,7 @@ public class MailboxListItem extends RelativeLayout {
     private static Integer sDropAvailableBgColor;
     private static Integer sTextPrimaryColor;
     private static Integer sTextSecondaryColor;
+    private static Integer sDropTrashBgColor;
 
     /**
      * Owner account ID for the mailbox, {@link Account#ACCOUNT_ID_COMBINED_VIEW} for a combined
@@ -55,6 +56,14 @@ public class MailboxListItem extends RelativeLayout {
     private TextView mLabelName;
     private TextView mLabelCount;
 
+    /**
+     * Drawable for an active item for D&D.  Note the drawable has state, so we can't share it
+     * between items.
+     * DO NOT use this directly; use {@link #getDropActiveBgDrawable()} instead, as it's lazily-
+     * initialized.
+     */
+    private Drawable mDropActiveBgDrawable;
+
     public MailboxListItem(Context context) {
         super(context);
     }
@@ -75,6 +84,7 @@ public class MailboxListItem extends RelativeLayout {
             Resources res = getResources();
             sDropAvailableBgColor = res.getColor(R.color.mailbox_drop_available_bg_color);
             sDropUnavailableFgColor = res.getColor(R.color.mailbox_drop_unavailable_fg_color);
+            sDropTrashBgColor = res.getColor(R.color.mailbox_drop_destructive_bg_color);
             sTextPrimaryColor = res.getColor(R.color.text_primary_color);
             sTextSecondaryColor = res.getColor(R.color.text_secondary_color);
         }
@@ -98,17 +108,55 @@ public class MailboxListItem extends RelativeLayout {
         return mIsNavigable;
     }
 
+    private Drawable getDropActiveBgDrawable() {
+        if (mDropActiveBgDrawable == null) {
+            mDropActiveBgDrawable =
+                getContext().getResources().getDrawable(R.drawable.list_activated_holo);
+        }
+        return mDropActiveBgDrawable;
+    }
+
+    @Override
+    public void setBackgroundDrawable(Drawable d) {
+        // Don't override with the same instance.
+        // If we don't do the check, something bad will happen to the fade-out animation for
+        // the selected to non-selected transition.  (Looks like if you re-set the same
+        // StateListDrawable instance, it'll get confused.)
+        if (d != getBackground()) {
+            super.setBackgroundDrawable(d);
+        }
+    }
+
+    /**
+     * Set the "trash" drop target background.
+     */
+    public void setDropTrashBackground() {
+        setBackgroundColor(sDropTrashBgColor);
+    }
+
+    /**
+     * Set the "active" drop target background.  (Used for the items that the user is hovering over)
+     */
+    public void setDropActiveBackground() {
+        setBackgroundDrawable(getDropActiveBgDrawable());
+    }
+
     public void setDropTargetBackground(boolean dragInProgress, long itemMailbox) {
         int labelNameColor = sTextPrimaryColor;
         int labelCountColor = sTextSecondaryColor;
+
+        boolean isBackgroundSet = false;
         if (dragInProgress) {
             if (isDropTarget(itemMailbox)) {
                 setBackgroundColor(sDropAvailableBgColor);
+                isBackgroundSet = true;
             } else {
                 labelNameColor = sDropUnavailableFgColor;
                 labelCountColor = sDropUnavailableFgColor;
             }
-        } else {
+        }
+        if (!isBackgroundSet) {
+            // Drag not in progress, or it's not a drop target.
             setBackgroundDrawable(mBackground);
         }
         mLabelName.setTextColor(labelNameColor);

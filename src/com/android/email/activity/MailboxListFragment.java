@@ -20,6 +20,7 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
+import com.android.email.activity.MailboxListFragment.Callback;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -36,10 +37,8 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
 import android.content.Loader;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -195,10 +194,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private Activity mActivity;
     private MailboxesAdapter mListAdapter;
     private Callback mCallback = EmptyCallback.INSTANCE;
-
-    // Colors used for drop targets
-    private static Integer sDropTrashColor;
-    private static Drawable sDropActiveDrawable;
 
     // See the class javadoc
     private long mParentMailboxId;
@@ -415,12 +410,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             setInitialParentAndHighlight();
         } else {
             restoreInstanceState(savedInstanceState);
-        }
-
-        if (sDropTrashColor == null) {
-            Resources res = getResources();
-            sDropTrashColor = res.getColor(R.color.mailbox_drop_destructive_bg_color);
-            sDropActiveDrawable = res.getDrawable(R.drawable.list_activated_holo);
         }
     }
 
@@ -1063,12 +1052,12 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 if (DEBUG_DRAG_DROP) {
                     Log.d(TAG, "=== Trash mailbox; id: " + newTarget.mMailboxId);
                 }
-                newTarget.setBackgroundColor(sDropTrashColor);
+                newTarget.setDropTrashBackground();
             } else if (newTarget.isDropTarget(mDragItemMailboxId)) {
                 if (DEBUG_DRAG_DROP) {
                     Log.d(TAG, "=== Target mailbox; id: " + newTarget.mMailboxId);
                 }
-                newTarget.setBackgroundDrawable(sDropActiveDrawable);
+                newTarget.setDropActiveBackground();
             } else {
                 if (DEBUG_DRAG_DROP) {
                     Log.d(TAG, "=== Non-droppable mailbox; id: " + newTarget.mMailboxId);
