@@ -50,6 +50,16 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public abstract class ShortcutPickerFragment extends ListFragment
         implements OnItemClickListener, LoaderCallbacks<Cursor> {
+    /** Allow all mailboxes in the mailbox list */
+    public static int FILTER_ALLOW_ALL = 0x00;
+    /** Only allow an account's INBOX */
+    public static int FILTER_INBOX_ONLY = 0x01;
+    /** Allow an "unread" mailbox; this is not affected by {@link #FILTER_INBOX_ONLY} */
+    public static int FILTER_ALLOW_UNREAD = 0x02;
+    /** Fragment argument to set filter values */
+    public static final String ARG_FILTER  = "ShortcutPickerFragment.filter";
+    /** The filter values; default to allow all mailboxes */
+    private Integer mFilter;
     /** Callback methods. Enclosing activities must implement to receive fragment notifications. */
     public static interface PickerCallback {
         /** Invoked when an account and mailbox have been selected. */
@@ -76,6 +86,10 @@ public abstract class ShortcutPickerFragment extends ListFragment
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
+        Bundle args = getArguments();
+        if (args != null) {
+            mFilter = args.getInt(ARG_FILTER);
+        }
         if (activity instanceof PickerCallback) {
             mCallback = (PickerCallback) activity;
         }
@@ -108,6 +122,20 @@ public abstract class ShortcutPickerFragment extends ListFragment
 
     /** Returns the cursor columns to map into list */
     abstract String[] getFromColumns();
+
+    /** Returns the mailbox filter */
+    int getFilter() {
+        if (mFilter == null) {
+            Bundle args = getArguments();
+            if (args != null) {
+                mFilter = args.getInt(ARG_FILTER, FILTER_ALLOW_ALL);
+            } else {
+                // No arguments set on fragment, use a default value
+                mFilter = FILTER_ALLOW_ALL;
+            }
+        }
+        return mFilter;
+    }
 
     // TODO if we add meta-accounts to the database, remove this class entirely
     private static final class AccountPickerLoader extends CursorLoader {
@@ -206,6 +234,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
             ShortcutPickerFragment fragment = new MailboxShortcutPickerFragment();
             final Bundle args = new Bundle();
             args.putParcelable(MailboxShortcutPickerFragment.ARG_ACCOUNT, account);
+            args.putInt(ARG_FILTER, getArguments().getInt(ARG_FILTER));
             fragment.setArguments(args);
             getFragmentManager()
                 .beginTransaction()
@@ -218,57 +247,83 @@ public abstract class ShortcutPickerFragment extends ListFragment
     // TODO if we add meta-mailboxes to the database, remove this class entirely
     private static final class MailboxPickerLoader extends CursorLoader {
         private final long mAccountId;
+        private final boolean mAllowUnread;
         public MailboxPickerLoader(Context context, Uri uri, String[] projection, String selection,
-                String[] selectionArgs, String sortOrder, long accountId) {
+                String[] selectionArgs, String sortOrder, long accountId, boolean allowUnread) {
             super(context, uri, projection, selection, selectionArgs, sortOrder);
             mAccountId = accountId;
+            mAllowUnread = allowUnread;
         }
 
         @Override
         public Cursor loadInBackground() {
-            if (mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-                // Do something special for the "combined" view
-                Context context = getContext();
-                MatrixCursor combinedMailboxesCursor = new MatrixCursor(getProjection());
+            MatrixCursor unreadCursor =
+                    new MatrixCursor(MailboxShortcutPickerFragment.MATRIX_PROJECTION);
+            Context context = getContext();
+            if (mAllowUnread) {
                 // For the special mailboxes, their ID is < 0. The UI list does not deal with
                 // negative values very well, so, add MAX_VALUE to ensure they're positive, but,
                 // don't clash with legitimate mailboxes.
-                String mailboxName = context.getString(R.string.mailbox_name_display_inbox);
+                String mailboxName = context.getString(R.string.picker_mailbox_name_all_unread);
+                unreadCursor.addRow(
+                        new Object[] {
+                            Integer.MAX_VALUE + Mailbox.QUERY_ALL_UNREAD,
+                            Mailbox.QUERY_ALL_UNREAD,
+                            mailboxName,
+                        });
+            }
+
+            if (mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                // Do something special for the "combined" view
+                MatrixCursor combinedMailboxesCursor =
+                        new MatrixCursor(MailboxShortcutPickerFragment.MATRIX_PROJECTION);
+                // For the special mailboxes, their ID is < 0. The UI list does not deal with
+                // negative values very well, so, add MAX_VALUE to ensure they're positive, but,
+                // don't clash with legitimate mailboxes.
+                String mailboxName = context.getString(R.string.picker_mailbox_name_all_inbox);
                 combinedMailboxesCursor.addRow(
-                        new Object[] {Integer.MAX_VALUE + Mailbox.QUERY_ALL_INBOXES, mailboxName});
-                // TODO Temporarily commented out. This will be added to the widget selection, so
-                // keeping the code around for now. If this isn't uncommented by July 1, 2011,
-                // feel free to remove it and this TODO
-//                mailboxName = context.getString(R.string.mailbox_name_display_unread);
-//                combinedMailboxesCursor.addRow(
-//                        new Object[] {Integer.MAX_VALUE + Mailbox.QUERY_ALL_UNREAD, mailboxName});
-                return combinedMailboxesCursor;
+                        new Object[] {
+                            Integer.MAX_VALUE + Mailbox.QUERY_ALL_INBOXES,
+                            Mailbox.QUERY_ALL_INBOXES,
+                            mailboxName
+                        });
+                return new MergeCursor(new Cursor[] { combinedMailboxesCursor, unreadCursor });
             }
 
             // Loading for a regular account; perform a normal load
-            return super.loadInBackground();
+            return new MergeCursor(new Cursor[] { super.loadInBackground(), unreadCursor });
         }
     }
 
     /** Mailbox picker */
     public static class MailboxShortcutPickerFragment extends ShortcutPickerFragment {
         static final String ARG_ACCOUNT = "MailboxShortcutPickerFragment.account";
+        private final static String REAL_ID = "realId";
         private final static String[] MAILBOX_FROM_COLUMNS = new String[] {
             MailboxColumns.DISPLAY_NAME,
         };
         /** Loader projection used for IMAP & POP3 accounts */
         private final static String[] IMAP_PROJECTION = new String [] {
-            MailboxColumns.ID, MailboxColumns.SERVER_ID + " as " + MailboxColumns.DISPLAY_NAME
+            MailboxColumns.ID, MailboxColumns.ID + " as " + REAL_ID,
+            MailboxColumns.SERVER_ID + " as " + MailboxColumns.DISPLAY_NAME
         };
         /** Loader projection used for EAS accounts */
         private final static String[] EAS_PROJECTION = new String [] {
-            MailboxColumns.ID, MailboxColumns.DISPLAY_NAME
+            MailboxColumns.ID, MailboxColumns.ID + " as " + REAL_ID,
+            MailboxColumns.DISPLAY_NAME
         };
-        // TODO This is identical to MailboxesAdapter#ALL_MAILBOX_SELECTION; any way we can create a
-        // common selection? Move this to the Mailbox class?
+        /** Loader projection used for a matrix cursor */
+        private final static String[] MATRIX_PROJECTION = new String [] {
+            MailboxColumns.ID, REAL_ID, MailboxColumns.DISPLAY_NAME
+        };
+        // TODO #ALL_MAILBOX_SELECTION is identical to MailboxesAdapter#ALL_MAILBOX_SELECTION;
+        // create a common selection. Move this to the Mailbox class?
+        /** Selection for all visible mailboxes for an account */
         private final static String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
                 " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
-
+        /** Selection for just the INBOX of an account */
+        private final static String INBOX_ONLY_SELECTION = ALL_MAILBOX_SELECTION +
+                    " AND " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX;
         /** The currently selected account */
         private Account mAccount;
 
@@ -288,7 +343,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-            long mailboxId = cursor.getLong(Mailbox.CONTENT_ID_COLUMN);
+            long mailboxId = cursor.getLong(cursor.getColumnIndex(REAL_ID));
             mCallback.onSelected(mAccount, mailboxId);
         }
 
@@ -300,6 +355,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
             HostAuth recvAuth = mAccount.getOrCreateHostAuthRecv(context);
             final String[] projection;
             final String orderBy;
+            final String selection;
             if (recvAuth.isEasConnection()) {
                 projection = EAS_PROJECTION;
                 orderBy = MailboxColumns.DISPLAY_NAME;
@@ -307,9 +363,15 @@ public abstract class ShortcutPickerFragment extends ListFragment
                 projection = IMAP_PROJECTION;
                 orderBy = MailboxColumns.SERVER_ID;
             }
+            if ((getFilter() & FILTER_INBOX_ONLY) == 0) {
+                selection = ALL_MAILBOX_SELECTION;
+            } else {
+                selection = INBOX_ONLY_SELECTION;
+            }
             return new MailboxPickerLoader(
-                context, Mailbox.CONTENT_URI, projection, ALL_MAILBOX_SELECTION,
-                new String[] { Long.toString(mAccount.mId) }, orderBy, mAccount.mId);
+                context, Mailbox.CONTENT_URI, projection, selection,
+                new String[] { Long.toString(mAccount.mId) }, orderBy, mAccount.mId,
+                (getFilter() & FILTER_ALLOW_UNREAD) != 0);
         }
 
         @Override
@@ -321,7 +383,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
             }
             // if there is only one mailbox, auto-select it
             if (data.getCount() == 1 && data.moveToFirst()) {
-                long mailboxId = data.getLong(Mailbox.CONTENT_ID_COLUMN);
+                long mailboxId = data.getLong(data.getColumnIndex(REAL_ID));
                 mCallback.onSelected(mAccount, mailboxId);
                 return;
             }

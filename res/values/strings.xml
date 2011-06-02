@@ -221,6 +221,10 @@
     <string name="mailbox_name_display_junk">Junk</string>
     <!-- In the UI, the unread will be displayed with this name [CHAR LIMIT=15] -->
     <string name="mailbox_name_display_unread">Unread</string>
+    <!-- In the shortcut/widget configuration UI, the label for selecting only the unread messages in an account's inbox [CHAR LIMIT=30] -->
+    <string name="picker_mailbox_name_all_unread">Inbox (unread)</string>
+    <!-- In the shortcut/widget configuration UI, the label for selecting all messages in an account's inbox [CHAR LIMIT=30] -->
+    <string name="picker_mailbox_name_all_inbox">Inbox (all)</string>
 
     <!-- Version number, shown only on debug screen -->
     <string name="debug_version_fmt">Version: <xliff:g id="version">%s</xliff:g></string>
