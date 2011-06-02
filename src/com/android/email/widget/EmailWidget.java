@@ -117,6 +117,8 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     private long mAccountId = Account.NO_ACCOUNT;
     /** The display name of this account */
     private String mAccountName;
+    /** The display name of this mailbox */
+    private String mMailboxName;
 
     /**
      * The cursor for the messages, with some extra info such as the number of accounts.
@@ -180,6 +182,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
     public void onLoadComplete(Loader<Cursor> loader, Cursor cursor) {
         mCursor = (EmailWidgetLoader.WidgetCursor) cursor;   // Save away the cursor
         mAccountName = mCursor.getAccountName();
+        mMailboxName = mCursor.getMailboxName();
         updateHeader();
         mWidgetManager.notifyAppWidgetViewDataChanged(mWidgetId, R.id.message_list);
     }
@@ -262,10 +265,11 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
 
     private void setupTitleAndCount(RemoteViews views) {
         // Set up the title (view type + count of messages)
-        views.setTextViewText(R.id.widget_title, mAccountName);
+        views.setTextViewText(R.id.widget_title, mMailboxName);
         // TODO Temporary UX; need to make this visible and create the correct UX
         //views.setTextViewText(R.id.widget_tap, sConfigureText);
-        views.setViewVisibility(R.id.widget_tap, View.INVISIBLE);
+        views.setViewVisibility(R.id.widget_tap, View.VISIBLE);
+        views.setTextViewText(R.id.widget_tap, mAccountName);
         String count = "";
         if (isCursorValid()) {
             count = UiUtilities.getMessageCountForUi(mContext, mCursor.getMessageCount(), false);
@@ -294,7 +298,21 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
 
         setupTitleAndCount(views);
 
-        if (!isCursorValid() || mAccountId == Account.NO_ACCOUNT) {
+        if (isCursorValid()) {
+            // Show compose icon & message list
+            if (mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                // Don't allow compose for "combined" view
+                views.setViewVisibility(R.id.widget_compose, View.INVISIBLE);
+            } else {
+                views.setViewVisibility(R.id.widget_compose, View.VISIBLE);
+            }
+            views.setViewVisibility(R.id.message_list, View.VISIBLE);
+            views.setViewVisibility(R.id.tap_to_configure, View.GONE);
+            // Create click intent for "compose email" target
+            intent = MessageCompose.getMessageComposeIntent(mContext, -1);
+            setActivityIntent(views, R.id.widget_compose, intent);
+        } else {
+            // TODO This really should never happen ... probably can remove the else block
             // Hide compose icon & show "touch to configure" text
             views.setViewVisibility(R.id.widget_compose, View.INVISIBLE);
             views.setViewVisibility(R.id.message_list, View.GONE);
@@ -302,14 +320,6 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
             // Create click intent for "touch to configure" target
             intent = Welcome.createOpenAccountInboxIntent(mContext, -1);
             setActivityIntent(views, R.id.tap_to_configure, intent);
-        } else {
-            // Show compose icon & message list
-            views.setViewVisibility(R.id.widget_compose, View.VISIBLE);
-            views.setViewVisibility(R.id.message_list, View.VISIBLE);
-            views.setViewVisibility(R.id.tap_to_configure, View.GONE);
-            // Create click intent for "compose email" target
-            intent = MessageCompose.getMessageComposeIntent(mContext, -1);
-            setActivityIntent(views, R.id.widget_compose, intent);
         }
 
         // Use a bare intent for our template; we need to fill everything in
