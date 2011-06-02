@@ -225,6 +225,13 @@
     <string name="picker_mailbox_name_all_unread">Inbox (unread)</string>
     <!-- In the shortcut/widget configuration UI, the label for selecting all messages in an account's inbox [CHAR LIMIT=30] -->
     <string name="picker_mailbox_name_all_inbox">Inbox (all)</string>
+    <!-- In the shortcut/widget configuration UI, use this for the "all accounts" account list item [CHAR LIMIT=30] -->
+    <string name="picker_combined_view_fmt">Combined view (<xliff:g id="count">%s</xliff:g>)</string>
+    <!-- Count of accounts; used in picker_combined_view_fmt -->
+    <plurals name="picker_combined_view_account_count">
+        <item quantity="one"  ><xliff:g id="account_count" example="1">%d</xliff:g> account</item>
+        <item quantity="other"><xliff:g id="account_count" example="9">%d</xliff:g> accounts</item>
+    </plurals>
 
     <!-- Version number, shown only on debug screen -->
     <string name="debug_version_fmt">Version: <xliff:g id="version">%s</xliff:g></string>

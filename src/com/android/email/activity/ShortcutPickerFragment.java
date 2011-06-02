@@ -30,6 +30,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
@@ -147,12 +148,13 @@ public abstract class ShortcutPickerFragment extends ListFragment
         @Override
         public Cursor loadInBackground() {
             Cursor parentCursor = super.loadInBackground();
-            Cursor returnCursor;
+            int cursorCount = parentCursor.getCount();
+            final Cursor returnCursor;
 
-            if (parentCursor.getCount() > 1) {
+            if (cursorCount > 1) {
                 // Only add "All accounts" if there is more than 1 account defined
                 MatrixCursor allAccountCursor = new MatrixCursor(getProjection());
-                addCombinedAccountRow(allAccountCursor);
+                addCombinedAccountRow(allAccountCursor, cursorCount);
                 returnCursor = new MergeCursor(new Cursor[] { allAccountCursor, parentCursor });
             } else {
                 returnCursor = parentCursor;
@@ -161,11 +163,14 @@ public abstract class ShortcutPickerFragment extends ListFragment
         }
 
         /** Adds a row for "All Accounts" into the given cursor */
-        private void addCombinedAccountRow(MatrixCursor cursor) {
+        private void addCombinedAccountRow(MatrixCursor cursor, int accountCount) {
             Context context = getContext();
             Account account = new Account();
             account.mId = Account.ACCOUNT_ID_COMBINED_VIEW;
-            account.mDisplayName = context.getString(R.string.account_name_display_all);
+            Resources res = context.getResources();
+            String countString = res.getQuantityString(R.plurals.picker_combined_view_account_count,
+                    accountCount, accountCount);
+            account.mDisplayName = res.getString(R.string.picker_combined_view_fmt, countString);
             ContentValues values = account.toContentValues();
             RowBuilder row = cursor.newRow();
             for (String rowName : cursor.getColumnNames()) {
