@@ -391,25 +391,16 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * for the continuation of a previous search)
      *
      * @param accountId the id of the account to be searched
-     * @param mailboxId the id of the mailbox to be searched; if -1, all mailboxes should be
-     * searched
-     * @param includeSubfolders if true, all subfolders of the specified mailbox should be searched
-     * @param query the terms to be searched (the search MUST find messages whose contents
-     * include all of the search terms in the query
-     * @param numResults specifies the maximum number of results returned in this request
-     * @param firstResult if zero, specifies a "new" query; otherwise, asks for a continuation of
-     * the previous query(ies) starting with the firstResult'th match (0 based)
+     * @param searchParams the search specification
      * @param destMailboxId the id of the mailbox into which search results are appended
      * @return the total number of matches for this search (regardless of how many were requested)
      */
-    public int searchMessages(final long accountId, final long mailboxId,
-            final boolean includeSubfolders, final String query, final int numResults,
-            final int firstResult, final long destMailboxId) throws RemoteException {
+    public int searchMessages(final long accountId, final SearchParams searchParams,
+            final long destMailboxId) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException{
                 if (mCallback != null) mService.setCallback(mCallback);
-                mReturn = mService.searchMessages(accountId, mailboxId, includeSubfolders, query,
-                        numResults, firstResult, destMailboxId);
+                mReturn = mService.searchMessages(accountId, searchParams, destMailboxId);
             }
         }, "searchMessages");
         waitForCompletion();

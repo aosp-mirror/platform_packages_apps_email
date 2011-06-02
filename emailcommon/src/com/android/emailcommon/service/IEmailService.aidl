@@ -18,6 +18,7 @@
 package com.android.emailcommon.service;
 
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.service.SearchParams;
 import android.os.Bundle;
 
 interface IEmailService {
@@ -55,6 +56,5 @@ interface IEmailService {
     int getApiLevel();
 
     // API level 2
-    int searchMessages(long accountId, long mailboxId, boolean includeSubfolders, String query,
-        int numResults, int firstResult, long destMailboxId);
+    int searchMessages(long accountId, in SearchParams params, long destMailboxId);
 }

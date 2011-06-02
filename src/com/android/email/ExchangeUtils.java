@@ -20,6 +20,7 @@ import com.android.emailcommon.Api;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.service.SearchParams;
 
 import android.app.Service;
 import android.content.Context;
@@ -137,8 +138,7 @@ public class ExchangeUtils {
         public void deleteAccountPIMData(long accountId) throws RemoteException {
         }
 
-        public int searchMessages(long accountId, long mailboxId, boolean includeSubfolders,
-                String query, int numResults, int firstResult, long destMailboxId) {
+        public int searchMessages(long accountId, SearchParams searchParams, long destMailboxId) {
             return 0;
         }
 

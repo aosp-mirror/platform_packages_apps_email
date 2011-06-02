@@ -27,8 +27,8 @@ import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.Utility;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -280,11 +280,12 @@ public class EmailActivity extends Activity implements View.OnClickListener {
 
             startActivity(createOpenMessageIntent(EmailActivity.this,
                     accountId, searchMailbox.mId, msg.mId));
-            Utility.runAsync(new Runnable() {
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
                 @Override
                 public void run() {
-                    controller.searchMessages(accountId, mailboxId, true, queryString, 10, 0,
-                            searchMailbox.mId);
+                    SearchParams searchSpec = new SearchParams(SearchParams.ALL_MAILBOXES,
+                            queryString);
+                    controller.searchMessages(accountId, searchSpec, searchMailbox.mId);
                 }});
             return;
         }
@@ -361,16 +362,26 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // STOPSHIP Temporary search/sync options UI
-        // Only show search/sync options for EAS
+        // Only show search/sync options for EAS 12.0 and later
         boolean isEas = false;
+        boolean canSearch = false;
         long accountId = mUIController.getActualAccountId();
         if (accountId > 0) {
+            // Move database operations out of the UI thread
             if ("eas".equals(Account.getProtocol(mContext, accountId))) {
                 isEas = true;
+                Account account = Account.restoreAccountWithId(mContext, accountId);
+                if (account != null) {
+                    // We should set a flag in the account indicating ability to handle search
+                    String protocolVersion = account.mProtocolVersion;
+                    if (Double.parseDouble(protocolVersion) >= 12.0) {
+                        canSearch = true;
+                    }
+                }
             }
         }
         // Should use an isSearchable call to prevent search on inappropriate accounts/boxes
-        menu.findItem(R.id.search).setVisible(isEas);
+        menu.findItem(R.id.search).setVisible(canSearch);
         // Should use an isSyncable call to prevent drafts/outbox from allowing this
         menu.findItem(R.id.sync_lookback).setVisible(isEas);
         menu.findItem(R.id.sync_frequency).setVisible(isEas);
