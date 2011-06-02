@@ -16,6 +16,7 @@
 
 package com.android.email.activity;
 
+import com.android.common.contacts.DataUsageStatUpdater;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
@@ -1209,6 +1210,13 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                                 R.string.message_view_attachment_background_load);
                     }
                     mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
+
+                    ArrayList<CharSequence> addressTexts = new ArrayList<CharSequence>();
+                    addressTexts.add(mToView.getText());
+                    addressTexts.add(mCcView.getText());
+                    addressTexts.add(mBccView.getText());
+                    DataUsageStatUpdater updater = new DataUsageStatUpdater(mContext);
+                    updater.updateWithRfc822Address(addressTexts);
                 }
                 return mDraft.mId;
             }
