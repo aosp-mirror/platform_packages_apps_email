@@ -98,6 +98,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     public UIControllerTwoPane(EmailActivity activity) {
         super(activity);
+        FragmentManager.enableDebugLogging(true);
     }
 
     private void refreshActionBar() {
@@ -540,18 +541,34 @@ class UIControllerTwoPane extends UIControllerBase implements
     protected void installMailboxListFragment(MailboxListFragment fragment) {
         mMailboxListFragment = fragment;
         mMailboxListFragment.setCallback(this);
+
+        // Update action bar / menu
+        updateRefreshProgress();
+        refreshActionBar();
     }
 
     @Override
     protected void installMessageListFragment(MessageListFragment fragment) {
         mMessageListFragment = fragment;
         mMessageListFragment.setCallback(this);
+
+        if (isMailboxListInstalled()) {
+            mMailboxListFragment.setHighlightedMailbox(mMessageListFragment.getMailboxId());
+        }
+
+        // Update action bar / menu
+        updateRefreshProgress();
+        refreshActionBar();
     }
 
     @Override
     protected void installMessageViewFragment(MessageViewFragment fragment) {
         mMessageViewFragment = fragment;
         mMessageViewFragment.setCallback(this);
+
+        if (isMessageListInstalled()) {
+            mMessageListFragment.setSelectedMessage(mMessageViewFragment.getMessageId());
+        }
     }
 
     private FragmentTransaction uninstallMailboxListFragment(FragmentTransaction ft) {
@@ -577,9 +594,9 @@ class UIControllerTwoPane extends UIControllerBase implements
             ft.remove(mMessageViewFragment);
             mMessageViewFragment.setCallback(null);
             mMessageViewFragment = null;
+            // Don't need it when there's no message view.
+            stopMessageOrderManager();
         }
-        // Don't need it when there's no message view.
-        stopMessageOrderManager();
         return ft;
     }
 
@@ -592,15 +609,16 @@ class UIControllerTwoPane extends UIControllerBase implements
             Log.d(Logging.LOG_TAG, this + " open accountId=" + accountId
                     + " mailboxId=" + mailboxId + " messageId=" + messageId);
         }
+        final FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
         if (accountId == Account.NO_ACCOUNT) {
             throw new IllegalArgumentException();
         } else if (mailboxId == Mailbox.NO_MAILBOX) {
-            updateMailboxList(accountId, Mailbox.NO_MAILBOX, true);
+            updateMailboxList(ft, accountId, Mailbox.NO_MAILBOX, true);
 
             // Show the appropriate message list
             if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
                 // When opening the Combined view, the right pane will be "combined inbox".
-                updateMessageList(accountId, Mailbox.QUERY_ALL_INBOXES, true);
+                updateMessageList(ft, accountId, Mailbox.QUERY_ALL_INBOXES, true);
             } else {
                 // Try to find the inbox for the account
                 closeMailboxFinder();
@@ -609,17 +627,18 @@ class UIControllerTwoPane extends UIControllerBase implements
             }
             mThreePane.showLeftPane();
         } else if (messageId == Message.NO_MESSAGE) {
-            updateMailboxList(accountId, mailboxId, true);
-            updateMessageList(accountId, mailboxId, true);
+            updateMailboxList(ft, accountId, mailboxId, true);
+            updateMessageList(ft, accountId, mailboxId, true);
 
             mThreePane.showLeftPane();
         } else {
-            updateMailboxList(accountId, mailboxId, true);
-            updateMessageList(accountId, mailboxId, true);
-            updateMessageView(messageId);
+            updateMailboxList(ft, accountId, mailboxId, true);
+            updateMessageList(ft, accountId, mailboxId, true);
+            updateMessageView(ft, messageId);
 
             mThreePane.showRightPane();
         }
+        commitFragmentTransaction(ft);
     }
 
     /**
@@ -641,13 +660,14 @@ class UIControllerTwoPane extends UIControllerBase implements
      * specified account is already selected, no actions will be performed unless
      * <code>forceReload</code> is <code>true</code>.
      *
+     * @param ft {@link FragmentTransaction} to use.
      * @param accountId ID of the account to load. Must never be {@link Account#NO_ACCOUNT}.
      * @param mailboxId ID of the mailbox to use as the "selected".  Pass
      *     {@link Mailbox#NO_MAILBOX} to show the root mailboxes.
      * @param clearDependentPane if true, the message list and the message view will be cleared
      */
-    private void updateMailboxList(long accountId, long mailboxId,
-            boolean clearDependentPane) {
+    private void updateMailboxList(FragmentTransaction ft,
+            long accountId, long mailboxId, boolean clearDependentPane) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " updateMailboxList accountId=" + accountId
                     + " mailboxId=" + mailboxId);
@@ -657,8 +677,6 @@ class UIControllerTwoPane extends UIControllerBase implements
             throw new IllegalArgumentException();
         }
 
-        final FragmentManager fm = mActivity.getFragmentManager();
-        final FragmentTransaction ft = fm.beginTransaction();
 
         if ((getUIAccountId() != accountId) || (getMailboxListMailboxId() != mailboxId)) {
             uninstallMailboxListFragment(ft);
@@ -669,11 +687,17 @@ class UIControllerTwoPane extends UIControllerBase implements
             uninstallMessageListFragment(ft);
             uninstallMessageViewFragment(ft);
         }
-        commitFragmentTransaction(ft);
+    }
 
-        // Update action bar / menu
-        updateRefreshProgress();
-        refreshActionBar();
+    /**
+     * Shortcut to call {@link #updateMailboxList(FragmentTransaction, long, long, boolean)} and
+     * commit.
+     */
+    @SuppressWarnings("unused")
+    private void updateMailboxList(long accountId, long mailboxId, boolean clearDependentPane) {
+        FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+        updateMailboxList(ft, accountId, mailboxId, clearDependentPane);
+        commitFragmentTransaction(ft);
     }
 
     /**
@@ -689,6 +713,7 @@ class UIControllerTwoPane extends UIControllerBase implements
     /**
      * Show the message list fragment for the given mailbox.
      *
+     * @param ft {@link FragmentTransaction} to use.
      * @param accountId ID of the owner account for the mailbox.  Must never be
      *     {@link Account#NO_ACCOUNT}.
      * @param mailboxId ID of the mailbox to load. Must never be {@link Mailbox#NO_MAILBOX}.
@@ -696,7 +721,8 @@ class UIControllerTwoPane extends UIControllerBase implements
      *
      * STOPSHIP Need to stop mailbox finder if it's still running
      */
-    private void updateMessageList(long accountId, long mailboxId, boolean clearDependentPane) {
+    private void updateMessageList(FragmentTransaction ft,
+            long accountId, long mailboxId, boolean clearDependentPane) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " updateMessageList mMailboxId=" + mailboxId);
         }
@@ -705,8 +731,6 @@ class UIControllerTwoPane extends UIControllerBase implements
             throw new IllegalArgumentException();
         }
 
-        final FragmentManager fm = mActivity.getFragmentManager();
-        final FragmentTransaction ft = fm.beginTransaction();
         if (mailboxId != getMessageListMailboxId()) {
             uninstallMessageListFragment(ft);
             ft.add(mThreePane.getMiddlePaneId(), MessageListFragment.newInstance(
@@ -715,21 +739,25 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (clearDependentPane) {
             uninstallMessageViewFragment(ft);
         }
+    }
+
+    /**
+     * Shortcut to call {@link #updateMessageList(FragmentTransaction, long, long, boolean)} and
+     * commit.
+     */
+    private void updateMessageList(long accountId, long mailboxId, boolean clearDependentPane) {
+        FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+        updateMessageList(ft, accountId, mailboxId, clearDependentPane);
         commitFragmentTransaction(ft);
-
-        mMailboxListFragment.setHighlightedMailbox(mailboxId);
-
-        // Update action bar / menu
-        updateRefreshProgress();
-        refreshActionBar();
     }
 
     /**
      * Show a message on the message view.
      *
+     * @param ft {@link FragmentTransaction} to use.
      * @param messageId ID of the mailbox to load. Must never be {@link Message#NO_MESSAGE}.
      */
-    private void updateMessageView(long messageId) {
+    private void updateMessageView(FragmentTransaction ft, long messageId) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " updateMessageView messageId=" + messageId);
         }
@@ -741,14 +769,18 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (messageId == getMessageId()) {
             return; // nothing to do.
         }
-        // Open message
-        final FragmentManager fm = mActivity.getFragmentManager();
-        final FragmentTransaction ft = fm.beginTransaction();
+
         uninstallMessageViewFragment(ft);
         ft.add(mThreePane.getRightPaneId(), MessageViewFragment.newInstance(messageId));
-        commitFragmentTransaction(ft);
+    }
 
-        mMessageListFragment.setSelectedMessage(messageId);
+    /**
+     * Shortcut to call {@link #updateMessageView(FragmentTransaction, long)} and commit.
+     */
+    private void updateMessageView(long messageId) {
+        FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+        updateMessageView(ft, messageId);
+        commitFragmentTransaction(ft);
     }
 
     /**

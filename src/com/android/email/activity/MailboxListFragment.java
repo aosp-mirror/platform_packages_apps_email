@@ -757,6 +757,9 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (!getEnableHighlight()) {
             return;
         }
+        if (mHighlightedMailboxId == mailboxId) {
+            return; // already highlighted.
+        }
         if (mListAdapter.getCursor() == null) {
             // List not loaded yet.  Just remember the ID here and let onLoadFinished() update
             // mHighlightedMailboxId.
