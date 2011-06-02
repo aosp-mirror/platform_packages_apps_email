@@ -26,17 +26,15 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
-import java.util.ArrayList;
 
 /**
  * Base class for the UI controller.
@@ -44,10 +42,8 @@ import java.util.ArrayList;
  * Note: Always use {@link #commitFragmentTransaction} to operate fragment transactions,
  * so that we can easily switch between synchronous and asynchronous transactions.
  */
-abstract class UIControllerBase {
-    protected static final String BUNDLE_KEY_ACCOUNT_ID = "UIController.state.account_id";
-    protected static final String BUNDLE_KEY_MAILBOX_ID = "UIController.state.mailbox_id";
-    protected static final String BUNDLE_KEY_MESSAGE_ID = "UIController.state.message_id";
+abstract class UIControllerBase implements MailboxListFragment.Callback,
+        MessageListFragment.Callback, MessageViewFragment.Callback  {
     protected static final String BUNDLE_KEY_RESUME_INBOX_LOOKUP
             = "UIController.state.resumeInboxLookup";
     protected static final String BUNDLE_KEY_INBOX_LOOKUP_ACCOUNT_ID
@@ -56,25 +52,14 @@ abstract class UIControllerBase {
     /** The owner activity */
     final EmailActivity mActivity;
 
+    private final ActionBarController mActionBarController;
+
     final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     final RefreshManager mRefreshManager;
 
-    /**
-     * List of fragments that are restored by the framework while the activity is being re-created
-     * for configuration changes (e.g. screen rotation).  We'll install them later when the activity
-     * is created in {@link #installRestoredFragments()}.
-     */
-    private final ArrayList<Fragment> mRestoredFragments = new ArrayList<Fragment>();
-
     /** {@code true} if the activity is resumed. */
     private boolean mResumed;
-
-    /**
-     * Whether fragment installation should be hold.
-     * We hold installing fragments until {@link #installRestoredFragments()} is called.
-     */
-    private boolean mHoldFragmentInstallation = true;
 
     /**
      * Use to find Inbox.  This should only run while the activity is resumed, because otherwise
@@ -96,33 +81,46 @@ abstract class UIControllerBase {
      */
     private boolean mResumeInboxLookup;
 
+    /**
+     * Fragments that are installed.
+     *
+     * A fragment is installed when:
+     * - it is attached to the activity
+     * - the parent activity is created
+     * - and it is not scheduled to be removed.
+     *
+     * We set callbacks to fragments only when they are installed.
+     */
+    private MailboxListFragment mMailboxListFragment;
+    private MessageListFragment mMessageListFragment;
+    private MessageViewFragment mMessageViewFragment;
+
     private final RefreshManager.Listener mRefreshListener
             = new RefreshManager.Listener() {
         @Override
         public void onMessagingError(final long accountId, long mailboxId, final String message) {
-            updateRefreshProgress();
+            refreshActionBar();
         }
 
         @Override
         public void onRefreshStatusChanged(long accountId, long mailboxId) {
-            updateRefreshProgress();
+            refreshActionBar();
         }
     };
 
     public UIControllerBase(EmailActivity activity) {
         mActivity = activity;
         mRefreshManager = RefreshManager.getInstance(mActivity);
+        mActionBarController = createActionBarController(activity);
     }
+
+    /**
+     * Called by the base class to let a subclass create an {@link ActionBarController}.
+     */
+    protected abstract ActionBarController createActionBarController(Activity activity);
 
     /** @return the layout ID for the activity. */
     public abstract int getLayoutId();
-
-    /**
-     * @return true if the UI controller currently can install fragments.
-     */
-    protected final boolean isFragmentInstallable() {
-        return !mHoldFragmentInstallation;
-    }
 
     /**
      * Must be called just after the activity sets up the content view.  Used to initialize views.
@@ -144,6 +142,7 @@ abstract class UIControllerBase {
             Log.d(Logging.LOG_TAG, this + " onActivityCreated");
         }
         mRefreshManager.registerListener(mRefreshListener);
+        mActionBarController.onActivityCreated();
     }
 
     /**
@@ -197,28 +196,8 @@ abstract class UIControllerBase {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityDestroy");
         }
-        mHoldFragmentInstallation = true; // No more fragment installation.
         mRefreshManager.unregisterListener(mRefreshListener);
         mTaskTracker.cancellAllInterrupt();
-    }
-
-    /**
-     * Install all the fragments kept in {@link #mRestoredFragments}.
-     *
-     * Must be called at the end of {@link EmailActivity#onCreate}.
-     */
-    public final void installRestoredFragments() {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, this + " installRestoredFragments");
-        }
-
-        mHoldFragmentInstallation = false;
-
-        // Install all the fragments restored by the framework.
-        for (Fragment fragment : mRestoredFragments) {
-            installFragment(fragment);
-        }
-        mRestoredFragments.clear();
     }
 
     /**
@@ -244,24 +223,12 @@ abstract class UIControllerBase {
     }
 
     /**
-     * Handles the {@link android.app.Activity#onAttachFragment} callback.
-     *
-     * If the activity has already been created, we initialize the fragment here.  Otherwise we
-     * keep the fragment in {@link #mRestoredFragments} and initialize it after the activity's
-     * onCreate.
+     * Install a fragment.  Must be caleld from the host activity's
+     * {@link FragmentInstallable#onInstallFragment}.
      */
-    public final void onAttachFragment(Fragment fragment) {
-        if (mHoldFragmentInstallation) {
-            // Fragment being restored by the framework during the activity recreation.
-            mRestoredFragments.add(fragment);
-            return;
-        }
-        installFragment(fragment);
-    }
-
-    private void installFragment(Fragment fragment) {
+    public final void onInstallFragment(Fragment fragment) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, this + " installFragment  fragment=" + fragment);
+            Log.d(Logging.LOG_TAG, this + " onInstallFragment  fragment=" + fragment);
         }
         if (fragment instanceof MailboxListFragment) {
             installMailboxListFragment((MailboxListFragment) fragment);
@@ -270,15 +237,114 @@ abstract class UIControllerBase {
         } else if (fragment instanceof MessageViewFragment) {
             installMessageViewFragment((MessageViewFragment) fragment);
         } else {
-            // Ignore -- uninteresting fragments such as dialogs.
+            throw new IllegalArgumentException("Tried to install unknown fragment");
         }
     }
 
-    protected abstract void installMailboxListFragment(MailboxListFragment fragment);
+    /** Install fragment */
+    protected void installMailboxListFragment(MailboxListFragment fragment) {
+        mMailboxListFragment = fragment;
+        mMailboxListFragment.setCallback(this);
+        refreshActionBar();
+    }
 
-    protected abstract void installMessageListFragment(MessageListFragment fragment);
+    /** Install fragment */
+    protected void installMessageListFragment(MessageListFragment fragment) {
+        mMessageListFragment = fragment;
+        mMessageListFragment.setCallback(this);
+        refreshActionBar();
+    }
 
-    protected abstract void installMessageViewFragment(MessageViewFragment fragment);
+    /** Install fragment */
+    protected void installMessageViewFragment(MessageViewFragment fragment) {
+        mMessageViewFragment = fragment;
+        mMessageViewFragment.setCallback(this);
+        refreshActionBar();
+    }
+
+    /**
+     * Uninstall - If the fragment is installed, remove it from the given
+     * {@link FragmentTransaction} and also clears the callabck.
+     */
+    protected FragmentTransaction uninstallMailboxListFragment(FragmentTransaction ft) {
+        if (isMailboxListInstalled()) {
+            onMailboxListFragmentUninstalled(mMailboxListFragment);
+            ft.remove(mMailboxListFragment);
+            mMailboxListFragment.setCallback(null);
+            mMailboxListFragment = null;
+        }
+        return ft;
+    }
+
+    /** Called when a {@link MailboxListFragment} is about to be uninstalled */
+    protected void onMailboxListFragmentUninstalled(MailboxListFragment fragment) {
+    }
+
+    /**
+     * Uninstall - If the fragment is installed, remove it from the given
+     * {@link FragmentTransaction} and also clears the callabck.
+     */
+    protected FragmentTransaction uninstallMessageListFragment(FragmentTransaction ft) {
+        if (isMessageListInstalled()) {
+            onMessageListFragmentUninstalled(mMessageListFragment);
+            ft.remove(mMessageListFragment);
+            mMessageListFragment.setCallback(null);
+            mMessageListFragment = null;
+        }
+        return ft;
+    }
+
+    /** Called when a {@link MessageListFragment} is about to be uninstalled */
+    protected void onMessageListFragmentUninstalled(MessageListFragment fragment) {
+    }
+
+    /**
+     * Uninstall - If the fragment is installed, remove it from the given
+     * {@link FragmentTransaction} and also clears the callabck.
+     */
+    protected FragmentTransaction uninstallMessageViewFragment(FragmentTransaction ft) {
+        if (isMessageViewInstalled()) {
+            onMessageViewFragmentUninstalled(mMessageViewFragment);
+            ft.remove(mMessageViewFragment);
+            mMessageViewFragment.setCallback(null);
+            mMessageViewFragment = null;
+        }
+        return ft;
+    }
+
+    /** Called when a {@link MessageViewFragment} is about to be uninstalled */
+    protected void onMessageViewFragmentUninstalled(MessageViewFragment fragment) {
+    }
+
+    /** @return true if a {@link MailboxListFragment} is installed. */
+    protected final boolean isMailboxListInstalled() {
+        return mMailboxListFragment != null;
+    }
+
+    /** @return true if a {@link MessageListFragment} is installed. */
+    protected final boolean isMessageListInstalled() {
+        return mMessageListFragment != null;
+    }
+
+    /** @return true if a {@link MessageViewFragment} is installed. */
+    protected final boolean isMessageViewInstalled() {
+        return mMessageViewFragment != null;
+    }
+
+    /** @return the installed {@link MailboxListFragment} or null. */
+    protected final MailboxListFragment getMailboxListFragment() {
+        return mMailboxListFragment;
+    }
+
+    /** @return the installed {@link MessageListFragment} or null. */
+    protected final MessageListFragment getMessageListFragment() {
+        return mMessageListFragment;
+    }
+
+    /** @return the installed {@link MessageViewFragment} or null. */
+    protected final MessageViewFragment getMessageViewFragment() {
+        return mMessageViewFragment;
+    }
 
     /**
      * Commit a {@link FragmentTransaction}.
@@ -535,14 +601,13 @@ abstract class UIControllerBase {
      */
     protected abstract boolean isRefreshEnabled();
 
-
     /**
-     * Start/stop the "refresh" animation on the action bar according to the current refresh state.
-     *
-     * (We start the animation if {@link #isRefreshInProgress} returns true,
-     * and stop otherwise.)
+     * Refresh the action bar and menu items, including the "refreshing" icon.
      */
-    protected void updateRefreshProgress() {
+    protected void refreshActionBar() {
+        if (mActionBarController != null) {
+            mActionBarController.refresh();
+        }
         mActivity.invalidateOptionsMenu();
     }
 }

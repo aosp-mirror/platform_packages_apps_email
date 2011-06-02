@@ -341,6 +341,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         resetView();
         new LoadMessageTask(true).executeParallel();
+
+        UiUtilities.installFragment(this);
     }
 
     @Override

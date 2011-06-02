@@ -463,6 +463,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         lv.setOnDragListener(this);
 
         startLoading(mParentMailboxId, mHighlightedMailboxId);
+
+        UiUtilities.installFragment(this);
     }
 
     public void setCallback(Callback callback) {

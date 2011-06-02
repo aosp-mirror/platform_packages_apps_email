@@ -39,6 +39,17 @@
         android:icon="@drawable/ic_menu_refresh_holo_light"
         android:showAsAction="ifRoom"
     />
+    <!--
+        STOPSHIP "Show all folders" should be in the account spinner, not here.
+        It's temporary UI until we get the ICS style account spinner.
+    -->
+    <item
+        android:id="@+id/show_all_folders"
+        android:orderInCategory="400"
+        android:title="@string/mailbox_list_account_selector_show_all_folders"
+        android:showAsAction="ifRoom"
+        android:visible="false"
+    />
     <item
         android:id="@+id/account_settings"
         android:orderInCategory="2000"
