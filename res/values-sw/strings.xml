@@ -100,6 +100,8 @@
   </plurals>
     <!-- no translation found for notification_to_account (2078557719010667913) -->
     <skip />
+    <!-- no translation found for account_name_display_all (4041817500580342035) -->
+    <skip />
     <!-- no translation found for number_of_accounts:one (6343953132237244947) -->
     <!-- no translation found for number_of_accounts:other (8548760449976444566) -->
     <string name="mailbox_name_display_inbox" msgid="3542327124749861736">"Kikasha"</string>
@@ -108,6 +110,16 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Tupio"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Zilizotumwa"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Taka"</string>
+    <!-- no translation found for mailbox_name_display_unread (1015674989793998695) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_unread (6392491216581687644) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_inbox (2277030979530376085) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_fmt (6276294768978512737) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_account_count:one (380235084337895804) -->
+    <!-- no translation found for picker_combined_view_account_count:other (4145163147488719025) -->
     <!-- no translation found for debug_version_fmt (6160213145745376955) -->
     <skip />
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Kikasha"</string>

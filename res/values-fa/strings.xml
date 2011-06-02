@@ -71,6 +71,8 @@
     <item quantity="other" msgid="2723797835410343458">"در <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> حساب"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"به <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <!-- no translation found for account_name_display_all (4041817500580342035) -->
+    <skip />
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> حساب"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> حساب"</item>
@@ -81,6 +83,16 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"سطل زباله"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"ارسال شد"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"ناخواسته"</string>
+    <!-- no translation found for mailbox_name_display_unread (1015674989793998695) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_unread (6392491216581687644) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_inbox (2277030979530376085) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_fmt (6276294768978512737) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_account_count:one (380235084337895804) -->
+    <!-- no translation found for picker_combined_view_account_count:other (4145163147488719025) -->
     <string name="debug_version_fmt" msgid="6160213145745376955">"نسخه: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"صندوق ورودی"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"ستاره دار"</string>
@@ -359,8 +371,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"حذف حساب"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"حساب ایمیل"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"انتخاب یک حساب"</string>
-    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
-    <skip />
+    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"انتخاب یک صندوق پستی"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"حساب یافت نشد. ممکن است حذف شده باشد."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"فقط برخی از حساب های \"Plus\" از جمله دسترسی POP به این برنامه اجازه می دهند متصل شود. اگر شما نمی توانید با رمز ورود و آدرس ایمیل درست خود به سیستم وارد شوید، ممکن است فاقد یک حساب \"Plus\" پولی باشید. لطفاً مرورگر وب را برای دسترسی به این حساب های ایمیل راه اندازی کنید."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"قبل از تنظیم این حساب ایمیل، لطفاً از وب سایت T-Online بازدید کرده و یک رمز ورود برای دسترسی ایمیل POP3 ایجاد کنید."</string>

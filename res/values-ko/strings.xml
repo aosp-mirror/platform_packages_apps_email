@@ -71,6 +71,8 @@
     <item quantity="other" msgid="2723797835410343458">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"<xliff:g id="RECEIVER_NAME">%1$s</xliff:g>에게 보냄"</string>
+    <!-- no translation found for account_name_display_all (4041817500580342035) -->
+    <skip />
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"계정 <xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g>개"</item>
     <item quantity="other" msgid="8548760449976444566">"계정 <xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g>개"</item>
@@ -81,6 +83,16 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"휴지통"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"보낸편지함"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"스팸"</string>
+    <!-- no translation found for mailbox_name_display_unread (1015674989793998695) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_unread (6392491216581687644) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_inbox (2277030979530376085) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_fmt (6276294768978512737) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_account_count:one (380235084337895804) -->
+    <!-- no translation found for picker_combined_view_account_count:other (4145163147488719025) -->
     <string name="debug_version_fmt" msgid="6160213145745376955">"버전: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"받은편지함"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"중요편지함"</string>
@@ -359,8 +371,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"계정 삭제"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"이메일 계정"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"계정 선택"</string>
-    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
-    <skip />
+    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"편지함 선택"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"계정을 찾을 수 없습니다. 삭제되었을 수 있습니다."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"일부 \'Plus\' 계정에만 이 프로그램에 연결할 수 있는 POP 액세스 권한이 있습니다. 올바른 이메일 주소와 비밀번호를 입력해도 로그인이 되지 않으면 유료 \'Plus\' 계정이 없기 때문일 수 있습니다. 이러한 메일 계정에 액세스하려면 웹브라우저를 실행하세요."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"이메일 계정을 설정하기 전에 T-온라인 웹사이트를 방문하고 POP3 이메일 액세스용 비밀번호를 만드세요."</string>
