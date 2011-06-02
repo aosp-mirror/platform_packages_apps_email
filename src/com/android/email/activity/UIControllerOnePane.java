@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.activity.MailboxFinder.Callback;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -324,6 +325,12 @@ class UIControllerOnePane extends UIControllerBase {
 
     private long getMessageId() {
         return mCurrentMessageId;
+    }
+
+    @Override
+    protected Callback getInboxLookupCallback() {
+        // We don't call startInboxLookup in UIControllerOnePane, so shouldn't be called.
+        throw new RuntimeException("SHOULD NOT BE CALLED"); // STOPSHIP
     }
 
     private void refreshActionBar() {

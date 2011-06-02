@@ -21,6 +21,7 @@ import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
+import com.android.email.activity.MailboxFinder.Callback;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -75,8 +76,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     private MessageViewFragment mMessageViewFragment;
 
     private MessageCommandButtonView mMessageCommandButtons;
-
-    private MailboxFinder mMailboxFinder;
 
     private MessageOrderManager mOrderManager;
     private final MessageOrderManagerCallback mMessageOrderManagerCallback =
@@ -517,7 +516,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     /** {@inheritDoc} */
     @Override
     public void onActivityDestroy() {
-        closeMailboxFinder();
         super.onActivityDestroy();
     }
 
@@ -525,16 +523,17 @@ class UIControllerTwoPane extends UIControllerBase implements
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        // STOPSHIP If MailboxFinder is still running, it needs restarting after loadState().
     }
 
     /** {@inheritDoc} */
     @Override
     public void restoreInstanceState(Bundle savedInstanceState) {
         super.restoreInstanceState(savedInstanceState);
+    }
 
-        // STOPSHIP If MailboxFinder is still running, it needs restarting after loadState().
+    @Override
+    protected Callback getInboxLookupCallback() {
+        return this;
     }
 
     @Override
@@ -621,9 +620,7 @@ class UIControllerTwoPane extends UIControllerBase implements
                 updateMessageList(ft, accountId, Mailbox.QUERY_ALL_INBOXES, true);
             } else {
                 // Try to find the inbox for the account
-                closeMailboxFinder();
-                mMailboxFinder = new MailboxFinder(mActivity, accountId, Mailbox.TYPE_INBOX, this);
-                mMailboxFinder.startLookup();
+                startInboxLookup(accountId);
             }
             mThreePane.showLeftPane();
         } else if (messageId == Message.NO_MESSAGE) {
@@ -718,8 +715,6 @@ class UIControllerTwoPane extends UIControllerBase implements
      *     {@link Account#NO_ACCOUNT}.
      * @param mailboxId ID of the mailbox to load. Must never be {@link Mailbox#NO_MAILBOX}.
      * @param clearDependentPane if true, the message view will be cleared
-     *
-     * STOPSHIP Need to stop mailbox finder if it's still running
      */
     private void updateMessageList(FragmentTransaction ft,
             long accountId, long mailboxId, boolean clearDependentPane) {
@@ -730,6 +725,8 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (mailboxId == Mailbox.NO_MAILBOX) {
             throw new IllegalArgumentException();
         }
+
+        stopInboxLookup();
 
         if (mailboxId != getMessageListMailboxId()) {
             uninstallMessageListFragment(ft);
@@ -791,13 +788,6 @@ class UIControllerTwoPane extends UIControllerBase implements
                 mActivity.getFragmentManager().beginTransaction()));
         if (mMessageListFragment != null) {
             mMessageListFragment.setSelectedMessage(Message.NO_MESSAGE);
-        }
-    }
-
-    private void closeMailboxFinder() {
-        if (mMailboxFinder != null) {
-            mMailboxFinder.cancel();
-            mMailboxFinder = null;
         }
     }
 
