@@ -400,9 +400,11 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         views.setInt(R.id.widget_message, "setBackgroundResource", drawableId);
 
         // Add style to sender
-        SpannableStringBuilder from =
-            new SpannableStringBuilder(mCursor.getString(
-                    EmailWidgetLoader.WIDGET_COLUMN_DISPLAY_NAME));
+        String cursorString =
+                mCursor.isNull(EmailWidgetLoader.WIDGET_COLUMN_DISPLAY_NAME)
+                    ? ""    // an empty string
+                    : mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_DISPLAY_NAME);
+        SpannableStringBuilder from = new SpannableStringBuilder(cursorString);
         from.setSpan(
                 isUnread ? new StyleSpan(Typeface.BOLD) : new StyleSpan(Typeface.NORMAL), 0,
                 from.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -419,8 +421,7 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
         // Add style to subject/snippet
         String subject = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_SUBJECT);
         String snippet = mCursor.getString(EmailWidgetLoader.WIDGET_COLUMN_SNIPPET);
-        CharSequence subjectAndSnippet =
-            getStyledSubjectSnippet(subject, snippet, !isUnread);
+        CharSequence subjectAndSnippet = getStyledSubjectSnippet(subject, snippet, !isUnread);
         views.setTextViewText(R.id.widget_subject, subjectAndSnippet);
 
         int messageFlags = mCursor.getInt(EmailWidgetLoader.WIDGET_COLUMN_FLAGS);
