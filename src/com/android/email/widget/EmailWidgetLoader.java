@@ -16,6 +16,7 @@
 
 package com.android.email.widget;
 
+import com.android.email.R;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -24,6 +25,7 @@ import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.Mailbox;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 
@@ -69,11 +71,14 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
     static class WidgetCursor extends CursorWrapper {
         private final int mMessageCount;
         private final String mAccountName;
+        private final String mMailboxName;
 
-        public WidgetCursor(Cursor cursor, int messageCount, String accountName) {
+        public WidgetCursor(Cursor cursor, int messageCount, String accountName,
+                String mailboxName) {
             super(cursor);
             mMessageCount = messageCount;
             mAccountName = accountName;
+            mMailboxName = mailboxName;
         }
 
         /**
@@ -87,6 +92,10 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
         /** Gets the display name of the account */
         public String getAccountName() {
             return mAccountName;
+        }
+        /** Gets the display name of the mailbox */
+        public String getMailboxName() {
+            return mMailboxName;
         }
     }
 
@@ -119,10 +128,36 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
         if (account != null) {
             accountName = account.mDisplayName;
         } else {
-            accountName = null;
+            if (mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                int accountCount = EmailContent.count(mContext, Account.CONTENT_URI);
+                Resources res = mContext.getResources();
+                String countString =
+                        res.getQuantityString(R.plurals.picker_combined_view_account_count,
+                        accountCount, accountCount);
+                accountName = res.getString(R.string.picker_combined_view_fmt, countString);
+            } else {
+                // TODO What to use here? "unknown"? Account is real, but, doesn't exist.
+                accountName = null;
+            }
+        }
+        final String mailboxName;
+        if (mMailboxId > 0) {
+            Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
+            if (mailbox != null) {
+                mailboxName = mailbox.mDisplayName;    // regular mailbox
+            } else {
+                // TODO What use here? "unknown"? Mailbox is "real", but, doesn't exist.
+                mailboxName = null;
+            }
+        } else {
+            if (mMailboxId == Mailbox.QUERY_ALL_INBOXES) {
+                mailboxName = mContext.getString(R.string.picker_mailbox_name_all_inbox);
+            } else { // default to all unread for the account's inbox
+                mailboxName = mContext.getString(R.string.picker_mailbox_name_all_unread);
+            }
         }
 
-        return new WidgetCursor(messagesCursor, messageCount, accountName);
+        return new WidgetCursor(messagesCursor, messageCount, accountName, mailboxName);
     }
 
     /**
@@ -131,7 +166,9 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
      * Must be called from the UI thread
      *
      * @param accountId The ID of the account. May be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
-     * @param mailboxId The mailbox to load; may be one of the special mailbox IDs.
+     * @param mailboxId The mailbox to load; may either be a real mailbox or the pseudo mailbox
+     *          {@link Mailbox#QUERY_ALL_INBOXES} or {@link Mailbox#QUERY_ALL_UNREAD}. If it's
+     *          neither of these pseudo mailboxes, {@link Mailbox#QUERY_ALL_UNREAD} will be used.
      */
     void load(long accountId, long mailboxId) {
         reset();
@@ -146,8 +183,6 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
         if (mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
             if (mMailboxId == Mailbox.QUERY_ALL_INBOXES) {
                 setSelection(Message.ALL_INBOX_SELECTION);
-            } else if (mMailboxId == Mailbox.QUERY_ALL_FAVORITES) {
-                setSelection(Message.ALL_FAVORITE_SELECTION);
             } else { // default to all unread
                 setSelection(Message.ALL_UNREAD_SELECTION);
             }
@@ -163,8 +198,6 @@ class EmailWidgetLoader extends ThrottlingCursorLoader {
             } else {
                 if (mMailboxId == Mailbox.QUERY_ALL_INBOXES) {
                     setSelection(Message.PER_ACCOUNT_INBOX_SELECTION);
-                } else if (mMailboxId == Mailbox.QUERY_ALL_FAVORITES) {
-                    setSelection(Message.PER_ACCOUNT_FAVORITE_SELECTION);
                 } else { // default to all unread for the account's inbox
                     setSelection(Message.PER_ACCOUNT_UNREAD_SELECTION);
                 }
