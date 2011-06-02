@@ -48,6 +48,10 @@ abstract class UIControllerBase {
     protected static final String BUNDLE_KEY_ACCOUNT_ID = "UIController.state.account_id";
     protected static final String BUNDLE_KEY_MAILBOX_ID = "UIController.state.mailbox_id";
     protected static final String BUNDLE_KEY_MESSAGE_ID = "UIController.state.message_id";
+    protected static final String BUNDLE_KEY_RESUME_INBOX_LOOKUP
+            = "UIController.state.resumeInboxLookup";
+    protected static final String BUNDLE_KEY_INBOX_LOOKUP_ACCOUNT_ID
+            = "UIController.state.inboxLookupAccountId";
 
     /** The owner activity */
     final EmailActivity mActivity;
@@ -63,11 +67,34 @@ abstract class UIControllerBase {
      */
     private final ArrayList<Fragment> mRestoredFragments = new ArrayList<Fragment>();
 
+    /** {@code true} if the activity is resumed. */
+    private boolean mResumed;
+
     /**
      * Whether fragment installation should be hold.
      * We hold installing fragments until {@link #installRestoredFragments()} is called.
      */
     private boolean mHoldFragmentInstallation = true;
+
+    /**
+     * Use to find Inbox.  This should only run while the activity is resumed, because otherwise
+     * we may not be able to perform fragment transactions when we get a callback.
+     * See also {@link #mResumeInboxLookup}.
+     */
+    private MailboxFinder mInboxFinder;
+
+    /**
+     * Account ID passed to {@link #startInboxLookup(long)}.  We save it for resuming it in
+     * {@link #onActivityResume()}.
+     */
+    private long mInboxLookupAccountId;
+
+    /**
+     * We (re)start inbox lookup in {@link #onActivityResume} if it's set.
+     * Set in {@link #onActivityPause()} if it's still running, or {@link #startInboxLookup} is
+     * called before the activity is resumed.
+     */
+    private boolean mResumeInboxLookup;
 
     private final RefreshManager.Listener mRefreshListener
             = new RefreshManager.Listener() {
@@ -135,6 +162,11 @@ abstract class UIControllerBase {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityResume");
         }
+        mResumed = true;
+        if (mResumeInboxLookup) {
+            startInboxLookup(mInboxLookupAccountId);
+            mResumeInboxLookup = false;
+        }
     }
 
     /**
@@ -144,6 +176,8 @@ abstract class UIControllerBase {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityPause");
         }
+        mResumeInboxLookup = (mInboxFinder != null);
+        stopInboxLookup();
     }
 
     /**
@@ -153,6 +187,7 @@ abstract class UIControllerBase {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityStop");
         }
+        mResumed = false;
     }
 
     /**
@@ -193,6 +228,8 @@ abstract class UIControllerBase {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onSaveInstanceState");
         }
+        outState.putBoolean(BUNDLE_KEY_RESUME_INBOX_LOOKUP, mResumeInboxLookup);
+        outState.putLong(BUNDLE_KEY_INBOX_LOOKUP_ACCOUNT_ID, mInboxLookupAccountId);
     }
 
     /**
@@ -202,6 +239,8 @@ abstract class UIControllerBase {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " restoreInstanceState");
         }
+        mResumeInboxLookup = savedInstanceState.getBoolean(BUNDLE_KEY_RESUME_INBOX_LOOKUP);
+        mInboxLookupAccountId = savedInstanceState.getLong(BUNDLE_KEY_INBOX_LOOKUP_ACCOUNT_ID);
     }
 
     /**
@@ -332,6 +371,69 @@ abstract class UIControllerBase {
      * <code>false</code> if it's caused by the "home" icon click on the action bar.
      */
     public abstract boolean onBackPressed(boolean isSystemBackKey);
+
+    /**
+     * Callback called when the inbox lookup (started by {@link #startInboxLookup}) is finished.
+     */
+    protected abstract MailboxFinder.Callback getInboxLookupCallback();
+
+    private final MailboxFinder.Callback mMailboxFinderCallback = new MailboxFinder.Callback() {
+        private void cleanUp() {
+            mInboxFinder = null;
+        }
+
+        @Override
+        public void onAccountNotFound() {
+            getInboxLookupCallback().onAccountNotFound();
+            cleanUp();
+        }
+
+        @Override
+        public void onAccountSecurityHold(long accountId) {
+            getInboxLookupCallback().onAccountSecurityHold(accountId);
+            cleanUp();
+        }
+
+        @Override
+        public void onMailboxFound(long accountId, long mailboxId) {
+            getInboxLookupCallback().onMailboxFound(accountId, mailboxId);
+            cleanUp();
+        }
+
+        @Override
+        public void onMailboxNotFound(long accountId) {
+            getInboxLookupCallback().onMailboxNotFound(accountId);
+            cleanUp();
+        }
+    };
+
+    /**
+     * Start inbox lookup.
+     */
+    protected void startInboxLookup(long accountId) {
+        if (mInboxFinder != null) {
+            return; // already running
+        }
+        mInboxLookupAccountId = accountId;
+        if (!mResumed) {
+            mResumeInboxLookup = true; // Don't start yet.
+            return;
+        }
+        mInboxFinder = new MailboxFinder(mActivity, accountId, Mailbox.TYPE_INBOX,
+                mMailboxFinderCallback);
+        mInboxFinder.startLookup();
+    }
+
+    /**
+     * Stop inbox lookup.
+     */
+    protected void stopInboxLookup() {
+        if (mInboxFinder == null) {
+            return; // not running
+        }
+        mInboxFinder.cancel();
+        mInboxFinder = null;
+    }
 
     /**
      * Handles the {@link android.app.Activity#onCreateOptionsMenu} callback.
