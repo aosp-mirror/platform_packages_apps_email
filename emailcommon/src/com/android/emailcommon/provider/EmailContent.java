@@ -1093,10 +1093,12 @@ public abstract class EmailContent {
         public String mSignature;
         public long mPolicyKey;
 
-        // Convenience for creating an account
+        // Convenience for creating/working with an account
         public transient HostAuth mHostAuthRecv;
         public transient HostAuth mHostAuthSend;
         public transient Policy mPolicy;
+        // Might hold the corresponding AccountManager account structure
+        public transient android.accounts.Account mAmAccount;
 
         public static final int CONTENT_ID_COLUMN = 0;
         public static final int CONTENT_DISPLAY_NAME_COLUMN = 1;
