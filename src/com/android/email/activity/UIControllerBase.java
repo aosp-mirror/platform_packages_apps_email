@@ -329,36 +329,6 @@ abstract class UIControllerBase {
     public abstract void open(long accountId, long mailboxId, long messageId);
 
     /**
-     * Navigates to the parent mailbox list of the given mailbox.
-     */
-    protected final void navigateToParentMailboxList(final long currentMailboxId) {
-        final long accountId = getUIAccountId();
-        final Context context = mActivity.getApplicationContext(); // for DB access only.
-
-        // Get the upper level mailbox ID, and navigate to it.
-
-        // Unfortunately if the screen rotates while the task is running, we just cancel the task
-        // so navigation request will be gone.  But we'll live with it as it's not too critical.
-        new EmailAsyncTask<Void, Void, Long>(mTaskTracker) {
-            @Override protected Long doInBackground(Void... params) {
-                final Mailbox mailbox = Mailbox.restoreMailboxWithId(context, currentMailboxId);
-                if (mailbox == null) {
-                    return null;
-                }
-                return mailbox.mParentKey;
-            }
-
-            @Override protected void onPostExecute(Long mailboxId) {
-                if (mailboxId == null) {
-                    // Mailbox removed, just show the root for the account.
-                    mailboxId = Mailbox.NO_MAILBOX;
-                }
-                openMailbox(accountId, mailboxId);
-            }
-        }.cancelPreviousAndExecuteSerial();
-    }
-
-    /**
      * Performs the back action.
      *
      * @param isSystemBackKey <code>true</code> if the system back key was pressed.
