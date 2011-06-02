@@ -52,11 +52,11 @@ import android.widget.AdapterView.OnItemClickListener;
 public abstract class ShortcutPickerFragment extends ListFragment
         implements OnItemClickListener, LoaderCallbacks<Cursor> {
     /** Allow all mailboxes in the mailbox list */
-    public static int FILTER_ALLOW_ALL = 0x00;
+    public static int FILTER_ALLOW_ALL    = 0;
     /** Only allow an account's INBOX */
-    public static int FILTER_INBOX_ONLY = 0x01;
+    public static int FILTER_INBOX_ONLY   = 1 << 0;
     /** Allow an "unread" mailbox; this is not affected by {@link #FILTER_INBOX_ONLY} */
-    public static int FILTER_ALLOW_UNREAD = 0x02;
+    public static int FILTER_ALLOW_UNREAD = 1 << 1;
     /** Fragment argument to set filter values */
     public static final String ARG_FILTER  = "ShortcutPickerFragment.filter";
     /** The filter values; default to allow all mailboxes */
@@ -87,10 +87,6 @@ public abstract class ShortcutPickerFragment extends ListFragment
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        Bundle args = getArguments();
-        if (args != null) {
-            mFilter = args.getInt(ARG_FILTER);
-        }
         if (activity instanceof PickerCallback) {
             mCallback = (PickerCallback) activity;
         }
@@ -239,7 +235,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
             ShortcutPickerFragment fragment = new MailboxShortcutPickerFragment();
             final Bundle args = new Bundle();
             args.putParcelable(MailboxShortcutPickerFragment.ARG_ACCOUNT, account);
-            args.putInt(ARG_FILTER, getArguments().getInt(ARG_FILTER));
+            args.putInt(ARG_FILTER, getFilter());
             fragment.setArguments(args);
             getFragmentManager()
                 .beginTransaction()
