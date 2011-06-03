@@ -35,6 +35,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
@@ -890,15 +891,13 @@ public class Controller {
      * Search for messages on the server; see {@Link EmailServiceProxy#searchMessages(long, long,
      * boolean, String, int, int, long)} for a complete description of this method's arguments.
      */
-    public void searchMessages(final long accountId, final long mailboxId,
-            final boolean includeSubfolders, final String query, final int numResults,
-            final int firstResult, final long destMailboxId) {
+    public void searchMessages(final long accountId, final SearchParams searchParams,
+            final long destMailboxId) {
         IEmailService service = getServiceForAccount(accountId);
         if (service != null) {
             // Service implementation
             try {
-                service.searchMessages(accountId, mailboxId, includeSubfolders, query, numResults,
-                        firstResult, destMailboxId);
+                service.searchMessages(accountId, searchParams, destMailboxId);
             } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method
                 // is implemented for other protocols
@@ -1774,8 +1773,8 @@ public class Controller {
             public void deleteAccountPIMData(long accountId) {
             }
 
-            public int searchMessages(long accountId, long mailboxId, boolean includeSubfolders,
-                    String query, int numResults, int firstResult, long destMailboxId) {
+            public int searchMessages(long accountId, SearchParams searchParams,
+                    long destMailboxId) {
                 return 0;
             }
 
