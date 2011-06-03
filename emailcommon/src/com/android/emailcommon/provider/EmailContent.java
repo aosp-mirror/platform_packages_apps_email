@@ -2291,8 +2291,10 @@ public abstract class EmailContent {
         public static final String SYNC_STATUS = "syncStatus";
         // Number of messages in the mailbox.
         public static final String MESSAGE_COUNT = "messageCount";
-        // Number of messages in the mailbox.
+        // Message ID of the last 'seen' message
         public static final String LAST_SEEN_MESSAGE_KEY = "lastSeenMessageKey";
+        // The last time a message in this mailbox has been read (in millis)
+        public static final String LAST_TOUCHED_TIME = "lastTouchedTime";
     }
 
     public interface HostAuthColumns {

@@ -140,8 +140,9 @@ public class EmailProvider extends ContentProvider {
     // Version 20: Add new policies to Policy table
     // Version 21: Add lastSeenMessageKey column to Mailbox table
     // Version 22: Upgrade path for IMAP/POP accounts to integrate with AccountManager
+    // Version 23: Add column to mailbox table for time of last access
 
-    public static final int DATABASE_VERSION = 22;
+    public static final int DATABASE_VERSION = 23;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -1077,6 +1078,10 @@ public class EmailProvider extends ContentProvider {
             if (oldVersion == 21) {
                 upgradeFromVersion21ToVersion22(db, mContext);
                 oldVersion = 22;
+            }
+            if (oldVersion == 22) {
+                upgradeFromVersion22ToVersion23(db);
+                oldVersion = 23;
             }
         }
 
@@ -2068,6 +2073,17 @@ public class EmailProvider extends ContentProvider {
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
             Log.w(TAG, "Exception upgrading EmailProvider.db from 20 to 21 " + e);
+        }
+    }
+
+    /** Upgrades the database from v22 to v23 */
+    private static void upgradeFromVersion22ToVersion23(SQLiteDatabase db) {
+        try {
+            db.execSQL("alter table " + Mailbox.TABLE_NAME
+                    + " add column " + Mailbox.LAST_TOUCHED_TIME + " integer default 0;");
+        } catch (SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 22 to 23 " + e);
         }
     }
 }
