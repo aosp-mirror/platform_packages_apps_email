@@ -67,4 +67,7 @@
 
     <dimen name="account_spinner_dropdown_account_name_max_width">352dip</dimen>
 
+    <!-- Username/password entry -->
+    <dimen name="setup_credentials_input_width">340dip</dimen>
+
 </resources>
