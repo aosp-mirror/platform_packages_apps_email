@@ -79,7 +79,6 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     public UIControllerTwoPane(EmailActivity activity) {
         super(activity);
-        FragmentManager.enableDebugLogging(true);
     }
 
     @Override
