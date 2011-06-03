@@ -19,16 +19,21 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.activity.MailboxFinder.Callback;
+import com.android.email.activity.setup.AccountSecurity;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
-import android.app.FragmentManager;
+import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import java.util.Set;
 
@@ -36,183 +41,179 @@ import java.util.Set;
 /**
  * UI Controller for non x-large devices.  Supports a single-pane layout.
  *
- * STOPSHIP Everything in this class is 100% temporary at this point
- * - Navigation model is different from what it should be (whatever it'll be).
- *   e.g. when the app is launched, we should show Inbox, not mailbox list.
+ * One one-pane, multiple fragments can be installed at the same time, but only one of them
+ * can be "visible" at a time.  Others are in the back stack.  Use {@link #isMailboxListVisible()},
+ * {@link #isMessageListVisible()} and {@link #isMessageViewVisible()} to determine which is
+ * visible.
  *
- * - It uses the two-pane action bar only so that we can change accounts
+ * Note due to the asynchronous nature of the fragment transaction, there is a window when
+ * there is no installed or visible fragments.
+ *
+ * TODO Use the back stack for the message list -> message view navigation, so that the list
+ * position/selection will be restored on back.
  *
  * Major TODOs
- * - TODO Proper Navigation model, including retaining fragments to keep state such as the scroll
- *        position and batch selection.
- * - TODO Nested folders
  * - TODO Newer/Older for message view with swipe!
  * - TODO Implement callbacks
  */
 class UIControllerOnePane extends UIControllerBase {
-    private ActionBarController mActionBarController;
-
-    /**
-     * Current account/mailbox/message IDs.
-     * Don't use them directly; use the accessors instead, as we might want to get them from the
-     * topmost fragment in the future.
-     */
-    private long mCurrentAccountId = Account.NO_ACCOUNT;
-    private long mCurrentMailboxId = Mailbox.NO_MAILBOX;
-    private long mCurrentMessageId = Message.NO_MESSAGE;
-
+    // TODO Newer/Older buttons not needed.  Remove this.
     private MessageCommandButtonView mMessageCommandButtons;
 
-    private final MailboxListFragment.Callback mMailboxListFragmentCallback =
-            new MailboxListFragment.Callback() {
-        @Override
-        public void onAccountSelected(long accountId) {
-            switchAccount(accountId);
+    // MailboxListFragment.Callback
+    @Override
+    public void onAccountSelected(long accountId) {
+        switchAccount(accountId);
+    }
+
+    // MailboxListFragment.Callback
+    @Override
+    public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount) {
+    }
+
+    // MailboxListFragment.Callback
+    @Override
+    public void onMailboxSelected(long accountId, long mailboxId, boolean nestedNavigation) {
+        if (nestedNavigation) {
+            return; // Nothing to do on 1-pane.
         }
+        openMailbox(accountId, mailboxId);
+    }
 
-        @Override
-        public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount) {
+    // MailboxListFragment.Callback
+    @Override
+    public void onParentMailboxChanged() {
+        refreshActionBar();
+    }
+
+    // MessageListFragment.Callback
+    @Override
+    public void onAdvancingOpAccepted(Set<Long> affectedMessages) {
+        // Nothing to do on 1 pane.
+    }
+
+    // MessageListFragment.Callback
+    @Override
+    public void onEnterSelectionMode(boolean enter) {
+        // TODO Auto-generated method stub
+    }
+
+    // MessageListFragment.Callback
+    @Override
+    public void onListLoaded() {
+        // TODO Auto-generated method stub
+    }
+
+    // MessageListFragment.Callback
+    @Override
+    public void onMailboxNotFound() {
+        open(getUIAccountId(), Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
+    }
+
+    // MessageListFragment.Callback
+    @Override
+    public void onMessageOpen(
+            long messageId, long messageMailboxId, long listMailboxId, int type) {
+        if (type == MessageListFragment.Callback.TYPE_DRAFT) {
+            MessageCompose.actionEditDraft(mActivity, messageId);
+        } else {
+            open(getUIAccountId(), getMailboxId(), messageId);
         }
+    }
 
-        @Override
-        public void onMailboxSelected(long accountId, long mailboxId, boolean nestedNavigation) {
-            if (nestedNavigation) {
-                return; // Nothing to do on 1-pane.
-            }
-            openMailbox(accountId, mailboxId);
-        }
+    // MessageListFragment.Callback
+    @Override
+    public boolean onDragStarted() {
+        // No drag&drop on 1-pane
+        return false;
+    }
 
-        @Override
-        public void onParentMailboxChanged() {
-            refreshActionBar();
-        }
-    };
+    // MessageListFragment.Callback
+    @Override
+    public void onDragEnded() {
+        // No drag&drop on 1-pane
+    }
 
-    private final MessageListFragment.Callback mMessageListFragmentCallback =
-            new MessageListFragment.Callback() {
-        @Override
-        public void onAdvancingOpAccepted(Set<Long> affectedMessages) {
-            // Nothing to do on 1 pane.
-        }
+    // MessageViewFragment.Callback
+    @Override
+    public void onForward() {
+        MessageCompose.actionForward(mActivity, getMessageId());
+    }
 
-        @Override
-        public void onEnterSelectionMode(boolean enter) {
-            // TODO Auto-generated method stub
-        }
+    // MessageViewFragment.Callback
+    @Override
+    public void onReply() {
+        MessageCompose.actionReply(mActivity, getMessageId(), false);
+    }
 
-        @Override
-        public void onListLoaded() {
-            // TODO Auto-generated method stub
+    // MessageViewFragment.Callback
+    @Override
+    public void onReplyAll() {
+        MessageCompose.actionReply(mActivity, getMessageId(), true);
+    }
 
-        }
+    // MessageViewFragment.Callback
+    @Override
+    public void onCalendarLinkClicked(long epochEventStartTime) {
+        ActivityHelper.openCalendar(mActivity, epochEventStartTime);
+    }
 
-        @Override
-        public void onMailboxNotFound() {
-            open(getUIAccountId(), Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
-        }
+    // MessageViewFragment.Callback
+    @Override
+    public boolean onUrlInMessageClicked(String url) {
+        return ActivityHelper.openUrlInMessage(mActivity, url, getActualAccountId());
+    }
 
-        @Override
-        public void onMessageOpen(
-                long messageId, long messageMailboxId, long listMailboxId, int type) {
-            if (type == MessageListFragment.Callback.TYPE_DRAFT) {
-                MessageCompose.actionEditDraft(mActivity, messageId);
-            } else {
-                open(getUIAccountId(), getMailboxId(), messageId);
-            }
-        }
+    // MessageViewFragment.Callback
+    @Override
+    public void onBeforeMessageGone() {
+        // TODO Auto-generated method stub
+    }
 
-        @Override
-        public boolean onDragStarted() {
-            // No drag&drop on 1-pane
-            return false;
-        }
+    // MessageViewFragment.Callback
+    @Override
+    public void onMessageSetUnread() {
+        // TODO Auto-generated method stub
+    }
 
-        @Override
-        public void onDragEnded() {
-            // No drag&drop on 1-pane
-        }
-    };
+    // MessageViewFragment.Callback
+    @Override
+    public void onRespondedToInvite(int response) {
+        // TODO Auto-generated method stub
+    }
 
-    private final MessageViewFragment.Callback mMessageViewFragmentCallback =
-            new MessageViewFragment.Callback() {
-        @Override
-        public void onForward() {
-            MessageCompose.actionForward(mActivity, getMessageId());
-        }
+    // MessageViewFragment.Callback
+    @Override
+    public void onLoadMessageError(String errorMessage) {
+        // TODO Auto-generated method stub
+    }
 
-        @Override
-        public void onReply() {
-            MessageCompose.actionReply(mActivity, getMessageId(), false);
-        }
+    // MessageViewFragment.Callback
+    @Override
+    public void onLoadMessageFinished() {
+        // TODO Auto-generated method stub
+    }
 
-        @Override
-        public void onReplyAll() {
-            MessageCompose.actionReply(mActivity, getMessageId(), true);
-        }
+    // MessageViewFragment.Callback
+    @Override
+    public void onLoadMessageStarted() {
+        // TODO Auto-generated method stub
+    }
 
-        @Override
-        public void onCalendarLinkClicked(long epochEventStartTime) {
-            ActivityHelper.openCalendar(mActivity, epochEventStartTime);
-        }
+    // MessageViewFragment.Callback
+    @Override
+    public void onMessageNotExists() {
+        // TODO Auto-generated method stub
+    }
 
-        @Override
-        public boolean onUrlInMessageClicked(String url) {
-            return ActivityHelper.openUrlInMessage(mActivity, url, getActualAccountId());
-        }
-
-        @Override
-        public void onBeforeMessageGone() {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onMessageSetUnread() {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onRespondedToInvite(int response) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onLoadMessageError(String errorMessage) {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onLoadMessageFinished() {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onLoadMessageStarted() {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void onMessageNotExists() {
-            // TODO Auto-generated method stub
-
-        }
-
-
-        @Override
-        public void onMessageShown() {
-            // TODO Auto-generated method stub
-
-        }
-    };
+    // MessageViewFragment.Callback
+    @Override
+    public void onMessageShown() {
+        // TODO Auto-generated method stub
+    }
 
     // This is all temporary as we'll have a different action bar controller for 1-pane.
-    private final ActionBarController.Callback mActionBarControllerCallback
-            = new ActionBarController.Callback() {
+    private class ActionBarControllerCallback implements ActionBarController.Callback {
         @Override
         public boolean shouldShowMailboxName() {
             return false; // no mailbox name/unread count.
@@ -230,8 +231,8 @@ class UIControllerOnePane extends UIControllerBase {
 
         @Override
         public boolean shouldShowUp() {
-            // Always show the UP arrow.
-            return true;
+            return isMessageViewVisible()
+                     || (isMailboxListVisible() && !getMailboxListFragment().isRoot());
         }
 
         @Override
@@ -254,37 +255,30 @@ class UIControllerOnePane extends UIControllerBase {
             Welcome.actionStart(mActivity);
             mActivity.finish();
         }
-    };
+    }
 
     public UIControllerOnePane(EmailActivity activity) {
         super(activity);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * At this point we use synchronous transactions.
-     */
     @Override
-    protected void commitFragmentTransaction(FragmentTransaction ft) {
-        super.commitFragmentTransaction(ft);
-        mActivity.getFragmentManager().executePendingTransactions();
+    protected ActionBarController createActionBarController(Activity activity) {
+
+        // For now, we just reuse the same action bar controller used for 2-pane.
+        // We may change it later.
+
+        return new ActionBarController(activity, activity.getLoaderManager(),
+                activity.getActionBar(), new ActionBarControllerCallback());
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong(BUNDLE_KEY_ACCOUNT_ID, mCurrentAccountId);
-        outState.putLong(BUNDLE_KEY_MAILBOX_ID, mCurrentMailboxId);
-        outState.putLong(BUNDLE_KEY_MESSAGE_ID, mCurrentMessageId);
     }
 
     @Override
     public void restoreInstanceState(Bundle savedInstanceState) {
         super.restoreInstanceState(savedInstanceState);
-        mCurrentAccountId = savedInstanceState.getLong(BUNDLE_KEY_ACCOUNT_ID, Account.NO_ACCOUNT);
-        mCurrentMailboxId = savedInstanceState.getLong(BUNDLE_KEY_MAILBOX_ID, Mailbox.NO_MAILBOX);
-        mCurrentMessageId = savedInstanceState.getLong(BUNDLE_KEY_MESSAGE_ID, Message.NO_MESSAGE);
     }
 
     @Override
@@ -295,8 +289,6 @@ class UIControllerOnePane extends UIControllerBase {
     @Override
     public void onActivityViewReady() {
         super.onActivityViewReady();
-        mActionBarController = new ActionBarController(mActivity, mActivity.getLoaderManager(),
-                mActivity.getActionBar(), mActionBarControllerCallback);
 
         mMessageCommandButtons = UiUtilities.getView(mActivity, R.id.message_command_buttons);
         mMessageCommandButtons.setCallback(new CommandButtonCallback());
@@ -305,7 +297,6 @@ class UIControllerOnePane extends UIControllerBase {
     @Override
     public void onActivityCreated() {
         super.onActivityCreated();
-        mActionBarController.onActivityCreated();
     }
 
     @Override
@@ -314,76 +305,96 @@ class UIControllerOnePane extends UIControllerBase {
         refreshActionBar();
     }
 
+    /** @return true if a {@link MailboxListFragment} is installed and visible. */
+    private final boolean isMailboxListVisible() {
+        return isMailboxListInstalled();
+    }
+
+    /** @return true if a {@link MessageListFragment} is installed and visible. */
+    private final boolean isMessageListVisible() {
+        return isMessageListInstalled();
+    }
+
+    /** @return true if a {@link MessageViewFragment} is installed and visible. */
+    private final boolean isMessageViewVisible() {
+        return isMessageViewInstalled();
+    }
+
     @Override
     public long getUIAccountId() {
-        return mCurrentAccountId;
+        // Get it from the visible fragment.
+        if (isMailboxListVisible()) {
+            return getMailboxListFragment().getAccountId();
+        }
+        if (isMessageListVisible()) {
+            return getMessageListFragment().getAccountId();
+        }
+        if (isMessageViewVisible()) {
+            return getMessageViewFragment().getOpenerAccountId();
+        }
+        return Account.NO_ACCOUNT;
     }
 
     private long getMailboxId() {
-        return mCurrentMailboxId;
+        // Get it from the visible fragment.
+        if (isMessageListVisible()) {
+            return getMessageListFragment().getMailboxId();
+        }
+        if (isMessageViewVisible()) {
+            return getMessageViewFragment().getOpenerMailboxId();
+        }
+        return Mailbox.NO_MAILBOX;
     }
 
     private long getMessageId() {
-        return mCurrentMessageId;
+        // Get it from the visible fragment.
+        if (isMessageViewVisible()) {
+            return getMessageViewFragment().getMessageId();
+        }
+        return Message.NO_MESSAGE;
     }
+
+    private final MailboxFinder.Callback mInboxLookupCallback = new MailboxFinder.Callback() {
+        @Override
+        public void onMailboxFound(long accountId, long mailboxId) {
+            // Inbox found.
+            openMailbox(accountId, mailboxId);
+        }
+
+        @Override
+        public void onAccountNotFound() {
+            // Account removed?
+            Welcome.actionStart(mActivity);
+        }
+
+        @Override
+        public void onMailboxNotFound(long accountId) {
+            // Inbox not found??
+            Welcome.actionStart(mActivity);
+        }
+
+        @Override
+        public void onAccountSecurityHold(long accountId) {
+            mActivity.startActivity(AccountSecurity.actionUpdateSecurityIntent(mActivity, accountId,
+                    true));
+        }
+    };
 
     @Override
     protected Callback getInboxLookupCallback() {
-        // We don't call startInboxLookup in UIControllerOnePane, so shouldn't be called.
-        throw new RuntimeException("SHOULD NOT BE CALLED"); // STOPSHIP
-    }
-
-    private void refreshActionBar() {
-        if (mActionBarController != null) {
-            mActionBarController.refresh();
-        }
-        mActivity.invalidateOptionsMenu();
-    }
-
-    private boolean isMailboxListVisible() {
-        return (getMailboxId() == Mailbox.NO_MAILBOX);
-    }
-
-    private boolean isMessageListVisible() {
-        return (getMailboxId() != Mailbox.NO_MAILBOX) && (getMessageId() == Message.NO_MESSAGE);
-    }
-
-    private boolean isMessageViewVisible() {
-        return (getMailboxId() != Mailbox.NO_MAILBOX) && (getMessageId() != Message.NO_MESSAGE);
+        return mInboxLookupCallback;
     }
 
     @Override
     public boolean onBackPressed(boolean isSystemBackKey) {
         if (isMessageViewVisible()) {
-            open(getUIAccountId(), getMailboxId(), Message.NO_MESSAGE);
+            openMailbox(getMessageViewFragment().getOpenerAccountId(),
+                    getMessageViewFragment().getOpenerMailboxId());
             return true;
-        } else if (isMessageListVisible()) {
-            open(getUIAccountId(), Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
+        } else if (isMailboxListVisible() && getMailboxListFragment().navigateUp()) {
             return true;
-        } else {
-            // TODO Call MailboxListFragment.navigateUp().
-
-            // STOPSHIP Remove this and return false.  This is so that the app can be closed
-            // with the UP press.  (usuful when the device doesn't have a HW back key.)
-            mActivity.finish();
-            return true;
-//          return false;
         }
-    }
-
-    @Override
-    protected void installMailboxListFragment(MailboxListFragment fragment) {
-        fragment.setCallback(mMailboxListFragmentCallback);
-    }
-
-    @Override
-    protected void installMessageListFragment(MessageListFragment fragment) {
-        fragment.setCallback(mMessageListFragmentCallback);
-    }
-
-    @Override
-    protected void installMessageViewFragment(MessageViewFragment fragment) {
-        fragment.setCallback(mMessageViewFragmentCallback);
+        return false;
     }
 
     @Override
@@ -396,40 +407,63 @@ class UIControllerOnePane extends UIControllerBase {
             throw new IllegalArgumentException();
         }
 
-        // !!! It's all temporary to make 1 pane UI (barely) usable !!!
-        //
-        // - Nested folders still doesn't work
-        // - When opening a child view (e.g. message list -> message view), we should retain
-        //   the current fragment so that all the state (selection, scroll position, etc) will be
-        //   restored when back.
-
         if ((getUIAccountId() == accountId) && (getMailboxId() == mailboxId)
                 && (getMessageId() == messageId)) {
             return;
         }
 
-        final FragmentManager fm = mActivity.getFragmentManager();
-        final FragmentTransaction ft = fm.beginTransaction();
-
         if (messageId != Message.NO_MESSAGE) {
-            ft.replace(R.id.fragment_placeholder, MessageViewFragment.newInstance(messageId));
-
+            showMessageView(accountId, mailboxId, messageId);
         } else if (mailboxId != Mailbox.NO_MAILBOX) {
-            ft.replace(R.id.fragment_placeholder, MessageListFragment.newInstance(
-                    accountId, mailboxId));
-
+            showMessageList(accountId, mailboxId);
         } else {
-            ft.replace(R.id.fragment_placeholder,
-                    MailboxListFragment.newInstance(accountId, Mailbox.NO_MAILBOX, false));
+            // Mailbox not specified.  Open Inbox or Combined Inbox.
+            if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                showMessageList(accountId, Mailbox.QUERY_ALL_INBOXES);
+            } else {
+                startInboxLookup(accountId);
+            }
         }
+    }
 
-        mCurrentAccountId = accountId;
-        mCurrentMailboxId = mailboxId;
-        mCurrentMessageId = messageId;
+    private void uninstallAllFragments(FragmentTransaction ft) {
+        if (isMailboxListInstalled()) {
+            uninstallMailboxListFragment(ft);
+        }
+        if (isMessageListInstalled()) {
+            uninstallMessageListFragment(ft);
+        }
+        if (isMessageViewInstalled()) {
+            uninstallMessageViewFragment(ft);
+        }
+    }
 
+    private void showMailboxList(long accountId, long mailboxId) {
+        showFragment(MailboxListFragment.newInstance(accountId, mailboxId, false));
+    }
+
+    private void showMessageList(long accountId, long mailboxId) {
+        showFragment(MessageListFragment.newInstance(accountId, mailboxId));
+    }
+
+    private void showMessageView(long accountId, long mailboxId, long messageId) {
+        showFragment(MessageViewFragment.newInstance(accountId, mailboxId, messageId));
+    }
+
+    private void showFragment(Fragment fragment) {
+        final FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+        uninstallAllFragments(ft);
+        ft.add(R.id.fragment_placeholder, fragment);
         commitFragmentTransaction(ft);
+    }
 
-        refreshActionBar();
+    private void showAllMailboxes() {
+        if (!isAccountSelected()) {
+            return; // Can happen because of asyncronous fragment transactions.
+        }
+        // Don't use open(account, NO_MAILBOX, NO_MESSAGE).  This is used to open the default
+        // view, which is Inbox on the message list.
+        showMailboxList(getUIAccountId(), Mailbox.NO_MAILBOX);
     }
 
     /*
@@ -494,5 +528,22 @@ class UIControllerOnePane extends UIControllerBase {
         } else {
             return mRefreshManager.isMailboxListRefreshing(getActualAccountId());
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu) {
+        // STOPSHIP For temporary menu item which should be visible only on 1-pane.
+        menu.findItem(R.id.show_all_folders).setVisible(true);
+        return super.onPrepareOptionsMenu(inflater, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.show_all_folders: // STOPSHIP For temporary menu item
+                showAllMailboxes();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

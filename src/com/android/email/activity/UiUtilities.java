@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.R;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
@@ -122,5 +123,17 @@ public class UiUtilities {
      */
     public static void setVisibilitySafe(View parent, int viewId, int visibility) {
         setVisibilitySafe(parent.findViewById(viewId), visibility);
+    }
+
+    /**
+     * Used by an {@link Fragment} to install itself to the host activity.
+     *
+     * @see FragmentInstallable
+     */
+    public static void installFragment(Fragment fragment) {
+        final Activity a = fragment.getActivity();
+        if (a instanceof FragmentInstallable) {
+            ((FragmentInstallable) a).onInstallFragment(fragment);
+        }
     }
 }

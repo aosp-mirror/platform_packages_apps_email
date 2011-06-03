@@ -54,26 +54,8 @@ class UIControllerTwoPane extends UIControllerBase implements
     @VisibleForTesting
     static final int INBOX_AUTO_REFRESH_MIN_INTERVAL = 10 * 1000; // in milliseconds
 
-    private ActionBarController mActionBarController;
-    private final ActionBarControllerCallback mActionBarControllerCallback =
-            new ActionBarControllerCallback();
-
     // Other UI elements
     private ThreePaneLayout mThreePane;
-
-    /**
-     * Fragments that are installed.
-     *
-     * A fragment is installed when:
-     * - it is attached to the activity
-     * - the parent activity is created
-     * - and it is not scheduled to be removed.
-     *
-     * We set callbacks to fragments only when they are installed.
-     */
-    private MailboxListFragment mMailboxListFragment;
-    private MessageListFragment mMessageListFragment;
-    private MessageViewFragment mMessageViewFragment;
 
     private MessageCommandButtonView mMessageCommandButtons;
 
@@ -98,12 +80,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     public UIControllerTwoPane(EmailActivity activity) {
         super(activity);
         FragmentManager.enableDebugLogging(true);
-    }
-
-    private void refreshActionBar() {
-        if (mActionBarController != null) {
-            mActionBarController.refresh();
-        }
     }
 
     @Override
@@ -163,7 +139,7 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
         // Disable CAB when the message list is not visible.
         if (isMessageListInstalled()) {
-            mMessageListFragment.onHidden((visiblePanes & ThreePaneLayout.PANE_MIDDLE) == 0);
+            getMessageListFragment().onHidden((visiblePanes & ThreePaneLayout.PANE_MIDDLE) == 0);
         }
     }
 
@@ -377,8 +353,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     @Override
     public void onActivityViewReady() {
         super.onActivityViewReady();
-        mActionBarController = new ActionBarController(mActivity, mActivity.getLoaderManager(),
-                mActivity.getActionBar(), mActionBarControllerCallback);
 
         // Set up content
         mThreePane = (ThreePaneLayout) mActivity.findViewById(R.id.three_pane);
@@ -388,6 +362,12 @@ class UIControllerTwoPane extends UIControllerBase implements
         mMessageCommandButtons.setCallback(new CommandButtonCallback());
     }
 
+    @Override
+    protected ActionBarController createActionBarController(Activity activity) {
+        return new ActionBarController(activity, activity.getLoaderManager(),
+                activity.getActionBar(), new ActionBarControllerCallback());
+    }
+
     /**
      * @return the currently selected account ID, *or* {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
      *
@@ -395,7 +375,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      */
     @Override
     public long getUIAccountId() {
-        return isMailboxListInstalled() ? mMailboxListFragment.getAccountId()
+        return isMailboxListInstalled() ? getMailboxListFragment().getAccountId()
                 :Account.NO_ACCOUNT;
     }
 
@@ -406,7 +386,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      *     {@link #getMessageListMailboxId()}
      */
     private long getMailboxListMailboxId() {
-        return isMailboxListInstalled() ? mMailboxListFragment.getSelectedMailboxId()
+        return isMailboxListInstalled() ? getMailboxListFragment().getSelectedMailboxId()
                 : Mailbox.NO_MAILBOX;
     }
 
@@ -417,7 +397,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      *     {@link #getMessageListMailboxId()}
      */
     private long getMessageListMailboxId() {
-        return isMessageListInstalled() ? mMessageListFragment.getMailboxId()
+        return isMessageListInstalled() ? getMessageListFragment().getMailboxId()
                 : Message.NO_MESSAGE;
     }
 
@@ -438,22 +418,9 @@ class UIControllerTwoPane extends UIControllerBase implements
     }
 
     private long getMessageId() {
-        return isMessageViewInstalled() ? mMessageViewFragment.getMessageId()
+        return isMessageViewInstalled() ? getMessageViewFragment().getMessageId()
                 : Message.NO_MESSAGE;
     }
-
-    private boolean isMailboxListInstalled() {
-        return mMailboxListFragment != null;
-    }
-
-    private boolean isMessageListInstalled() {
-        return mMessageListFragment != null;
-    }
-
-    private boolean isMessageViewInstalled() {
-        return mMessageViewFragment != null;
-    }
-
 
     /**
      * @return true if refresh is in progress for the current mailbox.
@@ -481,7 +448,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     @Override
     public void onActivityCreated() {
         super.onActivityCreated();
-        mActionBarController.onActivityCreated();
     }
 
     /** {@inheritDoc} */
@@ -537,66 +503,27 @@ class UIControllerTwoPane extends UIControllerBase implements
     }
 
     @Override
-    protected void installMailboxListFragment(MailboxListFragment fragment) {
-        mMailboxListFragment = fragment;
-        mMailboxListFragment.setCallback(this);
-
-        // Update action bar / menu
-        updateRefreshProgress();
-        refreshActionBar();
-    }
-
-    @Override
     protected void installMessageListFragment(MessageListFragment fragment) {
-        mMessageListFragment = fragment;
-        mMessageListFragment.setCallback(this);
+        super.installMessageListFragment(fragment);
 
         if (isMailboxListInstalled()) {
-            mMailboxListFragment.setHighlightedMailbox(mMessageListFragment.getMailboxId());
+            getMailboxListFragment().setHighlightedMailbox(fragment.getMailboxId());
         }
-
-        // Update action bar / menu
-        updateRefreshProgress();
-        refreshActionBar();
     }
 
     @Override
     protected void installMessageViewFragment(MessageViewFragment fragment) {
-        mMessageViewFragment = fragment;
-        mMessageViewFragment.setCallback(this);
+        super.installMessageViewFragment(fragment);
 
         if (isMessageListInstalled()) {
-            mMessageListFragment.setSelectedMessage(mMessageViewFragment.getMessageId());
+            getMessageListFragment().setSelectedMessage(fragment.getMessageId());
         }
     }
 
-    private FragmentTransaction uninstallMailboxListFragment(FragmentTransaction ft) {
-        if (isMailboxListInstalled()) {
-            ft.remove(mMailboxListFragment);
-            mMailboxListFragment.setCallback(null);
-            mMailboxListFragment = null;
-        }
-        return ft;
-    }
-
-    private FragmentTransaction uninstallMessageListFragment(FragmentTransaction ft) {
-        if (isMessageListInstalled()) {
-            ft.remove(mMessageListFragment);
-            mMessageListFragment.setCallback(null);
-            mMessageListFragment = null;
-        }
-        return ft;
-    }
-
-    private FragmentTransaction uninstallMessageViewFragment(FragmentTransaction ft) {
-        if (isMessageViewInstalled()) {
-            ft.remove(mMessageViewFragment);
-            mMessageViewFragment.setCallback(null);
-            mMessageViewFragment = null;
-            // Don't need it when there's no message view.
-            stopMessageOrderManager();
-        }
-        return ft;
+    @Override
+    protected void onMessageViewFragmentUninstalled(MessageViewFragment fragment) {
+        // Don't need it when there's no message view.
+        stopMessageOrderManager();
     }
 
     /**
@@ -639,20 +566,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     }
 
     /**
-     * Pre-fragment transaction check.
-     *
-     * @throw IllegalStateException if updateXxx methods can't be called in the current state.
-     */
-    private void preFragmentTransactionCheck() {
-        if (!isFragmentInstallable()) {
-            // Code assumes mMailboxListFragment/etc are set right within the
-            // commitFragmentTransaction() call (because we use synchronous transaction),
-            // so updateXxx() can't be called if fragments are not installable yet.
-            throw new IllegalStateException();
-        }
-    }
-
-    /**
      * Loads the given account and optionally selects the given mailbox and message. If the
      * specified account is already selected, no actions will be performed unless
      * <code>forceReload</code> is <code>true</code>.
@@ -669,11 +582,9 @@ class UIControllerTwoPane extends UIControllerBase implements
             Log.d(Logging.LOG_TAG, this + " updateMailboxList accountId=" + accountId
                     + " mailboxId=" + mailboxId);
         }
-        preFragmentTransactionCheck();
         if (accountId == Account.NO_ACCOUNT) {
             throw new IllegalArgumentException();
         }
-
 
         if ((getUIAccountId() != accountId) || (getMailboxListMailboxId() != mailboxId)) {
             uninstallMailboxListFragment(ft);
@@ -721,7 +632,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " updateMessageList mMailboxId=" + mailboxId);
         }
-        preFragmentTransactionCheck();
         if (mailboxId == Mailbox.NO_MAILBOX) {
             throw new IllegalArgumentException();
         }
@@ -758,7 +668,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " updateMessageView messageId=" + messageId);
         }
-        preFragmentTransactionCheck();
         if (messageId == Message.NO_MESSAGE) {
             throw new IllegalArgumentException();
         }
@@ -768,7 +677,9 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
 
         uninstallMessageViewFragment(ft);
-        ft.add(mThreePane.getRightPaneId(), MessageViewFragment.newInstance(messageId));
+
+        ft.add(mThreePane.getRightPaneId(), MessageViewFragment.newInstance(
+                getUIAccountId(), getMessageListMailboxId(), messageId));
     }
 
     /**
@@ -786,8 +697,8 @@ class UIControllerTwoPane extends UIControllerBase implements
     private void unselectMessage() {
         commitFragmentTransaction(uninstallMessageViewFragment(
                 mActivity.getFragmentManager().beginTransaction()));
-        if (mMessageListFragment != null) {
-            mMessageListFragment.setSelectedMessage(Message.NO_MESSAGE);
+        if (isMessageListInstalled()) {
+            getMessageListFragment().setSelectedMessage(Message.NO_MESSAGE);
         }
     }
 
@@ -891,7 +802,7 @@ class UIControllerTwoPane extends UIControllerBase implements
     public boolean onBackPressed(boolean isSystemBackKey) {
         if (mThreePane.onBackPressed(isSystemBackKey)) {
             return true;
-        } else if (isMailboxListInstalled() && mMailboxListFragment.navigateUp()) {
+        } else if (isMailboxListInstalled() && getMailboxListFragment().navigateUp()) {
             return true;
         }
         return false;
@@ -1061,7 +972,7 @@ class UIControllerTwoPane extends UIControllerBase implements
             final int visiblePanes = mThreePane.getVisiblePanes();
             final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
             return leftPaneHidden
-                    || (isMailboxListInstalled() && !mMailboxListFragment.isRoot());
+                    || (isMailboxListInstalled() && !getMailboxListFragment().isRoot());
         }
     }
 }

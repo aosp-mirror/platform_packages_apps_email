@@ -272,6 +272,9 @@
     <!-- Label shown in the account selector to select "Combined view", which contains
          Combined Inbox, Combined Outbox, etc. [CHAR LIMIT=30] -->
     <string name="mailbox_list_account_selector_combined_view">Combined view</string>
+    <!-- Label shown in the account/mailbox selector to switch to the show all the top-level
+         mailboxes. [CHAR LIMIT=30] -->
+    <string name="mailbox_list_account_selector_show_all_folders">Show all folders</string>
 
     <!-- Appears at the bottom of list of messages; user selects to load more messages from that folder. -->
     <string name="message_list_load_more_messages_action">Load more messages</string>

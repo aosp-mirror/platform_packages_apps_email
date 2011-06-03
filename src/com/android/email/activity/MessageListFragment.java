@@ -394,6 +394,8 @@ public class MessageListFragment extends ListFragment
         }
 
         startLoading();
+
+        UiUtilities.installFragment(this);
     }
 
     @Override

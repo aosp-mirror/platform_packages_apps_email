@@ -58,7 +58,7 @@ import java.util.ArrayList;
  * Because this activity is device agnostic, so most of the UI aren't owned by this, but by
  * the UIController.
  */
-public class EmailActivity extends Activity implements View.OnClickListener {
+public class EmailActivity extends Activity implements View.OnClickListener, FragmentInstallable {
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     private static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
@@ -196,9 +196,6 @@ public class EmailActivity extends Activity implements View.OnClickListener {
         int errorBannerHeight = getResources().getDimensionPixelSize(R.dimen.error_message_height);
         mErrorBanner = new BannerController(this, errorMessage, errorBannerHeight);
 
-        // Install restored fragments.
-        mUIController.installRestoredFragments();
-
         if (savedInstanceState != null) {
             mUIController.restoreInstanceState(savedInstanceState);
         } else {
@@ -233,12 +230,11 @@ public class EmailActivity extends Activity implements View.OnClickListener {
     }
 
     @Override
-    public void onAttachFragment(Fragment fragment) {
+    public void onInstallFragment(Fragment fragment) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, this + " onAttachFragment fragment=" + fragment);
+            Log.d(Logging.LOG_TAG, this + " onInstallFragment fragment=" + fragment);
         }
-        super.onAttachFragment(fragment);
-        mUIController.onAttachFragment(fragment);
+        mUIController.onInstallFragment(fragment);
     }
 
     @Override
