@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.email.data;
+package com.android.email.activity;
 
 import com.android.email.DBTestHelper;
 import com.android.email.provider.ProviderTestUtils;
@@ -24,7 +24,13 @@ import com.android.emailcommon.provider.Mailbox;
 import android.content.Context;
 import android.test.LoaderTestCase;
 
-public class MailboxAccountLoaderTestCase extends LoaderTestCase {
+public class MessagesAdapterTests extends LoaderTestCase {
+    // Account ID that's probably not in the database.
+    private static final long NO_SUCH_ACCOUNT_ID = 1234567890123L;
+
+    // Mailbox ID that's probably not in the database.
+    private static final long NO_SUCH_MAILBOX_ID = 1234567890123L;
+
     // Isolated Context for providers.
     private Context mProviderContext;
 
@@ -50,6 +56,11 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
         return box.mId;
     }
 
+    private MessagesAdapter.CursorWithExtras getLoaderResult(long mailboxId) {
+        return (MessagesAdapter.CursorWithExtras) getLoaderResultSynchronously(
+                MessagesAdapter.createLoader(mProviderContext, mailboxId));
+    }
+
     /**
      * Test for normal case.  (account, mailbox found)
      */
@@ -57,8 +68,7 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
         final long accountId = createAccount(false);
         final long mailboxId = createMailbox(accountId, Mailbox.TYPE_MAIL);
 
-        MailboxAccountLoader.Result result = getLoaderResultSynchronously(
-                new MailboxAccountLoader(mProviderContext, mailboxId));
+        MessagesAdapter.CursorWithExtras result = getLoaderResult(mailboxId);
         assertTrue(result.mIsFound);
         assertEquals(accountId, result.mAccount.mId);
         assertEquals(mailboxId, result.mMailbox.mId);
@@ -73,8 +83,7 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
         final long accountId = createAccount(true);
         final long mailboxId = createMailbox(accountId, Mailbox.TYPE_MAIL);
 
-        MailboxAccountLoader.Result result = getLoaderResultSynchronously(
-                new MailboxAccountLoader(mProviderContext, mailboxId));
+        MessagesAdapter.CursorWithExtras result = getLoaderResult(mailboxId);
         assertTrue(result.mIsFound);
         assertEquals(accountId, result.mAccount.mId);
         assertEquals(mailboxId, result.mMailbox.mId);
@@ -89,8 +98,7 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
         final long accountId = createAccount(false);
         final long mailboxId = createMailbox(accountId, Mailbox.TYPE_DRAFTS);
 
-        MailboxAccountLoader.Result result = getLoaderResultSynchronously(
-                new MailboxAccountLoader(mProviderContext, mailboxId));
+        MessagesAdapter.CursorWithExtras result = getLoaderResult(mailboxId);
         assertTrue(result.mIsFound);
         assertEquals(accountId, result.mAccount.mId);
         assertEquals(mailboxId, result.mMailbox.mId);
@@ -102,8 +110,7 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
      * Mailbox not found.
      */
     public void testMailboxNotFound() {
-        MailboxAccountLoader.Result result = getLoaderResultSynchronously(
-                new MailboxAccountLoader(mProviderContext, 123));
+        MessagesAdapter.CursorWithExtras result = getLoaderResult(NO_SUCH_MAILBOX_ID);
         assertFalse(result.mIsFound);
         assertNull(result.mAccount);
         assertNull(result.mMailbox);
@@ -115,10 +122,9 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
      * Account not found.
      */
     public void testAccountNotFound() {
-        final long mailboxId = createMailbox(1, Mailbox.TYPE_MAIL);
+        final long mailboxId = createMailbox(NO_SUCH_ACCOUNT_ID, Mailbox.TYPE_MAIL);
 
-        MailboxAccountLoader.Result result = getLoaderResultSynchronously(
-                new MailboxAccountLoader(mProviderContext, mailboxId));
+        MessagesAdapter.CursorWithExtras result = getLoaderResult(mailboxId);
         assertFalse(result.mIsFound);
         assertNull(result.mAccount);
         assertNull(result.mMailbox);
@@ -130,8 +136,7 @@ public class MailboxAccountLoaderTestCase extends LoaderTestCase {
      * Magic mailbox.  (always found)
      */
     public void testMagicMailbox() {
-        MailboxAccountLoader.Result result = getLoaderResultSynchronously(
-                new MailboxAccountLoader(mProviderContext, Mailbox.QUERY_ALL_INBOXES));
+        MessagesAdapter.CursorWithExtras result = getLoaderResult(Mailbox.QUERY_ALL_INBOXES);
         assertTrue(result.mIsFound);
         assertNull(result.mAccount);
         assertNull(result.mMailbox);
