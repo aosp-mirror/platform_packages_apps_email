@@ -1954,7 +1954,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 allAddresses.add(address);
             }
 
-            safeAddAddresses(message.mTo, ourAddress, mToView, allAddresses);
+            safeAddAddresses(message.mTo, ourAddress, mCcView, allAddresses);
             safeAddAddresses(message.mCc, ourAddress, mCcView, allAddresses);
         }
         showCcBccFieldsIfFilled();

@@ -516,8 +516,8 @@ public class MessageComposeTests
      *
      * In this case, we're doing a "reply all"
      * The user is TO1 (a "to" recipient)
-     * The to should be: FROM and TO2
-     * The cc should be: CC1, CC2, and CC3
+     * The to should be: FROM
+     * The cc should be: TO2, CC1, CC2, and CC3
      */
     public void testReplyAllAddresses1() throws Throwable {
         final MessageCompose a = getActivity();
@@ -537,10 +537,10 @@ public class MessageComposeTests
                 a.initFromIntent(intent);
                 a.setupAddressViews(message, account, true);
                 String result = Address.parseAndPack(mToView.getText().toString());
-                String expected = Address.parseAndPack(FROM + ',' + TO2);
+                String expected = Address.parseAndPack(FROM);
                 assertEquals(expected, result);
                 result = Address.parseAndPack(mCcView.getText().toString());
-                expected = Address.parseAndPack(CC1 + ',' + CC2 + ',' + CC3);
+                expected = Address.parseAndPack(TO2 + ',' + CC1 + ',' + CC2 + ',' + CC3);
                 assertEquals(expected, result);
                 TestUtils.assertViewVisible(mCcView);
             }
@@ -553,8 +553,8 @@ public class MessageComposeTests
      *
      * In this case, we're doing a "reply all"
      * The user is CC2 (a "cc" recipient)
-     * The to should be: FROM, TO1, and TO2
-     * The cc should be: CC1 and CC3 (CC2 is our account's email address)
+     * The to should be: FROM, 
+     * The cc should be: TO1, TO2, CC1 and CC3 (CC2 is our account's email address)
      */
     public void testReplyAllAddresses2() throws Throwable {
         final MessageCompose a = getActivity();
@@ -574,10 +574,10 @@ public class MessageComposeTests
                 a.initFromIntent(intent);
                 a.setupAddressViews(message, account, true);
                 String result = Address.parseAndPack(mToView.getText().toString());
-                String expected = Address.parseAndPack(FROM + ',' + TO1 + ',' + TO2);
+                String expected = Address.parseAndPack(FROM);
                 assertEquals(expected, result);
                 result = Address.parseAndPack(mCcView.getText().toString());
-                expected = Address.parseAndPack(CC1 + ',' + CC3);
+                expected = Address.parseAndPack(TO1 + ',' + TO2 + ',' + CC1 + ',' + CC3);
                 assertEquals(expected, result);
                 TestUtils.assertViewVisible(mCcView);
             }
@@ -611,10 +611,10 @@ public class MessageComposeTests
                 a.initFromIntent(intent);
                 a.setupAddressViews(message, account, true);
                 String result = Address.parseAndPack(mToView.getText().toString());
-                String expected = Address.parseAndPack(FROM + ',' + TO1 + ',' + TO2 + ',' + TO3);
+                String expected = Address.parseAndPack(FROM);
                 assertEquals(expected, result);
                 result = Address.parseAndPack(mCcView.getText().toString());
-                expected = Address.parseAndPack(CC3);
+                expected = Address.parseAndPack(TO1 + ',' + TO2 + ',' + TO3+ ',' + CC3);
                 assertEquals(expected, result);
                 TestUtils.assertViewVisible(mCcView);
             }
