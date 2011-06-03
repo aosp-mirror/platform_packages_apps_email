@@ -639,7 +639,8 @@ public class EmailProvider extends ContentProvider {
             + MailboxColumns.VISIBLE_LIMIT + " integer, "
             + MailboxColumns.SYNC_STATUS + " text, "
             + MailboxColumns.MESSAGE_COUNT + " integer not null default 0, "
-            + MailboxColumns.LAST_SEEN_MESSAGE_KEY + " integer"
+            + MailboxColumns.LAST_SEEN_MESSAGE_KEY + " integer, "
+            + MailboxColumns.LAST_TOUCHED_TIME + " integer default 0"
             + ");";
         db.execSQL("create table " + Mailbox.TABLE_NAME + s);
         db.execSQL("create index mailbox_" + MailboxColumns.SERVER_ID
