@@ -41,10 +41,4 @@
         android:layout_height="0dip"
         android:layout_weight="1"
         />
-    <!-- TODO temporarily gone  -->
-    <include
-        layout="@layout/message_command_button_view"
-        android:id="@+id/message_command_buttons"
-        android:visibility="gone"
-        />
 </LinearLayout>

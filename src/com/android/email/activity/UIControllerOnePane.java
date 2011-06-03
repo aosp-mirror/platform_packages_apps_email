@@ -57,9 +57,6 @@ import java.util.Set;
  * - TODO Implement callbacks
  */
 class UIControllerOnePane extends UIControllerBase {
-    // TODO Newer/Older buttons not needed.  Remove this.
-    private MessageCommandButtonView mMessageCommandButtons;
-
     // MailboxListFragment.Callback
     @Override
     public void onAccountSelected(long accountId) {
@@ -289,9 +286,6 @@ class UIControllerOnePane extends UIControllerBase {
     @Override
     public void onActivityViewReady() {
         super.onActivityViewReady();
-
-        mMessageCommandButtons = UiUtilities.getView(mActivity, R.id.message_command_buttons);
-        mMessageCommandButtons.setCallback(new CommandButtonCallback());
     }
 
     @Override
@@ -484,18 +478,6 @@ class UIControllerOnePane extends UIControllerBase {
         // Search is still experimental, and doesn't have to work on the phone.
         Utility.showToast(mActivity, "STOPSHIP: Search not supported on 1 pane");
         return Mailbox.NO_MAILBOX;
-    }
-
-    private class CommandButtonCallback implements MessageCommandButtonView.Callback {
-        @Override
-        public void onMoveToNewer() {
-            // TODO
-        }
-
-        @Override
-        public void onMoveToOlder() {
-            // TODO
-        }
     }
 
     @Override
