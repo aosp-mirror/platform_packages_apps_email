@@ -1220,6 +1220,16 @@ public class MessageListFragment extends ListFragment
             // Suspend message notifications as long as we're resumed
             adjustMessageNotification(false);
 
+            // Save list view state (primarily scroll position)
+            final ListView lv = getListView();
+            final Parcelable listState;
+            if (mSavedListState != null) {
+                listState = mSavedListState;
+                mSavedListState = null;
+            } else {
+                listState = lv.onSaveInstanceState();
+            }
+
             // If this is a search mailbox, set the query; otherwise, clear it
             if (mMailbox != null && mMailbox.mType == Mailbox.TYPE_SEARCH) {
                 mListAdapter.setQuery(mMailbox.mDisplayName);
@@ -1246,10 +1256,7 @@ public class MessageListFragment extends ListFragment
 
             // Restore the state -- this step has to be the last, because Some of the
             // "post processing" seems to reset the scroll position.
-            if (mSavedListState != null) {
-                getListView().onRestoreInstanceState(mSavedListState);
-                mSavedListState = null;
-            }
+            lv.onRestoreInstanceState(listState);
 
             // Clear this for next reload triggered by content changed events.
             mIsFirstLoad = false;

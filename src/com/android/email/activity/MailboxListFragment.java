@@ -20,7 +20,6 @@ import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
-import com.android.email.activity.MailboxListFragment.Callback;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -811,6 +810,16 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 }
             }
 
+            // Save list view state (primarily scroll position)
+            final ListView lv = getListView();
+            final Parcelable listState;
+            if (mSavedListState != null) {
+                listState = mSavedListState;
+                mSavedListState = null;
+            } else {
+                listState = lv.onSaveInstanceState();
+            }
+
             if (cursor.getCount() == 0) {
                 // There's no row -- call setListShown(false) to make ListFragment show progress
                 // icon.
@@ -840,12 +849,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             mDropTargetId = NO_DROP_TARGET;
             mDropTargetView = null;
 
-            // Restore the state.  Need to do it manually so that the position will be restored
-            // even after orientation changes.
-            if (mSavedListState != null) {
-                getListView().onRestoreInstanceState(mSavedListState);
-                mSavedListState = null;
-            }
+            // Restore the list state.
+            lv.onRestoreInstanceState(listState);
 
             mIsFirstLoad = false;
         }
