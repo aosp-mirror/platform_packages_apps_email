@@ -71,6 +71,8 @@
     <item quantity="other" msgid="2723797835410343458">"ในบัญชี <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> บัญชี"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"ถึง <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <!-- no translation found for account_name_display_all (4041817500580342035) -->
+    <skip />
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> บัญชี"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> บัญชี"</item>
@@ -81,6 +83,16 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"ถังขยะ"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"ส่งแล้ว"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"ขยะ"</string>
+    <!-- no translation found for mailbox_name_display_unread (1015674989793998695) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_unread (6392491216581687644) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_inbox (2277030979530376085) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_fmt (6276294768978512737) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_account_count:one (380235084337895804) -->
+    <!-- no translation found for picker_combined_view_account_count:other (4145163147488719025) -->
     <string name="debug_version_fmt" msgid="6160213145745376955">"รุ่น: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"กล่องจดหมาย"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"ที่ติดดาว"</string>
@@ -359,10 +371,8 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"นำบัญชีออก"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"บัญชีอีเมล"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"เลือกบัญชี"</string>
-    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
-    <skip />
-    <!-- no translation found for toast_account_not_found (2483831308629565584) -->
-    <skip />
+    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"เลือกกล่องจดหมาย"</string>
+    <string name="toast_account_not_found" msgid="2483831308629565584">"ไม่พบบัญชี บัญชีอาจถูกนำออกไปแล้ว"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"มีเพียงบัญชีแบบ \"Plus\" บางประเภทเท่านั้นที่มีการเข้าถึงแบบ POP ที่โปรแกรมสามารถเชื่อมต่อได้ ถ้าคุณไม่สามารถลงชื่อเข้าใช้ด้วยที่อยู่อีเมลและรหัสผ่านที่ถูกต้อง อาจเป็นเพราะคุณไม่มีบัญชี \"Plus\" แบบมีค่าใช้จ่าย โปรดเปิดเว็บเบราว์เซอร์เพื่อเข้าถึงบัญชีอีเมลเหล่านี้"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"ก่อนที่จะตั้งค่าบัญชีอีเมลนี้ โปรดเข้าสู่เว็บไซต์ T-Online และสร้างรหัสผ่านสำหรับการเข้าถึงอีเมลแบบ POP3"</string>
     <string name="exchange_name" msgid="1190783774800310346">"องค์กร"</string>

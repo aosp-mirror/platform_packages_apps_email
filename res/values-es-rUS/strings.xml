@@ -71,6 +71,8 @@
     <item quantity="other" msgid="2723797835410343458">"en <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> cuentas"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"para <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <!-- no translation found for account_name_display_all (4041817500580342035) -->
+    <skip />
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"Cuenta <xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g>"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> cuentas"</item>
@@ -81,6 +83,16 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Papelera"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Enviado"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"No solicitado"</string>
+    <!-- no translation found for mailbox_name_display_unread (1015674989793998695) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_unread (6392491216581687644) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_inbox (2277030979530376085) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_fmt (6276294768978512737) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_account_count:one (380235084337895804) -->
+    <!-- no translation found for picker_combined_view_account_count:other (4145163147488719025) -->
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versión: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Bandeja de entrada"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Marcado con asterisco"</string>
@@ -359,8 +371,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Eliminar cuenta"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Cuenta de correo electrónico"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Seleccionar una cuenta"</string>
-    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
-    <skip />
+    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"Seleccionar casilla"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"No se encontró la cuenta. Puede que ésta se haya eliminado."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Sólo algunas cuentas \"Plus\" incluyen el acceso POP, que permite que este programa se conecte. Si no puedes acceder con tu dirección de correo electrónico y contraseña correcta, es posible que no tengas una cuenta \"Plus\" paga. Inicia el navegador web para acceder a estas cuentas de correo."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Antes de configurar esta cuenta de correo electrónico, visita el sitio web de T-Online y crea una contraseña para el acceso de correo electrónico POP3."</string>

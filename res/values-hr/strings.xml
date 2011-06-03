@@ -71,6 +71,8 @@
     <item quantity="other" msgid="2723797835410343458">"u <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> računa"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"za <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <!-- no translation found for account_name_display_all (4041817500580342035) -->
+    <skip />
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> račun"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> računa"</item>
@@ -81,6 +83,16 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Otpad"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Poslano"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Smeće"</string>
+    <!-- no translation found for mailbox_name_display_unread (1015674989793998695) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_unread (6392491216581687644) -->
+    <skip />
+    <!-- no translation found for picker_mailbox_name_all_inbox (2277030979530376085) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_fmt (6276294768978512737) -->
+    <skip />
+    <!-- no translation found for picker_combined_view_account_count:one (380235084337895804) -->
+    <!-- no translation found for picker_combined_view_account_count:other (4145163147488719025) -->
     <string name="debug_version_fmt" msgid="6160213145745376955">"Verzija: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Pristigla pošta"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Sa zvjezdicom"</string>
@@ -152,7 +164,7 @@
     <string name="attachment_info_application_settings" msgid="9128108769497191200">"Postavke aplikacija"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Nije moguće otvoriti privitak."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Ne možete spremiti ili otvoriti ovu vrstu aplikacije jer može sadržavati zlonamjerni softver."</string>
-    <string name="attachment_info_policy" msgid="328224012587376154">"Ovaj prilog ne može se spremiti ili otvoriti zbog sigurnosnih pravila za ovaj račun."</string>
+    <string name="attachment_info_policy" msgid="328224012587376154">"Ovaj privitak ne može se spremiti ili otvoriti zbog sigurnosnih pravila za ovaj račun."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Ovaj je privitak prevelik za preuzimanje putem mobilne mreže. Možete ga preuzeti sljedeći put kad se spojite na Wi-Fi mrežu."</string>
     <string name="attachment_info_no_intent" msgid="5277484372596654977">"Nema instalirane aplikacije koja može otvoriti ovaj privitak. Pokušajte preuzeti odgovarajuću aplikaciju s usluge Android Market."</string>
     <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Ovaj privitak je aplikacija. Prije nego što ćete je moći instalirati, u Postavkama, pod stavkom Aplikacije, morate uključiti potvrdni okvir za Nepoznate izvore."</string>
@@ -359,8 +371,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Brisanje računa"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"R. e-pošte"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Odaberite račun"</string>
-    <!-- no translation found for mailbox_shortcut_picker_title (252224234897876714) -->
-    <skip />
+    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"Odaberite spremnik"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Račun nije pronađen. Možda je uklonjen."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Samo neki \"Plus\" računi uključuju POP pristup koji ovom programu omogućuje povezivanje. Ako se ne možete prijaviti sa svojom ispravnom adresom e-pošte i zaporkom, možda niste platili \"Plus\" račun. Pokrenite web-preglednik kako biste dobili pristup ovim računima e-pošte."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Prije postavljanja ovog računa e-pošte posjetite web-lokaciju T-Online i izradite zaporku za POP3 pristup e-pošti."</string>
