@@ -34,6 +34,12 @@
   *** *Anim(...);
 }
 
+-keepclasseswithmembers class com.android.email.activity.RecentMailboxManager {
+  *** touch(long);
+  *** getInstance(android.content.Context);
+  *** getMostRecent(long, boolean);
+}
+
 -keepclasseswithmembers class com.android.email.activity.setup.AccountSetupAccountType {
   *** checkAccountInstanceLimit(com.android.email.mail.Store$StoreInfo);
 }
