@@ -62,4 +62,7 @@
     <dimen name="date_font_size">14sp</dimen>
     <dimen name="minimum_width_wide_mode">800dip</dimen>
     <dimen name="minimum_width_normal_mode">550dip</dimen>
+
+    <!-- Username/password entry -->
+    <dimen name="setup_credentials_input_width">340dip</dimen>
 </resources>
