@@ -124,6 +124,8 @@
     <skip />
     <!-- no translation found for mailbox_list_account_selector_combined_view (1556327299894225044) -->
     <skip />
+    <!-- no translation found for mailbox_list_account_selector_show_all_folders (4185052839366909439) -->
+    <skip />
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Muatkan lagi mesej"</string>
     <!-- no translation found for message_view_selected_message_count:one (5064657358375178519) -->
     <!-- no translation found for message_view_selected_message_count:other (7901361399231876038) -->
