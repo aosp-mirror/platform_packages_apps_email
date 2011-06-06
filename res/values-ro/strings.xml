@@ -99,6 +99,8 @@
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Mesaje nefinalizate"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Mesaje de trimis"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Afişare combinată"</string>
+    <!-- no translation found for mailbox_list_account_selector_show_all_folders (4185052839366909439) -->
+    <skip />
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Încărcaţi mai multe mesaje"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> selectate"</item>
@@ -371,7 +373,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Eliminaţi contul"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mail"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Selectaţi un cont"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"Select. o căs. poşt."</string>
+    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"Sel. căsuţă poştală"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Contul nu a fost găsit şi este posibil să fi fost eliminat."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Numai unele conturi de tip „Plus” includ accesul de tip POP, permiţând conectarea acestui program. Dacă nu reuşiţi să vă conectaţi cu adresa de e-mail şi parola corecte, este posibil să nu aveţi un cont de tip „Plus” plătit. Lansaţi browserul web pentru a obţine accesul la aceste conturi de e-mail."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Înainte de configurarea acestui cont de e-mail, vizitaţi T-Online pe web şi creaţi-vă o parolă pentru accesul la serviciile de e-mail POP3."</string>

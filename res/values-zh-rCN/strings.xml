@@ -99,6 +99,8 @@
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"草稿"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"发件箱"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"合并的视图"</string>
+    <!-- no translation found for mailbox_list_account_selector_show_all_folders (4185052839366909439) -->
+    <skip />
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"载入更多邮件"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"已选定 <xliff:g id="MESSAGE_COUNT">%d</xliff:g> 封"</item>

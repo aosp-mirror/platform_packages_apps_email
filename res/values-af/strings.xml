@@ -130,6 +130,8 @@
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Uitkassie"</string>
     <!-- no translation found for mailbox_list_account_selector_combined_view (1556327299894225044) -->
     <skip />
+    <!-- no translation found for mailbox_list_account_selector_show_all_folders (4185052839366909439) -->
+    <skip />
     <!-- no translation found for message_list_load_more_messages_action (7428302707908825692) -->
     <skip />
     <!-- no translation found for message_view_selected_message_count:one (5064657358375178519) -->

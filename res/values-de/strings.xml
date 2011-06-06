@@ -99,6 +99,8 @@
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Entwürfe"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Postausgang"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Kombinierte Ansicht"</string>
+    <!-- no translation found for mailbox_list_account_selector_show_all_folders (4185052839366909439) -->
+    <skip />
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Weitere Nachrichten laden"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> ausgewählt"</item>
