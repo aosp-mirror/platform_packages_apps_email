@@ -16,6 +16,8 @@
 
 package com.android.email.activity;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import com.android.email.R;
 import com.android.email.data.ClosingMatrixCursor;
 import com.android.email.data.ThrottlingCursorLoader;
@@ -28,47 +30,52 @@ import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.database.MatrixCursor.RowBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 /**
- * Adapter for the account selector on {@link UIControllerTwoPane}.
+ * Account selector spinner.
  *
  * TODO Test it!
  */
 public class AccountSelectorAdapter extends CursorAdapter {
-    /** Projection used to query from Account */
+    /** meta data column for an account's unread count */
+    private static final String UNREAD_COUNT = "unreadCount";
+    /** meta data column for the row type; used for display purposes */
+    private static final String ROW_TYPE = "rowType";
+    private static final int ROW_TYPE_HEADER = AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER;
+    @SuppressWarnings("unused")
+    private static final int ROW_TYPE_MAILBOX = 0;
+    private static final int ROW_TYPE_ACCOUNT = 1;
+    private static final int ITEM_VIEW_TYPE_ACCOUNT = 0;
+    /** Projection for account database query */
     private static final String[] ACCOUNT_PROJECTION = new String[] {
-        EmailContent.RECORD_ID,
-        EmailContent.Account.DISPLAY_NAME,
-        EmailContent.Account.EMAIL_ADDRESS,
+        Account.ID,
+        Account.DISPLAY_NAME,
+        Account.EMAIL_ADDRESS,
     };
-
     /**
-     * Projection for the resulting MatrixCursor -- must be {@link #ACCOUNT_PROJECTION}
-     * with "UNREAD_COUNT".
+     * Projection used for the selector display; we add meta data that doesn't exist in the
+     * account database, so, this should be a super-set of {@link #ACCOUNT_PROJECTION}.
      */
-    private static final String[] RESULT_PROJECTION = new String[] {
-        EmailContent.RECORD_ID,
-        EmailContent.Account.DISPLAY_NAME,
-        EmailContent.Account.EMAIL_ADDRESS,
-        "UNREAD_COUNT"
+    private static final String[] ADAPTER_PROJECTION = new String[] {
+        ROW_TYPE,
+        Account.ID,
+        Account.DISPLAY_NAME,
+        Account.EMAIL_ADDRESS,
+        UNREAD_COUNT,
     };
-
-    private static final int ID_COLUMN = 0;
-    private static final int DISPLAY_NAME_COLUMN = 1;
-    private static final int EMAIL_ADDRESS_COLUMN = 2;
-    private static final int UNREAD_COUNT_COLUMN = 3;
 
     /** Sort order.  Show the default account first. */
     private static final String ORDER_BY =
             EmailContent.Account.IS_DEFAULT + " desc, " + EmailContent.Account.RECORD_ID;
 
     private final LayoutInflater mInflater;
+    @SuppressWarnings("hiding")
     private final Context mContext;
 
     public static Loader<Cursor> createLoader(Context context) {
@@ -83,27 +90,37 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
-        final View view = mInflater.inflate(R.layout.account_selector_dropdown, parent, false);
+        Cursor c = getCursor();
+        c.moveToPosition(position);
 
-        final TextView displayNameView = (TextView) view.findViewById(R.id.display_name);
-        final TextView emailAddressView = (TextView) view.findViewById(R.id.email_address);
-        final TextView unreadCountView = (TextView) view.findViewById(R.id.unread_count);
-
-        final String displayName = getAccountDisplayName(position);
-        final String emailAddress = getAccountEmailAddress(position);
-
-        displayNameView.setText(displayName);
-
-        // Show the email address only when it's different from the display name.
-        if (emailAddress.equals(displayName)) {
-            emailAddressView.setVisibility(View.GONE);
+        View view;
+        if (c.getInt(c.getColumnIndex(ROW_TYPE)) == ROW_TYPE_HEADER) {
+            view = mInflater.inflate(R.layout.account_selector_dropdown_header, parent, false);
+            final TextView displayNameView = (TextView) view.findViewById(R.id.display_name);
+            final String displayName = getAccountDisplayName(c);
+            displayNameView.setText(displayName);
         } else {
-            emailAddressView.setVisibility(View.VISIBLE);
-            emailAddressView.setText(emailAddress);
-        }
+            view = mInflater.inflate(R.layout.account_selector_dropdown, parent, false);
+            final TextView displayNameView = (TextView) view.findViewById(R.id.display_name);
+            final TextView emailAddressView = (TextView) view.findViewById(R.id.email_address);
+            final TextView unreadCountView = (TextView) view.findViewById(R.id.unread_count);
 
-        unreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
-                getAccountUnreadCount(position), false));
+            final String displayName = getAccountDisplayName(position);
+            final String emailAddress = getAccountEmailAddress(position);
+
+            displayNameView.setText(displayName);
+
+            // Show the email address only when it's different from the display name.
+            if (displayName.equals(emailAddress)) {
+                emailAddressView.setVisibility(View.GONE);
+            } else {
+                emailAddressView.setVisibility(View.VISIBLE);
+                emailAddressView.setText(emailAddress);
+            }
+
+            unreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
+                    getAccountUnreadCount(position), false));
+        }
         return view;
     }
 
@@ -118,9 +135,29 @@ public class AccountSelectorAdapter extends CursorAdapter {
         return mInflater.inflate(R.layout.account_selector, parent, false);
     }
 
-    /** @return Account id extracted from a Cursor. */
-    public static long getAccountId(Cursor c) {
-        return c.getLong(ID_COLUMN);
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        Cursor c = getCursor();
+        c.moveToPosition(position);
+        return c.getLong(c.getColumnIndex(ROW_TYPE)) == ROW_TYPE_HEADER
+                ? AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER
+                : ITEM_VIEW_TYPE_ACCOUNT;
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return (getItemViewType(position) != AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER);
+    }
+
+    public boolean isAccountItem(int position) {
+        Cursor c = getCursor();
+        c.moveToPosition(position);
+        return (c.getLong(c.getColumnIndex(ROW_TYPE)) == ROW_TYPE_ACCOUNT);
     }
 
     private String getAccountDisplayName(int position) {
@@ -138,19 +175,24 @@ public class AccountSelectorAdapter extends CursorAdapter {
         return c.moveToPosition(position) ? getAccountUnreadCount(c) : 0;
     }
 
-    /** @return Account name extracted from a Cursor. */
-    public static String getAccountDisplayName(Cursor cursor) {
-        return cursor.getString(DISPLAY_NAME_COLUMN);
+    /** Returns the account ID extracted from the given cursor. */
+    static long getAccountId(Cursor c) {
+        return c.getLong(c.getColumnIndex(Account.ID));
     }
 
-    /** @return Email address extracted from a Cursor. */
-    public static String getAccountEmailAddress(Cursor cursor) {
-        return cursor.getString(EMAIL_ADDRESS_COLUMN);
+    /** Returns the account name extracted from the given cursor. */
+    static String getAccountDisplayName(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Account.DISPLAY_NAME));
     }
 
-    /** @return Unread count extracted from a Cursor. */
-    public static int getAccountUnreadCount(Cursor cursor) {
-        return cursor.getInt(UNREAD_COUNT_COLUMN);
+    /** Returns the email address extracted from the given cursor. */
+    private static String getAccountEmailAddress(Cursor cursor) {
+        return cursor.getString(cursor.getColumnIndex(Account.EMAIL_ADDRESS));
+    }
+
+    /** Returns the unread count extracted from the given cursor. */
+    private static int getAccountUnreadCount(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(UNREAD_COUNT));
     }
 
     /**
@@ -159,7 +201,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
      * - # of unread messages in inbox
      * - The "Combined view" row if there's more than one account.
      */
-    /* package */ static class AccountsLoader extends ThrottlingCursorLoader {
+    @VisibleForTesting
+    static class AccountsLoader extends ThrottlingCursorLoader {
         private final Context mContext;
 
         public AccountsLoader(Context context) {
@@ -171,44 +214,51 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
         @Override
         public Cursor loadInBackground() {
-            // Fetch account list
             final Cursor accountsCursor = super.loadInBackground();
-
-            // Cursor that's actually returned.
             // Use ClosingMatrixCursor so that accountsCursor gets closed too when it's closed.
-            final MatrixCursor resultCursor = new ClosingMatrixCursor(RESULT_PROJECTION,
-                    accountsCursor);
-            accountsCursor.moveToPosition(-1);
+            final MatrixCursor resultCursor
+                    = new ClosingMatrixCursor(ADAPTER_PROJECTION, accountsCursor);
+            addAccountsToCursor(resultCursor, accountsCursor);
+            // TODO Add mailbox recent list to the end of the return cursor
+            return Utility.CloseTraceCursorWrapper.get(resultCursor);
+        }
 
-            // Build the cursor...
+        /** Adds the account list [with extra meta data] to the given matrix cursor */
+        private void addAccountsToCursor(MatrixCursor matrixCursor, Cursor accountCursor) {
+            accountCursor.moveToPosition(-1);
+            // Add a header for the accounts
+            matrixCursor.newRow()
+                .add(ROW_TYPE_HEADER)
+                .add(0L)
+                .add(mContext.getString(R.string.mailbox_list_account_selector_account_header))
+                .add(null)
+                .add(0L);
             int totalUnread = 0;
-            while (accountsCursor.moveToNext()) {
+            while (accountCursor.moveToNext()) {
                 // Add account, with its unread count.
-                final long accountId = accountsCursor.getLong(0);
+                final long accountId = accountCursor.getLong(0);
                 final int unread = Mailbox.getUnreadCountByAccountAndMailboxType(
                         mContext, accountId, Mailbox.TYPE_INBOX);
-
-                RowBuilder rb = resultCursor.newRow();
-                rb.add(accountId);
-                rb.add(getAccountDisplayName(accountsCursor));
-                rb.add(getAccountEmailAddress(accountsCursor));
-                rb.add(unread);
+                matrixCursor.newRow()
+                    .add(ROW_TYPE_ACCOUNT)
+                    .add(accountId)
+                    .add(getAccountDisplayName(accountCursor))
+                    .add(getAccountEmailAddress(accountCursor))
+                    .add(unread);
                 totalUnread += unread;
             }
-            // Add "combined view"
-            final int countAccounts = resultCursor.getCount();
+            // Add "combined view" if more than one account exists
+            final int countAccounts = matrixCursor.getCount();
             if (countAccounts > 1) {
-                RowBuilder rb = resultCursor.newRow();
-
-                // Add ID, display name, # of accounts, total unread count.
-                rb.add(Account.ACCOUNT_ID_COMBINED_VIEW);
-                rb.add(mContext.getResources().getString(
-                        R.string.mailbox_list_account_selector_combined_view));
-                rb.add(mContext.getResources().getQuantityString(R.plurals.number_of_accounts,
-                        countAccounts, countAccounts));
-                rb.add(totalUnread);
+                matrixCursor.newRow()
+                    .add(ROW_TYPE_ACCOUNT)
+                    .add(Account.ACCOUNT_ID_COMBINED_VIEW)
+                    .add(mContext.getResources().getString(
+                            R.string.mailbox_list_account_selector_combined_view))
+                    .add(mContext.getResources().getQuantityString(R.plurals.number_of_accounts,
+                            countAccounts, countAccounts))
+                    .add(totalUnread);
             }
-            return Utility.CloseTraceCursorWrapper.get(resultCursor);
         }
     }
 }

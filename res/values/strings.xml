@@ -172,7 +172,6 @@
         <item quantity="other"><xliff:g id="unread_message_count" example="279">%1$d</xliff:g> unread (<xliff:g id="account">%2$s</xliff:g>)</item>
     </plurals>
 
-
     <!-- Notification message in notifications window when 2+ accounts have new mail; e.g, "in 3 accounts". -->
     <plurals name="notification_new_multi_account_fmt">
         <!-- Case of "few" (small number of) accounts with unread messages. -->
@@ -275,6 +274,8 @@
     <!-- Label shown in the account/mailbox selector to switch to the show all the top-level
          mailboxes. [CHAR LIMIT=30] -->
     <string name="mailbox_list_account_selector_show_all_folders">Show all folders</string>
+    <!-- Account list header in the account/mailbox selector. [CHAR LIMIT=30] -->
+    <string name="mailbox_list_account_selector_account_header">Accounts</string>
 
     <!-- Appears at the bottom of list of messages; user selects to load more messages from that folder. -->
     <string name="message_list_load_more_messages_action">Load more messages</string>

@@ -17,7 +17,6 @@
 package com.android.email.activity;
 
 import com.android.email.R;
-import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 
 import android.app.ActionBar;
@@ -50,7 +49,9 @@ public class ActionBarController {
         new ActionBarNavigationCallback();
 
     private final AccountSelectorAdapter mAccountsSelectorAdapter;
-    private Cursor mAccountsSelectorCursor;
+    private Cursor mAccountCursor;
+    /** The current account ID; used to determine if the account has changed. */
+    private long mLastAccountIdForDirtyCheck = -1;
 
     public final Callback mCallback;
 
@@ -123,12 +124,7 @@ public class ActionBarController {
         refresh();
     }
 
-    /** Used only in {@link #refresh()} to determine if the account has changed. */
-    private long mLastAccountIdForDirtyCheck = -1;
-
-    /**
-     * Refresh the content.
-     */
+    /** Refreshes the action bar display. */
     public void refresh() {
         mActionBar.setDisplayOptions(mCallback.shouldShowUp()
                 ? ActionBar.DISPLAY_HOME_AS_UP : 0, ActionBar.DISPLAY_HOME_AS_UP);
@@ -146,6 +142,7 @@ public class ActionBarController {
         // Update the account list only when the account has changed.
         if (mLastAccountIdForDirtyCheck != mCallback.getUIAccountId()) {
             mLastAccountIdForDirtyCheck = mCallback.getUIAccountId();
+            // TODO Need to do this all the time as the recent list is shown here
             updateAccountList();
         }
     }
@@ -163,13 +160,13 @@ public class ActionBarController {
 
             @Override
             public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                mAccountsSelectorCursor = data;
+                mAccountCursor = data;
                 updateAccountList();
             }
 
             @Override
             public void onLoaderReset(Loader<Cursor> loader) {
-                mAccountsSelectorCursor = null;
+                mAccountCursor = null;
                 updateAccountList();
             }
         });
@@ -180,10 +177,10 @@ public class ActionBarController {
      * on the action bar.
      */
     private void updateAccountList() {
-        mAccountsSelectorAdapter.swapCursor(mAccountsSelectorCursor);
+        mAccountsSelectorAdapter.swapCursor(mAccountCursor);
 
         final ActionBar ab = mActionBar;
-        if (mAccountsSelectorCursor == null) {
+        if (mAccountCursor == null) {
             // Cursor not ready or closed.
             mAccountsSelectorAdapter.swapCursor(null);
             ab.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
@@ -191,7 +188,7 @@ public class ActionBarController {
             return;
         }
 
-        final int count = mAccountsSelectorCursor.getCount();
+        final int count = mAccountCursor.getCount();
         if (count == 0) {
             mCallback.onNoAccountsFound();
             return;
@@ -199,12 +196,12 @@ public class ActionBarController {
 
         // If only one acount, don't show the dropdown.
         if (count == 1) {
-            mAccountsSelectorCursor.moveToFirst();
+            mAccountCursor.moveToFirst();
 
             // Show the account name as the title.
             ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
             ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(mAccountsSelectorCursor));
+            ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(mAccountCursor));
             return;
         }
 
@@ -212,10 +209,10 @@ public class ActionBarController {
         int defaultSelection = 0;
         if (mCallback.isAccountSelected()) {
             final long accountId = mCallback.getUIAccountId();
-            mAccountsSelectorCursor.moveToPosition(-1);
+            mAccountCursor.moveToPosition(-1);
             int i = 0;
-            while (mAccountsSelectorCursor.moveToNext()) {
-                if (accountId == AccountSelectorAdapter.getAccountId(mAccountsSelectorCursor)) {
+            while (mAccountCursor.moveToNext()) {
+                if (accountId == AccountSelectorAdapter.getAccountId(mAccountCursor)) {
                     defaultSelection = i;
                     break;
                 }
@@ -234,9 +231,12 @@ public class ActionBarController {
 
     private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {
         @Override
-        public boolean onNavigationItemSelected(int itemPosition, long accountId) {
-            if (accountId != mCallback.getUIAccountId()) {
-                mCallback.onAccountSelected(accountId);
+        public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+            if (mAccountsSelectorAdapter.isAccountItem(itemPosition)
+                    && itemId != mCallback.getUIAccountId()) {
+                mCallback.onAccountSelected(itemId);
+            } else {
+                // TODO handle mailbox item
             }
             return true;
         }
