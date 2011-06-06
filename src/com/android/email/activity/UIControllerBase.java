@@ -36,6 +36,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Base class for the UI controller.
  *
@@ -84,16 +87,25 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     /**
      * Fragments that are installed.
      *
-     * A fragment is installed when:
-     * - it is attached to the activity
-     * - the parent activity is created
-     * - and it is not scheduled to be removed.
+     * A fragment is installed in {@link Fragment#onActivityCreated} and uninstalled in
+     * {@link Fragment#onDestroyView}, using {@link FragmentInstallable} callbacks.
+     *
+     * This means fragments in the back stack are *not* installed.
      *
      * We set callbacks to fragments only when they are installed.
+     *
+     * @see FragmentInstallable
      */
     private MailboxListFragment mMailboxListFragment;
     private MessageListFragment mMessageListFragment;
     private MessageViewFragment mMessageViewFragment;
+
+    /**
+     * To avoid double-deleting a fragment (which will cause a runtime exception),
+     * we put a fragment in this list when we {@link FragmentTransaction#remove(Fragment)} it,
+     * and remove from the list when we actually uninstall it.
+     */
+    private final List<Fragment> mRemovedFragments = new LinkedList<Fragment>();
 
     private final RefreshManager.Listener mRefreshListener
             = new RefreshManager.Listener() {
@@ -263,57 +275,100 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     }
 
     /**
-     * Uninstall - If the fragment is installed, remove it from the given
-     * {@link FragmentTransaction} and also clears the callabck.
+     * Uninstall a fragment.  Must be caleld from the host activity's
+     * {@link FragmentInstallable#onUninstallFragment}.
      */
-    protected FragmentTransaction uninstallMailboxListFragment(FragmentTransaction ft) {
-        if (isMailboxListInstalled()) {
-            onMailboxListFragmentUninstalled(mMailboxListFragment);
-            ft.remove(mMailboxListFragment);
-            mMailboxListFragment.setCallback(null);
-            mMailboxListFragment = null;
+    public final void onUninstallFragment(Fragment fragment) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onUninstallFragment  fragment=" + fragment);
         }
-        return ft;
+        mRemovedFragments.remove(fragment);
+        if (fragment == mMailboxListFragment) {
+            uninstallMailboxListFragment();
+        } else if (fragment == mMessageListFragment) {
+            uninstallMessageListFragment();
+        } else if (fragment == mMessageViewFragment) {
+            uninstallMessageViewFragment();
+        } else {
+            throw new IllegalArgumentException("Tried to uninstall unknown fragment");
+        }
     }
 
-    /** Called when a {@link MailboxListFragment} is about to be uninstalled */
-    protected void onMailboxListFragmentUninstalled(MailboxListFragment fragment) {
+    /** Uninstall {@link MailboxListFragment} */
+    protected void uninstallMailboxListFragment() {
+        mMailboxListFragment.setCallback(null);
+        mMailboxListFragment = null;
+    }
+
+    /** Uninstall {@link MessageListFragment} */
+    protected void uninstallMessageListFragment() {
+        mMessageListFragment.setCallback(null);
+        mMessageListFragment = null;
+    }
+
+    /** Uninstall {@link MessageViewFragment} */
+    protected void uninstallMessageViewFragment() {
+        mMessageViewFragment.setCallback(null);
+        mMessageViewFragment = null;
     }
 
     /**
-     * Uninstall - If the fragment is installed, remove it from the given
-     * {@link FragmentTransaction} and also clears the callabck.
+     * If a {@link Fragment} is not already in {@link #mRemovedFragments},
+     * {@link FragmentTransaction#remove} it and add to the list.
+     *
+     * Do nothing if {@code fragment} is null.
      */
-    protected FragmentTransaction uninstallMessageListFragment(FragmentTransaction ft) {
-        if (isMessageListInstalled()) {
-            onMessageListFragmentUninstalled(mMessageListFragment);
-            ft.remove(mMessageListFragment);
-            mMessageListFragment.setCallback(null);
-            mMessageListFragment = null;
+    private void removeFragment(FragmentTransaction ft, Fragment fragment) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " removeFragment fragment=" + fragment);
         }
-        return ft;
-    }
-
-    /** Called when a {@link MessageListFragment} is about to be uninstalled */
-    protected void onMessageListFragmentUninstalled(MessageListFragment fragment) {
+        if (fragment == null) {
+            return;
+        }
+        if (!mRemovedFragments.contains(fragment)) {
+            ft.remove(fragment);
+            addFragmentToRemovalList(fragment);
+        }
     }
 
     /**
-     * Uninstall - If the fragment is installed, remove it from the given
-     * {@link FragmentTransaction} and also clears the callabck.
+     * Remove a {@link Fragment} from {@link #mRemovedFragments}.
+     *
+     * {@link #removeMailboxListFragment}, {@link #removeMessageListFragment} and
+     * {@link #removeMessageViewFragment} all call this, so subclasses don't have to do this when
+     * using them.
+     *
+     * However, unfortunately, subclasses have to call this manually when popping from the
+     * back stack to avoid double-delete.
      */
-    protected FragmentTransaction uninstallMessageViewFragment(FragmentTransaction ft) {
-        if (isMessageViewInstalled()) {
-            onMessageViewFragmentUninstalled(mMessageViewFragment);
-            ft.remove(mMessageViewFragment);
-            mMessageViewFragment.setCallback(null);
-            mMessageViewFragment = null;
+    protected void addFragmentToRemovalList(Fragment fragment) {
+        if (fragment != null) {
+            mRemovedFragments.add(fragment);
         }
+    }
+
+    /**
+     * Remove the fragment if it's installed.
+     */
+    protected FragmentTransaction removeMailboxListFragment(FragmentTransaction ft) {
+        removeFragment(ft, mMailboxListFragment);
         return ft;
     }
 
-    /** Called when a {@link MessageViewFragment} is about to be uninstalled */
-    protected void onMessageViewFragmentUninstalled(MessageViewFragment fragment) {
+    /**
+     * Remove the fragment if it's installed.
+     */
+    protected FragmentTransaction removeMessageListFragment(FragmentTransaction ft) {
+        removeFragment(ft, mMessageListFragment);
+        return ft;
+    }
+
+    /**
+     * Remove the fragment if it's installed.
+     */
+    protected FragmentTransaction removeMessageViewFragment(FragmentTransaction ft) {
+        removeFragment(ft, mMessageViewFragment);
+        return ft;
     }
 
     /** @return true if a {@link MailboxListFragment} is installed. */

@@ -136,4 +136,16 @@ public class UiUtilities {
             ((FragmentInstallable) a).onInstallFragment(fragment);
         }
     }
+
+    /**
+     * Used by an {@link Fragment} to uninstall itself from the host activity.
+     *
+     * @see FragmentInstallable
+     */
+    public static void uninstallFragment(Fragment fragment) {
+        final Activity a = fragment.getActivity();
+        if (a instanceof FragmentInstallable) {
+            ((FragmentInstallable) a).onUninstallFragment(fragment);
+        }
+    }
 }

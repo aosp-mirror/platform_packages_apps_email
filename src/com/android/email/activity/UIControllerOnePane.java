@@ -429,15 +429,15 @@ class UIControllerOnePane extends UIControllerBase {
         }
     }
 
-    private void uninstallAllFragments(FragmentTransaction ft) {
+    private void removeAllFragments(FragmentTransaction ft) {
         if (isMailboxListInstalled()) {
-            uninstallMailboxListFragment(ft);
+            removeMailboxListFragment(ft);
         }
         if (isMessageListInstalled()) {
-            uninstallMessageListFragment(ft);
+            removeMessageListFragment(ft);
         }
         if (isMessageViewInstalled()) {
-            uninstallMessageViewFragment(ft);
+            removeMessageViewFragment(ft);
         }
     }
 
@@ -455,7 +455,7 @@ class UIControllerOnePane extends UIControllerBase {
 
     private void showFragment(Fragment fragment) {
         final FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
-        uninstallAllFragments(ft);
+        removeAllFragments(ft);
         ft.add(R.id.fragment_placeholder, fragment);
         commitFragmentTransaction(ft);
     }

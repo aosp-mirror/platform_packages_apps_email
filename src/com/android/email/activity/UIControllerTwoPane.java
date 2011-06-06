@@ -519,9 +519,10 @@ class UIControllerTwoPane extends UIControllerBase implements
     }
 
     @Override
-    protected void onMessageViewFragmentUninstalled(MessageViewFragment fragment) {
+    protected void uninstallMessageViewFragment() {
         // Don't need it when there's no message view.
         stopMessageOrderManager();
+        super.uninstallMessageViewFragment();
     }
 
     /**
@@ -585,13 +586,13 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
 
         if ((getUIAccountId() != accountId) || (getMailboxListMailboxId() != mailboxId)) {
-            uninstallMailboxListFragment(ft);
+            removeMailboxListFragment(ft);
             ft.add(mThreePane.getLeftPaneId(),
                     MailboxListFragment.newInstance(accountId, mailboxId, true));
         }
         if (clearDependentPane) {
-            uninstallMessageListFragment(ft);
-            uninstallMessageViewFragment(ft);
+            removeMessageListFragment(ft);
+            removeMessageViewFragment(ft);
         }
     }
 
@@ -637,12 +638,12 @@ class UIControllerTwoPane extends UIControllerBase implements
         stopInboxLookup();
 
         if (mailboxId != getMessageListMailboxId()) {
-            uninstallMessageListFragment(ft);
+            removeMessageListFragment(ft);
             ft.add(mThreePane.getMiddlePaneId(), MessageListFragment.newInstance(
                     accountId, mailboxId));
         }
         if (clearDependentPane) {
-            uninstallMessageViewFragment(ft);
+            removeMessageViewFragment(ft);
         }
     }
 
@@ -674,7 +675,7 @@ class UIControllerTwoPane extends UIControllerBase implements
             return; // nothing to do.
         }
 
-        uninstallMessageViewFragment(ft);
+        removeMessageViewFragment(ft);
 
         ft.add(mThreePane.getRightPaneId(), MessageViewFragment.newInstance(
                 getUIAccountId(), getMessageListMailboxId(), messageId));
@@ -693,7 +694,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      * Remove the message view if shown.
      */
     private void unselectMessage() {
-        commitFragmentTransaction(uninstallMessageViewFragment(
+        commitFragmentTransaction(removeMessageViewFragment(
                 mActivity.getFragmentManager().beginTransaction()));
         if (isMessageListInstalled()) {
             getMessageListFragment().setSelectedMessage(Message.NO_MESSAGE);

@@ -540,6 +540,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroyView");
         }
+        UiUtilities.uninstallFragment(this);
         super.onDestroyView();
     }
 

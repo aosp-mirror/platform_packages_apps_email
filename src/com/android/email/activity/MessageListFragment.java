@@ -441,6 +441,7 @@ public class MessageListFragment extends ListFragment
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroyView");
         }
+        UiUtilities.uninstallFragment(this);
         updateSelectionMode();
         super.onDestroyView();
     }

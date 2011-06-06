@@ -229,12 +229,22 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         mUIController.onSaveInstanceState(outState);
     }
 
+    // FragmentInstallable
     @Override
     public void onInstallFragment(Fragment fragment) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onInstallFragment fragment=" + fragment);
         }
         mUIController.onInstallFragment(fragment);
+    }
+
+    // FragmentInstallable
+    @Override
+    public void onUninstallFragment(Fragment fragment) {
+        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onUninstallFragment fragment=" + fragment);
+        }
+        mUIController.onUninstallFragment(fragment);
     }
 
     @Override

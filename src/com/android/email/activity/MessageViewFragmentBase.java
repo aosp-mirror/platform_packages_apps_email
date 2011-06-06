@@ -390,6 +390,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroyView");
         }
+        UiUtilities.uninstallFragment(this);
         mController.removeResultCallback(mControllerCallback);
         cancelAllTasks();
         mMessageContentView.destroy();
