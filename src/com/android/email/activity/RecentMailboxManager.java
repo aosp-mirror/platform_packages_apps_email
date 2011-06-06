@@ -36,6 +36,8 @@ import java.util.ArrayList;
 public class RecentMailboxManager {
     @VisibleForTesting
     static Clock sClock = Clock.INSTANCE;
+    @VisibleForTesting
+    static RecentMailboxManager sInstance;
 
     /** The maximum number of results to retrieve */
     private static final int LIMIT_RESULTS = 5;
@@ -50,9 +52,15 @@ public class RecentMailboxManager {
             + " LIMIT ? )";
     /** Similar query to {@link #RECENT_SELECTION}, except, exclude all but user mailboxes */
     private static final String RECENT_SELECTION_WITH_EXCLUSIONS =
-            RECENT_SELECTION + " AND " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_MAIL;
+            MailboxColumns.ID + " IN " +
+            "( SELECT " + MailboxColumns.ID
+            + " FROM " + Mailbox.TABLE_NAME
+            + " WHERE ( " + MailboxColumns.ACCOUNT_KEY + "=? "
+            +     " AND " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_MAIL
+            +     " AND " + MailboxColumns.LAST_TOUCHED_TIME + ">0 )"
+            + " ORDER BY " + MailboxColumns.LAST_TOUCHED_TIME + " DESC"
+            + " LIMIT ? )";
     private final Context mContext;
-    private static RecentMailboxManager sInstance;
 
     public static synchronized RecentMailboxManager getInstance(Context context) {
         if (sInstance == null) {
