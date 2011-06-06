@@ -343,7 +343,6 @@ public class MessageListFragment extends ListFragment
         setHasOptionsMenu(true);
         mController = Controller.getInstance(mActivity);
         mRefreshManager = RefreshManager.getInstance(mActivity);
-        mRefreshManager.registerListener(mRefreshListener);
 
         mListAdapter = new MessagesAdapter(mActivity, this);
         setListAdapter(mListAdapter);
@@ -412,8 +411,9 @@ public class MessageListFragment extends ListFragment
             Log.d(Logging.LOG_TAG, this + " onResume");
         }
         super.onResume();
-        mResumed = true;
         adjustMessageNotification(false);
+        mRefreshManager.registerListener(mRefreshListener);
+        mResumed = true;
     }
 
     @Override
@@ -432,6 +432,9 @@ public class MessageListFragment extends ListFragment
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onStop");
         }
+        mTaskTracker.cancellAllInterrupt();
+        mRefreshManager.unregisterListener(mRefreshListener);
+
         super.onStop();
     }
 
@@ -440,6 +443,7 @@ public class MessageListFragment extends ListFragment
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroyView");
         }
+        updateSelectionMode();
         super.onDestroyView();
     }
 
@@ -448,8 +452,6 @@ public class MessageListFragment extends ListFragment
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroy");
         }
-        mTaskTracker.cancellAllInterrupt();
-        mRefreshManager.unregisterListener(mRefreshListener);
 
         finishSelectionMode();
         super.onDestroy();
@@ -1272,7 +1274,7 @@ public class MessageListFragment extends ListFragment
      */
     public void updateSelectionMode() {
         final int numSelected = getSelectedCount();
-        if ((numSelected == 0) || mDisableCab) {
+        if ((numSelected == 0) || mDisableCab || !isViewCreated()) {
             finishSelectionMode();
             return;
         }
