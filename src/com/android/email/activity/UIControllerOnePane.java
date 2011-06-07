@@ -520,21 +520,4 @@ class UIControllerOnePane extends UIControllerBase {
             return mRefreshManager.isMailboxListRefreshing(getActualAccountId());
         }
     }
-
-    @Override
-    public boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu) {
-        // STOPSHIP For temporary menu item which should be visible only on 1-pane.
-        menu.findItem(R.id.show_all_folders).setVisible(true);
-        return super.onPrepareOptionsMenu(inflater, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.show_all_folders: // STOPSHIP For temporary menu item
-                showAllMailboxes();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }
