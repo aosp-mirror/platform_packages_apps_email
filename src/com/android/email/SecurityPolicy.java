@@ -33,7 +33,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -45,11 +44,11 @@ public class SecurityPolicy {
     private static SecurityPolicy sInstance = null;
     private Context mContext;
     private DevicePolicyManager mDPM;
-    private ComponentName mAdminName;
+    private final ComponentName mAdminName;
     private PolicySet mAggregatePolicy;
 
     /* package */ static final PolicySet NO_POLICY_SET =
-            new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0, false, false);
+            new PolicySet(0, PolicySet.PASSWORD_MODE_NONE, 0, 0, false, 0, 0, 0, false);
 
     /**
      * This projection on Account is for scanning/reading
@@ -106,7 +105,6 @@ public class SecurityPolicy {
      *  password expiration         take the min (strongest mode)
      *  password complex chars      take the max (strongest mode)
      *  encryption                  take the max (logical or)
-     *  encryption (external)       take the max (logical or)
      *
      * @return a policy representing the strongest aggregate.  If no policy sets are defined,
      * a lightweight "nothing required" policy will be returned.  Never null.
@@ -123,7 +121,6 @@ public class SecurityPolicy {
         int passwordExpirationDays = Integer.MAX_VALUE;
         int passwordComplexChars = Integer.MIN_VALUE;
         boolean requireEncryption = false;
-        boolean requireEncryptionExternal = false;
 
         Cursor c = mContext.getContentResolver().query(Account.CONTENT_URI,
                 ACCOUNT_SECURITY_PROJECTION, Account.SECURITY_NONZERO_SELECTION, null, null);
@@ -153,7 +150,6 @@ public class SecurityPolicy {
                     }
                     requireRemoteWipe |= p.mRequireRemoteWipe;
                     requireEncryption |= p.mRequireEncryption;
-                    requireEncryptionExternal |= p.mRequireEncryptionExternal;
                     policiesFound = true;
                 }
             }
@@ -172,7 +168,7 @@ public class SecurityPolicy {
 
             return new PolicySet(minPasswordLength, passwordMode, maxPasswordFails,
                     maxScreenLockTime, requireRemoteWipe, passwordExpirationDays, passwordHistory,
-                    passwordComplexChars, requireEncryption, requireEncryptionExternal);
+                    passwordComplexChars, requireEncryption);
         } else {
             return NO_POLICY_SET;
         }
@@ -233,13 +229,6 @@ public class SecurityPolicy {
                 return false;
             }
         }
-        if (policies.mRequireEncryptionExternal) {
-            // At this time, we only support "external encryption" when it is provided by virtue
-            // of emulating the external storage inside an encrypted device.
-            if (!policies.mRequireEncryption) return false;
-            if (Environment.isExternalStorageRemovable()) return false;
-            if (!Environment.isExternalStorageEmulated()) return false;
-        }
         return true;
     }
 
@@ -265,19 +254,7 @@ public class SecurityPolicy {
                 result = new PolicySet(policies.mMinPasswordLength, policies.mPasswordMode,
                         policies.mMaxPasswordFails, policies.mMaxScreenLockTime,
                         policies.mRequireRemoteWipe, policies.mPasswordExpirationDays,
-                        policies.mPasswordHistory, policies.mPasswordComplexChars, false, false);
-            }
-        }
-        // At this time, we only support "external encryption" when it is provided by virtue
-        // of emulating the external storage inside an encrypted device.
-        if (policies.mRequireEncryptionExternal) {
-            if (Environment.isExternalStorageRemovable()
-                    || !Environment.isExternalStorageEmulated()) {
-                // Make new PolicySet w/o encryption
-                result = new PolicySet(policies.mMinPasswordLength, policies.mPasswordMode,
-                        policies.mMaxPasswordFails, policies.mMaxScreenLockTime,
-                        policies.mRequireRemoteWipe, policies.mPasswordExpirationDays,
-                        policies.mPasswordHistory, policies.mPasswordComplexChars, false, false);
+                        policies.mPasswordHistory, policies.mPasswordComplexChars, false);
             }
         }
         return result;
@@ -398,11 +375,6 @@ public class SecurityPolicy {
                     reasons |= INACTIVE_NEED_ENCRYPTION;
                 }
             }
-            // TODO: If we ever support external storage encryption as a first-class feature,
-            // it will need to be checked here.  For now, if there is a policy request for
-            // external storage encryption, it's sufficient that we've activated internal
-            // storage encryption.
-
             // password failures are counted locally - no test required here
             // no check required for remote wipe (it's supported, if we're the admin)
 
@@ -449,10 +421,6 @@ public class SecurityPolicy {
             dpm.setPasswordMinimumNonLetter(mAdminName, policies.mPasswordComplexChars);
             // encryption required
             dpm.setStorageEncryption(mAdminName, policies.mRequireEncryption);
-            // TODO: If we ever support external storage encryption as a first-class feature,
-            // it will need to be set here.  For now, if there is a policy request for
-            // external storage encryption, it's sufficient that we've activated internal
-            // storage encryption.
         }
     }
 

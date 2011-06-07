@@ -123,13 +123,12 @@ public class PolicySet implements Parcelable {
      * @param passwordHistory (0=not enforced)
      * @param passwordComplexChars (0=not enforced)
      * @param requireEncryption
-     * @param requireEncryptionExternal
      * @throws IllegalArgumentException for illegal arguments.
      */
     public PolicySet(int minPasswordLength, int passwordMode, int maxPasswordFails,
             int maxScreenLockTime, boolean requireRemoteWipe, int passwordExpirationDays,
-            int passwordHistory, int passwordComplexChars, boolean requireEncryption,
-            boolean requireEncryptionExternal) throws IllegalArgumentException {
+            int passwordHistory, int passwordComplexChars, boolean requireEncryption)
+            throws IllegalArgumentException {
         // If we're not enforcing passwords, make sure we clean up related values, since EAS
         // can send non-zero values for any or all of these
         if (passwordMode == PASSWORD_MODE_NONE) {
@@ -180,7 +179,11 @@ public class PolicySet implements Parcelable {
         mPasswordHistory = passwordHistory;
         mPasswordComplexChars = passwordComplexChars;
         mRequireEncryption = requireEncryption;
-        mRequireEncryptionExternal = requireEncryptionExternal;
+
+        // This can never be supported at this time. It exists only for historic reasons where
+        // this was able to be supported prior to the introduction of proper removable storage
+        // support for external storage.
+        mRequireEncryptionExternal = false;
     }
 
     /**
