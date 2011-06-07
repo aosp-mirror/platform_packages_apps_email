@@ -28,6 +28,7 @@ import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 
 /**
@@ -56,7 +57,7 @@ import android.widget.CursorAdapter;
     /**
      * The type of the row to present to the user. There are 4 defined rows that each
      * have a slightly different look. These are typically used in the constant column
-     * <code>row_type</code> specified in {@link #PROJECTION} and {@link #SUBMAILBOX_PROJECTION}.
+     * {@link #ROW_TYPE} specified in {@link #PROJECTION} and {@link #SUBMAILBOX_PROJECTION}.
      */
     /** Both regular and combined mailboxes */
     static final int ROW_TYPE_MAILBOX = 0;
@@ -68,37 +69,44 @@ import android.widget.CursorAdapter;
     static final int ROW_TYPE_CURMAILBOX = 2;
     /** Sub mailboxes */
     static final int ROW_TYPE_SUBMAILBOX = 3;
+    /** Header */
+    static final int ROW_TYPE_HEADER = 4;
 
     /**
-     * Note here we have two ID columns.  The first one is for ListView, which doesn't like ID
-     * values to be negative.  The second one is the actual mailbox ID, which we use in the rest
-     * of code.
-     * ListView uses row IDs for some operations, including onSave/RestoreInstanceState,
-     * and if we use negative IDs they don't work as expected.
-     * Because ListView finds the ID column by name ("_id"), we rename the second column
-     * so that ListView gets the correct column.
+     * Projection for a typical mailbox or account row.
+     * <p><em>NOTE</em> This projection contains two ID columns. The first, named "_id", is used
+     * by the framework ListView implementation. Since ListView does not handle negative IDs in
+     * this column, we define a "mailbox_id" column that contains the real mailbox ID; which
+     * may be negative for special mailboxes.
      */
-    /*package*/ static final String[] PROJECTION = new String[] { MailboxColumns.ID,
-            MailboxColumns.ID + " AS org_mailbox_id",
+    final static String ROW_TYPE = "rowType";
+    final static String ORIGINAL_ID = "orgMailboxId";
+    static final String[] PROJECTION = new String[] { MailboxColumns.ID,
+            MailboxColumns.ID + " AS " + ORIGINAL_ID,
             MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
-            MailboxColumns.MESSAGE_COUNT, ROW_TYPE_MAILBOX + " AS row_type",
+            MailboxColumns.MESSAGE_COUNT, ROW_TYPE_MAILBOX + " AS " + ROW_TYPE,
             MailboxColumns.FLAGS, MailboxColumns.ACCOUNT_KEY };
     // STOPSHIP May need to adjust sub-folder projection depending upon final UX
     /**
      * Projection used to retrieve immediate children for a mailbox. The columns need to
      * be identical to those in {@link #PROJECTION}. We are only changing the constant
-     * column <code>row_type</code>.
+     * column {@link #ROW_TYPE}.
      */
-    /*package*/ static final String[] SUBMAILBOX_PROJECTION = new String[] { MailboxColumns.ID,
-        MailboxColumns.ID + " AS org_mailbox_id",
+    static final String[] SUBMAILBOX_PROJECTION = new String[] { MailboxColumns.ID,
+        MailboxColumns.ID + " AS " + ORIGINAL_ID,
         MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
-        MailboxColumns.MESSAGE_COUNT, ROW_TYPE_SUBMAILBOX + " AS row_type",
+        MailboxColumns.MESSAGE_COUNT, ROW_TYPE_SUBMAILBOX + " AS " + ROW_TYPE,
         MailboxColumns.FLAGS, MailboxColumns.ACCOUNT_KEY };
-    /*package*/ static final String[] CURMAILBOX_PROJECTION = new String[] { MailboxColumns.ID,
-        MailboxColumns.ID + " AS org_mailbox_id",
+    static final String[] CURMAILBOX_PROJECTION = new String[] { MailboxColumns.ID,
+        MailboxColumns.ID + " AS " + ORIGINAL_ID,
         MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
-        MailboxColumns.MESSAGE_COUNT, ROW_TYPE_CURMAILBOX + " AS row_type",
+        MailboxColumns.MESSAGE_COUNT, ROW_TYPE_CURMAILBOX + " AS " + ROW_TYPE,
         MailboxColumns.FLAGS, MailboxColumns.ACCOUNT_KEY };
+    /** Project to use for matrix cursors; rows MUST be identical to {@link #PROJECTION} */
+    static final String[] MATRIX_PROJECTION = new String[] {
+        MailboxColumns.ID, ORIGINAL_ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE,
+        MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT, ROW_TYPE, MailboxColumns.FLAGS,
+        MailboxColumns.ACCOUNT_KEY };
 
     // Column 0 is only for ListView; we don't use it in our code.
     /**
@@ -144,6 +152,8 @@ import android.widget.CursorAdapter;
         public void onBind(MailboxListItem listItem) {
         }
     }
+    private final static int ITEM_VIEW_TYPE_NORMAL = 0;
+    private final static int ITEM_VIEW_TYPE_HEADER = AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER;
 
     /*package*/ static boolean sEnableUpdate = true;
     /*package*/ final LayoutInflater mInflater;
@@ -162,6 +172,28 @@ import android.widget.CursorAdapter;
 
     @Override
     public abstract View newView(Context context, Cursor cursor, ViewGroup parent);
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return isHeader(position) ? ITEM_VIEW_TYPE_HEADER : ITEM_VIEW_TYPE_NORMAL;
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return !isHeader(position);
+    }
+
+    private boolean isHeader(int position) {
+        Cursor c = getCursor();
+        c.moveToPosition(position);
+        int rowType = c.getInt(c.getColumnIndex(ROW_TYPE));
+        return rowType == ROW_TYPE_HEADER;
+    }
 
     /**
      * @return true if the current row is of an account in the combined view.

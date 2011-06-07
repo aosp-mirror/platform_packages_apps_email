@@ -84,6 +84,17 @@ import android.widget.TextView;
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        if (view instanceof MailboxListItem) {
+            bindListItem(view, context, cursor);
+        } else {
+            bindListHeader(view, context, cursor);
+        }
+    }
+    private void bindListHeader(View view, Context context, Cursor cursor) {
+        final TextView nameView = (TextView) view.findViewById(R.id.display_name);
+        nameView.setText(getDisplayName(context, cursor));
+    }
+    private void bindListItem(View view, Context context, Cursor cursor) {
         final boolean isAccount = isAccountRow(cursor);
         final int type = cursor.getInt(COLUMN_TYPE);
         final long id = cursor.getLong(COLUMN_ID);
@@ -182,8 +193,12 @@ import android.widget.TextView;
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        if (cursor.getInt(cursor.getColumnIndex(ROW_TYPE)) == ROW_TYPE_HEADER) {
+            return mInflater.inflate(R.layout.mailbox_list_header, parent, false);
+        }
         return mInflater.inflate(R.layout.mailbox_list_item, parent, false);
     }
+
 
     /**
      * Returns a cursor loader for the mailboxes of the given account.  If <code>parentKey</code>
@@ -261,8 +276,8 @@ import android.widget.TextView;
         MailboxFragmentLoader(Context context, long accountId, long parentKey) {
             super(context, Mailbox.CONTENT_URI,
                     (parentKey != Mailbox.NO_MAILBOX)
-                            ? MailboxesAdapter.SUBMAILBOX_PROJECTION
-                            : MailboxesAdapter.PROJECTION,
+                            ? SUBMAILBOX_PROJECTION
+                            : PROJECTION,
                     MAILBOX_SELECTION_WITH_PARENT,
                     new String[] { Long.toString(accountId), Long.toString(parentKey) },
                     MAILBOX_ORDER_BY);
@@ -293,26 +308,19 @@ import android.widget.TextView;
                         Mailbox.CONTENT_URI, CURMAILBOX_PROJECTION, MAILBOX_SELECTION,
                         new String[] { Long.toString(mAccountId), Long.toString(mParentKey) },
                         null);
-
                 returnCursor = new MergeCursor(new Cursor[] { parentCursor, childMailboxCursor });
             } else {
-                // Add "Starred", only if the account has at least one starred message.
-                // TODO It's currently "combined starred", but the plan is to make it per-account
-                // starred.
-                final int accountStarredCount
-                        = Message.getFavoriteMessageCount(mContext, mAccountId);
+                // TODO Add per-account starred mailbox support
+                final MatrixCursor starredCursor = new MatrixCursor(MATRIX_PROJECTION);
+                int accountStarredCount = Message.getFavoriteMessageCount(mContext, mAccountId);
                 if (accountStarredCount > 0) {
-                    final MatrixCursor starredCursor = new MatrixCursor(getProjection());
+                    // Only add "Starred", if there is at least one starred message
                     final int totalStarredCount = Message.getFavoriteMessageCount(mContext);
                     addCombinedMailboxRow(starredCursor, Mailbox.QUERY_ALL_FAVORITES,
                             Mailbox.TYPE_MAIL, totalStarredCount, true);
-                    returnCursor
-                            = new MergeCursor(new Cursor[] { starredCursor, childMailboxCursor });
-                } else {
-                    returnCursor = childMailboxCursor; // no starred message
                 }
+                returnCursor = new MergeCursor(new Cursor[] { starredCursor, childMailboxCursor });
             }
-
             return new CursorWithExtras(Utility.CloseTraceCursorWrapper.get(returnCursor),
                     childCount);
         }
