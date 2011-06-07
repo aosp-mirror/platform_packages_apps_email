@@ -58,7 +58,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
     private static final int ROW_TYPE_MAILBOX = 0;
     private static final int ROW_TYPE_ACCOUNT = 1;
     private static final int ITEM_VIEW_TYPE_ACCOUNT = 0;
-    private static final int UNKNOWN_POSITION = -1;
+    static final int UNKNOWN_POSITION = -1;
     /** Projection for account database query */
     private static final String[] ACCOUNT_PROJECTION = new String[] {
         Account.ID,
@@ -210,7 +210,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
     }
 
     /** Returns the account ID extracted from the given cursor. */
-    static long getAccountId(Cursor c) {
+    private static long getAccountId(Cursor c) {
         return c.getLong(c.getColumnIndex(Account.ID));
     }
 
@@ -256,8 +256,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
         public Cursor loadInBackground() {
             final Cursor accountsCursor = super.loadInBackground();
             // Use ClosingMatrixCursor so that accountsCursor gets closed too when it's closed.
-            final MatrixCursor resultCursor
-                    = new ClosingMatrixCursor(ADAPTER_PROJECTION, accountsCursor);
+            final CursorWithExtras resultCursor
+                    = new CursorWithExtras(ADAPTER_PROJECTION, accountsCursor);
             final int accountPosition = addAccountsToCursor(resultCursor, accountsCursor);
             addRecentsToCursor(resultCursor, accountPosition);
             return Utility.CloseTraceCursorWrapper.get(resultCursor);
@@ -289,7 +289,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 currentPosition++;
             }
             // Add "combined view" if more than one account exists
-            final int countAccounts = matrixCursor.getCount();
+            final int countAccounts = accountCursor.getCount();
             if (countAccounts > 1) {
                 final String name = mContext.getResources().getString(
                         R.string.mailbox_list_account_selector_combined_view);
@@ -306,7 +306,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
          * @param matrixCursor the cursor to add the list to
          * @param accountPosition the cursor position of the currently selected account
          */
-        private void addRecentsToCursor(MatrixCursor matrixCursor, int accountPosition) {
+        private void addRecentsToCursor(CursorWithExtras matrixCursor, int accountPosition) {
             if (mAccountId <= 0L || mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
                 // Currently selected account isn't usable for our purposes
                 return;
@@ -324,6 +324,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
             if (!useTwoPane && recentMailboxes.size() == 0) {
                 // TODO Add default mailboxes to recentMailboxes for the one pane view
             }
+            matrixCursor.mRecentCount = recentMailboxes.size();
             if (recentMailboxes.size() > 0) {
                 String mailboxHeader = mContext.getString(
                         R.string.mailbox_list_account_selector_mailbox_header_fmt, emailAddress);
@@ -352,6 +353,33 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 .add(emailAddress)
                 .add(unreadCount)
                 .add(listPosition);
+        }
+    }
+
+    /** Cursor with some extra meta data. */
+    static class CursorWithExtras extends ClosingMatrixCursor {
+        /** Number of account elements */
+        final int mAccountCount;
+        /** Number of recent mailbox elements */
+        int mRecentCount;
+
+        private CursorWithExtras(String[] columnNames, Cursor innerCursor) {
+            super(columnNames, innerCursor);
+            mAccountCount = (innerCursor == null) ? 0 : innerCursor.getCount();
+        }
+
+        /**
+         * Returns the cursor position of the item with the given ID. Or {@link #UNKNOWN_POSITION}
+         * if the given ID does not exist.
+         */
+        int getPosition(long id) {
+            moveToPosition(-1);
+            while(moveToNext()) {
+                if (id == getAccountId(this)) {
+                    return getPosition();
+                }
+            }
+            return UNKNOWN_POSITION;
         }
     }
 }

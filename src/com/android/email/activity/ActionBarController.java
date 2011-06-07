@@ -50,7 +50,7 @@ public class ActionBarController {
         new ActionBarNavigationCallback();
 
     private final AccountSelectorAdapter mAccountsSelectorAdapter;
-    private Cursor mAccountCursor;
+    private AccountSelectorAdapter.CursorWithExtras mAccountCursor;
     /** The current account ID; used to determine if the account has changed. */
     private long mLastAccountIdForDirtyCheck = Account.NO_ACCOUNT;
 
@@ -171,7 +171,7 @@ public class ActionBarController {
 
             @Override
             public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                mAccountCursor = data;
+                mAccountCursor = (AccountSelectorAdapter.CursorWithExtras) data;
                 updateAccountList();
             }
 
@@ -199,45 +199,35 @@ public class ActionBarController {
             return;
         }
 
-        final int count = mAccountCursor.getCount();
+        final int count = mAccountCursor.mAccountCount + mAccountCursor.mRecentCount;
         if (count == 0) {
             mCallback.onNoAccountsFound();
             return;
         }
 
-        // If only one acount, don't show the dropdown.
+        // If only one account, don't show the drop down.
+        int selectedPosition = mAccountCursor.getPosition(mCallback.getUIAccountId());
         if (count == 1) {
-            mAccountCursor.moveToFirst();
-
             // Show the account name as the title.
             ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
             ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(mAccountCursor));
+            if (selectedPosition >= 0) {
+                mAccountCursor.moveToPosition(selectedPosition);
+                ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(mAccountCursor));
+            }
             return;
         }
 
-        // Find the currently selected account, and select it.
-        int defaultSelection = 0;
-        if (mCallback.isAccountSelected()) {
-            final long accountId = mCallback.getUIAccountId();
-            mAccountCursor.moveToPosition(-1);
-            int i = 0;
-            while (mAccountCursor.moveToNext()) {
-                if (accountId == AccountSelectorAdapter.getAccountId(mAccountCursor)) {
-                    defaultSelection = i;
-                    break;
-                }
-                i++;
-            }
-        }
-
-        // Update the dropdown list.
+        // Update the drop down list.
         if (ab.getNavigationMode() != ActionBar.NAVIGATION_MODE_LIST) {
             ab.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
             ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
             ab.setListNavigationCallbacks(mAccountsSelectorAdapter, mActionBarNavigationCallback);
         }
-        ab.setSelectedNavigationItem(defaultSelection);
+        // Find the currently selected account, and select it.
+        if (selectedPosition >= 0) {
+            ab.setSelectedNavigationItem(selectedPosition);
+        }
     }
 
     private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {
