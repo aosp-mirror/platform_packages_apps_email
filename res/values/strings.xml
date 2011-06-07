@@ -271,8 +271,7 @@
     <!-- Label shown in the account selector to select "Combined view", which contains
          Combined Inbox, Combined Outbox, etc. [CHAR LIMIT=30] -->
     <string name="mailbox_list_account_selector_combined_view">Combined view</string>
-    <!-- Label shown in the account/mailbox selector to switch to the show all the top-level
-         mailboxes. [CHAR LIMIT=30] -->
+    <!-- Label shown in the account/mailbox selector to switch to the show all the top-level mailboxes. [CHAR LIMIT=30] -->
     <string name="mailbox_list_account_selector_show_all_folders">Show all folders</string>
     <!-- Account list header in the account/mailbox selector. [CHAR LIMIT=30] -->
     <string name="mailbox_list_account_selector_account_header">Accounts</string>

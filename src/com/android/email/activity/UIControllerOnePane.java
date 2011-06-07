@@ -239,7 +239,11 @@ class UIControllerOnePane extends UIControllerBase {
 
         @Override
         public void onMailboxSelected(long mailboxId) {
-            // TODO Implement this
+            if (mailboxId == Mailbox.NO_MAILBOX) {
+                showAllMailboxes();
+            } else {
+                UIControllerOnePane.this.openMailbox(getUIAccountId(), mailboxId);
+            }
         }
 
         @Override
@@ -458,7 +462,7 @@ class UIControllerOnePane extends UIControllerBase {
 
     private void showAllMailboxes() {
         if (!isAccountSelected()) {
-            return; // Can happen because of asyncronous fragment transactions.
+            return; // Can happen because of asynchronous fragment transactions.
         }
         // Don't use open(account, NO_MAILBOX, NO_MESSAGE).  This is used to open the default
         // view, which is Inbox on the message list.

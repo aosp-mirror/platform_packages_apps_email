@@ -78,6 +78,12 @@ public class AccountSelectorAdapter extends CursorAdapter {
         ACCOUNT_POSITION,
     };
 
+    /** Mailbox types for default "recent mailbox" entries if none exist */
+    private static final int[] DEFAULT_RECENT_TYPES = new int[] {
+        Mailbox.TYPE_DRAFTS,
+        Mailbox.TYPE_SENT,
+    };
+
     /** Sort order.  Show the default account first. */
     private static final String ORDER_BY =
             EmailContent.Account.IS_DEFAULT + " desc, " + EmailContent.Account.RECORD_ID;
@@ -322,7 +328,12 @@ public class AccountSelectorAdapter extends CursorAdapter {
             RecentMailboxManager mailboxManager = RecentMailboxManager.getInstance(mContext);
             ArrayList<Long> recentMailboxes = mailboxManager.getMostRecent(mAccountId, useTwoPane);
             if (!useTwoPane && recentMailboxes.size() == 0) {
-                // TODO Add default mailboxes to recentMailboxes for the one pane view
+                for (int type : DEFAULT_RECENT_TYPES) {
+                    Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, mAccountId, type);
+                    if (mailbox != null) {
+                        recentMailboxes.add(mailbox.mId);
+                    }
+                }
             }
             matrixCursor.mRecentCount = recentMailboxes.size();
             if (recentMailboxes.size() > 0) {
@@ -339,7 +350,10 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 }
             }
             if (!useTwoPane) {
-                // TODO Add row to view all mailboxes
+                String name = mContext.getString(
+                        R.string.mailbox_list_account_selector_show_all_folders);
+                addRow(matrixCursor, ROW_TYPE_MAILBOX, Mailbox.NO_MAILBOX, name, null, 0,
+                        UNKNOWN_POSITION);
             }
         }
 
