@@ -62,7 +62,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     private static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
-    private static final String EXTRA_FORCE_PANE_MODE = "FORCE_PANE_MODE";
 
     /** Loader IDs starting with this is safe to use from UIControllers. */
     static final int UI_CONTROLLER_LOADER_ID_BASE = 100;
@@ -141,31 +140,11 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
     }
 
     /**
-     * Set a debug flag to an intent to force open in 1-pane or 2-pane.
-     *
-     * @param useTwoPane true to open in 2-pane.  false to open in 1-pane.
-     */
-    public static void forcePaneMode(Intent i, boolean useTwoPane) {
-        i.putExtra(EXTRA_FORCE_PANE_MODE, useTwoPane ? 2 : 1);
-    }
-
-    /**
      * Initialize {@link #mUIController}.
      */
     private void initUIController() {
-        final boolean twoPane;
-        switch (getIntent().getIntExtra(EXTRA_FORCE_PANE_MODE, -1)) {
-            case 1:
-                twoPane = false;
-                break;
-            case 2:
-                twoPane = true;
-                break;
-            default:
-                twoPane = getResources().getBoolean(R.bool.use_two_pane);
-                break;
-        }
-        mUIController = twoPane ? new UIControllerTwoPane(this) : new UIControllerOnePane(this);
+        mUIController = UiUtilities.useTwoPane(this)
+                ? new UIControllerTwoPane(this) : new UIControllerOnePane(this);
     }
 
     @Override

@@ -323,7 +323,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 emailAddress =
                         matrixCursor.getString(matrixCursor.getColumnIndex(Account.EMAIL_ADDRESS));
             }
-            boolean useTwoPane = mContext.getResources().getBoolean(R.bool.use_two_pane);
+            boolean useTwoPane = UiUtilities.useTwoPane(mContext);
             // Filter system mailboxes if we're using a two-pane view
             RecentMailboxManager mailboxManager = RecentMailboxManager.getInstance(mContext);
             ArrayList<Long> recentMailboxes = mailboxManager.getMostRecent(mAccountId, useTwoPane);

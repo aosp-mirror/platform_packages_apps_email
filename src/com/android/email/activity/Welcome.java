@@ -135,8 +135,11 @@ public class Welcome extends Activity {
     }
 
     /**
-     * Parse the {@link #EXTRA_DEBUG_PANE_MODE} extra and return 1 or 2, if it's set to "1" or "2".
-     * Return 0 otherwise.
+     * If the {@link #EXTRA_DEBUG_PANE_MODE} extra is "1" or "2", return 1 or 2 respectively.
+     * Otherwise return 0.
+     *
+     * @see UiUtilities#setDebugPaneMode(int)
+     * @see UiUtilities#useTwoPane(Context)
      */
     private static int getDebugPaneMode(Intent i) {
         Bundle extras = i.getExtras();
@@ -191,7 +194,6 @@ public class Welcome extends Activity {
     @VisibleForTesting
     static class MainActivityLauncher extends EmailAsyncTask<Void, Void, Void> {
         private final Welcome mFromActivity;
-        private final int mDebugPaneMode;
         private final long mAccountId;
         private final long mMailboxId;
         private final long mMessageId;
@@ -205,7 +207,7 @@ public class Welcome extends Activity {
             mMailboxId = IntentUtilities.getMailboxIdFromIntent(intent);
             mMessageId = IntentUtilities.getMessageIdFromIntent(intent);
             mAccountUuid = IntentUtilities.getAccountUuidFromIntent(intent);
-            mDebugPaneMode = getDebugPaneMode(intent);
+            UiUtilities.setDebugPaneMode(getDebugPaneMode(intent));
         }
 
         private boolean isMailboxSelected() {
@@ -267,9 +269,6 @@ public class Welcome extends Activity {
                                 mMailboxId);
                 } else {
                     i = EmailActivity.createOpenAccountIntent(mFromActivity, accountId);
-                }
-                if (mDebugPaneMode != 0) {
-                    EmailActivity.forcePaneMode(i, mDebugPaneMode == 2);
                 }
                 mFromActivity.startActivity(i);
             }
