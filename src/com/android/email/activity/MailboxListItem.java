@@ -50,7 +50,7 @@ public class MailboxListItem extends RelativeLayout {
     public boolean mIsValidDropTarget;
     /** If {@code true} this item can be navigated to. Otherwise, it can just be selected. */
     public boolean mIsNavigable;
-    public MailboxesAdapter mAdapter;
+    public MailboxFragmentAdapter mAdapter;
 
     private Drawable mBackground;
     private TextView mLabelName;

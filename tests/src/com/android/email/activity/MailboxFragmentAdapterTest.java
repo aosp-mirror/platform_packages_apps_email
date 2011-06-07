@@ -115,11 +115,11 @@ public class MailboxFragmentAdapterTest extends ProviderTestCase2<EmailProvider>
             int count) {
         // _id must always be >= 0; otherwise ListView gets confused.
         Assert.assertTrue(cursor.getLong(cursor.getColumnIndex("_id")) >= 0);
-        Assert.assertEquals(id, MailboxesAdapter.getIdForTest(cursor));
-        Assert.assertEquals(type, MailboxesAdapter.getTypeForTest(cursor));
-        Assert.assertEquals(count, MailboxesAdapter.getMessageCountForTest(cursor));
-        Assert.assertEquals(count, MailboxesAdapter.getUnreadCountForTest(cursor));
+        Assert.assertEquals(id, MailboxFragmentAdapter.getId(cursor));
+        Assert.assertEquals(type, MailboxFragmentAdapter.getType(cursor));
+        Assert.assertEquals(count, MailboxFragmentAdapter.getMessageCount(cursor));
+        Assert.assertEquals(count, MailboxFragmentAdapter.getUnreadCount(cursor));
         Assert.assertEquals(Account.ACCOUNT_ID_COMBINED_VIEW,
-                MailboxesAdapter.getAccountId(cursor));
+                MailboxFragmentAdapter.getAccountId(cursor));
     }
 }

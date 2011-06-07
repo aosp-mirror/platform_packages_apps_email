@@ -16,9 +16,12 @@
 
 package com.android.email.activity;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import com.android.email.Email;
 import com.android.email.FolderProperties;
 import com.android.email.R;
+import com.android.email.ResourceHelper;
 import com.android.email.data.ClosingMatrixCursor;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.Logging;
@@ -38,8 +41,11 @@ import android.database.MatrixCursor;
 import android.database.MatrixCursor.RowBuilder;
 import android.database.MergeCursor;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -57,15 +63,284 @@ import android.widget.TextView;
  * TODO Determine if we actually need a separate adapter / view / loader for nested folder
  * navigation. It's a little convoluted at the moment, but, still manageable.
  */
-/*package*/ class MailboxFragmentAdapter extends MailboxesAdapter {
+class MailboxFragmentAdapter extends CursorAdapter {
+    /**
+     * Callback interface used to report clicks other than the basic list item click or long press.
+     */
+    interface Callback {
+        /** Callback for setting background of mailbox list items during a drag */
+        public void onBind(MailboxListItem listItem);
+    }
+
+    /** Do-nothing callback to avoid null tests for <code>mCallback</code>. */
+    private static final class EmptyCallback implements Callback {
+        public static final Callback INSTANCE = new EmptyCallback();
+        @Override public void onBind(MailboxListItem listItem) { }
+    }
+
+    /*
+     * The type of the row to present to the user. There are 4 defined rows that each
+     * have a slightly different look. These are typically used in the constant column
+     * {@link #ROW_TYPE} specified in {@link #PROJECTION} and {@link #SUBMAILBOX_PROJECTION}.
+     */
+    /** Both regular and combined mailboxes */
+    private static final int ROW_TYPE_MAILBOX = 0;
+    /** Account "mailboxes" in the combined view */
+    private static final int ROW_TYPE_ACCOUNT = 1;
+    // STOPSHIP Need to determine if these types are sufficient for nested folders
+    // The following types are used when drilling into a mailbox
+    /** The current mailbox */
+    private static final int ROW_TYPE_CURMAILBOX = 2;
+    /** Sub mailboxes */
+    private static final int ROW_TYPE_SUBMAILBOX = 3;
+    /** Header */
+    private static final int ROW_TYPE_HEADER = 4;
+
+    /** The type of count to use. Different mailboxes have different counts. */
+    private static final int COUNT_TYPE_UNREAD = 0;
+    private static final int COUNT_TYPE_TOTAL = 1;
+    private static final int COUNT_TYPE_NO_COUNT = 2;
+
+    /** The type of data contained in the cursor row. */
+    private static final String ROW_TYPE = "rowType";
+    /** The original ID of the cursor row. May be negative. */
+    private static final String ORIGINAL_ID = "orgMailboxId";
+    /**
+     * Projection for a typical mailbox or account row.
+     * <p><em>NOTE</em> This projection contains two ID columns. The first, named "_id", is used
+     * by the framework ListView implementation. Since ListView does not handle negative IDs in
+     * this column, we define a "mailbox_id" column that contains the real mailbox ID; which
+     * may be negative for special mailboxes.
+     */
+    private static final String[] PROJECTION = new String[] { MailboxColumns.ID,
+            MailboxColumns.ID + " AS " + ORIGINAL_ID,
+            MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
+            MailboxColumns.MESSAGE_COUNT, ROW_TYPE_MAILBOX + " AS " + ROW_TYPE,
+            MailboxColumns.FLAGS, MailboxColumns.ACCOUNT_KEY };
+    // STOPSHIP May need to adjust sub-folder projection depending upon final UX
+    /**
+     * Projection used to retrieve immediate children for a mailbox. The columns need to
+     * be identical to those in {@link #PROJECTION}. We are only changing the constant
+     * column {@link #ROW_TYPE}.
+     */
+    private static final String[] SUBMAILBOX_PROJECTION = new String[] { MailboxColumns.ID,
+        MailboxColumns.ID + " AS " + ORIGINAL_ID,
+        MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
+        MailboxColumns.MESSAGE_COUNT, ROW_TYPE_SUBMAILBOX + " AS " + ROW_TYPE,
+        MailboxColumns.FLAGS, MailboxColumns.ACCOUNT_KEY };
+    private static final String[] CURMAILBOX_PROJECTION = new String[] { MailboxColumns.ID,
+        MailboxColumns.ID + " AS " + ORIGINAL_ID,
+        MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
+        MailboxColumns.MESSAGE_COUNT, ROW_TYPE_CURMAILBOX + " AS " + ROW_TYPE,
+        MailboxColumns.FLAGS, MailboxColumns.ACCOUNT_KEY };
+    /** Project to use for matrix cursors; rows MUST be identical to {@link #PROJECTION} */
+    private static final String[] MATRIX_PROJECTION = new String[] {
+        MailboxColumns.ID, ORIGINAL_ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE,
+        MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT, ROW_TYPE, MailboxColumns.FLAGS,
+        MailboxColumns.ACCOUNT_KEY };
+
+    /** All mailboxes for the account */
+    private static final String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
+            " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
+    /** All mailboxes with the given parent */
+    private static final String MAILBOX_SELECTION_WITH_PARENT = ALL_MAILBOX_SELECTION +
+            " AND " + MailboxColumns.PARENT_KEY + "=?";
+    /** Selection for a specific mailbox */
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + MailboxColumns.ID + "=?";
+
+    private static final String MAILBOX_ORDER_BY = "CASE " + MailboxColumns.TYPE +
+            " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0" +
+            " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN 1" +
+            " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN 2" +
+            " WHEN " + Mailbox.TYPE_SENT    + " THEN 3" +
+            " WHEN " + Mailbox.TYPE_TRASH   + " THEN 4" +
+            " WHEN " + Mailbox.TYPE_JUNK    + " THEN 5" +
+            // Other mailboxes (i.e. of Mailbox.TYPE_MAIL) are shown in alphabetical order.
+            " ELSE 10 END" +
+            " ," + MailboxColumns.DISPLAY_NAME;
+
+    /** View is of a "normal" row */
+    private static final int ITEM_VIEW_TYPE_NORMAL = 0;
+    /** View is of a separator row */
+    private static final int ITEM_VIEW_TYPE_HEADER = AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER;
+
+    private static boolean sEnableUpdate = true;
+    private final LayoutInflater mInflater;
+    private final ResourceHelper mResourceHelper;
+    private final Callback mCallback;
+
+    public MailboxFragmentAdapter(Context context, Callback callback) {
+        super(context, null, 0 /* flags; no content observer */);
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mCallback = (callback == null) ? EmptyCallback.INSTANCE : callback;
+        mResourceHelper = ResourceHelper.getInstance(context);
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return isHeader(position) ? ITEM_VIEW_TYPE_HEADER : ITEM_VIEW_TYPE_NORMAL;
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return !isHeader(position);
+    }
+
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        if (view instanceof MailboxListItem) {
+            bindListItem(view, context, cursor);
+        } else {
+            bindListHeader(view, context, cursor);
+        }
+    }
+
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        if (cursor.getInt(cursor.getColumnIndex(ROW_TYPE)) == ROW_TYPE_HEADER) {
+            return mInflater.inflate(R.layout.mailbox_list_header, parent, false);
+        }
+        return mInflater.inflate(R.layout.mailbox_list_item, parent, false);
+    }
+
+    private boolean isHeader(int position) {
+        Cursor c = getCursor();
+        c.moveToPosition(position);
+        int rowType = c.getInt(c.getColumnIndex(ROW_TYPE));
+        return rowType == ROW_TYPE_HEADER;
+    }
+
+    /** Returns {@code true} if the specified row is of an account in the combined view. */
+    boolean isAccountRow(int position) {
+        return isAccountRow((Cursor) getItem(position));
+    }
+
+    /** Returns {@code true} if the current row is of an account in the combined view. */
+    private static boolean isAccountRow(Cursor cursor) {
+        return getRowType(cursor) == ROW_TYPE_ACCOUNT;
+    }
+
+    /**
+     * Returns the type of count to use for the given row.
+     */
+    private int getCountType(Cursor cursor) {
+        if (isAccountRow(cursor)) {
+            return COUNT_TYPE_UNREAD;
+        }
+        // otherwise, look at mailbox type to determine the count
+        switch (cursor.getInt(cursor.getColumnIndex(MailboxColumns.TYPE))) {
+            case Mailbox.TYPE_DRAFTS:
+            case Mailbox.TYPE_OUTBOX:
+                return COUNT_TYPE_TOTAL;
+            case Mailbox.TYPE_SENT:
+            case Mailbox.TYPE_TRASH:
+                return COUNT_TYPE_NO_COUNT;
+        }
+        return COUNT_TYPE_UNREAD;
+    }
+
+    /**
+     * Returns the unread count for the given row if the count type is {@link #COUNT_TYPE_UNREAD}.
+     * Otherwise, {@code 0}.
+     */
+    int getUnreadCount(int position) {
+        Cursor c = (Cursor) getItem(position);
+        if (getCountType(c) != COUNT_TYPE_UNREAD) {
+            return 0; // Don't have a unread count.
+        }
+        return c.getInt(c.getColumnIndex(MailboxColumns.UNREAD_COUNT));
+    }
+
+    /**
+     * Returns the display name for the given row.
+     */
+    String getDisplayName(Context context, int position) {
+        Cursor c = (Cursor) getItem(position);
+        return getDisplayName(context, c);
+    }
+
+    /**
+     * Returns the ID of the given row. It may be a mailbox or account ID depending upon the
+     * result of {@link #isAccountRow}.
+     */
+    long getId(int position) {
+        Cursor c = (Cursor) getItem(position);
+        return getId(c);
+    }
+
+    /**
+     * Returns the account ID of the mailbox owner for the given row. If the given row is a
+     * combined mailbox, {@link Account#ACCOUNT_ID_COMBINED_VIEW} is returned. If the given
+     * row is an account, returns the account's ID [the same as {@link #ORIGINAL_ID}].
+     */
+    long getAccountId(int position) {
+        Cursor c = (Cursor) getItem(position);
+        return getAccountId(c);
+    }
+
+    /**
+     * Turn on and off list updates; during a drag operation, we do NOT want to the list of
+     * mailboxes to update, as this would be visually jarring
+     * @param state whether or not the MailboxList can be updated
+     */
+    static void enableUpdates(boolean state) {
+        sEnableUpdate = state;
+    }
+
+    private static String getDisplayName(Context context, Cursor cursor) {
+        String name = null;
+        if (getRowType(cursor) == ROW_TYPE_MAILBOX) {
+            // If it's a mailbox (as opposed to account row in combined view), and of certain types,
+            // we use the predefined names.
+            final int type = getType(cursor);
+            final long mailboxId = getId(cursor);
+            name = FolderProperties.getInstance(context).getDisplayName(type, mailboxId);
+        }
+        if (name == null) {
+            name = cursor.getString(cursor.getColumnIndex(MailboxColumns.DISPLAY_NAME));
+        }
+        return name;
+    }
+
+    static long getId(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(ORIGINAL_ID));
+    }
+
+    static int getType(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(MailboxColumns.TYPE));
+    }
+
+    static int getMessageCount(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(MailboxColumns.MESSAGE_COUNT));
+    }
+
+    static int getUnreadCount(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(MailboxColumns.UNREAD_COUNT));
+    }
+
+    static long getAccountId(Cursor cursor) {
+        return cursor.getLong(cursor.getColumnIndex(MailboxColumns.ACCOUNT_KEY));
+    }
+
+    private static int getRowType(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(ROW_TYPE));
+    }
+
+    private static int getFlags(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(MailboxColumns.FLAGS));
+    }
 
     /**
      * {@link Cursor} with extra information which is returned by the loader created by
      * {@link MailboxFragmentAdapter#createMailboxesLoader}.
      */
-    public static class CursorWithExtras extends CursorWrapper {
+    static class CursorWithExtras extends CursorWrapper {
         /**
          * The number of mailboxes in the cursor if the cursor contains top-level mailboxes.
          * Otherwise, the number of *child* mailboxes.
@@ -78,29 +353,18 @@ import android.widget.TextView;
         }
     }
 
-    public MailboxFragmentAdapter(Context context, Callback callback) {
-        super(context, callback);
-    }
-
-    @Override
-    public void bindView(View view, Context context, Cursor cursor) {
-        if (view instanceof MailboxListItem) {
-            bindListItem(view, context, cursor);
-        } else {
-            bindListHeader(view, context, cursor);
-        }
-    }
     private void bindListHeader(View view, Context context, Cursor cursor) {
         final TextView nameView = (TextView) view.findViewById(R.id.display_name);
         nameView.setText(getDisplayName(context, cursor));
     }
+
     private void bindListItem(View view, Context context, Cursor cursor) {
         final boolean isAccount = isAccountRow(cursor);
-        final int type = cursor.getInt(COLUMN_TYPE);
-        final long id = cursor.getLong(COLUMN_ID);
-        final long accountId = cursor.getLong(COLUMN_ACCOUNT_ID);
-        final int flags = cursor.getInt(COLUMN_FLAGS);
-        final int rowType = cursor.getInt(COLUMN_ROW_TYPE);
+        final int type = getType(cursor);
+        final long id = getId(cursor);
+        final long accountId = getAccountId(cursor);
+        final int flags = getFlags(cursor);
+        final int rowType = getRowType(cursor);
         final boolean hasVisibleChildren = (flags & Mailbox.FLAG_HAS_CHILDREN) != 0
                 && (flags & Mailbox.FLAG_CHILDREN_VISIBLE) != 0;
 
@@ -123,12 +387,12 @@ import android.widget.TextView;
         nameView.setText(getDisplayName(context, cursor));
         // Set count
         final int count;
-        switch (getCountTypeForMailboxType(cursor)) {
+        switch (getCountType(cursor)) {
             case COUNT_TYPE_UNREAD:
-                count = cursor.getInt(COLUMN_UNREAD_COUNT);
+                count = getUnreadCount(cursor);
                 break;
             case COUNT_TYPE_TOTAL:
-                count = cursor.getInt(COLUMN_MESSAGE_COUNT);
+                count = getMessageCount(cursor);
                 break;
             default: // no count
                 count = 0;
@@ -191,15 +455,6 @@ import android.widget.TextView;
         }
     }
 
-    @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        if (cursor.getInt(cursor.getColumnIndex(ROW_TYPE)) == ROW_TYPE_HEADER) {
-            return mInflater.inflate(R.layout.mailbox_list_header, parent, false);
-        }
-        return mInflater.inflate(R.layout.mailbox_list_item, parent, false);
-    }
-
-
     /**
      * Returns a cursor loader for the mailboxes of the given account.  If <code>parentKey</code>
      * refers to a valid mailbox ID [e.g. non-zero], restrict the loader to only those mailboxes
@@ -207,7 +462,7 @@ import android.widget.TextView;
      *
      * Note the returned loader always returns a {@link CursorWithExtras}.
      */
-    public static Loader<Cursor> createMailboxesLoader(Context context, long accountId,
+    static Loader<Cursor> createMailboxesLoader(Context context, long accountId,
             long parentMailboxId) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxFragmentAdapter#CursorWithExtras accountId=" + accountId
@@ -222,7 +477,7 @@ import android.widget.TextView;
     /**
      * Returns a cursor loader for the combined view.
      */
-    public static Loader<Cursor> createCombinedViewLoader(Context context) {
+    static Loader<Cursor> createCombinedViewLoader(Context context) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MailboxFragmentAdapter#createCombinedViewLoader");
         }
@@ -329,16 +584,17 @@ import android.widget.TextView;
     /**
      * Loader for mailboxes in "Combined view".
      */
-    /*package*/ static class CombinedMailboxLoader extends ThrottlingCursorLoader {
+    @VisibleForTesting
+    static class CombinedMailboxLoader extends ThrottlingCursorLoader {
         private static final String[] ACCOUNT_PROJECTION = new String[] {
-                    EmailContent.RECORD_ID, AccountColumns.DISPLAY_NAME,
-                };
+            EmailContent.RECORD_ID, AccountColumns.DISPLAY_NAME,
+        };
         private static final int COLUMN_ACCOUND_ID = 0;
         private static final int COLUMN_ACCOUNT_DISPLAY_NAME = 1;
 
         private final Context mContext;
 
-        public CombinedMailboxLoader(Context context) {
+        private CombinedMailboxLoader(Context context) {
             super(context, Account.CONTENT_URI, ACCOUNT_PROJECTION, null, null, null);
             mContext = context;
         }
@@ -364,9 +620,9 @@ import android.widget.TextView;
             return Utility.CloseTraceCursorWrapper.get(returnCursor);
         }
 
-        /*package*/ static MatrixCursor buildCombinedMailboxes(Context context,
-                Cursor innerCursor) {
-            MatrixCursor cursor = new ClosingMatrixCursor(PROJECTION, innerCursor);
+        @VisibleForTesting
+        static MatrixCursor buildCombinedMailboxes(Context context, Cursor innerCursor) {
+            MatrixCursor cursor = new ClosingMatrixCursor(MATRIX_PROJECTION, innerCursor);
             // Combined inbox -- show unread count
             addCombinedMailboxRow(cursor, Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
                     Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX), true);

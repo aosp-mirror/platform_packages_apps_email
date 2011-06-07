@@ -191,7 +191,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     // UI Support
     private Activity mActivity;
-    private MailboxesAdapter mListAdapter;
+    private MailboxFragmentAdapter mListAdapter;
     private Callback mCallback = EmptyCallback.INSTANCE;
 
     // See the class javadoc
@@ -220,8 +220,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private Parcelable mSavedListState;
 
-    private final MailboxesAdapter.Callback mMailboxesAdapterCallback =
-            new MailboxesAdapter.Callback() {
+    private final MailboxFragmentAdapter.Callback mMailboxesAdapterCallback =
+            new MailboxFragmentAdapter.Callback() {
         @Override
         public void onBind(MailboxListItem listItem) {
             listItem.setDropTargetBackground(mDragInProgress, mDragItemMailboxId);
@@ -870,7 +870,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * <p>
      * @param doNotUse <em>IMPORTANT</em>: Do not use this parameter. The ID in the list widget
      * must be a positive value. However, we rely on negative IDs for special mailboxes. Instead,
-     * we use the ID returned by {@link MailboxesAdapter#getId(int)}.
+     * we use the ID returned by {@link MailboxFragmentAdapter#getId(int)}.
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long doNotUse) {
@@ -1127,7 +1127,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         if (mDragInProgress) {
             mDragInProgress = false;
             // Reenable updates to the view and redraw (in case it changed)
-            MailboxesAdapter.enableUpdates(true);
+            MailboxFragmentAdapter.enableUpdates(true);
             mListAdapter.notifyDataSetChanged();
             // Stop highlighting targets
             updateChildViews();
@@ -1160,7 +1160,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 }
                 mDragInProgress = true;
                 // Stop the list from updating
-                MailboxesAdapter.enableUpdates(false);
+                MailboxFragmentAdapter.enableUpdates(false);
                 // Update the backgrounds of our child views to highlight drop targets
                 updateChildViews();
                 return true;

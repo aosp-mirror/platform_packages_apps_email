@@ -38,7 +38,7 @@ import android.widget.TextView;
 
 /**
  * Cursor adapter for the "move to mailbox" dialog.
- * TODO We've detached this class from {@link MailboxesAdapter} and {@link MailboxFragmentAdapter}.
+ * TODO We've detached this class from {@link MailboxFragmentAdapter} and {@link MailboxFragmentAdapter}.
  * Depending upon the UX for the dialog and nested folders, we may want to bring these three
  * adapter classes back into alignment.
  */
