@@ -204,6 +204,8 @@ public class MessageViewFragment extends MessageViewFragmentBase
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setHasOptionsMenu(true);
+
         final Resources res = getActivity().getResources();
         mFavoriteIconOn = res.getDrawable(R.drawable.btn_star_on_normal_email_holo_light);
         mFavoriteIconOff = res.getDrawable(R.drawable.btn_star_off_normal_email_holo_light);
