@@ -63,8 +63,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -1057,25 +1055,6 @@ public class Utility {
         /* package */ static CloseTraceCursorWrapper alwaysCreateForTest(Cursor original) {
             return new CloseTraceCursorWrapper(original);
         }
-    }
-
-    /**
-     * Legacy URI parser. Used in one of three different scenarios:
-     *   1. Backup / Restore of account
-     *   2. Parsing template from provider.xml
-     *   3. Forcefully creating URI for test
-     */
-    public static void setHostAuthFromString(HostAuth auth, String uriString)
-            throws URISyntaxException {
-        URI uri = new URI(uriString);
-        String path = uri.getPath();
-        String domain = null;
-        if (path != null && path.length() > 0) {
-            domain = path.substring(1);
-        }
-        auth.mDomain = domain;
-        auth.setLogin(uri.getUserInfo());
-        auth.setConnection(uri.getScheme(), uri.getHost(), uri.getPort());
     }
 
     /**

@@ -18,7 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.utility.Utility;
+import com.android.emailcommon.provider.HostAuth;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -164,8 +164,8 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
         mAccount.setSenderName(name);
         // For EAS, at least, email address is required
         mAccount.mEmailAddress = "user@server.com";
-        Utility.setHostAuthFromString(mAccount.getOrCreateHostAuthRecv(mContext), storeUri);
-        Utility.setHostAuthFromString(mAccount.getOrCreateHostAuthSend(mContext), senderUri);
+        HostAuth.setHostAuthFromString(mAccount.getOrCreateHostAuthRecv(mContext), storeUri);
+        HostAuth.setHostAuthFromString(mAccount.getOrCreateHostAuthSend(mContext), senderUri);
         mAccount.save(mContext);
         mAccountId = mAccount.mId;
 

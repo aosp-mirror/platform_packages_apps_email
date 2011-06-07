@@ -17,7 +17,6 @@
 package com.android.emailcommon.provider;
 
 import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.utility.Utility;
 
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -41,15 +40,15 @@ public class HostAuthTests extends AndroidTestCase {
             HostAuth.FLAG_SSL | HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL;
 
         // Set various URIs and check the resulting flags
-        Utility.setHostAuthFromString(ha, "protocol://user:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "protocol://user:password@server:123");
         assertEquals(0, ha.mFlags & MASK);
-        Utility.setHostAuthFromString(ha, "protocol+ssl+://user:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "protocol+ssl+://user:password@server:123");
         assertEquals(HostAuth.FLAG_SSL, ha.mFlags & MASK);
-        Utility.setHostAuthFromString(ha, "protocol+ssl+trustallcerts://user:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "protocol+ssl+trustallcerts://user:password@server:123");
         assertEquals(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, ha.mFlags & MASK);
-        Utility.setHostAuthFromString(ha, "protocol+tls+://user:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "protocol+tls+://user:password@server:123");
         assertEquals(HostAuth.FLAG_TLS, ha.mFlags & MASK);
-        Utility.setHostAuthFromString(ha, "protocol+tls+trustallcerts://user:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "protocol+tls+trustallcerts://user:password@server:123");
         assertEquals(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL, ha.mFlags & MASK);
 
         // Now check the retrival method (building URI from flags)
@@ -80,59 +79,59 @@ public class HostAuthTests extends AndroidTestCase {
 
         // Set various URIs and check the resulting flags
         // Hardwired port
-        Utility.setHostAuthFromString(ha, "imap://user:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "imap://user:password@server:123");
         assertEquals(123, ha.mPort);
         // Auto-assigned ports
-        Utility.setHostAuthFromString(ha, "imap://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "imap://user:password@server");
         assertEquals(143, ha.mPort);
-        Utility.setHostAuthFromString(ha, "imap+ssl://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "imap+ssl://user:password@server");
         assertEquals(993, ha.mPort);
-        Utility.setHostAuthFromString(ha, "imap+ssl+trustallcerts://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "imap+ssl+trustallcerts://user:password@server");
         assertEquals(993, ha.mPort);
-        Utility.setHostAuthFromString(ha, "imap+tls://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "imap+tls://user:password@server");
         assertEquals(143, ha.mPort);
-        Utility.setHostAuthFromString(ha, "imap+tls+trustallcerts://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "imap+tls+trustallcerts://user:password@server");
         assertEquals(143, ha.mPort);
 
         // Hardwired port
-        Utility.setHostAuthFromString(ha, "pop3://user:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "pop3://user:password@server:123");
         assertEquals(123, ha.mPort);
         // Auto-assigned ports
-        Utility.setHostAuthFromString(ha, "pop3://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "pop3://user:password@server");
         assertEquals(110, ha.mPort);
-        Utility.setHostAuthFromString(ha, "pop3+ssl://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "pop3+ssl://user:password@server");
         assertEquals(995, ha.mPort);
-        Utility.setHostAuthFromString(ha, "pop3+ssl+trustallcerts://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "pop3+ssl+trustallcerts://user:password@server");
         assertEquals(995, ha.mPort);
-        Utility.setHostAuthFromString(ha, "pop3+tls://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "pop3+tls://user:password@server");
         assertEquals(110, ha.mPort);
-        Utility.setHostAuthFromString(ha, "pop3+tls+trustallcerts://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "pop3+tls+trustallcerts://user:password@server");
         assertEquals(110, ha.mPort);
 
         // Hardwired port
-        Utility.setHostAuthFromString(ha, "eas://user:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "eas://user:password@server:123");
         assertEquals(123, ha.mPort);
         // Auto-assigned ports
-        Utility.setHostAuthFromString(ha, "eas://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "eas://user:password@server");
         assertEquals(80, ha.mPort);
-        Utility.setHostAuthFromString(ha, "eas+ssl://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "eas+ssl://user:password@server");
         assertEquals(443, ha.mPort);
-        Utility.setHostAuthFromString(ha, "eas+ssl+trustallcerts://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "eas+ssl+trustallcerts://user:password@server");
         assertEquals(443, ha.mPort);
 
         // Hardwired port
-        Utility.setHostAuthFromString(ha, "smtp://user:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "smtp://user:password@server:123");
         assertEquals(123, ha.mPort);
         // Auto-assigned ports
-        Utility.setHostAuthFromString(ha, "smtp://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "smtp://user:password@server");
         assertEquals(587, ha.mPort);
-        Utility.setHostAuthFromString(ha, "smtp+ssl://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "smtp+ssl://user:password@server");
         assertEquals(465, ha.mPort);
-        Utility.setHostAuthFromString(ha, "smtp+ssl+trustallcerts://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "smtp+ssl+trustallcerts://user:password@server");
         assertEquals(465, ha.mPort);
-        Utility.setHostAuthFromString(ha, "smtp+tls://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "smtp+tls://user:password@server");
         assertEquals(587, ha.mPort);
-        Utility.setHostAuthFromString(ha, "smtp+tls+trustallcerts://user:password@server");
+        HostAuth.setHostAuthFromString(ha, "smtp+tls+trustallcerts://user:password@server");
         assertEquals(587, ha.mPort);
     }
 
@@ -142,17 +141,17 @@ public class HostAuthTests extends AndroidTestCase {
     public void testGetStoreUri()
             throws URISyntaxException {
         HostAuth ha = new HostAuth();
-        Utility.setHostAuthFromString(ha, "protocol://user:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "protocol://user:password@server:123");
         String getUri = ha.getStoreUri();
         assertEquals("protocol://user:password@server:123", getUri);
 
         // Now put spaces in/around username (they are trimmed)
-        Utility.setHostAuthFromString(ha, "protocol://%20us%20er%20:password@server:123");
+        HostAuth.setHostAuthFromString(ha, "protocol://%20us%20er%20:password@server:123");
         getUri = ha.getStoreUri();
         assertEquals("protocol://us%20er:password@server:123", getUri);
 
         // Now put spaces around password (should not be trimmed)
-        Utility.setHostAuthFromString(ha, "protocol://user:%20pass%20word%20@server:123");
+        HostAuth.setHostAuthFromString(ha, "protocol://user:%20pass%20word%20@server:123");
         getUri = ha.getStoreUri();
         assertEquals("protocol://user:%20pass%20word%20@server:123", getUri);
     }
@@ -228,10 +227,7 @@ public class HostAuthTests extends AndroidTestCase {
         assertEquals(~HostAuth.FLAG_AUTHENTICATE, ha.mFlags);
     }
 
-    /**
-     * Test setting the connection using a URI scheme
-     */
-    public void testSetConnectionScheme() {
+    public void testImapConnectionScheme() {
         HostAuth ha = new HostAuth();
 
         // Set URIs for IMAP
@@ -260,6 +256,10 @@ public class HostAuthTests extends AndroidTestCase {
         ha.setConnection("imap+tls+trustallcerts", "server", -1);
         assertEquals(HostAuth.FLAG_TLS|HostAuth.FLAG_TRUST_ALL, ha.mFlags);
         assertEquals(143, ha.mPort);
+    }
+
+    public void testPopConnectionScheme() {
+        HostAuth ha = new HostAuth();
 
         // Set URIs for POP3
         // Hardwired port
@@ -287,6 +287,10 @@ public class HostAuthTests extends AndroidTestCase {
         ha.setConnection("pop3+tls+trustallcerts", "server", -1);
         assertEquals(HostAuth.FLAG_TLS|HostAuth.FLAG_TRUST_ALL, ha.mFlags);
         assertEquals(110, ha.mPort);
+    }
+
+    public void testEasConnectionScheme() {
+        HostAuth ha = new HostAuth();
 
         // Set URIs for Exchange
         // Hardwired port
@@ -306,6 +310,10 @@ public class HostAuthTests extends AndroidTestCase {
         ha.setConnection("eas+ssl+trustallcerts", "server", -1);
         assertEquals(HostAuth.FLAG_SSL|HostAuth.FLAG_TRUST_ALL, ha.mFlags);
         assertEquals(443, ha.mPort);
+    }
+
+    public void testSmtpConnectionScheme() {
+        HostAuth ha = new HostAuth();
 
         // Set URIs for SMTP
         // Hardwired port
@@ -362,28 +370,56 @@ public class HostAuthTests extends AndroidTestCase {
         assertEquals(0, ha.mFlags);
 
         // Sets SSL flag
-        ha.setConnection("imap", "server", -1, HostAuth.FLAG_SSL);
+        ha.setConnection("imap", "server", HostAuth.PORT_UNKNOWN, HostAuth.FLAG_SSL);
         assertEquals(HostAuth.FLAG_SSL, ha.mFlags);
 
         // Sets SSL+Trusted flags
-        ha.setConnection("imap", "server", -1, HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL);
+        ha.setConnection("imap", "server", HostAuth.PORT_UNKNOWN,
+                HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL);
         assertEquals(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, ha.mFlags);
 
         // Sets TLS flag
-        ha.setConnection("imap", "server", -1, HostAuth.FLAG_TLS);
+        ha.setConnection("imap", "server", HostAuth.PORT_UNKNOWN, HostAuth.FLAG_TLS);
         assertEquals(HostAuth.FLAG_TLS, ha.mFlags);
 
         // Sets TLS+Trusted flags
-        ha.setConnection("imap", "server", -1, HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL);
+        ha.setConnection("imap", "server", HostAuth.PORT_UNKNOWN,
+                HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL);
         assertEquals(HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL, ha.mFlags);
 
         // Test other defined flags; should not affect mFlags
-        ha.setConnection("imap", "server", -1, HostAuth.FLAG_AUTHENTICATE);
+        ha.setConnection("imap", "server", HostAuth.PORT_UNKNOWN, HostAuth.FLAG_AUTHENTICATE);
         assertEquals(0, ha.mFlags);
 
         // Test every other bit; should not affect mFlags
-        ha.setConnection("imap", "server", -1, 0xfffffff4);
+        ha.setConnection("imap", "server", HostAuth.PORT_UNKNOWN, 0xfffffff4);
         assertEquals(0, ha.mFlags);
+    }
+
+    public void testSetConnectionWithCerts() {
+        HostAuth ha = new HostAuth();
+
+        ha.setConnection("eas", "server", HostAuth.PORT_UNKNOWN, HostAuth.FLAG_SSL, "client-cert");
+        assertEquals(HostAuth.FLAG_SSL, ha.mFlags);
+        assertEquals("client-cert", ha.mClientCertAlias);
+
+        ha.setConnection("eas", "server", HostAuth.PORT_UNKNOWN, HostAuth.FLAG_TLS, "client-cert");
+        assertEquals(HostAuth.FLAG_TLS, ha.mFlags);
+        assertEquals("client-cert", ha.mClientCertAlias);
+
+        // Note that we can still trust all server certificates, even if we present a client
+        // user certificate.
+        ha.setConnection("eas", "server", HostAuth.PORT_UNKNOWN,
+                HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, "client-cert");
+        assertEquals(HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, ha.mFlags);
+        assertEquals("client-cert", ha.mClientCertAlias);
+
+        try {
+            ha.setConnection(
+                    "eas", "server", HostAuth.PORT_UNKNOWN, 0 /* no flags */, "client-cert");
+            fail("Shouldn't be able to set a client certificate on an unsecure connection");
+        } catch (IllegalArgumentException expected) {
+        }
     }
 
     public void testGetSchemeString() {
@@ -406,10 +442,28 @@ public class HostAuthTests extends AndroidTestCase {
         assertEquals("foo", scheme);
         scheme = HostAuth.getSchemeString("foo",
                 HostAuth.FLAG_SSL | HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL);
-        assertEquals("foo", scheme);
         scheme = HostAuth.getSchemeString("foo", 0xfffffff4);
         assertEquals("foo", scheme);
+        // Use of custom client certs.
+        scheme = HostAuth.getSchemeString("foo", HostAuth.FLAG_SSL, "custom-client-cert-alias");
+        assertEquals("foo+ssl+custom-client-cert-alias", scheme);
+        scheme = HostAuth.getSchemeString("foo", HostAuth.FLAG_TLS, "custom-client-cert-alias");
+        assertEquals("foo+tls+custom-client-cert-alias", scheme);
+        scheme = HostAuth.getSchemeString(
+                "foo", HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, "custom_client_cert_alias");
+        assertEquals("foo+ssl+trustallcerts+custom_client_cert_alias", scheme);
+        scheme = HostAuth.getSchemeString(
+                "foo", HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL, "custom_client_cert_alias");
+        assertEquals("foo+tls+trustallcerts+custom_client_cert_alias", scheme);
+
+        try {
+            scheme = HostAuth.getSchemeString(
+                    "foo", 0 /* no security flags */, "custom_client_cert_alias");
+            fail("Should not be able to set a custom client cert on an insecure connection");
+        } catch (IllegalArgumentException expected) {
+        }
     }
+
 
     public void testGetSchemeFlags() {
         int flags;
@@ -453,61 +507,65 @@ public class HostAuthTests extends AndroidTestCase {
         assertTrue(ha1.equals(ha2));
         assertTrue(ha2.equals(ha1));
 
-        Utility.setHostAuthFromString(ha1, "smtp+tls+://user:password@server/domain");
-        Utility.setHostAuthFromString(ha2, "smtp+tls+://user:password@server/domain");
+        HostAuth.setHostAuthFromString(ha1, "smtp+tls+://user:password@server/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+://user:password@server/domain");
         assertTrue(ha1.equals(ha2));
         assertTrue(ha2.equals(ha1));
 
         // Different protocol
-        Utility.setHostAuthFromString(ha2, "imap+tls+://user:password@server/domain");
+        HostAuth.setHostAuthFromString(ha2, "imap+tls+://user:password@server/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Different domain
-        Utility.setHostAuthFromString(ha2, "smtp+tls+://user:password@server/domain2");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+://user:password@server/domain2");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Missing server
-        Utility.setHostAuthFromString(ha2, "smtp+tls+://user:password/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+://user:password/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Missing domain
-        Utility.setHostAuthFromString(ha2, "smtp+tls+://user:password@server");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+://user:password@server");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Different server
-        Utility.setHostAuthFromString(ha2, "smtp+tls+://user:password@server2/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+://user:password@server2/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Different password
-        Utility.setHostAuthFromString(ha2, "smtp+tls+://user:password2@server/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+://user:password2@server/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Different user name
-        Utility.setHostAuthFromString(ha2, "smtp+tls+://user2:password@server/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+://user2:password@server/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Missing password
-        Utility.setHostAuthFromString(ha2, "smtp+tls+://user@server/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+://user@server/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Missing user name
-        Utility.setHostAuthFromString(ha2, "smtp+tls+://password@server/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+://password@server/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Missing user name & password
-        Utility.setHostAuthFromString(ha2, "smtp+tls+://server/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+://server/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Added "trustallcerts"
-        Utility.setHostAuthFromString(ha2, "smtp+tls+trustallcerts://user:password@server/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+tls+trustallcerts://user:password@server/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Different authentication
-        Utility.setHostAuthFromString(ha2, "smtp+ssl+://user:password@server/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+ssl+://user:password@server/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         // Missing authentication
-        Utility.setHostAuthFromString(ha2, "smtp+://user:password@server/domain");
+        HostAuth.setHostAuthFromString(ha2, "smtp+://user:password@server/domain");
+        assertFalse(ha1.equals(ha2));
+        assertFalse(ha2.equals(ha1));
+        // Use of custom certificate
+        HostAuth.setHostAuthFromString(ha2, "smtp+ssl+clientcert://user:password@server/domain");
         assertFalse(ha1.equals(ha2));
         assertFalse(ha2.equals(ha1));
         ha2 = null;

@@ -61,7 +61,16 @@ public class MailTransport implements Transport {
     private String mHost;
     private int mPort;
     private String[] mUserInfoParts;
+
+    /**
+     * One of the {@code Transport.CONNECTION_SECURITY_*} values.
+     */
     private int mConnectionSecurity;
+
+    /**
+     * Whether or not to trust all server certificates (i.e. skip host verification) in SSL
+     * handshakes
+     */
     private boolean mTrustCertificates;
 
     private Socket mSocket;
@@ -131,7 +140,7 @@ public class MailTransport implements Transport {
 
     @Override
     public boolean canTrySslSecurity() {
-        return mConnectionSecurity == CONNECTION_SECURITY_SSL;
+        return mConnectionSecurity == Transport.CONNECTION_SECURITY_SSL;
     }
 
     @Override

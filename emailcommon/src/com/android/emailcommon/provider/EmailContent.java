@@ -2313,6 +2313,8 @@ public abstract class EmailContent {
         static final String PASSWORD = "password";
         // A domain or path, if required (used in IMAP and EAS)
         static final String DOMAIN = "domain";
+        // An alias to a local client certificate for SSL
+        static final String CLIENT_CERT_ALIAS = "certAlias";
         // DEPRECATED - Will not be set or stored
         static final String ACCOUNT_KEY = "accountKey";
     }

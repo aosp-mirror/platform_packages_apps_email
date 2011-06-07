@@ -425,11 +425,11 @@ public class AccountSetupBasics extends AccountSetupActivity
 
             Account account = SetupData.getAccount();
             HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
-            Utility.setHostAuthFromString(recvAuth, mProvider.incomingUri);
+            HostAuth.setHostAuthFromString(recvAuth, mProvider.incomingUri);
             recvAuth.setLogin(mProvider.incomingUsername, password);
 
             HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
-            Utility.setHostAuthFromString(sendAuth, mProvider.outgoingUri);
+            HostAuth.setHostAuthFromString(sendAuth, mProvider.outgoingUri);
             sendAuth.setLogin(mProvider.outgoingUsername, password);
 
             // Populate the setup data, assuming that the duplicate account check will succeed
@@ -576,10 +576,10 @@ public class AccountSetupBasics extends AccountSetupActivity
         Account account = SetupData.getAccount();
         try {
             HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
-            Utility.setHostAuthFromString(recvAuth, incoming);
+            HostAuth.setHostAuthFromString(recvAuth, incoming);
 
             HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
-            Utility.setHostAuthFromString(sendAuth, outgoing);
+            HostAuth.setHostAuthFromString(sendAuth, outgoing);
 
             populateSetupData(user, email, false);
         } catch (URISyntaxException e) {

@@ -21,7 +21,6 @@ import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.content.Intent;
@@ -242,7 +241,7 @@ public class AccountSetupExchangeTests extends
         EmailContent.Account account = new EmailContent.Account();
         Context context = getInstrumentation().getTargetContext();
         HostAuth auth = account.getOrCreateHostAuthRecv(context);
-        Utility.setHostAuthFromString(auth, storeUriString);
+        HostAuth.setHostAuthFromString(auth, storeUriString);
         Intent i = new Intent(Intent.ACTION_MAIN);
         SetupData.init(SetupData.FLOW_MODE_NORMAL, account);
         SetupData.setAllowAutodiscover(false);

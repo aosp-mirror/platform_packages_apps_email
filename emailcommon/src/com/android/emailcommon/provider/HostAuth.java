@@ -41,6 +41,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public static final String SCHEME_POP3 = "pop3";
     public static final String SCHEME_EAS = "eas";
     public static final String SCHEME_SMTP = "smtp";
+    public static final String SCHEME_TRUST_ALL_CERTS = "trustallcerts";
 
     public static final int PORT_UNKNOWN = -1;
 
@@ -59,6 +60,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public String mLogin;
     public String mPassword;
     public String mDomain;
+    public String mClientCertAlias = null;
 
     public static final int CONTENT_ID_COLUMN = 0;
     public static final int CONTENT_PROTOCOL_COLUMN = 1;
@@ -68,11 +70,12 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public static final int CONTENT_LOGIN_COLUMN = 5;
     public static final int CONTENT_PASSWORD_COLUMN = 6;
     public static final int CONTENT_DOMAIN_COLUMN = 7;
+    public static final int CONTENT_CLIENT_CERT_ALIAS_COLUMN = 8;
 
     public static final String[] CONTENT_PROJECTION = new String[] {
         RECORD_ID, HostAuthColumns.PROTOCOL, HostAuthColumns.ADDRESS, HostAuthColumns.PORT,
         HostAuthColumns.FLAGS, HostAuthColumns.LOGIN,
-        HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN
+        HostAuthColumns.PASSWORD, HostAuthColumns.DOMAIN, HostAuthColumns.CLIENT_CERT_ALIAS
     };
 
     /**
@@ -101,6 +104,14 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
      * Returns the scheme for the specified flags.
      */
     public static String getSchemeString(String protocol, int flags) {
+        return getSchemeString(protocol, flags, null);
+    }
+
+    /**
+     * Builds a URI scheme name given the parameters for a {@code HostAuth}.
+     * If a {@code clientAlias} is provided, this indicates that a secure connection must be used.
+     */
+    public static String getSchemeString(String protocol, int flags, String clientAlias) {
         String security = "";
         switch (flags & USER_CONFIG_MASK) {
             case FLAG_SSL:
@@ -116,6 +127,21 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
                 security = "+tls+trustallcerts";
                 break;
         }
+
+        if (!TextUtils.isEmpty(clientAlias)) {
+            if (TextUtils.isEmpty(security)) {
+                throw new IllegalArgumentException(
+                        "Can't specify a certificate alias for a non-secure connection");
+            }
+            // TODO: investigate what the certificate aliases look like from the framework
+            // and ensure they're safe scheme names.
+            String safeScheme = clientAlias;
+            if (!security.endsWith("+")) {
+                security += "+";
+            }
+            security += safeScheme;
+        }
+
         return protocol + security;
     }
 
@@ -134,7 +160,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
             }
             if (schemeParts.length >= 3) {
                 String part2 = schemeParts[2];
-                if ("trustallcerts".equals(part2)) {
+                if (SCHEME_TRUST_ALL_CERTS.equals(part2)) {
                     flags |= HostAuth.FLAG_TRUST_ALL;
                 }
             }
@@ -153,6 +179,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         mLogin = cursor.getString(CONTENT_LOGIN_COLUMN);
         mPassword = cursor.getString(CONTENT_PASSWORD_COLUMN);
         mDomain = cursor.getString(CONTENT_DOMAIN_COLUMN);
+        mClientCertAlias = cursor.getString(CONTENT_CLIENT_CERT_ALIAS_COLUMN);
     }
 
     @Override
@@ -165,6 +192,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         values.put(HostAuthColumns.LOGIN, mLogin);
         values.put(HostAuthColumns.PASSWORD, mPassword);
         values.put(HostAuthColumns.DOMAIN, mDomain);
+        values.put(HostAuthColumns.CLIENT_CERT_ALIAS, mClientCertAlias);
         values.put(HostAuthColumns.ACCOUNT_KEY, 0); // Need something to satisfy the DB
         return values;
     }
@@ -200,6 +228,33 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         } catch (URISyntaxException e) {
             return null;
         }
+    }
+
+    /**
+     * Legacy URI parser. Used in one of three different scenarios:
+     *   1. Backup / Restore of account
+     *   2. Parsing template from provider.xml
+     *   3. Forcefully creating URI for test
+     * Example string:
+     *   "eas+ssl+trustallcerts://user:password@server/domain:123"
+     *
+     * Note that the use of client certificate is specified in the URI, a secure connection type
+     * must be used.
+     */
+    public static void setHostAuthFromString(HostAuth auth, String uriString)
+            throws URISyntaxException {
+        URI uri = new URI(uriString);
+        String path = uri.getPath();
+        String domain = null;
+        if (!TextUtils.isEmpty(path)) {
+            // Strip off the leading slash that begins the path.
+            domain = path.substring(1);
+        }
+        auth.mDomain = domain;
+        auth.setLogin(uri.getUserInfo());
+
+        String scheme = uri.getScheme();
+        auth.setConnection(scheme, uri.getHost(), uri.getPort());
     }
 
     /**
@@ -251,17 +306,47 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     public void setConnection(String scheme, String host, int port) {
         String[] schemeParts = scheme.split("\\+");
         String protocol = schemeParts[0];
+        String clientCertAlias = null;
         int flags = getSchemeFlags(scheme);
 
-        setConnection(protocol, host, port, flags);
+        // Example scheme: "eas+ssl+trustallcerts" or "eas+tls+trustallcerts+client-cert-alias"
+        if (schemeParts.length > 3) {
+            clientCertAlias = schemeParts[3];
+        } else if (schemeParts.length > 2) {
+            if (!SCHEME_TRUST_ALL_CERTS.equals(schemeParts[2])) {
+                mClientCertAlias = schemeParts[2];
+            }
+        }
+
+        setConnection(protocol, host, port, flags, clientCertAlias);
     }
 
     public void setConnection(String protocol, String address, int port, int flags) {
+        setConnection(protocol, address, port, flags, null);
+    }
+
+    /**
+     * Sets the internal connection parameters based on the specified parameter values.
+     * @param protocol the mail protocol to use (e.g. "eas", "imap").
+     * @param address the address of the server
+     * @param port the port for the connection
+     * @param flags flags indicating the security and type of the connection
+     * @param clientCertAlias an optional alias to use if a client user certificate is to be
+     *     presented during connection establishment. If this is non-empty, it must be the case
+     *     that flags indicates use of a secure connection
+     */
+    public void setConnection(String protocol, String address,
+            int port, int flags, String clientCertAlias) {
         // Set protocol, security, and additional flags based on uri scheme
         mProtocol = protocol;
 
         mFlags &= ~(FLAG_SSL | FLAG_TLS | FLAG_TRUST_ALL);
         mFlags |= (flags & USER_CONFIG_MASK);
+
+        boolean useSecureConnection = (flags & (FLAG_SSL | FLAG_TLS)) != 0;
+        if (!useSecureConnection && !TextUtils.isEmpty(clientCertAlias)) {
+            throw new IllegalArgumentException("Can't use client alias on non-secure connections");
+        }
 
         mAddress = address;
         mPort = port;
@@ -283,6 +368,8 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
                 mPort = useSSL ? 465 : 587;
             }
         }
+
+        mClientCertAlias = clientCertAlias;
     }
 
     /** Returns {@code true} if this is an EAS connection; otherwise, {@code false}. */
@@ -328,6 +415,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         dest.writeString(mLogin);
         dest.writeString(mPassword);
         dest.writeString(mDomain);
+        dest.writeString(mClientCertAlias);
     }
 
     /**
@@ -343,6 +431,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         mLogin = in.readString();
         mPassword = in.readString();
         mDomain = in.readString();
+        mClientCertAlias = in.readString();
     }
 
     /**
@@ -365,6 +454,7 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
                 && Utility.areStringsEqual(mAddress, that.mAddress)
                 && Utility.areStringsEqual(mLogin, that.mLogin)
                 && Utility.areStringsEqual(mPassword, that.mPassword)
-                && Utility.areStringsEqual(mDomain, that.mDomain);
+                && Utility.areStringsEqual(mDomain, that.mDomain)
+                && Utility.areStringsEqual(mClientCertAlias, that.mClientCertAlias);
     }
 }

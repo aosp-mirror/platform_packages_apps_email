@@ -20,7 +20,6 @@ import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
 import android.content.Intent;
@@ -181,7 +180,7 @@ public class AccountSetupOptionsTests
         account.setSenderName(name);
         Context context = getInstrumentation().getTargetContext();
         HostAuth auth = account.getOrCreateHostAuthRecv(context);
-        Utility.setHostAuthFromString(auth, storeUri);
+        HostAuth.setHostAuthFromString(auth, storeUri);
         SetupData.init(SetupData.FLOW_MODE_NORMAL, account);
         return new Intent(Intent.ACTION_MAIN);
     }

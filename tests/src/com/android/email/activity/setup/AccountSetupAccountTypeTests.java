@@ -20,7 +20,6 @@ import com.android.email.R;
 import com.android.email.mail.Store;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -119,7 +118,7 @@ public class AccountSetupAccountTypeTests
             throws URISyntaxException {
         Account account = new Account();
         HostAuth auth = account.getOrCreateHostAuthRecv(mContext);
-        Utility.setHostAuthFromString(auth, scheme + "://user:pass@server.com:123");
+        HostAuth.setHostAuthFromString(auth, scheme + "://user:pass@server.com:123");
         account.save(mContext);
         mAccounts.add(account);
         SetupData.init(SetupData.FLOW_MODE_NORMAL, account);

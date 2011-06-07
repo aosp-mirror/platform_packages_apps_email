@@ -141,8 +141,9 @@ public class EmailProvider extends ContentProvider {
     // Version 21: Add lastSeenMessageKey column to Mailbox table
     // Version 22: Upgrade path for IMAP/POP accounts to integrate with AccountManager
     // Version 23: Add column to mailbox table for time of last access
+    // Version 24: Add column to hostauth table for client cert alias
 
-    public static final int DATABASE_VERSION = 23;
+    public static final int DATABASE_VERSION = 24;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -607,7 +608,8 @@ public class EmailProvider extends ContentProvider {
             + HostAuthColumns.LOGIN + " text, "
             + HostAuthColumns.PASSWORD + " text, "
             + HostAuthColumns.DOMAIN + " text, "
-            + HostAuthColumns.ACCOUNT_KEY + " integer"
+            + HostAuthColumns.ACCOUNT_KEY + " integer,"
+            + HostAuthColumns.CLIENT_CERT_ALIAS + " text"
             + ");";
         db.execSQL("create table " + HostAuth.TABLE_NAME + s);
     }
@@ -1083,6 +1085,10 @@ public class EmailProvider extends ContentProvider {
             if (oldVersion == 22) {
                 upgradeFromVersion22ToVersion23(db);
                 oldVersion = 23;
+            }
+            if (oldVersion == 23) {
+                upgradeFromVersion23ToVersion24(db);
+                oldVersion = 24;
             }
         }
 
@@ -2085,6 +2091,17 @@ public class EmailProvider extends ContentProvider {
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
             Log.w(TAG, "Exception upgrading EmailProvider.db from 22 to 23 " + e);
+        }
+    }
+
+    /** Adds in a column for information about a client certificate to use. */
+    private static void upgradeFromVersion23ToVersion24(SQLiteDatabase db) {
+        try {
+            db.execSQL("alter table " + HostAuth.TABLE_NAME
+                    + " add column " + HostAuth.CLIENT_CERT_ALIAS + " text;");
+        } catch (SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 23 to 24 " + e);
         }
     }
 }
