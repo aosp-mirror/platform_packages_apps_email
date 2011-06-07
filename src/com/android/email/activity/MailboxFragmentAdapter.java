@@ -33,6 +33,9 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
+import java.util.ArrayList;
+
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
@@ -142,9 +145,13 @@ class MailboxFragmentAdapter extends CursorAdapter {
     /** All mailboxes for the account */
     private static final String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
+    /** All system mailboxes for an account */
+    private static final String SYSTEM_MAILBOX_SELECTION = ALL_MAILBOX_SELECTION +
+            " AND " + MailboxColumns.TYPE + "!=" + Mailbox.TYPE_MAIL;
     /** All mailboxes with the given parent */
-    private static final String MAILBOX_SELECTION_WITH_PARENT = ALL_MAILBOX_SELECTION +
-            " AND " + MailboxColumns.PARENT_KEY + "=?";
+    private static final String USER_MAILBOX_SELECTION_WITH_PARENT = ALL_MAILBOX_SELECTION +
+            " AND " + MailboxColumns.PARENT_KEY + "=?" +
+            " AND " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_MAIL;
     /** Selection for a specific mailbox */
     private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + MailboxColumns.ID + "=?";
@@ -533,7 +540,7 @@ class MailboxFragmentAdapter extends CursorAdapter {
                     (parentKey != Mailbox.NO_MAILBOX)
                             ? SUBMAILBOX_PROJECTION
                             : PROJECTION,
-                    MAILBOX_SELECTION_WITH_PARENT,
+                    USER_MAILBOX_SELECTION_WITH_PARENT,
                     new String[] { Long.toString(accountId), Long.toString(parentKey) },
                     MAILBOX_ORDER_BY);
             mContext = context;
@@ -552,10 +559,10 @@ class MailboxFragmentAdapter extends CursorAdapter {
         public Cursor loadInBackground() {
             boolean parentRemoved = false;
 
-            final Cursor childMailboxCursor = super.loadInBackground();
+            final Cursor userMailboxCursor = super.loadInBackground();
             final Cursor returnCursor;
 
-            final int childCount = childMailboxCursor.getCount();
+            final int childCount = userMailboxCursor.getCount();
 
             if (mParentKey != Mailbox.NO_MAILBOX) {
                 // If we're not showing the top level mailboxes, add the "parent" mailbox.
@@ -563,10 +570,38 @@ class MailboxFragmentAdapter extends CursorAdapter {
                         Mailbox.CONTENT_URI, CURMAILBOX_PROJECTION, MAILBOX_SELECTION,
                         new String[] { Long.toString(mAccountId), Long.toString(mParentKey) },
                         null);
-                returnCursor = new MergeCursor(new Cursor[] { parentCursor, childMailboxCursor });
+                returnCursor = new MergeCursor(new Cursor[] { parentCursor, userMailboxCursor });
             } else {
                 // TODO Add per-account starred mailbox support
                 final MatrixCursor starredCursor = new MatrixCursor(MATRIX_PROJECTION);
+                final Cursor systemMailboxCursor = mContext.getContentResolver().query(
+                        Mailbox.CONTENT_URI, PROJECTION, SYSTEM_MAILBOX_SELECTION,
+                        new String[] { Long.toString(mAccountId) }, MAILBOX_ORDER_BY);
+                final MatrixCursor recentCursor = new MatrixCursor(MATRIX_PROJECTION);
+                final MatrixCursor headerCursor = new MatrixCursor(MATRIX_PROJECTION);
+                if (childCount > 0) {
+                    final String name = mContext.getString(R.string.mailbox_list_user_mailboxes);
+                    addMailboxRow(headerCursor, 0L, name, 0, 0, 0, ROW_TYPE_HEADER, 0, 0L);
+                }
+                ArrayList<Long> recentList =
+                        RecentMailboxManager.getInstance(mContext).getMostRecent(mAccountId, true);
+                if (recentList.size() > 0) {
+                    final String name = mContext.getString(R.string.mailbox_list_recent_mailboxes);
+                    addMailboxRow(recentCursor, 0L, name, 0, 0, 0, ROW_TYPE_HEADER, 0, 0L);
+                    for (long mailboxId : recentList) {
+                        final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
+                        if (mailbox == null) continue;
+                        final int messageCount = Utility.getFirstRowInt(mContext,
+                            ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                            new String[] { MailboxColumns.MESSAGE_COUNT }, null, null, null, 0);
+                        final int unreadCount = Utility.getFirstRowInt(mContext,
+                            ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                            new String[] { MailboxColumns.UNREAD_COUNT }, null, null, null, 0);
+                        addMailboxRow(recentCursor, mailboxId, mailbox.mDisplayName, mailbox.mType,
+                            unreadCount, messageCount, ROW_TYPE_MAILBOX, mailbox.mFlags,
+                            mailbox.mAccountKey);
+                    }
+                }
                 int accountStarredCount = Message.getFavoriteMessageCount(mContext, mAccountId);
                 if (accountStarredCount > 0) {
                     // Only add "Starred", if there is at least one starred message
@@ -574,10 +609,11 @@ class MailboxFragmentAdapter extends CursorAdapter {
                     addCombinedMailboxRow(starredCursor, Mailbox.QUERY_ALL_FAVORITES,
                             Mailbox.TYPE_MAIL, totalStarredCount, true);
                 }
-                returnCursor = new MergeCursor(new Cursor[] { starredCursor, childMailboxCursor });
+                returnCursor = new MergeCursor(new Cursor[] {
+                        starredCursor, systemMailboxCursor, recentCursor, headerCursor,
+                        userMailboxCursor, });
             }
-            return new CursorWithExtras(Utility.CloseTraceCursorWrapper.get(returnCursor),
-                    childCount);
+            return new CursorWithExtras(returnCursor, childCount);
         }
     }
 
@@ -617,7 +653,7 @@ class MailboxFragmentAdapter extends CursorAdapter {
                         unreadCount, unreadCount, ROW_TYPE_ACCOUNT, Mailbox.FLAG_NONE,
                         accountId);
             }
-            return Utility.CloseTraceCursorWrapper.get(returnCursor);
+            return returnCursor;
         }
 
         @VisibleForTesting

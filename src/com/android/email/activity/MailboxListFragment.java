@@ -471,22 +471,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     }
 
     /**
-     * Returns whether or not the specified mailbox can be navigated to.
-     */
-    private boolean isNavigable(long mailboxId) {
-        final ListView lv = getListView();
-        final int count = lv.getCount();
-        for (int i = 0; i < count; i++) {
-            final MailboxListItem item = (MailboxListItem) lv.getChildAt(i);
-            if (item.mMailboxId != mailboxId) {
-                continue;
-            }
-            return item.isNavigable();
-        }
-        return false;
-    }
-
-    /**
      * Called when the Fragment is visible to the user.
      */
     @Override
@@ -884,7 +868,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             // from getAccountId().  (Currently "Starred" does so.)
             final long accountId = mListAdapter.getAccountId(position);
             boolean nestedNavigation = false;
-            if (isNavigable(id) && (id != mParentMailboxId)) {
+            if (((MailboxListItem) view).isNavigable() && (id != mParentMailboxId)) {
                 // Drill-in.  Selected one will be the next parent, and it'll also be highlighted.
                 startLoading(id, id);
                 nestedNavigation = true;
