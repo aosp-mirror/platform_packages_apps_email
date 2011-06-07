@@ -31,7 +31,6 @@ import com.android.emailcommon.utility.EmailAsyncTask;
 import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
@@ -952,6 +951,11 @@ class UIControllerTwoPane extends UIControllerBase implements
         @Override
         public void onAccountSelected(long accountId) {
             switchAccount(accountId);
+        }
+
+        @Override
+        public void onMailboxSelected(long mailboxId) {
+            UIControllerTwoPane.this.openMailbox(getUIAccountId(), mailboxId);
         }
 
         @Override

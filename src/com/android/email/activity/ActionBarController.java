@@ -18,6 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.R;
 import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Mailbox;
 
 import android.app.ActionBar;
 import android.app.LoaderManager;
@@ -51,7 +52,7 @@ public class ActionBarController {
     private final AccountSelectorAdapter mAccountsSelectorAdapter;
     private Cursor mAccountCursor;
     /** The current account ID; used to determine if the account has changed. */
-    private long mLastAccountIdForDirtyCheck = -1;
+    private long mLastAccountIdForDirtyCheck = Account.NO_ACCOUNT;
 
     public final Callback mCallback;
 
@@ -81,11 +82,16 @@ public class ActionBarController {
 
         /**
          * Called when an account is selected on the account spinner.
-         *
-         * @param accountId ID of the selected account, or
-         * {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
+         * @param accountId ID of the selected account, or {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
          */
         public void onAccountSelected(long accountId);
+
+        /**
+         * Invoked when a recent mailbox is selected on the account spinner.
+         * @param mailboxId The ID of the selected mailbox, or {@link Mailbox#NO_MAILBOX} if the
+         *          special option "show all mailboxes" was selected.
+         */
+        public void onMailboxSelected(long mailboxId);
 
         /** Called when no accounts are found in the database. */
         public void onNoAccountsFound();
@@ -142,8 +148,13 @@ public class ActionBarController {
         // Update the account list only when the account has changed.
         if (mLastAccountIdForDirtyCheck != mCallback.getUIAccountId()) {
             mLastAccountIdForDirtyCheck = mCallback.getUIAccountId();
-            // TODO Need to do this all the time as the recent list is shown here
-            updateAccountList();
+            // If the selected account changes, reload the cursor to update the recent mailboxes
+            if (mLastAccountIdForDirtyCheck != Account.NO_ACCOUNT) {
+                mLoaderManager.destroyLoader(LOADER_ID_ACCOUNT_LIST);
+                loadAccounts();
+            } else {
+                updateAccountList();
+            }
         }
     }
 
@@ -155,7 +166,7 @@ public class ActionBarController {
                 new LoaderCallbacks<Cursor>() {
             @Override
             public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                return AccountSelectorAdapter.createLoader(mContext);
+                return AccountSelectorAdapter.createLoader(mContext, mCallback.getUIAccountId());
             }
 
             @Override
@@ -235,8 +246,8 @@ public class ActionBarController {
             if (mAccountsSelectorAdapter.isAccountItem(itemPosition)
                     && itemId != mCallback.getUIAccountId()) {
                 mCallback.onAccountSelected(itemId);
-            } else {
-                // TODO handle mailbox item
+            } else if (!mAccountsSelectorAdapter.isAccountItem(itemPosition)) {
+                mCallback.onMailboxSelected(itemId);
             }
             return true;
         }

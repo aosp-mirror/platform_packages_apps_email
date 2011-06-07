@@ -238,6 +238,11 @@ class UIControllerOnePane extends UIControllerBase {
         }
 
         @Override
+        public void onMailboxSelected(long mailboxId) {
+            // TODO Implement this
+        }
+
+        @Override
         public boolean isAccountSelected() {
             return UIControllerOnePane.this.isAccountSelected();
         }
