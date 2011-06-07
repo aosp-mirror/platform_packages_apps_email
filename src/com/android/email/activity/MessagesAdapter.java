@@ -21,6 +21,7 @@ import com.android.email.ResourceHelper;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.Mailbox;
@@ -30,6 +31,7 @@ import com.android.emailcommon.utility.Utility;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.CursorWrapper;
 import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -92,6 +94,36 @@ import java.util.Set;
     }
 
     private final Callback mCallback;
+
+    /**
+     * The actual return type from the loader.
+     */
+    public static class CursorWithExtras extends CursorWrapper {
+        /**  Whether the mailbox is found. */
+        public final boolean mIsFound;
+        /** {@link Account} that owns the mailbox.  Null for combined mailboxes. */
+        public final Account mAccount;
+        /** {@link Mailbox} for the loaded mailbox. Null for combined mailboxes. */
+        public final Mailbox mMailbox;
+        /** {@code true} if the account is an EAS account */
+        public final boolean mIsEasAccount;
+        /** {@code true} if the loaded mailbox can be refreshed. */
+        public final boolean mIsRefreshable;
+        /** the number of accounts currently configured. */
+        public final int mCountTotalAccounts;
+
+        private CursorWithExtras(Cursor cursor,
+                boolean found, Account account, Mailbox mailbox, boolean isEasAccount,
+                boolean isRefreshable, int countTotalAccounts) {
+            super(cursor);
+            mIsFound = found;
+            mAccount = account;
+            mMailbox = mailbox;
+            mIsEasAccount = isEasAccount;
+            mIsRefreshable = isRefreshable;
+            mCountTotalAccounts = countTotalAccounts;
+        }
+    }
 
     public MessagesAdapter(Context context, Callback callback) {
         super(context.getApplicationContext(), null, 0 /* no auto requery */);
@@ -222,6 +254,11 @@ import java.util.Set;
         view.invalidate();
     }
 
+    /**
+     * Creates the loader for {@link MessageListFragment}.
+     *
+     * @return always of {@link CursorWithExtras}.
+     */
     public static Loader<Cursor> createLoader(Context context, long mailboxId) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, "MessagesAdapter createLoader mailboxId=" + mailboxId);
@@ -266,7 +303,35 @@ import java.util.Set;
                 // return an empty cursor
                 returnCursor = new MatrixCursor(getProjection());
             }
-            return Utility.CloseTraceCursorWrapper.get(returnCursor);
+            return loadExtras(returnCursor);
+        }
+
+        private Cursor loadExtras(Cursor baseCursor) {
+            boolean found = false;
+            Account account = null;
+            Mailbox mailbox = null;
+            boolean isEasAccount = false;
+            boolean isRefreshable = false;
+
+            if (mMailboxId < 0) {
+                // Magic mailbox.
+                found = true;
+            } else {
+                mailbox = Mailbox.restoreMailboxWithId(mContext, mMailboxId);
+                if (mailbox != null) {
+                    account = Account.restoreAccountWithId(mContext, mailbox.mAccountKey);
+                    if (account != null) {
+                        found = true;
+                        isEasAccount = account.isEasAccount(mContext) ;
+                        isRefreshable = Mailbox.isRefreshable(mContext, mMailboxId);
+                    } else { // Account removed?
+                        mailbox = null;
+                    }
+                }
+            }
+            final int countAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
+            return new CursorWithExtras(baseCursor, found, account, mailbox, isEasAccount,
+                    isRefreshable, countAccounts);
         }
     }
 }

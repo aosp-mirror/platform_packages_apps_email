@@ -21,7 +21,6 @@ import com.android.email.Email;
 import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.RefreshManager;
-import com.android.email.data.MailboxAccountLoader;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
@@ -92,8 +91,7 @@ public class MessageListFragment extends ListFragment
     private static final String BUNDLE_KEY_SELECTED_MESSAGE_ID
             = "messageListFragment.state.listState.selected_message_id";
 
-    private static final int LOADER_ID_MAILBOX_LOADER = 1;
-    private static final int LOADER_ID_MESSAGES_LOADER = 2;
+    private static final int LOADER_ID_MESSAGES_LOADER = 1;
 
     /** Argument name(s) */
     private static final String ARG_ACCOUNT_ID = "accountId";
@@ -1149,48 +1147,7 @@ public class MessageListFragment extends ListFragment
 
         // Start loading...
         final LoaderManager lm = getLoaderManager();
-        lm.initLoader(LOADER_ID_MAILBOX_LOADER, null, new MailboxAccountLoaderCallback());
-    }
-
-    /**
-     * Loader callbacks for {@link MailboxAccountLoader}.
-     */
-    private class MailboxAccountLoaderCallback implements LoaderManager.LoaderCallbacks<
-            MailboxAccountLoader.Result> {
-        @Override
-        public Loader<MailboxAccountLoader.Result> onCreateLoader(int id, Bundle args) {
-            final long mailboxId = getMailboxId();
-            if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, MessageListFragment.this
-                        + " onCreateLoader(mailbox) mailboxId=" + mailboxId);
-            }
-            return new MailboxAccountLoader(getActivity().getApplicationContext(), mailboxId);
-        }
-
-        @Override
-        public void onLoadFinished(Loader<MailboxAccountLoader.Result> loader,
-                MailboxAccountLoader.Result result) {
-            if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, MessageListFragment.this
-                        + " onLoadFinished(mailbox) mailboxId=" + getMailboxId());
-            }
-            if (!result.mIsFound) {
-                mCallback.onMailboxNotFound();
-                return;
-            }
-
-            mAccount = result.mAccount;
-            mMailbox = result.mMailbox;
-            mIsEasAccount = result.mIsEasAccount;
-            mIsRefreshable = result.mIsRefreshable;
-            mCountTotalAccounts = result.mCountTotalAccounts;
-            getLoaderManager().initLoader(LOADER_ID_MESSAGES_LOADER, null,
-                    new MessagesLoaderCallback());
-        }
-
-        @Override
-        public void onLoaderReset(Loader<MailboxAccountLoader.Result> loader) {
-        }
+        lm.initLoader(LOADER_ID_MESSAGES_LOADER, null, new MessagesLoaderCallback());
     }
 
     /**
@@ -1211,11 +1168,25 @@ public class MessageListFragment extends ListFragment
         }
 
         @Override
-        public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
             if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, MessageListFragment.this
                         + " onLoadFinished(messages) mailboxId=" + getMailboxId());
             }
+            MessagesAdapter.CursorWithExtras cursor =
+                    (MessagesAdapter.CursorWithExtras) c;
+
+            if (!cursor.mIsFound) {
+                mCallback.onMailboxNotFound();
+                return;
+            }
+
+            // Get the "extras" part.
+            mAccount = cursor.mAccount;
+            mMailbox = cursor.mMailbox;
+            mIsEasAccount = cursor.mIsEasAccount;
+            mIsRefreshable = cursor.mIsRefreshable;
+            mCountTotalAccounts = cursor.mCountTotalAccounts;
 
             // Suspend message notifications as long as we're resumed
             adjustMessageNotification(false);
