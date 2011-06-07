@@ -148,4 +148,29 @@ public class UiUtilities {
             ((FragmentInstallable) a).onUninstallFragment(fragment);
         }
     }
+
+    private static int sDebugForcedPaneMode = 0;
+
+    /**
+     * Force 1-pane UI or 2-pane UI.
+     *
+     * @param paneMode Set 1 if 1-pane UI should be used.  Set 2 if 2-pane UI should be used.
+     *        Set 0 to use the default UI.
+     */
+    static void setDebugPaneMode(int paneMode) {
+        sDebugForcedPaneMode = paneMode;
+    }
+
+    /**
+     * @return {@code true} if 2-pane UI should be used.  {@code false} otherwise.
+     */
+    public static boolean useTwoPane(Context context) {
+        if (sDebugForcedPaneMode == 1) {
+            return false;
+        }
+        if (sDebugForcedPaneMode == 2) {
+            return true;
+        }
+        return context.getResources().getBoolean(R.bool.use_two_pane);
+    }
 }
