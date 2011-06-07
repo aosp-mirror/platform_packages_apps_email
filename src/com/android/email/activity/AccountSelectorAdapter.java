@@ -326,6 +326,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
             boolean useTwoPane = mContext.getResources().getBoolean(R.bool.use_two_pane);
             // Filter system mailboxes if we're using a two-pane view
             RecentMailboxManager mailboxManager = RecentMailboxManager.getInstance(mContext);
+            // TODO Verify proper behaviour with Rich. The default recent list may be added to the
+            //      database, which would mean this special code goes away.
             ArrayList<Long> recentMailboxes = mailboxManager.getMostRecent(mAccountId, useTwoPane);
             if (!useTwoPane && recentMailboxes.size() == 0) {
                 for (int type : DEFAULT_RECENT_TYPES) {
@@ -336,10 +338,13 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 }
             }
             matrixCursor.mRecentCount = recentMailboxes.size();
-            if (recentMailboxes.size() > 0) {
+            if (!useTwoPane || recentMailboxes.size() > 0) {
+                // Always have a header for one pane; optional on two pane
                 String mailboxHeader = mContext.getString(
-                        R.string.mailbox_list_account_selector_mailbox_header_fmt, emailAddress);
+                    R.string.mailbox_list_account_selector_mailbox_header_fmt, emailAddress);
                 addRow(matrixCursor, ROW_TYPE_HEADER, 0L, mailboxHeader, null, 0, UNKNOWN_POSITION);
+            }
+            if (recentMailboxes.size() > 0) {
                 for (long mailboxId : recentMailboxes) {
                     final int unread = Utility.getFirstRowInt(mContext,
                             ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
