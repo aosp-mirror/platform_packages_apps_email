@@ -551,6 +551,7 @@ class UIControllerOnePane extends UIControllerBase {
             Log.d(Logging.LOG_TAG, this + " showFragment: adding " + fragment);
         }
         ft.add(R.id.fragment_placeholder, fragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         commitFragmentTransaction(ft);
     }
 
@@ -617,6 +618,7 @@ class UIControllerOnePane extends UIControllerBase {
         }
         removeFragment(ft, installed);
         ft.attach(mPreviousFragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
         commitFragmentTransaction(ft);
         mPreviousFragment = null;
         return;
