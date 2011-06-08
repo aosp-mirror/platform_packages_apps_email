@@ -78,12 +78,6 @@ public class AccountSelectorAdapter extends CursorAdapter {
         ACCOUNT_POSITION,
     };
 
-    /** Mailbox types for default "recent mailbox" entries if none exist */
-    private static final int[] DEFAULT_RECENT_TYPES = new int[] {
-        Mailbox.TYPE_DRAFTS,
-        Mailbox.TYPE_SENT,
-    };
-
     /** Sort order.  Show the default account first. */
     private static final String ORDER_BY =
             EmailContent.Account.IS_DEFAULT + " desc, " + EmailContent.Account.RECORD_ID;
@@ -323,28 +317,18 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 emailAddress =
                         matrixCursor.getString(matrixCursor.getColumnIndex(Account.EMAIL_ADDRESS));
             }
-            boolean useTwoPane = UiUtilities.useTwoPane(mContext);
-            // Filter system mailboxes if we're using a two-pane view
             RecentMailboxManager mailboxManager = RecentMailboxManager.getInstance(mContext);
-            // TODO Verify proper behaviour with Rich. The default recent list may be added to the
-            //      database, which would mean this special code goes away.
-            ArrayList<Long> recentMailboxes = mailboxManager.getMostRecent(mAccountId, useTwoPane);
-            if (!useTwoPane && recentMailboxes.size() == 0) {
-                for (int type : DEFAULT_RECENT_TYPES) {
-                    Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, mAccountId, type);
-                    if (mailbox != null) {
-                        recentMailboxes.add(mailbox.mId);
-                    }
-                }
+            ArrayList<Long> recentMailboxes = null;
+            boolean useTwoPane = UiUtilities.useTwoPane(mContext);
+            if (!useTwoPane) {
+                // Do not display recent mailboxes in the account spinner for the two pane view
+                recentMailboxes = mailboxManager.getMostRecent(mAccountId, useTwoPane);
             }
-            matrixCursor.mRecentCount = recentMailboxes.size();
-            if (!useTwoPane || recentMailboxes.size() > 0) {
-                // Always have a header for one pane; optional on two pane
+            if (recentMailboxes != null && recentMailboxes.size() > 0) {
+                matrixCursor.mRecentCount = recentMailboxes.size();
                 String mailboxHeader = mContext.getString(
                     R.string.mailbox_list_account_selector_mailbox_header_fmt, emailAddress);
                 addRow(matrixCursor, ROW_TYPE_HEADER, 0L, mailboxHeader, null, 0, UNKNOWN_POSITION);
-            }
-            if (recentMailboxes.size() > 0) {
                 for (long mailboxId : recentMailboxes) {
                     final int unread = Utility.getFirstRowInt(mContext,
                             ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),

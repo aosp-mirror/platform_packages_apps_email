@@ -62,6 +62,12 @@ public class RecentMailboxManager {
             + " LIMIT ? )";
     private final Context mContext;
 
+    /** Mailbox types for default "recent mailbox" entries if none exist */
+    private static final int[] DEFAULT_RECENT_TYPES = new int[] {
+        Mailbox.TYPE_DRAFTS,
+        Mailbox.TYPE_SENT,
+    };
+
     public static synchronized RecentMailboxManager getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new RecentMailboxManager(context);
@@ -80,7 +86,9 @@ public class RecentMailboxManager {
     }
 
     /**
-     * Gets the most recently touched mailboxes for the specified account.
+     * Gets the most recently touched mailboxes for the specified account. If there are no
+     * recent mailboxes and withExclusions is {@code false}, default recent mailboxes will
+     * be returned.
      * <p><em>WARNING</em>: This method blocks on the database.
      * @param accountId The ID of the account to load the recent list.
      * @param withExclusions If {@code false}, all mailboxes are eligible for the recent list.
@@ -100,6 +108,21 @@ public class RecentMailboxManager {
             }
         } finally {
             cursor.close();
+        }
+        if (returnList.size() == 0 && !withExclusions) {
+            returnList = getDefaultMostRecent(accountId);
+        }
+        return returnList;
+    }
+
+    /** Gets the default recent mailbox list. */
+    private ArrayList<Long> getDefaultMostRecent(long accountId) {
+        ArrayList<Long> returnList = new ArrayList<Long>();
+        for (int type : DEFAULT_RECENT_TYPES) {
+            Mailbox mailbox = Mailbox.restoreMailboxOfType(mContext, accountId, type);
+            if (mailbox != null) {
+                returnList.add(mailbox.mId);
+            }
         }
         return returnList;
     }

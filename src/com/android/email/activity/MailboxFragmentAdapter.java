@@ -583,9 +583,13 @@ class MailboxFragmentAdapter extends CursorAdapter {
                     final String name = mContext.getString(R.string.mailbox_list_user_mailboxes);
                     addMailboxRow(headerCursor, 0L, name, 0, 0, 0, ROW_TYPE_HEADER, 0, 0L);
                 }
-                ArrayList<Long> recentList =
-                        RecentMailboxManager.getInstance(mContext).getMostRecent(mAccountId, true);
-                if (recentList.size() > 0) {
+                ArrayList<Long> recentList = null;
+                boolean useTwoPane = UiUtilities.useTwoPane(mContext);
+                if (useTwoPane) {
+                    recentList = RecentMailboxManager.getInstance(mContext)
+                            .getMostRecent(mAccountId, true);
+                }
+                if (recentList != null && recentList.size() > 0) {
                     final String name = mContext.getString(R.string.mailbox_list_recent_mailboxes);
                     addMailboxRow(recentCursor, 0L, name, 0, 0, 0, ROW_TYPE_HEADER, 0, 0L);
                     for (long mailboxId : recentList) {
