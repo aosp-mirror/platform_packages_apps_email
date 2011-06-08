@@ -196,66 +196,6 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     }
 
     /**
-     * For compatibility while converting to provider model, generate a "store URI"
-     * TODO cache this so we don't rebuild every time
-     *
-     * @return a string in the form of a Uri, as used by the other parts of the email app
-     */
-    public String getStoreUri() {
-        String userInfo = null;
-        if ((mFlags & FLAG_AUTHENTICATE) != 0) {
-            String trimUser = (mLogin != null) ? mLogin.trim() : "";
-            String password = (mPassword != null) ? mPassword : "";
-            userInfo = trimUser + ":" + password;
-        }
-        String scheme = getSchemeString(mProtocol, mFlags);
-        String address = (mAddress != null) ? mAddress.trim() : null;
-        String path = (mDomain != null) ? "/" + mDomain : null;
-
-        URI uri;
-        try {
-            uri = new URI(
-                    scheme,
-                    userInfo,
-                    address,
-                    mPort,
-                    path,
-                    null,
-                    null);
-            return uri.toString();
-        } catch (URISyntaxException e) {
-            return null;
-        }
-    }
-
-    /**
-     * Legacy URI parser. Used in one of three different scenarios:
-     *   1. Backup / Restore of account
-     *   2. Parsing template from provider.xml
-     *   3. Forcefully creating URI for test
-     * Example string:
-     *   "eas+ssl+trustallcerts://user:password@server/domain:123"
-     *
-     * Note that the use of client certificate is specified in the URI, a secure connection type
-     * must be used.
-     */
-    public static void setHostAuthFromString(HostAuth auth, String uriString)
-            throws URISyntaxException {
-        URI uri = new URI(uriString);
-        String path = uri.getPath();
-        String domain = null;
-        if (!TextUtils.isEmpty(path)) {
-            // Strip off the leading slash that begins the path.
-            domain = path.substring(1);
-        }
-        auth.mDomain = domain;
-        auth.setLogin(uri.getUserInfo());
-
-        String scheme = uri.getScheme();
-        auth.setConnection(scheme, uri.getHost(), uri.getPort());
-    }
-
-    /**
      * Sets the user name and password from URI user info string
      */
     public void setLogin(String userInfo) {
@@ -296,27 +236,6 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
             return new String[] { trimUser, password };
         }
         return null;
-    }
-
-    /**
-     * Sets the connection values of the auth structure per the given scheme, host and port.
-     */
-    public void setConnection(String scheme, String host, int port) {
-        String[] schemeParts = scheme.split("\\+");
-        String protocol = schemeParts[0];
-        String clientCertAlias = null;
-        int flags = getSchemeFlags(scheme);
-
-        // Example scheme: "eas+ssl+trustallcerts" or "eas+tls+trustallcerts+client-cert-alias"
-        if (schemeParts.length > 3) {
-            clientCertAlias = schemeParts[3];
-        } else if (schemeParts.length > 2) {
-            if (!SCHEME_TRUST_ALL_CERTS.equals(schemeParts[2])) {
-                mClientCertAlias = schemeParts[2];
-            }
-        }
-
-        setConnection(protocol, host, port, flags, clientCertAlias);
     }
 
     public void setConnection(String protocol, String address, int port, int flags) {
@@ -432,14 +351,6 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
         mClientCertAlias = in.readString();
     }
 
-    /**
-     * For debugger support only - DO NOT use for code.
-     */
-    @Override
-    public String toString() {
-        return getStoreUri();
-    }
-
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof HostAuth)) {
@@ -455,4 +366,50 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
                 && Utility.areStringsEqual(mDomain, that.mDomain)
                 && Utility.areStringsEqual(mClientCertAlias, that.mClientCertAlias);
     }
+
+    /**
+     * Legacy URI parser. Used in parsing template from provider.xml
+     * Example string:
+     *   "eas+ssl+trustallcerts://user:password@server/domain:123"
+     *
+     * Note that the use of client certificate is specified in the URI, a secure connection type
+     * must be used.
+     */
+    public static void setHostAuthFromString(HostAuth auth, String uriString)
+            throws URISyntaxException {
+        URI uri = new URI(uriString);
+        String path = uri.getPath();
+        String domain = null;
+        if (!TextUtils.isEmpty(path)) {
+            // Strip off the leading slash that begins the path.
+            domain = path.substring(1);
+        }
+        auth.mDomain = domain;
+        auth.setLogin(uri.getUserInfo());
+
+        String scheme = uri.getScheme();
+        auth.setConnection(scheme, uri.getHost(), uri.getPort());
+    }
+
+    /**
+     * Legacy code for setting connection values from a "scheme" (see above)
+     */
+    public void setConnection(String scheme, String host, int port) {
+        String[] schemeParts = scheme.split("\\+");
+        String protocol = schemeParts[0];
+        String clientCertAlias = null;
+        int flags = getSchemeFlags(scheme);
+
+        // Example scheme: "eas+ssl+trustallcerts" or "eas+tls+trustallcerts+client-cert-alias"
+        if (schemeParts.length > 3) {
+            clientCertAlias = schemeParts[3];
+        } else if (schemeParts.length > 2) {
+            if (!SCHEME_TRUST_ALL_CERTS.equals(schemeParts[2])) {
+                mClientCertAlias = schemeParts[2];
+            }
+        }
+
+        setConnection(protocol, host, port, flags, clientCertAlias);
+    }
+
 }

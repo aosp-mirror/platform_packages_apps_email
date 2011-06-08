@@ -20,6 +20,7 @@ import com.android.email.ExchangeUtils;
 import com.android.email.mail.Store;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
@@ -102,19 +103,26 @@ public class ExchangeStore extends Store {
         private String mUsername;
         private String mPassword;
 
-        private static final HashMap<String, ExchangeTransport> sUriToInstanceMap =
-            new HashMap<String, ExchangeTransport>();
+        private static final HashMap<Long, ExchangeTransport> sHostAuthToInstanceMap =
+            new HashMap<Long, ExchangeTransport>();
 
         /**
-         * Public factory.  The transport should be a singleton (per Uri)
+         * Public factory.  The transport should be a singleton
          */
         public synchronized static ExchangeTransport getInstance(Account account, Context context)
                 throws MessagingException {
-            final String storeKey = getStoreKey(context, account);
-            ExchangeTransport transport = sUriToInstanceMap.get(storeKey);
+            HostAuth hostAuth = HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
+            if (hostAuth == null) {
+                hostAuth = new HostAuth();
+            }
+            final long storeKey = hostAuth.mId;
+            ExchangeTransport transport = sHostAuthToInstanceMap.get(storeKey);
             if (transport == null) {
                 transport = new ExchangeTransport(account, context);
-                sUriToInstanceMap.put(storeKey, transport);
+                // Only cache a saved HostAuth key
+                if (storeKey != EmailContent.NOT_SAVED) {
+                    sHostAuthToInstanceMap.put(storeKey, transport);
+                }
             }
             return transport;
         }

@@ -495,9 +495,7 @@ public class MessagingController implements Runnable {
         // 6. Determine the limit # of messages to download
         int visibleLimit = folder.mVisibleLimit;
         if (visibleLimit <= 0) {
-            Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(mContext),
-                    mContext);
-            visibleLimit = info.mVisibleLimitDefault;
+            visibleLimit = Email.VISIBLE_LIMIT_DEFAULT;
         }
 
         // 7.  Create a list of messages to download

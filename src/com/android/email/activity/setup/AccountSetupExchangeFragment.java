@@ -46,8 +46,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * Provides generic setup for Exchange accounts.
@@ -267,7 +265,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
 
         String protocol = hostAuth.mProtocol;
         if (protocol == null || !protocol.startsWith("eas")) {
-            throw new Error("Unknown account type: " + account.getStoreUri(mContext));
+            throw new Error("Unknown account type: " + protocol);
         }
 
         if (hostAuth.mAddress != null) {
@@ -299,13 +297,6 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         boolean enabled = usernameFieldValid(mUsernameView)
                 && Utility.isTextViewNotEmpty(mPasswordView)
                 && Utility.isTextViewNotEmpty(mServerView);
-        if (enabled) {
-            try {
-                URI uri = getUri();
-            } catch (URISyntaxException use) {
-                enabled = false;
-            }
-        }
         enableNextButton(enabled);
 
         // Warn (but don't prevent) if password has leading/trailing spaces
@@ -361,41 +352,6 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         account.mHostAuthRecv = newHostAuth;
         // Auto discovery may have changed the auth settings; force load them
         return forceLoadSettings(account);
-    }
-
-    /**
-     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's
-     * a problem with the user input.
-     * @return a URI built from the account setup fields
-     */
-    @Override
-    protected URI getUri() throws URISyntaxException {
-        Account account = SetupData.getAccount();
-        boolean sslRequired = mSslSecurityView.isChecked();
-        boolean trustCertificates = mTrustCertificatesView.isChecked();
-        String userName = mUsernameView.getText().toString().trim();
-        // Remove a leading backslash, if there is one, since we now automatically put one at
-        // the start of the username field
-        if (userName.startsWith("\\")) {
-            userName = userName.substring(1);
-        }
-        mCacheLoginCredential = userName;
-        String userInfo = userName + ":" + mPasswordView.getText();
-        String host = mServerView.getText().toString().trim();
-        String path = null;
-        int port = mSslSecurityView.isChecked() ? 443 : 80;
-        // Ensure TLS is not set
-        int flags = account.getOrCreateHostAuthRecv(mContext).mFlags & ~HostAuth.FLAG_TLS;
-
-        URI uri = new URI(
-                HostAuth.getSchemeString(mBaseScheme, flags),
-                userInfo,
-                host,
-                port,
-                path,
-                null,
-                null);
-        return uri;
     }
 
     /**

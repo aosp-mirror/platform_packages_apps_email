@@ -27,7 +27,6 @@ import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.EditText;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
@@ -159,10 +158,6 @@ public class AccountSetupOutgoingTests extends
         mPasswordView.setText(password);
         if (expectNext) {
             assertTrue(mActivity.mNextButtonEnabled);
-            URI uri = mFragment.getUri();
-            String actualUserInfo = uri.getUserInfo();
-            String actualPassword = actualUserInfo.split(":", 2)[1];
-            assertEquals(password, actualPassword);
         } else {
             assertFalse(mActivity.mNextButtonEnabled);
         }

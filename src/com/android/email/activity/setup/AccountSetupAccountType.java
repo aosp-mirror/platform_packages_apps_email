@@ -16,23 +16,20 @@
 
 package com.android.email.activity.setup;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
-import com.android.email.mail.Store;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.HostAuth;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.database.Cursor;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
 /**
  * Prompts the user to select an account type. The account type, along with the
@@ -87,9 +84,10 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
     private void onPop() {
         Account account = SetupData.getAccount();
         HostAuth hostAuth = account.mHostAuthRecv;
-        hostAuth.mProtocol = "pop3";
+        hostAuth.mProtocol = HostAuth.SCHEME_POP3;
         hostAuth.mLogin = hostAuth.mLogin + "@" + hostAuth.mAddress;
-        hostAuth.mAddress = AccountSettingsUtils.inferServerName(hostAuth.mAddress, "pop3", null);
+        hostAuth.mAddress = AccountSettingsUtils.inferServerName(hostAuth.mAddress,
+                HostAuth.SCHEME_POP3, null);
         SetupData.setCheckSettingsMode(SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING);
         AccountSetupIncoming.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
@@ -102,9 +100,10 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
     private void onImap() {
         Account account = SetupData.getAccount();
         HostAuth hostAuth = account.mHostAuthRecv;
-        hostAuth.mProtocol = "imap";
+        hostAuth.mProtocol = HostAuth.SCHEME_IMAP;
         hostAuth.mLogin = hostAuth.mLogin + "@" + hostAuth.mAddress;
-        hostAuth.mAddress = AccountSettingsUtils.inferServerName(hostAuth.mAddress, "imap", null);
+        hostAuth.mAddress = AccountSettingsUtils.inferServerName(hostAuth.mAddress,
+                HostAuth.SCHEME_IMAP, null);
         // Delete policy must be set explicitly, because IMAP does not provide a UI selection
         // for it. This logic needs to be followed in the auto setup flow as well.
         account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
@@ -120,11 +119,11 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
     private void onExchange() {
         Account account = SetupData.getAccount();
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(this);
-        recvAuth.setConnection(
-                "eas", recvAuth.mAddress, recvAuth.mPort, recvAuth.mFlags | HostAuth.FLAG_SSL);
+        recvAuth.setConnection(HostAuth.SCHEME_EAS, recvAuth.mAddress, recvAuth.mPort,
+                recvAuth.mFlags | HostAuth.FLAG_SSL);
         HostAuth sendAuth = account.getOrCreateHostAuthSend(this);
-        sendAuth.setConnection(
-                "eas", sendAuth.mAddress, sendAuth.mPort, sendAuth.mFlags | HostAuth.FLAG_SSL);
+        sendAuth.setConnection(HostAuth.SCHEME_EAS, sendAuth.mAddress, sendAuth.mPort,
+                sendAuth.mFlags | HostAuth.FLAG_SSL);
         // TODO: Confirm correct delete policy for exchange
         account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
@@ -132,42 +131,6 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         SetupData.setCheckSettingsMode(SetupData.CHECK_AUTODISCOVER);
         AccountSetupExchange.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
-    }
-
-    /**
-     * If the optional store specifies a limit on the number of accounts, make sure that we
-     * don't violate that limit.
-     * @return true if OK to create another account, false if not OK (limit reached)
-     */
-    /* package */ boolean checkAccountInstanceLimit(Store.StoreInfo storeInfo) {
-        // return immediately if account defines no limit
-        if (storeInfo.mAccountInstanceLimit < 0) {
-            return true;
-        }
-
-        // count existing accounts
-        int currentAccountsCount = 0;
-        Cursor c = null;
-        try {
-            c = this.getContentResolver().query(
-                    Account.CONTENT_URI,
-                    Account.CONTENT_PROJECTION,
-                    null, null, null);
-            while (c.moveToNext()) {
-                Account account = EmailContent.getContent(c, Account.class);
-                String storeUri = account.getStoreUri(this);
-                if (storeUri != null && storeUri.startsWith(storeInfo.mScheme)) {
-                    currentAccountsCount++;
-                }
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-
-        // return true if we can accept another account
-        return (currentAccountsCount < storeInfo.mAccountInstanceLimit);
     }
 
     public void onClick(View v) {

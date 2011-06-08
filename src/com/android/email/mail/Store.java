@@ -16,22 +16,23 @@
 
 package com.android.email.mail;
 
+import android.content.Context;
+import android.content.res.XmlResourceParser;
+import android.os.Bundle;
+import android.util.Log;
+
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.google.common.annotations.VisibleForTesting;
 
 import org.xmlpull.v1.XmlPullParserException;
-
-import android.content.Context;
-import android.content.res.XmlResourceParser;
-import android.os.Bundle;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -49,9 +50,9 @@ public abstract class Store {
     /**
      * String constants for known store schemes.
      */
-    public static final String STORE_SCHEME_IMAP = "imap";
-    public static final String STORE_SCHEME_POP3 = "pop3";
-    public static final String STORE_SCHEME_EAS = "eas";
+    public static final String STORE_SCHEME_IMAP = HostAuth.SCHEME_IMAP;
+    public static final String STORE_SCHEME_POP3 = HostAuth.SCHEME_POP3;
+    public static final String STORE_SCHEME_EAS = HostAuth.SCHEME_EAS;
     public static final String STORE_SCHEME_LOCAL = "local";
 
     public static final String STORE_SECURITY_SSL = "+ssl";
@@ -65,7 +66,7 @@ public abstract class Store {
     public static final int FETCH_BODY_SANE_SUGGESTED_SIZE = (50 * 1024);
 
     @VisibleForTesting
-    static final HashMap<String, Store> sStores = new HashMap<String, Store>();
+    static final HashMap<Long, Store> sStores = new HashMap<Long, Store>();
 
     protected Context mContext;
     protected Account mAccount;
@@ -162,23 +163,12 @@ public abstract class Store {
         }
     }
 
-    protected static String getStoreKey(Context context, Account account)
-            throws MessagingException {
-        HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
-        String key = recvAuth.getStoreUri();
-        if (key == null) {
-            throw new MessagingException("Could not find store for account: " +
-                    account.mDisplayName);
-        }
-        return key;
-    }
-
     /**
      * Get an instance of a mail store for the given account. The account must be valid (i.e. has
      * at least an incoming server name).
      *
-     * NOTE: The internal algorithm used to find a cached store depends upon the URI of the
-     * account's HostAuth object. If this ever changes (e.g. such as the user updating the
+     * NOTE: The internal algorithm used to find a cached store depends upon the id of the
+     * account's HostAuth row. If this ever changes (e.g. such as the user updating the
      * host name or port), we will leak entries. This should not be typical, so, it is not
      * a critical problem. However, it is something we should consider fixing.
      *
@@ -188,17 +178,17 @@ public abstract class Store {
      */
     public synchronized static Store getInstance(Account account, Context context,
             PersistentDataCallbacks callbacks) throws MessagingException {
-        String storeKey = getStoreKey(context, account);
+        HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
+        long storeKey = recvAuth.mId;
         Store store = sStores.get(storeKey);
         if (store == null) {
             Context appContext = context.getApplicationContext();
-            HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
             StoreInfo info = StoreInfo.getStoreInfo(recvAuth.mProtocol, context);
             if (info != null) {
                 store = instantiateStore(info.mClassName, account, appContext, callbacks);
             }
-
-            if (store != null) {
+            // Don't cache this unless it's we've got a saved HostAUth
+            if (store != null && (storeKey != EmailContent.NOT_SAVED)) {
                 sStores.put(storeKey, store);
             }
         } else {

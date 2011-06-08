@@ -1392,46 +1392,6 @@ public abstract class EmailContent {
             return mCompatibilityUuid;
         }
 
-        /**
-         * For compatibility while converting to provider model, generate a "store URI"
-         *
-         * @return a string in the form of a Uri, as used by the other parts of the email app
-         */
-        public String getStoreUri(Context context) {
-            // reconstitute if necessary
-            if (mHostAuthRecv == null) {
-                mHostAuthRecv = HostAuth.restoreHostAuthWithId(context, mHostAuthKeyRecv);
-            }
-            // convert if available
-            if (mHostAuthRecv != null) {
-                String storeUri = mHostAuthRecv.getStoreUri();
-                if (storeUri != null) {
-                    return storeUri;
-                }
-            }
-            return "";
-        }
-
-        /**
-         * For compatibility while converting to provider model, generate a "sender URI"
-         *
-         * @return a string in the form of a Uri, as used by the other parts of the email app
-         */
-        public String getSenderUri(Context context) {
-            // reconstitute if necessary
-            if (mHostAuthSend == null) {
-                mHostAuthSend = HostAuth.restoreHostAuthWithId(context, mHostAuthKeySend);
-            }
-            // convert if available
-            if (mHostAuthSend != null) {
-                String senderUri = mHostAuthSend.getStoreUri();
-                if (senderUri != null) {
-                    return senderUri;
-                }
-            }
-            return "";
-        }
-
         public HostAuth getOrCreateHostAuthSend(Context context) {
             if (mHostAuthSend == null) {
                 if (mHostAuthKeySend != 0) {
