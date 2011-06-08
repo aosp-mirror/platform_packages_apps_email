@@ -105,6 +105,8 @@ public final class ContentCache {
     private final String mLogTag;
     // Cache statistics
     private final Statistics mStats;
+    /** If {@code true}, lock the cache for all writes */
+    private static boolean sLockCache;
 
     /**
      * A synchronized reference counter for arbitrary objects
@@ -465,7 +467,7 @@ public final class ContentCache {
                 mStats.mStaleCount++;
                 return c;
             }
-            if (c != null && projection == mBaseProjection) {
+            if (c != null && projection == mBaseProjection && !sLockCache) {
                 if (Email.DEBUG && DEBUG_CACHE) {
                     Log.d(mLogTag, "============ Caching cursor for: " + id);
                 }
@@ -611,7 +613,7 @@ public final class ContentCache {
             if (Email.DEBUG && DEBUG_CACHE) {
                 Log.d(mLogTag, "=========== Unlocking cache for: " + id);
             }
-            if (values != null) {
+            if (values != null && !sLockCache) {
                 MatrixCursor cursor = getMatrixCursor(id, mBaseProjection, values);
                 if (cursor != null) {
                     if (Email.DEBUG && DEBUG_CACHE) {
@@ -724,6 +726,14 @@ public final class ContentCache {
     public static void invalidateAllCachesForTest() {
         for (ContentCache cache: sContentCaches) {
             cache.invalidate();
+        }
+    }
+
+    /** Sets the cache lock. If the lock is {@code true}, also invalidates all cached items. */
+    public static void setLockCacheForTest(boolean lock) {
+        sLockCache = lock;
+        if (sLockCache) {
+            invalidateAllCachesForTest();
         }
     }
 
