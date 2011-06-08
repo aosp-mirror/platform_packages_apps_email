@@ -105,6 +105,7 @@ public class MessageListFragment extends ListFragment
     // UI Support
     private Activity mActivity;
     private Callback mCallback = EmptyCallback.INSTANCE;
+    private boolean mIsViewCreated;
 
     private View mListFooterView;
     private TextView mListFooterText;
@@ -356,6 +357,7 @@ public class MessageListFragment extends ListFragment
         View root = inflater.inflate(R.layout.message_list_fragment,null);
         mListPanel = root.findViewById(R.id.list_panel);
         mNoMessagesPanel = root.findViewById(R.id.no_messages_panel);
+        mIsViewCreated = true;
         return root;
     }
 
@@ -364,7 +366,11 @@ public class MessageListFragment extends ListFragment
      * {@link #onCreateView} and {@link #onDestroyView}.
      */
     private boolean isViewCreated() {
-        return getView() != null;
+        // Note that we don't use "getView() != null".  This method is used in updateSelectionMode()
+        // to determine if CAB shold be shown.  But because it's called from onDestroyView(), at
+        // this point the fragment still has views but we want to hide CAB, we can't use
+        // getView() here.
+        return mIsViewCreated;
     }
 
     @Override
@@ -441,6 +447,7 @@ public class MessageListFragment extends ListFragment
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroyView");
         }
+        mIsViewCreated = false; // Clear this first for updateSelectionMode(). See isViewCreated().
         UiUtilities.uninstallFragment(this);
         updateSelectionMode();
         super.onDestroyView();
