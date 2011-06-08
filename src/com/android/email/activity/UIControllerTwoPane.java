@@ -40,6 +40,9 @@ import java.util.Set;
 
 /**
  * UI Controller for x-large devices.  Supports a multi-pane layout.
+ *
+ * Note: Always use {@link #commitFragmentTransaction} to operate fragment transactions,
+ * so that we can easily switch between synchronous and asynchronous transactions.
  */
 class UIControllerTwoPane extends UIControllerBase implements
         MailboxFinder.Callback,
@@ -523,6 +526,16 @@ class UIControllerTwoPane extends UIControllerBase implements
         // Don't need it when there's no message view.
         stopMessageOrderManager();
         super.uninstallMessageViewFragment();
+    }
+
+    /**
+     * Commit a {@link FragmentTransaction}.
+     */
+    private void commitFragmentTransaction(FragmentTransaction ft) {
+        if (DEBUG_FRAGMENTS) {
+            Log.d(Logging.LOG_TAG, this + " commitFragmentTransaction: " + ft);
+        }
+        ft.commit();
     }
 
     /**

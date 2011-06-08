@@ -31,9 +31,6 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
 import java.util.Set;
 
@@ -41,22 +38,22 @@ import java.util.Set;
 /**
  * UI Controller for non x-large devices.  Supports a single-pane layout.
  *
- * One one-pane, multiple fragments can be installed at the same time, but only one of them
- * can be "visible" at a time.  Others are in the back stack.  Use {@link #isMailboxListVisible()},
- * {@link #isMessageListVisible()} and {@link #isMessageViewVisible()} to determine which is
- * visible.
+ * One one-pane, only at most one fragment can be installed at a time.
  *
  * Note due to the asynchronous nature of the fragment transaction, there is a window when
  * there is no installed or visible fragments.
- *
- * TODO Use the back stack for the message list -> message view navigation, so that the list
- * position/selection will be restored on back.
  *
  * Major TODOs
  * - TODO Newer/Older for message view with swipe!
  * - TODO Implement callbacks
  */
 class UIControllerOnePane extends UIControllerBase {
+    private static final String BUNDLE_KEY_PREVIOUS_FRAGMENT
+            = "UIControllerOnePane.PREVIOUS_FRAGMENT";
+
+    // Our custom poor-man's back stack which has only one entry at maximum.
+    private Fragment mPreviousFragment;
+
     // MailboxListFragment.Callback
     @Override
     public void onAccountSelected(long accountId) {
@@ -280,11 +277,17 @@ class UIControllerOnePane extends UIControllerBase {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (mPreviousFragment != null) {
+            mActivity.getFragmentManager().putFragment(outState,
+                    BUNDLE_KEY_PREVIOUS_FRAGMENT, mPreviousFragment);
+        }
     }
 
     @Override
     public void restoreInstanceState(Bundle savedInstanceState) {
         super.restoreInstanceState(savedInstanceState);
+        mPreviousFragment = mActivity.getFragmentManager().getFragment(savedInstanceState,
+                BUNDLE_KEY_PREVIOUS_FRAGMENT);
     }
 
     @Override
@@ -390,11 +393,36 @@ class UIControllerOnePane extends UIControllerBase {
 
     @Override
     public boolean onBackPressed(boolean isSystemBackKey) {
-        if (isMessageViewVisible()) {
+        if (Email.DEBUG) {
+            // This is VERY important -- no check for DEBUG_LIFECYCLE
+            Log.d(Logging.LOG_TAG, this + " onBackPressed: " + isSystemBackKey);
+        }
+        // If the mailbox list is shown and showing a nested mailbox, let it navigate up first.
+        if (isMailboxListInstalled() && getMailboxListFragment().navigateUp()) {
+            if (DEBUG_FRAGMENTS) {
+                Log.d(Logging.LOG_TAG, this + " Back: back handled by mailbox list");
+            }
+            return true;
+        }
+
+        // Custom back stack
+        if (shouldPopFromBackStack(isSystemBackKey)) {
+            if (DEBUG_FRAGMENTS) {
+                Log.d(Logging.LOG_TAG, this + " Back: Popping from back stack");
+            }
+            popFromBackStack();
+            return true;
+        }
+
+        // No entry in the back stack.
+        // If the message view is shown, show the "parent" message list.
+        // This happens when we get a deep link to a message.  (e.g. from a widget)
+        if (isMessageViewInstalled()) {
+            if (DEBUG_FRAGMENTS) {
+                Log.d(Logging.LOG_TAG, this + " Back: Message view -> Message List");
+            }
             openMailbox(getMessageViewFragment().getOpenerAccountId(),
                     getMessageViewFragment().getOpenerMailboxId());
-            return true;
-        } else if (isMailboxListVisible() && getMailboxListFragment().navigateUp()) {
             return true;
         }
         return false;
@@ -402,8 +430,9 @@ class UIControllerOnePane extends UIControllerBase {
 
     @Override
     public void open(final long accountId, final long mailboxId, final long messageId) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, this + " open accountId=" + accountId
+        if (Email.DEBUG) {
+            // This is VERY important -- no check for DEBUG_LIFECYCLE
+            Log.i(Logging.LOG_TAG, this + " open accountId=" + accountId
                     + " mailboxId=" + mailboxId + " messageId=" + messageId);
         }
         if (accountId == Account.NO_ACCOUNT) {
@@ -415,49 +444,182 @@ class UIControllerOnePane extends UIControllerBase {
             return;
         }
 
+        final boolean accountChanging = (getUIAccountId() != accountId);
         if (messageId != Message.NO_MESSAGE) {
-            showMessageView(accountId, mailboxId, messageId);
+            showMessageView(accountId, mailboxId, messageId, accountChanging);
         } else if (mailboxId != Mailbox.NO_MAILBOX) {
-            showMessageList(accountId, mailboxId);
+            showMessageList(accountId, mailboxId, accountChanging);
         } else {
             // Mailbox not specified.  Open Inbox or Combined Inbox.
             if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-                showMessageList(accountId, Mailbox.QUERY_ALL_INBOXES);
+                showMessageList(accountId, Mailbox.QUERY_ALL_INBOXES, accountChanging);
             } else {
                 startInboxLookup(accountId);
             }
         }
     }
 
-    private void removeAllFragments(FragmentTransaction ft) {
+    /**
+     * @return currently installed {@link Fragment} (1-pane has only one at most), or null if none
+     *         exists.
+     */
+    private Fragment getInstalledFragment() {
         if (isMailboxListInstalled()) {
-            removeMailboxListFragment(ft);
+            return getMailboxListFragment();
+        } else if (isMessageListInstalled()) {
+            return getMessageListFragment();
+        } else if (isMessageViewInstalled()) {
+            return getMessageViewFragment();
         }
-        if (isMessageListInstalled()) {
-            removeMessageListFragment(ft);
+        return null;
+    }
+
+    /**
+     * Remove currently installed {@link Fragment} (1-pane has only one at most), or no-op if none
+     *         exists.
+     */
+    private void removeInstalledFragment(FragmentTransaction ft) {
+        removeFragment(ft, getInstalledFragment());
+    }
+
+    private void showMailboxList(long accountId, long mailboxId, boolean clearBackStack) {
+        showFragment(MailboxListFragment.newInstance(accountId, mailboxId, false), clearBackStack);
+    }
+
+    private void showMessageList(long accountId, long mailboxId, boolean clearBackStack) {
+        showFragment(MessageListFragment.newInstance(accountId, mailboxId), clearBackStack);
+    }
+
+    private void showMessageView(long accountId, long mailboxId, long messageId,
+            boolean clearBackStack) {
+        showFragment(MessageViewFragment.newInstance(accountId, mailboxId, messageId),
+                clearBackStack);
+    }
+
+    /**
+     * Use this instead of {@link FragmentTransaction#commit}.  We may switch to the synchronous
+     * transaction some day.
+     */
+    private void commitFragmentTransaction(FragmentTransaction ft) {
+        ft.commit();
+    }
+
+    /**
+     * Push the installed fragment into our custom back stack (or optionally
+     * {@link FragmentTransaction#remove} it) and {@link FragmentTransaction#add} {@code fragment}.
+     *
+     * @param fragment {@link Fragment} to be added.
+     * @param clearBackStack set {@code true} to remove the currently installed fragment.
+     *        {@code false} to push it into the backstack.
+     *
+     *  TODO Delay-call the whole method and use the synchronous transaction.
+     */
+    private void showFragment(Fragment fragment, boolean clearBackStack) {
+        if (DEBUG_FRAGMENTS) {
+            if (clearBackStack) {
+                Log.i(Logging.LOG_TAG, this + " backstack: [clear] showing " + fragment);
+            } else {
+                Log.i(Logging.LOG_TAG, this + " backstack: [push] " + getInstalledFragment()
+                        + " -> " + fragment);
+            }
         }
-        if (isMessageViewInstalled()) {
-            removeMessageViewFragment(ft);
-        }
-    }
-
-    private void showMailboxList(long accountId, long mailboxId) {
-        showFragment(MailboxListFragment.newInstance(accountId, mailboxId, false));
-    }
-
-    private void showMessageList(long accountId, long mailboxId) {
-        showFragment(MessageListFragment.newInstance(accountId, mailboxId));
-    }
-
-    private void showMessageView(long accountId, long mailboxId, long messageId) {
-        showFragment(MessageViewFragment.newInstance(accountId, mailboxId, messageId));
-    }
-
-    private void showFragment(Fragment fragment) {
         final FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
-        removeAllFragments(ft);
+        if (mPreviousFragment != null) {
+            if (DEBUG_FRAGMENTS) {
+                Log.d(Logging.LOG_TAG, this + " showFragment: destroying previous fragment "
+                        + mPreviousFragment);
+            }
+            removeFragment(ft, mPreviousFragment);
+            mPreviousFragment = null;
+        }
+        // Remove or push the current one
+        if (clearBackStack) {
+            // Really remove the currently installed one.
+            removeInstalledFragment(ft);
+        }  else {
+            // Instead of removing, detach the current one and push into our back stack.
+            mPreviousFragment = getInstalledFragment();
+            if (mPreviousFragment != null) {
+                if (DEBUG_FRAGMENTS) {
+                    Log.d(Logging.LOG_TAG, this + " showFragment: detaching " + mPreviousFragment);
+                }
+                ft.detach(mPreviousFragment);
+            }
+        }
+        // Add the new one
+        if (DEBUG_FRAGMENTS) {
+            Log.d(Logging.LOG_TAG, this + " showFragment: adding " + fragment);
+        }
         ft.add(R.id.fragment_placeholder, fragment);
         commitFragmentTransaction(ft);
+    }
+
+    /**
+     * @param isSystemBackKey <code>true</code> if the system back key was pressed.
+     *        <code>false</code> if it's caused by the "home" icon click on the action bar.
+     * @return true if we should pop from our custom back stack.
+     */
+    private boolean shouldPopFromBackStack(boolean isSystemBackKey) {
+        if (mPreviousFragment == null) {
+            return false; // Nothing in the back stack
+        }
+        // Never go back to Message View
+        if (mPreviousFragment instanceof MessageViewFragment) {
+            return false;
+        }
+        final Fragment installed = getInstalledFragment();
+        if (installed == null) {
+            // If no fragment is installed right now, do nothing.
+            return false;
+        }
+
+        // Okay now we have 2 fragments; the one in the back stack and the one that's currently
+        // installed.
+        if (mPreviousFragment.getClass() == installed.getClass()) {
+            // We never want to go back to the same kind of fragment, which happens when the user
+            // is on the message list, and selects another mailbox on the action bar.
+            return false;
+        }
+
+        if (isSystemBackKey) {
+            // In other cases, the system back key should always work.
+            return true;
+        } else {
+            // Home icon press -- there are cases where we don't want it to work.
+
+            // Disallow the Message list <-> mailbox list transition
+            if ((mPreviousFragment instanceof MailboxListFragment)
+                    && (installed  instanceof MessageListFragment)) {
+                return false;
+            }
+            if ((mPreviousFragment instanceof MessageListFragment)
+                    && (installed  instanceof MailboxListFragment)) {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Pop from our custom back stack.
+     *
+     * TODO Delay-call the whole method and use the synchronous transaction.
+     */
+    private void popFromBackStack() {
+        if (mPreviousFragment == null) {
+            return;
+        }
+        final FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+        final Fragment installed = getInstalledFragment();
+        if (DEBUG_FRAGMENTS) {
+            Log.i(Logging.LOG_TAG, this + " backstack: [pop] " + installed + " -> "
+                    + mPreviousFragment);
+        }
+        removeFragment(ft, installed);
+        ft.attach(mPreviousFragment);
+        commitFragmentTransaction(ft);
+        mPreviousFragment = null;
+        return;
     }
 
     private void showAllMailboxes() {
@@ -465,8 +627,9 @@ class UIControllerOnePane extends UIControllerBase {
             return; // Can happen because of asynchronous fragment transactions.
         }
         // Don't use open(account, NO_MAILBOX, NO_MESSAGE).  This is used to open the default
-        // view, which is Inbox on the message list.
-        showMailboxList(getUIAccountId(), Mailbox.NO_MAILBOX);
+        // view, which is Inbox on the message list.  (There's actually no way to open the mainbox
+        // list with open(long,long,long))
+        showMailboxList(getUIAccountId(), Mailbox.NO_MAILBOX, false);
     }
 
     /*

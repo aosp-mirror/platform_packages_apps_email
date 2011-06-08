@@ -41,12 +41,11 @@ import java.util.List;
 
 /**
  * Base class for the UI controller.
- *
- * Note: Always use {@link #commitFragmentTransaction} to operate fragment transactions,
- * so that we can easily switch between synchronous and asynchronous transactions.
  */
 abstract class UIControllerBase implements MailboxListFragment.Callback,
         MessageListFragment.Callback, MessageViewFragment.Callback  {
+    static final boolean DEBUG_FRAGMENTS = false; // DO NOT SUBMIT WITH TRUE
+
     protected static final String BUNDLE_KEY_RESUME_INBOX_LOOKUP
             = "UIController.state.resumeInboxLookup";
     protected static final String BUNDLE_KEY_INBOX_LOOKUP_ACCOUNT_ID
@@ -124,6 +123,9 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         mActivity = activity;
         mRefreshManager = RefreshManager.getInstance(mActivity);
         mActionBarController = createActionBarController(activity);
+        if (DEBUG_FRAGMENTS) {
+            FragmentManager.enableDebugLogging(true);
+        }
     }
 
     /**
@@ -318,7 +320,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      *
      * Do nothing if {@code fragment} is null.
      */
-    private void removeFragment(FragmentTransaction ft, Fragment fragment) {
+    protected final void removeFragment(FragmentTransaction ft, Fragment fragment) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " removeFragment fragment=" + fragment);
         }
@@ -332,7 +334,8 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     }
 
     /**
-     * Remove a {@link Fragment} from {@link #mRemovedFragments}.
+     * Remove a {@link Fragment} from {@link #mRemovedFragments}.  No-op if {@code fragment} is
+     * null.
      *
      * {@link #removeMailboxListFragment}, {@link #removeMessageListFragment} and
      * {@link #removeMessageViewFragment} all call this, so subclasses don't have to do this when
@@ -399,15 +402,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     /** @return the installed {@link MessageViewFragment} or null. */
     protected final MessageViewFragment getMessageViewFragment() {
         return mMessageViewFragment;
-    }
-
-    /**
-     * Commit a {@link FragmentTransaction}.
-     * Subclass may override this and optionally call
-     * {@link FragmentManager#executePendingTransactions}.
-     */
-    protected void commitFragmentTransaction(FragmentTransaction ft) {
-        ft.commit();
     }
 
     /**
@@ -664,5 +658,10 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             mActionBarController.refresh();
         }
         mActivity.invalidateOptionsMenu();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName(); // Shown on logcat
     }
 }
