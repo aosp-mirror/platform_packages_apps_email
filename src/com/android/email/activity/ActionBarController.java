@@ -238,6 +238,12 @@ public class ActionBarController {
                 mCallback.onAccountSelected(itemId);
             } else if (!mAccountsSelectorAdapter.isAccountItem(itemPosition)) {
                 mCallback.onMailboxSelected(itemId);
+                // We need to update the selection, otherwise the user is unable to select the
+                // recent folder a second time w/o first selecting another item in the spinner
+                int selectedPosition = mAccountsSelectorAdapter.getAccountPosition(itemPosition);
+                if (selectedPosition != AccountSelectorAdapter.UNKNOWN_POSITION) {
+                    mActionBar.setSelectedNavigationItem(selectedPosition);
+                }
             }
             return true;
         }

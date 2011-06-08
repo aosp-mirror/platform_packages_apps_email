@@ -210,7 +210,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
         return c.moveToPosition(position) ? getAccountUnreadCount(c) : 0;
     }
 
-    private int getAccountPosition(int position) {
+    int getAccountPosition(int position) {
         final Cursor c = getCursor();
         return c.moveToPosition(position) ? getAccountPosition(c) : UNKNOWN_POSITION;
     }
@@ -358,7 +358,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 String name = mContext.getString(
                         R.string.mailbox_list_account_selector_show_all_folders);
                 addRow(matrixCursor, ROW_TYPE_MAILBOX, Mailbox.NO_MAILBOX, name, null, 0,
-                        UNKNOWN_POSITION);
+                        accountPosition);
             }
         }
 
