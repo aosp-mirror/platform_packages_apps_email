@@ -18,6 +18,7 @@
 package com.android.emailcommon.provider;
 
 import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
+import com.android.emailcommon.utility.SSLUtils;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentValues;
@@ -133,13 +134,10 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
                 throw new IllegalArgumentException(
                         "Can't specify a certificate alias for a non-secure connection");
             }
-            // TODO: investigate what the certificate aliases look like from the framework
-            // and ensure they're safe scheme names.
-            String safeScheme = clientAlias;
             if (!security.endsWith("+")) {
                 security += "+";
             }
-            security += safeScheme;
+            security += SSLUtils.escapeForSchemeName(clientAlias);
         }
 
         return protocol + security;

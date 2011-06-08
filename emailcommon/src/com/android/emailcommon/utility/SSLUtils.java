@@ -42,4 +42,32 @@ public class SSLUtils {
             return sSecureFactory;
         }
     }
+
+    /**
+     * Escapes the contents a string to be used as a safe scheme name in the URI according to
+     * http://tools.ietf.org/html/rfc3986#section-3.1
+     *
+     * This does not ensure that the first character is a letter (which is required by the RFC).
+     */
+    public static String escapeForSchemeName(String s) {
+        // According to the RFC, scheme names are case-insensitive.
+        s = s.toLowerCase();
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (Character.isLetter(c) || Character.isDigit(c)
+                    || ('-' == c) || ('.' == c)) {
+                // Safe - use as is.
+                sb.append(c);
+            } else if ('+' == c) {
+                // + is used as our escape character, so double it up.
+                sb.append("++");
+            } else {
+                // Unsafe - escape.
+                sb.append('+').append((int) c);
+            }
+        }
+        return sb.toString();
+    }
 }

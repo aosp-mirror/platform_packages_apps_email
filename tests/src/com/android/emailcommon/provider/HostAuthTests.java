@@ -450,15 +450,15 @@ public class HostAuthTests extends AndroidTestCase {
         scheme = HostAuth.getSchemeString("foo", HostAuth.FLAG_TLS, "custom-client-cert-alias");
         assertEquals("foo+tls+custom-client-cert-alias", scheme);
         scheme = HostAuth.getSchemeString(
-                "foo", HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, "custom_client_cert_alias");
-        assertEquals("foo+ssl+trustallcerts+custom_client_cert_alias", scheme);
+                "foo", HostAuth.FLAG_SSL | HostAuth.FLAG_TRUST_ALL, "custom-client-cert-alias");
+        assertEquals("foo+ssl+trustallcerts+custom-client-cert-alias", scheme);
         scheme = HostAuth.getSchemeString(
-                "foo", HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL, "custom_client_cert_alias");
-        assertEquals("foo+tls+trustallcerts+custom_client_cert_alias", scheme);
+                "foo", HostAuth.FLAG_TLS | HostAuth.FLAG_TRUST_ALL, "custom-client-cert-alias");
+        assertEquals("foo+tls+trustallcerts+custom-client-cert-alias", scheme);
 
         try {
             scheme = HostAuth.getSchemeString(
-                    "foo", 0 /* no security flags */, "custom_client_cert_alias");
+                    "foo", 0 /* no security flags */, "custom-client-cert-alias");
             fail("Should not be able to set a custom client cert on an insecure connection");
         } catch (IllegalArgumentException expected) {
         }
