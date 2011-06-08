@@ -117,6 +117,21 @@ public class AccountSelectorAdapter extends CursorAdapter {
         return super.getView(position, convertView, parent);
     }
 
+    /**
+     * The account selector view can contain one of four types of row data:
+     * <ol>
+     * <li>headers</li>
+     * <li>accounts</li>
+     * <li>recent mailboxes</li>
+     * <li>"show all folders"</li>
+     * </ol>
+     * Headers are handled separately as they have a unique layout and cannot be interacted with.
+     * Accounts, recent mailboxes and "show all folders" all have the same interaction model and
+     * share a very similar layout. The single difference is that both accounts and recent
+     * mailboxes display an unread count; whereas "show all folders" does not. To determine
+     * if a particular row is "show all folders" verify that a) it's not an account row and
+     * b) it's ID is {@link Mailbox#NO_MAILBOX}.
+     */
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
         Cursor c = getCursor();
@@ -147,8 +162,13 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 emailAddressView.setText(emailAddress);
             }
 
-            unreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
-                    getAccountUnreadCount(position), false));
+            if (isAccountItem(position) || getAccountId(c) != Mailbox.NO_MAILBOX) {
+                unreadCountView.setVisibility(View.VISIBLE);
+                unreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
+                        getAccountUnreadCount(position), false));
+            } else {
+                unreadCountView.setVisibility(View.INVISIBLE);
+            }
         }
         return view;
     }
@@ -296,7 +316,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 final String accountCount = mContext.getResources().getQuantityString(
                         R.plurals.number_of_accounts, countAccounts, countAccounts);
                 addRow(matrixCursor, ROW_TYPE_ACCOUNT, Account.ACCOUNT_ID_COMBINED_VIEW,
-                        name, accountCount, totalUnread,UNKNOWN_POSITION);
+                        name, accountCount, totalUnread, UNKNOWN_POSITION);
             }
             return accountPosition;
         }
