@@ -110,17 +110,41 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
      * Does not test duplication, bad accountID, or any other bad input.
      */
     public void testCreateMailbox() {
-        Account account = ProviderTestUtils.setupAccount("mailboxid", true, mProviderContext);
-        long accountId = account.mId;
+        // safety check that system mailboxes don't exist ...
+        assertEquals(Mailbox.NO_MAILBOX,
+                Mailbox.findMailboxOfType(mProviderContext, 1L, Mailbox.TYPE_DRAFTS));
+        assertEquals(Mailbox.NO_MAILBOX,
+                Mailbox.findMailboxOfType(mProviderContext, 1L, Mailbox.TYPE_SENT));
 
-        long oldBoxId = Mailbox.findMailboxOfType(mProviderContext, accountId, Mailbox.TYPE_DRAFTS);
-        assertEquals(Mailbox.NO_MAILBOX, oldBoxId);
+        long testMailboxId;
+        Mailbox testMailbox;
 
-        mTestController.createMailbox(accountId, Mailbox.TYPE_DRAFTS);
-        long boxId = Mailbox.findMailboxOfType(mProviderContext, accountId, Mailbox.TYPE_DRAFTS);
+        // Test creating "drafts" mailbox
+        mTestController.createMailbox(1L, Mailbox.TYPE_DRAFTS);
+        testMailboxId = Mailbox.findMailboxOfType(mProviderContext, 1L, Mailbox.TYPE_DRAFTS);
+        assertTrue(testMailboxId != Mailbox.NO_MAILBOX);
+        testMailbox = Mailbox.restoreMailboxWithId(mProviderContext, testMailboxId);
+        assertNotNull(testMailbox);
+        assertEquals(8, testMailbox.mFlags);        // Flags should be "holds mail"
+        assertEquals(-1L, testMailbox.mParentKey);  // Parent is off the top-level
 
-        // check that the drafts mailbox exists
-        assertTrue("mailbox exists", boxId != Mailbox.NO_MAILBOX);
+        // Test creating "sent" mailbox; same as drafts
+        mTestController.createMailbox(1L, Mailbox.TYPE_SENT);
+        testMailboxId = Mailbox.findMailboxOfType(mProviderContext, 1L, Mailbox.TYPE_SENT);
+        assertTrue(testMailboxId != Mailbox.NO_MAILBOX);
+        testMailbox = Mailbox.restoreMailboxWithId(mProviderContext, testMailboxId);
+        assertNotNull(testMailbox);
+        assertEquals(8, testMailbox.mFlags);        // Flags should be "holds mail"
+        assertEquals(-1L, testMailbox.mParentKey);  // Parent is off the top-level
+
+        // Test creating user mailbox; some fields have changed
+        mTestController.createMailbox(1L, Mailbox.TYPE_MAIL);
+        testMailboxId = Mailbox.findMailboxOfType(mProviderContext, 1L, Mailbox.TYPE_MAIL);
+        assertTrue(testMailboxId != Mailbox.NO_MAILBOX);
+        testMailbox = Mailbox.restoreMailboxWithId(mProviderContext, testMailboxId);
+        assertNotNull(testMailbox);
+        assertEquals(0, testMailbox.mFlags);        // Flags are not set
+        assertEquals(0L, testMailbox.mParentKey);   // Parent is not set
     }
 
     /**

@@ -525,7 +525,8 @@ public class Controller {
      * Create a mailbox given the account and mailboxType.
      * TODO: Does this need to be signaled explicitly to the sync engines?
      */
-    /* package */ long createMailbox(long accountId, int mailboxType) {
+    @VisibleForTesting
+    long createMailbox(long accountId, int mailboxType) {
         if (accountId < 0 || mailboxType < 0) {
             String mes = "Invalid arguments " + accountId + ' ' + mailboxType;
             Log.e(Logging.LOG_TAG, mes);
@@ -537,6 +538,11 @@ public class Controller {
         box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
         box.mFlagVisible = true;
         box.mServerId = box.mDisplayName = getMailboxServerName(mailboxType);
+        // All system mailboxes are off the top-level & can hold mail
+        if (mailboxType != Mailbox.TYPE_MAIL) {
+            box.mParentKey = Mailbox.NO_MAILBOX;
+            box.mFlags = Mailbox.FLAG_HOLDS_MAIL;
+        }
         box.save(mProviderContext);
         return box.mId;
     }
