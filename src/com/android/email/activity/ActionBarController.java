@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.R;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.Mailbox;
 
@@ -27,6 +28,7 @@ import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -236,7 +238,7 @@ public class ActionBarController {
             if (mAccountsSelectorAdapter.isAccountItem(itemPosition)
                     && itemId != mCallback.getUIAccountId()) {
                 mCallback.onAccountSelected(itemId);
-            } else if (!mAccountsSelectorAdapter.isAccountItem(itemPosition)) {
+            } else if (mAccountsSelectorAdapter.isMailboxItem(itemPosition)) {
                 mCallback.onMailboxSelected(itemId);
                 // We need to update the selection, otherwise the user is unable to select the
                 // recent folder a second time w/o first selecting another item in the spinner
@@ -244,6 +246,9 @@ public class ActionBarController {
                 if (selectedPosition != AccountSelectorAdapter.UNKNOWN_POSITION) {
                     mActionBar.setSelectedNavigationItem(selectedPosition);
                 }
+            } else {
+                Log.i(Logging.LOG_TAG,
+                        "Invalid type selected in ActionBarController at index " + itemPosition);
             }
             return true;
         }
