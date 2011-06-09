@@ -209,6 +209,12 @@ public class AccountSelectorAdapter extends CursorAdapter {
         return (c.getLong(c.getColumnIndex(ROW_TYPE)) == ROW_TYPE_ACCOUNT);
     }
 
+    public boolean isMailboxItem(int position) {
+        Cursor c = getCursor();
+        c.moveToPosition(position);
+        return (c.getLong(c.getColumnIndex(ROW_TYPE)) == ROW_TYPE_MAILBOX);
+    }
+
     private String getAccountDisplayName(int position) {
         final Cursor c = getCursor();
         return c.moveToPosition(position) ? getAccountDisplayName(c) : null;
