@@ -24,6 +24,7 @@ import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentValues;
@@ -198,7 +199,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-            selectAccountCursor(cursor);
+            selectAccountCursor(cursor, true);
         }
 
         @Override
@@ -217,7 +218,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
                 return;
             }
             if (data.getCount() == 1 && data.moveToFirst()) {
-                selectAccountCursor(data);
+                selectAccountCursor(data, false);
                 return;
             }
             super.onLoadFinished(loader, data);
@@ -229,7 +230,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
         }
 
         /** Selects the account specified by the given cursor */
-        private void selectAccountCursor(Cursor cursor) {
+        private void selectAccountCursor(Cursor cursor, boolean allowBack) {
             Account account = new Account();
             account.restore(cursor);
             ShortcutPickerFragment fragment = new MailboxShortcutPickerFragment();
@@ -237,11 +238,12 @@ public abstract class ShortcutPickerFragment extends ListFragment
             args.putParcelable(MailboxShortcutPickerFragment.ARG_ACCOUNT, account);
             args.putInt(ARG_FILTER, getFilter());
             fragment.setArguments(args);
-            getFragmentManager()
-                .beginTransaction()
-                    .replace(R.id.shortcut_list, fragment)
-                    .addToBackStack(null)
-                    .commit();
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.shortcut_list, fragment);
+            if (allowBack) {
+                transaction.addToBackStack(null);
+            }
+            transaction.commitAllowingStateLoss();
         }
     }
 
