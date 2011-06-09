@@ -1207,11 +1207,19 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
 
         ImapMessage message = prepareForAppendTest(mock, "OK Success");
 
+        // First try w/o parenthesis
+        mock.expectLiterally(
+                getNextTag(false) + " UID SEARCH HEADER MESSAGE-ID <message.id@test.com>",
+                new String[] {
+                    "* sEARCH 321",
+                    getNextTag(true) + " oK success"
+                });
+        // If that fails, then try w/ parenthesis
         mock.expectLiterally(
                 getNextTag(false) + " UID SEARCH (HEADER MESSAGE-ID <message.id@test.com>)",
                 new String[] {
-                "* sEARCH 321",
-                getNextTag(true) + " oK success"
+                    "* sEARCH 321",
+                    getNextTag(true) + " oK success"
                 });
 
         mFolder.appendMessages(new Message[] {message});
@@ -1233,12 +1241,19 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
 
         ImapMessage message = prepareForAppendTest(mock, "NO No space left on the server.");
         assertEquals("initial uid", message.getUid());
-
+        // First try w/o parenthesis
+        mock.expectLiterally(
+                getNextTag(false) + " UID SEARCH HEADER MESSAGE-ID <message.id@test.com>",
+                new String[] {
+                    "* sEARCH", // not found
+                    getNextTag(true) + " oK Search completed."
+                });
+        // If that fails, then try w/ parenthesis
         mock.expectLiterally(
                 getNextTag(false) + " UID SEARCH (HEADER MESSAGE-ID <message.id@test.com>)",
                 new String[] {
-                "* sEARCH", // not found
-                getNextTag(true) + " oK Search completed."
+                    "* sEARCH", // not found
+                    getNextTag(true) + " oK Search completed."
                 });
 
         mFolder.appendMessages(new Message[] {message});
