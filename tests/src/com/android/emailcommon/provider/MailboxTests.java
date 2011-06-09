@@ -522,6 +522,7 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         testMailbox.mType = 7;
         testMailbox.mVisibleLimit = 8;
         testMailbox.mLastSeenMessageKey = 9L;
+        testMailbox.mLastTouchedTime = 10L;
 
         return testMailbox;
     }
@@ -537,7 +538,8 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
                 TEST_PARENT_SERVER_ID, 1L /*mAccountKey*/, 7 /*mType */,
                 (int)'/' /*mDelimiter */, TEST_SYNC_KEY, 5 /*mSyncLookback*/,
                 4 /*mSyncInterval*/,  6L /*mSyncTime*/, true /*mFlagVisible*/, 2 /*mFlags*/,
-                8 /*mVisibleLimit*/, TEST_SYNC_STATUS, 3L /*mParentKey*/, 9L /*mLastSeen*/
+                8 /*mVisibleLimit*/, TEST_SYNC_STATUS, 3L /*mParentKey*/, 9L /*mLastSeen*/,
+                10L /*mLastTouchedTime*/,
         };
         MoreAsserts.assertEquals(testHash, testMailbox.getHashes());
 
@@ -554,7 +556,8 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
                 null /*mParentServerId*/, 1L /*mAccountKey*/, 7 /*mType */,
                 (int)'/' /*mDelimiter */, null /*mSyncKey*/, 5 /*mSyncLookback*/,
                 4 /*mSyncInterval*/,  6L /*mSyncTime*/, false /*mFlagVisible*/, 2 /*mFlags*/,
-                8 /*mVisibleLimit*/, null /*mSyncStatus*/, 3L /*mParentKey*/, 9L /*mLastSeen*/
+                8 /*mVisibleLimit*/, null /*mSyncStatus*/, 3L /*mParentKey*/, 9L /*mLastSeen*/,
+                10L /*mLastTouchedTime*/,
         };
         MoreAsserts.assertEquals(testHash, testMailbox.getHashes());
     }
