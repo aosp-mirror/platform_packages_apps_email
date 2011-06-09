@@ -16,6 +16,21 @@
 
 package com.android.email;
 
+import android.app.Service;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
+import android.util.Log;
+
 import com.android.email.mail.Store;
 import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.email.provider.AccountBackupRestore;
@@ -31,6 +46,7 @@ import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceStatus;
 import com.android.emailcommon.service.IEmailService;
@@ -40,21 +56,6 @@ import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
-
-import android.app.Service;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.RemoteCallbackList;
-import android.os.RemoteException;
-import android.util.Log;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -642,18 +643,13 @@ public class Controller {
                             null, null, null);
                     while (c.moveToNext()) {
                         long accountId = c.getLong(Account.ID_PROJECTION_COLUMN);
-                        Account account = Account.restoreAccountWithId(mProviderContext, accountId);
-                        if (account != null) {
-                            Store.StoreInfo info = Store.StoreInfo.getStoreInfo(
-                                    account.getStoreUri(mProviderContext), mContext);
-                            if (info != null && info.mVisibleLimitDefault > 0) {
-                                int limit = info.mVisibleLimitDefault;
-                                ContentValues cv = new ContentValues();
-                                cv.put(MailboxColumns.VISIBLE_LIMIT, limit);
-                                resolver.update(Mailbox.CONTENT_URI, cv,
-                                        MailboxColumns.ACCOUNT_KEY + "=?",
-                                        new String[] { Long.toString(accountId) });
-                            }
+                        String protocol = Account.getProtocol(mProviderContext, accountId);
+                        if (!HostAuth.SCHEME_EAS.equals(protocol)) {
+                            ContentValues cv = new ContentValues();
+                            cv.put(MailboxColumns.VISIBLE_LIMIT, Email.VISIBLE_LIMIT_DEFAULT);
+                            resolver.update(Mailbox.CONTENT_URI, cv,
+                                    MailboxColumns.ACCOUNT_KEY + "=?",
+                                    new String[] { Long.toString(accountId) });
                         }
                     }
                 } finally {
@@ -683,19 +679,15 @@ public class Controller {
                 if (account == null) {
                     return;
                 }
-                Store.StoreInfo info = Store.StoreInfo.getStoreInfo(
-                        account.getStoreUri(mProviderContext), mContext);
-                if (info != null && info.mVisibleLimitIncrement > 0) {
-                    // Use provider math to increment the field
-                    ContentValues cv = new ContentValues();;
-                    cv.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.VISIBLE_LIMIT);
-                    cv.put(EmailContent.ADD_COLUMN_NAME, info.mVisibleLimitIncrement);
-                    Uri uri = ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, mailboxId);
-                    mProviderContext.getContentResolver().update(uri, cv, null, null);
-                    // Trigger a refresh using the new, longer limit
-                    mailbox.mVisibleLimit += info.mVisibleLimitIncrement;
-                    mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
-                }
+                // Use provider math to increment the field
+                ContentValues cv = new ContentValues();;
+                cv.put(EmailContent.FIELD_COLUMN_NAME, MailboxColumns.VISIBLE_LIMIT);
+                cv.put(EmailContent.ADD_COLUMN_NAME, Email.VISIBLE_LIMIT_INCREMENT);
+                Uri uri = ContentUris.withAppendedId(Mailbox.ADD_TO_FIELD_URI, mailboxId);
+                mProviderContext.getContentResolver().update(uri, cv, null, null);
+                // Trigger a refresh using the new, longer limit
+                mailbox.mVisibleLimit += Email.VISIBLE_LIMIT_INCREMENT;
+                mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
             }
         });
     }

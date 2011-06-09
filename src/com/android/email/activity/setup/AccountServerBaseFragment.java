@@ -373,7 +373,4 @@ public abstract class AccountServerBaseFragment extends Fragment
      * Respond to a click of the "Next" button.  Concrete classes must implement.
      */
     public abstract void onNext();
-
-    protected abstract URI getUri() throws URISyntaxException;
-
 }

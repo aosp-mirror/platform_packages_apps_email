@@ -16,12 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.R;
-import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.HostAuth;
-
 import android.content.Context;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
@@ -31,7 +25,12 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-import java.net.URI;
+import com.android.email.R;
+import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.HostAuth;
+
 import java.net.URISyntaxException;
 
 /**
@@ -74,8 +73,7 @@ public class AccountSetupExchangeTests extends
     /**
      * Test processing with a complete, good URI -> good fields
      */
-    public void testGoodUri() 
-            throws URISyntaxException {
+    public void testGoodUri() throws URISyntaxException {
         Intent i = getTestIntent("eas://user:password@server.com");
         setActivityIntent(i);
         getActivityAndFields();
@@ -88,8 +86,7 @@ public class AccountSetupExchangeTests extends
     /**
      * No user is not OK - not enabled
      */
-    public void testBadUriNoUser() 
-            throws URISyntaxException {
+    public void testBadUriNoUser() throws URISyntaxException {
         Intent i = getTestIntent("eas://:password@server.com");
         setActivityIntent(i);
         getActivityAndFields();
@@ -99,8 +96,7 @@ public class AccountSetupExchangeTests extends
     /**
      * No password is not OK - not enabled
      */
-    public void testBadUriNoPassword() 
-            throws URISyntaxException {
+    public void testBadUriNoPassword() throws URISyntaxException {
         Intent i = getTestIntent("eas://user@server.com");
         setActivityIntent(i);
         getActivityAndFields();
@@ -138,7 +134,7 @@ public class AccountSetupExchangeTests extends
      * Test to confirm that passwords with leading or trailing spaces are accepted verbatim.
      */
     @UiThreadTest
-    public void testPasswordNoTrim() throws URISyntaxException {
+    public void testPasswordNoTrim() {
         getActivityAndFields();
 
         // Clear the password - should disable
@@ -158,14 +154,10 @@ public class AccountSetupExchangeTests extends
      * @param password the password to test with
      * @param expectNext true if expected that this password will enable the "next" button
      */
-    private void checkPassword(String password, boolean expectNext) throws URISyntaxException {
+    private void checkPassword(String password, boolean expectNext) {
         mPasswordView.setText(password);
         if (expectNext) {
             assertTrue(mActivity.mNextButtonEnabled);
-            URI uri = mFragment.getUri();
-            String actualUserInfo = uri.getUserInfo();
-            String actualPassword = actualUserInfo.split(":", 2)[1];
-            assertEquals(password, actualPassword);
         } else {
             assertFalse(mActivity.mNextButtonEnabled);
         }
@@ -236,8 +228,7 @@ public class AccountSetupExchangeTests extends
     /**
      * Create an intent with the Account in it
      */
-    private Intent getTestIntent(String storeUriString)
-            throws URISyntaxException {
+    private Intent getTestIntent(String storeUriString) throws URISyntaxException {
         EmailContent.Account account = new EmailContent.Account();
         Context context = getInstrumentation().getTargetContext();
         HostAuth auth = account.getOrCreateHostAuthRecv(context);

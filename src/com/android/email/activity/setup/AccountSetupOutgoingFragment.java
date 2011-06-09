@@ -16,16 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.activity.UiUtilities;
-import com.android.email.provider.AccountBackupRestore;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -44,8 +34,15 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.activity.UiUtilities;
+import com.android.email.provider.AccountBackupRestore;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 /**
  * Provides UI for SMTP account settings (for IMAP/POP accounts).
@@ -86,7 +83,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
         if (savedInstanceState != null) {
             mLoaded = savedInstanceState.getBoolean(STATE_KEY_LOADED, false);
         }
-        mBaseScheme = "smtp";
+        mBaseScheme = HostAuth.SCHEME_SMTP;
     }
 
     @Override
@@ -299,16 +296,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
             enabled = (Utility.isTextViewNotEmpty(mUsernameView)
                     && Utility.isTextViewNotEmpty(mPasswordView));
         }
-
-        if (enabled) {
-            try {
-                URI uri = getUri();
-            } catch (URISyntaxException use) {
-                enabled = false;
-            }
-        }
         enableNextButton(enabled);
-
         // Warn (but don't prevent) if password has leading/trailing spaces
         AccountSettingsUtils.checkPasswordSpaces(mContext, mPasswordView);
    }
@@ -352,33 +340,6 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void saveSettingsAfterSetup() {
-    }
-
-    /**
-     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's
-     * a problem with the user input.
-     * @return a URI built from the account setup fields
-     */
-    @Override
-    protected URI getUri() throws URISyntaxException {
-        int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
-        String userInfo = null;
-        if (mRequireLoginView.isChecked()) {
-            userInfo = mUsernameView.getText().toString().trim() + ":" + mPasswordView.getText();
-        }
-        String host = mServerView.getText().toString().trim();
-        String path = null;
-        int port = Integer.parseInt(mPortView.getText().toString().trim());
-
-        URI uri = new URI(
-                HostAuth.getSchemeString(mBaseScheme, securityType),
-                userInfo,
-                host,
-                port,
-                path,
-                null,
-                null);
-        return uri;
     }
 
     /**

@@ -16,19 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.mail.Sender;
-import com.android.email.mail.Store;
-import com.android.emailcommon.AccountManagerTypes;
-import com.android.emailcommon.CalendarProviderStub;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -47,13 +34,24 @@ import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.RingtonePreference;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.mail.Sender;
+import com.android.emailcommon.AccountManagerTypes;
+import com.android.emailcommon.CalendarProviderStub;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 /**
  * Fragment containing the main logic for account settings.  This also calls out to other
@@ -419,10 +417,9 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
         mCheckFrequency = (ListPreference) findPreference(PREFERENCE_FREQUENCY);
 
-        // Before setting value, we may need to adjust the lists
-        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(mAccount.getStoreUri(mContext),
-                mContext);
-        if (info.mPushSupported) {
+        // TODO Move protocol into Account to avoid retrieving the HostAuth (implicitly)
+        String protocol = Account.getProtocol(mContext, mAccount.mId);
+        if (HostAuth.SCHEME_EAS.equals(protocol)) {
             mCheckFrequency.setEntries(R.array.account_settings_check_frequency_entries_push);
             mCheckFrequency.setEntryValues(R.array.account_settings_check_frequency_values_push);
         }
@@ -442,7 +439,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
         // Add check window preference
         mSyncWindow = null;
-        if (info.mVisibleLimitDefault == -1) {
+        if (!HostAuth.SCHEME_EAS.equals(protocol)) {
             mSyncWindow = new ListPreference(mContext);
             mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
             mSyncWindow.setEntries(R.array.account_settings_mail_window_entries);
@@ -466,7 +463,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
         // Show "background attachments" for IMAP & EAS - hide it for POP3.
         mAccountBackgroundAttachments = (CheckBoxPreference)
                 findPreference(PREFERENCE_BACKGROUND_ATTACHMENTS);
-        if ("pop3".equals(mAccount.mHostAuthRecv.mProtocol)) {
+        if (HostAuth.SCHEME_POP3.equals(mAccount.mHostAuthRecv.mProtocol)) {
             topCategory.removePreference(mAccountBackgroundAttachments);
         } else {
             mAccountBackgroundAttachments.setChecked(

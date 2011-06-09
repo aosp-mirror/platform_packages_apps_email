@@ -16,11 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.R;
-import com.android.email.mail.Store;
-import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.HostAuth;
-
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +23,10 @@ import android.net.Uri;
 import android.test.ActivityUnitTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
+
+import com.android.email.R;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.HostAuth;
 
 import java.net.URISyntaxException;
 import java.util.HashSet;
@@ -69,36 +68,9 @@ public class AccountSetupAccountTypeTests
     }
 
     /**
-     * Test store type limit enforcement
-     */
-    public void testStoreTypeLimits() 
-            throws URISyntaxException {
-        createTestAccount("scheme1");
-        createTestAccount("scheme1");
-        createTestAccount("scheme2");
-
-        AccountSetupAccountType activity = startActivity(getTestIntent(), null, null);
-
-        // Test with no limit
-        Store.StoreInfo info = new Store.StoreInfo();
-        info.mAccountInstanceLimit = -1;
-        info.mScheme = "scheme1";
-        assertTrue("no limit", activity.checkAccountInstanceLimit(info));
-
-        // Test with limit, but not reached
-        info.mAccountInstanceLimit = 3;
-        assertTrue("limit, but not reached", activity.checkAccountInstanceLimit(info));
-
-        // Test with limit, reached
-        info.mAccountInstanceLimit = 2;
-        assertFalse("limit, reached", activity.checkAccountInstanceLimit(info));
-    }
-
-    /**
      * Confirm that EAS is presented, when supported.
      */
-    public void testEasOffered() 
-            throws URISyntaxException {
+    public void testEasOffered() throws URISyntaxException {
         createTestAccount("scheme1");
         AccountSetupAccountType activity = startActivity(getTestIntent(), null, null);
         View exchangeButton = activity.findViewById(R.id.exchange);
@@ -114,8 +86,7 @@ public class AccountSetupAccountTypeTests
     /**
      * Create a dummy account with minimal fields
      */
-    private Account createTestAccount(String scheme)
-            throws URISyntaxException {
+    private Account createTestAccount(String scheme) throws URISyntaxException {
         Account account = new Account();
         HostAuth auth = account.getOrCreateHostAuthRecv(mContext);
         HostAuth.setHostAuthFromString(auth, scheme + "://user:pass@server.com:123");

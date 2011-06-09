@@ -16,64 +16,42 @@
 
 package com.android.email.mail;
 
+import android.content.Context;
+import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
+
 import com.android.email.Email;
 import com.android.email.mail.Store.StoreInfo;
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 
-import android.test.AndroidTestCase;
-import android.test.suitebuilder.annotation.MediumTest;
-
 /**
  * Tests of StoreInfo & Store lookup in the Store abstract class
+ *
+ * You can run this entire test case with:
+ *   runtest -c com.android.email.mail.store.StoreTests email
+ *
  */
+
 @MediumTest
-public class StoreTests extends AndroidTestCase {
+public class StoreTests extends ProviderTestCase2<EmailProvider> {
+
+    private Context mMockContext;
 
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
+        super.setUp();
+        mMockContext = getMockContext();
         Store.sStores.clear();
     }
 
-    public void testGetStoreKey() throws MessagingException {
-        HostAuth testAuth = new HostAuth();
-        Account testAccount = new Account();
-        String testKey;
-
-        // Make sure to set the host auth; otherwise we create entries in the hostauth db
-        testAccount.mHostAuthRecv = testAuth;
-        testAuth.mProtocol = "protocol";
-        testAuth.mPort = 80;
-
-        // No address defined; throws an exception
-        try {
-            testKey = Store.getStoreKey(mContext, testAccount);
-            fail("MesasginException not thrown for missing address");
-        } catch (MessagingException expected) {
-        }
-
-        // Empty address defined; throws an exception
-        testAuth.mAddress = " \t ";
-        try {
-            testKey = Store.getStoreKey(mContext, testAccount);
-            fail("MesasginException not thrown for empty address");
-        } catch (MessagingException expected) {
-        }
-
-        // Address defined, no login
-        testAuth.mAddress = "a.valid.address.com";
-        testKey = Store.getStoreKey(mContext, testAccount);
-        assertEquals("protocol://a.valid.address.com:80", testKey);
-
-        // Address & login defined
-        testAuth.mAddress = "address.org";
-        testAuth.mFlags = HostAuth.FLAG_AUTHENTICATE;
-        testAuth.mLogin = "auser";
-        testAuth.mPassword = "password";
-        testKey = Store.getStoreKey(mContext, testAccount);
-        assertEquals("protocol://auser:password@address.org:80", testKey);
+    public StoreTests(Class<EmailProvider> providerClass, String providerAuthority) {
+        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     public void testGetStoreInfo() {
@@ -103,42 +81,36 @@ public class StoreTests extends AndroidTestCase {
     }
 
     public void testGetInstance() throws MessagingException {
-        HostAuth testAuth = new HostAuth();
-        Account testAccount = new Account();
         Store testStore;
 
-        // Make sure to set the host auth; otherwise we create entries in the hostauth db
-        testAccount.mHostAuthRecv = testAuth;
-
         // POP3
+        Account testAccount = ProviderTestUtils.setupAccount("pop", false, mMockContext);
+        HostAuth testAuth = new HostAuth();
+        testAccount.mHostAuthRecv = testAuth;
         testAuth.mAddress = "pop3.google.com";
         testAuth.mProtocol = "pop3";
+        testAccount.save(mMockContext);
+
         testStore = Store.getInstance(testAccount, getContext(), null);
         assertEquals(1, Store.sStores.size());
-        assertSame(testStore, Store.sStores.get(testAuth.getStoreUri()));
+        assertSame(testStore, Store.sStores.get(testAccount.mId));
         Store.sStores.clear();
 
         // IMAP
+        testAccount = ProviderTestUtils.setupAccount("pop", false, mMockContext);
+        testAuth = new HostAuth();
+        testAccount.mHostAuthRecv = testAuth;
         testAuth.mAddress = "imap.google.com";
         testAuth.mProtocol = "imap";
+        testAccount.save(mMockContext);
         testStore = Store.getInstance(testAccount, getContext(), null);
         assertEquals(1, Store.sStores.size());
-        assertSame(testStore, Store.sStores.get(testAuth.getStoreUri()));
-        Store.sStores.clear();
-
-        // IMAP; host auth changes
-        testAuth.mAddress = "imap.google.com";
-        testAuth.mProtocol = "imap";
-        testStore = Store.getInstance(testAccount, getContext(), null); // cache first store
-        assertEquals(1, Store.sStores.size());
-        assertSame(testStore, Store.sStores.get(testAuth.getStoreUri()));
-        testAuth.mAddress = "mail.google.com";   // change the auth hostname
-        Store.getInstance(testAccount, getContext(), null); // cache second store
-        assertEquals(2, Store.sStores.size());   // Now there are two entries ...
-        assertNotSame(testStore, Store.sStores.get(testAuth.getStoreUri()));
+        assertSame(testStore, Store.sStores.get(testAccount.mId));
         Store.sStores.clear();
 
         // Unknown
+        testAccount = ProviderTestUtils.setupAccount("unknown", false, mMockContext);
+        testAuth = new HostAuth();
         testAuth.mAddress = "unknown.google.com";
         testAuth.mProtocol = "unknown";
         try {

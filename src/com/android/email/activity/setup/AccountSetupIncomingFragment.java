@@ -42,9 +42,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 /**
  * Provides UI for IMAP/POP account settings.
  *
@@ -326,7 +323,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             }
         } else if (!Store.STORE_SCHEME_POP3.equals(recvAuth.mProtocol)) {
             // Account must either be IMAP or POP3
-            throw new Error("Unknown account type: " + account.getStoreUri(mContext));
+            throw new Error("Unknown account type: " + recvAuth.mProtocol);
         }
 
         // The delete policy is set for all legacy accounts. For POP3 accounts, the user sets
@@ -365,13 +362,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
                 && Utility.isTextViewNotEmpty(mPasswordView)
                 && Utility.isTextViewNotEmpty(mServerView)
                 && Utility.isPortFieldValid(mPortView);
-        if (enabled) {
-            try {
-                URI uri = getUri();
-            } catch (URISyntaxException use) {
-                enabled = false;
-            }
-        }
         enableNextButton(enabled);
 
         // Warn (but don't prevent) if password has leading/trailing spaces
@@ -423,35 +413,6 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         String hostName = AccountSettingsUtils.inferServerName(recvAuth.mAddress, null, "smtp");
         sendAuth.setLogin(recvAuth.mLogin, recvAuth.mPassword);
         sendAuth.setConnection(sendAuth.mProtocol, hostName, sendAuth.mPort, sendAuth.mFlags);
-    }
-
-    /**
-     * Attempt to create a URI from the fields provided.  Throws URISyntaxException if there's
-     * a problem with the user input.
-     * @return a URI built from the account setup fields
-     */
-    @Override
-    protected URI getUri() throws URISyntaxException {
-        int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
-        String path = null;
-        if (Store.STORE_SCHEME_IMAP.equals(mBaseScheme)) {
-            path = "/" + mImapPathPrefixView.getText().toString().trim();
-        }
-        String userName = mUsernameView.getText().toString().trim();
-        mCacheLoginCredential = userName;
-        String userInfo = userName + ":" + mPasswordView.getText();
-        String host = mServerView.getText().toString().trim();
-        int port = Integer.parseInt(mPortView.getText().toString().trim());
-
-        URI uri = new URI(
-                HostAuth.getSchemeString(mBaseScheme, securityType),
-                userInfo,
-                host,
-                port,
-                path, // path
-                null, // query
-                null);
-        return uri;
     }
 
     /**

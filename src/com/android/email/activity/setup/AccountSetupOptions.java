@@ -16,19 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
-import com.android.email.ExchangeUtils;
-import com.android.email.R;
-import com.android.email.activity.ActivityHelper;
-import com.android.email.activity.UiUtilities;
-import com.android.email.mail.Store;
-import com.android.email.service.MailService;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.service.SyncWindow;
-import com.android.emailcommon.utility.Utility;
-
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -47,6 +34,19 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.Spinner;
+
+import com.android.email.Email;
+import com.android.email.ExchangeUtils;
+import com.android.email.R;
+import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.UiUtilities;
+import com.android.email.service.MailService;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.service.SyncWindow;
+import com.android.emailcommon.utility.Utility;
 
 import java.io.IOException;
 
@@ -102,8 +102,9 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         int frequencyValuesId;
         int frequencyEntriesId;
         Account account = SetupData.getAccount();
-        Store.StoreInfo info = Store.StoreInfo.getStoreInfo(account.getStoreUri(this), this);
-        if (info.mPushSupported) {
+        String protocol = account.mHostAuthRecv.mProtocol;
+        boolean eas = HostAuth.SCHEME_EAS.equals(protocol);
+        if (eas) {
             frequencyValuesId = R.array.account_settings_check_frequency_values_push;
             frequencyEntriesId = R.array.account_settings_check_frequency_entries_push;
         } else {
@@ -126,7 +127,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mCheckFrequencyView.setAdapter(checkFrequenciesAdapter);
 
-        if (info.mVisibleLimitDefault == -1) {
+        if (eas) {
             enableEASSyncWindowSpinner();
         }
 
@@ -140,7 +141,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         SpinnerOption.setSpinnerOptionValue(mCheckFrequencyView, account.getSyncInterval());
 
         // Setup any additional items to support EAS & EAS flow mode
-        if ("eas".equals(info.mScheme)) {
+        if (eas) {
             // "also sync contacts" == "true"
             mSyncContactsView.setVisibility(View.VISIBLE);
             mSyncContactsView.setChecked(true);
@@ -152,7 +153,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
         }
 
         // If we are in POP3, hide the "Background Attachments" mode
-        if ("pop3".equals(info.mScheme)) {
+        if (HostAuth.SCHEME_POP3.equals(protocol)) {
             mBackgroundAttachmentsView.setVisibility(View.GONE);
             UiUtilities.setVisibilitySafe(this, R.id.account_background_attachments_divider,
                     View.GONE);
