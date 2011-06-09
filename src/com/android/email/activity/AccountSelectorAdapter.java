@@ -162,7 +162,9 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 emailAddressView.setText(emailAddress);
             }
 
-            if (isAccountItem(position) || getAccountId(c) != Mailbox.NO_MAILBOX) {
+            boolean isAccount = isAccountItem(position);
+            long id = getAccountId(c);
+            if (isAccount || id != Mailbox.NO_MAILBOX) {
                 unreadCountView.setVisibility(View.VISIBLE);
                 unreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
                         getAccountUnreadCount(position), false));
@@ -350,8 +352,9 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 // Do not display recent mailboxes in the account spinner for the two pane view
                 recentMailboxes = mailboxManager.getMostRecent(mAccountId, useTwoPane);
             }
-            if (recentMailboxes != null && recentMailboxes.size() > 0) {
-                matrixCursor.mRecentCount = recentMailboxes.size();
+            int recentCount = (recentMailboxes == null) ? 0 : recentMailboxes.size();
+            matrixCursor.mRecentCount = recentCount;
+            if (recentCount > 0) {
                 String mailboxHeader = mContext.getString(
                     R.string.mailbox_list_account_selector_mailbox_header_fmt, emailAddress);
                 addRow(matrixCursor, ROW_TYPE_HEADER, 0L, mailboxHeader, null, 0, UNKNOWN_POSITION);
@@ -363,6 +366,11 @@ public class AccountSelectorAdapter extends CursorAdapter {
                     addRow(matrixCursor, ROW_TYPE_MAILBOX, mailboxId, mailbox.mDisplayName, null,
                             unread, accountPosition);
                 }
+            } else if (!useTwoPane) {
+                // Add the header for 'show all folders'
+                String mailboxHeader = mContext.getString(
+                    R.string.mailbox_list_account_selector_mailbox_header_fmt, emailAddress);
+                addRow(matrixCursor, ROW_TYPE_HEADER, 0L, mailboxHeader, null, 0, UNKNOWN_POSITION);
             }
             if (!useTwoPane) {
                 String name = mContext.getString(
