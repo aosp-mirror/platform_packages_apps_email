@@ -239,7 +239,7 @@ class UIControllerOnePane extends UIControllerBase {
             if (mailboxId == Mailbox.NO_MAILBOX) {
                 showAllMailboxes();
             } else {
-                UIControllerOnePane.this.openMailbox(getUIAccountId(), mailboxId);
+                openMailbox(getUIAccountId(), mailboxId);
             }
         }
 
