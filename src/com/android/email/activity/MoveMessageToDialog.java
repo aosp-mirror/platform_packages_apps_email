@@ -55,8 +55,10 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     private long[] mMessageIds;
     private MailboxMoveToAdapter mAdapter;
 
-    /** Account ID is restored by {@link MailboxesLoaderCallbacks} */
+    /** ID of the account that contains all of the messages to move */
     private long mAccountId;
+    /** ID of the mailbox that contains all of the messages to move */
+    private long mMailboxId;
 
     private boolean mDestroyed;
 
@@ -152,31 +154,33 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     /**
      * Loader callback for {@link MessageChecker}
      */
-    private class MessageCheckerCallback implements LoaderManager.LoaderCallbacks<Long> {
+    private class MessageCheckerCallback implements LoaderManager.LoaderCallbacks<IdContainer> {
         @Override
-        public Loader<Long> onCreateLoader(int id, Bundle args) {
+        public Loader<IdContainer> onCreateLoader(int id, Bundle args) {
             return new MessageChecker(getActivity(), mMessageIds);
         }
 
         @Override
-        public void onLoadFinished(Loader<Long> loader, Long accountId) {
+        public void onLoadFinished(Loader<IdContainer> loader, IdContainer idSet) {
             if (mDestroyed) {
                 return;
             }
             // accountId shouldn't be null, but I'm paranoia.
-            if ((accountId == null) || (accountId == -1)) {
+            if (idSet == null || idSet.mAccountId == Account.NO_ACCOUNT
+                    || idSet.mMailboxId == Mailbox.NO_MAILBOX) {
                 // Some of the messages can't be moved.  Close the dialog.
                 dismissAsync();
                 return;
             }
-            mAccountId = accountId;
+            mAccountId = idSet.mAccountId;
+            mMailboxId = idSet.mMailboxId;
             getLoaderManager().initLoader(
                     LOADER_ID_MOVE_TO_DIALOG_MAILBOX_LOADER,
                     null, new MailboxesLoaderCallbacks());
         }
 
         @Override
-        public void onLoaderReset(Loader<Long> loader) {
+        public void onLoaderReset(Loader<IdContainer> loader) {
         }
     }
 
@@ -187,7 +191,7 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
             return MailboxMoveToAdapter.createLoader(getActivity().getApplicationContext(),
-                    mAccountId);
+                    mAccountId, mMailboxId);
         }
 
         @Override
@@ -205,10 +209,12 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
     }
 
     /**
-     * A loader that checks if the messages can be moved, and return the Id of the account that owns
-     * the messages.  (If any of the messages can't be moved, return -1.)
+     * A loader that checks if the messages can be moved. If messages can be moved, it returns
+     * the account and mailbox IDs where the messages are currently located. If any the messages
+     * cannot be moved (such as the messages belong to different accounts), the IDs returned
+     * will be {@link Account#NO_ACCOUNT} and {@link Mailbox#NO_MAILBOX}.
      */
-    private static class MessageChecker extends AsyncTaskLoader<Long> {
+    private static class MessageChecker extends AsyncTaskLoader<IdContainer> {
         private final Activity mActivity;
         private final long[] mMessageIds;
 
@@ -219,10 +225,11 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
         }
 
         @Override
-        public Long loadInBackground() {
+        public IdContainer loadInBackground() {
             final Context c = getContext();
 
-            long accountId = -1; // -1 == account not found yet.
+            long accountId = Account.NO_ACCOUNT;
+            long mailboxId = Mailbox.NO_MAILBOX;
 
             for (long messageId : mMessageIds) {
                 // TODO This shouln't restore a full Message object.
@@ -232,31 +239,34 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
                 }
 
                 // First, check account.
-                if (accountId == -1) {
-                    // First message -- see if the account supports move.
+                if (accountId == Account.NO_ACCOUNT) {
+                    // First, check if the account supports move
                     accountId = message.mAccountKey;
                     if (!Account.supportsMoveMessages(c, accountId)) {
                         Utility.showToast(
                                 mActivity, R.string.cannot_move_protocol_not_supported_toast);
-                        return -1L;
+                        accountId = Account.NO_ACCOUNT;
+                        break;
+                    }
+                    mailboxId = message.mMailboxKey;
+                    // Second, check if the mailbox supports move
+                    if (!Mailbox.canMoveFrom(c, mailboxId)) {
+                        Utility.showToast(mActivity, R.string.cannot_move_special_mailboxes_toast);
+                        accountId = Account.NO_ACCOUNT;
+                        mailboxId = Mailbox.NO_MAILBOX;
+                        break;
                     }
                 } else {
-                    // Following messages -- have to belong to the same account
-                    if (message.mAccountKey != accountId) {
+                    // Subsequent messages; all messages must to belong to the same mailbox
+                    if (message.mAccountKey != accountId || message.mMailboxKey != mailboxId) {
                         Utility.showToast(mActivity, R.string.cannot_move_multiple_accounts_toast);
-                        return -1L;
+                        accountId = Account.NO_ACCOUNT;
+                        mailboxId = Mailbox.NO_MAILBOX;
+                        break;
                     }
                 }
-                // Second, check mailbox.
-                if (!Mailbox.canMoveFrom(c, message.mMailboxKey)) {
-                    Utility.showToast(mActivity, R.string.cannot_move_special_mailboxes_toast);
-                    return -1L;
-                }
             }
-
-            // If all messages have been removed, accountId remains -1, which is what we should
-            // return here.
-            return accountId;
+            return new IdContainer(accountId, mailboxId);
         }
 
         @Override
@@ -273,6 +283,17 @@ public class MoveMessageToDialog extends DialogFragment implements DialogInterfa
         @Override
         protected void onReset() {
             stopLoading();
+        }
+    }
+
+    /** Container for multiple types of IDs */
+    private static class IdContainer {
+        private final long mAccountId;
+        private final long mMailboxId;
+
+        private IdContainer(long accountId, long mailboxId) {
+            mAccountId = accountId;
+            mMailboxId = mailboxId;
         }
     }
 }
