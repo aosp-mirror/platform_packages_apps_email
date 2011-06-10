@@ -43,15 +43,22 @@ import android.widget.TextView;
  * adapter classes back into alignment.
  */
 class MailboxMoveToAdapter extends CursorAdapter {
-    private static final String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
-        " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
-    private static final String MOVE_TO_TARGET_MAILBOX_SELECTION =
-        MailboxColumns.TYPE + " NOT IN (" + Mailbox.TYPE_DRAFTS + "," +
-        Mailbox.TYPE_OUTBOX + "," + Mailbox.TYPE_SENT + "," + Mailbox.TYPE_TRASH + ") AND (" +
-        MailboxColumns.FLAGS + " & " + Mailbox.FLAG_ACCEPTS_MOVED_MAIL + " != 0)";
+    /** Selection for all mailboxes in an account */
+    private static final String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?"
+        + " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
+    /** Selection for valid target mailboxes */
+    private static final String TARGET_MAILBOX_SELECTION =
+        MailboxColumns.TYPE + " NOT IN (" + Mailbox.TYPE_DRAFTS + ","
+        + Mailbox.TYPE_OUTBOX + "," + Mailbox.TYPE_SENT + "," + Mailbox.TYPE_TRASH + ") AND ("
+        + MailboxColumns.FLAGS + " & " + Mailbox.FLAG_ACCEPTS_MOVED_MAIL + " != 0)";
+    /** Selection to exclude a mailbox ID */
+    private static final String EXCLUDE_MAILBOX_SELECTION =
+        MailboxColumns.ID + "!=?";
     /** The main selection to populate the "move to" dialog */
     private static final String MOVE_TO_SELECTION =
-        ALL_MAILBOX_SELECTION + " AND " + MOVE_TO_TARGET_MAILBOX_SELECTION;
+        ALL_MAILBOX_SELECTION
+        + " AND " + TARGET_MAILBOX_SELECTION
+        + " AND " + EXCLUDE_MAILBOX_SELECTION;
     /** Projection that uses the server id column as the mailbox name */
     private static final String[] MOVE_TO_PROJECTION_SERVER_ID = new String[] {
         MailboxColumns.ID,
@@ -107,11 +114,12 @@ class MailboxMoveToAdapter extends CursorAdapter {
         return mInflater.inflate(android.R.layout.simple_list_item_1, parent, false);
     }
 
-    static Loader<Cursor> createLoader(Context context, long accountId) {
+    static Loader<Cursor> createLoader(Context context, long accountId, long mailboxId) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MailboxDialogAdapter#createLoader accountId=" + accountId);
+            Log.d(Logging.LOG_TAG, "MailboxDialogAdapter#createLoader accountId=" + accountId
+                    + ", mailboxId=" + mailboxId);
         }
-        return new MailboxMoveToLoader(context, accountId);
+        return new MailboxMoveToLoader(context, accountId, mailboxId);
     }
 
     /**
@@ -132,10 +140,10 @@ class MailboxMoveToAdapter extends CursorAdapter {
     /** Loader for the "move to mailbox" dialog. */
     private static class MailboxMoveToLoader extends ThrottlingCursorLoader {
         private final long mAccountId;
-        public MailboxMoveToLoader(Context context, long accountId) {
+        public MailboxMoveToLoader(Context context, long accountId, long mailboxId) {
             super(context, Mailbox.CONTENT_URI,
                     null, MOVE_TO_SELECTION,
-                    new String[] { String.valueOf(accountId) }, null);
+                    new String[] { Long.toString(accountId), Long.toString(mailboxId) }, null);
             mAccountId = accountId;
         }
 
