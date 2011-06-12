@@ -16,16 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.activity.UiUtilities;
-import com.android.email.mail.Store;
-import com.android.email.provider.AccountBackupRestore;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.Account;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -41,6 +31,16 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.activity.UiUtilities;
+import com.android.email.mail.Store;
+import com.android.email.provider.AccountBackupRestore;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 /**
  * Provides UI for IMAP/POP account settings.
@@ -363,6 +363,9 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
                 && Utility.isTextViewNotEmpty(mServerView)
                 && Utility.isPortFieldValid(mPortView);
         enableNextButton(enabled);
+
+        String userName = mUsernameView.getText().toString().trim();
+        mCacheLoginCredential = userName;
 
         // Warn (but don't prevent) if password has leading/trailing spaces
         AccountSettingsUtils.checkPasswordSpaces(mContext, mPasswordView);
