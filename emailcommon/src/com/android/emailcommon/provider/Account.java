@@ -14,9 +14,6 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.utility.Utility;
 
 import java.util.ArrayList;
@@ -78,6 +75,11 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     // sync mailboxes in this account automatically.  A manual sync request to sync a mailbox
     // with sync disabled SHOULD try to sync and report any failure result via the UI.
     public static final int FLAGS_SYNC_DISABLED = 1<<10;
+    // Whether or not server-side search is supported by this account
+    public static final int FLAGS_SUPPORTS_SEARCH = 1<<11;
+    // Whether or not server-side search supports global search (i.e. all mailboxes); only valid
+    // if FLAGS_SUPPORTS_SEARCH is true
+    public static final int FLAGS_SUPPORTS_GLOBAL_SEARCH = 1<<12;
 
     // Deletion policy (see FLAGS_DELETE_POLICY_MASK, above)
     public static final int DELETE_POLICY_NEVER = 0;
@@ -448,6 +450,15 @@ public final class Account extends EmailContent implements AccountColumns, Parce
     public static boolean supportsMoveMessages(Context context, long accountId) {
         String protocol = getProtocol(context, accountId);
         return "eas".equals(protocol) || "imap".equals(protocol);
+    }
+
+    /**
+     * @return true if the account supports "search".
+     */
+    public static boolean supportsServerSearch(Context context, long accountId) {
+        Account account = Account.restoreAccountWithId(context, accountId);
+        if (account == null) return false;
+        return (account.mFlags & Account.FLAGS_SUPPORTS_SEARCH) != 0;
     }
 
     /**
