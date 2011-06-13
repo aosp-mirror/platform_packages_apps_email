@@ -16,6 +16,9 @@
 
 package com.android.email.mail.store;
 
+import android.test.InstrumentationTestCase;
+import android.test.suitebuilder.annotation.SmallTest;
+
 import com.android.email.mail.Transport;
 import com.android.email.mail.transport.MockTransport;
 import com.android.emailcommon.TempDirectory;
@@ -31,9 +34,6 @@ import com.android.emailcommon.mail.Message.RecipientType;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
-
-import android.test.InstrumentationTestCase;
-import android.test.suitebuilder.annotation.SmallTest;
 
 /**
  * This is a series of unit tests for the POP3 Store class.  These tests must be locally
@@ -282,22 +282,6 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
 
         // getUnreadMessageCount() always returns -1
         assertEquals(-1, mFolder.getUnreadMessageCount());
-
-        // getMessages(MessageRetrievalListener listener) is unsupported
-        try {
-            mFolder.getMessages(null);
-            fail("Exception not thrown by getMessages()");
-        } catch (UnsupportedOperationException e) {
-            // expected - succeed
-        }
-
-        // getMessages(String[] uids, MessageRetrievalListener listener) is unsupported
-        try {
-            mFolder.getMessages(null, null);
-            fail("Exception not thrown by getMessages()");
-        } catch (UnsupportedOperationException e) {
-            // expected - succeed
-        }
 
         // getPermanentFlags() returns { Flag.DELETED }
         Flag[] flags = mFolder.getPermanentFlags();

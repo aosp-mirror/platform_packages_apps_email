@@ -16,6 +16,10 @@
 
 package com.android.email.mail.store;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
+
 import com.android.email.Email;
 import com.android.email.mail.Store;
 import com.android.email.mail.Transport;
@@ -26,19 +30,16 @@ import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.FetchProfile;
 import com.android.emailcommon.mail.Flag;
 import com.android.emailcommon.mail.Folder;
+import com.android.emailcommon.mail.Folder.OpenMode;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.mail.Folder.OpenMode;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.LoggingInputStream;
 import com.android.emailcommon.utility.Utility;
-
-import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -608,12 +609,6 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public Message[] getMessages(MessageRetrievalListener listener) {
-            throw new UnsupportedOperationException(
-                    "Pop3Folder.getMessage(MessageRetrievalListener)");
-        }
-
-        @Override
         public Message[] getMessages(String[] uids, MessageRetrievalListener listener) {
             throw new UnsupportedOperationException(
                     "Pop3Folder.getMessage(MessageRetrievalListener)");
@@ -946,6 +941,12 @@ public class Pop3Store extends Store {
         @Override
         public Message createMessage(String uid) {
             return new Pop3Message(uid, this);
+        }
+
+        @Override
+        public Message[] getMessages(SearchParams params, MessageRetrievalListener listener)
+                throws MessagingException {
+            return null;
         }
     }
 

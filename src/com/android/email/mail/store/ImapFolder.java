@@ -47,6 +47,7 @@ import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.Utility;
 
 import java.io.IOException;
@@ -404,6 +405,30 @@ class ImapFolder extends Folder {
         return null;
     }
 
+    /**
+     * Retrieve messages based on search parameters.  We search FROM, TO, CC, SUBJECT, and BODY
+     * We send: SEARCH OR FROM "foo" (OR TO "foo" (OR CC "foo" (OR SUBJECT "foo" BODY "foo")))
+     * TODO: Properly quote the filter
+     */
+    @Override
+    public Message[] getMessages(SearchParams params, MessageRetrievalListener listener)
+            throws MessagingException {
+        String filter = params.mFilter;
+        StringBuilder sb = new StringBuilder();
+        sb.append("OR FROM \"");
+        sb.append(filter);
+        sb.append("\" (OR TO \"");
+        sb.append(filter);
+        sb.append("\" (OR CC \"");
+        sb.append(filter);
+        sb.append("\" (OR SUBJECT \"");
+        sb.append(filter);
+        sb.append("\" BODY \"");
+        sb.append(filter);
+        sb.append("\")))");
+        return getMessagesInternal(searchForUids(sb.toString()), listener);
+    }
+
     @Override
     public Message[] getMessages(int start, int end, MessageRetrievalListener listener)
             throws MessagingException {
@@ -412,11 +437,6 @@ class ImapFolder extends Folder {
         }
         return getMessagesInternal(
                 searchForUids(String.format("%d:%d NOT DELETED", start, end)), listener);
-    }
-
-    @Override
-    public Message[] getMessages(MessageRetrievalListener listener) throws MessagingException {
-        return getMessages(null, listener);
     }
 
     @Override
@@ -576,11 +596,12 @@ class ImapFolder extends Folder {
                     }
                     if (fp.contains(FetchProfile.Item.BODY)
                             || fp.contains(FetchProfile.Item.BODY_SANE)) {
-                        // Body is keyed by "BODY[...".
-                        // TOOD Should we accept "RFC822" as well??
-                        // The old code didn't really check the key, so it accepted any literal
-                        // that first appeared.
-                        ImapString body = fetchList.getKeyedStringOrEmpty("BODY[", true);
+                        // Body is keyed by "BODY[]...".
+                        // Previously used "BODY[..." but this can be confused with "BODY[HEADER..."
+                        // TODO Should we accept "RFC822" as well??
+                        ImapString body = fetchList.getKeyedStringOrEmpty("BODY[]", true);
+                        String bodyText = body.getString();
+                        Log.v(Logging.LOG_TAG, bodyText);
                         InputStream bodyStream = body.getAsStream();
                         message.parse(bodyStream);
                     }

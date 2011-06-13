@@ -16,25 +16,10 @@
 
 package com.android.email.activity;
 
-import com.android.email.Controller;
-import com.android.email.ControllerResultUiThreadWrapper;
-import com.android.email.Email;
-import com.android.email.MessagingExceptionStrings;
-import com.android.email.R;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.service.SearchParams;
-import com.android.emailcommon.utility.EmailAsyncTask;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -48,6 +33,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import com.android.email.Controller;
+import com.android.email.ControllerResultUiThreadWrapper;
+import com.android.email.Email;
+import com.android.email.MessagingExceptionStrings;
+import com.android.email.R;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.service.SearchParams;
+import com.android.emailcommon.utility.EmailAsyncTask;
 
 import java.util.ArrayList;
 
@@ -264,32 +262,19 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
             // Switch to search mailbox
             // TODO How to handle search from within the search mailbox??
             final Controller controller = Controller.getInstance(mContext);
-            final Mailbox searchMailbox = controller.getSearchMailbox(accountId);
-            if (searchMailbox == null) return;
 
-            // Delete contents, add a placeholder
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.delete(Message.CONTENT_URI, Message.MAILBOX_KEY + "=" + searchMailbox.mId,
-                    null);
-            ContentValues cv = new ContentValues();
-            cv.put(Mailbox.DISPLAY_NAME, queryString);
-            resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailbox.mId), cv,
-                    null, null);
-            Message msg = new Message();
-            msg.mMailboxKey = searchMailbox.mId;
-            msg.mAccountKey = accountId;
-            msg.mDisplayName = "Searching for " + queryString;
-            msg.mTimeStamp = Long.MAX_VALUE; // Sort on top
-            msg.save(mContext);
-
-            startActivity(createOpenMessageIntent(EmailActivity.this,
-                    accountId, searchMailbox.mId, msg.mId));
             EmailAsyncTask.runAsyncParallel(new Runnable() {
                 @Override
                 public void run() {
-                    SearchParams searchSpec = new SearchParams(SearchParams.ALL_MAILBOXES,
-                            queryString);
-                    controller.searchMessages(accountId, searchSpec, searchMailbox.mId);
+                    // TODO Use the proper parameters (a mailbox id for IMAP, a mailbox id or
+                    // SearchParams.ALL_MAILBOXES for eas
+                    // We assume IMAP here for testing
+                    SearchParams searchSpec = new SearchParams(mailboxId, queryString);
+                    try {
+                        controller.searchMessages(accountId, searchSpec);
+                    } catch (MessagingException e) {
+                        // TODO What to do??
+                    }
                 }});
             return;
         }
@@ -367,14 +352,28 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
     public boolean onPrepareOptionsMenu(Menu menu) {
         // STOPSHIP Temporary sync options UI
         boolean isEas = false;
+        boolean canSearch = false;
 
         long accountId = mUIController.getActualAccountId();
         if (accountId > 0) {
             // Move database operations out of the UI thread
-            isEas = "eas".equals(Account.getProtocol(mContext, accountId));
+            if ("eas".equals(Account.getProtocol(mContext, accountId))) {
+                isEas = true;
+                Account account = Account.restoreAccountWithId(mContext, accountId);
+                if (account != null) {
+                    // We should set a flag in the account indicating ability to handle search
+                    String protocolVersion = account.mProtocolVersion;
+                    if (Double.parseDouble(protocolVersion) >= 12.0) {
+                        canSearch = true;
+                    }
+                }
+            } else if ("imap".equals(Account.getProtocol(mContext, accountId))) {
+                canSearch = true;
+            }
         }
 
         // Should use an isSyncable call to prevent drafts/outbox from allowing this
+        menu.findItem(R.id.search).setVisible(canSearch);
         menu.findItem(R.id.sync_lookback).setVisible(isEas);
         menu.findItem(R.id.sync_frequency).setVisible(isEas);
 

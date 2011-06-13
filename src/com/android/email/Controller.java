@@ -886,21 +886,50 @@ public class Controller {
     }
 
     /**
-     * Search for messages on the server; see {@Link EmailServiceProxy#searchMessages(long, long,
-     * boolean, String, int, int, long)} for a complete description of this method's arguments.
+     * Search for messages on the (IMAP) server; do not call this on the UI thread!
+     * @param accountId the id of the account to be searched
+     * @param searchParams the parameters for this search
+     * @throws MessagingException
      */
-    public void searchMessages(final long accountId, final SearchParams searchParams,
-            final long destMailboxId) {
+    public void searchMessages(final long accountId, final SearchParams searchParams)
+            throws MessagingException {
+        // Find/create our search mailbox
+        Mailbox searchMailbox = getSearchMailbox(accountId);
+        if (searchMailbox == null) return;
+        final long searchMailboxId = searchMailbox.mId;
+
         IEmailService service = getServiceForAccount(accountId);
         if (service != null) {
             // Service implementation
             try {
-                service.searchMessages(accountId, searchParams, destMailboxId);
+                service.searchMessages(accountId, searchParams, searchMailboxId);
             } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method
                 // is implemented for other protocols
                 Log.e("searchMessages", "RemoteException", e);
             }
+        } else {
+            // This is the actual mailbox we'll be searching
+            Mailbox actualMailbox = Mailbox.restoreMailboxWithId(mContext, searchParams.mMailboxId);
+            if (actualMailbox == null) return;
+
+            // Delete existing contents of search mailbox
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.delete(Message.CONTENT_URI, Message.MAILBOX_KEY + "=" + searchMailboxId,
+                    null);
+            ContentValues cv = new ContentValues();
+            // For now, use the actual query as the name of the mailbox
+            cv.put(Mailbox.DISPLAY_NAME, searchParams.mFilter);
+            // But use the server id of the actual mailbox we're searching; this allows full
+            // message loading to work normally (clever, huh?)
+            cv.put(MailboxColumns.SERVER_ID, actualMailbox.mServerId);
+            resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId), cv,
+                    null, null);
+            // Do the search
+            if (Email.DEBUG) {
+                Log.d(Logging.LOG_TAG, "Search: " + searchParams.mFilter);
+            }
+            mLegacyController.searchMailbox(accountId, searchParams, searchMailboxId);
         }
     }
 

@@ -16,6 +16,15 @@
 
 package com.android.email;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Process;
+import android.util.Log;
+
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
@@ -42,21 +51,15 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.EmailContent.SyncColumns;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.ConversionUtilities;
 import com.android.emailcommon.utility.Utility;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Process;
-import android.util.Log;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -398,17 +401,267 @@ public class MessagingController implements Runnable {
     }
 
     /**
+     * Load the structure and body of messages not yet synced
+     * @param account the account we're syncing
+     * @param remoteFolder the (open) Folder we're working on
+     * @param unsyncedMessages an array of Message's we've got headers for
+     * @param toMailbox the destination mailbox we're syncing
+     * @throws MessagingException
+     */
+    void loadUnsyncedMessages(final Account account, Folder remoteFolder,
+            ArrayList<Message> unsyncedMessages, final Mailbox toMailbox)
+            throws MessagingException {
+
+        // 1. Divide the unsynced messages into small & large (by size)
+
+        // TODO doing this work here (synchronously) is problematic because it prevents the UI
+        // from affecting the order (e.g. download a message because the user requested it.)  Much
+        // of this logic should move out to a different sync loop that attempts to update small
+        // groups of messages at a time, as a background task.  However, we can't just return
+        // (yet) because POP messages don't have an envelope yet....
+
+        ArrayList<Message> largeMessages = new ArrayList<Message>();
+        ArrayList<Message> smallMessages = new ArrayList<Message>();
+        for (Message message : unsyncedMessages) {
+            if (message.getSize() > (MAX_SMALL_MESSAGE_SIZE)) {
+                largeMessages.add(message);
+            } else {
+                smallMessages.add(message);
+            }
+        }
+
+        // 2. Download small messages
+
+        // TODO Problems with this implementation.  1. For IMAP, where we get a real envelope,
+        // this is going to be inefficient and duplicate work we've already done.  2.  It's going
+        // back to the DB for a local message that we already had (and discarded).
+
+        // For small messages, we specify "body", which returns everything (incl. attachments)
+        FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.BODY);
+        remoteFolder.fetch(smallMessages.toArray(new Message[smallMessages.size()]), fp,
+                new MessageRetrievalListener() {
+                    public void messageRetrieved(Message message) {
+                        // Store the updated message locally and mark it fully loaded
+                        copyOneMessageToProvider(message, account, toMailbox,
+                                EmailContent.Message.FLAG_LOADED_COMPLETE);
+                    }
+
+                    @Override
+                    public void loadAttachmentProgress(int progress) {
+                    }
+        });
+
+        // 3. Download large messages.  We ask the server to give us the message structure,
+        // but not all of the attachments.
+        fp.clear();
+        fp.add(FetchProfile.Item.STRUCTURE);
+        remoteFolder.fetch(largeMessages.toArray(new Message[largeMessages.size()]), fp, null);
+        for (Message message : largeMessages) {
+            if (message.getBody() == null) {
+                // POP doesn't support STRUCTURE mode, so we'll just do a partial download
+                // (hopefully enough to see some/all of the body) and mark the message for
+                // further download.
+                fp.clear();
+                fp.add(FetchProfile.Item.BODY_SANE);
+                //  TODO a good optimization here would be to make sure that all Stores set
+                //  the proper size after this fetch and compare the before and after size. If
+                //  they equal we can mark this SYNCHRONIZED instead of PARTIALLY_SYNCHRONIZED
+                remoteFolder.fetch(new Message[] { message }, fp, null);
+
+                // Store the partially-loaded message and mark it partially loaded
+                copyOneMessageToProvider(message, account, toMailbox,
+                        EmailContent.Message.FLAG_LOADED_PARTIAL);
+            } else {
+                // We have a structure to deal with, from which
+                // we can pull down the parts we want to actually store.
+                // Build a list of parts we are interested in. Text parts will be downloaded
+                // right now, attachments will be left for later.
+                ArrayList<Part> viewables = new ArrayList<Part>();
+                ArrayList<Part> attachments = new ArrayList<Part>();
+                MimeUtility.collectParts(message, viewables, attachments);
+                // Download the viewables immediately
+                for (Part part : viewables) {
+                    fp.clear();
+                    fp.add(part);
+                    // TODO what happens if the network connection dies? We've got partial
+                    // messages with incorrect status stored.
+                    remoteFolder.fetch(new Message[] { message }, fp, null);
+                }
+                // Store the updated message locally and mark it fully loaded
+                copyOneMessageToProvider(message, account, toMailbox,
+                        EmailContent.Message.FLAG_LOADED_COMPLETE);
+            }
+        }
+
+    }
+
+    public void downloadFlagAndEnvelope(final Account account, final Mailbox mailbox,
+            Folder remoteFolder, ArrayList<Message> unsyncedMessages,
+            HashMap<String, LocalMessageInfo> localMessageMap, final ArrayList<Long> unseenMessages)
+            throws MessagingException {
+        FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.FLAGS);
+        fp.add(FetchProfile.Item.ENVELOPE);
+
+        final HashMap<String, LocalMessageInfo> localMapCopy;
+        if (localMessageMap != null)
+            localMapCopy = new HashMap<String, LocalMessageInfo>(localMessageMap);
+        else {
+            localMapCopy = new HashMap<String, LocalMessageInfo>();
+        }
+
+        remoteFolder.fetch(unsyncedMessages.toArray(new Message[0]), fp,
+                new MessageRetrievalListener() {
+                    @Override
+                    public void messageRetrieved(Message message) {
+                        try {
+                            // Determine if the new message was already known (e.g. partial)
+                            // And create or reload the full message info
+                            LocalMessageInfo localMessageInfo =
+                                localMapCopy.get(message.getUid());
+                            EmailContent.Message localMessage = null;
+                            if (localMessageInfo == null) {
+                                localMessage = new EmailContent.Message();
+                            } else {
+                                localMessage = EmailContent.Message.restoreMessageWithId(
+                                        mContext, localMessageInfo.mId);
+                            }
+
+                            if (localMessage != null) {
+                                try {
+                                    // Copy the fields that are available into the message
+                                    LegacyConversions.updateMessageFields(localMessage,
+                                            message, account.mId, mailbox.mId);
+                                    // Commit the message to the local store
+                                    saveOrUpdate(localMessage, mContext);
+                                    // Track the "new" ness of the downloaded message
+                                    if (!message.isSet(Flag.SEEN) && unseenMessages != null) {
+                                        unseenMessages.add(localMessage.mId);
+                                    }
+                                } catch (MessagingException me) {
+                                    Log.e(Logging.LOG_TAG,
+                                            "Error while copying downloaded message." + me);
+                                }
+
+                            }
+                        }
+                        catch (Exception e) {
+                            Log.e(Logging.LOG_TAG,
+                                    "Error while storing downloaded message." + e.toString());
+                        }
+                    }
+
+                    @Override
+                    public void loadAttachmentProgress(int progress) {
+                    }
+                });
+
+    }
+
+    /**
+     * A message and numeric uid that's easily sortable
+     */
+    private static class SortableMessage {
+        private final Message mMessage;
+        private final long mUid;
+
+        SortableMessage(Message message, long uid) {
+            mMessage = message;
+            mUid = uid;
+        }
+    }
+
+    public void searchMailbox(long accountId, SearchParams searchParams, final long destMailboxId)
+            throws MessagingException {
+        final Account account = Account.restoreAccountWithId(mContext, accountId);
+        final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, searchParams.mMailboxId);
+        final Mailbox destMailbox = Mailbox.restoreMailboxWithId(mContext, destMailboxId);
+        if (account == null || mailbox == null || destMailbox == null) return;
+
+        Store remoteStore = Store.getInstance(account, mContext, null);
+        Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
+        remoteFolder.open(OpenMode.READ_WRITE, null);
+
+        // Get the "bare" messages (basically uid)
+        Message[] remoteMessages = remoteFolder.getMessages(searchParams, null);
+        int remoteCount = remoteMessages.length;
+        if (remoteCount > 0) {
+            SortableMessage[] sortableMessages = new SortableMessage[remoteCount];
+            int i = 0;
+            for (Message msg : remoteMessages) {
+                sortableMessages[i++] = new SortableMessage(msg, Long.parseLong(msg.getUid()));
+            }
+            // Sort the uid's, most recent first
+            // Note: Not all servers will be nice and return results in the order we request them;
+            // those that do will see messages arrive from newest to oldest (i.e. the "right" order)
+            Arrays.sort(sortableMessages, new Comparator<SortableMessage>() {
+                @Override
+                public int compare(SortableMessage lhs, SortableMessage rhs) {
+                    return lhs.mUid > rhs.mUid ? -1 : lhs.mUid < rhs.mUid ? 1 : 0;
+                }
+            });
+            final ArrayList<Message> messageList = new ArrayList<Message>();
+            // Now create a list sized for our visible limit and fill it in
+            int messageListSize = Math.min(remoteCount, Email.VISIBLE_LIMIT_DEFAULT);
+            for (i = 0; i < messageListSize; i++) {
+                messageList.add(sortableMessages[i].mMessage);
+            }
+            // Get everything in one pass, rather than two (as in sync); this starts getting us
+            // usable results quickly.
+            FetchProfile fp = new FetchProfile();
+            fp.add(FetchProfile.Item.FLAGS);
+            fp.add(FetchProfile.Item.ENVELOPE);
+            fp.add(FetchProfile.Item.STRUCTURE);
+            fp.add(FetchProfile.Item.BODY_SANE);
+            remoteFolder.fetch(messageList.toArray(new Message[0]), fp,
+                    new MessageRetrievalListener() {
+                        public void messageRetrieved(Message message) {
+                            try {
+                                // Determine if the new message was already known (e.g. partial)
+                                // And create or reload the full message info
+                                EmailContent.Message localMessage = new EmailContent.Message();
+                                try {
+                                    // Copy the fields that are available into the message
+                                    LegacyConversions.updateMessageFields(localMessage,
+                                            message, account.mId, mailbox.mId);
+                                    // Commit the message to the local store
+                                    saveOrUpdate(localMessage, mContext);
+                                    localMessage.mMailboxKey = destMailboxId;
+                                    // We load 50k or so; maybe it's complete, maybe not...
+                                    int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
+                                    if (message.getSize() > Store.FETCH_BODY_SANE_SUGGESTED_SIZE) {
+                                        flag = EmailContent.Message.FLAG_LOADED_PARTIAL;
+                                    }
+                                    copyOneMessageToProvider(message, localMessage, flag, mContext);
+                                } catch (MessagingException me) {
+                                    Log.e(Logging.LOG_TAG,
+                                            "Error while copying downloaded message." + me);
+                                }
+                            } catch (Exception e) {
+                                Log.e(Logging.LOG_TAG,
+                                        "Error while storing downloaded message." + e.toString());
+                            }
+                        }
+
+                        @Override
+                        public void loadAttachmentProgress(int progress) {
+                        }
+                    });
+        }
+        }
+
+    /**
      * Generic synchronizer - used for POP3 and IMAP.
      *
      * TODO Break this method up into smaller chunks.
      *
      * @param account the account to sync
-     * @param folder the mailbox to sync
+     * @param mailbox the mailbox to sync
      * @return results of the sync pass
      * @throws MessagingException
      */
-    private SyncResults synchronizeMailboxGeneric(
-            final Account account, final Mailbox folder)
+    private SyncResults synchronizeMailboxGeneric(final Account account, final Mailbox mailbox)
             throws MessagingException {
 
         /*
@@ -421,8 +674,8 @@ public class MessagingController implements Runnable {
         ContentResolver resolver = mContext.getContentResolver();
 
         // 0.  We do not ever sync DRAFTS or OUTBOX (down or up)
-        if (folder.mType == Mailbox.TYPE_DRAFTS || folder.mType == Mailbox.TYPE_OUTBOX) {
-            int totalMessages = EmailContent.count(mContext, folder.getUri(), null, null);
+        if (mailbox.mType == Mailbox.TYPE_DRAFTS || mailbox.mType == Mailbox.TYPE_OUTBOX) {
+            int totalMessages = EmailContent.count(mContext, mailbox.getUri(), null, null);
             return new SyncResults(totalMessages, unseenMessages);
         }
 
@@ -439,7 +692,7 @@ public class MessagingController implements Runnable {
                     " AND " + MessageColumns.MAILBOX_KEY + "=?",
                     new String[] {
                             String.valueOf(account.mId),
-                            String.valueOf(folder.mId)
+                            String.valueOf(mailbox.mId)
                     },
                     null);
             while (localUidCursor.moveToNext()) {
@@ -452,20 +705,10 @@ public class MessagingController implements Runnable {
             }
         }
 
-        // 1a. Count the unread messages before changing anything
-        int localUnreadCount = EmailContent.count(mContext, EmailContent.Message.CONTENT_URI,
-                EmailContent.MessageColumns.ACCOUNT_KEY + "=?" +
-                " AND " + MessageColumns.MAILBOX_KEY + "=?" +
-                " AND " + MessageColumns.FLAG_READ + "=0",
-                new String[] {
-                        String.valueOf(account.mId),
-                        String.valueOf(folder.mId)
-                });
-
         // 2.  Open the remote folder and create the remote folder if necessary
 
         Store remoteStore = Store.getInstance(account, mContext, null);
-        Folder remoteFolder = remoteStore.getFolder(folder.mServerId);
+        Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
 
         /*
          * If the folder is a "special" folder we need to see if it exists
@@ -474,8 +717,8 @@ public class MessagingController implements Runnable {
          * designed and on Imap folders during error conditions. This allows us
          * to treat Pop3 and Imap the same in this code.
          */
-        if (folder.mType == Mailbox.TYPE_TRASH || folder.mType == Mailbox.TYPE_SENT
-                || folder.mType == Mailbox.TYPE_DRAFTS) {
+        if (mailbox.mType == Mailbox.TYPE_TRASH || mailbox.mType == Mailbox.TYPE_SENT
+                || mailbox.mType == Mailbox.TYPE_DRAFTS) {
             if (!remoteFolder.exists()) {
                 if (!remoteFolder.create(FolderType.HOLDS_MESSAGES)) {
                     return new SyncResults(0, unseenMessages);
@@ -493,7 +736,7 @@ public class MessagingController implements Runnable {
         int remoteMessageCount = remoteFolder.getMessageCount();
 
         // 6. Determine the limit # of messages to download
-        int visibleLimit = folder.mVisibleLimit;
+        int visibleLimit = mailbox.mVisibleLimit;
         if (visibleLimit <= 0) {
             visibleLimit = Email.VISIBLE_LIMIT_DEFAULT;
         }
@@ -548,56 +791,8 @@ public class MessagingController implements Runnable {
          * critical data as fast as possible, and then we'll fill in the details.
          */
         if (unsyncedMessages.size() > 0) {
-            FetchProfile fp = new FetchProfile();
-            fp.add(FetchProfile.Item.FLAGS);
-            fp.add(FetchProfile.Item.ENVELOPE);
-            final HashMap<String, LocalMessageInfo> localMapCopy =
-                new HashMap<String, LocalMessageInfo>(localMessageMap);
-
-            remoteFolder.fetch(unsyncedMessages.toArray(new Message[0]), fp,
-                    new MessageRetrievalListener() {
-                        public void messageRetrieved(Message message) {
-                            try {
-                                // Determine if the new message was already known (e.g. partial)
-                                // And create or reload the full message info
-                                LocalMessageInfo localMessageInfo =
-                                    localMapCopy.get(message.getUid());
-                                EmailContent.Message localMessage = null;
-                                if (localMessageInfo == null) {
-                                    localMessage = new EmailContent.Message();
-                                } else {
-                                    localMessage = EmailContent.Message.restoreMessageWithId(
-                                            mContext, localMessageInfo.mId);
-                                }
-
-                                if (localMessage != null) {
-                                    try {
-                                        // Copy the fields that are available into the message
-                                        LegacyConversions.updateMessageFields(localMessage,
-                                                message, account.mId, folder.mId);
-                                        // Commit the message to the local store
-                                        saveOrUpdate(localMessage, mContext);
-                                        // Track the "new" ness of the downloaded message
-                                        if (!message.isSet(Flag.SEEN)) {
-                                            unseenMessages.add(localMessage.mId);
-                                        }
-                                    } catch (MessagingException me) {
-                                        Log.e(Logging.LOG_TAG,
-                                                "Error while copying downloaded message." + me);
-                                    }
-
-                                }
-                            }
-                            catch (Exception e) {
-                                Log.e(Logging.LOG_TAG,
-                                        "Error while storing downloaded message." + e.toString());
-                            }
-                        }
-
-                        @Override
-                        public void loadAttachmentProgress(int progress) {
-                        }
-                    });
+            downloadFlagAndEnvelope(account, mailbox, remoteFolder, unsyncedMessages,
+                    localMessageMap, unseenMessages);
         }
 
         // 9. Refresh the flags for any messages in the local store that we didn't just download.
@@ -663,87 +858,7 @@ public class MessagingController implements Runnable {
             resolver.delete(deletERowToDelete, null, null);
         }
 
-        // 11. Divide the unsynced messages into small & large (by size)
-
-        // TODO doing this work here (synchronously) is problematic because it prevents the UI
-        // from affecting the order (e.g. download a message because the user requested it.)  Much
-        // of this logic should move out to a different sync loop that attempts to update small
-        // groups of messages at a time, as a background task.  However, we can't just return
-        // (yet) because POP messages don't have an envelope yet....
-
-        ArrayList<Message> largeMessages = new ArrayList<Message>();
-        ArrayList<Message> smallMessages = new ArrayList<Message>();
-        for (Message message : unsyncedMessages) {
-            if (message.getSize() > (MAX_SMALL_MESSAGE_SIZE)) {
-                largeMessages.add(message);
-            } else {
-                smallMessages.add(message);
-            }
-        }
-
-        // 12. Download small messages
-
-        // TODO Problems with this implementation.  1. For IMAP, where we get a real envelope,
-        // this is going to be inefficient and duplicate work we've already done.  2.  It's going
-        // back to the DB for a local message that we already had (and discarded).
-
-        // For small messages, we specify "body", which returns everything (incl. attachments)
-        fp = new FetchProfile();
-        fp.add(FetchProfile.Item.BODY);
-        remoteFolder.fetch(smallMessages.toArray(new Message[smallMessages.size()]), fp,
-                new MessageRetrievalListener() {
-                    public void messageRetrieved(Message message) {
-                        // Store the updated message locally and mark it fully loaded
-                        copyOneMessageToProvider(message, account, folder,
-                                EmailContent.Message.FLAG_LOADED_COMPLETE);
-                    }
-
-                    @Override
-                    public void loadAttachmentProgress(int progress) {
-                    }
-        });
-
-        // 13. Download large messages.  We ask the server to give us the message structure,
-        // but not all of the attachments.
-        fp.clear();
-        fp.add(FetchProfile.Item.STRUCTURE);
-        remoteFolder.fetch(largeMessages.toArray(new Message[largeMessages.size()]), fp, null);
-        for (Message message : largeMessages) {
-            if (message.getBody() == null) {
-                // POP doesn't support STRUCTURE mode, so we'll just do a partial download
-                // (hopefully enough to see some/all of the body) and mark the message for
-                // further download.
-                fp.clear();
-                fp.add(FetchProfile.Item.BODY_SANE);
-                //  TODO a good optimization here would be to make sure that all Stores set
-                //  the proper size after this fetch and compare the before and after size. If
-                //  they equal we can mark this SYNCHRONIZED instead of PARTIALLY_SYNCHRONIZED
-                remoteFolder.fetch(new Message[] { message }, fp, null);
-
-                // Store the partially-loaded message and mark it partially loaded
-                copyOneMessageToProvider(message, account, folder,
-                        EmailContent.Message.FLAG_LOADED_PARTIAL);
-            } else {
-                // We have a structure to deal with, from which
-                // we can pull down the parts we want to actually store.
-                // Build a list of parts we are interested in. Text parts will be downloaded
-                // right now, attachments will be left for later.
-                ArrayList<Part> viewables = new ArrayList<Part>();
-                ArrayList<Part> attachments = new ArrayList<Part>();
-                MimeUtility.collectParts(message, viewables, attachments);
-                // Download the viewables immediately
-                for (Part part : viewables) {
-                    fp.clear();
-                    fp.add(part);
-                    // TODO what happens if the network connection dies? We've got partial
-                    // messages with incorrect status stored.
-                    remoteFolder.fetch(new Message[] { message }, fp, null);
-                }
-                // Store the updated message locally and mark it fully loaded
-                copyOneMessageToProvider(message, account, folder,
-                        EmailContent.Message.FLAG_LOADED_COMPLETE);
-            }
-        }
+        loadUnsyncedMessages(account, remoteFolder, unsyncedMessages, mailbox);
 
         // 14. Clean up and report results
         remoteFolder.close(false);
