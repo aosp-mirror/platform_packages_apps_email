@@ -16,29 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.AttachmentInfo;
-import com.android.email.Controller;
-import com.android.email.ControllerResultUiThreadWrapper;
-import com.android.email.Email;
-import com.android.email.Preferences;
-import com.android.email.R;
-import com.android.email.Throttle;
-import com.android.email.mail.internet.EmailHtmlUtil;
-import com.android.email.service.AttachmentDownloadService;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.Address;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.Body;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.AttachmentUtilities;
-import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.Utility;
-import com.google.common.collect.Maps;
-
-import org.apache.commons.io.IOUtils;
-
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.app.Fragment;
@@ -77,6 +54,30 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.android.email.AttachmentInfo;
+import com.android.email.Controller;
+import com.android.email.ControllerResultUiThreadWrapper;
+import com.android.email.Email;
+import com.android.email.Preferences;
+import com.android.email.R;
+import com.android.email.Throttle;
+import com.android.email.mail.internet.EmailHtmlUtil;
+import com.android.email.service.AttachmentDownloadService;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.Body;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.AttachmentUtilities;
+import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
+import com.google.common.collect.Maps;
+
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -127,12 +128,13 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private TextView mInviteTab;
     // It is not really a tab, but looks like one of them.
     private TextView mShowPicturesTab;
+    private Button mAlwaysShowPicturesButton;
 
     private View mAttachmentsScroll;
     private View mInviteScroll;
 
-    private long mAccountId = -1;
-    private long mMessageId = -1;
+    private long mAccountId = Account.NO_ACCOUNT;
+    private long mMessageId = Message.NO_MESSAGE;
     private Message mMessage;
 
     private Controller mController;
@@ -144,8 +146,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     // contains the HTML content as set in WebView.
     private String mHtmlTextWebView;
-
-    private boolean mResumed;
 
     private boolean mIsMessageLoadedForTest;
 
@@ -306,15 +306,17 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mFromBadge.setOnClickListener(this);
         mSenderPresenceView.setOnClickListener(this);
 
-        mMessageTab = (TextView) UiUtilities.getView(view, R.id.show_message);
-        mAttachmentTab = (TextView) UiUtilities.getView(view, R.id.show_attachments);
-        mShowPicturesTab = (TextView) UiUtilities.getView(view, R.id.show_pictures);
+        mMessageTab = UiUtilities.getView(view, R.id.show_message);
+        mAttachmentTab = UiUtilities.getView(view, R.id.show_attachments);
+        mShowPicturesTab = UiUtilities.getView(view, R.id.show_pictures);
+        mAlwaysShowPicturesButton = UiUtilities.getView(view, R.id.always_show_pictures_button);
         // Invite is only used in MessageViewFragment, but visibility is controlled here.
-        mInviteTab = (TextView) UiUtilities.getView(view, R.id.show_invite);
+        mInviteTab = UiUtilities.getView(view, R.id.show_invite);
 
         mMessageTab.setOnClickListener(this);
         mAttachmentTab.setOnClickListener(this);
         mShowPicturesTab.setOnClickListener(this);
+        mAlwaysShowPicturesButton.setOnClickListener(this);
         mInviteTab.setOnClickListener(this);
         mShowDetailsButton.setOnClickListener(this);
 
@@ -360,8 +362,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         super.onResume();
 
-        mResumed = true;
-
         // We might have comes back from other full-screen activities.  If so, we need to update
         // the attachment tab as system settings may have been updated that affect which
         // options are available to the user.
@@ -373,7 +373,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onPause");
         }
-        mResumed = false;
         super.onPause();
     }
 
@@ -571,7 +570,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         // Hide the entire section if no tabs are visible.
         makeVisible(mTabSection, isVisible(mMessageTab) || isVisible(mInviteTab)
-                || isVisible(mAttachmentTab) || isVisible(mShowPicturesTab));
+                || isVisible(mAttachmentTab) || isVisible(mShowPicturesTab)
+                || isVisible(UiUtilities.getView(getView(), R.id.always_show_pictures_container)));
 
         // Restore previously selected tab after rotation
         if (mRestoredTab != TAB_NONE && isVisible(getTabViewForFlag(mRestoredTab))) {
@@ -882,10 +882,16 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
     }
 
-    private void onShowPicturesInHtml() {
-        if (mMessageContentView != null) {
+    private void showPicturesInHtml() {
+        boolean picturesAlreadyLoaded = (mTabFlags & TAB_FLAGS_PICTURE_LOADED) != 0;
+        if ((mMessageContentView != null) && !picturesAlreadyLoaded) {
             blockNetworkLoads(false);
+            // TODO: why is this calling setMessageHtml just because the images can load now?
             setMessageHtml(mHtmlTextWebView);
+
+            // Prompt the user to always show images from this sender.
+            makeVisible(UiUtilities.getView(getView(), R.id.always_show_pictures_container), true);
+
             addTabFlags(TAB_FLAGS_PICTURE_LOADED);
         }
     }
@@ -942,7 +948,10 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 setCurrentTab(TAB_ATTACHMENT);
                 break;
             case R.id.show_pictures:
-                onShowPicturesInHtml();
+                showPicturesInHtml();
+                break;
+            case R.id.always_show_pictures_button:
+                setShowImagesForSender();
                 break;
             case R.id.show_details:
                 onShowDetails();
@@ -1005,7 +1014,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             }
             if (message != null) {
                 mMailboxType = Mailbox.getMailboxType(mContext, message.mMailboxKey);
-                if (mMailboxType == -1) {
+                if (mMailboxType == Mailbox.NO_MAILBOX) {
                     message = null; // mailbox removed??
                 }
             }
@@ -1081,13 +1090,15 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         private final long mId;
         private boolean mErrorLoadingMessageBody;
+        private final boolean mAutoShowPictures;
 
         /**
          * Special constructor to cache some local info
          */
-        public LoadBodyTask(long messageId) {
+        public LoadBodyTask(long messageId, boolean autoShowPictures) {
             super(mTaskTracker);
             mId = messageId;
+            mAutoShowPictures = autoShowPictures;
         }
 
         @Override
@@ -1117,7 +1128,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                 resetView();
                 return;
             }
-            reloadUiFromBody(results[0], results[1]);    // text, html
+            reloadUiFromBody(results[0], results[1], mAutoShowPictures);    // text, html
             onPostLoadBody();
         }
     }
@@ -1497,9 +1508,18 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mControllerCallback.getWrappee().setWaitForLoadMessageId(message.mId);
             mController.loadMessageForView(message.mId);
         } else {
-            mControllerCallback.getWrappee().setWaitForLoadMessageId(-1);
+            Address[] fromList = Address.unpack(mMessage.mFrom);
+            boolean autoShowImages = false;
+            for (Address sender : fromList) {
+                String email = sender.getAddress();
+                if (shouldShowImagesFor(email)) {
+                    autoShowImages = true;
+                    break;
+                }
+            }
+            mControllerCallback.getWrappee().setWaitForLoadMessageId(Message.NO_MESSAGE);
             // Ask for body
-            new LoadBodyTask(message.mId).executeParallel();
+            new LoadBodyTask(message.mId, autoShowImages).executeParallel();
         }
     }
 
@@ -1573,7 +1593,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      *
      * TODO deal with html vs text and many other issues <- WHAT DOES IT MEAN??
      */
-    private void reloadUiFromBody(String bodyText, String bodyHtml) {
+    private void reloadUiFromBody(String bodyText, String bodyHtml, boolean autoShowPictures) {
         String text = null;
         mHtmlTextRaw = null;
         boolean hasImages = false;
@@ -1631,7 +1651,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         // - If images are attached to the email and small enough, we download them at once,
         //   and won't need network access when they're shown.
         if (hasImages) {
-            if (mRestoredPictureLoaded) {
+            if (mRestoredPictureLoaded || autoShowPictures) {
                 blockNetworkLoads(false);
                 addTabFlags(TAB_FLAGS_PICTURE_LOADED); // Set for next onSaveInstanceState
 
@@ -1717,7 +1737,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                         break;
                 }
             } else {
-                mWaitForLoadMessageId = -1;
+                mWaitForLoadMessageId = Message.NO_MESSAGE;
                 String error = mContext.getString(R.string.status_network_error);
                 mCallback.onLoadMessageError(error);
                 resetView();
@@ -1856,6 +1876,20 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             }
             mAttachmentInfo.iconView.setImageBitmap(result);
         }
+    }
+
+    private boolean shouldShowImagesFor(String senderEmail) {
+        // TODO: read from prefs.
+        return false;
+    }
+
+    private void setShowImagesForSender() {
+        makeVisible(UiUtilities.getView(getView(), R.id.always_show_pictures_container), false);
+
+        // Force redraw of the container.
+        updateTabs(mTabFlags);
+
+        // TODO: write to prefs.
     }
 
     public boolean isMessageLoadedForTest() {
