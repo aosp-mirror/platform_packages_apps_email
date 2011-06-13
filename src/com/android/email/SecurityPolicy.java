@@ -18,8 +18,8 @@ package com.android.email;
 
 import com.android.email.service.EmailBroadcastProcessorService;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.Policy;
@@ -517,7 +517,7 @@ public class SecurityPolicy {
      * @param accountId the account for which sync cannot proceed
      */
     public void policiesRequired(long accountId) {
-        Account account = EmailContent.Account.restoreAccountWithId(mContext, accountId);
+        Account account = Account.restoreAccountWithId(mContext, accountId);
         // In case the account has been deleted, just return
         if (account == null) return;
         if (Email.DEBUG) {

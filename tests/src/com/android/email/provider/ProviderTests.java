@@ -17,8 +17,8 @@
 package com.android.email.provider;
 
 import com.android.emailcommon.AccountManagerTypes;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
@@ -135,7 +135,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         Account account1 = ProviderTestUtils.setupAccount("account-save", true, mMockContext);
         long account1Id = account1.mId;
 
-        Account account2 = EmailContent.Account.restoreAccountWithId(mMockContext, account1Id);
+        Account account2 = Account.restoreAccountWithId(mMockContext, account1Id);
 
         ProviderTestUtils.assertAccountEqual("testAccountSave", account1, account2);
     }
@@ -154,7 +154,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         long account1Id = account1.mId;
 
         // Confirm account reads back correctly
-        Account account1get = EmailContent.Account.restoreAccountWithId(mMockContext, account1Id);
+        Account account1get = Account.restoreAccountWithId(mMockContext, account1Id);
         ProviderTestUtils.assertAccountEqual("testAccountSave", account1, account1get);
 
         // Confirm hostauth fields can be accessed & read back correctly
@@ -2083,7 +2083,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         box.mDelimiter = '/';
         box.mSyncKey = "sync-key";
         box.mSyncLookback = 2;
-        box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
+        box.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
         box.mSyncTime = 3;
         box.mFlagVisible = true;
         box.mFlags = 5;

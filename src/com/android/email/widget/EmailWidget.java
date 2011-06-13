@@ -24,7 +24,7 @@ import com.android.email.activity.UiUtilities;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.WidgetProvider.WidgetService;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;

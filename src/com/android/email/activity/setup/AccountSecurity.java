@@ -20,7 +20,7 @@ import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.SecurityPolicy;
 import com.android.email.activity.ActivityHelper;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
 

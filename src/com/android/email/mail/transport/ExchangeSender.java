@@ -18,7 +18,7 @@ package com.android.email.mail.transport;
 
 import com.android.email.mail.Sender;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 
 import android.content.Context;
 

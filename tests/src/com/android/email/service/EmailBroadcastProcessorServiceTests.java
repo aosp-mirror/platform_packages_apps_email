@@ -18,7 +18,7 @@ package com.android.email.service;
 
 import com.android.email.AccountTestCase;
 import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;

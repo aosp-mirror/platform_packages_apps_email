@@ -25,7 +25,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 
 import com.android.email.R;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
 import java.net.URISyntaxException;

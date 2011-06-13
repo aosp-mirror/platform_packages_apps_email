@@ -19,7 +19,7 @@ package com.android.email;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 
 import android.content.Context;
 import android.test.InstrumentationTestCase;

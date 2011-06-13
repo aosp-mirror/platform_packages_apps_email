@@ -39,8 +39,8 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
 import com.android.emailcommon.mail.Folder.MessageRetrievalListener;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
@@ -405,7 +405,7 @@ public class Controller {
                 public void run() {
                     // TODO shouldn't be passing fully-build accounts & mailboxes into APIs
                     Account account =
-                        EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
+                        Account.restoreAccountWithId(mProviderContext, accountId);
                     Mailbox mailbox =
                         Mailbox.restoreMailboxWithId(mProviderContext, mailboxId);
                     if (account == null || mailbox == null) {
@@ -536,7 +536,7 @@ public class Controller {
         Mailbox box = new Mailbox();
         box.mAccountKey = accountId;
         box.mType = mailboxType;
-        box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
+        box.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
         box.mFlagVisible = true;
         box.mServerId = box.mDisplayName = getMailboxServerName(mailboxType);
         // All system mailboxes are off the top-level & can hold mail
@@ -582,8 +582,8 @@ public class Controller {
 
     private void sendPendingMessagesSmtp(long accountId) {
         // for IMAP & POP only, (attempt to) send the message now
-        final EmailContent.Account account =
-                EmailContent.Account.restoreAccountWithId(mProviderContext, accountId);
+        final Account account =
+                Account.restoreAccountWithId(mProviderContext, accountId);
         if (account == null) {
             return;
         }
@@ -993,7 +993,7 @@ public class Controller {
     /**
      * Simple helper to determine if legacy MessagingController should be used
      */
-    public boolean isMessagingController(EmailContent.Account account) {
+    public boolean isMessagingController(Account account) {
         if (account == null) return false;
         return isMessagingController(account.mId);
     }
@@ -1051,7 +1051,7 @@ public class Controller {
             }
 
             Uri uri = ContentUris.withAppendedId(
-                    EmailContent.Account.CONTENT_URI, accountId);
+                    Account.CONTENT_URI, accountId);
             context.getContentResolver().delete(uri, null, null);
 
             backupAccounts(context);

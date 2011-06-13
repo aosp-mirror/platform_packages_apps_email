@@ -21,7 +21,7 @@ import com.android.email.mail.Transport;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.mail.Address;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.Message;

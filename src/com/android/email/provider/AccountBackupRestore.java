@@ -19,8 +19,8 @@ package com.android.email.provider;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 
 import android.content.ContentResolver;
 import android.content.Context;

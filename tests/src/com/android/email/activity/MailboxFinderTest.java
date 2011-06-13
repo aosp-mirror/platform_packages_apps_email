@@ -22,7 +22,7 @@ import com.android.email.Email;
 import com.android.email.TestUtils;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Mailbox;
 
 import android.content.Context;

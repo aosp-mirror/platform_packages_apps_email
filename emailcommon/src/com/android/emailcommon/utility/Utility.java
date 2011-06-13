@@ -17,8 +17,8 @@
 package com.android.emailcommon.utility;
 
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
@@ -806,11 +806,11 @@ public class Utility {
         @Override
         protected final Long[] doInBackground(Void... params) {
             ArrayList<Long> ids = new ArrayList<Long>();
-            Cursor c = mContext.getContentResolver().query(EmailContent.Account.CONTENT_URI,
-                    EmailContent.Account.ID_PROJECTION, null, null, null);
+            Cursor c = mContext.getContentResolver().query(Account.CONTENT_URI,
+                    Account.ID_PROJECTION, null, null, null);
             try {
                 while (c.moveToNext()) {
-                    ids.add(c.getLong(EmailContent.Account.ID_PROJECTION_COLUMN));
+                    ids.add(c.getLong(Account.ID_PROJECTION_COLUMN));
                 }
             } finally {
                 c.close();

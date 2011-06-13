@@ -21,7 +21,7 @@ import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.activity.Welcome;
 import com.android.email.provider.AccountBackupRestore;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 
 import android.app.Activity;

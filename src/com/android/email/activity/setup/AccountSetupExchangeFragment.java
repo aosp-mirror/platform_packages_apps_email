@@ -24,8 +24,7 @@ import com.android.email.mail.Store;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
@@ -368,7 +367,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
      */
     @Override
     public void onNext() {
-        EmailContent.Account account = SetupData.getAccount();
+        Account account = SetupData.getAccount();
 
         String userName = mUsernameView.getText().toString().trim();
         if (userName.startsWith("\\")) {

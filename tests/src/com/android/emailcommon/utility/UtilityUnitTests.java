@@ -21,7 +21,7 @@ import com.android.email.FolderProperties;
 import com.android.email.R;
 import com.android.email.TestUtils;
 import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;

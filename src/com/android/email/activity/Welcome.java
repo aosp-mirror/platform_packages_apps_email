@@ -22,8 +22,8 @@ import com.android.email.R;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.MailService;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
@@ -236,7 +236,7 @@ public class Welcome extends Activity {
                 }
             } else {
                 // Use the default (without showing the toast)
-                accountId = EmailContent.Account.getDefaultAccountId(context);
+                accountId = Account.getDefaultAccountId(context);
             }
             if (accountId != Account.NO_ACCOUNT) {
                 // Okay, the given account is valid.
@@ -244,7 +244,7 @@ public class Welcome extends Activity {
             } else {
                 // No, it's invalid.  Show the warning toast and use the default.
                 Utility.showToast(context, R.string.toast_account_not_found);
-                return EmailContent.Account.getDefaultAccountId(context);
+                return Account.getDefaultAccountId(context);
             }
         }
 
@@ -254,7 +254,7 @@ public class Welcome extends Activity {
             MailService.reconcilePopImapAccountsSync(mFromActivity);
 
             final int numAccount =
-                    EmailContent.count(mFromActivity, EmailContent.Account.CONTENT_URI);
+                    EmailContent.count(mFromActivity, Account.CONTENT_URI);
             if (numAccount == 0) {
                 AccountSetupBasics.actionNewAccount(mFromActivity);
             } else {

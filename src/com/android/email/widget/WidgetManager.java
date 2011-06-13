@@ -18,8 +18,8 @@ package com.android.email.widget;
 
 import com.android.email.Email;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.provider.EmailContent.Account;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -42,8 +42,7 @@ import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
 import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.SyncWindow;
 import com.android.emailcommon.utility.Utility;
@@ -137,7 +136,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
             mDefaultView.setChecked(true);
         }
         mNotifyView.setChecked(
-                (account.getFlags() & EmailContent.Account.FLAGS_NOTIFY_NEW_MAIL) != 0);
+                (account.getFlags() & Account.FLAGS_NOTIFY_NEW_MAIL) != 0);
         SpinnerOption.setSpinnerOptionValue(mCheckFrequencyView, account.getSyncInterval());
 
         // Setup any additional items to support EAS & EAS flow mode

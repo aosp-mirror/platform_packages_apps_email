@@ -27,8 +27,7 @@ import android.widget.EditText;
 
 import com.android.email.R;
 import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
 import java.net.URISyntaxException;
@@ -229,7 +228,7 @@ public class AccountSetupExchangeTests extends
      * Create an intent with the Account in it
      */
     private Intent getTestIntent(String storeUriString) throws URISyntaxException {
-        EmailContent.Account account = new EmailContent.Account();
+        Account account = new Account();
         Context context = getInstrumentation().getTargetContext();
         HostAuth auth = account.getOrCreateHostAuthRecv(context);
         HostAuth.setHostAuthFromString(auth, storeUriString);

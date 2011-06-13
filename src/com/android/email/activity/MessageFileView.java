@@ -18,7 +18,7 @@ package com.android.email.activity;
 
 import com.android.email.R;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;

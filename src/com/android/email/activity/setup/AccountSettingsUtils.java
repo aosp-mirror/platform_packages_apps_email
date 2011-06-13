@@ -20,7 +20,7 @@ import com.android.email.R;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 
 import android.content.ContentValues;
@@ -47,7 +47,7 @@ public class AccountSettingsUtils {
      * @param context the context of the caller
      * @param account the account whose settings will be committed
      */
-    public static void commitSettings(Context context, EmailContent.Account account) {
+    public static void commitSettings(Context context, Account account) {
         if (!account.isSaved()) {
             account.save(context);
         } else {
@@ -62,7 +62,7 @@ public class AccountSettingsUtils {
      * Returns a set of content values to commit account changes (not including the foreign keys
      * for the two host auth's and policy) to the database.  Does not actually commit anything.
      */
-    public static ContentValues getAccountContentValues(EmailContent.Account account) {
+    public static ContentValues getAccountContentValues(Account account) {
         ContentValues cv = new ContentValues();
         cv.put(AccountColumns.IS_DEFAULT, account.mIsDefault);
         cv.put(AccountColumns.DISPLAY_NAME, account.getDisplayName());

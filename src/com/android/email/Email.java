@@ -24,7 +24,7 @@ import com.android.email.service.NotificationService;
 import com.android.email.widget.WidgetConfiguration;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.TempDirectory;
-import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
@@ -113,8 +113,8 @@ public class Email extends Application {
         Cursor c = null;
         try {
             c = context.getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI,
-                    EmailContent.Account.ID_PROJECTION,
+                    Account.CONTENT_URI,
+                    Account.ID_PROJECTION,
                     null, null, null);
             boolean enable = c.getCount() > 0;
             setServicesEnabled(context, enable);

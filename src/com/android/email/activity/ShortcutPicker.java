@@ -20,7 +20,7 @@ import com.android.email.R;
 import com.android.email.activity.ShortcutPickerFragment.AccountShortcutPickerFragment;
 import com.android.email.activity.ShortcutPickerFragment.PickerCallback;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 
 import android.app.Activity;

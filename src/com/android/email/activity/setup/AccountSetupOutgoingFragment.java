@@ -39,8 +39,7 @@ import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
@@ -347,7 +346,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
      */
     @Override
     public void onNext() {
-        EmailContent.Account account = SetupData.getAccount();
+        Account account = SetupData.getAccount();
         HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
 
         String userName = mUsernameView.getText().toString().trim();

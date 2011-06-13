@@ -17,8 +17,8 @@
 package com.android.email.provider;
 
 import com.android.emailcommon.internet.Rfc822Output;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Body;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -54,7 +54,7 @@ public class ProviderTestUtils extends Assert {
         account.mEmailAddress = name + "@android.com";
         account.mSyncKey = "sync-key-" + name;
         account.mSyncLookback = 1;
-        account.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
+        account.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
         account.mHostAuthKeyRecv = 0;
         account.mHostAuthKeySend = 0;
         account.mFlags = 4;
@@ -78,7 +78,7 @@ public class ProviderTestUtils extends Assert {
      */
     public static void deleteAccount(Context context, long accountId) {
         context.getContentResolver().delete(ContentUris.withAppendedId(
-                EmailContent.Account.CONTENT_URI, accountId), null, null);
+                Account.CONTENT_URI, accountId), null, null);
     }
 
     /**
@@ -139,7 +139,7 @@ public class ProviderTestUtils extends Assert {
         box.mDelimiter = delimiter;
         box.mSyncKey = "sync-key-" + name;
         box.mSyncLookback = 2;
-        box.mSyncInterval = EmailContent.Account.CHECK_INTERVAL_NEVER;
+        box.mSyncInterval = Account.CHECK_INTERVAL_NEVER;
         box.mSyncTime = 3;
         box.mFlagVisible = true;
         box.mFlags = 5;

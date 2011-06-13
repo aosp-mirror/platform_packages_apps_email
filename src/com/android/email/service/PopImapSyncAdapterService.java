@@ -16,10 +16,6 @@
 
 package com.android.email.service;
 
-import com.android.email.Controller;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.Mailbox;
-
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
 import android.app.Service;
@@ -33,6 +29,11 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.android.email.Controller;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.Mailbox;
 
 public class PopImapSyncAdapterService extends Service {
     private static final String TAG = "PopImapSyncAdapterService";
@@ -86,12 +87,13 @@ public class PopImapSyncAdapterService extends Service {
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false)) {
             String emailAddress = account.name;
             // Find an EmailProvider account with the Account's email address
-            Cursor c = context.getContentResolver().query(EmailContent.Account.CONTENT_URI,
-                    EmailContent.ID_PROJECTION, EmailContent.Account.EMAIL_ADDRESS + "=?",
+            Cursor c = context.getContentResolver().query(
+                    com.android.emailcommon.provider.Account.CONTENT_URI,
+                    EmailContent.ID_PROJECTION, AccountColumns.EMAIL_ADDRESS + "=?",
                     new String[] {emailAddress}, null);
             if (c.moveToNext()) {
                 // If we have one, find the inbox and start it syncing
-                long accountId = c.getLong(EmailContent.Account.ID_PROJECTION_COLUMN);
+                long accountId = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
                 long mailboxId = Mailbox.findMailboxOfType(context, accountId,
                         Mailbox.TYPE_INBOX);
                 if (mailboxId > 0) {

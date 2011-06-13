@@ -21,8 +21,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.android.email.R;
 import com.android.email.data.ClosingMatrixCursor;
 import com.android.email.data.ThrottlingCursorLoader;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
@@ -80,7 +79,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
     /** Sort order.  Show the default account first. */
     private static final String ORDER_BY =
-            EmailContent.Account.IS_DEFAULT + " desc, " + EmailContent.Account.RECORD_ID;
+            Account.IS_DEFAULT + " desc, " + Account.RECORD_ID;
 
     private final LayoutInflater mInflater;
     @SuppressWarnings("hiding")
@@ -274,7 +273,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
         private final long mAccountId;
         public AccountsLoader(Context context, long accountId) {
             // Super class loads a regular account cursor, but we replace it in loadInBackground().
-            super(context, EmailContent.Account.CONTENT_URI, ACCOUNT_PROJECTION, null, null,
+            super(context, Account.CONTENT_URI, ACCOUNT_PROJECTION, null, null,
                     ORDER_BY);
             mContext = context;
             mAccountId = accountId;

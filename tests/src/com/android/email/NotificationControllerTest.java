@@ -17,7 +17,7 @@
 package com.android.email;
 
 import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 

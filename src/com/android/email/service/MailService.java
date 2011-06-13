@@ -24,8 +24,8 @@ import com.android.email.SingleRunningTask;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AccountReconciler;
@@ -752,7 +752,7 @@ public class MailService extends Service {
         }
     }
 
-    public static void setupAccountManagerAccount(Context context, EmailContent.Account account,
+    public static void setupAccountManagerAccount(Context context, Account account,
             boolean email, boolean calendar, boolean contacts,
             AccountManagerCallback<Bundle> callback) {
         Bundle options = new Bundle();

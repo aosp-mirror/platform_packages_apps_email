@@ -25,7 +25,7 @@ import com.android.email.activity.setup.AccountSettings;
 import com.android.email.mail.Store;
 import com.android.email.widget.WidgetManager;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.HostAuth;
 

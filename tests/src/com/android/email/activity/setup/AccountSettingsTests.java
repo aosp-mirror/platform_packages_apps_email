@@ -17,7 +17,7 @@
 package com.android.email.activity.setup;
 
 import com.android.email.mail.Store;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
 import android.content.ContentUris;

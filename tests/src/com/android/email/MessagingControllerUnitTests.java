@@ -17,7 +17,7 @@
 package com.android.email;
 
 import com.android.emailcommon.mail.MockFolder;
-import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.Account;
 
 import android.content.ContentUris;
 import android.net.Uri;
@@ -33,7 +33,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 public class MessagingControllerUnitTests extends AndroidTestCase {
 
     private long mAccountId;
-    private EmailContent.Account mAccount;
+    private Account mAccount;
     
     /**
      * Delete any dummy accounts we set up for this test
@@ -44,7 +44,7 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
         
         if (mAccount != null) {
             Uri uri = ContentUris.withAppendedId(
-                    EmailContent.Account.CONTENT_URI, mAccountId);
+                    Account.CONTENT_URI, mAccountId);
             getContext().getContentResolver().delete(uri, null, null);
         }
     }
@@ -76,7 +76,7 @@ public class MessagingControllerUnitTests extends AndroidTestCase {
      * Create a dummy account with minimal fields
      */
     private void createTestAccount() {
-        mAccount = new EmailContent.Account();
+        mAccount = new Account();
         mAccount.save(getContext());
         
         mAccountId = mAccount.mId;

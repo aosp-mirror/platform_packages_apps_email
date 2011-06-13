@@ -34,8 +34,8 @@ import com.android.emailcommon.mail.Folder.OpenMode;
 import com.android.emailcommon.mail.Message;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.mail.Part;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
@@ -301,7 +301,7 @@ public class MessagingController implements Runnable {
      * @param folder
      * @param listener
      */
-    public void synchronizeMailbox(final EmailContent.Account account,
+    public void synchronizeMailbox(final Account account,
             final Mailbox folder, MessagingListener listener) {
         /*
          * We don't ever sync the Outbox.
@@ -324,7 +324,7 @@ public class MessagingController implements Runnable {
      * @param account
      * @param folder
      */
-    private void synchronizeMailboxSynchronous(final EmailContent.Account account,
+    private void synchronizeMailboxSynchronous(final Account account,
             final Mailbox folder) {
         mListeners.synchronizeMailboxStarted(account.mId, folder.mId);
         if ((folder.mFlags & Mailbox.FLAG_HOLDS_MAIL) == 0) {
@@ -408,7 +408,7 @@ public class MessagingController implements Runnable {
      * @throws MessagingException
      */
     private SyncResults synchronizeMailboxGeneric(
-            final EmailContent.Account account, final Mailbox folder)
+            final Account account, final Mailbox folder)
             throws MessagingException {
 
         /*
@@ -761,7 +761,7 @@ public class MessagingController implements Runnable {
      * @param loadStatus when complete, the message will be marked with this status (e.g.
      *        EmailContent.Message.LOADED)
      */
-    public void copyOneMessageToProvider(Message message, EmailContent.Account account,
+    public void copyOneMessageToProvider(Message message, Account account,
             Mailbox folder, int loadStatus) {
         EmailContent.Message localMessage = null;
         Cursor c = null;
@@ -854,8 +854,8 @@ public class MessagingController implements Runnable {
         put("processPendingActions", null, new Runnable() {
             public void run() {
                 try {
-                    EmailContent.Account account =
-                        EmailContent.Account.restoreAccountWithId(mContext, accountId);
+                    Account account =
+                        Account.restoreAccountWithId(mContext, accountId);
                     if (account == null) {
                         return;
                     }
@@ -889,7 +889,7 @@ public class MessagingController implements Runnable {
      * @param account the account to scan for pending actions
      * @throws MessagingException
      */
-    private void processPendingActionsSynchronous(EmailContent.Account account)
+    private void processPendingActionsSynchronous(Account account)
            throws MessagingException {
         ContentResolver resolver = mContext.getContentResolver();
         String[] accountIdArgs = new String[] { Long.toString(account.mId) };
@@ -912,7 +912,7 @@ public class MessagingController implements Runnable {
      * @param resolver
      * @param accountIdArgs
      */
-    private void processPendingDeletesSynchronous(EmailContent.Account account,
+    private void processPendingDeletesSynchronous(Account account,
             ContentResolver resolver, String[] accountIdArgs) {
         Cursor deletes = resolver.query(EmailContent.Message.DELETED_CONTENT_URI,
                 EmailContent.Message.CONTENT_PROJECTION,
@@ -986,7 +986,7 @@ public class MessagingController implements Runnable {
      * @param resolver
      * @param accountIdArgs
      */
-    private void processPendingUploadsSynchronous(EmailContent.Account account,
+    private void processPendingUploadsSynchronous(Account account,
             ContentResolver resolver, String[] accountIdArgs) {
         // Find the Sent folder (since that's all we're uploading for now
         Cursor mailboxes = resolver.query(Mailbox.CONTENT_URI, Mailbox.ID_PROJECTION,
@@ -1088,7 +1088,7 @@ public class MessagingController implements Runnable {
      * @param resolver
      * @param accountIdArgs
      */
-    private void processPendingUpdatesSynchronous(EmailContent.Account account,
+    private void processPendingUpdatesSynchronous(Account account,
             ContentResolver resolver, String[] accountIdArgs) {
         Cursor updates = resolver.query(EmailContent.Message.UPDATED_CONTENT_URI,
                 EmailContent.Message.CONTENT_PROJECTION,
@@ -1183,7 +1183,7 @@ public class MessagingController implements Runnable {
      * @param messageId
      */
     private void processUploadMessage(ContentResolver resolver, Store remoteStore,
-            EmailContent.Account account, Mailbox mailbox, long messageId)
+            Account account, Mailbox mailbox, long messageId)
             throws MessagingException {
         EmailContent.Message newMessage =
             EmailContent.Message.restoreMessageWithId(mContext, messageId);
@@ -1322,7 +1322,7 @@ public class MessagingController implements Runnable {
      * @param newMessage The message that was moved to the mailbox
      */
     private void processPendingMoveToTrash(Store remoteStore,
-            EmailContent.Account account, Mailbox newMailbox, EmailContent.Message oldMessage,
+            Account account, Mailbox newMailbox, EmailContent.Message oldMessage,
             final EmailContent.Message newMessage) throws MessagingException {
 
         // 0. No remote move if the message is local-only
@@ -1441,7 +1441,7 @@ public class MessagingController implements Runnable {
      * @param oldMessage The message that was deleted from the trash
      */
     private void processPendingDeleteFromTrash(Store remoteStore,
-            EmailContent.Account account, Mailbox oldMailbox, EmailContent.Message oldMessage)
+            Account account, Mailbox oldMailbox, EmailContent.Message oldMessage)
             throws MessagingException {
 
         // 1. We only support delete-from-trash here
@@ -1485,7 +1485,7 @@ public class MessagingController implements Runnable {
      * @param message The message we're appending
      * @return true if successfully uploaded
      */
-    private boolean processPendingAppend(Store remoteStore, EmailContent.Account account,
+    private boolean processPendingAppend(Store remoteStore, Account account,
             Mailbox newMailbox, EmailContent.Message message)
             throws MessagingException {
 
@@ -1633,8 +1633,8 @@ public class MessagingController implements Runnable {
                     // 2. Open the remote folder.
                     // TODO all of these could be narrower projections
                     // TODO combine with common code in loadAttachment
-                    EmailContent.Account account =
-                        EmailContent.Account.restoreAccountWithId(mContext, message.mAccountKey);
+                    Account account =
+                        Account.restoreAccountWithId(mContext, message.mAccountKey);
                     Mailbox mailbox =
                         Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
                     if (account == null || mailbox == null) {
@@ -1716,8 +1716,8 @@ public class MessagingController implements Runnable {
 
                     // 2. Open the remote folder.
                     // TODO all of these could be narrower projections
-                    EmailContent.Account account =
-                        EmailContent.Account.restoreAccountWithId(mContext, accountId);
+                    Account account =
+                        Account.restoreAccountWithId(mContext, accountId);
                     Mailbox mailbox =
                         Mailbox.restoreMailboxWithId(mContext, mailboxId);
                     EmailContent.Message message =
@@ -1793,7 +1793,7 @@ public class MessagingController implements Runnable {
      * @param account
      * @param listener
      */
-    public void sendPendingMessages(final EmailContent.Account account, final long sentFolderId,
+    public void sendPendingMessages(final Account account, final long sentFolderId,
             MessagingListener listener) {
         put("sendPendingMessages", listener, new Runnable() {
             public void run() {
@@ -1806,7 +1806,7 @@ public class MessagingController implements Runnable {
      * Attempt to send all messages sitting in the given account's outbox. Optionally,
      * if the server requires it, the message will be moved to the given sent folder.
      */
-    public void sendPendingMessagesSynchronous(final EmailContent.Account account,
+    public void sendPendingMessagesSynchronous(final Account account,
             long sentFolderId) {
         NotificationController nc = NotificationController.getInstance(mContext);
         // 1.  Loop through all messages in the account's outbox
@@ -1919,8 +1919,8 @@ public class MessagingController implements Runnable {
                 // here if we somehow don't have a sent folder, but this should never happen
                 // because the call to sendMessage() would have built one previously.
                 long inboxId = -1;
-                EmailContent.Account account =
-                    EmailContent.Account.restoreAccountWithId(mContext, accountId);
+                Account account =
+                    Account.restoreAccountWithId(mContext, accountId);
                 if (account != null) {
                     long sentboxId = Mailbox.findMailboxOfType(mContext, accountId,
                             Mailbox.TYPE_SENT);

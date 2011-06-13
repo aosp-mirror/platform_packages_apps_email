@@ -27,7 +27,7 @@ import com.android.email.R;
 import com.android.email.activity.ShortcutPickerFragment;
 import com.android.email.activity.ShortcutPickerFragment.AccountShortcutPickerFragment;
 import com.android.email.activity.ShortcutPickerFragment.PickerCallback;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 
 /**
  * Activity to configure the Email widget.

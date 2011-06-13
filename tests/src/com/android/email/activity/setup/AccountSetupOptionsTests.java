@@ -18,7 +18,7 @@ package com.android.email.activity.setup;
 
 import com.android.email.R;
 import com.android.email.mail.Store;
-import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
 import android.content.Context;
@@ -59,7 +59,7 @@ public class AccountSetupOptionsTests
 
         getActivityAndFields();
 
-        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
 
@@ -73,7 +73,7 @@ public class AccountSetupOptionsTests
 
         getActivityAndFields();
 
-        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(Account.CHECK_INTERVAL_PUSH);
         assertFalse(hasPush);
     }
 
@@ -93,7 +93,7 @@ public class AccountSetupOptionsTests
 
         getActivityAndFields();
 
-        boolean hasPush = frequencySpinnerHasValue(EmailContent.Account.CHECK_INTERVAL_PUSH);
+        boolean hasPush = frequencySpinnerHasValue(Account.CHECK_INTERVAL_PUSH);
         assertTrue(hasPush);
     }
 
@@ -176,7 +176,7 @@ public class AccountSetupOptionsTests
      */
     private Intent getTestIntent(String name, String storeUri)
             throws URISyntaxException {
-        EmailContent.Account account = new EmailContent.Account();
+        Account account = new Account();
         account.setSenderName(name);
         Context context = getInstrumentation().getTargetContext();
         HostAuth auth = account.getOrCreateHostAuthRecv(context);

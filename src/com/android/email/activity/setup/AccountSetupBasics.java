@@ -25,8 +25,8 @@ import com.android.email.activity.Welcome;
 import com.android.email.activity.setup.AccountSettingsUtils.Provider;
 import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.utility.Utility;
 
@@ -468,7 +468,7 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         @Override
         protected Account doInBackground(Void... params) {
-            EmailContent.Account account = Utility.findExistingAccount(mContext, -1,
+            Account account = Utility.findExistingAccount(mContext, -1,
                     mCheckHost, mCheckLogin);
             return account;
         }
@@ -605,7 +605,7 @@ public class AccountSetupBasics extends AccountSetupActivity
         if (Store.STORE_SCHEME_IMAP.equals(protocol)) {
             // Delete policy must be set explicitly, because IMAP does not provide a UI selection
             // for it. This logic needs to be followed in the auto setup flow as well.
-            account.setDeletePolicy(EmailContent.Account.DELETE_POLICY_ON_DELETE);
+            account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         }
 
         if (Store.STORE_SCHEME_EAS.equals(protocol)) {
@@ -649,7 +649,7 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         @Override
         protected Integer doInBackground(Void... params) {
-            return EmailContent.count(AccountSetupBasics.this, EmailContent.Account.CONTENT_URI);
+            return EmailContent.count(AccountSetupBasics.this, Account.CONTENT_URI);
         }
 
         @Override

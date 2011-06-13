@@ -22,8 +22,8 @@ import com.android.email.service.AttachmentDownloadService;
 import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.CalendarProviderStub;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
@@ -204,7 +204,7 @@ public class EmailProvider extends ContentProvider {
     // TABLE_NAMES MUST remain in the order of the BASE constants above (e.g. ACCOUNT_BASE = 0x0000,
     // MESSAGE_BASE = 0x1000, etc.)
     private static final String[] TABLE_NAMES = {
-        EmailContent.Account.TABLE_NAME,
+        Account.TABLE_NAME,
         Mailbox.TABLE_NAME,
         EmailContent.Message.TABLE_NAME,
         EmailContent.Attachment.TABLE_NAME,

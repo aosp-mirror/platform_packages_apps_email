@@ -24,7 +24,7 @@ import com.android.email.RefreshManager;
 import com.android.email.activity.MailboxFinder.Callback;
 import com.android.email.activity.setup.AccountSecurity;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;

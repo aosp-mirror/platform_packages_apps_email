@@ -23,8 +23,7 @@ import com.android.email.activity.IntentUtilities;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.AccountColumns;
 import com.android.emailcommon.utility.Utility;
 
@@ -434,8 +433,8 @@ public class AccountSettings extends PreferenceActivity {
             long deletingAccountId = params[0];
 
             Cursor c = getContentResolver().query(
-                    EmailContent.Account.CONTENT_URI,
-                    EmailContent.Account.CONTENT_PROJECTION, null, null, null);
+                    Account.CONTENT_URI,
+                    Account.CONTENT_PROJECTION, null, null, null);
             try {
                 int index = 0;
                 int headerCount = c.getCount();

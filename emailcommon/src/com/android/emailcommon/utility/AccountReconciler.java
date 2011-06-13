@@ -17,7 +17,7 @@
 package com.android.emailcommon.utility;
 
 import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.Account;
+import com.android.emailcommon.provider.Account;
 import com.google.common.annotations.VisibleForTesting;
 
 import android.accounts.AccountManager;

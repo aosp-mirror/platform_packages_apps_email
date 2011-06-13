@@ -18,8 +18,8 @@ package com.android.email.widget;
 
 import com.android.email.R;
 import com.android.email.data.ThrottlingCursorLoader;
+import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
 import com.android.emailcommon.provider.Mailbox;
