@@ -1,20 +1,20 @@
 # keep names that are used by reflection.
--keep class com.android.emailcommon.provider.EmailContent$Account
+-keep class com.android.emailcommon.provider.Account
 
 -keepclasseswithmembers class * {
-  public static void actionEditIncomingSettings(android.app.Activity, int, com.android.emailcommon.provider.EmailContent$Account);
+  public static void actionEditIncomingSettings(android.app.Activity, int, com.android.emailcommon.provider.Account);
 }
 
 -keepclasseswithmembers class * {
-  public static void actionEditOutgoingSettings(android.app.Activity, int, com.android.emailcommon.provider.EmailContent$Account);
+  public static void actionEditOutgoingSettings(android.app.Activity, int, com.android.emailcommon.provider.Account);
 }
 
 -keepclasseswithmembers class * {
-  public *** newInstance(com.android.emailcommon.provider.EmailContent$Account, android.content.Context);
+  public *** newInstance(com.android.emailcommon.provider.Account, android.content.Context);
 }
 
 -keepclasseswithmembers class * {
-  public *** newInstance(com.android.emailcommon.provider.EmailContent$Account, android.content.Context, com.android.email.mail.Store$PersistentDataCallbacks);
+  public *** newInstance(com.android.emailcommon.provider.Account, android.content.Context, com.android.email.mail.Store$PersistentDataCallbacks);
 }
 
 -keepclasseswithmembers class android.content.SharedPreferences$Editor {
@@ -180,17 +180,17 @@
   *** size();
 }
 
--keepclasseswithmembers class com.android.emailcommon.provider.EmailContent$Account {
+-keepclasseswithmembers class com.android.emailcommon.provider.Account {
   *** getShortcutSafeUri();
   *** refresh(android.content.Context);
 }
 
 -keepclasseswithmembers class com.android.emailcommon.provider.Policy {
   *** setAttachmentFlagsForNewPolicy(android.content.Context,
-    com.android.emailcommon.provider.EmailContent$Account,
+    com.android.emailcommon.provider.Account,
     com.android.emailcommon.provider.Policy);
   *** clearAccountPolicy(android.content.Context,
-    com.android.emailcommon.provider.EmailContent$Account);
+    com.android.emailcommon.provider.Account);
 }
 
 -keep class org.apache.james.mime4j.field.Field {
