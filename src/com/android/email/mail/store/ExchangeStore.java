@@ -95,13 +95,7 @@ public class ExchangeStore extends Store {
 
     public static class ExchangeTransport {
         private final Context mContext;
-        private String mHost;
-        private String mDomain;
-        private int mPort;
-        private boolean mSsl;
-        private boolean mTSsl;
-        private String mUsername;
-        private String mPassword;
+        private HostAuth mHostAuth;
 
         private static final HashMap<Long, ExchangeTransport> sHostAuthToInstanceMap =
             new HashMap<Long, ExchangeTransport>();
@@ -140,31 +134,26 @@ public class ExchangeStore extends Store {
             if (recvAuth == null || !STORE_SCHEME_EAS.equalsIgnoreCase(recvAuth.mProtocol)) {
                 throw new MessagingException("Unsupported protocol");
             }
-            mHost = recvAuth.mAddress;
-            if (mHost == null) {
+            if (recvAuth.mAddress == null) {
                 throw new MessagingException("host not specified");
             }
-            mDomain = recvAuth.mDomain;
-            if (!TextUtils.isEmpty(mDomain)) {
-                mDomain = mDomain.substring(1);
+            if (!TextUtils.isEmpty(recvAuth.mDomain)) {
+                recvAuth.mDomain = recvAuth.mDomain.substring(1);
             }
-            mPort = 80;
+            recvAuth.mPort = 80;
             if ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
-                mPort = 443;
-                mSsl = true;
+                recvAuth.mPort = 443;
             }
-            mTSsl = ((recvAuth.mFlags & HostAuth.FLAG_TRUST_ALL) != 0);
 
             String[] userInfoParts = recvAuth.getLogin();
             if (userInfoParts != null) {
-                mUsername = userInfoParts[0];
-                mPassword = userInfoParts[1];
-                if (TextUtils.isEmpty(mPassword)) {
+                if (TextUtils.isEmpty(userInfoParts[0]) || TextUtils.isEmpty(userInfoParts[1])) {
                     throw new MessagingException("user name and password not specified");
                 }
             } else {
                 throw new MessagingException("user information not specifed");
             }
+            mHostAuth = recvAuth;
         }
 
         /**
@@ -179,7 +168,7 @@ public class ExchangeStore extends Store {
                 if (svc instanceof EmailServiceProxy) {
                     ((EmailServiceProxy)svc).setTimeout(90);
                 }
-                return svc.validate("eas", mHost, mUsername, mPassword, mPort, mSsl, mTSsl);
+                return svc.validate(mHostAuth);
             } catch (RemoteException e) {
                 throw new MessagingException("Call to validate generated an exception", e);
             }

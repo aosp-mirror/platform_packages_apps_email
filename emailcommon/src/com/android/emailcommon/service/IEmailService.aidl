@@ -17,13 +17,13 @@
 
 package com.android.emailcommon.service;
 
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.IEmailServiceCallback;
 import com.android.emailcommon.service.SearchParams;
 import android.os.Bundle;
 
 interface IEmailService {
-    Bundle validate(in String protocol, in String host, in String userName, in String password,
-        int port, boolean ssl, boolean trustCertificates) ;
+    Bundle validate(in HostAuth hostauth);
 
     oneway void startSync(long mailboxId, boolean userRequest);
     oneway void stopSync(long mailboxId);

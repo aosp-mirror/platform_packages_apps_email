@@ -1682,8 +1682,7 @@ public class Controller {
          */
         private final IEmailService.Stub mBinder = new IEmailService.Stub() {
 
-            public Bundle validate(String protocol, String host, String userName, String password,
-                    int port, boolean ssl, boolean trustCertificates) {
+            public Bundle validate(HostAuth hostAuth) {
                 return null;
             }
 

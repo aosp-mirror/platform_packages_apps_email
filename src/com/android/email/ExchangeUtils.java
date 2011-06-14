@@ -17,6 +17,7 @@
 package com.android.email;
 
 import com.android.emailcommon.Api;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 import com.android.emailcommon.service.IEmailServiceCallback;
@@ -130,8 +131,7 @@ public class ExchangeUtils {
         public void updateFolderList(long accountId) throws RemoteException {
         }
 
-        public Bundle validate(String protocol, String host, String userName, String password,
-                int port, boolean ssl, boolean trustCertificates) throws RemoteException {
+        public Bundle validate(HostAuth hostAuth) throws RemoteException {
             return null;
         }
 

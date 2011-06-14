@@ -186,24 +186,14 @@ public class EmailServiceProxy extends ServiceProxy implements IEmailService {
      * address that serves the specified protocol and credentials sufficient to be authorized
      * by the server to do so.
      *
-     * @param protocol the protocol used by the account (e.g. "imap", "pop3", or "eas)
-     * @param host the address of the host server (in the form x.y.z)
-     * @param userName the username credential for the account
-     * @param password the password credential for the account
-     * @param port the port used to connect to the host server
-     * @param ssl whether or not a secure (SSL) socket should be used for the connection
-     * @param trustCertificates whether or not self-signed or otherwise unverified server
-     * certificates should be allowed when connecting to the host
+     * @param hostAuth the hostauth object to validate
      * @return a Bundle as described above
      */
-    public Bundle validate(final String protocol, final String host, final String userName,
-            final String password, final int port, final boolean ssl,
-            final boolean trustCertificates) throws RemoteException {
+    public Bundle validate(final HostAuth hostAuth) throws RemoteException {
         setTask(new ProxyTask() {
             public void run() throws RemoteException{
                 if (mCallback != null) mService.setCallback(mCallback);
-                mReturn = mService.validate(protocol, host, userName, password, port, ssl,
-                        trustCertificates);
+                mReturn = mService.validate(hostAuth);
             }
         }, "validate");
         waitForCompletion();
