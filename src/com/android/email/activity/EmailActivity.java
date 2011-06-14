@@ -34,7 +34,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
-import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -62,6 +61,7 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
     private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
     private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
     private static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
+    private static final String EXTRA_QUERY_STRING = "QUERY_STRING";
 
     /** Loader IDs starting with this is safe to use from UIControllers. */
     static final int UI_CONTROLLER_LOADER_ID_BASE = 100;
@@ -140,6 +140,28 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
     }
 
     /**
+     * Create an intent to launch search activity.
+     *
+     * @param accountId ID of the account for the mailbox.  Must not be {@link Account#NO_ACCOUNT}.
+     * @param mailboxId ID of the mailbox to search, or {@link Mailbox#NO_MAILBOX} to perform
+     *     global search.
+     * @param query query string.
+     */
+    public static Intent createSearchIntent(Activity fromActivity, long accountId,
+            long mailboxId, String query) {
+        // STOPSHIP temporary search UI
+        if (accountId == Account.NO_ACCOUNT) {
+            throw new IllegalArgumentException();
+        }
+        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
+        i.putExtra(EXTRA_ACCOUNT_ID, accountId);
+        i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
+        i.putExtra(EXTRA_QUERY_STRING, query);
+        i.setAction(Intent.ACTION_SEARCH);
+        return i;
+    }
+
+    /**
      * Initialize {@link #mUIController}.
      */
     private void initUIController() {
@@ -176,7 +198,7 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         mErrorBanner = new BannerController(this, errorMessage, errorBannerHeight);
 
         if (savedInstanceState != null) {
-            mUIController.restoreInstanceState(savedInstanceState);
+            mUIController.onRestoreInstanceState(savedInstanceState);
         } else {
             // This needs to be done after installRestoredFragments.
             // See UIControllerTwoPane.preFragmentTransactionCheck()
@@ -235,13 +257,10 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         // STOPSHIP Temporary search UI
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            // TODO Very temporary (e.g. no database access in UI thread)
-            Bundle appData = getIntent().getBundleExtra(SearchManager.APP_DATA);
-            if (appData == null) return; // ??
-            final long accountId = appData.getLong(EXTRA_ACCOUNT_ID);
-            final long mailboxId = appData.getLong(EXTRA_MAILBOX_ID);
-            final String queryString = intent.getStringExtra(SearchManager.QUERY);
-            Log.d(Logging.LOG_TAG, queryString);
+            final long accountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, Account.NO_ACCOUNT);
+            final long mailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, Mailbox.NO_MAILBOX);
+            final String queryString = intent.getStringExtra(EXTRA_QUERY_STRING);
+            Log.d(Logging.LOG_TAG, "Search: " + queryString);
             // Switch to search mailbox
             // TODO How to handle search from within the search mailbox??
             final Controller controller = Controller.getInstance(mContext);
@@ -346,27 +365,15 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        // STOPSHIP Temporary search/sync options UI
-        // Only show search/sync options for EAS 12.0 and later
+        // STOPSHIP Temporary sync options UI
         boolean isEas = false;
-        boolean canSearch = false;
+
         long accountId = mUIController.getActualAccountId();
         if (accountId > 0) {
             // Move database operations out of the UI thread
-            if ("eas".equals(Account.getProtocol(mContext, accountId))) {
-                isEas = true;
-                Account account = Account.restoreAccountWithId(mContext, accountId);
-                if (account != null) {
-                    // We should set a flag in the account indicating ability to handle search
-                    String protocolVersion = account.mProtocolVersion;
-                    if (Double.parseDouble(protocolVersion) >= 12.0) {
-                        canSearch = true;
-                    }
-                }
-            }
+            isEas = "eas".equals(Account.getProtocol(mContext, accountId));
         }
-        // Should use an isSearchable call to prevent search on inappropriate accounts/boxes
-        menu.findItem(R.id.search).setVisible(canSearch);
+
         // Should use an isSyncable call to prevent drafts/outbox from allowing this
         menu.findItem(R.id.sync_lookback).setVisible(isEas);
         menu.findItem(R.id.sync_frequency).setVisible(isEas);
@@ -374,13 +381,19 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         return mUIController.onPrepareOptionsMenu(getMenuInflater(), menu);
     }
 
+    /**
+     * Called when the search key is pressd.
+     *
+     * Use the below command to emulate the key press on devices without the search key.
+     * adb shell input keyevent 84
+     */
     @Override
     public boolean onSearchRequested() {
-        Bundle bundle = new Bundle();
-        bundle.putLong(EXTRA_ACCOUNT_ID, mUIController.getActualAccountId());
-        bundle.putLong(EXTRA_MAILBOX_ID, mUIController.getSearchMailboxId());
-        startSearch(null, false, bundle, false);
-        return true;
+        if (Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, this + " onSearchRequested");
+        }
+        mUIController.onSearchRequested();
+        return true; // Event handled.
     }
 
     // STOPSHIP Set column from user options
@@ -490,9 +503,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
             // STOPSHIP Temporary mailbox settings UI
             case R.id.sync_frequency:
                 showDialog(MAILBOX_SYNC_FREQUENCY_DIALOG);
-                return true;
-            case R.id.search:
-                onSearchRequested();
                 return true;
         }
         return super.onOptionsItemSelected(item);

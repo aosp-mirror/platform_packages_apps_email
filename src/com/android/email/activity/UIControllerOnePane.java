@@ -258,6 +258,16 @@ class UIControllerOnePane extends UIControllerBase {
             Welcome.actionStart(mActivity);
             mActivity.finish();
         }
+
+        @Override
+        public void onSearchSubmit(String queryTerm) {
+            // STOPSHIP implement search
+        }
+
+        @Override
+        public void onSearchExit() {
+            // STOPSHIP implement search
+        }
     }
 
     public UIControllerOnePane(EmailActivity activity) {
@@ -284,8 +294,8 @@ class UIControllerOnePane extends UIControllerBase {
     }
 
     @Override
-    public void restoreInstanceState(Bundle savedInstanceState) {
-        super.restoreInstanceState(savedInstanceState);
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
         mPreviousFragment = mActivity.getFragmentManager().getFragment(savedInstanceState,
                 BUNDLE_KEY_PREVIOUS_FRAGMENT);
     }
@@ -396,6 +406,10 @@ class UIControllerOnePane extends UIControllerBase {
         if (Email.DEBUG) {
             // This is VERY important -- no check for DEBUG_LIFECYCLE
             Log.d(Logging.LOG_TAG, this + " onBackPressed: " + isSystemBackKey);
+        }
+        // Super's method has precedence.  Must call it first.
+        if (super.onBackPressed(isSystemBackKey)) {
+            return true;
         }
         // If the mailbox list is shown and showing a nested mailbox, let it navigate up first.
         if (isMailboxListInstalled() && getMailboxListFragment().navigateUp()) {
@@ -644,14 +658,10 @@ class UIControllerOnePane extends UIControllerBase {
         return Mailbox.NO_MAILBOX;
     }
 
-    /*
-     * STOPSHIP Remove this -- see the base class method.
-     */
-    @Override
-    public long getSearchMailboxId() {
-        // Search is still experimental, and doesn't have to work on the phone.
-        Utility.showToast(mActivity, "STOPSHIP: Search not supported on 1 pane");
-        return Mailbox.NO_MAILBOX;
+    @Override protected boolean canSearch() {
+        return false; // STOPSHIP no search on one pane yet
+        // Search is enabled only on the message list. (for now)
+        // return isMessageListInstalled();
     }
 
     @Override

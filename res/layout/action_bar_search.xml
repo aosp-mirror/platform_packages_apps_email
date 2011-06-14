@@ -14,8 +14,17 @@
      limitations under the License.
 -->
 
-<searchable xmlns:android="http://schemas.android.com/apk/res/android"
-    android:label="@string/search_title"
-    android:hint="@string/search_hint"
-    android:icon="@drawable/ic_menu_search_holo_light"
-    />
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/search_box_width"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    >
+    <SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:iconifiedByDefault="false"
+        />
+</FrameLayout>

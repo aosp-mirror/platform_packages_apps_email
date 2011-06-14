@@ -14,18 +14,11 @@
      limitations under the License.
 -->
 
-<!--
-    Custom view set to the action bar on 2-pane.
-    Displays the current mailbox and the unread count.
-
-    layout_width/height are set at runtime using ActionBar.setCustomView()
--->
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="0dp"
-    android:layout_height="0dp"
-    android:layout_marginLeft="32dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/action_bar_mailbox_name_left_margin"
     android:orientation="horizontal"
     >
     <TextView

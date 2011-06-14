@@ -410,14 +410,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         return getMessageListMailboxId();
     }
 
-    /*
-     * STOPSHIP Remove this -- see the base class method.
-     */
-    @Override
-    public long getSearchMailboxId() {
-        return getMessageListMailboxId();
-    }
-
     private long getMessageId() {
         return isMessageViewInstalled() ? getMessageViewFragment().getMessageId()
                 : Message.NO_MESSAGE;
@@ -494,8 +486,8 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     /** {@inheritDoc} */
     @Override
-    public void restoreInstanceState(Bundle savedInstanceState) {
-        super.restoreInstanceState(savedInstanceState);
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -812,12 +804,22 @@ class UIControllerTwoPane extends UIControllerBase implements
     /** {@inheritDoc} */
     @Override
     public boolean onBackPressed(boolean isSystemBackKey) {
+        // Super's method has precedence.  Must call it first.
+        if (super.onBackPressed(isSystemBackKey)) {
+            return true;
+        }
         if (mThreePane.onBackPressed(isSystemBackKey)) {
             return true;
-        } else if (isMailboxListInstalled() && getMailboxListFragment().navigateUp()) {
+        }
+        if (isMailboxListInstalled() && getMailboxListFragment().navigateUp()) {
             return true;
         }
         return false;
+    }
+
+    @Override protected boolean canSearch() {
+        // Search is always enabled on two-pane. (if the account supports it)
+        return true;
     }
 
     /**
@@ -990,6 +992,26 @@ class UIControllerTwoPane extends UIControllerBase implements
             final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
             return leftPaneHidden
                     || (isMailboxListInstalled() && !getMailboxListFragment().isRoot());
+        }
+
+        @Override
+        public void onSearchSubmit(String queryTerm) {
+            // STOPSHIP temporary code
+            final long accountId = getUIAccountId();
+            if (accountId == Account.NO_ACCOUNT) {
+                return; // no account selected.
+            }
+            final long mailboxId = getMessageListMailboxId();
+
+            // TODO global search?
+
+            mActivity.startActivity(EmailActivity.createSearchIntent(
+                    mActivity, accountId, mailboxId, queryTerm));
+        }
+
+        @Override
+        public void onSearchExit() {
+            // STOPSHIP If the activity is a "search" instance, finish() it.
         }
     }
 }
