@@ -28,15 +28,39 @@ import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 /**
  * Manages the account name and the custom view part on the action bar.
+ *
+ * TODO Show current mailbox name/unread count on the account spinner
+ *      -- and remove mMailboxNameContainer.
+ *
+ * TODO Stop using the action bar spinner and create our own spinner as a custom view.
+ *      (so we'll be able to just hide it, etc.)
+ *
+ * TODO Update search hint somehow
  */
 public class ActionBarController {
+    private static final String BUNDLE_KEY_MODE = "ActionBarController.BUNDLE_KEY_MODE";
+
+    /**
+     * Constants for {@link #mMode}.
+     *
+     * In {@link #MODE_NORMAL} mode, we don't show the search box.
+     * In {@link #MODE_SEARCH} mode, we do show the search box.
+     * The action bar doesn't really care if the activity is showing search results.
+     * If the activity is showing search results, and the {@link Callback#onSearchExit} is called,
+     * the activity probably wants to close itself, but this class doesn't make the desision.
+     */
+    private static final int MODE_NORMAL = 0;
+    private static final int MODE_SEARCH = 1;
+
     private static final int LOADER_ID_ACCOUNT_LIST
             = EmailActivity.ACTION_BAR_CONTROLLER_LOADER_ID_BASE + 0;
 
@@ -44,9 +68,12 @@ public class ActionBarController {
     private final LoaderManager mLoaderManager;
     private final ActionBar mActionBar;
 
-    private final View mActionBarMailboxNameView;
-    private final TextView mActionBarMailboxName;
-    private final TextView mActionBarUnreadCount;
+    private final View mActionBarCustomView;
+    private final View mMailboxNameContainer;
+    private final TextView mMailboxNameView;
+    private final TextView mUnreadCountView;
+    private final View mSearchContainer;
+    private final SearchView mSearchView;
 
     private final ActionBarNavigationCallback mActionBarNavigationCallback =
         new ActionBarNavigationCallback();
@@ -56,7 +83,14 @@ public class ActionBarController {
     /** The current account ID; used to determine if the account has changed. */
     private long mLastAccountIdForDirtyCheck = Account.NO_ACCOUNT;
 
+    /** Either {@link #MODE_NORMAL} or {@link #MODE_SEARCH}. */
+    private int mMode = MODE_NORMAL;
+
     public final Callback mCallback;
+
+    public interface SearchContext {
+        public long getTargetMailboxId();
+    }
 
     public interface Callback {
         /** @return true if an account is selected. */
@@ -97,6 +131,18 @@ public class ActionBarController {
 
         /** Called when no accounts are found in the database. */
         public void onNoAccountsFound();
+
+        /**
+         * Called when a search is submitted.
+         *
+         * @param queryTerm query string
+         */
+        public void onSearchSubmit(String queryTerm);
+
+        /**
+         * Called when the search box is closed.
+         */
+        public void onSearchExit();
     }
 
     public ActionBarController(Context context, LoaderManager loaderManager,
@@ -110,42 +156,122 @@ public class ActionBarController {
         mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME
                 | ActionBar.DISPLAY_SHOW_CUSTOM);
 
-        // The custom view for the current mailbox and the unread count.
+        // Prepare the custom view
         final LayoutInflater inflater = LayoutInflater.from(mContext);
-        mActionBarMailboxNameView = inflater.inflate(R.layout.action_bar_current_mailbox, null);
+        mActionBarCustomView = inflater.inflate(R.layout.action_bar_custom_view, null);
         final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
                 ActionBar.LayoutParams.WRAP_CONTENT,
                 ActionBar.LayoutParams.MATCH_PARENT);
-        customViewLayout.setMargins(mContext.getResources().getDimensionPixelSize(
-                        R.dimen.action_bar_mailbox_name_left_margin) , 0, 0, 0);
-        mActionBar.setCustomView(mActionBarMailboxNameView, customViewLayout);
+        customViewLayout.setMargins(0 , 0, 0, 0);
+        mActionBar.setCustomView(mActionBarCustomView, customViewLayout);
 
-        mActionBarMailboxName = UiUtilities.getView(mActionBarMailboxNameView, R.id.mailbox_name);
-        mActionBarUnreadCount = UiUtilities.getView(mActionBarMailboxNameView, R.id.unread_count);
+        // Mailbox name / unread count
+        mMailboxNameContainer = UiUtilities.getView(mActionBarCustomView,
+                R.id.current_mailbox_container);
+        mMailboxNameView = UiUtilities.getView(mMailboxNameContainer, R.id.mailbox_name);
+        mUnreadCountView = UiUtilities.getView(mMailboxNameContainer, R.id.unread_count);
+
+        // Search
+        mSearchContainer = UiUtilities.getView(mActionBarCustomView, R.id.search_container);
+        mSearchView = UiUtilities.getView(mSearchContainer, R.id.search_view);
+        mSearchView.setSubmitButtonEnabled(true);
+        mSearchView.setOnQueryTextListener(mOnQueryText);
     }
 
-    /**
-     * Must be called when the host activity is created.
-     */
+    /** Must be called from {@link UIControllerBase#onActivityCreated()} */
     public void onActivityCreated() {
         loadAccounts();
         refresh();
     }
 
+    /** Must be called from {@link UIControllerBase#onActivityDestroy()} */
+    public void onActivityDestroy() {
+    }
+
+    /** Must be called from {@link UIControllerBase#onSaveInstanceState} */
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(BUNDLE_KEY_MODE, mMode);
+    }
+
+    /** Must be called from {@link UIControllerBase#onRestoreInstanceState} */
+    public void onRestoreInstanceState(Bundle savedState) {
+        mMode= savedState.getInt(BUNDLE_KEY_MODE);
+    }
+
+    /**
+     * @return true if the search box is shown.
+     */
+    private boolean isInSearchMode() {
+        return mMode == MODE_SEARCH;
+    }
+
+    /**
+     * Show the search box.
+     *
+     * @param initialQueryTerm if non-empty, set to the search box.
+     */
+    public void enterSearchMode(String initialQueryTerm) {
+        if (isInSearchMode()) {
+            return;
+        }
+        if (!TextUtils.isEmpty(initialQueryTerm)) {
+            mSearchView.setQuery(initialQueryTerm, false);
+        }
+        mMode = MODE_SEARCH;
+        refresh();
+    }
+
+    private void exitSearchMode() {
+        if (!isInSearchMode()) {
+            return;
+        }
+        mMode = MODE_NORMAL;
+        refresh();
+        mCallback.onSearchExit();
+    }
+
+    /**
+     * Performs the back action.
+     *
+     * @param isSystemBackKey <code>true</code> if the system back key was pressed.
+     * <code>false</code> if it's caused by the "home" icon click on the action bar.
+     */
+    public boolean onBackPressed(boolean isSystemBackKey) {
+        if (isInSearchMode()) {
+            exitSearchMode();
+            return true;
+        }
+        return false;
+    }
+
     /** Refreshes the action bar display. */
     public void refresh() {
-        mActionBar.setDisplayOptions(mCallback.shouldShowUp()
+        final boolean showUp = isInSearchMode() || mCallback.shouldShowUp();
+        mActionBar.setDisplayOptions(showUp
                 ? ActionBar.DISPLAY_HOME_AS_UP : 0, ActionBar.DISPLAY_HOME_AS_UP);
 
-        mActionBarMailboxNameView.setVisibility(mCallback.shouldShowMailboxName()
-                ? View.VISIBLE : View.GONE);
+        // TODO In search mode, account spinner should be hidden.
+        // (See also the TODO in the class header -- this methods needs a lot of change.)
 
-        mActionBarMailboxName.setText(mCallback.getCurrentMailboxName());
+        if (isInSearchMode()) {
+            boolean wasVisible = (mSearchView.getVisibility() == View.VISIBLE);
+            mSearchView.setVisibility(View.VISIBLE);
+            if (!wasVisible) {
+                mSearchView.requestFocus();
+            }
+            mMailboxNameContainer.setVisibility(View.GONE);
+        } else {
+            mSearchView.setVisibility(View.GONE);
+            mMailboxNameContainer.setVisibility(mCallback.shouldShowMailboxName()
+                    ? View.VISIBLE : View.GONE);
+        }
+
+        mMailboxNameView.setText(mCallback.getCurrentMailboxName());
 
         // Note on action bar, we show only "unread count".  Some mailboxes such as Outbox don't
         // have the idea of "unread count", in which case we just omit the count.
-        mActionBarUnreadCount.setText(UiUtilities.getMessageCountForUi(mContext,
-                mCallback.getCurrentMailboxUnreadCount(), true));
+        mUnreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
+                    mCallback.getCurrentMailboxUnreadCount(), true));
 
         // Update the account list only when the account has changed.
         if (mLastAccountIdForDirtyCheck != mCallback.getUIAccountId()) {
@@ -253,4 +379,20 @@ public class ActionBarController {
             return true;
         }
     }
+
+    private final SearchView.OnQueryTextListener mOnQueryText
+            = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            // Event not handled.  Let the search do the default action.
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            mCallback.onSearchSubmit(mSearchView.getQuery().toString());
+            return true; // Event handled.
+        }
+    };
+
 }

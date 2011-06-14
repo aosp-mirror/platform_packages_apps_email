@@ -210,6 +210,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityDestroy");
         }
+        mActionBarController.onActivityDestroy();
         mRefreshManager.unregisterListener(mRefreshListener);
         mTaskTracker.cancellAllInterrupt();
     }
@@ -223,17 +224,19 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         }
         outState.putBoolean(BUNDLE_KEY_RESUME_INBOX_LOOKUP, mResumeInboxLookup);
         outState.putLong(BUNDLE_KEY_INBOX_LOOKUP_ACCOUNT_ID, mInboxLookupAccountId);
+        mActionBarController.onSaveInstanceState(outState);
     }
 
     /**
      * Handles the {@link android.app.Activity#onRestoreInstanceState} callback.
      */
-    public void restoreInstanceState(Bundle savedInstanceState) {
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " restoreInstanceState");
         }
         mResumeInboxLookup = savedInstanceState.getBoolean(BUNDLE_KEY_RESUME_INBOX_LOOKUP);
         mInboxLookupAccountId = savedInstanceState.getLong(BUNDLE_KEY_INBOX_LOOKUP_ACCOUNT_ID);
+        mActionBarController.onRestoreInstanceState(savedInstanceState);
     }
 
     /**
@@ -482,10 +485,25 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     /**
      * Performs the back action.
      *
+     * NOTE The method in the base class has precedence.  Subclasses overriding this method MUST
+     * call super's method first.
+     *
      * @param isSystemBackKey <code>true</code> if the system back key was pressed.
      * <code>false</code> if it's caused by the "home" icon click on the action bar.
      */
-    public abstract boolean onBackPressed(boolean isSystemBackKey);
+    public boolean onBackPressed(boolean isSystemBackKey) {
+        if (mActionBarController.onBackPressed(isSystemBackKey)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Must be called from {@link Activity#onSearchRequested()}.
+     */
+    public void onSearchRequested() {
+        mActionBarController.enterSearchMode(null);
+    }
 
     /**
      * Callback called when the inbox lookup (started by {@link #startInboxLookup}) is finished.
@@ -550,6 +568,11 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         mInboxFinder = null;
     }
 
+    /** @return true if the search menu option should be enabled. */
+    protected boolean canSearch() {
+        return false;
+    }
+
     /**
      * Handles the {@link android.app.Activity#onCreateOptionsMenu} callback.
      */
@@ -575,6 +598,29 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         } else {
             item.setVisible(false);
         }
+
+        // STOPSHIP Temporary search options code
+        // Only show search/sync options for EAS 12.0 and later
+        boolean canSearch = false;
+        if (canSearch()) {
+            long accountId = getActualAccountId();
+            if (accountId > 0) {
+                // Move database operations out of the UI thread
+                if ("eas".equals(Account.getProtocol(mActivity, accountId))) {
+                    Account account = Account.restoreAccountWithId(mActivity, accountId);
+                    if (account != null) {
+                        // We should set a flag in the account indicating ability to handle search
+                        String protocolVersion = account.mProtocolVersion;
+                        if (Double.parseDouble(protocolVersion) >= 12.0) {
+                            canSearch = true;
+                        }
+                    }
+                }
+            }
+        }
+        // Should use an isSearchable call to prevent search on inappropriate accounts/boxes
+        menu.findItem(R.id.search).setVisible(canSearch);
+
         return true;
     }
 
@@ -596,6 +642,9 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
                 return true;
             case R.id.account_settings:
                 return onAccountSettings();
+            case R.id.search:
+                onSearchRequested();
+                return true;
         }
         return false;
     }
@@ -618,13 +667,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         AccountSettings.actionSettings(mActivity, getActualAccountId());
         return true;
     }
-
-    /**
-     * STOPSHIP For experimental UI.  Remove this.
-     *
-     * @return mailbox ID which we search for messages.
-     */
-    public abstract long getSearchMailboxId();
 
     /**
      * STOPSHIP For experimental UI.  Remove this.
