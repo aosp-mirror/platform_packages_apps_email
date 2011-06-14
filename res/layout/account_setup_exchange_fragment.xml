@@ -69,6 +69,10 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:text="@string/account_setup_exchange_trust_certificates_label" />
+    <include
+        android:id="@+id/client_certificate_selector"
+        layout="@layout/client_certificate_selector"
+        android:visibility="gone" />
     <TextView
         android:text="@string/account_setup_exchange_device_id_label"
         android:layout_height="wrap_content"

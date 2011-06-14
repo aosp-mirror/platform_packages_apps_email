@@ -22,6 +22,7 @@ import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.mail.Store;
 import com.android.email.provider.AccountBackupRestore;
+import com.android.email.view.CertificateSelector;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -63,6 +64,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
     private EditText mServerView;
     private CheckBox mSslSecurityView;
     private CheckBox mTrustCertificatesView;
+    private CertificateSelector mClientCertificateSelector;
 
     // Support for lifecycle
     private boolean mStarted;
@@ -100,13 +102,13 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         View view = inflater.inflate(layoutId, container, false);
         Context context = getActivity();
 
-        mUsernameView = (EditText) UiUtilities.getView(view, R.id.account_username);
-        mPasswordView = (EditText) UiUtilities.getView(view, R.id.account_password);
-        mServerView = (EditText) UiUtilities.getView(view, R.id.account_server);
-        mSslSecurityView = (CheckBox) UiUtilities.getView(view, R.id.account_ssl);
+        mUsernameView = UiUtilities.getView(view, R.id.account_username);
+        mPasswordView = UiUtilities.getView(view, R.id.account_password);
+        mServerView = UiUtilities.getView(view, R.id.account_server);
+        mSslSecurityView = UiUtilities.getView(view, R.id.account_ssl);
         mSslSecurityView.setOnCheckedChangeListener(this);
-        mTrustCertificatesView = (CheckBox) UiUtilities.getView(view,
-                R.id.account_trust_certificates);
+        mTrustCertificatesView = UiUtilities.getView(view, R.id.account_trust_certificates);
+        mClientCertificateSelector = UiUtilities.getView(view, R.id.client_certificate_selector);
 
         // Calls validateFields() which enables or disables the Next button
         // based on the fields' validity.
@@ -146,6 +148,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             Log.d(Logging.LOG_TAG, "AccountSetupExchangeFragment onActivityCreated");
         }
         super.onActivityCreated(savedInstanceState);
+        mClientCertificateSelector.setActivity(getActivity());
     }
 
     /**
@@ -275,7 +278,10 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         boolean trustCertificates = 0 != (hostAuth.mFlags & HostAuth.FLAG_TRUST_ALL);
         mSslSecurityView.setChecked(ssl);
         mTrustCertificatesView.setChecked(trustCertificates);
-        showTrustCertificates(ssl);
+        if (hostAuth.mClientCertAlias != null) {
+            mClientCertificateSelector.setCertificate(hostAuth.mClientCertAlias);
+        }
+        onUseSslChanged(ssl);
 
         mLoadedRecvAuth = hostAuth;
         mLoaded = true;
@@ -304,16 +310,19 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         return enabled;
     }
 
+    @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (buttonView.getId() == R.id.account_ssl) {
-            showTrustCertificates(isChecked);
+            onUseSslChanged(isChecked);
         }
     }
 
-    public void showTrustCertificates(boolean visible) {
-        int mode = visible ? View.VISIBLE : View.GONE;
+    public void onUseSslChanged(boolean useSsl) {
+        int mode = useSsl ? View.VISIBLE : View.GONE;
         mTrustCertificatesView.setVisibility(mode);
         UiUtilities.setVisibilitySafe(getView(), R.id.account_trust_certificates_divider, mode);
+        mClientCertificateSelector.setVisibility(mode);
+        UiUtilities.setVisibilitySafe(getView(), R.id.client_certificate_divider, mode);
     }
 
     /**
@@ -383,17 +392,18 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         if (mTrustCertificatesView.isChecked()) {
             flags |= HostAuth.FLAG_TRUST_ALL;
         }
+        String certAlias = mClientCertificateSelector.getCertificate();
         String serverAddress = mServerView.getText().toString().trim();
 
         int port = mSslSecurityView.isChecked() ? 443 : 80;
         HostAuth sendAuth = account.getOrCreateHostAuthSend(mContext);
         sendAuth.setLogin(userName, userPassword);
-        sendAuth.setConnection(mBaseScheme, serverAddress, port, flags);
+        sendAuth.setConnection(mBaseScheme, serverAddress, port, flags, certAlias);
         sendAuth.mDomain = null;
 
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
         recvAuth.setLogin(userName, userPassword);
-        recvAuth.setConnection(mBaseScheme, serverAddress, port, flags);
+        recvAuth.setConnection(mBaseScheme, serverAddress, port, flags, certAlias);
         recvAuth.mDomain = null;
 
         // Check for a duplicate account (requires async DB work) and if OK, proceed with check
