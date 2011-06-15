@@ -158,13 +158,13 @@
     <string name="attachment_info_dialog_default_title" msgid="4995755709689009622">"Oplysninger om vedhæftet fil"</string>
     <string name="attachment_info_dialog_wifi_title" msgid="3174350153882915382">"Wi-Fi-forbindelse kræves"</string>
     <string name="attachment_info_wifi_settings" msgid="96432970927503597">"Indstillinger for Wi-Fi"</string>
-    <string name="attachment_info_application_settings" msgid="9128108769497191200">"Indstillinger for programmer"</string>
+    <string name="attachment_info_application_settings" msgid="9128108769497191200">"Indstillinger for applikationer"</string>
     <string name="attachment_info_unknown" msgid="8342655396805943320">"Vedhæftet fil kan ikke åbnes."</string>
     <string name="attachment_info_malware" msgid="1478505616946912328">"Du kan ikke gemme eller åbne denne type vedhæftet fil, da den kan indeholde ondsindet software."</string>
     <string name="attachment_info_wifi_only" msgid="1481120960014563617">"Denne vedhæftede fil er for stor til at blive downloadet via mobilnetværket. Du kan downloade den, næste gang du har forbindelse til et Wi-Fi-netværk."</string>
-    <string name="attachment_info_no_intent" msgid="5277484372596654977">"Du har ikke noget program, der kan åbne denne vedhæftede fil. Prøv at downloade et passende program på Android Marked."</string>
-    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Denne vedhæftede fil er et program. Du skal markere Ukendte kilder i Indstillinger under Programmer, før du kan installere den."</string>
-    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Programmer kan ikke installeres direkte i E-mail. Gem først programmet, og installer det derefter ved hjælp af programmet Downloads."</string>
+    <string name="attachment_info_no_intent" msgid="5277484372596654977">"Du har ikke nogen applikation, der kan åbne denne vedhæftede fil. Prøv at downloade en passende applikation på Android Marked."</string>
+    <string name="attachment_info_sideload_disabled" msgid="1884647432057183615">"Denne vedhæftede fil er en applikation. Du skal markere Ukendte kilder i Indstillinger under Programmer, før du kan installere den."</string>
+    <string name="attachment_info_apk_install_disabled" msgid="9077383681081393067">"Programmer kan ikke installeres direkte i E-mail. Gem først applikationen, og installer det derefter ved hjælp af applikationen Downloads."</string>
     <string name="message_decode_error" msgid="7812862491622388416">"Der opstod en fejl ved afkodning af beskeden."</string>
     <string name="eml_view_title" msgid="8827210108543430336">"Viser <xliff:g id="FILENAME">%s</xliff:g>"</string>
     <string name="message_delete_dialog_title" msgid="7189172554183139772">"Kassér beskeden?"</string>
@@ -305,7 +305,7 @@
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Ekstern sikkerhedsadministration"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Serveren <xliff:g id="SERVER">%s</xliff:g> kræver, at du giver den tilladelse til eksternt at kontrollere nogle af Android-enhedens sikkerhedsfunktioner. Vil du afslutte opsætning af denne konto?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Denne server kræver sikkerhedsfunktioner, som Android-enheden ikke understøtter."</string>
-    <string name="disable_admin_warning" msgid="4940147098039352135">"ADVARSEL: Hvis du deaktiverer programmet E-mails tilladelse til at administrere din enhed, slettes alle konti i E-mail, der kræver dette, sammen med alle e-mails, kontaktpersoner, kalenderbegivenheder og andre data på disse konti."</string>
+    <string name="disable_admin_warning" msgid="4940147098039352135">"ADVARSEL: Hvis du deaktiverer applikationen E-mails tilladelse til at administrere din enhed, slettes alle konti i E-mail, der kræver dette, sammen med alle e-mails, kontaktpersoner, kalenderbegivenheder og andre data på disse konti."</string>
     <string name="account_security_dialog_title" msgid="1340675800634074043">"Sikkerhedsopdatering kræves"</string>
     <string name="account_security_dialog_content_fmt" msgid="7950790060554861792">"<xliff:g id="ACCOUNT">%s</xliff:g> kræver, at du opdaterer dine sikkerhedsindstillinger."</string>
     <string name="security_notification_ticker_fmt" msgid="1108023476125276507">"Kontoen \"<xliff:g id="ACCOUNT">%s</xliff:g>\" kræver opdatering af sikkerhedsindstillingerne."</string>
@@ -362,7 +362,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Fjern konto"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mail-konto"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Vælg en konto"</string>
-    <string name="provider_note_live" msgid="3584841823811425060">"Det er kun nogle \"Plus\"-konti, der indeholder POP-adgang, som tillader dette program at oprette forbindelse. Hvis du ikke er i stand til at logge ind med din rigtige e-mail-adresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Start webbrowseren igen for at få adgang til disse mail-konti."</string>
+    <string name="provider_note_live" msgid="3584841823811425060">"Det er kun nogle \"Plus\"-konti, der indeholder POP-adgang, som tillader denne applikation at oprette forbindelse. Hvis du ikke er i stand til at logge ind med din rigtige e-mail-adresse og adgangskode, har du muligvis ikke en betalt \"Plus\"-konto. Start webbrowseren igen for at få adgang til disse mail-konti."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Inden du opsætter denne e-mail-konto, skal du gå til T-Onlines websted og oprette en adgangskode for POP3-e-mail-adgang."</string>
     <string name="exchange_name" msgid="1190783774800310346">"Virksomhed"</string>
     <string name="exchange_name_alternate" msgid="5772529644749041052">"Microsoft Exchange ActiveSync"</string>
@@ -376,7 +376,7 @@
   </plurals>
     <string name="gal_completed_limited_fmt" msgid="2343791690766047585">"Første <xliff:g id="RESULTS">%1$d</xliff:g> resultater fra <xliff:g id="DOMAIN">%2$s</xliff:g>"</string>
     <string name="header_label_general_preferences" msgid="7548527595339881066">"Indstillinger for e-mail"</string>
-    <string name="category_general_preferences" msgid="6810399722493971651">"Indstillinger for programmer"</string>
+    <string name="category_general_preferences" msgid="6810399722493971651">"Indstillinger for applikationer"</string>
     <string name="general_preference_auto_advance_label" msgid="213945004511666631">"Gå automatisk frem"</string>
     <string name="general_preference_auto_advance_summary" msgid="4540091103768602710">"Vælg, hvilken skærm der skal vises, når du har slettet en besked"</string>
     <string name="general_preference_auto_advance_dialog_title" msgid="5405052109452503909">"Gå frem til"</string>
