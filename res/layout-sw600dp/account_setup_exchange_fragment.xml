@@ -87,12 +87,6 @@
             android:layout_width="match_parent"
             android:layout_height="1px"
             android:background="@color/account_setup_divider_color" />
-    </LinearLayout>
-    <!-- Note, this row is not a TableRow, and it will span the entire table - no columns -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
         <CheckBox
             android:id="@+id/account_trust_certificates"
             android:layout_marginTop="16dip"
@@ -104,6 +98,16 @@
             android:visibility="gone" />
         <View
             android:id="@+id/account_trust_certificates_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/account_setup_divider_color"
+            android:visibility="gone" />
+        <include
+            android:id="@+id/client_certificate_selector"
+            layout="@layout/client_certificate_selector"
+            android:visibility="gone" />
+        <View
+            android:id="@+id/client_certificate_divider"
             android:layout_width="match_parent"
             android:layout_height="1px"
             android:background="@color/account_setup_divider_color"
