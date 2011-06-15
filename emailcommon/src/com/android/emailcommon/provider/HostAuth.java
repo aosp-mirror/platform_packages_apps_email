@@ -295,12 +295,12 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
     }
 
     /** Convenience method to determine if SSL is used. */
-    public boolean useSsl() {
+    public boolean shouldUseSsl() {
         return (mFlags & FLAG_SSL) != 0;
     }
 
     /** Convenience method to determine if all server certs should be used. */
-    public boolean trustAllServerCerts() {
+    public boolean shouldTrustAllServerCerts() {
         return (mFlags & FLAG_TRUST_ALL) != 0;
     }
 
