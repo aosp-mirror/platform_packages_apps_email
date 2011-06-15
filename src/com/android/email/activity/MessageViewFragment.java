@@ -54,7 +54,11 @@ public class MessageViewFragment extends MessageViewFragmentBase
     private ImageView mFavoriteIcon;
 
     private View mReplyButton;
+
+    /* Nullable - not available on phone. */
     private View mReplyAllButton;
+
+    /* Nullable - not available on phone. */
     private View mForwardButton;
 
     // calendar meeting invite answers
@@ -218,8 +222,8 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
         mFavoriteIcon = (ImageView) UiUtilities.getView(view, R.id.favorite);
         mReplyButton = UiUtilities.getView(view, R.id.reply);
-        mReplyAllButton = UiUtilities.getView(view, R.id.reply_all);
-        mForwardButton = UiUtilities.getView(view, R.id.forward);
+        mReplyAllButton = UiUtilities.getViewOrNull(view, R.id.reply_all);
+        mForwardButton = UiUtilities.getViewOrNull(view, R.id.forward);
         mMeetingYes = (CheckBox) UiUtilities.getView(view, R.id.accept);
         mMeetingMaybe = (CheckBox) UiUtilities.getView(view, R.id.maybe);
         mMeetingNo = (CheckBox) UiUtilities.getView(view, R.id.decline);
@@ -229,8 +233,10 @@ public class MessageViewFragment extends MessageViewFragmentBase
 
         mFavoriteIcon.setOnClickListener(this);
         mReplyButton.setOnClickListener(this);
-        mReplyAllButton.setOnClickListener(this);
-        mForwardButton.setOnClickListener(this);
+        if (mReplyAllButton != null) {
+            mReplyAllButton.setOnClickListener(this);
+            mForwardButton.setOnClickListener(this);
+        }
         mMeetingYes.setOnCheckedChangeListener(this);
         mMeetingMaybe.setOnCheckedChangeListener(this);
         mMeetingNo.setOnCheckedChangeListener(this);
@@ -250,8 +256,10 @@ public class MessageViewFragment extends MessageViewFragmentBase
         // We don't have disabled button assets, so let's hide them for now
         final int visibility = enabled ? View.VISIBLE : View.GONE;
         mReplyButton.setVisibility(visibility);
-        mReplyAllButton.setVisibility(visibility);
-        mForwardButton.setVisibility(visibility);
+        if (mReplyAllButton != null) {
+            mReplyAllButton.setVisibility(visibility);
+            mForwardButton.setVisibility(visibility);
+        }
     }
 
     public void setCallback(Callback callback) {

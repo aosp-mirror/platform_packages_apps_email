@@ -51,10 +51,10 @@
                 >
                 <ImageView
                     android:id="@+id/badge"
-                    android:layout_width="48dip"
-                    android:layout_height="48dip"
+                    android:layout_width="32dip"
+                    android:layout_height="32dip"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="8dip"
+                    android:layout_marginRight="2dip"
                     android:layout_marginLeft="2dip"
                     />
                 <ImageView
@@ -62,35 +62,34 @@
                     android:src="@android:drawable/presence_offline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="5dip"
+                    android:layout_marginRight="2dip"
                     android:layout_gravity="center_vertical"
                     />
-                <TextView
-                    android:id="@+id/from_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0"
-                    android:layout_alignParentLeft="true"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textStyle="bold"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:paddingRight="6dip"
-                    />
-                <TextView
-                    android:id="@+id/from_address"
+                <RelativeLayout
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.0"
-                    android:layout_alignParentLeft="true"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textStyle="normal"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:singleLine="true"
-                    android:ellipsize="end"
                     android:paddingRight="6dip"
-                    />
+                    >
+                    <TextView
+                        android:id="@+id/from_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:textStyle="bold"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        />
+                    <TextView
+                        android:id="@+id/from_address"
+                        android:layout_below="@+id/from_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        />
+                </RelativeLayout>
                 <!-- Reply/Forward buttons are default gone for MessageFileView -->
                 <ImageView
                     android:id="@+id/reply"
@@ -102,31 +101,11 @@
                     android:visibility="gone"
                     />
                 <ImageView
-                    android:id="@+id/reply_all"
-                    android:src="@drawable/reply_all"
+                    android:id="@+id/favorite"
                     android:layout_width="32dip"
                     android:layout_height="24dip"
                     android:layout_margin="6dip"
-                    android:baselineAlignBottom="true"
-                    android:visibility="gone"
-                    />
-                <ImageView
-                    android:id="@+id/forward"
-                    android:src="@drawable/forward"
-                    android:layout_width="32dip"
-                    android:layout_height="24dip"
-                    android:layout_margin="6dip"
-                    android:baselineAlignBottom="true"
-                    android:visibility="gone"
-                    />
-                <TextView
-                    android:id="@+id/datetime"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dip"
-                    android:singleLine="true"
+                    android:src="@drawable/btn_star_off_normal_email_holo_light"
                     />
             </LinearLayout>
 
@@ -154,15 +133,15 @@
                     android:singleLine="true"
                     android:ellipsize="end"
                     />
-                <!-- TODO: Move this to wherever it really belongs -->
-                <ImageView
-                    android:id="@+id/favorite"
+                <TextView
+                    android:id="@+id/datetime"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="?android:attr/textColorPrimary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:src="@drawable/btn_star_off_normal_email_holo_light"
+                    android:layout_marginLeft="4dip"
+                    android:singleLine="true"
                     />
-                <!-- TODO Just to prevent NPE - Phone UI is TBD  -->
                 <Button
                     android:id="@+id/show_details"
                     android:layout_width="wrap_content"
