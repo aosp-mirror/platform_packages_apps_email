@@ -439,7 +439,7 @@ public class AccountSettingsFragment extends PreferenceFragment {
 
         // Add check window preference
         mSyncWindow = null;
-        if (!HostAuth.SCHEME_EAS.equals(protocol)) {
+        if (HostAuth.SCHEME_EAS.equals(protocol)) {
             mSyncWindow = new ListPreference(mContext);
             mSyncWindow.setTitle(R.string.account_setup_options_mail_window_label);
             mSyncWindow.setEntries(R.array.account_settings_mail_window_entries);
