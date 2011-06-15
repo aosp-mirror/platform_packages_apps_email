@@ -301,7 +301,7 @@
     <string name="account_setup_failed_auth_required" msgid="1676242821459638150">"Authentifizierungsmethoden nicht von Server unterstützt"</string>
     <string name="account_setup_failed_security" msgid="6142264248671379943">"Verbindung zu Server kann aufgrund eines Sicherheitsfehlers nicht geöffnet werden."</string>
     <string name="account_setup_failed_ioerror" msgid="7391458717708933095">"Verbindung zu Server kann nicht geöffnet werden"</string>
-    <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Sie haben eine falsche Serveradresse eingegeben, oder der Server erfordert eine Protokollversion, die derzeit nicht unterstützt wird."</string>
+    <string name="account_setup_failed_protocol_unsupported" msgid="5476633232659376833">"Sie haben eine falsche Serveradresse eingegeben, oder der Server erfordert eine Protokollversion, die zurzeit nicht unterstützt wird."</string>
     <string name="account_setup_security_required_title" msgid="1850321535870447468">"Remote-Sicherheitsverwaltung"</string>
     <string name="account_setup_security_policies_required_fmt" msgid="5410714107656671761">"Der Server <xliff:g id="SERVER">%s</xliff:g> fordert die Erlaubnis zur Remote-Steuerung einiger Sicherheitsfunktionen auf Ihrem Android-Gerät an. Möchten Sie die Einrichtung dieses Kontos abschließen?"</string>
     <string name="account_setup_failed_security_policies_unsupported" msgid="177105755827362630">"Für diesen Server sind Sicherheitsfunktionen erforderlich, die von Ihrem Android-Gerät nicht unterstützt werden."</string>
