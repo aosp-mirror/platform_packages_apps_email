@@ -18,12 +18,17 @@ LOCAL_PATH := $(call my-dir)
 # static library.  All tests can be run via runtest email
 
 include $(CLEAR_VARS)
+# Include res dir from chips
+chips_dir := ../../../frameworks/ex/chips/res
+res_dir := $(chips_dir) res
 
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src/com/android/email)
 LOCAL_SRC_FILES += $(call all-java-files-under, src/com/beetstra)
-LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava
+LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dir))
+
+LOCAL_STATIC_JAVA_LIBRARIES := android-common com.android.emailcommon guava android-common-chips
 
 LOCAL_PACKAGE_NAME := Email
 
