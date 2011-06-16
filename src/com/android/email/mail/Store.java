@@ -66,7 +66,7 @@ public abstract class Store {
     public static final int FETCH_BODY_SANE_SUGGESTED_SIZE = (50 * 1024);
 
     @VisibleForTesting
-    static final HashMap<Long, Store> sStores = new HashMap<Long, Store>();
+    static final HashMap<HostAuth, Store> sStores = new HashMap<HostAuth, Store>();
 
     protected Context mContext;
     protected Account mAccount;
@@ -167,8 +167,8 @@ public abstract class Store {
      * Get an instance of a mail store for the given account. The account must be valid (i.e. has
      * at least an incoming server name).
      *
-     * NOTE: The internal algorithm used to find a cached store depends upon the id of the
-     * account's HostAuth row. If this ever changes (e.g. such as the user updating the
+     * NOTE: The internal algorithm used to find a cached store depends upon the account's
+     * HostAuth row. If this ever changes (e.g. such as the user updating the
      * host name or port), we will leak entries. This should not be typical, so, it is not
      * a critical problem. However, it is something we should consider fixing.
      *
@@ -178,18 +178,17 @@ public abstract class Store {
      */
     public synchronized static Store getInstance(Account account, Context context,
             PersistentDataCallbacks callbacks) throws MessagingException {
-        HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
-        long storeKey = recvAuth.mId;
-        Store store = sStores.get(storeKey);
+        HostAuth hostAuth = account.getOrCreateHostAuthRecv(context);
+        Store store = sStores.get(hostAuth);
         if (store == null) {
             Context appContext = context.getApplicationContext();
-            StoreInfo info = StoreInfo.getStoreInfo(recvAuth.mProtocol, context);
+            StoreInfo info = StoreInfo.getStoreInfo(hostAuth.mProtocol, context);
             if (info != null) {
                 store = instantiateStore(info.mClassName, account, appContext, callbacks);
             }
             // Don't cache this unless it's we've got a saved HostAUth
-            if (store != null && (storeKey != EmailContent.NOT_SAVED)) {
-                sStores.put(storeKey, store);
+            if (store != null && (hostAuth.mId != EmailContent.NOT_SAVED)) {
+                sStores.put(hostAuth, store);
             }
         } else {
             // update the callbacks, which may have been null at creation time.
@@ -214,7 +213,7 @@ public abstract class Store {
      */
     public synchronized static Store removeInstance(Account account, Context context)
             throws MessagingException {
-        return sStores.remove(account.mId);
+        return sStores.remove(HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv));
     }
 
     /**
