@@ -47,7 +47,7 @@ public class SecurityPolicy {
     private static SecurityPolicy sInstance = null;
     private Context mContext;
     private DevicePolicyManager mDPM;
-    private ComponentName mAdminName;
+    private final ComponentName mAdminName;
     private Policy mAggregatePolicy;
 
     // Messages used for DevicePolicyManager callbacks
@@ -104,7 +104,8 @@ public class SecurityPolicy {
      * @return a policy representing the strongest aggregate.  If no policy sets are defined,
      * a lightweight "nothing required" policy will be returned.  Never null.
      */
-    /*package*/ Policy computeAggregatePolicy() {
+    @VisibleForTesting
+    Policy computeAggregatePolicy() {
         boolean policiesFound = false;
         Policy aggregate = new Policy();
         aggregate.mPasswordMinLength = Integer.MIN_VALUE;
@@ -153,6 +154,7 @@ public class SecurityPolicy {
                 aggregate.mRequireRemoteWipe |= policy.mRequireRemoteWipe;
                 aggregate.mRequireEncryption |= policy.mRequireEncryption;
                 aggregate.mRequireEncryptionExternal |= policy.mRequireEncryptionExternal;
+                aggregate.mDontAllowCamera |= policy.mDontAllowCamera;
                 policiesFound = true;
             }
         } finally {
@@ -225,7 +227,7 @@ public class SecurityPolicy {
     /**
      * API: Query if the proposed set of policies are supported on the device.
      *
-     * @param policies the polices that were requested
+     * @param policy the polices that were requested
      * @return boolean if supported
      */
     public boolean isSupported(Policy policy) {
@@ -245,6 +247,10 @@ public class SecurityPolicy {
             if (Environment.isExternalStorageRemovable()) return false;
             if (!Environment.isExternalStorageEmulated()) return false;
         }
+
+        // If we ever support devices that can't disable cameras for any reason, we should
+        // indicate as such in the mDontAllowCamera policy
+
         return true;
     }
 
@@ -254,7 +260,7 @@ public class SecurityPolicy {
      * This is used when we have a set of polices that have been requested, but the server
      * is willing to allow unsupported policies to be considered optional.
      *
-     * @param policies the polices that were requested
+     * @param policy the polices that were requested
      * @return the same PolicySet if all are supported;  A replacement PolicySet if any
      *   unsupported policies were removed
      */
@@ -276,6 +282,10 @@ public class SecurityPolicy {
                 policy.mRequireEncryptionExternal = false;
             }
         }
+
+        // If we ever support devices that can't disable cameras for any reason, we should
+        // clear the mDontAllowCamera policy
+
         return policy;
     }
 
@@ -283,7 +293,7 @@ public class SecurityPolicy {
      * API: Query used to determine if a given policy is "active" (the device is operating at
      * the required security level).
      *
-     * @param policies the policies requested, or null to check aggregate stored policies
+     * @param policy the policies requested, or null to check aggregate stored policies
      * @return true if the requested policies are active, false if not.
      */
     public boolean isActive(Policy policy) {
@@ -348,7 +358,7 @@ public class SecurityPolicy {
      * the expiration.  In other words, all accounts (that require expiration) will run/stop
      * based on the requirements of the account with the shortest interval.
      *
-     * @param policies the policies requested, or null to check aggregate stored policies
+     * @param policy the policies requested, or null to check aggregate stored policies
      * @return zero if the requested policies are active, non-zero bits indicates that more work
      * is needed (typically, by the user) before the required security polices are fully active.
      */
@@ -470,6 +480,9 @@ public class SecurityPolicy {
             dpm.setPasswordMinimumSymbols(mAdminName, 0);
             dpm.setPasswordMinimumNumeric(mAdminName, 0);
             dpm.setPasswordMinimumNonLetter(mAdminName, aggregatePolicy.mPasswordComplexChars);
+            // Device capabilities
+            dpm.setCameraDisabled(mAdminName, aggregatePolicy.mDontAllowCamera);
+
             // encryption required
             dpm.setStorageEncryption(mAdminName, aggregatePolicy.mRequireEncryption);
             // TODO: If we ever support external storage encryption as a first-class feature,
