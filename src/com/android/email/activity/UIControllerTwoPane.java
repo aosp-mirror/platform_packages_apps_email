@@ -535,7 +535,10 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (DEBUG_FRAGMENTS) {
             Log.d(Logging.LOG_TAG, this + " commitFragmentTransaction: " + ft);
         }
-        ft.commit();
+        if (!ft.isEmpty()) {
+            ft.commit();
+            mActivity.getFragmentManager().executePendingTransactions();
+        }
     }
 
     /**

@@ -40,8 +40,8 @@ import java.util.Set;
  *
  * One one-pane, only at most one fragment can be installed at a time.
  *
- * Note due to the asynchronous nature of the fragment transaction, there is a window when
- * there is no installed or visible fragments.
+ * Note: Always use {@link #commitFragmentTransaction} to operate fragment transactions,
+ * so that we can easily switch between synchronous and asynchronous transactions.
  *
  * Major TODOs
  * - TODO Newer/Older for message view with swipe!
@@ -497,11 +497,14 @@ class UIControllerOnePane extends UIControllerBase {
     }
 
     /**
-     * Use this instead of {@link FragmentTransaction#commit}.  We may switch to the synchronous
+     * Use this instead of {@link FragmentTransaction#commit}.  We may switch to the asynchronous
      * transaction some day.
      */
     private void commitFragmentTransaction(FragmentTransaction ft) {
-        ft.commit();
+        if (!ft.isEmpty()) {
+            ft.commit();
+            mActivity.getFragmentManager().executePendingTransactions();
+        }
     }
 
     /**
@@ -619,8 +622,8 @@ class UIControllerOnePane extends UIControllerBase {
         removeFragment(ft, installed);
         ft.attach(mPreviousFragment);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
-        commitFragmentTransaction(ft);
         mPreviousFragment = null;
+        commitFragmentTransaction(ft);
         return;
     }
 
