@@ -63,7 +63,9 @@ public class MessagingException extends Exception {
     /** The server refused access */
     public static final int ATTACHMENT_NOT_FOUND = 15;
     /** A client SSL certificate is required for connections to the server */
-    public static final int CLIENT_CERTIFICATE_ERROR = 16;
+    public static final int CLIENT_CERTIFICATE_REQUIRED = 16;
+    /** The client SSL certificate specified is invalid */
+    public static final int CLIENT_CERTIFICATE_ERROR = 17;
 
     protected int mExceptionType;
     // Exception type-specific data

@@ -49,6 +49,8 @@ public class MessagingExceptionStrings {
                 return R.string.account_setup_failed_security;
             case MessagingException.ACCESS_DENIED:
                 return R.string.account_setup_failed_access_denied;
+            case MessagingException.CLIENT_CERTIFICATE_ERROR:
+                return R.string.account_setup_failed_certificate_inaccessible;
         }
         return R.string.status_network_error; // default
     }

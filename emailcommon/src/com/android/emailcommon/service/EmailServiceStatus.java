@@ -37,4 +37,7 @@ public interface EmailServiceStatus {
 
     // Maybe we should automatically retry these?
     public static final int CONNECTION_ERROR = 0x20;
+
+    // Client certificates used to authenticate cannot be retrieved from the system.
+    public static final int CLIENT_CERTIFICATE_ERROR = 0x21;
 }

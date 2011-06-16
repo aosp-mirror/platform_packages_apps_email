@@ -770,8 +770,12 @@ save attachment.</string>
         >Cannot safely connect to server.\n(<xliff:g id="error">%s</xliff:g>)</string>
     <!-- An error message presented to the user when the server requires a
          client certificate to connect [CHAR LIMIT=NONE] -->
-    <string name="account_setup_failed_certificate_required">User certificate
-      required to connect to server.</string>
+    <string name="account_setup_failed_certificate_required"
+        >User certificate required to connect to server.</string>
+    <!-- An error message presented to the user when the certificate they
+         specified for connecting to a server is inaccessible [CHAR LIMIT=NONE] -->
+    <string name="account_setup_failed_certificate_inaccessible"
+        >Certificate invalid or inaccessible.</string>
 
     <!-- Dialog text for ambiguous setup failure; server error/bad credentials [CHAR LIMIT=none] -->
     <string name="account_setup_failed_check_credentials_message">

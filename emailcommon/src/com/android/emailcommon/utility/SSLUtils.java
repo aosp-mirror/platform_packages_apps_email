@@ -25,6 +25,7 @@ import android.util.Log;
 import java.net.Socket;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
@@ -178,16 +179,17 @@ public class SSLUtils {
          * If for any reason retrieval of the credentials from the system {@link KeyChain} fails,
          * a {@code null} value will be returned.
          */
-        public static KeyChainKeyManager fromAlias(Context context, String alias) {
+        public static KeyChainKeyManager fromAlias(Context context, String alias)
+                throws CertificateException {
             X509Certificate[] certificateChain;
             try {
                 certificateChain = KeyChain.getCertificateChain(context, alias);
             } catch (KeyChainException e) {
                 logError(alias, "certificate chain", e);
-                return null;
+                throw new CertificateException(e);
             } catch (InterruptedException e) {
                 logError(alias, "certificate chain", e);
-                return null;
+                throw new CertificateException(e);
             }
 
             PrivateKey privateKey;
@@ -195,10 +197,15 @@ public class SSLUtils {
                 privateKey = KeyChain.getPrivateKey(context, alias);
             } catch (KeyChainException e) {
                 logError(alias, "private key", e);
-                return null;
+                throw new CertificateException(e);
             } catch (InterruptedException e) {
                 logError(alias, "private key", e);
-                return null;
+                throw new CertificateException(e);
+            }
+
+            if (certificateChain == null || privateKey == null) {
+                throw new CertificateException(
+                        "Can't access certificate from keystore for alias [" + alias + "]");
             }
 
             return new KeyChainKeyManager(alias, certificateChain, privateKey);

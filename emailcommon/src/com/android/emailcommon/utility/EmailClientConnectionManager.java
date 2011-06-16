@@ -21,8 +21,6 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.utility.SSLUtils.KeyChainKeyManager;
 import com.android.emailcommon.utility.SSLUtils.TrackingKeyManager;
 
-import org.apache.http.conn.ClientConnectionRequest;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -32,6 +30,8 @@ import org.apache.http.params.HttpParams;
 import android.content.Context;
 import android.net.SSLCertificateSocketFactory;
 import android.util.Log;
+
+import java.security.cert.CertificateException;
 
 import javax.net.ssl.KeyManager;
 
@@ -75,7 +75,8 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
      * {@link #makeSchemeForClientCert(String, boolean)}.
      */
     public synchronized void registerClientCert(
-            Context context, String clientCertAlias, boolean trustAllServerCerts) {
+            Context context, String clientCertAlias, boolean trustAllServerCerts)
+            throws CertificateException {
         SchemeRegistry registry = getSchemeRegistry();
         String schemeName = makeSchemeForClientCert(clientCertAlias, trustAllServerCerts);
         Scheme existing = registry.get(schemeName);
@@ -85,12 +86,6 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
                         + clientCertAlias + "]");
             }
             KeyManager keyManager = KeyChainKeyManager.fromAlias(context, clientCertAlias);
-            if (keyManager == null) {
-                // TODO: handle failing to retrieve credentials from the keystore.
-                Log.e(Logging.LOG_TAG, "Unable to retrieve credentials for alias ["
-                        + clientCertAlias + "]");
-                return;
-            }
             SSLCertificateSocketFactory underlying = SSLUtils.getSSLSocketFactory(
                     trustAllServerCerts);
             underlying.setKeyManagers(new KeyManager[] { keyManager });

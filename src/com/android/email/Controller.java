@@ -1609,6 +1609,9 @@ public class Controller {
                 case EmailServiceStatus.ATTACHMENT_NOT_FOUND:
                     return new MessagingException(MessagingException.ATTACHMENT_NOT_FOUND);
 
+                case EmailServiceStatus.CLIENT_CERTIFICATE_ERROR:
+                    return new MessagingException(MessagingException.CLIENT_CERTIFICATE_ERROR);
+
                 case EmailServiceStatus.MESSAGE_NOT_FOUND:
                 case EmailServiceStatus.FOLDER_NOT_DELETED:
                 case EmailServiceStatus.FOLDER_NOT_RENAMED:
