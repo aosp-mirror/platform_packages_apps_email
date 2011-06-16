@@ -17,10 +17,6 @@
 
 package com.android.emailcommon.provider;
 
-import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
-import com.android.emailcommon.utility.SSLUtils;
-import com.android.emailcommon.utility.Utility;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -28,6 +24,10 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+
+import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
+import com.android.emailcommon.utility.SSLUtils;
+import com.android.emailcommon.utility.Utility;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -375,6 +375,22 @@ public final class HostAuth extends EmailContent implements HostAuthColumns, Par
                 && Utility.areStringsEqual(mPassword, that.mPassword)
                 && Utility.areStringsEqual(mDomain, that.mDomain)
                 && Utility.areStringsEqual(mClientCertAlias, that.mClientCertAlias);
+    }
+
+    /**
+     * The flag, password, and client cert alias are the only items likely to change after a
+     * HostAuth is created
+     */
+    @Override
+    public int hashCode() {
+        int hashCode = 29;
+        if (mPassword != null) {
+            hashCode += mPassword.hashCode();
+        }
+        if (mClientCertAlias != null) {
+            hashCode += (mClientCertAlias.hashCode() << 8);
+        }
+        return (hashCode << 8) + mFlags;
     }
 
     /**
