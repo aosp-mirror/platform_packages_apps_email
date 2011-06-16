@@ -19,7 +19,10 @@ package com.android.emailcommon.utility;
 
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.utility.SSLUtils.KeyChainKeyManager;
+import com.android.emailcommon.utility.SSLUtils.TrackingKeyManager;
 
+import org.apache.http.conn.ClientConnectionRequest;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -48,15 +51,18 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
     }
 
     public static EmailClientConnectionManager newInstance(HttpParams params) {
+        TrackingKeyManager keyManager = new TrackingKeyManager();
+
         // Create a registry for our three schemes; http and https will use built-in factories
         SchemeRegistry registry = new SchemeRegistry();
         registry.register(new Scheme("http",
                 PlainSocketFactory.getSocketFactory(), 80));
-        registry.register(new Scheme("https", SSLUtils.getHttpSocketFactory(false), 443));
+        registry.register(new Scheme("https",
+                SSLUtils.getHttpSocketFactory(false, keyManager), 443));
 
         // Register the httpts scheme with our insecure factory
         registry.register(new Scheme("httpts",
-                SSLUtils.getHttpSocketFactory(true /*insecure*/), 443));
+                SSLUtils.getHttpSocketFactory(true /*insecure*/, keyManager), 443));
 
         return new EmailClientConnectionManager(params, registry);
     }

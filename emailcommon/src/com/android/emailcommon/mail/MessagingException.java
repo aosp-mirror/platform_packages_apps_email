@@ -50,7 +50,7 @@ public class MessagingException extends Exception {
     public static final int SECURITY_POLICIES_UNSUPPORTED = 8;
    /** The protocol (or protocol version) isn't supported */
     public static final int PROTOCOL_VERSION_UNSUPPORTED = 9;
-    /** An SSL certificate couldn't be validated */
+    /** The server's SSL certificate couldn't be validated */
     public static final int CERTIFICATE_VALIDATION_ERROR = 10;
     /** Authentication failed during autodiscover */
     public static final int AUTODISCOVER_AUTHENTICATION_FAILED = 11;
@@ -62,6 +62,8 @@ public class MessagingException extends Exception {
     public static final int ACCESS_DENIED = 14;
     /** The server refused access */
     public static final int ATTACHMENT_NOT_FOUND = 15;
+    /** A client SSL certificate is required for connections to the server */
+    public static final int CLIENT_CERTIFICATE_ERROR = 16;
 
     protected int mExceptionType;
     // Exception type-specific data

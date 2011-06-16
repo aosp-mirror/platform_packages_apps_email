@@ -65,10 +65,11 @@ public class SSLUtils {
      * Returns a {@link org.apache.http.conn.ssl.SSLSocketFactory SSLSocketFactory} for use with the
      * Apache HTTP stack.
      */
-    public static SSLSocketFactory getHttpSocketFactory(boolean insecure) {
+    public static SSLSocketFactory getHttpSocketFactory(boolean insecure, KeyManager keyManager) {
         SSLCertificateSocketFactory underlying = getSSLSocketFactory(insecure);
-        // TODO: register a keymanager that will simply listen for requests for a client
-        // certificate so that higher levels know to ask the user for such credentials.
+        if (keyManager != null) {
+            underlying.setKeyManagers(new KeyManager[] { keyManager });
+        }
         return new SSLSocketFactory(underlying);
     }
 
@@ -133,6 +134,38 @@ public class SSLUtils {
     }
 
     /**
+     * A dummy {@link KeyManager} which throws a {@link CertificateRequestedException} if the
+     * server requests a certificate.
+     */
+    public static class TrackingKeyManager extends StubKeyManager {
+        @Override
+        public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
+            if (LOG_ENABLED) {
+                Log.i(TAG, "TrackingKeyManager: requesting a client cert alias for "
+                        + Arrays.toString(keyTypes));
+            }
+            throw new CertificateRequestedException();
+        }
+
+        @Override
+        public X509Certificate[] getCertificateChain(String alias) {
+            return null;
+        }
+
+        @Override
+        public PrivateKey getPrivateKey(String alias) {
+            return null;
+        }
+    }
+
+    /**
+     * An exception indicating that a server requested a client certificate but none was
+     * available to be presented.
+     */
+    public static class CertificateRequestedException extends RuntimeException {
+    }
+
+    /**
      * A {@link KeyManager} that reads uses credentials stored in the system {@link KeyChain}.
      */
     public static class KeyChainKeyManager extends StubKeyManager {
@@ -150,12 +183,10 @@ public class SSLUtils {
             try {
                 certificateChain = KeyChain.getCertificateChain(context, alias);
             } catch (KeyChainException e) {
-                Log.e(TAG, "Unable to retrieve certificate chain for [" + alias + "] due to "
-                        + e);
+                logError(alias, "certificate chain", e);
                 return null;
             } catch (InterruptedException e) {
-                Log.e(TAG, "Unable to retrieve certificate chain for [" + alias + "] due to "
-                        + e);
+                logError(alias, "certificate chain", e);
                 return null;
             }
 
@@ -163,14 +194,18 @@ public class SSLUtils {
             try {
                 privateKey = KeyChain.getPrivateKey(context, alias);
             } catch (KeyChainException e) {
-                Log.e(TAG, "Unable to retrieve private key for [" + alias + "] due to " + e);
+                logError(alias, "private key", e);
                 return null;
             } catch (InterruptedException e) {
-                Log.e(TAG, "Unable to retrieve private key for [" + alias + "] due to " + e);
+                logError(alias, "private key", e);
                 return null;
             }
 
             return new KeyChainKeyManager(alias, certificateChain, privateKey);
+        }
+
+        private static void logError(String alias, String type, Exception ex) {
+            Log.e(TAG, "Unable to retrieve " + type + " for [" + alias + "] due to " + ex);
         }
 
         private KeyChainKeyManager(

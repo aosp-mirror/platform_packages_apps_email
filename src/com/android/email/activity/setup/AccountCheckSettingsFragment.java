@@ -645,6 +645,9 @@ public class AccountCheckSettingsFragment extends Fragment {
                     case MessagingException.GENERAL_SECURITY:
                         id = R.string.account_setup_failed_security;
                         break;
+                    case MessagingException.CLIENT_CERTIFICATE_ERROR:
+                        id = R.string.account_setup_failed_certificate_required;
+                        break;
                     default:
                         id = TextUtils.isEmpty(message)
                                 ? R.string.account_setup_failed_dlg_server_message
