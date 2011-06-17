@@ -16,6 +16,16 @@
 
 package com.android.email.mail.store;
 
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
+import android.os.Bundle;
+import android.test.InstrumentationTestCase;
+import android.test.MoreAsserts;
+import android.test.suitebuilder.annotation.SmallTest;
+
 import com.android.email.DBTestHelper;
 import com.android.email.MockSharedPreferences;
 import com.android.email.MockVendorPolicy;
@@ -48,16 +58,6 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
 import org.apache.commons.io.IOUtils;
-
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
-import android.os.Bundle;
-import android.test.InstrumentationTestCase;
-import android.test.MoreAsserts;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1977,25 +1977,6 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
 
         checkMessageUids(new String[] {},
                 mFolder.getMessages(new String[] {}, null));
-    }
-
-    /**
-     * Test for getMessages(MessageRetrievalListener), which is the same as
-     * getMessages(String[] uids, MessageRetrievalListener) where uids == null.
-     */
-    public void testGetMessages3() throws Exception {
-        MockTransport mock = openAndInjectMockTransport();
-        setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
-
-        mock.expect(
-                getNextTag(false) + " UID SEARCH 1:\\* NOT DELETED",
-                new String[] {
-                    "* sEARCH 3 4 5",
-                getNextTag(true) + " OK success"
-                });
-        checkMessageUids(new String[] {"3", "4", "5"},
-                mFolder.getMessages(null));
     }
 
     private static void checkMessageUids(String[] expectedUids, Message[] actualMessages) {

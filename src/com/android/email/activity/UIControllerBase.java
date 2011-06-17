@@ -16,16 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.RefreshManager;
-import com.android.email.activity.setup.AccountSettings;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.EmailAsyncTask;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -35,6 +25,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.RefreshManager;
+import com.android.email.activity.setup.AccountSettings;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -619,7 +619,8 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             }
         }
         // Should use an isSearchable call to prevent search on inappropriate accounts/boxes
-        menu.findItem(R.id.search).setVisible(canSearch);
+        // STOPSHIP Figure out where the "canSearch" test belongs
+        menu.findItem(R.id.search).setVisible(true); //canSearch);
 
         return true;
     }

@@ -16,10 +16,8 @@
 
 package com.android.emailcommon.mail;
 
-import com.android.emailcommon.mail.FetchProfile;
-import com.android.emailcommon.mail.Flag;
-import com.android.emailcommon.mail.Folder;
-import com.android.emailcommon.mail.Message;
+import com.android.emailcommon.service.SearchParams;
+
 
 public class MockFolder extends Folder {
 
@@ -80,11 +78,6 @@ public class MockFolder extends Folder {
     }
 
     @Override
-    public Message[] getMessages(MessageRetrievalListener listener) {
-        return null;
-    }
-
-    @Override
     public Message[] getMessages(String[] uids, MessageRetrievalListener listener) {
         return null;
     }
@@ -124,6 +117,12 @@ public class MockFolder extends Folder {
 
     @Override
     public Message createMessage(String uid) {
+        return null;
+    }
+
+    @Override
+    public Message[] getMessages(SearchParams params, MessageRetrievalListener listener)
+            throws MessagingException {
         return null;
     }
 

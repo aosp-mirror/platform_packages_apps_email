@@ -17,11 +17,6 @@
 
 package com.android.emailcommon.provider;
 
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.SyncColumns;
-import com.android.emailcommon.utility.Utility;
-
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -30,6 +25,11 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.utility.Utility;
 
 public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns, Parcelable {
     public static final String TABLE_NAME = "Mailbox";
@@ -390,6 +390,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         }
         switch (getMailboxType(context, mailboxId)) {
             case -1: // not found
+            case TYPE_SEARCH:
             case TYPE_DRAFTS:
             case TYPE_OUTBOX:
                 return false;

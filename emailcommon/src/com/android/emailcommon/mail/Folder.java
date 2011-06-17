@@ -16,6 +16,8 @@
 
 package com.android.emailcommon.mail;
 
+import com.android.emailcommon.service.SearchParams;
+
 
 public abstract class Folder {
     public enum OpenMode {
@@ -107,21 +109,21 @@ public abstract class Folder {
 
     public abstract Message getMessage(String uid) throws MessagingException;
 
-    public abstract Message[] getMessages(int start, int end, MessageRetrievalListener listener)
-            throws MessagingException;
-
     /**
      * Fetches the given list of messages. The specified listener is notified as
      * each fetch completes. Messages are downloaded as (as) lightweight (as
      * possible) objects to be filled in with later requests. In most cases this
      * means that only the UID is downloaded.
      */
-    public abstract Message[] getMessages(MessageRetrievalListener listener)
+    public abstract Message[] getMessages(int start, int end, MessageRetrievalListener listener)
+            throws MessagingException;
+
+    public abstract Message[] getMessages(SearchParams params,MessageRetrievalListener listener)
             throws MessagingException;
 
     public abstract Message[] getMessages(String[] uids, MessageRetrievalListener listener)
             throws MessagingException;
-    
+
     /**
      * Return a set of messages based on the state of the flags.
      * Note: Not typically implemented in remote stores, so not abstract.
