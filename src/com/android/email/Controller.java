@@ -271,6 +271,7 @@ public class Controller {
             m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
             m.mType = Mailbox.TYPE_SEARCH;
             m.mFlags = Mailbox.FLAG_HOLDS_MAIL;
+            m.mParentKey = Mailbox.NO_MAILBOX;
             m.save(mProviderContext);
         }
         return m;
@@ -911,7 +912,11 @@ public class Controller {
         } else {
             // This is the actual mailbox we'll be searching
             Mailbox actualMailbox = Mailbox.restoreMailboxWithId(mContext, searchParams.mMailboxId);
-            if (actualMailbox == null) return;
+            if (actualMailbox == null) {
+                Log.e(Logging.LOG_TAG, "Unable to find mailbox " + searchParams.mMailboxId
+                        + " to search in with " + searchParams);
+                return;
+            }
 
             // Delete existing contents of search mailbox
             ContentResolver resolver = mContext.getContentResolver();
