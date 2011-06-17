@@ -108,6 +108,14 @@ public class MessagingController implements Runnable {
      */
     private static final String LOCAL_SERVERID_PREFIX = "Local-";
 
+    /**
+     * Cache search results by account; this allows for "load more" support without having to
+     * redo the search (which can be quite slow).  SortableMessage is a smallish class, so memory
+     * shouldn't be an issue
+     */
+    private static final HashMap<Long, SortableMessage[]> sSearchResults =
+        new HashMap<Long, SortableMessage[]>();
+
     private static final ContentValues PRUNE_ATTACHMENT_CV = new ContentValues();
     static {
         PRUNE_ATTACHMENT_CV.putNull(AttachmentColumns.CONTENT_URI);
@@ -572,8 +580,19 @@ public class MessagingController implements Runnable {
         }
     }
 
-    public void searchMailbox(long accountId, SearchParams searchParams, final long destMailboxId)
+    public void searchMailbox(long accountId, SearchParams searchParams, long destMailboxId)
             throws MessagingException {
+        try {
+            searchMailboxImpl(accountId, searchParams, destMailboxId);
+        } finally {
+            // Tell UI that we're done loading any search results (no harm calling this even if we
+            // encountered an error or never sent a "started" message)
+            mListeners.synchronizeMailboxFinished(accountId, destMailboxId, 0, 0, null);
+        }
+    }
+
+    private void searchMailboxImpl(long accountId, SearchParams searchParams,
+            final long destMailboxId) throws MessagingException {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, searchParams.mMailboxId);
         final Mailbox destMailbox = Mailbox.restoreMailboxWithId(mContext, destMailboxId);
@@ -583,77 +602,92 @@ public class MessagingController implements Runnable {
             return;
         }
 
+        // Tell UI that we're loading messages
+        mListeners.synchronizeMailboxStarted(accountId, destMailbox.mId);
+
         Store remoteStore = Store.getInstance(account, mContext, null);
         Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
         remoteFolder.open(OpenMode.READ_WRITE, null);
 
-        // Get the "bare" messages (basically uid)
-        Message[] remoteMessages = remoteFolder.getMessages(searchParams, null);
-        int remoteCount = remoteMessages.length;
-        if (remoteCount > 0) {
-            SortableMessage[] sortableMessages = new SortableMessage[remoteCount];
-            int i = 0;
-            for (Message msg : remoteMessages) {
-                sortableMessages[i++] = new SortableMessage(msg, Long.parseLong(msg.getUid()));
-            }
-            // Sort the uid's, most recent first
-            // Note: Not all servers will be nice and return results in the order we request them;
-            // those that do will see messages arrive from newest to oldest (i.e. the "right" order)
-            Arrays.sort(sortableMessages, new Comparator<SortableMessage>() {
-                @Override
-                public int compare(SortableMessage lhs, SortableMessage rhs) {
-                    return lhs.mUid > rhs.mUid ? -1 : lhs.mUid < rhs.mUid ? 1 : 0;
+        SortableMessage[] sortableMessages = new SortableMessage[0];
+        if (searchParams.mOffset == 0) {
+            // Get the "bare" messages (basically uid)
+            Message[] remoteMessages = remoteFolder.getMessages(searchParams, null);
+            int remoteCount = remoteMessages.length;
+            if (remoteCount > 0) {
+                sortableMessages = new SortableMessage[remoteCount];
+                int i = 0;
+                for (Message msg : remoteMessages) {
+                    sortableMessages[i++] = new SortableMessage(msg, Long.parseLong(msg.getUid()));
                 }
-            });
-            final ArrayList<Message> messageList = new ArrayList<Message>();
-            // Now create a list sized for our visible limit and fill it in
-            int messageListSize = Math.min(remoteCount, Email.VISIBLE_LIMIT_DEFAULT);
-            for (i = 0; i < messageListSize; i++) {
-                messageList.add(sortableMessages[i].mMessage);
+                // Sort the uid's, most recent first
+                // Note: Not all servers will be nice and return results in the order of request;
+                // those that do will see messages arrive from newest to oldest
+                Arrays.sort(sortableMessages, new Comparator<SortableMessage>() {
+                    @Override
+                    public int compare(SortableMessage lhs, SortableMessage rhs) {
+                        return lhs.mUid > rhs.mUid ? -1 : lhs.mUid < rhs.mUid ? 1 : 0;
+                    }
+                });
+                sSearchResults.put(accountId, sortableMessages);
             }
-            // Get everything in one pass, rather than two (as in sync); this starts getting us
-            // usable results quickly.
-            FetchProfile fp = new FetchProfile();
-            fp.add(FetchProfile.Item.FLAGS);
-            fp.add(FetchProfile.Item.ENVELOPE);
-            fp.add(FetchProfile.Item.STRUCTURE);
-            fp.add(FetchProfile.Item.BODY_SANE);
-            remoteFolder.fetch(messageList.toArray(new Message[0]), fp,
-                    new MessageRetrievalListener() {
-                        public void messageRetrieved(Message message) {
-                            try {
-                                // Determine if the new message was already known (e.g. partial)
-                                // And create or reload the full message info
-                                EmailContent.Message localMessage = new EmailContent.Message();
-                                try {
-                                    // Copy the fields that are available into the message
-                                    LegacyConversions.updateMessageFields(localMessage,
-                                            message, account.mId, mailbox.mId);
-                                    // Commit the message to the local store
-                                    saveOrUpdate(localMessage, mContext);
-                                    localMessage.mMailboxKey = destMailboxId;
-                                    // We load 50k or so; maybe it's complete, maybe not...
-                                    int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
-                                    if (message.getSize() > Store.FETCH_BODY_SANE_SUGGESTED_SIZE) {
-                                        flag = EmailContent.Message.FLAG_LOADED_PARTIAL;
-                                    }
-                                    copyOneMessageToProvider(message, localMessage, flag, mContext);
-                                } catch (MessagingException me) {
-                                    Log.e(Logging.LOG_TAG,
-                                            "Error while copying downloaded message." + me);
-                                }
-                            } catch (Exception e) {
-                                Log.e(Logging.LOG_TAG,
-                                        "Error while storing downloaded message." + e.toString());
-                            }
-                        }
+        } else {
+            sortableMessages = sSearchResults.get(accountId);
+        }
 
-                        @Override
-                        public void loadAttachmentProgress(int progress) {
+        int numSearchResults = sortableMessages.length;
+        int numToLoad = Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
+        if (numToLoad <= 0) {
+            return;
+        }
+
+        final ArrayList<Message> messageList = new ArrayList<Message>();
+        for (int i = searchParams.mOffset; i < numToLoad + searchParams.mOffset; i++) {
+            messageList.add(sortableMessages[i].mMessage);
+        }
+        // Get everything in one pass, rather than two (as in sync); this starts getting us
+        // usable results quickly.
+        FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.FLAGS);
+        fp.add(FetchProfile.Item.ENVELOPE);
+        fp.add(FetchProfile.Item.STRUCTURE);
+        fp.add(FetchProfile.Item.BODY_SANE);
+        remoteFolder.fetch(messageList.toArray(new Message[0]), fp,
+                new MessageRetrievalListener() {
+            public void messageRetrieved(Message message) {
+                try {
+                    // Determine if the new message was already known (e.g. partial)
+                    // And create or reload the full message info
+                    EmailContent.Message localMessage = new EmailContent.Message();
+                    try {
+                        // Copy the fields that are available into the message
+                        LegacyConversions.updateMessageFields(localMessage,
+                                message, account.mId, mailbox.mId);
+                        // Commit the message to the local store
+                        saveOrUpdate(localMessage, mContext);
+                        localMessage.mMailboxKey = destMailboxId;
+                        // We load 50k or so; maybe it's complete, maybe not...
+                        int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
+                        if (message.getSize() > Store.FETCH_BODY_SANE_SUGGESTED_SIZE) {
+                            flag = EmailContent.Message.FLAG_LOADED_PARTIAL;
                         }
-                    });
-        }
-        }
+                        copyOneMessageToProvider(message, localMessage, flag, mContext);
+                    } catch (MessagingException me) {
+                        Log.e(Logging.LOG_TAG,
+                                "Error while copying downloaded message." + me);
+                    }
+                } catch (Exception e) {
+                    Log.e(Logging.LOG_TAG,
+                            "Error while storing downloaded message." + e.toString());
+                }
+            }
+
+            @Override
+            public void loadAttachmentProgress(int progress) {
+            }
+        });
+    }
+
 
     /**
      * Generic synchronizer - used for POP3 and IMAP.

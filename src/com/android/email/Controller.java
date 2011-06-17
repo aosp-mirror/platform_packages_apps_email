@@ -62,6 +62,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -392,8 +393,7 @@ public class Controller {
 
         IEmailService service = getServiceForAccount(accountId);
         if (service != null) {
-            // Service implementation
-            try {
+           try {
                 service.startSync(mailboxId, userRequest);
             } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method
@@ -409,7 +409,8 @@ public class Controller {
                         Account.restoreAccountWithId(mProviderContext, accountId);
                     Mailbox mailbox =
                         Mailbox.restoreMailboxWithId(mProviderContext, mailboxId);
-                    if (account == null || mailbox == null) {
+                    if (account == null || mailbox == null ||
+                            mailbox.mType == Mailbox.TYPE_SEARCH) {
                         return;
                     }
                     mLegacyController.synchronizeMailbox(account, mailbox, mLegacyListener);
@@ -669,10 +670,18 @@ public class Controller {
      * @param mailboxId the mailbox
      */
     public void loadMoreMessages(final long mailboxId) {
-        Utility.runAsync(new Runnable() {
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
             public void run() {
                 Mailbox mailbox = Mailbox.restoreMailboxWithId(mProviderContext, mailboxId);
                 if (mailbox == null) {
+                    return;
+                }
+                if (mailbox.mType == Mailbox.TYPE_SEARCH) {
+                    try {
+                        searchMore(mailbox.mAccountKey);
+                    } catch (MessagingException e) {
+                        // Nothing to be done
+                    }
                     return;
                 }
                 Account account = Account.restoreAccountWithId(mProviderContext,
@@ -886,6 +895,16 @@ public class Controller {
         });
     }
 
+    private static final HashMap<Long, SearchParams> sSearchParamsMap =
+        new HashMap<Long, SearchParams>();
+    
+    public void searchMore(long accountId) throws MessagingException {
+        SearchParams params = sSearchParamsMap.get(accountId);
+        if (params == null) return;
+        params.mOffset += params.mLimit;
+        searchMessages(accountId, params);
+    }
+    
     /**
      * Search for messages on the (IMAP) server; do not call this on the UI thread!
      * @param accountId the id of the account to be searched
@@ -898,7 +917,8 @@ public class Controller {
         Mailbox searchMailbox = getSearchMailbox(accountId);
         if (searchMailbox == null) return;
         final long searchMailboxId = searchMailbox.mId;
-
+        // Save this away (per account)
+        sSearchParamsMap.put(accountId, searchParams);
         IEmailService service = getServiceForAccount(accountId);
         if (service != null) {
             // Service implementation
@@ -918,18 +938,20 @@ public class Controller {
                 return;
             }
 
-            // Delete existing contents of search mailbox
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.delete(Message.CONTENT_URI, Message.MAILBOX_KEY + "=" + searchMailboxId,
-                    null);
-            ContentValues cv = new ContentValues();
-            // For now, use the actual query as the name of the mailbox
-            cv.put(Mailbox.DISPLAY_NAME, searchParams.mFilter);
-            // But use the server id of the actual mailbox we're searching; this allows full
-            // message loading to work normally (clever, huh?)
-            cv.put(MailboxColumns.SERVER_ID, actualMailbox.mServerId);
-            resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId), cv,
-                    null, null);
+            if (searchParams.mOffset == 0) {
+                // Delete existing contents of search mailbox
+                ContentResolver resolver = mContext.getContentResolver();
+                resolver.delete(Message.CONTENT_URI, Message.MAILBOX_KEY + "=" + searchMailboxId,
+                        null);
+                ContentValues cv = new ContentValues();
+                // For now, use the actual query as the name of the mailbox
+                cv.put(Mailbox.DISPLAY_NAME, searchParams.mFilter);
+                // But use the server id of the actual mailbox we're searching; this allows full
+                // message loading to work normally (clever, huh?)
+                cv.put(MailboxColumns.SERVER_ID, actualMailbox.mServerId);
+                resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId),
+                        cv, null, null);
+            }
             // Do the search
             if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, "Search: " + searchParams.mFilter);

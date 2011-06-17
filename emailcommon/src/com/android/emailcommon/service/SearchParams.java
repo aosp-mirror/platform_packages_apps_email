@@ -16,15 +16,15 @@
 
 package com.android.emailcommon.service;
 
-import com.android.emailcommon.provider.Mailbox;
-
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.android.emailcommon.provider.Mailbox;
 
 public class SearchParams implements Parcelable {
     public static final long ALL_MAILBOXES = Mailbox.NO_MAILBOX;
 
-    private static final int DEFAULT_LIMIT = 20;
+    private static final int DEFAULT_LIMIT = 10; // Need input on what this number should be
     private static final int DEFAULT_OFFSET = 0;
 
     // The id of the mailbox to be searched; if -1, all mailboxes MUST be searched

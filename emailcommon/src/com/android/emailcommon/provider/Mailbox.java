@@ -390,7 +390,6 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         }
         switch (getMailboxType(context, mailboxId)) {
             case -1: // not found
-            case TYPE_SEARCH:
             case TYPE_DRAFTS:
             case TYPE_OUTBOX:
                 return false;
