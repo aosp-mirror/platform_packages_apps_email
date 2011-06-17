@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.android.email.Clock;
+import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
@@ -27,11 +28,15 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.google.common.annotations.VisibleForTesting;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -399,7 +404,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      */
     private long getMessageListMailboxId() {
         return isMessageListInstalled() ? getMessageListFragment().getMailboxId()
-                : Message.NO_MESSAGE;
+                : Mailbox.NO_MAILBOX;
     }
 
     /*
@@ -561,7 +566,13 @@ class UIControllerTwoPane extends UIControllerBase implements
             updateMailboxList(ft, accountId, mailboxId, true);
             updateMessageList(ft, accountId, mailboxId, true);
 
-            mThreePane.showLeftPane();
+            // TODO: This is a total hack. Do something smarter to see if this should open a
+            // search view.
+            if (mailboxId == Controller.getInstance(mActivity).getSearchMailbox(accountId).mId) {
+                mThreePane.showRightPane();
+            } else {
+                mThreePane.showLeftPane();
+            }
         } else {
             updateMailboxList(ft, accountId, mailboxId, true);
             updateMessageList(ft, accountId, mailboxId, true);
@@ -974,7 +985,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
         @Override
         public void onMailboxSelected(long mailboxId) {
-            UIControllerTwoPane.this.openMailbox(getUIAccountId(), mailboxId);
+            openMailbox(getUIAccountId(), mailboxId);
         }
 
         @Override
@@ -998,15 +1009,18 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
 
         @Override
-        public void onSearchSubmit(String queryTerm) {
-            // STOPSHIP temporary code
+        public void onSearchSubmit(final String queryTerm) {
             final long accountId = getUIAccountId();
-            if (accountId == Account.NO_ACCOUNT) {
-                return; // no account selected.
+            if (!Account.isNormalAccount(accountId)) {
+                return; // Invalid account to search from.
             }
+
+            // TODO: do a global search for EAS inbox.
             final long mailboxId = getMessageListMailboxId();
 
-            // TODO global search?
+            if (Email.DEBUG) {
+                Log.d(Logging.LOG_TAG, "Submitting search: " + queryTerm);
+            }
 
             mActivity.startActivity(EmailActivity.createSearchIntent(
                     mActivity, accountId, mailboxId, queryTerm));

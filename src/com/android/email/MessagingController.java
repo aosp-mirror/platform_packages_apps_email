@@ -577,7 +577,11 @@ public class MessagingController implements Runnable {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, searchParams.mMailboxId);
         final Mailbox destMailbox = Mailbox.restoreMailboxWithId(mContext, destMailboxId);
-        if (account == null || mailbox == null || destMailbox == null) return;
+        if (account == null || mailbox == null || destMailbox == null) {
+            Log.d(Logging.LOG_TAG, "Attempted search for " + searchParams
+                    + " but account or mailbox information was missing");
+            return;
+        }
 
         Store remoteStore = Store.getInstance(account, mContext, null);
         Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);

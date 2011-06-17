@@ -257,7 +257,8 @@ public class ActionBarController {
             boolean wasVisible = (mSearchView.getVisibility() == View.VISIBLE);
             mSearchView.setVisibility(View.VISIBLE);
             if (!wasVisible) {
-                mSearchView.requestFocus();
+                // TODO: HACK. this is a workaround IME not popping up.
+                mSearchView.setIconified(false);
             }
             mMailboxNameContainer.setVisibility(View.GONE);
         } else {

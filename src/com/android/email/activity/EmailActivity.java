@@ -43,6 +43,7 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.EmailAsyncTask;
@@ -147,8 +148,7 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
      */
     public static Intent createSearchIntent(Activity fromActivity, long accountId,
             long mailboxId, String query) {
-        // STOPSHIP temporary search UI
-        if (accountId == Account.NO_ACCOUNT) {
+        if (!Account.isNormalAccount(accountId)) {
             throw new IllegalArgumentException();
         }
         Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
@@ -206,16 +206,37 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
     }
 
     private void initFromIntent() {
-        final Intent i = getIntent();
-        final long accountId = i.getLongExtra(EXTRA_ACCOUNT_ID, -1);
-        final long mailboxId = i.getLongExtra(EXTRA_MAILBOX_ID, -1);
-        final long messageId = i.getLongExtra(EXTRA_MESSAGE_ID, -1);
+        final Intent intent = getIntent();
+        final long accountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, Account.NO_ACCOUNT);
+        final long mailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, Mailbox.NO_MAILBOX);
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, String.format("initFromIntent: %d %d", accountId, mailboxId));
         }
 
-        if (accountId != -1) {
-            mUIController.open(accountId, mailboxId, messageId);
+        // STOPSHIP Temporary search UI
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            long searchMailboxId = Controller.getInstance(this).getSearchMailbox(accountId).mId;
+            final String queryTerm = intent.getStringExtra(EXTRA_QUERY_STRING);
+            EmailAsyncTask.runAsyncParallel(new Runnable() {
+                @Override
+                public void run() {
+                    // TODO: do a global search in the case of EAS inbox
+                    SearchParams searchSpec = new SearchParams(mailboxId, queryTerm);
+                    try {
+                        Controller.getInstance(EmailActivity.this).searchMessages(
+                                accountId, searchSpec);
+                    } catch (MessagingException e) {
+                        // TODO: handle.
+                        Log.e(Logging.LOG_TAG, "Got exception while searching " + e);
+                    }
+                }});
+
+            mUIController.open(accountId, searchMailboxId, Message.NO_MESSAGE);
+        } else {
+            final long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, Message.NO_MESSAGE);
+            if (accountId != Account.NO_ACCOUNT) {
+                mUIController.open(accountId, mailboxId, messageId);
+            }
         }
     }
 
@@ -251,33 +272,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) Log.d(Logging.LOG_TAG, this + " onStart");
         super.onStart();
         mUIController.onActivityStart();
-
-        // STOPSHIP Temporary search UI
-        Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            final long accountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, Account.NO_ACCOUNT);
-            final long mailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, Mailbox.NO_MAILBOX);
-            final String queryString = intent.getStringExtra(EXTRA_QUERY_STRING);
-            Log.d(Logging.LOG_TAG, "Search: " + queryString);
-            // Switch to search mailbox
-            // TODO How to handle search from within the search mailbox??
-            final Controller controller = Controller.getInstance(mContext);
-
-            EmailAsyncTask.runAsyncParallel(new Runnable() {
-                @Override
-                public void run() {
-                    // TODO Use the proper parameters (a mailbox id for IMAP, a mailbox id or
-                    // SearchParams.ALL_MAILBOXES for eas
-                    // We assume IMAP here for testing
-                    SearchParams searchSpec = new SearchParams(mailboxId, queryString);
-                    try {
-                        controller.searchMessages(accountId, searchSpec);
-                    } catch (MessagingException e) {
-                        // TODO What to do??
-                    }
-                }});
-            return;
-        }
     }
 
     @Override
