@@ -18,6 +18,7 @@ package com.android.email;
 
 import com.android.common.contacts.BaseEmailAddressAdapter;
 import com.android.emailcommon.provider.Account;
+import com.android.ex.chips.AccountSpecifier;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -31,7 +32,7 @@ import android.widget.TextView;
  * purpose of the class is to bind the generic implementation to the resources
  * defined locally: strings and layouts.
  */
-public class EmailAddressAdapter extends BaseEmailAddressAdapter {
+public class EmailAddressAdapter extends BaseEmailAddressAdapter implements AccountSpecifier {
 
     private LayoutInflater mInflater;
 

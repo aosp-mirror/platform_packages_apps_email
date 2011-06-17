@@ -22,6 +22,7 @@ import com.android.email.Email;
 import com.android.email.EmailAddressAdapter;
 import com.android.email.EmailAddressValidator;
 import com.android.email.R;
+import com.android.email.RecipientAdapter;
 import com.android.email.mail.internet.EmailHtmlUtil;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeUtility;
@@ -36,6 +37,10 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
+import com.android.ex.chips.AccountSpecifier;
+import com.android.ex.chips.BaseRecipientAdapter;
+import com.android.ex.chips.ChipsUtil;
+import com.android.ex.chips.RecipientEditTextView;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -200,9 +205,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private boolean mMessageLoaded;
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
-    private EmailAddressAdapter mAddressAdapterTo;
-    private EmailAddressAdapter mAddressAdapterCc;
-    private EmailAddressAdapter mAddressAdapterBcc;
+    private AccountSpecifier mAddressAdapterTo;
+    private AccountSpecifier mAddressAdapterCc;
+    private AccountSpecifier mAddressAdapterBcc;
 
     private static Intent getBaseIntent(Context context) {
         Intent i = new Intent(context, MessageCompose.class);
@@ -322,9 +327,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             throw new IllegalArgumentException();
         }
         mAccount = account;
-        mAddressAdapterTo.setAccount(account);
-        mAddressAdapterCc.setAccount(account);
-        mAddressAdapterBcc.setAccount(account);
+        mAddressAdapterTo
+                .setAccount(new android.accounts.Account(account.mEmailAddress, "unknown"));
+        mAddressAdapterCc
+                .setAccount(new android.accounts.Account(account.mEmailAddress, "unknown"));
+        mAddressAdapterBcc
+                .setAccount(new android.accounts.Account(account.mEmailAddress, "unknown"));
 
         if (mFromView != null) {
             // Some configurations don't show the from field.
@@ -446,14 +454,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
         mTaskTracker.cancellAllInterrupt();
 
-        if (mAddressAdapterTo != null) {
-            mAddressAdapterTo.close();
+        if (mAddressAdapterTo != null && mAddressAdapterTo instanceof EmailAddressAdapter) {
+            ((EmailAddressAdapter) mAddressAdapterTo).close();
         }
-        if (mAddressAdapterCc != null) {
-            mAddressAdapterCc.close();
+        if (mAddressAdapterCc != null && mAddressAdapterCc instanceof EmailAddressAdapter) {
+            ((EmailAddressAdapter) mAddressAdapterCc).close();
         }
-        if (mAddressAdapterBcc != null) {
-            mAddressAdapterBcc.close();
+        if (mAddressAdapterBcc != null && mAddressAdapterBcc instanceof EmailAddressAdapter) {
+            ((EmailAddressAdapter) mAddressAdapterBcc).close();
         }
     }
 
@@ -573,8 +581,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
     private void initViews() {
         mToView = UiUtilities.getView(this, R.id.to);
+        mToView.setHint(R.string.message_compose_to_hint);
         mCcView = UiUtilities.getView(this, R.id.cc);
+        mCcView.setHint(R.string.message_compose_cc_hint);
         mBccView = UiUtilities.getView(this, R.id.bcc);
+        mBccView.setHint(R.string.message_compose_bcc_hint);
+
         mCcBccContainer = UiUtilities.getView(this, R.id.cc_bcc_container);
         mSubjectView = UiUtilities.getView(this, R.id.subject);
         mMessageContentView = UiUtilities.getView(this, R.id.message_content);
@@ -603,15 +615,12 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         EmailAddressValidator addressValidator = new EmailAddressValidator();
 
         setupAddressAdapters();
-        mToView.setAdapter(mAddressAdapterTo);
         mToView.setTokenizer(new Rfc822Tokenizer());
         mToView.setValidator(addressValidator);
 
-        mCcView.setAdapter(mAddressAdapterCc);
         mCcView.setTokenizer(new Rfc822Tokenizer());
         mCcView.setValidator(addressValidator);
 
-        mBccView.setAdapter(mAddressAdapterBcc);
         mBccView.setTokenizer(new Rfc822Tokenizer());
         mBccView.setValidator(addressValidator);
 
@@ -660,9 +669,29 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      * Set up address auto-completion adapters.
      */
     private void setupAddressAdapters() {
-        mAddressAdapterTo = new EmailAddressAdapter(this);
-        mAddressAdapterCc = new EmailAddressAdapter(this);
-        mAddressAdapterBcc = new EmailAddressAdapter(this);
+        boolean supportsChips = ChipsUtil.supportsChipsUi();
+
+        if (supportsChips && mToView instanceof RecipientEditTextView) {
+            mAddressAdapterTo = new RecipientAdapter(this, (RecipientEditTextView) mToView);
+            mToView.setAdapter((RecipientAdapter) mAddressAdapterTo);
+        } else {
+            mAddressAdapterTo = new EmailAddressAdapter(this);
+            mToView.setAdapter((EmailAddressAdapter) mAddressAdapterTo);
+        }
+        if (supportsChips && mCcView instanceof RecipientEditTextView) {
+            mAddressAdapterCc = new RecipientAdapter(this, (RecipientEditTextView) mCcView);
+            mCcView.setAdapter((RecipientAdapter) mAddressAdapterCc);
+        } else {
+            mAddressAdapterCc = new EmailAddressAdapter(this);
+            mCcView.setAdapter((EmailAddressAdapter) mAddressAdapterCc);
+        }
+        if (supportsChips && mBccView instanceof RecipientEditTextView) {
+            mAddressAdapterBcc = new RecipientAdapter(this, (RecipientEditTextView) mBccView);
+            mBccView.setAdapter((RecipientAdapter) mAddressAdapterBcc);
+        } else {
+            mAddressAdapterBcc = new EmailAddressAdapter(this);
+            mBccView.setAdapter((EmailAddressAdapter) mAddressAdapterBcc);
+        }
     }
 
     /**
