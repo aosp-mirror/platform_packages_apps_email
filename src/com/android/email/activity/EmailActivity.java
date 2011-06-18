@@ -198,8 +198,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         if (savedInstanceState != null) {
             mUIController.onRestoreInstanceState(savedInstanceState);
         } else {
-            // This needs to be done after installRestoredFragments.
-            // See UIControllerTwoPane.preFragmentTransactionCheck()
             initFromIntent();
         }
         mUIController.onActivityCreated();
