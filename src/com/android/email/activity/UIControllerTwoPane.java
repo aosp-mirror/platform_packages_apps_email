@@ -16,6 +16,12 @@
 
 package com.android.email.activity;
 
+import android.app.Activity;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
+
 import com.android.email.Clock;
 import com.android.email.Controller;
 import com.android.email.Email;
@@ -28,18 +34,8 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.google.common.annotations.VisibleForTesting;
-
-import android.app.Activity;
-import android.app.FragmentTransaction;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
 
 import java.util.Set;
 
@@ -534,20 +530,17 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
         if (!ft.isEmpty()) {
             ft.commit();
-            mActivity.getFragmentManager().executePendingTransactions();
+            mFragmentManager.executePendingTransactions();
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void open(long accountId, long mailboxId, long messageId) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " open accountId=" + accountId
                     + " mailboxId=" + mailboxId + " messageId=" + messageId);
         }
-        final FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+        final FragmentTransaction ft = mFragmentManager.beginTransaction();
         if (accountId == Account.NO_ACCOUNT) {
             throw new IllegalArgumentException();
         } else if (mailboxId == Mailbox.NO_MAILBOX) {
@@ -621,7 +614,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      */
     @SuppressWarnings("unused")
     private void updateMailboxList(long accountId, long mailboxId, boolean clearDependentPane) {
-        FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
         updateMailboxList(ft, accountId, mailboxId, clearDependentPane);
         commitFragmentTransaction(ft);
     }
@@ -671,7 +664,7 @@ class UIControllerTwoPane extends UIControllerBase implements
      * commit.
      */
     private void updateMessageList(long accountId, long mailboxId, boolean clearDependentPane) {
-        FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
         updateMessageList(ft, accountId, mailboxId, clearDependentPane);
         commitFragmentTransaction(ft);
     }

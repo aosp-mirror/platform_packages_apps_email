@@ -16,6 +16,12 @@
 
 package com.android.email.activity;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
+
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.activity.MailboxFinder.Callback;
@@ -25,12 +31,6 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
-
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
 
 import java.util.Set;
 
@@ -288,7 +288,7 @@ class UIControllerOnePane extends UIControllerBase {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mPreviousFragment != null) {
-            mActivity.getFragmentManager().putFragment(outState,
+            mFragmentManager.putFragment(outState,
                     BUNDLE_KEY_PREVIOUS_FRAGMENT, mPreviousFragment);
         }
     }
@@ -296,7 +296,7 @@ class UIControllerOnePane extends UIControllerBase {
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mPreviousFragment = mActivity.getFragmentManager().getFragment(savedInstanceState,
+        mPreviousFragment = mFragmentManager.getFragment(savedInstanceState,
                 BUNDLE_KEY_PREVIOUS_FRAGMENT);
     }
 
@@ -517,7 +517,7 @@ class UIControllerOnePane extends UIControllerBase {
     private void commitFragmentTransaction(FragmentTransaction ft) {
         if (!ft.isEmpty()) {
             ft.commit();
-            mActivity.getFragmentManager().executePendingTransactions();
+            mFragmentManager.executePendingTransactions();
         }
     }
 
@@ -540,7 +540,7 @@ class UIControllerOnePane extends UIControllerBase {
                         + " -> " + fragment);
             }
         }
-        final FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+        final FragmentTransaction ft = mFragmentManager.beginTransaction();
         if (mPreviousFragment != null) {
             if (DEBUG_FRAGMENTS) {
                 Log.d(Logging.LOG_TAG, this + " showFragment: destroying previous fragment "
@@ -627,7 +627,7 @@ class UIControllerOnePane extends UIControllerBase {
         if (mPreviousFragment == null) {
             return;
         }
-        final FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+        final FragmentTransaction ft = mFragmentManager.beginTransaction();
         final Fragment installed = getInstalledFragment();
         if (DEBUG_FRAGMENTS) {
             Log.i(Logging.LOG_TAG, this + " backstack: [pop] " + installed + " -> "

@@ -53,6 +53,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
 
     /** The owner activity */
     final EmailActivity mActivity;
+    final FragmentManager mFragmentManager;
 
     private final ActionBarController mActionBarController;
 
@@ -121,6 +122,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
 
     public UIControllerBase(EmailActivity activity) {
         mActivity = activity;
+        mFragmentManager = activity.getFragmentManager();
         mRefreshManager = RefreshManager.getInstance(mActivity);
         mActionBarController = createActionBarController(activity);
         if (DEBUG_FRAGMENTS) {
