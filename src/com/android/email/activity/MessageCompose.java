@@ -209,6 +209,24 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private AccountSpecifier mAddressAdapterCc;
     private AccountSpecifier mAddressAdapterBcc;
 
+    /**
+     * Watches the to, cc, bcc, subject, and message body fields.
+     */
+    private final TextWatcher mWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start,
+                                      int before, int after) { }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+            setDraftNeedsSaving(true);
+        }
+
+        @Override
+        public void afterTextChanged(android.text.Editable s) { }
+    };
+
     private static Intent getBaseIntent(Context context) {
         Intent i = new Intent(context, MessageCompose.class);
         i.putExtra(EXTRA_FROM_WITHIN_APP, true);
@@ -373,8 +391,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             setAction(intent.getAction());
             resolveIntent(intent);
         }
-
-        initListeners();
     }
 
     private void resolveIntent(Intent intent) {
@@ -384,7 +400,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 || Intent.ACTION_SEND_MULTIPLE.equals(mAction)) {
             initFromIntent(intent);
             setDraftNeedsSaving(true);
-            mMessageLoaded = true;
+            setMessageLoaded(true);
         } else if (ACTION_REPLY.equals(mAction)
                 || ACTION_REPLY_ALL.equals(mAction)
                 || ACTION_FORWARD.equals(mAction)) {
@@ -400,13 +416,14 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             // Normal compose flow for a new message.
             setAccount(intent);
             setInitialComposeText(null, getAccountSignature(mAccount));
-
-            mMessageLoaded = true;
+            setMessageLoaded(true);
         }
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        // Temporarily disable onTextChanged listeners while restoring the fields
+        removeListeners();
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState.getBoolean(STATE_KEY_CC_SHOWN)) {
             showCcBccFields();
@@ -415,6 +432,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 ? View.VISIBLE : View.GONE);
         mQuotedText.setVisibility(savedInstanceState.getBoolean(STATE_KEY_QUOTED_TEXT_SHOWN)
                 ? View.VISIBLE : View.GONE);
+        addListeners();
     }
 
     // needed for unit tests
@@ -504,6 +522,17 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
     private boolean isOpenedFromWithinApp() {
         Intent i = getIntent();
         return (i != null && i.getBooleanExtra(EXTRA_FROM_WITHIN_APP, false));
+    }
+
+    /**
+     * Sets message as loaded and then initializes the TextWatchers.
+     * @param isLoaded - value to which to set mMessageLoaded
+     */
+    private void setMessageLoaded(boolean isLoaded) {
+        if (mMessageLoaded != isLoaded) {
+            mMessageLoaded = isLoaded;
+            addListeners();
+        }
     }
 
     private void setDraftNeedsSaving(boolean needsSaving) {
@@ -645,24 +674,29 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         mToView.requestFocus();
     }
 
-    private void initListeners() {
-        final TextWatcher watcher = new TextWatcher() {
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int before, int after) { }
+    /**
+     * Initializes listeners. Should only be called once initializing of views is complete to
+     * avoid unnecessary draft saving.
+     */
+    private void addListeners() {
+        mToView.addTextChangedListener(mWatcher);
+        mCcView.addTextChangedListener(mWatcher);
+        mBccView.addTextChangedListener(mWatcher);
+        mSubjectView.addTextChangedListener(mWatcher);
+        mMessageContentView.addTextChangedListener(mWatcher);
+    }
 
-            public void onTextChanged(CharSequence s, int start,
-                                          int before, int count) {
-                setDraftNeedsSaving(true);
-            }
-
-            public void afterTextChanged(android.text.Editable s) { }
-        };
-
-        mToView.addTextChangedListener(watcher);
-        mCcView.addTextChangedListener(watcher);
-        mBccView.addTextChangedListener(watcher);
-        mSubjectView.addTextChangedListener(watcher);
-        mMessageContentView.addTextChangedListener(watcher);
+    /**
+     * Removes listeners from the user-editable fields. Can be used to temporarily disable them
+     * while resetting fields (such as when changing from reply to reply all) to avoid
+     * unnecessary saving.
+     */
+    private void removeListeners() {
+        mToView.removeTextChangedListener(mWatcher);
+        mCcView.removeTextChangedListener(mWatcher);
+        mBccView.removeTextChangedListener(mWatcher);
+        mSubjectView.removeTextChangedListener(mWatcher);
+        mMessageContentView.removeTextChangedListener(mWatcher);
     }
 
     /**
@@ -966,7 +1000,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
 
             setAccount(account);
             mCallback.onMessageLoaded(message, body);
-            mMessageLoaded = true;
+            setMessageLoaded(true);
         }
     }
 
@@ -1619,6 +1653,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         if (!hasSourceMessage()) {
             return;
         }
+        // Temporarily remove listeners so that changing action does not invalidate and save message
+        removeListeners();
 
         processSourceMessage(mSource, mAccount);
 
@@ -1630,6 +1666,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         updateActionSelector();
+        addListeners();
     }
 
     /**
@@ -2009,7 +2046,6 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
      */
     @VisibleForTesting
     void processSourceMessage(Message message, Account account) {
-        setDraftNeedsSaving(true);
         final String subject = message.mSubject;
         if (ACTION_REPLY.equals(mAction) || ACTION_REPLY_ALL.equals(mAction)) {
             setupAddressViews(message, account, ACTION_REPLY_ALL.equals(mAction));
