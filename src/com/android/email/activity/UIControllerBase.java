@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.RefreshManager;
+import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSettings;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -454,14 +455,13 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             // Do nothing if the account is already selected.  Not even going back to the inbox.
             return;
         }
-        openAccount(accountId);
-    }
 
-    /**
-     * Shortcut for {@link #open} with {@link Mailbox#NO_MAILBOX} and {@link Message#NO_MESSAGE}.
-     */
-    protected final void openAccount(long accountId) {
-        open(accountId, Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
+        if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+            open(accountId, Mailbox.QUERY_ALL_INBOXES, Message.NO_MESSAGE);
+        } else {
+            // For a normal account, just open the inbox. Unfortunately, we have to look it up first
+            startInboxLookup(accountId);
+        }
     }
 
     /**
@@ -477,8 +477,8 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      *
      * @param accountId ID of the account to load.  Can be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
      *     Must never be {@link Account#NO_ACCOUNT}.
-     * @param mailboxId ID of the mailbox to load. If {@link Mailbox#NO_MAILBOX},
-     *     load the account's inbox.
+     * @param mailboxId ID of the mailbox to load. Must always be specified and cannot be
+     *     {@link Mailbox#NO_MAILBOX}
      * @param messageId ID of the message to load. If {@link Message#NO_MESSAGE},
      *     do not open a message.
      */
@@ -507,11 +507,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         mActionBarController.enterSearchMode(null);
     }
 
-    /**
-     * Callback called when the inbox lookup (started by {@link #startInboxLookup}) is finished.
-     */
-    protected abstract MailboxFinder.Callback getInboxLookupCallback();
-
     private final MailboxFinder.Callback mMailboxFinderCallback = new MailboxFinder.Callback() {
         private void cleanUp() {
             mInboxFinder = null;
@@ -519,25 +514,28 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
 
         @Override
         public void onAccountNotFound() {
-            getInboxLookupCallback().onAccountNotFound();
+            // Account removed?
+            Welcome.actionStart(mActivity);
             cleanUp();
         }
 
         @Override
         public void onAccountSecurityHold(long accountId) {
-            getInboxLookupCallback().onAccountSecurityHold(accountId);
+            mActivity.startActivity(
+                    AccountSecurity.actionUpdateSecurityIntent(mActivity, accountId, true));
             cleanUp();
         }
 
         @Override
         public void onMailboxFound(long accountId, long mailboxId) {
-            getInboxLookupCallback().onMailboxFound(accountId, mailboxId);
+            openMailbox(accountId, mailboxId);
             cleanUp();
         }
 
         @Override
         public void onMailboxNotFound(long accountId) {
-            getInboxLookupCallback().onMailboxNotFound(accountId);
+            // Inbox not found.
+            Welcome.actionStart(mActivity);
             cleanUp();
         }
     };
@@ -545,7 +543,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     /**
      * Start inbox lookup.
      */
-    protected void startInboxLookup(long accountId) {
+    private void startInboxLookup(long accountId) {
         if (mInboxFinder != null) {
             return; // already running
         }
@@ -562,7 +560,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     /**
      * Stop inbox lookup.
      */
-    protected void stopInboxLookup() {
+    private void stopInboxLookup() {
         if (mInboxFinder == null) {
             return; // not running
         }

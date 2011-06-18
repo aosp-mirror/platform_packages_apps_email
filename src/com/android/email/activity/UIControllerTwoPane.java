@@ -28,8 +28,6 @@ import com.android.email.Email;
 import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
-import com.android.email.activity.MailboxFinder.Callback;
-import com.android.email.activity.setup.AccountSecurity;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -46,7 +44,6 @@ import java.util.Set;
  * so that we can easily switch between synchronous and asynchronous transactions.
  */
 class UIControllerTwoPane extends UIControllerBase implements
-        MailboxFinder.Callback,
         ThreePaneLayout.Callback,
         MailboxListFragment.Callback,
         MessageListFragment.Callback,
@@ -87,43 +84,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     @Override
     public int getLayoutId() {
         return R.layout.email_activity_two_pane;
-    }
-
-    // MailboxFinder$Callback
-    @Override
-    public void onAccountNotFound() {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, this + " onAccountNotFound()");
-        }
-        // Shouldn't happen
-    }
-
-    // MailboxFinder$Callback
-    @Override
-    public void onAccountSecurityHold(long accountId) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, this + " onAccountSecurityHold()");
-        }
-        mActivity.startActivity(AccountSecurity.actionUpdateSecurityIntent(mActivity, accountId,
-                true));
-    }
-
-    // MailboxFinder$Callback
-    @Override
-    public void onMailboxFound(long accountId, long mailboxId) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, this + " onMailboxFound()");
-        }
-        updateMessageList(accountId, mailboxId, true);
-    }
-
-    // MailboxFinder$Callback
-    @Override
-    public void onMailboxNotFound(long accountId) {
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, this + " onMailboxNotFound()");
-        }
-        Log.e(Logging.LOG_TAG, "unable to find mailbox for account " + accountId);
     }
 
     // ThreePaneLayoutCallback
@@ -492,11 +452,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     }
 
     @Override
-    protected Callback getInboxLookupCallback() {
-        return this;
-    }
-
-    @Override
     protected void installMessageListFragment(MessageListFragment fragment) {
         super.installMessageListFragment(fragment);
 
@@ -543,18 +498,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         final FragmentTransaction ft = mFragmentManager.beginTransaction();
         if (accountId == Account.NO_ACCOUNT) {
             throw new IllegalArgumentException();
-        } else if (mailboxId == Mailbox.NO_MAILBOX) {
-            updateMailboxList(ft, accountId, Mailbox.NO_MAILBOX, true);
-
-            // Show the appropriate message list
-            if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-                // When opening the Combined view, the right pane will be "combined inbox".
-                updateMessageList(ft, accountId, Mailbox.QUERY_ALL_INBOXES, true);
-            } else {
-                // Try to find the inbox for the account
-                startInboxLookup(accountId);
-            }
-            mThreePane.showLeftPane();
         } else if (messageId == Message.NO_MESSAGE) {
             updateMailboxList(ft, accountId, mailboxId, true);
             updateMessageList(ft, accountId, mailboxId, true);
@@ -567,6 +510,10 @@ class UIControllerTwoPane extends UIControllerBase implements
                 mThreePane.showLeftPane();
             }
         } else {
+            if (mailboxId == Mailbox.NO_MAILBOX) {
+                Log.e(Logging.LOG_TAG, this + " unspecified mailbox ");
+                return;
+            }
             updateMailboxList(ft, accountId, mailboxId, true);
             updateMessageList(ft, accountId, mailboxId, true);
             updateMessageView(ft, messageId);
@@ -646,8 +593,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (mailboxId == Mailbox.NO_MAILBOX) {
             throw new IllegalArgumentException();
         }
-
-        stopInboxLookup();
 
         if (mailboxId != getMessageListMailboxId()) {
             removeMessageListFragment(ft);

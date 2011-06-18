@@ -231,9 +231,11 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
 
             mUIController.open(accountId, searchMailboxId, Message.NO_MESSAGE);
         } else {
-            final long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, Message.NO_MESSAGE);
-            if (accountId != Account.NO_ACCOUNT) {
+            if (mailboxId != Mailbox.NO_MAILBOX) {
+                final long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, Message.NO_MESSAGE);
                 mUIController.open(accountId, mailboxId, messageId);
+            } else {
+                mUIController.switchAccount(accountId);
             }
         }
     }

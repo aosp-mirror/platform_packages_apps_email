@@ -24,8 +24,6 @@ import android.util.Log;
 
 import com.android.email.Email;
 import com.android.email.R;
-import com.android.email.activity.MailboxFinder.Callback;
-import com.android.email.activity.setup.AccountSecurity;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -370,37 +368,6 @@ class UIControllerOnePane extends UIControllerBase {
         return Message.NO_MESSAGE;
     }
 
-    private final MailboxFinder.Callback mInboxLookupCallback = new MailboxFinder.Callback() {
-        @Override
-        public void onMailboxFound(long accountId, long mailboxId) {
-            // Inbox found.
-            openMailbox(accountId, mailboxId);
-        }
-
-        @Override
-        public void onAccountNotFound() {
-            // Account removed?
-            Welcome.actionStart(mActivity);
-        }
-
-        @Override
-        public void onMailboxNotFound(long accountId) {
-            // Inbox not found??
-            Welcome.actionStart(mActivity);
-        }
-
-        @Override
-        public void onAccountSecurityHold(long accountId) {
-            mActivity.startActivity(AccountSecurity.actionUpdateSecurityIntent(mActivity, accountId,
-                    true));
-        }
-    };
-
-    @Override
-    protected Callback getInboxLookupCallback() {
-        return mInboxLookupCallback;
-    }
-
     @Override
     public boolean onBackPressed(boolean isSystemBackKey) {
         if (Email.DEBUG) {
@@ -461,15 +428,12 @@ class UIControllerOnePane extends UIControllerBase {
         final boolean accountChanging = (getUIAccountId() != accountId);
         if (messageId != Message.NO_MESSAGE) {
             showMessageView(accountId, mailboxId, messageId, accountChanging);
-        } else if (mailboxId != Mailbox.NO_MAILBOX) {
-            showMessageList(accountId, mailboxId, accountChanging);
         } else {
-            // Mailbox not specified.  Open Inbox or Combined Inbox.
-            if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-                showMessageList(accountId, Mailbox.QUERY_ALL_INBOXES, accountChanging);
-            } else {
-                startInboxLookup(accountId);
+            if (mailboxId == Mailbox.NO_MAILBOX) {
+                Log.e(Logging.LOG_TAG, this + " unspecified mailbox.");
+                return;
             }
+            showMessageList(accountId, mailboxId, accountChanging);
         }
     }
 
