@@ -16,23 +16,6 @@
 
 package com.android.email.provider;
 
-import com.android.emailcommon.AccountManagerTypes;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
-import com.android.emailcommon.provider.EmailContent.Body;
-import com.android.emailcommon.provider.EmailContent.BodyColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.AccountReconciler;
-import com.android.emailcommon.utility.TextUtilities;
-import com.android.emailcommon.utility.Utility;
-
 import android.accounts.AccountManager;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
@@ -48,6 +31,24 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.test.MoreAsserts;
 import android.test.ProviderTestCase2;
+
+import com.android.emailcommon.AccountManagerTypes;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.provider.EmailContent.Body;
+import com.android.emailcommon.provider.EmailContent.BodyColumns;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.utility.AccountReconciler;
+import com.android.emailcommon.utility.TextUtilities;
+import com.android.emailcommon.utility.Utility;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +82,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         mMockContext = getMockContext();
         mProvider = getProvider();
         // Invalidate all caches, since we reset the database for each test
-        ContentCache.invalidateAllCachesForTest();
+        ContentCache.invalidateAllCaches();
     }
 
     @Override
@@ -1737,9 +1738,11 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     public void testClearAccountHoldFlags() {
         Account a1 = ProviderTestUtils.setupAccount("holdflag-1", false, mMockContext);
         a1.mFlags = Account.FLAGS_NOTIFY_NEW_MAIL;
+        a1.mPolicy = new Policy();
         a1.save(mMockContext);
         Account a2 = ProviderTestUtils.setupAccount("holdflag-2", false, mMockContext);
         a2.mFlags = Account.FLAGS_VIBRATE_ALWAYS | Account.FLAGS_SECURITY_HOLD;
+        a2.mPolicy = new Policy();
         a2.save(mMockContext);
 
         // bulk clear
@@ -2120,7 +2123,7 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
     public void testUpgradeFromVersion17ToVersion18() {
         final Context c = mMockContext;
         // Create accounts
-        Account a1 =createAccount(c, "exchange",
+        Account a1 = createAccount(c, "exchange",
                 ProviderTestUtils.setupHostAuth("eas", "exchange.host.com", true, c),
                 null);
         Account a2 = createAccount(c, "imap",
@@ -2253,6 +2256,109 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
             }
         }
         return false;
+    }
+
+    public void testAutoCacheNewContent() {
+        Account account = ProviderTestUtils.setupAccount("account-hostauth", false, mMockContext);
+        // add hostauth data, which should be saved the first time
+        account.mHostAuthRecv = ProviderTestUtils.setupHostAuth("account-hostauth-recv", -1, false,
+                mMockContext);
+        account.mHostAuthSend = ProviderTestUtils.setupHostAuth("account-hostauth-send", -1, false,
+                mMockContext);
+        account.save(mMockContext);
+        assertTrue(mProvider.isCached(Account.CONTENT_URI, account.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, account.mHostAuthRecv.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, account.mHostAuthSend.mId));
+    }
+
+    /** Creates a mailbox; redefine as we need version 17 mailbox values */
+    private Mailbox createTypeMailbox(Context c, long accountId, int type) {
+        Mailbox box = new Mailbox();
+
+        box.mDisplayName = "foo";
+        box.mServerId = "1:1";
+        box.mParentKey = 0;
+        box.mAccountKey = accountId;
+        // Don't care about the fields below ... set them for giggles
+        box.mType = type;
+        box.save(c);
+        return box;
+    }
+
+    public void testAutoCacheInvalidate() {
+        // Create 3 accounts with hostauth and 3 mailboxes each (2 of which are pre-cached)
+        Account a = ProviderTestUtils.setupAccount("account1", false, mMockContext);
+        a.mHostAuthRecv = ProviderTestUtils.setupHostAuth("account-recv", -1, false,
+                mMockContext);
+        a.mHostAuthSend = ProviderTestUtils.setupHostAuth("account-send", -1, false,
+                mMockContext);
+        a.save(mMockContext);
+        Mailbox a1 = createTypeMailbox(mMockContext, a.mId, Mailbox.TYPE_INBOX);
+        Mailbox a2 = createTypeMailbox(mMockContext, a.mId, Mailbox.TYPE_MAIL);
+        Mailbox a3 = createTypeMailbox(mMockContext, a.mId, Mailbox.TYPE_DRAFTS);
+        Account b = ProviderTestUtils.setupAccount("account2", false, mMockContext);
+        b.mHostAuthRecv = ProviderTestUtils.setupHostAuth("account-recv", -1, false,
+                mMockContext);
+        b.mHostAuthSend = ProviderTestUtils.setupHostAuth("accoun-send", -1, false,
+                mMockContext);
+        b.save(mMockContext);
+        Mailbox b1 = createTypeMailbox(mMockContext, b.mId, Mailbox.TYPE_OUTBOX);
+        Mailbox b2 = createTypeMailbox(mMockContext, b.mId, Mailbox.TYPE_MAIL);
+        Mailbox b3 = createTypeMailbox(mMockContext, b.mId, Mailbox.TYPE_SENT);
+        Account c = ProviderTestUtils.setupAccount("account3", false, mMockContext);
+        c.mHostAuthRecv = ProviderTestUtils.setupHostAuth("account-recv", -1, false,
+                mMockContext);
+        c.mHostAuthSend = ProviderTestUtils.setupHostAuth("account-send", -1, false,
+                mMockContext);
+        c.save(mMockContext);
+        Mailbox c1 = createTypeMailbox(mMockContext, c.mId, Mailbox.TYPE_SEARCH);
+        Mailbox c2 = createTypeMailbox(mMockContext, c.mId, Mailbox.TYPE_MAIL);
+        Mailbox c3 = createTypeMailbox(mMockContext, c.mId, Mailbox.TYPE_TRASH);
+
+        // Confirm expected cache state
+        assertTrue(mProvider.isCached(Account.CONTENT_URI, a.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, a.mHostAuthRecv.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, a.mHostAuthSend.mId));
+        assertTrue(mProvider.isCached(Account.CONTENT_URI, b.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, b.mHostAuthRecv.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, b.mHostAuthSend.mId));
+        assertTrue(mProvider.isCached(Account.CONTENT_URI, c.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, c.mHostAuthRecv.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, c.mHostAuthSend.mId));
+
+        assertTrue(mProvider.isCached(Mailbox.CONTENT_URI, a1.mId));
+        assertFalse(mProvider.isCached(Mailbox.CONTENT_URI, a2.mId));
+        assertTrue(mProvider.isCached(Mailbox.CONTENT_URI, a3.mId));
+        assertTrue(mProvider.isCached(Mailbox.CONTENT_URI, b1.mId));
+        assertFalse(mProvider.isCached(Mailbox.CONTENT_URI, b2.mId));
+        assertTrue(mProvider.isCached(Mailbox.CONTENT_URI, b3.mId));
+        assertTrue(mProvider.isCached(Mailbox.CONTENT_URI, c1.mId));
+        assertFalse(mProvider.isCached(Mailbox.CONTENT_URI, c2.mId));
+        assertTrue(mProvider.isCached(Mailbox.CONTENT_URI, c3.mId));
+
+        // Delete account b
+        EmailContent.delete(mMockContext, Account.CONTENT_URI, b.mId);
+
+        // Confirm cache state
+        assertTrue(mProvider.isCached(Account.CONTENT_URI, a.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, a.mHostAuthRecv.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, a.mHostAuthSend.mId));
+        assertFalse(mProvider.isCached(Account.CONTENT_URI, b.mId));
+        assertFalse(mProvider.isCached(HostAuth.CONTENT_URI, b.mHostAuthRecv.mId));
+        assertFalse(mProvider.isCached(HostAuth.CONTENT_URI, b.mHostAuthSend.mId));
+        assertTrue(mProvider.isCached(Account.CONTENT_URI, c.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, c.mHostAuthRecv.mId));
+        assertTrue(mProvider.isCached(HostAuth.CONTENT_URI, c.mHostAuthSend.mId));
+
+        assertTrue(mProvider.isCached(Mailbox.CONTENT_URI, a1.mId));
+        assertFalse(mProvider.isCached(Mailbox.CONTENT_URI, a2.mId));
+        assertTrue(mProvider.isCached(Mailbox.CONTENT_URI, a3.mId));
+        assertFalse(mProvider.isCached(Mailbox.CONTENT_URI, b1.mId));
+        assertFalse(mProvider.isCached(Mailbox.CONTENT_URI, b2.mId));
+        assertFalse(mProvider.isCached(Mailbox.CONTENT_URI, b3.mId));
+        assertTrue(mProvider.isCached(Mailbox.CONTENT_URI, c1.mId));
+        assertFalse(mProvider.isCached(Mailbox.CONTENT_URI, c2.mId));
+        assertTrue(mProvider.isCached(Mailbox.CONTENT_URI, c3.mId));
     }
 
     /**

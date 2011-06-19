@@ -16,34 +16,6 @@
 
 package com.android.email.provider;
 
-import com.android.email.Email;
-import com.android.email.Preferences;
-import com.android.email.provider.ContentCache.CacheToken;
-import com.android.email.service.AttachmentDownloadService;
-import com.android.emailcommon.AccountManagerTypes;
-import com.android.emailcommon.CalendarProviderStub;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
-import com.android.emailcommon.provider.EmailContent.Body;
-import com.android.emailcommon.provider.EmailContent.BodyColumns;
-import com.android.emailcommon.provider.QuickResponse;
-import com.android.emailcommon.provider.EmailContent.QuickResponseColumns;
-import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.provider.EmailContent.PolicyColumns;
-import com.android.emailcommon.provider.EmailContent.SyncColumns;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.provider.Policy;
-import com.android.emailcommon.service.LegacyPolicySet;
-import com.google.common.annotations.VisibleForTesting;
-
 import android.accounts.AccountManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
@@ -66,8 +38,40 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.email.Email;
+import com.android.email.Preferences;
+import com.android.email.provider.ContentCache.CacheToken;
+import com.android.email.service.AttachmentDownloadService;
+import com.android.emailcommon.AccountManagerTypes;
+import com.android.emailcommon.CalendarProviderStub;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.provider.EmailContent.Body;
+import com.android.emailcommon.provider.EmailContent.BodyColumns;
+import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.EmailContent.PolicyColumns;
+import com.android.emailcommon.provider.EmailContent.QuickResponseColumns;
+import com.android.emailcommon.provider.EmailContent.SyncColumns;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.provider.QuickResponse;
+import com.android.emailcommon.service.LegacyPolicySet;
+import com.google.common.annotations.VisibleForTesting;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EmailProvider extends ContentProvider {
 
@@ -106,17 +110,24 @@ public class EmailProvider extends ContentProvider {
 
     private static final String WHERE_ID = EmailContent.RECORD_ID + "=?";
 
+    // This is not a hard limit on accounts, per se, but beyond this, we can't guarantee that all
+    // critical mailboxes, host auth's, accounts, and policies are cached
+    private static final int MAX_CACHED_ACCOUNTS = 16;
+    // Inbox, Drafts, Sent, Outbox, Trash, and Search (these boxes are cached when possible)
+    private static final int NUM_ALWAYS_CACHED_MAILBOXES = 6;
+
     // We'll cache the following four tables; sizes are best estimates of effective values
-    private static final ContentCache sCacheAccount =
-        new ContentCache("Account", Account.CONTENT_PROJECTION, 4);
-    private static final ContentCache sCacheHostAuth =
-        new ContentCache("HostAuth", HostAuth.CONTENT_PROJECTION, 8);
-    /*package*/ static final ContentCache sCacheMailbox =
-        new ContentCache("Mailbox", Mailbox.CONTENT_PROJECTION, 8);
-    private static final ContentCache sCacheMessage =
+    private final ContentCache mCacheAccount =
+        new ContentCache("Account", Account.CONTENT_PROJECTION, MAX_CACHED_ACCOUNTS);
+    private final ContentCache mCacheHostAuth =
+        new ContentCache("HostAuth", HostAuth.CONTENT_PROJECTION, MAX_CACHED_ACCOUNTS * 2);
+    /*package*/ final ContentCache mCacheMailbox =
+        new ContentCache("Mailbox", Mailbox.CONTENT_PROJECTION,
+                MAX_CACHED_ACCOUNTS * (NUM_ALWAYS_CACHED_MAILBOXES + 2));
+    private final ContentCache mCacheMessage =
         new ContentCache("Message", Message.CONTENT_PROJECTION, 8);
-    private static final ContentCache sCachePolicy =
-        new ContentCache("Policy", Policy.CONTENT_PROJECTION, 4);
+    private final ContentCache mCachePolicy =
+        new ContentCache("Policy", Policy.CONTENT_PROJECTION, MAX_CACHED_ACCOUNTS);
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 3
@@ -162,10 +173,12 @@ public class EmailProvider extends ContentProvider {
     private static final int ACCOUNT_ID_ADD_TO_FIELD = ACCOUNT_BASE + 2;
     private static final int ACCOUNT_RESET_NEW_COUNT = ACCOUNT_BASE + 3;
     private static final int ACCOUNT_RESET_NEW_COUNT_ID = ACCOUNT_BASE + 4;
+    private static final int ACCOUNT_DEFAULT_ID = ACCOUNT_BASE + 5;
 
     private static final int MAILBOX_BASE = 0x1000;
     private static final int MAILBOX = MAILBOX_BASE;
     private static final int MAILBOX_ID = MAILBOX_BASE + 1;
+    private static final int MAILBOX_ID_FROM_ACCOUNT_AND_TYPE = MAILBOX_BASE + 2;
     private static final int MAILBOX_ID_ADD_TO_FIELD = MAILBOX_BASE + 2;
 
     private static final int MESSAGE_BASE = 0x2000;
@@ -214,31 +227,49 @@ public class EmailProvider extends ContentProvider {
     private static final String[] TABLE_NAMES = {
         Account.TABLE_NAME,
         Mailbox.TABLE_NAME,
-        EmailContent.Message.TABLE_NAME,
-        EmailContent.Attachment.TABLE_NAME,
+        Message.TABLE_NAME,
+        Attachment.TABLE_NAME,
         HostAuth.TABLE_NAME,
-        EmailContent.Message.UPDATED_TABLE_NAME,
-        EmailContent.Message.DELETED_TABLE_NAME,
+        Message.UPDATED_TABLE_NAME,
+        Message.DELETED_TABLE_NAME,
         Policy.TABLE_NAME,
         QuickResponse.TABLE_NAME,
-        EmailContent.Body.TABLE_NAME
+        Body.TABLE_NAME
     };
 
     // CONTENT_CACHES MUST remain in the order of the BASE constants above
-    private static final ContentCache[] CONTENT_CACHES = {
-        sCacheAccount,
-        sCacheMailbox,
-        sCacheMessage,
+    private final ContentCache[] mContentCaches = {
+        mCacheAccount,
+        mCacheMailbox,
+        mCacheMessage,
         null, // Attachment
-        sCacheHostAuth,
+        mCacheHostAuth,
         null, // Updated message
         null, // Deleted message
-        sCachePolicy,
+        mCachePolicy,
+        null, // Quick response
+        null  // Body
+    };
+
+    // CACHE_PROJECTIONS MUST remain in the order of the BASE constants above
+    private static final String[][] CACHE_PROJECTIONS = {
+        Account.CONTENT_PROJECTION,
+        Mailbox.CONTENT_PROJECTION,
+        Message.CONTENT_PROJECTION,
+        null, // Attachment
+        HostAuth.CONTENT_PROJECTION,
+        null, // Updated message
+        null, // Deleted message
+        Policy.CONTENT_PROJECTION,
         null,  // Quick response
         null  // Body
     };
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+    private static final String MAILBOX_PRE_CACHE_SELECTION = MailboxColumns.TYPE + " IN (" +
+        Mailbox.TYPE_INBOX + "," + Mailbox.TYPE_DRAFTS + "," + Mailbox.TYPE_TRASH + "," +
+        Mailbox.TYPE_SENT + "," + Mailbox.TYPE_SEARCH + "," + Mailbox.TYPE_OUTBOX + ")";
 
     /**
      * Let's only generate these SQL strings once, as they are used frequently
@@ -301,6 +332,7 @@ public class EmailProvider extends ContentProvider {
         // A specific account
         // insert into this URI causes a mailbox to be added to the account
         matcher.addURI(EmailContent.AUTHORITY, "account/#", ACCOUNT_ID);
+        matcher.addURI(EmailContent.AUTHORITY, "account/default", ACCOUNT_DEFAULT_ID);
 
         // Special URI to reset the new message count.  Only update works, and content values
         // will be ignored.
@@ -315,7 +347,8 @@ public class EmailProvider extends ContentProvider {
         // insert into this URI causes a message to be added to the mailbox
         // ** NOTE For now, the accountKey must be set manually in the values!
         matcher.addURI(EmailContent.AUTHORITY, "mailbox/#", MAILBOX_ID);
-
+        matcher.addURI(EmailContent.AUTHORITY, "mailboxIdFromAccountAndType/#/#",
+                MAILBOX_ID_FROM_ACCOUNT_AND_TYPE);
         // All messages
         matcher.addURI(EmailContent.AUTHORITY, "message", MESSAGE);
         // A specific message
@@ -382,7 +415,6 @@ public class EmailProvider extends ContentProvider {
         matcher.addURI(EmailContent.AUTHORITY, "quickresponse/account/#",
                 QUICK_RESPONSE_ACCOUNT_ID);
     }
-
 
     /**
      * Wrap the UriMatcher call so we can throw a runtime exception if an unknown Uri is passed in
@@ -778,8 +810,78 @@ public class EmailProvider extends ContentProvider {
         // Check for any orphaned Messages in the updated/deleted tables
         deleteOrphans(mDatabase, Message.UPDATED_TABLE_NAME);
         deleteOrphans(mDatabase, Message.DELETED_TABLE_NAME);
-
+        if (Email.DEBUG) {
+            Log.d(TAG, "EmailProvider pre-caching...");
+        }
+        preCacheData();
+        if (Email.DEBUG) {
+            Log.d(TAG, "Pre-caching finished.");
+        }
         return mDatabase;
+    }
+
+    /**
+     * Pre-cache all of the items in a given table meeting the selection criteria
+     * @param tableUri the table uri
+     * @param baseProjection the base projection of that table
+     * @param selection the selection criteria
+     */
+    private void preCacheTable(Uri tableUri, String[] baseProjection, String selection) {
+        Cursor c = query(tableUri, EmailContent.ID_PROJECTION, selection, null, null);
+        try {
+            while (c.moveToNext()) {
+                long id = c.getLong(EmailContent.ID_PROJECTION_COLUMN);
+                Cursor cachedCursor = query(ContentUris.withAppendedId(
+                        tableUri, id), baseProjection, null, null, null);
+                if (cachedCursor != null) {
+                    // For accounts, create a mailbox type map entry (if necessary)
+                    if (tableUri == Account.CONTENT_URI) {
+                        getOrCreateAccountMailboxTypeMap(id);
+                    }
+                    cachedCursor.close();
+                }
+            }
+        } finally {
+            c.close();
+        }
+    }
+
+    private HashMap<Long, HashMap<Integer, Long>> mMailboxTypeMap =
+        new HashMap<Long, HashMap<Integer, Long>>();
+
+    private synchronized HashMap<Integer, Long> getOrCreateAccountMailboxTypeMap(long accountId) {
+        HashMap<Integer, Long> accountMailboxTypeMap = mMailboxTypeMap.get(accountId);
+        if (accountMailboxTypeMap == null) {
+            accountMailboxTypeMap = new HashMap<Integer, Long>();
+            mMailboxTypeMap.put(accountId, accountMailboxTypeMap);
+        }
+        return accountMailboxTypeMap;
+    }
+
+    private synchronized void addToMailboxTypeMap(Cursor c) {
+        long accountId = c.getLong(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN);
+        int type = c.getInt(Mailbox.CONTENT_TYPE_COLUMN);
+        HashMap<Integer, Long> accountMailboxTypeMap = getOrCreateAccountMailboxTypeMap(accountId);
+        accountMailboxTypeMap.put(type, c.getLong(Mailbox.CONTENT_ID_COLUMN));
+    }
+
+    private void preCacheData() {
+        mMailboxTypeMap.clear();
+
+        // Pre-cache accounts, host auth's, policies, and special mailboxes
+        preCacheTable(Account.CONTENT_URI, Account.CONTENT_PROJECTION, null);
+        preCacheTable(HostAuth.CONTENT_URI, HostAuth.CONTENT_PROJECTION, null);
+        preCacheTable(Policy.CONTENT_URI, Policy.CONTENT_PROJECTION, null);
+        preCacheTable(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION, MAILBOX_PRE_CACHE_SELECTION);
+
+        // Create a map from account,type to a mailbox
+        Map<String, Cursor> snapshot = mCacheMailbox.getSnapshot();
+        Collection<Cursor> values = snapshot.values();
+        if (values != null) {
+            for (Cursor c: values) {
+                addToMailboxTypeMap(c);
+            }
+        }
     }
 
     /*package*/ static SQLiteDatabase getReadableDatabase(Context context) {
@@ -1175,7 +1277,7 @@ public class EmailProvider extends ContentProvider {
         boolean messageDeletion = false;
         ContentResolver resolver = context.getContentResolver();
 
-        ContentCache cache = CONTENT_CACHES[table];
+        ContentCache cache = mContentCaches[table];
         String tableName = TABLE_NAMES[table];
         int result = -1;
 
@@ -1231,17 +1333,23 @@ public class EmailProvider extends ContentProvider {
                                 case ACCOUNT_ID:
                                     // Account deletion will clear all of the caches, as HostAuth's,
                                     // Mailboxes, and Messages will be deleted in the process
-                                    sCacheMailbox.invalidate("Delete", uri, selection);
-                                    sCacheHostAuth.invalidate("Delete", uri, selection);
+                                    mCacheMailbox.invalidate("Delete", uri, selection);
+                                    mCacheHostAuth.invalidate("Delete", uri, selection);
+                                    mCachePolicy.invalidate("Delete", uri, selection);
                                     //$FALL-THROUGH$
                                 case MAILBOX_ID:
                                     // Mailbox deletion will clear the Message cache
-                                    sCacheMessage.invalidate("Delete", uri, selection);
+                                    mCacheMessage.invalidate("Delete", uri, selection);
                                     //$FALL-THROUGH$
                                 case SYNCED_MESSAGE_ID:
                                 case MESSAGE_ID:
                                 case HOSTAUTH_ID:
+                                case POLICY_ID:
                                     cache.invalidate("Delete", uri, selection);
+                                    // Make sure all data is properly cached
+                                    if (match != MESSAGE_ID) {
+                                        preCacheData();
+                                    }
                                     break;
                             }
                         }
@@ -1270,18 +1378,29 @@ public class EmailProvider extends ContentProvider {
                     switch(match) {
                         // See the comments above for deletion of ACCOUNT_ID, etc
                         case ACCOUNT:
-                            sCacheMailbox.invalidate("Delete", uri, selection);
-                            sCacheHostAuth.invalidate("Delete", uri, selection);
+                            mCacheMailbox.invalidate("Delete", uri, selection);
+                            mCacheHostAuth.invalidate("Delete", uri, selection);
+                            mCachePolicy.invalidate("Delete", uri, selection);
                             //$FALL-THROUGH$
                         case MAILBOX:
-                            sCacheMessage.invalidate("Delete", uri, selection);
+                            mCacheMessage.invalidate("Delete", uri, selection);
                             //$FALL-THROUGH$
                         case MESSAGE:
                         case HOSTAUTH:
+                        case POLICY:
                             cache.invalidate("Delete", uri, selection);
                             break;
                     }
                     result = db.delete(tableName, selection, selectionArgs);
+                    switch(match) {
+                        case ACCOUNT:
+                        case MAILBOX:
+                        case HOSTAUTH:
+                        case POLICY:
+                            // Make sure all data is properly cached
+                            preCacheData();
+                            break;
+                    }
                     break;
 
                 default:
@@ -1384,9 +1503,11 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
-                case MESSAGE:
+                // NOTE: It is NOT legal for production code to insert directly into UPDATED_MESSAGE
+                // or DELETED_MESSAGE; see the comment below for details
                 case UPDATED_MESSAGE:
                 case DELETED_MESSAGE:
+                case MESSAGE:
                 case BODY:
                 case ATTACHMENT:
                 case MAILBOX:
@@ -1396,6 +1517,33 @@ public class EmailProvider extends ContentProvider {
                 case QUICK_RESPONSE:
                     longId = db.insert(TABLE_NAMES[table], "foo", values);
                     resultUri = ContentUris.withAppendedId(uri, longId);
+                    switch(match) {
+                        case MAILBOX:
+                            if (values.containsKey(MailboxColumns.TYPE)) {
+                                // Only cache special mailbox types
+                                int type = values.getAsInteger(MailboxColumns.TYPE);
+                                if (type != Mailbox.TYPE_INBOX && type != Mailbox.TYPE_OUTBOX &&
+                                        type != Mailbox.TYPE_DRAFTS && type != Mailbox.TYPE_SENT &&
+                                        type != Mailbox.TYPE_TRASH && type != Mailbox.TYPE_SEARCH) {
+                                    break;
+                                }
+                            }
+                            //$FALL-THROUGH$
+                        case ACCOUNT:
+                        case HOSTAUTH:
+                        case POLICY:
+                            // Cache new account, host auth, policy, and some mailbox rows
+                            Cursor c = query(resultUri, CACHE_PROJECTIONS[table], null, null, null);
+                            if (c != null) {
+                                if (match == MAILBOX) {
+                                    addToMailboxTypeMap(c);
+                                } else if (match == ACCOUNT) {
+                                    getOrCreateAccountMailboxTypeMap(longId);
+                                }
+                                c.close();
+                            }
+                            break;
+                    }
                     // Clients shouldn't normally be adding rows to these tables, as they are
                     // maintained by triggers.  However, we need to be able to do this for unit
                     // testing, so we allow the insert and then throw the same exception that we
@@ -1529,7 +1677,7 @@ public class EmailProvider extends ContentProvider {
         String tableName = TABLE_NAMES[table];
         // We can only use the cache if there's no selection
         if (selection == null) {
-            cache = CONTENT_CACHES[table];
+            cache = mContentCaches[table];
         }
         if (cache == null) {
             ContentCache.notCacheable(uri, selection);
@@ -1537,6 +1685,37 @@ public class EmailProvider extends ContentProvider {
 
         try {
             switch (match) {
+                case ACCOUNT_DEFAULT_ID:
+                    // Start with a snapshot of the cache
+                    Map<String, Cursor> accountCache = mCacheAccount.getSnapshot();
+                    long accountId = Account.NO_ACCOUNT;
+                    // Find the account with "isDefault" set
+                    Collection<Cursor> accounts = accountCache.values();
+                    int numAccounts = accounts.size();
+                    for (Cursor accountCursor: accounts) {
+                        if (accountCursor.getInt(Account.CONTENT_IS_DEFAULT_COLUMN) == 1 ||
+                                numAccounts == 1) {
+                            accountId = accountCursor.getLong(Account.CONTENT_ID_COLUMN);
+                            break;
+                        }
+                    }
+                    // Return a cursor with an id projection
+                    MatrixCursor mc = new MatrixCursor(EmailContent.ID_PROJECTION);
+                    mc.addRow(new Object[] {accountId});
+                    return mc;
+                case MAILBOX_ID_FROM_ACCOUNT_AND_TYPE:
+                    // Get accountId and type and find the mailbox in our map
+                    accountId = Long.parseLong(uri.getPathSegments().get(1));
+                    int type = Integer.parseInt(uri.getPathSegments().get(2));
+                    HashMap<Integer, Long> accountMap = mMailboxTypeMap.get(accountId);
+                    mc = new MatrixCursor(EmailContent.ID_PROJECTION);
+                    Long mailboxId = null;
+                    if (accountMap != null) {
+                        mailboxId = accountMap.get(type);
+                    }
+                    // Return a cursor with an id projection
+                    mc.addRow(new Object[] {mailboxId});
+                    return mc;
                 case BODY:
                 case MESSAGE:
                 case UPDATED_MESSAGE:
@@ -1547,6 +1726,17 @@ public class EmailProvider extends ContentProvider {
                 case HOSTAUTH:
                 case POLICY:
                 case QUICK_RESPONSE:
+                    // Special-case "count of accounts"; it's common and we always know it
+                    if (match == ACCOUNT && Arrays.equals(projection, EmailContent.COUNT_COLUMNS) &&
+                            selection == null && limit.equals("1")) {
+                        int accountCount = mMailboxTypeMap.size();
+                        // In the rare case there are MAX_CACHED_ACCOUNTS or more, we can't do this
+                        if (accountCount < MAX_CACHED_ACCOUNTS) {
+                            mc = new MatrixCursor(projection, 1);
+                            mc.addRow(new Object[] {accountCount});
+                            return mc;
+                        }
+                    }
                     c = db.query(tableName, projection,
                             selection, selectionArgs, null, null, sortOrder, limit);
                     break;
@@ -1571,6 +1761,17 @@ public class EmailProvider extends ContentProvider {
                         }
                         c = db.query(tableName, projection, whereWithId(id, selection),
                                 selectionArgs, null, null, sortOrder, limit);
+                        if (Email.DEBUG) {
+                            switch(match) {
+                                case ACCOUNT_ID:
+                                case HOSTAUTH_ID:
+                                case POLICY_ID:
+                                case MAILBOX_ID:
+                                    Log.w(Logging.LOG_TAG,
+                                            "==== UNCACHED read of " + tableName + ", id = " + id);
+                                    break;
+                             }
+                        }
                         if (cache != null) {
                             c = cache.putCursor(c, id, projection, token);
                         }
@@ -1601,7 +1802,7 @@ public class EmailProvider extends ContentProvider {
             e.printStackTrace();
             throw e;
         } finally {
-            if (cache != null && Email.DEBUG) {
+            if (cache != null && c != null && Email.DEBUG) {
                 cache.recordQueryTime(c, System.nanoTime() - time);
             }
         }
@@ -1820,11 +2021,12 @@ public class EmailProvider extends ContentProvider {
             values.remove(MailboxColumns.MESSAGE_COUNT);
         }
 
-        ContentCache cache = CONTENT_CACHES[table];
+        ContentCache cache = mContentCaches[table];
         String tableName = TABLE_NAMES[table];
         String id = "0";
 
         try {
+outer:
             switch (match) {
                 case MAILBOX_ID_ADD_TO_FIELD:
                 case ACCOUNT_ID_ADD_TO_FIELD:
@@ -1876,6 +2078,7 @@ public class EmailProvider extends ContentProvider {
                 case ACCOUNT_ID:
                 case HOSTAUTH_ID:
                 case QUICK_RESPONSE_ID:
+                case POLICY_ID:
                     id = uri.getPathSegments().get(1);
                     if (cache != null) {
                         cache.lock(id);
@@ -1916,18 +2119,41 @@ public class EmailProvider extends ContentProvider {
                 case MAILBOX:
                 case ACCOUNT:
                 case HOSTAUTH:
+                case POLICY:
                     switch(match) {
-                        case MESSAGE:
+                        // To avoid invalidating the cache on updates, we execute them one at a
+                        // time using the XXX_ID uri; these are all executed atomically
                         case ACCOUNT:
                         case MAILBOX:
                         case HOSTAUTH:
+                        case POLICY:
+                            Cursor c = db.query(tableName, EmailContent.ID_PROJECTION,
+                                    selection, selectionArgs, null, null, null);
+                            db.beginTransaction();
+                            result = 0;
+                            try {
+                                while (c.moveToNext()) {
+                                    update(ContentUris.withAppendedId(
+                                                uri, c.getLong(EmailContent.ID_PROJECTION_COLUMN)),
+                                            values, null, null);
+                                    result++;
+                                }
+                                db.setTransactionSuccessful();
+                            } finally {
+                                db.endTransaction();
+                                c.close();
+                            }
+                            break outer;
+                        // Any cached table other than those above should be invalidated here
+                        case MESSAGE:
                             // If we're doing some generic update, the whole cache needs to be
                             // invalidated.  This case should be quite rare
                             cache.invalidate("Update", uri, selection);
-                            break;
+                            //$FALL-THROUGH$
+                        default:
+                            result = db.update(tableName, values, selection, selectionArgs);
+                            break outer;
                     }
-                    result = db.update(tableName, values, selection, selectionArgs);
-                    break;
                 case ACCOUNT_RESET_NEW_COUNT_ID:
                     id = uri.getPathSegments().get(1);
                     if (cache != null) {
@@ -2105,6 +2331,7 @@ public class EmailProvider extends ContentProvider {
             // Shouldn't be needed unless we're debugging and interrupt the process
             Log.w(TAG, "Exception upgrading EmailProvider.db from 17 to 18 " + e);
         }
+        ContentCache.invalidateAllCaches();
     }
 
     /** Upgrades the database from v20 to v21 */
@@ -2205,5 +2432,21 @@ public class EmailProvider extends ContentProvider {
             // Shouldn't be needed unless we're debugging and interrupt the process
             Log.w(TAG, "Exception upgrading EmailProvider.db from 24 to 25 " + e);
         }
+    }
+
+        /**
+     * For testing purposes, check whether a given row is cached
+     * @param baseUri the base uri of the EmailContent
+     * @param id the row id of the EmailContent
+     * @return whether or not the row is currently cached
+     */
+    @VisibleForTesting
+    protected boolean isCached(Uri baseUri, long id) {
+        int match = findMatch(baseUri, "isCached");
+        int table = match >> BASE_SHIFT;
+        ContentCache cache = mContentCaches[table];
+        if (cache == null) return false;
+        Cursor cc = cache.get(Long.toString(id));
+        return (cc != null);
     }
 }

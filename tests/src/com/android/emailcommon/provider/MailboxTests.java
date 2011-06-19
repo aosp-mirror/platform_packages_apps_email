@@ -60,7 +60,7 @@ public class MailboxTests extends ProviderTestCase2<EmailProvider> {
         mMockContext = getMockContext();
         mProvider = getProvider();
         // Invalidate all caches, since we reset the database for each test
-        ContentCache.invalidateAllCachesForTest();
+        ContentCache.invalidateAllCaches();
     }
 
     //////////////////////////////////////////////////////////

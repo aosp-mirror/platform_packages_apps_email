@@ -61,7 +61,7 @@ public class ControllerProviderOpsTests extends ProviderTestCase2<EmailProvider>
         mContext = getContext();
         mTestController = new TestController(mProviderContext, mContext);
         // Invalidate all caches, since we reset the database for each test
-        ContentCache.invalidateAllCachesForTest();
+        ContentCache.invalidateAllCaches();
     }
 
     @Override

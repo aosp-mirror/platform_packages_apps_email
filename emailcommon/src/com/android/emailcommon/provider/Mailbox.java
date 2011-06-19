@@ -37,6 +37,8 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     public static final Uri CONTENT_URI = Uri.parse(EmailContent.CONTENT_URI + "/mailbox");
     public static final Uri ADD_TO_FIELD_URI =
         Uri.parse(EmailContent.CONTENT_URI + "/mailboxIdAddToField");
+    public static final Uri FROM_ACCOUNT_AND_TYPE_URI =
+        Uri.parse(EmailContent.CONTENT_URI + "/mailboxIdFromAccountAndType");
 
     public String mDisplayName;
     public String mServerId;
@@ -299,13 +301,27 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     }
 
     /**
-     * Convenience method to return the id of a given type of Mailbox for a given Account
+     * Convenience method to return the id of a given type of Mailbox for a given Account; the
+     * common Mailbox types (Inbox, Outbox, Sent, Drafts, Trash, and Search) are all cached by
+     * EmailProvider; therefore, we warn if the mailbox is not found in the cache
+     *
      * @param context the caller's context, used to get a ContentResolver
      * @param accountId the id of the account to be queried
      * @param type the mailbox type, as defined above
      * @return the id of the mailbox, or -1 if not found
      */
     public static long findMailboxOfType(Context context, long accountId, int type) {
+        // First use special URI
+        Uri uri = FROM_ACCOUNT_AND_TYPE_URI.buildUpon().appendPath(Long.toString(accountId))
+            .appendPath(Integer.toString(type)).build();
+        Cursor c = context.getContentResolver().query(uri, ID_PROJECTION, null, null, null);
+        c.moveToFirst();
+        Long mailboxId = c.getLong(ID_PROJECTION_COLUMN);
+        if (mailboxId != null && mailboxId.intValue() != 0) {
+            return mailboxId;
+        } else {
+            Log.w(Logging.LOG_TAG, "========== Mailbox of type " + type + " not found in cache??");
+        }
         String[] bindArguments = new String[] {Long.toString(type), Long.toString(accountId)};
         return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI,
                 ID_PROJECTION, WHERE_TYPE_AND_ACCOUNT_KEY, bindArguments, null,

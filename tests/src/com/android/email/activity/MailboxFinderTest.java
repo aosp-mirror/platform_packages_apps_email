@@ -16,6 +16,11 @@
 
 package com.android.email.activity;
 
+import android.content.Context;
+import android.test.InstrumentationTestCase;
+import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.LargeTest;
+
 import com.android.email.Controller;
 import com.android.email.DBTestHelper;
 import com.android.email.Email;
@@ -24,11 +29,6 @@ import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Mailbox;
-
-import android.content.Context;
-import android.test.InstrumentationTestCase;
-import android.test.ProviderTestCase2;
-import android.test.suitebuilder.annotation.LargeTest;
 
 /**
  * Test case for {@link MailboxFinder}.

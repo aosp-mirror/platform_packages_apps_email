@@ -16,14 +16,14 @@
 
 package com.android.email.activity;
 
+import android.content.Context;
+import android.test.AndroidTestCase;
+
 import com.android.email.DBTestHelper;
 import com.android.email.MockClock;
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.Mailbox;
-
-import android.content.Context;
-import android.test.AndroidTestCase;
 
 import java.util.ArrayList;
 
@@ -64,6 +64,8 @@ public class RecentMailboxManagerTest extends AndroidTestCase {
             ProviderTestUtils.setupMailbox("laurel", 1L, true, mMockContext, Mailbox.TYPE_MAIL),
             ProviderTestUtils.setupMailbox("hardy", 1L, true, mMockContext, Mailbox.TYPE_MAIL),
         };
+        // Invalidate all caches, since we reset the database for each test
+        ContentCache.invalidateAllCaches();
     }
 
     @Override
