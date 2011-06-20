@@ -99,10 +99,17 @@
     <string name="forward_action">Forward</string>
     <!--  Button name used to complete a multi-step process -->
     <string name="done_action">Done</string>
+    <!--  Button name used to create a new quick response [CHAR_LIMIT=16] -->
+    <string name="create_action">Create new</string>
+    <!--  Button name used to delete a quick response [CHAR_LIMIT=16] -->
+    <string name="delete_quick_response_action">Delete</string>
     <!-- Menu item/button name -->
     <string name="discard_action">Discard</string>
     <!-- Menu item/button name [CHAR_LIMIT=16] -->
     <string name="save_draft_action">Save draft</string>
+    <!-- Menu item/button name. Pressing will insert previously saved text
+            into message body. [CHAR_LIMIT=24] -->
+    <string name="show_quick_text_list_dialog_action">Insert quick response</string>
     <!-- Menu item/button name -->
     <string name="read_action">Mark read</string>
     <!-- Menu item/button name -->
@@ -332,6 +339,9 @@
     <string name="message_compose_error_invalid_email">Some email addresses are invalid.</string>
     <!-- Toast that appears when an attachment is too big to send. -->
     <string name="message_compose_attachment_size">File too large to attach.</string>
+    <!-- Title for dialog containing list of quick responses that user may insert
+            into message body. [CHAR_LIMIT=30] -->
+    <string name="message_compose_insert_quick_response_list_title">Insert quick response</string>
     <!-- Display name for composed message, indicating the destination of the message.
       e.g. "John and 2 others" -->
     <string name="message_compose_display_name"><xliff:g id="name" example="John">%1$s</xliff:g> and <xliff:g id="number" example="27">%2$d</xliff:g> others</string>
@@ -935,10 +945,21 @@ save attachment.</string>
     <string name="account_settings_name_label">Your name</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_signature_label">Signature</string>
+    <!-- On Settings screen, setting option name. Allows user to modify saved quick responses
+        for insertion in message body. [CHAR_LIMIT=24]-->
+    <string name="account_settings_edit_quick_responses_label">Quick responses</string>
+    <!-- On Settings screen, setting option summary [CHAR LIMIT=64] -->
+    <string name="account_settings_edit_quick_responses_summary">
+        Edit text that you frequently insert when composing emails</string>
     <!-- On Settings screen, setting option name -->
     <string name="account_settings_signature_hint">Append text to messages you send</string>
     <!-- On Settings screen, section heading -->
     <string name="account_settings_notifications">Notification settings</string>
+
+    <!-- On settings screen, dialog heading informing user to edit a quick response -->
+    <string name="edit_quick_response_dialog">Edit quick response</string>
+    <!-- On settings screen, edit quick response dialog's "save" button -->
+    <string name="save_action">Save</string>
 
     <!-- On settings screen, sync contacts check box label [CHAR LIMIT=20]-->
     <string name="account_settings_sync_contacts_enable">Sync Contacts</string>

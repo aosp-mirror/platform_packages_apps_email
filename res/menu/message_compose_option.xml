@@ -35,4 +35,9 @@
         android:icon="@drawable/ic_menu_trash_holo_light"
         android:alphabeticShortcut="q"
     />
+    <item
+        android:id="@+id/show_quick_text_list_dialog"
+        android:title="@string/show_quick_text_list_dialog_action"
+        android:alphabeticShortcut="r"
+    />
 </menu>

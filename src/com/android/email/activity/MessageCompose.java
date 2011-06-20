@@ -111,7 +111,7 @@ import java.util.concurrent.ExecutionException;
  * N: add attachment
  */
 public class MessageCompose extends Activity implements OnClickListener, OnFocusChangeListener,
-        DeleteMessageConfirmationDialog.Callback {
+        DeleteMessageConfirmationDialog.Callback, InsertQuickResponseDialog.Callback {
 
     private static final String ACTION_REPLY = "com.android.email.intent.action.REPLY";
     private static final String ACTION_REPLY_ALL = "com.android.email.intent.action.REPLY_ALL";
@@ -1327,6 +1327,21 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
+    private void showQuickResponseDialog() {
+        InsertQuickResponseDialog.newInstance(null, mAccount)
+                .show(getFragmentManager(), null);
+    }
+
+    /**
+     * Inserts the selected QuickResponse into the message body at the current cursor position.
+     */
+    @Override
+    public void onQuickResponseSelected(CharSequence text) {
+        int start = mMessageContentView.getSelectionStart();
+        int end = mMessageContentView.getSelectionEnd();
+        mMessageContentView.getEditableText().replace(start, end, text);
+    }
+
     private void onDiscard() {
         DeleteMessageConfirmationDialog.newInstance(1, null).show(getFragmentManager(), "dialog");
     }
@@ -1574,6 +1589,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             return true;
         case R.id.save:
             onSave();
+            return true;
+        case R.id.show_quick_text_list_dialog:
+            showQuickResponseDialog();
             return true;
         case R.id.discard:
             onDiscard();

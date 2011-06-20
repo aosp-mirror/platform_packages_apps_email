@@ -43,26 +43,32 @@
             android:dialogTitle="@string/account_settings_signature_label"
             android:inputType="textCapSentences|textMultiLine" />
 
+        <PreferenceScreen
+            android:key="account_quick_responses"
+            android:order="4"
+            android:title="@string/account_settings_edit_quick_responses_label"
+            android:summary="@string/account_settings_edit_quick_responses_summary" />
+
         <ListPreference
             android:key="account_check_frequency"
-            android:order="4"
+            android:order="5"
             android:title="@string/account_settings_mail_check_frequency_label"
             android:entries="@array/account_settings_check_frequency_entries"
             android:entryValues="@array/account_settings_check_frequency_values"
             android:dialogTitle="@string/account_settings_mail_check_frequency_label" />
 
-        <!-- Reserve order#5 here for window size (if inserted) -->
+        <!-- Reserve order#6 here for window size (if inserted) -->
 
         <!-- (will hide on POP3 accounts) -->
         <CheckBoxPreference
             android:key="account_background_attachments"
-            android:order="6"
+            android:order="7"
             android:title="@string/account_settings_background_attachments_label"
             android:summary="@string/account_settings_background_attachments_summary" />
 
         <CheckBoxPreference
             android:key="account_default"
-            android:order="7"
+            android:order="8"
             android:title="@string/account_settings_default_label"
             android:summary="@string/account_settings_default_summary" />
 
@@ -99,10 +105,10 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory 
+    <PreferenceCategory
         android:key="account_servers"
         android:title="@string/account_settings_servers">
-    
+
         <PreferenceScreen
             android:key="incoming"
             android:title="@string/account_settings_incoming_label"
