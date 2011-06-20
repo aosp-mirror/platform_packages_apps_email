@@ -57,10 +57,10 @@ import java.util.ArrayList;
  * the UIController.
  */
 public class EmailActivity extends Activity implements View.OnClickListener, FragmentInstallable {
-    private static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
-    private static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
-    private static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
-    private static final String EXTRA_QUERY_STRING = "QUERY_STRING";
+    public static final String EXTRA_ACCOUNT_ID = "ACCOUNT_ID";
+    public static final String EXTRA_MAILBOX_ID = "MAILBOX_ID";
+    public static final String EXTRA_MESSAGE_ID = "MESSAGE_ID";
+    public static final String EXTRA_QUERY_STRING = "QUERY_STRING";
 
     /** Loader IDs starting with this is safe to use from UIControllers. */
     static final int UI_CONTROLLER_LOADER_ID_BASE = 100;
