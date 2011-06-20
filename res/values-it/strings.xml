@@ -71,8 +71,7 @@
     <item quantity="other" msgid="2723797835410343458">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> account"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"a <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
-    <!-- no translation found for account_name_display_all (4041817500580342035) -->
-    <skip />
+    <string name="account_name_display_all" msgid="4041817500580342035">"Tutti gli account"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> account"</item>
     <item quantity="other" msgid="8548760449976444566">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> account"</item>
@@ -83,24 +82,25 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"Cestino"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"Inviati"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"Posta indesiderata"</string>
-    <!-- no translation found for mailbox_name_display_unread (1015674989793998695) -->
-    <skip />
-    <!-- no translation found for picker_mailbox_name_all_unread (6392491216581687644) -->
-    <skip />
-    <!-- no translation found for picker_mailbox_name_all_inbox (2277030979530376085) -->
-    <skip />
-    <!-- no translation found for picker_combined_view_fmt (6276294768978512737) -->
-    <skip />
-    <!-- no translation found for picker_combined_view_account_count:one (380235084337895804) -->
-    <!-- no translation found for picker_combined_view_account_count:other (4145163147488719025) -->
+    <string name="mailbox_name_display_unread" msgid="1015674989793998695">"Da leggere"</string>
+    <string name="picker_mailbox_name_all_unread" msgid="6392491216581687644">"Posta in arrivo (da leggere)"</string>
+    <string name="picker_mailbox_name_all_inbox" msgid="2277030979530376085">"Posta in arrivo (tutti)"</string>
+    <string name="picker_combined_view_fmt" msgid="6276294768978512737">"Visualizzazione combinata (<xliff:g id="COUNT">%s</xliff:g>)"</string>
+  <plurals name="picker_combined_view_account_count">
+    <item quantity="one" msgid="380235084337895804">"<xliff:g id="ACCOUNT_COUNT">%d</xliff:g> account"</item>
+    <item quantity="other" msgid="4145163147488719025">"<xliff:g id="ACCOUNT_COUNT">%d</xliff:g> account"</item>
+  </plurals>
     <string name="debug_version_fmt" msgid="6160213145745376955">"Versione: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"Posta in arrivo"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"Speciali"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"Bozze"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"Posta in uscita"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Visualizzazione combinata"</string>
-    <!-- no translation found for mailbox_list_account_selector_show_all_folders (4185052839366909439) -->
-    <skip />
+    <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Visualizza tutte le cartelle"</string>
+    <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"Account"</string>
+    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="2191566450514579559">"Caselle postali recenti (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
+    <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Tutte le cartelle"</string>
+    <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Cartelle recenti"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Carica ulteriori messaggi"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> selezionato"</item>
@@ -273,6 +273,10 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Dominio/nome utente"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilizza connessione sicura (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Accetta tutti i certificati SSL"</string>
+    <!-- no translation found for account_setup_exchange_use_certificate (8690682770083161349) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_remove_certificate (5633249155510301766) -->
+    <skip />
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID dispositivo mobile"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Impostazioni account"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Opzioni account"</string>
@@ -303,6 +307,10 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nome utente o password errata."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impossibile connettersi correttamente al server."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Impossibile connettersi correttamente al server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_certificate_required (7425428621499591492) -->
+    <skip />
+    <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
+    <skip />
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"Il server ha risposto con un errore. Controlla nome utente e password e riprova."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Impossibile connettersi al server."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Impossibile connettersi al server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -417,7 +425,8 @@
     <string name="widget_loading" msgid="2340962056927255554">"Caricamento..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Tocca per configurare"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
-    <string name="search_title" msgid="353141588517762921">"Email"</string>
     <string name="search_hint" msgid="2200412192574686497">"Cerca email"</string>
+    <!-- no translation found for search_mailbox_hint (7854987729678942790) -->
+    <skip />
     <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Mailbox check lookback"</string>
 </resources>

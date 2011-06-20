@@ -108,6 +108,14 @@
     <skip />
     <!-- no translation found for mailbox_list_account_selector_show_all_folders (4185052839366909439) -->
     <skip />
+    <!-- no translation found for mailbox_list_account_selector_account_header (4261295503836387876) -->
+    <skip />
+    <!-- no translation found for mailbox_list_account_selector_mailbox_header_fmt (2191566450514579559) -->
+    <skip />
+    <!-- no translation found for mailbox_list_user_mailboxes (484260487104726379) -->
+    <skip />
+    <!-- no translation found for mailbox_list_recent_mailboxes (8922653040520361032) -->
+    <skip />
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Chargiar ulteriurs messadis"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g> selected"</item>
@@ -324,6 +332,10 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domena/num d\'utilisader"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilisar ina connexiun segira (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Acceptar tut ils certificats SSL"</string>
+    <!-- no translation found for account_setup_exchange_use_certificate (8690682770083161349) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_remove_certificate (5633249155510301766) -->
+    <skip />
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID dad apparats mobils"</string>
     <!-- outdated translation 8995162193118880993 -->     <string name="account_setup_options_title" msgid="9016600767888846051">"Opziuns da conto"</string>
     <!-- no translation found for account_setup_options_headline (4181274232835368085) -->
@@ -357,6 +369,10 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Num d\'utilisader u pled-clav nuncorrect."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impussibel da stabilir ina connexiun segirada cun il server."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Impussibel da stabilir ina connexiun segirada cun il server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_certificate_required (7425428621499591492) -->
+    <skip />
+    <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
+    <skip />
     <!-- no translation found for account_setup_failed_check_credentials_message (1364052504743821082) -->
     <skip />
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Impussibel da stabilir ina connexiun cun il server."</string>
@@ -519,9 +535,9 @@
     <skip />
     <!-- no translation found for more_than_999 (8704425397397918798) -->
     <skip />
-    <!-- no translation found for search_title (353141588517762921) -->
-    <skip />
     <!-- no translation found for search_hint (2200412192574686497) -->
+    <skip />
+    <!-- no translation found for search_mailbox_hint (7854987729678942790) -->
     <skip />
     <!-- no translation found for mailbox_options_lookback_label (1207031465051138008) -->
     <skip />
