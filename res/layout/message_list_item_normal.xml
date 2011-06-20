@@ -14,9 +14,8 @@
      limitations under the License.
 -->
 
-
-<!-- This layout is used as a template to create custom view CanvasConversationHeaderView
-    in normal mode. To be able to get the correct measurements, every source field should
+<!-- This layout is used as a template to create a custom message item view
+    in narrow mode. To be able to get the correct measurements, every source field should
     be populated with data here. E.g:
     - Text View should set text to a random long string (android:text="@string/long_string")
     - Image View should set source to a specific asset -->
@@ -30,8 +29,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="16dip"
-        android:layout_marginRight="16dip"
+        android:layout_marginLeft="4dip"
+        android:layout_marginRight="4dip"
         android:src="@drawable/btn_check_on_normal_holo_light" />
     <LinearLayout
         android:layout_width="0dip"
@@ -55,7 +54,7 @@
             android:lines="2" />
     </LinearLayout>
     <LinearLayout
-        android:layout_width="136dip"
+        android:layout_width="80dip"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="right">
@@ -63,8 +62,7 @@
             android:id="@+id/color_chip"
             android:layout_width="@dimen/message_list_item_color_tip_width"
             android:layout_height="@dimen/message_list_item_color_tip_height"
-            android:layout_marginRight="8dip"
-            android:paddingTop="2dip" />
+            android:layout_marginRight="16dip" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -78,7 +76,6 @@
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dip"
                 android:layout_marginRight="8dip"
                 android:text="@string/long_string"
                 android:lines="1" />
@@ -87,7 +84,7 @@
             android:id="@+id/star"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dip"
+            android:layout_marginLeft="8dip"
             android:layout_marginRight="8dip"
             android:src="@drawable/btn_star_off_normal_email_holo_light" />
     </LinearLayout>

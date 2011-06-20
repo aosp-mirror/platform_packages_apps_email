@@ -19,8 +19,8 @@
 <resources>
     <dimen name="button_minWidth">100sp</dimen>
     <dimen name="message_list_item_text_size">16dip</dimen>
-    <dimen name="message_list_item_height_wide">64dip</dimen>
-    <dimen name="message_list_item_height_narrow">80dip</dimen>
+    <dimen name="message_list_item_height_wide">72dip</dimen>
+    <dimen name="message_list_item_height_narrow">72dip</dimen>
     <dimen name="message_list_item_color_tip_width">35dip</dimen>
     <dimen name="message_list_item_color_tip_height">8dip</dimen>
 
@@ -60,8 +60,8 @@
     <dimen name="wide_senders_font_size">16sp</dimen>
     <dimen name="subject_font_size">16sp</dimen>
     <dimen name="date_font_size">14sp</dimen>
-    <dimen name="minimum_width_wide_mode">800dip</dimen>
-    <dimen name="minimum_width_normal_mode">550dip</dimen>
+    <dimen name="minimum_width_wide_mode">720dip</dimen>
+    <dimen name="minimum_width_normal_mode">280dip</dimen>
 
     <!-- Username/password entry -->
     <dimen name="setup_credentials_input_width">340dip</dimen>
