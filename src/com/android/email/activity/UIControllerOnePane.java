@@ -223,8 +223,8 @@ class UIControllerOnePane extends UIControllerBase {
 
         @Override
         public boolean shouldShowUp() {
-            return isMessageViewVisible()
-                     || (isMailboxListVisible() && !getMailboxListFragment().isRoot());
+            return isMessageViewInstalled()
+                     || (isMailboxListInstalled() && !getMailboxListFragment().isRoot());
         }
 
         @Override
@@ -314,36 +314,15 @@ class UIControllerOnePane extends UIControllerBase {
     }
 
     @Override
-    public void onActivityResume() {
-        super.onActivityResume();
-        refreshActionBar();
-    }
-
-    /** @return true if a {@link MailboxListFragment} is installed and visible. */
-    private final boolean isMailboxListVisible() {
-        return isMailboxListInstalled();
-    }
-
-    /** @return true if a {@link MessageListFragment} is installed and visible. */
-    private final boolean isMessageListVisible() {
-        return isMessageListInstalled();
-    }
-
-    /** @return true if a {@link MessageViewFragment} is installed and visible. */
-    private final boolean isMessageViewVisible() {
-        return isMessageViewInstalled();
-    }
-
-    @Override
     public long getUIAccountId() {
         // Get it from the visible fragment.
-        if (isMailboxListVisible()) {
+        if (isMailboxListInstalled()) {
             return getMailboxListFragment().getAccountId();
         }
-        if (isMessageListVisible()) {
+        if (isMessageListInstalled()) {
             return getMessageListFragment().getAccountId();
         }
-        if (isMessageViewVisible()) {
+        if (isMessageViewInstalled()) {
             return getMessageViewFragment().getOpenerAccountId();
         }
         return Account.NO_ACCOUNT;
@@ -351,21 +330,13 @@ class UIControllerOnePane extends UIControllerBase {
 
     private long getMailboxId() {
         // Get it from the visible fragment.
-        if (isMessageListVisible()) {
+        if (isMessageListInstalled()) {
             return getMessageListFragment().getMailboxId();
         }
-        if (isMessageViewVisible()) {
+        if (isMessageViewInstalled()) {
             return getMessageViewFragment().getOpenerMailboxId();
         }
         return Mailbox.NO_MAILBOX;
-    }
-
-    private long getMessageId() {
-        // Get it from the visible fragment.
-        if (isMessageViewVisible()) {
-            return getMessageViewFragment().getMessageId();
-        }
-        return Message.NO_MESSAGE;
     }
 
     @Override
@@ -636,7 +607,7 @@ class UIControllerOnePane extends UIControllerBase {
         // Refreshable only when an actual account is selected, and message view isn't shown.
         // (i.e. only available on the mailbox list or the message view, but not on the combined
         // one)
-        return isActualAccountSelected() && !isMessageViewVisible();
+        return isActualAccountSelected() && !isMessageViewInstalled();
     }
 
     @Override
@@ -644,7 +615,7 @@ class UIControllerOnePane extends UIControllerBase {
         if (!isRefreshEnabled()) {
             return;
         }
-        if (isMessageListVisible()) {
+        if (isMessageListInstalled()) {
             mRefreshManager.refreshMessageList(getActualAccountId(), getMailboxId(), true);
         } else {
             mRefreshManager.refreshMailboxList(getActualAccountId());
@@ -656,7 +627,7 @@ class UIControllerOnePane extends UIControllerBase {
         if (!isRefreshEnabled()) {
             return false;
         }
-        if (isMessageListVisible()) {
+        if (isMessageListInstalled()) {
             return mRefreshManager.isMessageListRefreshing(getMailboxId());
         } else {
             return mRefreshManager.isMailboxListRefreshing(getActualAccountId());
