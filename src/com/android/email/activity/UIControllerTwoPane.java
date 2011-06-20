@@ -411,11 +411,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         return getMessageListMailboxId();
     }
 
-    private long getMessageId() {
-        return isMessageViewInstalled() ? getMessageViewFragment().getMessageId()
-                : Message.NO_MESSAGE;
-    }
-
     /**
      * @return true if refresh is in progress for the current mailbox.
      */
@@ -451,13 +446,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (isMessageViewInstalled()) {
             updateMessageOrderManager();
         }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void onActivityResume() {
-        super.onActivityResume();
-        refreshActionBar();
     }
 
     /** {@inheritDoc} */

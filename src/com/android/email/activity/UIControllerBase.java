@@ -182,6 +182,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             startInboxLookup(mInboxLookupAccountId);
             mResumeInboxLookup = false;
         }
+        refreshActionBar();
     }
 
     /**
@@ -670,6 +671,17 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         AccountSettings.actionSettings(mActivity, getActualAccountId());
         return true;
     }
+
+    /**
+     * @return the ID of the message in focus and visible, if any. Returns
+     *     {@link Message#NO_MESSAGE} if no message is opened.
+     */
+    protected long getMessageId() {
+        return isMessageViewInstalled()
+                ? getMessageViewFragment().getMessageId()
+                : Message.NO_MESSAGE;
+    }
+
 
     /**
      * STOPSHIP For experimental UI.  Remove this.
