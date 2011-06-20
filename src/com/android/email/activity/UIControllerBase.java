@@ -27,6 +27,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.android.email.Email;
+import com.android.email.MessageListContext;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.activity.setup.AccountSettings;
@@ -80,6 +81,13 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      * and remove from the list when we actually uninstall it.
      */
     private final List<Fragment> mRemovedFragments = new LinkedList<Fragment>();
+
+    /**
+     * The active context for the current MessageList.
+     * In some UI layouts such as the one-pane view, the message list may not be visible, but is
+     * on the backstack. This list context will still be accessible in those cases.
+     */
+    protected MessageListContext mListContext;
 
     private final RefreshManager.Listener mRefreshListener
             = new RefreshManager.Listener() {
@@ -422,7 +430,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         }
 
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-            open(accountId, Mailbox.QUERY_ALL_INBOXES, Message.NO_MESSAGE);
+            openMailbox(accountId, Mailbox.QUERY_ALL_INBOXES);
         } else {
             long inboxId = Mailbox.findMailboxOfType(mActivity, accountId, Mailbox.TYPE_INBOX);
             if (inboxId == Mailbox.NO_MAILBOX) {
@@ -465,21 +473,22 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      * Shortcut for {@link #open} with {@link Message#NO_MESSAGE}.
      */
     protected final void openMailbox(long accountId, long mailboxId) {
-        open(accountId, mailboxId, Message.NO_MESSAGE);
+        open(MessageListContext.forMailbox(accountId, mailboxId), Message.NO_MESSAGE);
     }
 
     /**
-     * Loads the given account and optionally selects the given mailbox and message.  Used to open
-     * a particular view at a request from outside of the activity, such as the widget.
-     *
-     * @param accountId ID of the account to load.  Can be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
-     *     Must never be {@link Account#NO_ACCOUNT}.
-     * @param mailboxId ID of the mailbox to load. Must always be specified and cannot be
-     *     {@link Mailbox#NO_MAILBOX}
-     * @param messageId ID of the message to load. If {@link Message#NO_MESSAGE},
-     *     do not open a message.
+     * Opens a given list
+     * @param listContext the list context for the message list to open
+     * @param messageId if specified and not {@link Message#NO_MESSAGE}, will open the message
+     *     in the message list.
      */
-    public abstract void open(long accountId, long mailboxId, long messageId);
+    public final void open(final MessageListContext listContext, final long messageId) {
+        mListContext = listContext;
+        openInternal(listContext, messageId);
+    }
+
+    protected abstract void openInternal(
+            final MessageListContext listContext, final long messageId);
 
     /**
      * Performs the back action.

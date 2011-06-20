@@ -23,12 +23,12 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.android.email.Email;
+import com.android.email.MessageListContext;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.Utility;
 
 import java.util.Set;
 
@@ -42,7 +42,7 @@ import java.util.Set;
  * so that we can easily switch between synchronous and asynchronous transactions.
  *
  * Major TODOs
- * - TODO Newer/Older for message view with swipe!
+ * - TODO Newer/Older for message view
  * - TODO Implement callbacks
  */
 class UIControllerOnePane extends UIControllerBase {
@@ -99,7 +99,7 @@ class UIControllerOnePane extends UIControllerBase {
     // MessageListFragment.Callback
     @Override
     public void onMailboxNotFound() {
-        open(getUIAccountId(), Mailbox.NO_MAILBOX, Message.NO_MESSAGE);
+        switchAccount(getUIAccountId());
     }
 
     // MessageListFragment.Callback
@@ -109,7 +109,7 @@ class UIControllerOnePane extends UIControllerBase {
         if (type == MessageListFragment.Callback.TYPE_DRAFT) {
             MessageCompose.actionEditDraft(mActivity, messageId);
         } else {
-            open(getUIAccountId(), getMailboxId(), messageId);
+            open(mListContext, messageId);
         }
     }
 
@@ -384,32 +384,20 @@ class UIControllerOnePane extends UIControllerBase {
     }
 
     @Override
-    public void open(final long accountId, final long mailboxId, final long messageId) {
+    public void openInternal(final MessageListContext listContext, final long messageId) {
         if (Email.DEBUG) {
-            // This is VERY important -- no check for DEBUG_LIFECYCLE
-            Log.i(Logging.LOG_TAG, this + " open accountId=" + accountId
-                    + " mailboxId=" + mailboxId + " messageId=" + messageId);
-        }
-        if (accountId == Account.NO_ACCOUNT) {
-            throw new IllegalArgumentException();
+            // This is VERY important -- don't check for DEBUG_LIFECYCLE
+            Log.i(Logging.LOG_TAG, this + " open " + listContext + " messageId=" + messageId);
         }
 
-        if ((getUIAccountId() == accountId) && (getMailboxId() == mailboxId)
-                && (getMessageId() == messageId)) {
-            return;
-        }
-
-        final boolean accountChanging = (getUIAccountId() != accountId);
+        final boolean accountChanging = (getUIAccountId() != listContext.mAccountId);
         if (messageId != Message.NO_MESSAGE) {
-            showMessageView(accountId, mailboxId, messageId, accountChanging);
+            showMessageView(messageId, accountChanging);
         } else {
-            if (mailboxId == Mailbox.NO_MAILBOX) {
-                Log.e(Logging.LOG_TAG, this + " unspecified mailbox.");
-                return;
-            }
-            showMessageList(accountId, mailboxId, accountChanging);
+            showMessageList(listContext.mAccountId, listContext.getMailboxId(), accountChanging);
         }
     }
+
 
     /**
      * @return currently installed {@link Fragment} (1-pane has only one at most), or null if none
@@ -442,8 +430,9 @@ class UIControllerOnePane extends UIControllerBase {
         showFragment(MessageListFragment.newInstance(accountId, mailboxId), clearBackStack);
     }
 
-    private void showMessageView(long accountId, long mailboxId, long messageId,
-            boolean clearBackStack) {
+    private void showMessageView(long messageId, boolean clearBackStack) {
+        long accountId = mListContext.mAccountId;
+        long mailboxId = mListContext.getMailboxId();
         showFragment(MessageViewFragment.newInstance(accountId, mailboxId, messageId),
                 clearBackStack);
     }
@@ -583,6 +572,7 @@ class UIControllerOnePane extends UIControllerBase {
         if (!isAccountSelected()) {
             return; // Can happen because of asynchronous fragment transactions.
         }
+
         // Don't use open(account, NO_MAILBOX, NO_MESSAGE).  This is used to open the default
         // view, which is Inbox on the message list.  (There's actually no way to open the mainbox
         // list with open(long,long,long))

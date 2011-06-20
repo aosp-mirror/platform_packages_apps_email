@@ -37,6 +37,7 @@ import android.widget.TextView;
 import com.android.email.Controller;
 import com.android.email.ControllerResultUiThreadWrapper;
 import com.android.email.Email;
+import com.android.email.MessageListContext;
 import com.android.email.MessagingExceptionStrings;
 import com.android.email.R;
 import com.android.emailcommon.Logging;
@@ -45,8 +46,8 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.google.common.base.Preconditions;
 
 import java.util.ArrayList;
 
@@ -71,7 +72,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
     private static final int MAILBOX_SYNC_FREQUENCY_DIALOG = 1;
     private static final int MAILBOX_SYNC_LOOKBACK_DIALOG = 2;
 
-    private Context mContext;
     private Controller mController;
     private Controller.Result mControllerResult;
 
@@ -148,9 +148,9 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
      */
     public static Intent createSearchIntent(Activity fromActivity, long accountId,
             long mailboxId, String query) {
-        if (!Account.isNormalAccount(accountId)) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(Account.isNormalAccount(accountId),
+                "Can only search in normal accounts");
+
         Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
@@ -181,7 +181,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
 
         mUIController.onActivityViewReady();
 
-        mContext = getApplicationContext();
         mController = Controller.getInstance(this);
         mControllerResult = new ControllerResultUiThreadWrapper<ControllerResult>(new Handler(),
                 new ControllerResult());
@@ -205,39 +204,25 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
 
     private void initFromIntent() {
         final Intent intent = getIntent();
-        final long accountId = intent.getLongExtra(EXTRA_ACCOUNT_ID, Account.NO_ACCOUNT);
-        final long mailboxId = intent.getLongExtra(EXTRA_MAILBOX_ID, Mailbox.NO_MAILBOX);
-        if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, String.format("initFromIntent: %d %d", accountId, mailboxId));
-        }
+        final MessageListContext viewContext = MessageListContext.forIntent(this, intent);
+        final long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, Message.NO_MESSAGE);
 
-        // STOPSHIP Temporary search UI
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            long searchMailboxId = Controller.getInstance(this).getSearchMailbox(accountId).mId;
-            final String queryTerm = intent.getStringExtra(EXTRA_QUERY_STRING);
+        if (viewContext.isSearch()) {
             EmailAsyncTask.runAsyncParallel(new Runnable() {
                 @Override
                 public void run() {
-                    // TODO: do a global search in the case of EAS inbox
-                    SearchParams searchSpec = new SearchParams(mailboxId, queryTerm);
                     try {
-                        Controller.getInstance(EmailActivity.this).searchMessages(
-                                accountId, searchSpec);
+                        Controller controller = Controller.getInstance(EmailActivity.this);
+                        controller.searchMessages(
+                                viewContext.mAccountId, viewContext.getSearchParams());
                     } catch (MessagingException e) {
                         // TODO: handle.
                         Log.e(Logging.LOG_TAG, "Got exception while searching " + e);
                     }
                 }});
-
-            mUIController.open(accountId, searchMailboxId, Message.NO_MESSAGE);
-        } else {
-            if (mailboxId != Mailbox.NO_MAILBOX) {
-                final long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, Message.NO_MESSAGE);
-                mUIController.open(accountId, mailboxId, messageId);
-            } else {
-                mUIController.switchAccount(accountId);
-            }
         }
+
+        mUIController.open(viewContext, messageId);
     }
 
     @Override
