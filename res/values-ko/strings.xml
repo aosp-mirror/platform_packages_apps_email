@@ -71,8 +71,7 @@
     <item quantity="other" msgid="2723797835410343458">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g>개 계정"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"<xliff:g id="RECEIVER_NAME">%1$s</xliff:g>에게 보냄"</string>
-    <!-- no translation found for account_name_display_all (4041817500580342035) -->
-    <skip />
+    <string name="account_name_display_all" msgid="4041817500580342035">"모든 계정"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"계정 <xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g>개"</item>
     <item quantity="other" msgid="8548760449976444566">"계정 <xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g>개"</item>
@@ -83,24 +82,25 @@
     <string name="mailbox_name_display_trash" msgid="9139069064580630647">"휴지통"</string>
     <string name="mailbox_name_display_sent" msgid="3426058998191869523">"보낸편지함"</string>
     <string name="mailbox_name_display_junk" msgid="9046762505977999288">"스팸"</string>
-    <!-- no translation found for mailbox_name_display_unread (1015674989793998695) -->
-    <skip />
-    <!-- no translation found for picker_mailbox_name_all_unread (6392491216581687644) -->
-    <skip />
-    <!-- no translation found for picker_mailbox_name_all_inbox (2277030979530376085) -->
-    <skip />
-    <!-- no translation found for picker_combined_view_fmt (6276294768978512737) -->
-    <skip />
-    <!-- no translation found for picker_combined_view_account_count:one (380235084337895804) -->
-    <!-- no translation found for picker_combined_view_account_count:other (4145163147488719025) -->
+    <string name="mailbox_name_display_unread" msgid="1015674989793998695">"읽지않음"</string>
+    <string name="picker_mailbox_name_all_unread" msgid="6392491216581687644">"받은편지함(읽지않음)"</string>
+    <string name="picker_mailbox_name_all_inbox" msgid="2277030979530376085">"받은편지함(모두)"</string>
+    <string name="picker_combined_view_fmt" msgid="6276294768978512737">"통합 보기(<xliff:g id="COUNT">%s</xliff:g>개)"</string>
+  <plurals name="picker_combined_view_account_count">
+    <item quantity="one" msgid="380235084337895804">"<xliff:g id="ACCOUNT_COUNT">%d</xliff:g>개 계정"</item>
+    <item quantity="other" msgid="4145163147488719025">"<xliff:g id="ACCOUNT_COUNT">%d</xliff:g>개 계정"</item>
+  </plurals>
     <string name="debug_version_fmt" msgid="6160213145745376955">"버전: <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="account_folder_list_summary_inbox" msgid="7518263761297423255">"받은편지함"</string>
     <string name="account_folder_list_summary_starred" msgid="3134312269246375723">"중요편지함"</string>
     <string name="account_folder_list_summary_drafts" msgid="5514845993247300437">"임시보관함"</string>
     <string name="account_folder_list_summary_outbox" msgid="3059836696049399377">"보낼편지함"</string>
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"모든 받은편지함 보기"</string>
-    <!-- no translation found for mailbox_list_account_selector_show_all_folders (4185052839366909439) -->
-    <skip />
+    <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"모든 폴더 표시"</string>
+    <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"계정"</string>
+    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="2191566450514579559">"최근 편지함(<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
+    <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"모든 폴더"</string>
+    <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"최근 폴더"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"더 많은 메시지 로드"</string>
   <plurals name="message_view_selected_message_count">
     <item quantity="one" msgid="5064657358375178519">"<xliff:g id="MESSAGE_COUNT">%d</xliff:g>개 선택됨"</item>
@@ -273,6 +273,10 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"도메인\\사용자 이름"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"보안 연결(SSL) 사용"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"모든 SSL 인증서 수락"</string>
+    <!-- no translation found for account_setup_exchange_use_certificate (8690682770083161349) -->
+    <skip />
+    <!-- no translation found for account_setup_exchange_remove_certificate (5633249155510301766) -->
+    <skip />
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"휴대기기 ID"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"계정 설정"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"계정 옵션"</string>
@@ -303,6 +307,10 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"사용자 이름 또는 비밀번호가 잘못되었습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"서버에 안전하게 연결할 수 없습니다."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"서버에 안전하게 연결할 수 없습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
+    <!-- no translation found for account_setup_failed_certificate_required (7425428621499591492) -->
+    <skip />
+    <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
+    <skip />
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"서버에서 오류를 발견했습니다. 사용자 이름과 비밀번호를 확인한 다음 다시 시도해 주세요."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"서버에 연결할 수 없습니다."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"서버에 연결할 수 없습니다."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -417,7 +425,8 @@
     <string name="widget_loading" msgid="2340962056927255554">"로드 중..."</string>
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"구성하려면 터치하세요."</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
-    <string name="search_title" msgid="353141588517762921">"이메일"</string>
     <string name="search_hint" msgid="2200412192574686497">"이메일 검색"</string>
+    <!-- no translation found for search_mailbox_hint (7854987729678942790) -->
+    <skip />
     <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"편지함 확인 조회"</string>
 </resources>
