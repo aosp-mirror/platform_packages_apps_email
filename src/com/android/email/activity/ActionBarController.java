@@ -16,11 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.Mailbox;
-
 import android.app.ActionBar;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -34,6 +29,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.SearchView;
 import android.widget.TextView;
+
+import com.android.email.R;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Mailbox;
 
 /**
  * Manages the account name and the custom view part on the action bar.
@@ -50,7 +50,7 @@ public class ActionBarController {
     private static final String BUNDLE_KEY_MODE = "ActionBarController.BUNDLE_KEY_MODE";
 
     /**
-     * Constants for {@link #mMode}.
+     * Constants for {@link #mSearchMode}.
      *
      * In {@link #MODE_NORMAL} mode, we don't show the search box.
      * In {@link #MODE_SEARCH} mode, we do show the search box.
@@ -84,7 +84,7 @@ public class ActionBarController {
     private long mLastAccountIdForDirtyCheck = Account.NO_ACCOUNT;
 
     /** Either {@link #MODE_NORMAL} or {@link #MODE_SEARCH}. */
-    private int mMode = MODE_NORMAL;
+    private int mSearchMode = MODE_NORMAL;
 
     public final Callback mCallback;
 
@@ -153,7 +153,8 @@ public class ActionBarController {
         mCallback = callback;
         mAccountsSelectorAdapter = new AccountSelectorAdapter(mContext);
 
-        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME
+        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE
+                | ActionBar.DISPLAY_SHOW_HOME
                 | ActionBar.DISPLAY_SHOW_CUSTOM);
 
         // Prepare the custom view
@@ -190,19 +191,23 @@ public class ActionBarController {
 
     /** Must be called from {@link UIControllerBase#onSaveInstanceState} */
     public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(BUNDLE_KEY_MODE, mMode);
+        outState.putInt(BUNDLE_KEY_MODE, mSearchMode);
     }
 
     /** Must be called from {@link UIControllerBase#onRestoreInstanceState} */
     public void onRestoreInstanceState(Bundle savedState) {
-        mMode= savedState.getInt(BUNDLE_KEY_MODE);
+        int mode = savedState.getInt(BUNDLE_KEY_MODE);
+        if (mode == MODE_SEARCH) {
+            // No need to re-set the initial query, as the View tree restoration does that
+            enterSearchMode(null);
+        }
     }
 
     /**
      * @return true if the search box is shown.
      */
     private boolean isInSearchMode() {
-        return mMode == MODE_SEARCH;
+        return mSearchMode == MODE_SEARCH;
     }
 
     /**
@@ -217,7 +222,15 @@ public class ActionBarController {
         if (!TextUtils.isEmpty(initialQueryTerm)) {
             mSearchView.setQuery(initialQueryTerm, false);
         }
-        mMode = MODE_SEARCH;
+        mSearchMode = MODE_SEARCH;
+
+        // Need to force it to mode "standard" to hide it.
+        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        mActionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
+        mSearchContainer.setVisibility(View.VISIBLE);
+        // TODO: HACK. this is a workaround IME not popping up.
+        mSearchView.setIconified(false);
+
         refresh();
     }
 
@@ -225,7 +238,13 @@ public class ActionBarController {
         if (!isInSearchMode()) {
             return;
         }
-        mMode = MODE_NORMAL;
+        mSearchMode = MODE_NORMAL;
+        mSearchContainer.setVisibility(View.GONE);
+        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
+
+        // Force update of account list when we exit search.
+        updateAccountList();
+
         refresh();
         mCallback.onSearchExit();
     }
@@ -250,24 +269,13 @@ public class ActionBarController {
         mActionBar.setDisplayOptions(showUp
                 ? ActionBar.DISPLAY_HOME_AS_UP : 0, ActionBar.DISPLAY_HOME_AS_UP);
 
-        // TODO In search mode, account spinner should be hidden.
-        // (See also the TODO in the class header -- this methods needs a lot of change.)
-
         if (isInSearchMode()) {
-            boolean wasVisible = (mSearchView.getVisibility() == View.VISIBLE);
-            mSearchView.setVisibility(View.VISIBLE);
-            if (!wasVisible) {
-                // TODO: HACK. this is a workaround IME not popping up.
-                mSearchView.setIconified(false);
-            }
             mMailboxNameContainer.setVisibility(View.GONE);
         } else {
-            mSearchView.setVisibility(View.GONE);
             mMailboxNameContainer.setVisibility(mCallback.shouldShowMailboxName()
                     ? View.VISIBLE : View.GONE);
+            mMailboxNameView.setText(mCallback.getCurrentMailboxName());
         }
-
-        mMailboxNameView.setText(mCallback.getCurrentMailboxName());
 
         // Note on action bar, we show only "unread count".  Some mailboxes such as Outbox don't
         // have the idea of "unread count", in which case we just omit the count.
@@ -319,10 +327,15 @@ public class ActionBarController {
     private void updateAccountList() {
         mAccountsSelectorAdapter.swapCursor(mAccountCursor);
 
+        if (mSearchMode == MODE_SEARCH) {
+            // In search mode, so we don't care about the account list - it'll get updated when
+            // it goes visible again.
+            return;
+        }
+
         final ActionBar ab = mActionBar;
         if (mAccountCursor == null) {
             // Cursor not ready or closed.
-            mAccountsSelectorAdapter.swapCursor(null);
             ab.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
             ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
             return;
