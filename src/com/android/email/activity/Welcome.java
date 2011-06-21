@@ -19,11 +19,14 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
+import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSetupBasics;
-import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.MailService;
+import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
@@ -34,14 +37,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 
 /**
- * The Welcome activity initializes the application and decides what Activity
- * the user should start with.
+ * The Welcome activity initializes the application and starts {@link EmailActivity}, or launch
+ * {@link AccountSetupBasics} if no accounts are configured.
  *
- * This class knows which activity should be launched under the current configuration (screen size)
- * and the number of accounts configured.  So if you want to open an account or a mailbox,
- * you should always do so via its static methods, such as {@link #actionOpenAccountInbox}.
+ * TOOD Show "your messages are on the way" message like gmail does during the inbox lookup.
  */
 public class Welcome extends Activity {
     /*
@@ -80,6 +82,17 @@ public class Welcome extends Activity {
     private static final String VIEW_MAILBOX_INTENT_URL_PATH = "/view/mailbox";
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
+
+    // Account reconciler is started from AccountResolver, which we may run multiple times,
+    // so remember if we did it already to prevent from running it twice.
+    private boolean mAccountsReconciled;
+
+    private long mAccountId;
+    private long mMailboxId;
+    private long mMessageId;
+    private String mAccountUuid;
+
+    private MailboxFinder mInboxFinder;
 
     /**
      * Launch this activity.  Note:  It's assumed that this activity is only called as a means to
@@ -169,108 +182,223 @@ public class Welcome extends Activity {
         // TODO More completely separate ExchangeService from Email app
         ExchangeUtils.startExchangeService(this);
 
-        new MainActivityLauncher(this, getIntent()).executeParallel();
+        // Extract parameters from the intent.
+        final Intent intent = getIntent();
+        mAccountId = IntentUtilities.getAccountIdFromIntent(intent);
+        mMailboxId = IntentUtilities.getMailboxIdFromIntent(intent);
+        mMessageId = IntentUtilities.getMessageIdFromIntent(intent);
+        mAccountUuid = IntentUtilities.getAccountUuidFromIntent(intent);
+        UiUtilities.setDebugPaneMode(getDebugPaneMode(intent));
+
+        startAccountResolver();
     }
 
     @Override
-    public void onDestroy() {
+    protected void onStop() {
+        // The activity no longer visible, which means the user opened some other app.
+        // Just close self and not launch EmailActivity.
+        stopInboxLookup();
         mTaskTracker.cancellAllInterrupt();
-        super.onDestroy();
+        super.onStop();
+        finish();
     }
 
     /**
-     * Open an account with the Activity appropriate to the current configuration.
-     * If there's no accounts set up, open the "add account" screen.
+     * {@inheritDoc}
      *
-     * if {@code account} is -1, open the default account.
+     * When launching an activity from {@link Welcome}, we always want to set
+     * {@link Intent#FLAG_ACTIVITY_FORWARD_RESULT}.
+     */
+    @Override
+    public void startActivity(Intent intent) {
+        intent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+        super.startActivity(intent);
+    }
+
+    private void startAccountResolver() {
+        new AccountResolver().executeParallel();
+    }
+
+    /**
+     * Stop inbox lookup.  This MSUT be called on the UI thread.
+     */
+    private void stopInboxLookup() {
+        if (mInboxFinder != null) {
+            mInboxFinder.cancel();
+            mInboxFinder = null;
+        }
+    }
+
+    /**
+     * Start inbox lookup.  This MSUT be called on the UI thread.
+     */
+    private void startInboxLookup() {
+        Log.i(Logging.LOG_TAG, "Inbox not found.  Starting mailbox finder...");
+        stopInboxLookup(); // Stop if already running -- it shouldn't be but just in case.
+        mInboxFinder = new MailboxFinder(this, mAccountId, Mailbox.TYPE_INBOX,
+                mMailboxFinderCallback);
+        mInboxFinder.startLookup();
+    }
+
+    /**
+     * Determine which account to open with the given account ID and UUID.
+     *
+     * @return ID of the account to use.
      */
     @VisibleForTesting
-    static class MainActivityLauncher extends EmailAsyncTask<Void, Void, Void> {
-        private final Welcome mFromActivity;
-        private final long mAccountId;
-        private final long mMailboxId;
-        private final long mMessageId;
-        private final String mAccountUuid;
+    static long resolveAccountId(Context context, long inputAccountId, String inputUuid) {
+        final long accountId;
 
-        public MainActivityLauncher(Welcome fromActivity, Intent intent) {
-            super(fromActivity.mTaskTracker);
-            mFromActivity = fromActivity;
+        if (!TextUtils.isEmpty(inputUuid)) {
+            // If a UUID is specified, try to use it.
+            // If the UUID is invalid, accountId will be NO_ACCOUNT.
+            accountId = Account.getAccountIdFromUuid(context, inputUuid);
 
-            mAccountId = IntentUtilities.getAccountIdFromIntent(intent);
-            mMailboxId = IntentUtilities.getMailboxIdFromIntent(intent);
-            mMessageId = IntentUtilities.getMessageIdFromIntent(intent);
-            mAccountUuid = IntentUtilities.getAccountUuidFromIntent(intent);
-            UiUtilities.setDebugPaneMode(getDebugPaneMode(intent));
-        }
-
-        private boolean isMailboxSelected() {
-            return mMailboxId != -1;
-        }
-
-        private boolean isMessageSelected() {
-            return mMessageId != -1;
-        }
-
-        @VisibleForTesting
-        static long resolveAccountId(Context context, long inputAccountId, String uuid) {
-            final long accountId;
-
-            if (!TextUtils.isEmpty(uuid)) {
-                accountId = Account.getAccountIdFromUuid(context, uuid);
-                // accountId will be NO_ACCOUNT if the UUID is invalid.
-
-            } else if (inputAccountId != Account.NO_ACCOUNT) {
-                // TODO if we add meta-mailboxes/accounts to the database, remove this special case
-                if (inputAccountId == Account.ACCOUNT_ID_COMBINED_VIEW
-                        || Account.isValidId(context, inputAccountId)) {
-                    accountId = inputAccountId;
-                } else {
-                    accountId = Account.NO_ACCOUNT;
-                }
+        } else if (inputAccountId != Account.NO_ACCOUNT) {
+            // If a valid account ID is specified, just use it.
+            if (inputAccountId == Account.ACCOUNT_ID_COMBINED_VIEW
+                    || Account.isValidId(context, inputAccountId)) {
+                accountId = inputAccountId;
             } else {
-                // Use the default (without showing the toast)
-                accountId = Account.getDefaultAccountId(context);
+                accountId = Account.NO_ACCOUNT;
             }
-            if (accountId != Account.NO_ACCOUNT) {
-                // Okay, the given account is valid.
-                return accountId;
-            } else {
-                // No, it's invalid.  Show the warning toast and use the default.
-                Utility.showToast(context, R.string.toast_account_not_found);
-                return Account.getDefaultAccountId(context);
-            }
+        } else {
+            // Neither an accountID or a UUID is specified.
+            // Use the default, without showing the "account removed?" toast.
+            accountId = Account.getDefaultAccountId(context);
+        }
+        if (accountId != Account.NO_ACCOUNT) {
+            // Okay, the given account is valid.
+            return accountId;
+        } else {
+            // No, it's invalid.  Show the warning toast and use the default.
+            Utility.showToast(context, R.string.toast_account_not_found);
+            return Account.getDefaultAccountId(context);
+        }
+    }
+
+    /**
+     * Determine which account to use according to the number of accounts already set up,
+     * {@link #mAccountId} and {@link #mAccountUuid}.
+     *
+     * <pre>
+     * 1. If there's no account configured, start account setup.
+     * 2. Otherwise detemine which account to open with {@link #resolveAccountId} and
+     *   2a. If the account doesn't have inbox yet, start inbox finder.
+     *   2b. Otherwise open the main activity.
+     * </pre>
+     */
+    private class AccountResolver extends EmailAsyncTask<Void, Void, Void> {
+        private boolean mStartAccountSetup;
+        private boolean mStartInboxLookup;
+
+        public AccountResolver() {
+            super(mTaskTracker);
         }
 
         @Override
         protected Void doInBackground(Void... params) {
-            // Reconcile POP/IMAP accounts.  EAS accounts are taken care of by ExchangeService.
-            MailService.reconcilePopImapAccountsSync(mFromActivity);
+            final Activity activity = Welcome.this;
 
-            final int numAccount =
-                    EmailContent.count(mFromActivity, Account.CONTENT_URI);
+            if (!mAccountsReconciled) {
+                mAccountsReconciled = true;
+
+                // Reconcile POP/IMAP accounts.  EAS accounts are taken care of by ExchangeService.
+                //
+                // TODO Do we still really have to do it at startup?
+                //      Now that we use the broadcast to detect system account changes, our database
+                //      should always be in sync with the system accounts...
+                MailService.reconcilePopImapAccountsSync(activity);
+            }
+
+            final int numAccount = EmailContent.count(activity, Account.CONTENT_URI);
             if (numAccount == 0) {
-                AccountSetupBasics.actionNewAccount(mFromActivity);
+                mStartAccountSetup = true;
             } else {
-                final long accountId = resolveAccountId(mFromActivity, mAccountId, mAccountUuid);
-
-                final Intent i;
-                if (isMessageSelected()) {
-                    i = EmailActivity.createOpenMessageIntent(mFromActivity, accountId,
-                            mMailboxId, mMessageId);
-                } else if (isMailboxSelected()) {
-                    i = EmailActivity.createOpenMailboxIntent(mFromActivity, accountId,
-                                mMailboxId);
-                } else {
-                    i = EmailActivity.createOpenAccountIntent(mFromActivity, accountId);
+                mAccountId = resolveAccountId(activity, mAccountId, mAccountUuid);
+                if (Account.isNormalAccount(mAccountId) &&
+                        Mailbox.findMailboxOfType(activity, mAccountId, Mailbox.TYPE_INBOX)
+                        == Mailbox.NO_MAILBOX) {
+                    mStartInboxLookup = true;
                 }
-                mFromActivity.startActivity(i);
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(Void result) {
-            mFromActivity.finish();
+        protected void onPostExecute(Void noResult) {
+            final Activity activity = Welcome.this;
+
+            if (mStartAccountSetup) {
+                AccountSetupBasics.actionNewAccount(activity);
+                activity.finish();
+            } else if (mStartInboxLookup) {
+                startInboxLookup();
+            } else {
+                startEmailActivity();
+            }
         }
     }
+
+    /**
+     * Start {@link EmailActivity} using {@link #mAccountId}, {@link #mMailboxId} and
+     * {@link #mMessageId}.
+     */
+    private void startEmailActivity() {
+        final Intent i;
+        if (mMessageId != Message.NO_MESSAGE) {
+            i = EmailActivity.createOpenMessageIntent(this, mAccountId, mMailboxId, mMessageId);
+        } else if (mMailboxId != Mailbox.NO_MAILBOX) {
+            i = EmailActivity.createOpenMailboxIntent(this, mAccountId, mMailboxId);
+        } else {
+            i = EmailActivity.createOpenAccountIntent(this, mAccountId);
+        }
+        startActivity(i);
+        finish();
+    }
+
+    private final MailboxFinder.Callback mMailboxFinderCallback = new MailboxFinder.Callback() {
+        // This MUST be called from callback methods.
+        private void cleanUp() {
+            mInboxFinder = null;
+        }
+
+        @Override
+        public void onAccountNotFound() {
+            cleanUp();
+            // Account removed?  Clear the IDs and restart the task.  Which will result in either
+            // a) show account setup if there's really no accounts  or b) open the default account.
+
+            mAccountId = Account.NO_ACCOUNT;
+            mMailboxId = Mailbox.NO_MAILBOX;
+            mMessageId = Message.NO_MESSAGE;
+            mAccountUuid = null;
+
+            // Restart the task.
+            startAccountResolver();
+        }
+
+        @Override
+        public void onMailboxNotFound(long accountId) {
+            // Just do the same thing as "account not found".
+            onAccountNotFound();
+        }
+
+        @Override
+        public void onAccountSecurityHold(long accountId) {
+            cleanUp();
+
+            startActivity(
+                    AccountSecurity.actionUpdateSecurityIntent(Welcome.this, accountId, true));
+            finish();
+        }
+
+        @Override
+        public void onMailboxFound(long accountId, long mailboxId) {
+            cleanUp();
+
+            // Okay the account has Inbox now.  Start the main activity.
+            startEmailActivity();
+        }
+    };
 }

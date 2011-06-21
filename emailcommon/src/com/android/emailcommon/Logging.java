@@ -31,7 +31,9 @@ public class Logging {
     public static final boolean DEBUG_SENSITIVE;
 
     /**
-     * If true, logging regarding activity/fragment lifecycle will be enabled.
+     * If true, logging regarding UI (such as activity/fragment lifecycle) will be enabled.
+     *
+     * TODO rename it to DEBUG_UI.
      */
     public static final boolean DEBUG_LIFECYCLE;
 

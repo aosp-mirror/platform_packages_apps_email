@@ -47,19 +47,18 @@ public class WelcomeTests extends AndroidTestCase {
         assertTrue(Account.getDefaultAccountId(c) == id3);
 
         // No account specified -- should return the default account.
-        assertEquals(id3, Welcome.MainActivityLauncher.resolveAccountId(c, -1, null));
+        assertEquals(id3, Welcome.resolveAccountId(c, -1, null));
 
         // Invalid account id -- should return the default account.
-        assertEquals(id3, Welcome.MainActivityLauncher.resolveAccountId(c, 12345, null));
+        assertEquals(id3, Welcome.resolveAccountId(c, 12345, null));
 
         // Valid ID
-        assertEquals(id1, Welcome.MainActivityLauncher.resolveAccountId(c, id1, null));
+        assertEquals(id1, Welcome.resolveAccountId(c, id1, null));
 
         // Invalid UUID -- should return the default account.
-        assertEquals(id3, Welcome.MainActivityLauncher.resolveAccountId(c, -1, "xxx"));
+        assertEquals(id3, Welcome.resolveAccountId(c, -1, "xxx"));
 
         // Valid UUID
-        assertEquals(id1, Welcome.MainActivityLauncher.resolveAccountId(c, -1,
-                account1.mCompatibilityUuid));
+        assertEquals(id1, Welcome.resolveAccountId(c, -1, account1.mCompatibilityUuid));
     }
 }
