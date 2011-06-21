@@ -54,24 +54,6 @@ public class MessageFileViewTest extends ActivityInstrumentationTestCase2<Messag
         setActivityIntent(i);
     }
 
-
-    /**
-     * Open the activity without setting an Intent.
-     *
-     * Expected: Activity will close itself.
-     */
-    public void testCreateWithoutParamter() throws Throwable {
-        // No intent parameters specified.  The activity will close itself.
-        final MessageFileView activity = getActivity();
-
-        TestUtils.waitUntil("", new TestUtils.Condition() {
-            @Override
-            public boolean isMet() {
-                return activity.isFinishing();
-            }
-        }, TIMEOUT);
-    }
-
     private  Uri createEmlFile() throws Exception {
         // Create a simple message
         Message msg = new Message();

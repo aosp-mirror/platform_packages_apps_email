@@ -763,21 +763,17 @@ public class EmailProvider extends ContentProvider {
 
         DatabaseHelper helper = new DatabaseHelper(context, DATABASE_NAME);
         mDatabase = helper.getWritableDatabase();
-        if (mDatabase != null) {
-            mDatabase.setLockingEnabled(true);
-            BodyDatabaseHelper bodyHelper = new BodyDatabaseHelper(context, BODY_DATABASE_NAME);
-            mBodyDatabase = bodyHelper.getWritableDatabase();
-            if (mBodyDatabase != null) {
-                mBodyDatabase.setLockingEnabled(true);
-                String bodyFileName = mBodyDatabase.getPath();
-                mDatabase.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
-            }
-
-            // Restore accounts if the database is corrupted...
-            restoreIfNeeded(context, mDatabase);
-        } else {
-            Log.w(TAG, "getWritableDatabase returned null!");
+        mDatabase.setLockingEnabled(true);
+        BodyDatabaseHelper bodyHelper = new BodyDatabaseHelper(context, BODY_DATABASE_NAME);
+        mBodyDatabase = bodyHelper.getWritableDatabase();
+        if (mBodyDatabase != null) {
+            mBodyDatabase.setLockingEnabled(true);
+            String bodyFileName = mBodyDatabase.getPath();
+            mDatabase.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
         }
+
+        // Restore accounts if the database is corrupted...
+        restoreIfNeeded(context, mDatabase);
 
         // Check for any orphaned Messages in the updated/deleted tables
         deleteOrphans(mDatabase, Message.UPDATED_TABLE_NAME);

@@ -206,6 +206,14 @@ public final class DBTestHelper {
             public SharedPreferences getSharedPreferences(String name, int mode) {
                 return new MockSharedPreferences();
             }
+
+            @Override
+            public Object getSystemService(String name) {
+                if (Context.LAYOUT_INFLATER_SERVICE.equals(name)) {
+                    return mRealContext.getSystemService(name);
+                }
+                return super.getSystemService(name);
+            }
         }
 
         /**

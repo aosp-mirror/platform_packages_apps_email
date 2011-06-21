@@ -50,10 +50,10 @@ public class MessageFileViewFragment extends MessageViewFragmentBase {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         if (mFileEmailUri == null) { // sanity check.  setFileUri() must have been called.
             throw new IllegalStateException();
         }
-        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
