@@ -56,7 +56,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     final EmailActivity mActivity;
     final FragmentManager mFragmentManager;
 
-    private final ActionBarController mActionBarController;
+    protected final ActionBarController mActionBarController;
 
     final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 

@@ -28,9 +28,11 @@
     <include
         android:id="@+id/current_mailbox_container"
         layout="@layout/action_bar_current_mailbox"
+        android:visibility="gone"
         />
     <include
         android:id="@+id/search_container"
         layout="@layout/action_bar_search"
+        android:visibility="gone"
         />
 </FrameLayout>
