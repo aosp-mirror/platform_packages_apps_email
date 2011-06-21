@@ -42,6 +42,8 @@ import java.util.List;
 
 /**
  * Base class for the UI controller.
+ *
+ * TODO Remove all the {@link MailboxFinder} stuff.  It's now done in {@link Welcome}.
  */
 abstract class UIControllerBase implements MailboxListFragment.Callback,
         MessageListFragment.Callback, MessageViewFragment.Callback  {
