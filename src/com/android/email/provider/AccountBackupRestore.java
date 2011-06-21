@@ -16,16 +16,8 @@
 
 package com.android.email.provider;
 
-import com.android.email.Email;
-import com.android.email.Preferences;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-
 import android.content.ContentResolver;
 import android.content.Context;
-import android.text.TextUtils;
-import android.util.Log;
 
 /**
  * Helper class to facilitate EmailProvider's account backup/restore facility.
@@ -52,45 +44,11 @@ public class AccountBackupRestore {
 
     /**
      * Backup user Account and HostAuth data into our backup database
+     *
+     * TODO Make EmailProvider do this automatically.
      */
     public static void backup(Context context) {
         ContentResolver resolver = context.getContentResolver();
-        int numBackedUp = resolver.update(EmailProvider.ACCOUNT_BACKUP_URI, null, null, null);
-        if (numBackedUp < 0) {
-            Log.e(Logging.LOG_TAG, "Account backup failed!");
-        } else if (Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "Backed up " + numBackedUp + " accounts...");
-        }
-    }
-
-    /**
-     * Restore user Account and HostAuth data from our backup database
-     */
-    public static void restoreIfNeeded(Context context) {
-        if (sBackupsChecked) return;
-
-        // Check for legacy backup
-        String legacyBackup = Preferences.getLegacyBackupPreference(context);
-        // If there's a legacy backup, create a new-style backup and delete the legacy backup
-        // In the 1:1000000000 chance that the user gets an app update just as his database becomes
-        // corrupt, oh well...
-        if (!TextUtils.isEmpty(legacyBackup)) {
-            backup(context);
-            Preferences.clearLegacyBackupPreference(context);
-            Log.w(Logging.LOG_TAG, "Created new EmailProvider backup database");
-        }
-
-        // If we have accounts, we're done
-        if (EmailContent.count(context, Account.CONTENT_URI) > 0) return;
-        ContentResolver resolver = context.getContentResolver();
-        int numRecovered = resolver.update(EmailProvider.ACCOUNT_RESTORE_URI, null, null, null);
-        if (numRecovered > 0) {
-            Log.e(Logging.LOG_TAG, "Recovered " + numRecovered + " accounts!");
-        } else if (numRecovered < 0) {
-            Log.e(Logging.LOG_TAG, "Account recovery failed?");
-        } else if (Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "No accounts to restore...");
-        }
-        sBackupsChecked = true;
+        resolver.update(EmailProvider.ACCOUNT_BACKUP_URI, null, null, null);
     }
 }

@@ -162,13 +162,6 @@ public class Welcome extends Activity {
         // Reset the "accounts changed" notification, now that we're here
         Email.setNotifyUiAccountsChanged(false);
 
-        // Restore accounts, if it has not happened already
-        // NOTE:  This is blocking, which it should not be (in the UI thread)
-        // We're going to live with this for the short term and replace with something
-        // smarter.  Long-term fix:  Move this, and most of the code below, to an AsyncTask
-        // and do the DB work in a thread.  Then post handler to finish() as appropriate.
-        AccountBackupRestore.restoreIfNeeded(this);
-
         // Because the app could be reloaded (for debugging, etc.), we need to make sure that
         // ExchangeService gets a chance to start.  There is no harm to starting it if it has
         // already been started

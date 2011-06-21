@@ -21,7 +21,6 @@ import com.android.email.ExchangeUtils;
 import com.android.email.NotificationController;
 import com.android.email.ResourceHelper;
 import com.android.email.VendorPolicyLoader;
-import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Configuration;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.service.IAccountService;
@@ -54,7 +53,9 @@ public class AccountService extends Service {
 
         @Override
         public void restoreAccountsIfNeeded() {
-            AccountBackupRestore.restoreIfNeeded(mContext);
+            // Obsolete -- this is done 100% transparently in EmailProvider.
+            // We leave the method because we don't want to change the service interface.
+            // (It may be okay to remove it, but we're not sure at this point.)
         }
 
         @Override

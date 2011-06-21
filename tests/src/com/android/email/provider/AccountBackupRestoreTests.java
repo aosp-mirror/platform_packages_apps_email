@@ -114,8 +114,10 @@ public class AccountBackupRestoreTests extends ProviderTestCase2<EmailProvider> 
         assertEquals(0, EmailContent.count(mMockContext, Account.CONTENT_URI));
         assertEquals(0, EmailContent.count(mMockContext, HostAuth.CONTENT_URI));
 
-        // Restore the accounts
-        AccountBackupRestore.restoreIfNeeded(mMockContext);
+        // Because we restore accounts at the db open time, we first need to close the db
+        // explicitly here.
+        // Accounts will be restored next time we touch the db.
+        getProvider().shutdown();
 
         // Make sure there are two accounts and four host auths
         assertEquals(2, EmailContent.count(mMockContext, Account.CONTENT_URI));
