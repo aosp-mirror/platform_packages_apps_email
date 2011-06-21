@@ -579,4 +579,16 @@ public class UtilityUnitTests extends AndroidTestCase {
         s2 = null;
         assertTrue(Utility.areStringsEqual(s1, s2));
     }
+
+    public void testIsServerNameValid() {
+        assertTrue(Utility.isServerNameValid("a"));
+        assertTrue(Utility.isServerNameValid("gmail"));
+        assertTrue(Utility.isServerNameValid("gmail.com"));
+        assertTrue(Utility.isServerNameValid("gmail.com.x.y.z"));
+        assertTrue(Utility.isServerNameValid("  gmail.com.x.y.z  "));
+
+        assertFalse(Utility.isServerNameValid(""));
+        assertFalse(Utility.isServerNameValid("$"));
+        assertFalse(Utility.isServerNameValid("  "));
+    }
 }

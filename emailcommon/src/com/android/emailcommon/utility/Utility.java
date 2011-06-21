@@ -63,6 +63,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -169,7 +171,37 @@ public class Utility {
             return false;
         }
         return port > 0 && port < 65536;
-     }
+    }
+
+    /**
+     * Validate a hostname name field.
+     *
+     * Because we just use the {@link URI} class for validation, it'll accept some invalid
+     * host names, but it works well enough...
+     */
+    public static boolean isServerNameValid(TextView view) {
+        return isServerNameValid(view.getText().toString());
+    }
+
+    public static boolean isServerNameValid(String serverName) {
+        serverName = serverName.trim();
+        if (TextUtils.isEmpty(serverName)) {
+            return false;
+        }
+        try {
+            URI uri = new URI(
+                    "http",
+                    null,
+                    serverName,
+                    -1,
+                    null, // path
+                    null, // query
+                    null);
+            return true;
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
 
     /**
      * Ensures that the given string starts and ends with the double quote character. The string is

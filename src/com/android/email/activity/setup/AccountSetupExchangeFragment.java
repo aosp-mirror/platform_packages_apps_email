@@ -301,7 +301,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         if (!mLoaded) return false;
         boolean enabled = usernameFieldValid(mUsernameView)
                 && Utility.isTextViewNotEmpty(mPasswordView)
-                && Utility.isTextViewNotEmpty(mServerView);
+                && Utility.isServerNameValid(mServerView);
         enableNextButton(enabled);
 
         // Warn (but don't prevent) if password has leading/trailing spaces

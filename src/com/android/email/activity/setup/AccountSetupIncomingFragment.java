@@ -360,7 +360,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         if (!mConfigured || !mLoaded) return;
         boolean enabled = Utility.isTextViewNotEmpty(mUsernameView)
                 && Utility.isTextViewNotEmpty(mPasswordView)
-                && Utility.isTextViewNotEmpty(mServerView)
+                && Utility.isServerNameValid(mServerView)
                 && Utility.isPortFieldValid(mPortView);
         enableNextButton(enabled);
 

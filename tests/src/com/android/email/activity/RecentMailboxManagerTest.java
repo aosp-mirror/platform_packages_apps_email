@@ -16,15 +16,14 @@
 
 package com.android.email.activity;
 
-import android.content.Context;
-import android.test.ProviderTestCase2;
-
+import com.android.email.DBTestHelper;
 import com.android.email.MockClock;
 import com.android.email.provider.ContentCache;
-import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.Mailbox;
+
+import android.content.Context;
+import android.test.AndroidTestCase;
 
 import java.util.ArrayList;
 
@@ -34,20 +33,21 @@ import java.util.ArrayList;
  * You can run this entire test case with:
  *   runtest -c com.android.email.activity.RecentMailboxManagerTest email
  */
-public class RecentMailboxManagerTest extends ProviderTestCase2<EmailProvider> {
+public class RecentMailboxManagerTest extends AndroidTestCase {
 
     private Context mMockContext;
     private MockClock mMockClock;
     private RecentMailboxManager mManager;
     private Mailbox[] mMailboxArray;
+
     public RecentMailboxManagerTest() {
-        super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mMockContext = getMockContext();
+        mMockContext = DBTestHelper.ProviderContextSetupHelper.getProviderContext(
+                getContext());
         mMockClock = new MockClock();
         RecentMailboxManager.sClock = mMockClock;
         mManager = RecentMailboxManager.getInstance(mMockContext);
@@ -64,8 +64,6 @@ public class RecentMailboxManagerTest extends ProviderTestCase2<EmailProvider> {
             ProviderTestUtils.setupMailbox("laurel", 1L, true, mMockContext, Mailbox.TYPE_MAIL),
             ProviderTestUtils.setupMailbox("hardy", 1L, true, mMockContext, Mailbox.TYPE_MAIL),
         };
-        // Invalidate all caches, since we reset the database for each test
-        ContentCache.invalidateAllCachesForTest();
     }
 
     @Override
@@ -105,10 +103,16 @@ public class RecentMailboxManagerTest extends ProviderTestCase2<EmailProvider> {
         ArrayList<Long> testList;
 
         // test default list
-        testList = mManager.getMostRecent(1L, false);
-        assertEquals(0, testList.size());
+        // With exclusions
         testList = mManager.getMostRecent(1L, true);
-        assertEquals(0, testList.size());
+        assertEquals("w/ exclusions", 0, testList.size());
+
+        // Without exclusions -- we'll get "default" list.
+        testList = mManager.getMostRecent(1L, false);
+        assertEquals("w/o exclusions", 2, testList.size());
+
+        assertEquals(mMailboxArray[1].mId, (long) testList.get(0)); // Drafts
+        assertEquals(mMailboxArray[3].mId, (long) testList.get(1)); // Sent
     }
 
     /** Test recent list not full */
