@@ -17,6 +17,7 @@
 package com.android.email.provider;
 
 import com.android.email.Email;
+import com.android.email.Preferences;
 import com.android.email.provider.ContentCache.CacheToken;
 import com.android.email.service.AttachmentDownloadService;
 import com.android.emailcommon.AccountManagerTypes;
@@ -62,6 +63,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -88,8 +90,6 @@ public class EmailProvider extends ContentProvider {
         Uri.parse("content://" + EmailContent.AUTHORITY + "/integrityCheck");
     public static final Uri ACCOUNT_BACKUP_URI =
         Uri.parse("content://" + EmailContent.AUTHORITY + "/accountBackup");
-    public static final Uri ACCOUNT_RESTORE_URI =
-        Uri.parse("content://" + EmailContent.AUTHORITY + "/accountRestore");
 
     /** Appended to the notification URI for delete operations */
     public static final String NOTIFICATION_OP_DELETE = "delete";
@@ -750,7 +750,8 @@ public class EmailProvider extends ContentProvider {
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
 
-    public synchronized SQLiteDatabase getDatabase(Context context) {
+    @VisibleForTesting
+    synchronized SQLiteDatabase getDatabase(Context context) {
         // Always return the cached database, if we've got one
         if (mDatabase != null) {
             return mDatabase;
@@ -771,6 +772,11 @@ public class EmailProvider extends ContentProvider {
                 String bodyFileName = mBodyDatabase.getPath();
                 mDatabase.execSQL("attach \"" + bodyFileName + "\" as BodyDatabase");
             }
+
+            // Restore accounts if the database is corrupted...
+            restoreIfNeeded(context, mDatabase);
+        } else {
+            Log.w(TAG, "getWritableDatabase returned null!");
         }
 
         // Check for any orphaned Messages in the updated/deleted tables
@@ -781,8 +787,39 @@ public class EmailProvider extends ContentProvider {
     }
 
     /*package*/ static SQLiteDatabase getReadableDatabase(Context context) {
-        DatabaseHelper helper = new EmailProvider().new DatabaseHelper(context, DATABASE_NAME);
+        DatabaseHelper helper = new DatabaseHelper(context, DATABASE_NAME);
         return helper.getReadableDatabase();
+    }
+
+    /**
+     * Restore user Account and HostAuth data from our backup database
+     */
+    public static void restoreIfNeeded(Context context, SQLiteDatabase mainDatabase) {
+        if (Email.DEBUG) {
+            Log.w(TAG, "restoreIfNeeded...");
+        }
+        // Check for legacy backup
+        String legacyBackup = Preferences.getLegacyBackupPreference(context);
+        // If there's a legacy backup, create a new-style backup and delete the legacy backup
+        // In the 1:1000000000 chance that the user gets an app update just as his database becomes
+        // corrupt, oh well...
+        if (!TextUtils.isEmpty(legacyBackup)) {
+            backupAccounts(context, mainDatabase);
+            Preferences.clearLegacyBackupPreference(context);
+            Log.w(TAG, "Created new EmailProvider backup database");
+            return;
+        }
+
+        // If we have accounts, we're done
+        Cursor c = mainDatabase.query(Account.TABLE_NAME, EmailContent.ID_PROJECTION, null, null,
+                null, null, null);
+        if (c.moveToFirst()) {
+            if (Email.DEBUG) {
+                Log.w(TAG, "restoreIfNeeded: Account exists.");
+            }
+            return; // At least one account exists.
+        }
+        restoreAccounts(context, mainDatabase);
     }
 
     /** {@inheritDoc} */
@@ -867,7 +904,7 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    private class DatabaseHelper extends SQLiteOpenHelper {
+    private static class DatabaseHelper extends SQLiteOpenHelper {
         Context mContext;
 
         DatabaseHelper(Context context, String name) {
@@ -1619,7 +1656,7 @@ public class EmailProvider extends ContentProvider {
      * @param id the unique id (_id) of the row
      * @return a fully populated HostAuth or null if the row does not exist
      */
-    private HostAuth restoreHostAuth(SQLiteDatabase db, long id) {
+    private static HostAuth restoreHostAuth(SQLiteDatabase db, long id) {
         Cursor c = db.query(HostAuth.TABLE_NAME, HostAuth.CONTENT_PROJECTION,
                 HostAuth.RECORD_ID + "=?", new String[] {Long.toString(id)}, null, null, null);
         try {
@@ -1640,7 +1677,7 @@ public class EmailProvider extends ContentProvider {
      * @param toDatabase the destination database
      * @return the number of accounts copied, or -1 if an error occurred
      */
-    private int copyAccountTables(SQLiteDatabase fromDatabase, SQLiteDatabase toDatabase) {
+    private static int copyAccountTables(SQLiteDatabase fromDatabase, SQLiteDatabase toDatabase) {
         if (fromDatabase == null || toDatabase == null) return -1;
         int copyCount = 0;
         try {
@@ -1706,7 +1743,7 @@ public class EmailProvider extends ContentProvider {
         return copyCount;
     }
 
-    private SQLiteDatabase getBackupDatabase(Context context) {
+    private static SQLiteDatabase getBackupDatabase(Context context) {
         DatabaseHelper helper = new DatabaseHelper(context, BACKUP_DATABASE_NAME);
         return helper.getWritableDatabase();
     }
@@ -1714,11 +1751,19 @@ public class EmailProvider extends ContentProvider {
     /**
      * Backup account data, returning the number of accounts backed up
      */
-    private int backupAccounts() {
-        Context context = getContext();
+    private static int backupAccounts(Context context, SQLiteDatabase mainDatabase) {
+        if (Email.DEBUG) {
+            Log.d(TAG, "backupAccounts...");
+        }
         SQLiteDatabase backupDatabase = getBackupDatabase(context);
         try {
-            return copyAccountTables(getDatabase(context), backupDatabase);
+            int numBackedUp = copyAccountTables(mainDatabase, backupDatabase);
+            if (numBackedUp < 0) {
+                Log.e(TAG, "Account backup failed!");
+            } else if (Email.DEBUG) {
+                Log.d(TAG, "Backed up " + numBackedUp + " accounts...");
+            }
+            return numBackedUp;
         } finally {
             if (backupDatabase != null) {
                 backupDatabase.close();
@@ -1729,11 +1774,21 @@ public class EmailProvider extends ContentProvider {
     /**
      * Restore account data, returning the number of accounts restored
      */
-    private int restoreAccounts() {
-        Context context = getContext();
+    private static int restoreAccounts(Context context, SQLiteDatabase mainDatabase) {
+        if (Email.DEBUG) {
+            Log.d(TAG, "restoreAccounts...");
+        }
         SQLiteDatabase backupDatabase = getBackupDatabase(context);
         try {
-            return copyAccountTables(backupDatabase, getDatabase(context));
+            int numRecovered = copyAccountTables(backupDatabase, mainDatabase);
+            if (numRecovered > 0) {
+                Log.e(TAG, "Recovered " + numRecovered + " accounts!");
+            } else if (numRecovered < 0) {
+                Log.e(TAG, "Account recovery failed?");
+            } else if (Email.DEBUG) {
+                Log.d(TAG, "No accounts to restore...");
+            }
+            return numRecovered;
         } finally {
             if (backupDatabase != null) {
                 backupDatabase.close();
@@ -1748,9 +1803,7 @@ public class EmailProvider extends ContentProvider {
             checkDatabases();
             return 0;
         } else if (uri == ACCOUNT_BACKUP_URI) {
-            return backupAccounts();
-        } else if (uri == ACCOUNT_RESTORE_URI) {
-            return restoreAccounts();
+            return backupAccounts(getContext(), getDatabase(getContext()));
         }
 
         // Notify all existing cursors, except for ACCOUNT_RESET_NEW_COUNT(_ID)
@@ -2006,7 +2059,7 @@ public class EmailProvider extends ContentProvider {
 
     @VisibleForTesting
     @SuppressWarnings("deprecation")
-    void convertPolicyFlagsToPolicyTable(SQLiteDatabase db) {
+    static void convertPolicyFlagsToPolicyTable(SQLiteDatabase db) {
         Cursor c = db.query(Account.TABLE_NAME,
                 new String[] {EmailContent.RECORD_ID /*0*/, AccountColumns.SECURITY_FLAGS /*1*/},
                 AccountColumns.SECURITY_FLAGS + ">0", null, null, null, null);

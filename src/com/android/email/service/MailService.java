@@ -141,9 +141,6 @@ public class MailService extends Service {
     public int onStartCommand(final Intent intent, int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        // Restore accounts, if it has not happened already
-        AccountBackupRestore.restoreIfNeeded(this);
-
         EmailAsyncTask.runAsyncParallel(new Runnable() {
             @Override
             public void run() {
