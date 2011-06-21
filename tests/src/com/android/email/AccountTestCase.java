@@ -16,18 +16,17 @@
 
 package com.android.email;
 
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.AccountManagerTypes;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.database.Cursor;
 import android.test.ProviderTestCase2;
+
+import com.android.email.provider.EmailProvider;
+import com.android.email.provider.ProviderTestUtils;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,18 +39,18 @@ public abstract class AccountTestCase extends ProviderTestCase2<EmailProvider> {
 
     protected static final String TEST_ACCOUNT_PREFIX = "__test";
     protected static final String TEST_ACCOUNT_SUFFIX = "@android.com";
+    protected static final String TEST_ACCOUNT_TYPE = "com.android.test_exchange";
 
     public AccountTestCase() {
         super(EmailProvider.class, EmailContent.AUTHORITY);
     }
 
     protected android.accounts.Account[] getExchangeAccounts() {
-        return AccountManager.get(getContext())
-                .getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
+        return AccountManager.get(getContext()).getAccountsByType(TEST_ACCOUNT_TYPE);
     }
 
     protected android.accounts.Account makeAccountManagerAccount(String username) {
-        return new android.accounts.Account(username, AccountManagerTypes.TYPE_EXCHANGE);
+        return new android.accounts.Account(username, TEST_ACCOUNT_TYPE);
     }
 
     protected void createAccountManagerAccount(String username) {

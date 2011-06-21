@@ -40,8 +40,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission
         android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission
-        android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
     <uses-permission
         android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission
@@ -396,6 +395,21 @@
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/eas_authenticator"
+                />
+        </service>
+        <!--Required stanza to register the EasTestAuthenticatorService with AccountManager -->
+        <service
+            android:name=".service.EasTestAuthenticatorService"
+            android:exported="true"
+            android:enabled="false"
+            >
+            <intent-filter>
+                <action
+                    android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/eastest_authenticator"
                 />
         </service>
         <!--
