@@ -1034,6 +1034,16 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
     }
 
+    private static void addAddresses(MultiAutoCompleteTextView view, String addresses) {
+        if (addresses == null) {
+            return;
+        }
+        Address[] unpackedAddresses = Address.unpack(addresses);
+        for (Address address : unpackedAddresses) {
+            addAddress(view, address.toString());
+        }
+    }
+
     private static void addAddress(MultiAutoCompleteTextView view, String address) {
         view.append(address + ", ");
     }
@@ -1990,26 +2000,39 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         // Start clean.
         clearAddressViews();
 
-        /*
-         * If a reply-to was included with the message use that, otherwise use the from
-         * or sender address.
-         */
+        // If Reply-to: addresses are included, use those; otherwise, use the From: address.
         Address[] replyToAddresses = Address.unpack(message.mReplyTo);
         if (replyToAddresses.length == 0) {
             replyToAddresses = Address.unpack(message.mFrom);
         }
-        addAddresses(mToView, replyToAddresses);
+
+        // Check if ourAddress is one of the replyToAddresses to decide how to populate To: field
+        String ourAddress = account.mEmailAddress;
+        boolean containsOurAddress = false;
+        for (Address address : replyToAddresses) {
+            if (ourAddress.equalsIgnoreCase(address.getAddress())) {
+                containsOurAddress = true;
+                break;
+            }
+        }
+
+        if (containsOurAddress) {
+            addAddresses(mToView, message.mTo);
+        } else {
+            addAddresses(mToView, replyToAddresses);
+        }
 
         if (replyAll) {
             // Keep a running list of addresses we're sending to
             ArrayList<Address> allAddresses = new ArrayList<Address>();
-            String ourAddress = account.mEmailAddress;
-
             for (Address address: replyToAddresses) {
                 allAddresses.add(address);
             }
 
-            safeAddAddresses(message.mTo, ourAddress, mCcView, allAddresses);
+            if (!containsOurAddress) {
+                safeAddAddresses(message.mTo, ourAddress, mCcView, allAddresses);
+            }
+
             safeAddAddresses(message.mCc, ourAddress, mCcView, allAddresses);
         }
         showCcBccFieldsIfFilled();
