@@ -16,22 +16,22 @@
 
 package com.android.email.service;
 
+import android.accounts.AccountManager;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.pm.PackageManager;
+
 import com.android.email.AccountTestCase;
 import com.android.email.Controller;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.service.MailService.AccountSyncReport;
-import com.android.emailcommon.AccountManagerTypes;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
-
-import android.accounts.AccountManager;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
 
 import java.util.HashMap;
 
@@ -53,6 +53,11 @@ public class MailServiceTests extends AccountTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        PackageManager pm = getContext().getPackageManager();
+        pm.setComponentEnabledSetting(
+                new ComponentName(getContext(), EasTestAuthenticatorService.class),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP);
         mMockContext = getMockContext();
         // Delete any test accounts we might have created earlier
         deleteTemporaryAccountManagerAccounts();
@@ -63,6 +68,11 @@ public class MailServiceTests extends AccountTestCase {
         super.tearDown();
         // Delete any test accounts we might have created earlier
         deleteTemporaryAccountManagerAccounts();
+        PackageManager pm = getContext().getPackageManager();
+        pm.setComponentEnabledSetting(
+                new ComponentName(getContext(), EasTestAuthenticatorService.class),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP);
     }
 
     /**
@@ -87,7 +97,7 @@ public class MailServiceTests extends AccountTestCase {
                 context.getContentResolver().delete(firstAccount.getUri(), null, null);
                 // delete the account manager account
                 android.accounts.Account[] accountManagerAccounts = AccountManager.get(context)
-                        .getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
+                        .getAccountsByType(TEST_ACCOUNT_TYPE);
                 for (android.accounts.Account accountManagerAccount: accountManagerAccounts) {
                     if ((TEST_USER_ACCOUNT + TEST_ACCOUNT_SUFFIX)
                             .equals(accountManagerAccount.name)) {
@@ -112,7 +122,7 @@ public class MailServiceTests extends AccountTestCase {
         // Capture the baseline (account manager accounts) so we can measure the changes
         // we're making, irrespective of the number of actual accounts, and not destroy them
         android.accounts.Account[] baselineAccounts =
-            AccountManager.get(context).getAccountsByType(AccountManagerTypes.TYPE_EXCHANGE);
+            AccountManager.get(context).getAccountsByType(TEST_ACCOUNT_TYPE);
 
         // Set up three accounts, both in AccountManager and in EmailProvider
         Account firstAccount = setupProviderAndAccountManagerAccount(getTestAccountName("1"));
