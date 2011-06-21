@@ -289,7 +289,7 @@ public class AccountSetupOutgoingFragment extends AccountServerBaseFragment
     private void validateFields() {
         if (!mLoaded) return;
         boolean enabled =
-            Utility.isTextViewNotEmpty(mServerView) && Utility.isPortFieldValid(mPortView);
+            Utility.isServerNameValid(mServerView) && Utility.isPortFieldValid(mPortView);
 
         if (enabled && mRequireLoginView.isChecked()) {
             enabled = (Utility.isTextViewNotEmpty(mUsernameView)

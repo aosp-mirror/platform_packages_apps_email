@@ -91,7 +91,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
      * @param accountId the ID of the currently viewed account
      */
     public static Loader<Cursor> createLoader(Context context, long accountId) {
-        return new AccountsLoader(context, accountId);
+        return new AccountsLoader(context, accountId, UiUtilities.useTwoPane(context));
     }
 
     public AccountSelectorAdapter(Context context) {
@@ -271,12 +271,16 @@ public class AccountSelectorAdapter extends CursorAdapter {
     static class AccountsLoader extends ThrottlingCursorLoader {
         private final Context mContext;
         private final long mAccountId;
-        public AccountsLoader(Context context, long accountId) {
+        private final boolean mUseTwoPane; // Injectable for test
+
+        @VisibleForTesting
+        AccountsLoader(Context context, long accountId, boolean useTwoPane) {
             // Super class loads a regular account cursor, but we replace it in loadInBackground().
             super(context, Account.CONTENT_URI, ACCOUNT_PROJECTION, null, null,
                     ORDER_BY);
             mContext = context;
             mAccountId = accountId;
+            mUseTwoPane = useTwoPane;
         }
 
         @Override
@@ -291,13 +295,15 @@ public class AccountSelectorAdapter extends CursorAdapter {
         }
 
         /** Adds the account list [with extra meta data] to the given matrix cursor */
-        private int addAccountsToCursor(MatrixCursor matrixCursor, Cursor accountCursor) {
+        private int addAccountsToCursor(CursorWithExtras matrixCursor, Cursor accountCursor) {
             int accountPosition = UNKNOWN_POSITION;
             accountCursor.moveToPosition(-1);
             // Add a header for the accounts
             String header =
                     mContext.getString(R.string.mailbox_list_account_selector_account_header);
             addRow(matrixCursor, ROW_TYPE_HEADER, 0L, header, null, 0, UNKNOWN_POSITION);
+
+            matrixCursor.mAccountCount = accountCursor.getCount();
             int totalUnread = 0;
             int currentPosition = 1;
             while (accountCursor.moveToNext()) {
@@ -324,6 +330,9 @@ public class AccountSelectorAdapter extends CursorAdapter {
                         R.plurals.number_of_accounts, countAccounts, countAccounts);
                 addRow(matrixCursor, ROW_TYPE_ACCOUNT, Account.ACCOUNT_ID_COMBINED_VIEW,
                         name, accountCount, totalUnread, UNKNOWN_POSITION);
+
+                // Increment the account count for the combined account.
+                matrixCursor.mAccountCount++;
             }
             return accountPosition;
         }
@@ -346,10 +355,9 @@ public class AccountSelectorAdapter extends CursorAdapter {
             }
             RecentMailboxManager mailboxManager = RecentMailboxManager.getInstance(mContext);
             ArrayList<Long> recentMailboxes = null;
-            boolean useTwoPane = UiUtilities.useTwoPane(mContext);
-            if (!useTwoPane) {
+            if (!mUseTwoPane) {
                 // Do not display recent mailboxes in the account spinner for the two pane view
-                recentMailboxes = mailboxManager.getMostRecent(mAccountId, useTwoPane);
+                recentMailboxes = mailboxManager.getMostRecent(mAccountId, mUseTwoPane);
             }
             int recentCount = (recentMailboxes == null) ? 0 : recentMailboxes.size();
             matrixCursor.mRecentCount = recentCount;
@@ -365,13 +373,13 @@ public class AccountSelectorAdapter extends CursorAdapter {
                     addRow(matrixCursor, ROW_TYPE_MAILBOX, mailboxId, mailbox.mDisplayName, null,
                             unread, accountPosition);
                 }
-            } else if (!useTwoPane) {
+            } else if (!mUseTwoPane) {
                 // Add the header for 'show all folders'
                 String mailboxHeader = mContext.getString(
                     R.string.mailbox_list_account_selector_mailbox_header_fmt, emailAddress);
                 addRow(matrixCursor, ROW_TYPE_HEADER, 0L, mailboxHeader, null, 0, UNKNOWN_POSITION);
             }
-            if (!useTwoPane) {
+            if (!mUseTwoPane) {
                 String name = mContext.getString(
                         R.string.mailbox_list_account_selector_show_all_folders);
                 addRow(matrixCursor, ROW_TYPE_MAILBOX, Mailbox.NO_MAILBOX, name, null, 0,
@@ -394,14 +402,13 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
     /** Cursor with some extra meta data. */
     static class CursorWithExtras extends ClosingMatrixCursor {
-        /** Number of account elements */
-        final int mAccountCount;
+        /** Number of account elements, including the combined account row. */
+        int mAccountCount;
         /** Number of recent mailbox elements */
         int mRecentCount;
 
         private CursorWithExtras(String[] columnNames, Cursor innerCursor) {
             super(columnNames, innerCursor);
-            mAccountCount = (innerCursor == null) ? 0 : innerCursor.getCount();
         }
 
         /**
