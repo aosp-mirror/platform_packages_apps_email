@@ -259,7 +259,10 @@ class UIControllerOnePane extends UIControllerBase {
 
         @Override
         public void onSearchSubmit(String queryTerm) {
-            // STOPSHIP implement search
+            if (!isMessageListInstalled()) {
+                return;
+            }
+            UIControllerOnePane.this.onSearchSubmit(queryTerm);
         }
 
         @Override

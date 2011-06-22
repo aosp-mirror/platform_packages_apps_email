@@ -440,6 +440,28 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     }
 
     /**
+     * Returns the id of the parent mailbox used for the mailbox list fragment.
+     *
+     * IMPORTANT: Do not confuse {@link #getMailboxListMailboxId()} with
+     *     {@link #getMessageListMailboxId()}
+     */
+    protected long getMailboxListMailboxId() {
+        return isMailboxListInstalled() ? getMailboxListFragment().getSelectedMailboxId()
+                : Mailbox.NO_MAILBOX;
+    }
+
+    /**
+     * Returns the id of the mailbox used for the message list fragment.
+     *
+     * IMPORTANT: Do not confuse {@link #getMailboxListMailboxId()} with
+     *     {@link #getMessageListMailboxId()}
+     */
+    protected long getMessageListMailboxId() {
+        return isMessageListInstalled() ? getMessageListFragment().getMailboxId()
+                : Mailbox.NO_MAILBOX;
+    }
+
+    /**
      * Shortcut for {@link #open} with {@link Message#NO_MESSAGE}.
      */
     protected final void openMailbox(long accountId, long mailboxId) {
@@ -631,6 +653,26 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             mActionBarController.refresh();
         }
         mActivity.invalidateOptionsMenu();
+    }
+
+    /**
+     * Kicks off a search query, if the UI is in a state where a search is possible.
+     */
+    protected void onSearchSubmit(final String queryTerm) {
+        final long accountId = getUIAccountId();
+        if (!Account.isNormalAccount(accountId)) {
+            return; // Invalid account to search from.
+        }
+
+        // TODO: do a global search for EAS inbox.
+        final long mailboxId = getMessageListMailboxId();
+
+        if (Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "Submitting search: " + queryTerm);
+        }
+
+        mActivity.startActivity(EmailActivity.createSearchIntent(
+                mActivity, accountId, mailboxId, queryTerm));
     }
 
     @Override

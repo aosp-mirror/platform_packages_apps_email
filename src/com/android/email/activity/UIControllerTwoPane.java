@@ -341,27 +341,6 @@ class UIControllerTwoPane extends UIControllerBase implements
                 :Account.NO_ACCOUNT;
     }
 
-    /**
-     * Returns the id of the parent mailbox used for the mailbox list fragment.
-     *
-     * IMPORTANT: Do not confuse {@link #getMailboxListMailboxId()} with
-     *     {@link #getMessageListMailboxId()}
-     */
-    private long getMailboxListMailboxId() {
-        return isMailboxListInstalled() ? getMailboxListFragment().getSelectedMailboxId()
-                : Mailbox.NO_MAILBOX;
-    }
-
-    /**
-     * Returns the id of the mailbox used for the message list fragment.
-     *
-     * IMPORTANT: Do not confuse {@link #getMailboxListMailboxId()} with
-     *     {@link #getMessageListMailboxId()}
-     */
-    private long getMessageListMailboxId() {
-        return isMessageListInstalled() ? getMessageListFragment().getMailboxId()
-                : Mailbox.NO_MAILBOX;
-    }
 
     /*
      * STOPSHIP Remove this -- see the base class method.
@@ -937,20 +916,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
         @Override
         public void onSearchSubmit(final String queryTerm) {
-            final long accountId = getUIAccountId();
-            if (!Account.isNormalAccount(accountId)) {
-                return; // Invalid account to search from.
-            }
-
-            // TODO: do a global search for EAS inbox.
-            final long mailboxId = getMessageListMailboxId();
-
-            if (Email.DEBUG) {
-                Log.d(Logging.LOG_TAG, "Submitting search: " + queryTerm);
-            }
-
-            mActivity.startActivity(EmailActivity.createSearchIntent(
-                    mActivity, accountId, mailboxId, queryTerm));
+            UIControllerTwoPane.this.onSearchSubmit(queryTerm);
         }
 
         @Override
