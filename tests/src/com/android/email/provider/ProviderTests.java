@@ -1444,6 +1444,24 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         }
     }
 
+    public void testGetDefaultAccountNoneExplicitlySet() {
+        Account account1 = ProviderTestUtils.setupAccount("account-default-1", false, mMockContext);
+        account1.mIsDefault = false;
+        account1.save(mMockContext);
+
+        // We should find account1 as default
+        long defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertEquals(defaultAccountId, account1.mId);
+
+        Account account2 = ProviderTestUtils.setupAccount("account-default-1", false, mMockContext);
+        account2.mIsDefault = false;
+        account2.save(mMockContext);
+
+        // We should find one of the two as default
+        defaultAccountId = Account.getDefaultAccountId(mMockContext);
+        assertTrue(defaultAccountId == account1.mId || defaultAccountId == account2.mId);
+    }
+
     /**
      * Tests of default account behavior
      *
