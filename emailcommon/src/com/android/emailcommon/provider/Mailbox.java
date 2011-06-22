@@ -315,12 +315,19 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         Uri uri = FROM_ACCOUNT_AND_TYPE_URI.buildUpon().appendPath(Long.toString(accountId))
             .appendPath(Integer.toString(type)).build();
         Cursor c = context.getContentResolver().query(uri, ID_PROJECTION, null, null, null);
-        c.moveToFirst();
-        Long mailboxId = c.getLong(ID_PROJECTION_COLUMN);
-        if (mailboxId != null && mailboxId.intValue() != 0) {
-            return mailboxId;
-        } else {
-            Log.w(Logging.LOG_TAG, "========== Mailbox of type " + type + " not found in cache??");
+        if (c != null) {
+            try {
+                c.moveToFirst();
+                Long mailboxId = c.getLong(ID_PROJECTION_COLUMN);
+                if (mailboxId != null && mailboxId.intValue() != 0) {
+                    return mailboxId;
+                } else {
+                    Log.w(Logging.LOG_TAG, "========== Mailbox of type " + type
+                            + " not found in cache");
+                }
+            } finally {
+                c.close();
+            }
         }
         String[] bindArguments = new String[] {Long.toString(type), Long.toString(accountId)};
         return Utility.getFirstRowLong(context, Mailbox.CONTENT_URI,
