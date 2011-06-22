@@ -16,8 +16,6 @@
 
 package com.android.email.provider;
 
-import com.android.email.Email;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.CursorWrapper;
@@ -25,6 +23,10 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.util.Log;
 import android.util.LruCache;
+
+import com.android.email.Email;
+import com.google.common.annotations.VisibleForTesting;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -89,7 +91,7 @@ public final class ContentCache {
     private static final ArrayList<ContentCache> sContentCaches = new ArrayList<ContentCache>();
     // A set of all unclosed, cached cursors; this will typically be a very small set, as cursors
     // tend to be closed quickly after use.  The value, for each cursor, is its reference count
-    /*package*/ static CounterMap<Cursor> sActiveCursors;
+    /*package*/ static final CounterMap<Cursor> sActiveCursors = new CounterMap<Cursor>(24);
 
     // A set of locked content id's
     private final CounterMap<String> mLockMap = new CounterMap<String>(4);
@@ -404,7 +406,6 @@ public final class ContentCache {
         mLogTag = "ContentCache-" + name;
         sContentCaches.add(this);
         mTokenList = new TokenList(mName);
-        sActiveCursors = new CounterMap<Cursor>(maxSize);
         mStats = new Statistics(this);
     }
 
@@ -436,10 +437,14 @@ public final class ContentCache {
         return mLruCache.size();
     }
 
-    private Cursor get(String id) {
+    @VisibleForTesting
+    Cursor get(String id) {
         return mLruCache.get(id);
     }
 
+    protected Map<String, Cursor> getSnapshot() {
+        return mLruCache.snapshot();
+    }
     /**
      * Try to cache a cursor for the given id and projection; returns a valid cursor, either a
      * cached cursor (if caching was successful) or the original cursor
@@ -456,7 +461,6 @@ public final class ContentCache {
         c.moveToPosition(0);
         return putCursorImpl(c, id, projection, token);
     }
-
     public synchronized Cursor putCursorImpl(Cursor c, String id, String[] projection,
             CacheToken token) {
         try {
@@ -467,7 +471,7 @@ public final class ContentCache {
                 mStats.mStaleCount++;
                 return c;
             }
-            if (c != null && projection == mBaseProjection && !sLockCache) {
+            if (c != null && Arrays.equals(projection, mBaseProjection) && !sLockCache) {
                 if (Email.DEBUG && DEBUG_CACHE) {
                     Log.d(mLogTag, "============ Caching cursor for: " + id);
                 }
@@ -723,7 +727,7 @@ public final class ContentCache {
     }
 
     // For use with unit tests
-    public static void invalidateAllCachesForTest() {
+    public static void invalidateAllCaches() {
         for (ContentCache cache: sContentCaches) {
             cache.invalidate();
         }
@@ -733,7 +737,7 @@ public final class ContentCache {
     public static void setLockCacheForTest(boolean lock) {
         sLockCache = lock;
         if (sLockCache) {
-            invalidateAllCachesForTest();
+            invalidateAllCaches();
         }
     }
 

@@ -30,6 +30,8 @@ public final class Account extends EmailContent implements AccountColumns, Parce
         Uri.parse(EmailContent.CONTENT_URI + "/resetNewMessageCount");
     public static final Uri NOTIFIER_URI =
         Uri.parse(EmailContent.CONTENT_NOTIFIER_URI + "/account");
+    public static final Uri DEFAULT_ACCOUNT_ID_URI =
+        Uri.parse(EmailContent.CONTENT_URI + "/account/default");
 
     // Define all pseudo account IDs here to avoid conflict with one another.
     /**
@@ -545,18 +547,21 @@ public final class Account extends EmailContent implements AccountColumns, Parce
 
     /**
      * Return the id of the default account.  If one hasn't been explicitly specified, return
-     * the first one in the database.  For any account saved in the DB, this must be used
-     * to check for the default account - the mIsDefault field is set lazily and may be
-     * incorrect.
+     * the first one in the database (the logic is provided within EmailProvider)
      * @param context the caller's context
      * @return the id of the default account, or -1 if there are no accounts
      */
     static public long getDefaultAccountId(Context context) {
-        long id = getDefaultAccountWhere(context, AccountColumns.IS_DEFAULT + "=1");
-        if (id == -1) {
-            id = getDefaultAccountWhere(context, null);
+        Cursor c = context.getContentResolver().query(
+                Account.DEFAULT_ACCOUNT_ID_URI, Account.ID_PROJECTION, null, null, null);
+        try {
+            if (c != null && c.moveToFirst()) {
+                return c.getLong(Account.ID_PROJECTION_COLUMN);
+            }
+        } finally {
+            c.close();
         }
-        return id;
+        return -1;
     }
 
     /**
@@ -755,7 +760,7 @@ public final class Account extends EmailContent implements AccountColumns, Parce
 
         // Now do the Account
         ContentValues cv = null;
-        if (recvIndex >= 0 || sendIndex >= 0) {
+        if (recvIndex >= 0 || sendIndex >= 0 || policyIndex >= 0) {
             cv = new ContentValues();
             if (recvIndex >= 0) {
                 cv.put(Account.HOST_AUTH_KEY_RECV, recvIndex);

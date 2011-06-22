@@ -240,7 +240,7 @@ public final class DBTestHelper {
             ap.attachInfo(providerContext, null);
             resolver.addProvider(AttachmentUtilities.AUTHORITY, ap);
 
-            ContentCache.invalidateAllCachesForTest();
+            ContentCache.invalidateAllCaches();
 
             return providerContext;
         }

@@ -16,23 +16,13 @@
 
 package com.android.emailcommon.provider;
 
-import com.android.email.provider.ContentCache;
-import com.android.email.provider.EmailProvider;
-import com.android.email.provider.ProviderTestUtils;
-import com.android.emailcommon.provider.QuickResponse;
-import com.android.emailcommon.utility.Utility;
-
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Parcel;
-import android.test.MoreAsserts;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.SmallTest;
-import android.util.Log;
 
-import java.util.Arrays;
+import com.android.email.provider.ContentCache;
+import com.android.email.provider.EmailProvider;
 
 /**
  * Unit tests for the QuickResponse class
@@ -52,7 +42,7 @@ public class QuickResponseTests extends ProviderTestCase2<EmailProvider> {
         mMockContext = getMockContext();
         mProvider = getProvider();
         // Invalidate all caches, since we reset the database for each test
-        ContentCache.invalidateAllCachesForTest();
+        ContentCache.invalidateAllCaches();
     }
 
     public void testParcelling() {

@@ -16,18 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
-import com.android.email.EmailAddressValidator;
-import com.android.email.R;
-import com.android.email.TestUtils;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.Address;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.google.android.collect.Lists;
-
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +28,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
+
+import com.android.email.Email;
+import com.android.email.EmailAddressValidator;
+import com.android.email.R;
+import com.android.email.TestUtils;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.google.android.collect.Lists;
 
 import java.util.ArrayList;
 

@@ -16,28 +16,12 @@
 
 package com.android.email;
 
-import com.android.email.activity.ContactStatusLoader;
-import com.android.email.activity.Welcome;
-import com.android.email.activity.setup.AccountSecurity;
-import com.android.email.activity.setup.AccountSettings;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.Address;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.Utility;
-
-import com.google.common.annotations.VisibleForTesting;
-
 import android.app.Notification;
 import android.app.Notification.Builder;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -53,6 +37,22 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
+
+import com.android.email.activity.ContactStatusLoader;
+import com.android.email.activity.Welcome;
+import com.android.email.activity.setup.AccountSecurity;
+import com.android.email.activity.setup.AccountSettings;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.Address;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -608,10 +608,9 @@ public class NotificationController {
 
             ContentResolver resolver = mContext.getContentResolver();
             long lastSeenMessageId = Utility.getFirstRowLong(
-                    mContext, Mailbox.CONTENT_URI,
+                    mContext, ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
                     new String[] { MailboxColumns.LAST_SEEN_MESSAGE_KEY },
-                    EmailContent.ID_SELECTION,
-                    new String[] { Long.toString(mMailboxId) }, null, 0, 0L);
+                    null, null, null, 0, 0L);
             Cursor c = resolver.query(
                     Message.CONTENT_URI, EmailContent.ID_PROJECTION,
                     MESSAGE_SELECTION,

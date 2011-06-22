@@ -57,7 +57,7 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         super.setUp();
         mMockContext = new MockContext2(getMockContext(), mContext);
         // Invalidate all caches, since we reset the database for each test
-        ContentCache.invalidateAllCachesForTest();
+        ContentCache.invalidateAllCaches();
     }
 
     /**
