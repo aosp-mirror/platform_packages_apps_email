@@ -286,7 +286,7 @@
     <string name="mailbox_list_account_selector_account_header">Accounts</string>
     <!-- Recent mailbox header in the account/mailbox selector. [CHAR LIMIT=30] -->
     <string name="mailbox_list_account_selector_mailbox_header_fmt">
-        Recent mailboxes(<xliff:g id="email_address">%s</xliff:g>)</string>
+        Recent folders (<xliff:g id="email_address">%s</xliff:g>)</string>
 
     <!-- Mailbox list header for user folders [CHAR LIMIT=30] -->
     <string name="mailbox_list_user_mailboxes">All folders</string>
@@ -1009,7 +1009,7 @@ save attachment.</string>
     <!-- Title of the account list for the shortcut picker [CHAR_LIMIT=20] -->
     <string name="account_shortcut_picker_title">Select an account</string>
     <!-- Title of mailbox list for the shortcut picker [CHAR_LIMIT=20] -->
-    <string name="mailbox_shortcut_picker_title">Select a mailbox</string>
+    <string name="mailbox_shortcut_picker_title">Select a folder</string>
 
     <!-- Toast shown when the selected account no longer exists.  This is used when, for example,
          a shotcut or a widget is stale and points at a deleted account.
@@ -1151,9 +1151,9 @@ save attachment.</string>
 
     <!-- STOPSHIP Temporary UI DO NOT TRANSLATE-->
     <!-- In Mailbox setings, label for email check frequency selector -->
-    <string name="mailbox_options_check_frequency_label">Mailbox check frequency</string>
+    <string name="mailbox_options_check_frequency_label">Folder check frequency</string>
     <!-- In Mailbox setings, label for email check lookback selector -->
-    <string name="mailbox_options_lookback_label">Mailbox check lookback</string>
+    <string name="mailbox_options_lookback_label">Folder check lookback</string>
 
     <!-- A long placeholder string to be used in template XML files message_list_item_*.xml.
          Used only in layout computation, and never actually exposed to the user. -->
