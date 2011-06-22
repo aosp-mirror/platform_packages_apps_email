@@ -17,7 +17,9 @@
 package com.android.email.provider;
 
 import android.content.ContentValues;
+import android.database.CrossProcessCursor;
 import android.database.Cursor;
+import android.database.CursorWindow;
 import android.database.CursorWrapper;
 import android.database.MatrixCursor;
 import android.net.Uri;
@@ -275,7 +277,7 @@ public final class ContentCache {
      * Multiple CachedCursor's can use the same underlying cursor, so we override the various
      * moveX methods such that each CachedCursor can have its own position information
      */
-    public static final class CachedCursor extends CursorWrapper {
+    public static final class CachedCursor extends CursorWrapper implements CrossProcessCursor {
         // The cursor we're wrapping
         private final Cursor mCursor;
         // The cache which generated this cursor
@@ -380,6 +382,21 @@ public final class ContentCache {
         @Override
         public final boolean isAfterLast() {
             return mPosition == 1;
+        }
+
+        @Override
+        public CursorWindow getWindow() {
+           return ((CrossProcessCursor)mCursor).getWindow();
+        }
+
+        @Override
+        public void fillWindow(int pos, CursorWindow window) {
+            ((CrossProcessCursor)mCursor).fillWindow(pos, window);
+        }
+
+        @Override
+        public boolean onMove(int oldPosition, int newPosition) {
+            return ((CrossProcessCursor)mCursor).onMove(oldPosition, newPosition);
         }
     }
 
