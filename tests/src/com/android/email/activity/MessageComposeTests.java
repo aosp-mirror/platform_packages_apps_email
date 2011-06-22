@@ -66,6 +66,7 @@ public class MessageComposeTests
     private long mCreatedAccountId = -1;
     private String mSignature;
 
+    private static final String ACCOUNT = "account@android.com";
     private static final String SENDER = "sender@android.com";
     private static final String REPLYTO = "replyto@android.com";
     private static final String RECIPIENT_TO = "recipient-to@android.com";
@@ -190,9 +191,9 @@ public class MessageComposeTests
     }
 
      /**
-     * Test a couple of variations of processSourceMessage() for REPLY
+     * Test a couple of variations of processSourceMessage() for REPLY.
      *   To = Reply-To or From:  (if REPLY)
-     *   To = (Reply-To or From:) + To: + Cc:   (if REPLY_ALL)
+     *   To = (Reply-To or From:), Cc = + To: + Cc:   (if REPLY_ALL)
      *   Subject = Re: Subject
      *   Body = empty  (and has cursor)
      *
@@ -203,10 +204,12 @@ public class MessageComposeTests
         Intent intent = new Intent(ACTION_REPLY);
         final MessageCompose a = getActivity();
         a.setIntent(intent);
+        final Account account = new Account();
+        account.mEmailAddress = ACCOUNT;
 
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message, null);
+                a.processSourceMessage(message, account);
                 a.setInitialComposeText(null, null);
                 checkFields(SENDER + ", ", null, null, "Re: " + SUBJECT, null, null);
                 checkFocused(mMessageView);
@@ -219,9 +222,65 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message, null);
+                a.processSourceMessage(message, account);
                 a.setInitialComposeText(null, null);
                 checkFields(REPLYTO + ", ", null, null, "Re: " + SUBJECT, null, null);
+                checkFocused(mMessageView);
+            }
+        });
+    }
+
+    /**
+     * Tests similar cases as testProcessSourceMessageReply, but when sender is in From: (or
+     * Reply-to: if applicable) field.
+     *
+     * To = To (if REPLY)
+     * To = To, Cc = Cc (if REPLY_ALL)
+     * Subject = Re: Subject
+     * Body = empty  (and has cursor)
+     *
+     * @throws MessagingException
+     * @throws Throwable
+     */
+    public void testRepliesWithREplyToFields() throws MessagingException, Throwable {
+        final Message message = buildTestMessage(RECIPIENT_TO, SENDER, SUBJECT, BODY);
+        message.mCc = RECIPIENT_CC;
+        Intent intent = new Intent(ACTION_REPLY);
+        final MessageCompose a = getActivity();
+        a.setIntent(intent);
+        final Account account = new Account();
+        account.mEmailAddress = SENDER;
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                a.processSourceMessage(message, account);
+                a.setInitialComposeText(null, null);
+                checkFields(RECIPIENT_TO + ", ", null, null, "Re: " + SUBJECT, null, null);
+                checkFocused(mMessageView);
+            }
+        });
+
+        message.mFrom = null;
+        message.mReplyTo = Address.parseAndPack(SENDER);
+
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                resetViews();
+                a.processSourceMessage(message, account);
+                a.setInitialComposeText(null, null);
+                checkFields(RECIPIENT_TO + ", ", null, null, "Re: " + SUBJECT, null, null);
+                checkFocused(mMessageView);
+            }
+        });
+
+        a.setIntent(new Intent(ACTION_REPLY_ALL));
+        runTestOnUiThread(new Runnable() {
+            public void run() {
+                resetViews();
+                a.processSourceMessage(message, account);
+                a.setInitialComposeText(null, null);
+                checkFields(RECIPIENT_TO + ", ", RECIPIENT_CC + ", ", null,
+                        "Re: " + SUBJECT, null, null);
                 checkFocused(mMessageView);
             }
         });
@@ -233,6 +292,7 @@ public class MessageComposeTests
         final MessageCompose a = getActivity();
         a.setIntent(intent);
         final Account account = new Account();
+        account.mEmailAddress = ACCOUNT;
         account.mSignature = SIGNATURE;
         runTestOnUiThread(new Runnable() {
             public void run() {
@@ -284,10 +344,12 @@ public class MessageComposeTests
         Intent intent = new Intent(ACTION_REPLY);
         final MessageCompose a = getActivity();
         a.setIntent(intent);
+        final Account account = new Account();
+        account.mEmailAddress = ACCOUNT;
 
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message, null);
+                a.processSourceMessage(message, account);
                 a.setInitialComposeText(null, null);
                 checkFields(UTF16_SENDER + ", ", null, null, "Re: " + UTF16_SUBJECT, null, null);
                 checkFocused(mMessageView);
@@ -300,7 +362,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message, null);
+                a.processSourceMessage(message, account);
                 a.setInitialComposeText(null, null);
                 checkFields(UTF16_REPLYTO + ", ", null, null, "Re: " + UTF16_SUBJECT, null, null);
                 checkFocused(mMessageView);
@@ -317,10 +379,12 @@ public class MessageComposeTests
         Intent intent = new Intent(ACTION_REPLY);
         final MessageCompose a = getActivity();
         a.setIntent(intent);
+        final Account account = new Account();
+        account.mEmailAddress = ACCOUNT;
 
         runTestOnUiThread(new Runnable() {
             public void run() {
-                a.processSourceMessage(message, null);
+                a.processSourceMessage(message, account);
                 a.setInitialComposeText(null, null);
                 checkFields(UTF32_SENDER + ", ", null, null, "Re: " + UTF32_SUBJECT, null, null);
                 checkFocused(mMessageView);
@@ -333,7 +397,7 @@ public class MessageComposeTests
         runTestOnUiThread(new Runnable() {
             public void run() {
                 resetViews();
-                a.processSourceMessage(message, null);
+                a.processSourceMessage(message, account);
                 a.setInitialComposeText(null, null);
                 checkFields(UTF32_REPLYTO + ", ", null, null, "Re: " + UTF32_SUBJECT, null, null);
                 checkFocused(mMessageView);
@@ -590,8 +654,9 @@ public class MessageComposeTests
      *
      * In this case, we're doing a "reply all"
      * The user is CC2 (a "cc" recipient)
-     * The to should be: FROM, TO1, TO2, and TO3
-     * The cc should be: CC3 (CC1/CC4 are duplicates; CC2 is the our account's email address)
+     * The to should be: FROM
+     * The cc should be: TO1, TO2, ,TO3, and CC3 (CC1/CC4 are duplicates; CC2 is the our
+     * account's email address)
      */
     public void testReplyAllAddresses3() throws Throwable {
         final MessageCompose a = getActivity();
