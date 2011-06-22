@@ -596,10 +596,9 @@ class UIControllerOnePane extends UIControllerBase {
                 : Mailbox.NO_MAILBOX;
     }
 
-    @Override protected boolean canSearch() {
-        return false; // STOPSHIP no search on one pane yet
-        // Search is enabled only on the message list. (for now)
-        // return isMessageListInstalled();
+    @Override
+    protected boolean canSearch() {
+        return isMessageListInstalled();
     }
 
     @Override

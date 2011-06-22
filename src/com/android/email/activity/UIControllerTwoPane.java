@@ -757,7 +757,8 @@ class UIControllerTwoPane extends UIControllerBase implements
         return false;
     }
 
-    @Override protected boolean canSearch() {
+    @Override
+    protected boolean canSearch() {
         // Search is always enabled on two-pane. (if the account supports it)
         return true;
     }

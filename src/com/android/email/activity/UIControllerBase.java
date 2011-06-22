@@ -16,16 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.RefreshManager;
-import com.android.email.activity.setup.AccountSettings;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.EmailAsyncTask;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -35,6 +25,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.RefreshManager;
+import com.android.email.activity.setup.AccountSettings;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -482,7 +482,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         mActionBarController.enterSearchMode(null);
     }
 
-    /** @return true if the search menu option should be enabled. */
+    /** @return true if the search menu option should be enabled based on the current UI. */
     protected boolean canSearch() {
         return false;
     }
@@ -513,28 +513,33 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             item.setVisible(false);
         }
 
-        // STOPSHIP Temporary search options code
-        // Only show search/sync options for EAS 12.0 and later
-        boolean canSearch = false;
-        if (canSearch()) {
-            long accountId = getActualAccountId();
-            if (accountId > 0) {
-                // Move database operations out of the UI thread
-                if ("eas".equals(Account.getProtocol(mActivity, accountId))) {
-                    Account account = Account.restoreAccountWithId(mActivity, accountId);
-                    if (account != null) {
-                        // We should set a flag in the account indicating ability to handle search
-                        String protocolVersion = account.mProtocolVersion;
-                        if (Double.parseDouble(protocolVersion) >= 12.0) {
-                            canSearch = true;
-                        }
+        // Deal with protocol-specific menu options.
+        boolean isEas = false;
+        boolean accountSearchable = false;
+        long accountId = getActualAccountId();
+        // TODO: use the canSearch flag on the account when it's set properly.
+        if (accountId > 0) {
+            // This should always hit the cache, and never hit the database.
+            String protocol = Account.getProtocol(mActivity, accountId);
+            if ("eas".equals(protocol)) {
+                Account account = Account.restoreAccountWithId(mActivity, accountId);
+                if (account != null) {
+                    // We should set a flag in the account indicating ability to handle search
+                    String protocolVersion = account.mProtocolVersion;
+                    if (Double.parseDouble(protocolVersion) >= 12.0) {
+                        accountSearchable = true;
                     }
                 }
+                isEas = true;
+            } else if ("imap".equals(protocol)) {
+                accountSearchable = true;
             }
         }
-        // Should use an isSearchable call to prevent search on inappropriate accounts/boxes
-        // STOPSHIP Figure out where the "canSearch" test belongs
-        menu.findItem(R.id.search).setVisible(true); //canSearch);
+
+        // TODO: Should use an isSyncable call to prevent drafts/outbox from allowing this
+        menu.findItem(R.id.search).setVisible(accountSearchable && canSearch());
+        menu.findItem(R.id.sync_lookback).setVisible(isEas);
+        menu.findItem(R.id.sync_frequency).setVisible(isEas);
 
         return true;
     }

@@ -344,33 +344,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        // STOPSHIP Temporary sync options UI
-        boolean isEas = false;
-        boolean canSearch = false;
-
-        long accountId = mUIController.getActualAccountId();
-        if (accountId > 0) {
-            // Move database operations out of the UI thread
-            if ("eas".equals(Account.getProtocol(mContext, accountId))) {
-                isEas = true;
-                Account account = Account.restoreAccountWithId(mContext, accountId);
-                if (account != null) {
-                    // We should set a flag in the account indicating ability to handle search
-                    String protocolVersion = account.mProtocolVersion;
-                    if (Double.parseDouble(protocolVersion) >= 12.0) {
-                        canSearch = true;
-                    }
-                }
-            } else if ("imap".equals(Account.getProtocol(mContext, accountId))) {
-                canSearch = true;
-            }
-        }
-
-        // Should use an isSyncable call to prevent drafts/outbox from allowing this
-        menu.findItem(R.id.search).setVisible(canSearch);
-        menu.findItem(R.id.sync_lookback).setVisible(isEas);
-        menu.findItem(R.id.sync_frequency).setVisible(isEas);
-
         return mUIController.onPrepareOptionsMenu(getMenuInflater(), menu);
     }
 
