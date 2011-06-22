@@ -65,6 +65,4 @@
 
     <!-- Username/password entry -->
     <dimen name="setup_credentials_input_width">340dip</dimen>
-
-    <dimen name="search_box_width">360dip</dimen>
 </resources>

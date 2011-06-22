@@ -25,4 +25,9 @@
     <dimen name="action_bar_account_name_max_width">100dip</dimen>
     <dimen name="action_bar_mailbox_name_max_width">100dip</dimen>
     <dimen name="action_bar_mailbox_name_left_margin">8dip</dimen>
+
+    <style name="SearchBar">
+        <item name="android:layout_width">360dip</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
 </resources>
