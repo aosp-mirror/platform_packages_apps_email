@@ -120,7 +120,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private ImageView mSenderPresenceView;
     private View mMainView;
     private View mLoadingProgress;
-    private Button mShowDetailsButton;
+    private View mShowDetailsButton;
 
     private TextView mMessageTab;
     private TextView mAttachmentTab;
@@ -299,7 +299,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mSenderPresenceView = (ImageView) UiUtilities.getView(view, R.id.presence);
         mMainView = UiUtilities.getView(view, R.id.main_panel);
         mLoadingProgress = UiUtilities.getView(view, R.id.loading_progress);
-        mShowDetailsButton = (Button) UiUtilities.getView(view, R.id.show_details);
+        mShowDetailsButton = UiUtilities.getView(view, R.id.show_details);
 
         mFromNameView.setOnClickListener(this);
         mFromAddressView.setOnClickListener(this);
@@ -1519,7 +1519,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             mFromNameView.setText(" ");
             mFromAddressView.setText(" ");
         }
-        mDateTimeView.setText(formatDate(message.mTimeStamp, false));
+        mDateTimeView.setText(DateUtils.getRelativeTimeSpanString(mContext, message.mTimeStamp)
+                .toString());
 
         // To/Cc/Bcc
         final Resources res = mContext.getResources();
@@ -1548,6 +1549,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mAddressesView.setText(ssb);
     }
 
+    /**
+     * @return the given date/time in a human readable form.  The returned string always have
+     *     month and day (and year if {@code withYear} is set), so is usually long.
+     *     Use {@link DateUtils#getRelativeTimeSpanString} instead to save the screen real estate.
+     */
     private String formatDate(long millis, boolean withYear) {
         StringBuilder sb = new StringBuilder();
         Formatter formatter = new Formatter(sb);

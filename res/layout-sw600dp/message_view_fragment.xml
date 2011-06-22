@@ -197,7 +197,6 @@
             />
 
         <TextView
-            android:text="@string/message_view_show_details"
             android:id="@+id/datetime"
             android:layout_width="wrap_content"
             android:layout_height="48dip"
@@ -268,7 +267,7 @@
                         android:id="@+id/show_message"
                         android:layout_width="128dip"
                         android:layout_height="match_parent"
-                        android:layout_gravity="center"
+                        android:gravity="center"
                         android:text="@string/message_view_show_message_action"
                         android:textSize="14dip"
                         android:textColor="@color/text_primary_color"
@@ -280,7 +279,7 @@
                         android:id="@+id/show_invite"
                         android:layout_width="128dip"
                         android:layout_height="match_parent"
-                        android:layout_gravity="center"
+                        android:gravity="center"
                         android:text="@string/message_view_show_invite_action"
                         android:textSize="14dip"
                         android:textColor="@color/text_primary_color"
@@ -292,7 +291,7 @@
                         android:id="@+id/show_attachments"
                         android:layout_width="128dip"
                         android:layout_height="match_parent"
-                        android:layout_gravity="center"
+                        android:gravity="center"
                         android:textSize="14dip"
                         android:textColor="@color/text_primary_color"
                         android:singleLine="true"
@@ -309,7 +308,7 @@
                         android:id="@+id/show_pictures"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:layout_gravity="right"
+                        android:gravity="center"
                         style="@android:style/Widget.Holo.Button.Borderless"
                         android:padding="0dip"
                         android:text="@string/message_view_show_pictures_action"
