@@ -16,6 +16,16 @@
 
 package com.android.email.activity;
 
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.RefreshManager;
+import com.android.email.activity.setup.AccountSettings;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -25,17 +35,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.RefreshManager;
-import com.android.email.activity.setup.AccountSecurity;
-import com.android.email.activity.setup.AccountSettings;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.EmailAsyncTask;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -49,11 +48,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         MessageListFragment.Callback, MessageViewFragment.Callback  {
     static final boolean DEBUG_FRAGMENTS = false; // DO NOT SUBMIT WITH TRUE
 
-    protected static final String BUNDLE_KEY_RESUME_INBOX_LOOKUP
-            = "UIController.state.resumeInboxLookup";
-    protected static final String BUNDLE_KEY_INBOX_LOOKUP_ACCOUNT_ID
-            = "UIController.state.inboxLookupAccountId";
-
     /** The owner activity */
     final EmailActivity mActivity;
     final FragmentManager mFragmentManager;
@@ -63,29 +57,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
     final RefreshManager mRefreshManager;
-
-    /** {@code true} if the activity is resumed. */
-    private boolean mResumed;
-
-    /**
-     * Use to find Inbox.  This should only run while the activity is resumed, because otherwise
-     * we may not be able to perform fragment transactions when we get a callback.
-     * See also {@link #mResumeInboxLookup}.
-     */
-    private MailboxFinder mInboxFinder;
-
-    /**
-     * Account ID passed to {@link #startInboxLookup(long)}.  We save it for resuming it in
-     * {@link #onActivityResume()}.
-     */
-    private long mInboxLookupAccountId;
-
-    /**
-     * We (re)start inbox lookup in {@link #onActivityResume} if it's set.
-     * Set in {@link #onActivityPause()} if it's still running, or {@link #startInboxLookup} is
-     * called before the activity is resumed.
-     */
-    private boolean mResumeInboxLookup;
 
     /**
      * Fragments that are installed.
@@ -180,11 +151,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityResume");
         }
-        mResumed = true;
-        if (mResumeInboxLookup) {
-            startInboxLookup(mInboxLookupAccountId);
-            mResumeInboxLookup = false;
-        }
         refreshActionBar();
     }
 
@@ -195,8 +161,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityPause");
         }
-        mResumeInboxLookup = (mInboxFinder != null);
-        stopInboxLookup();
     }
 
     /**
@@ -206,7 +170,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityStop");
         }
-        mResumed = false;
     }
 
     /**
@@ -228,8 +191,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onSaveInstanceState");
         }
-        outState.putBoolean(BUNDLE_KEY_RESUME_INBOX_LOOKUP, mResumeInboxLookup);
-        outState.putLong(BUNDLE_KEY_INBOX_LOOKUP_ACCOUNT_ID, mInboxLookupAccountId);
         mActionBarController.onSaveInstanceState(outState);
     }
 
@@ -240,8 +201,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " restoreInstanceState");
         }
-        mResumeInboxLookup = savedInstanceState.getBoolean(BUNDLE_KEY_RESUME_INBOX_LOOKUP);
-        mInboxLookupAccountId = savedInstanceState.getLong(BUNDLE_KEY_INBOX_LOOKUP_ACCOUNT_ID);
         mActionBarController.onRestoreInstanceState(savedInstanceState);
     }
 
@@ -454,6 +413,9 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      *     Must never be {@link Account#NO_ACCOUNT}.
      */
     public final void switchAccount(long accountId) {
+
+        // STOPSHIP Do the security hold check here too.
+
         if (accountId == getUIAccountId()) {
             // Do nothing if the account is already selected.  Not even going back to the inbox.
             return;
@@ -462,8 +424,18 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
             open(accountId, Mailbox.QUERY_ALL_INBOXES, Message.NO_MESSAGE);
         } else {
-            // For a normal account, just open the inbox. Unfortunately, we have to look it up first
-            startInboxLookup(accountId);
+            long inboxId = Mailbox.findMailboxOfType(mActivity, accountId, Mailbox.TYPE_INBOX);
+            if (inboxId == Mailbox.NO_MAILBOX) {
+                // The account doesn't have Inbox yet... Redirect to Welcome and let it wait for
+                // the initial sync...
+                Log.w(Logging.LOG_TAG, "Account " + accountId +" doesn't have Inbox.  Redirecting"
+                        + " to Welcome...");
+                Welcome.actionOpenAccountInbox(mActivity, accountId);
+                mActivity.finish();
+                return;
+            } else {
+                openMailbox(accountId, inboxId);
+            }
         }
     }
 
@@ -508,67 +480,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      */
     public void onSearchRequested() {
         mActionBarController.enterSearchMode(null);
-    }
-
-    private final MailboxFinder.Callback mMailboxFinderCallback = new MailboxFinder.Callback() {
-        private void cleanUp() {
-            mInboxFinder = null;
-        }
-
-        @Override
-        public void onAccountNotFound() {
-            // Account removed?
-            Welcome.actionStart(mActivity);
-            cleanUp();
-        }
-
-        @Override
-        public void onAccountSecurityHold(long accountId) {
-            mActivity.startActivity(
-                    AccountSecurity.actionUpdateSecurityIntent(mActivity, accountId, true));
-            cleanUp();
-        }
-
-        @Override
-        public void onMailboxFound(long accountId, long mailboxId) {
-            openMailbox(accountId, mailboxId);
-            cleanUp();
-        }
-
-        @Override
-        public void onMailboxNotFound(long accountId) {
-            // Inbox not found.
-            Welcome.actionStart(mActivity);
-            cleanUp();
-        }
-    };
-
-    /**
-     * Start inbox lookup.
-     */
-    private void startInboxLookup(long accountId) {
-        if (mInboxFinder != null) {
-            return; // already running
-        }
-        mInboxLookupAccountId = accountId;
-        if (!mResumed) {
-            mResumeInboxLookup = true; // Don't start yet.
-            return;
-        }
-        mInboxFinder = new MailboxFinder(mActivity, accountId, Mailbox.TYPE_INBOX,
-                mMailboxFinderCallback);
-        mInboxFinder.startLookup();
-    }
-
-    /**
-     * Stop inbox lookup.
-     */
-    private void stopInboxLookup() {
-        if (mInboxFinder == null) {
-            return; // not running
-        }
-        mInboxFinder.cancel();
-        mInboxFinder = null;
     }
 
     /** @return true if the search menu option should be enabled. */
