@@ -1691,12 +1691,14 @@ public class EmailProvider extends ContentProvider {
                     long accountId = Account.NO_ACCOUNT;
                     // Find the account with "isDefault" set
                     Collection<Cursor> accounts = accountCache.values();
-                    int numAccounts = accounts.size();
                     for (Cursor accountCursor: accounts) {
-                        if (accountCursor.getInt(Account.CONTENT_IS_DEFAULT_COLUMN) == 1 ||
-                                numAccounts == 1) {
+                        boolean isDefault =
+                            accountCursor.getInt(Account.CONTENT_IS_DEFAULT_COLUMN) == 1;
+                        // We'll remember this one if it's the default or the first one we see
+                        if (isDefault || accountId == Account.NO_ACCOUNT) {
                             accountId = accountCursor.getLong(Account.CONTENT_ID_COLUMN);
-                            break;
+                            // If it's the default, we're done
+                            if (isDefault) break;
                         }
                     }
                     // Return a cursor with an id projection
