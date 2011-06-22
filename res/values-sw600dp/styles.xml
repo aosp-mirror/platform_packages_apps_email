@@ -139,4 +139,9 @@
         <item name="android:layout_toRightOf">@+id/main_content"</item>
         <item name="android:layout_alignParentRight">true</item>
     </style>
+
+    <style name="SearchBar">
+        <item name="android:layout_width">420dip</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
 </resources>

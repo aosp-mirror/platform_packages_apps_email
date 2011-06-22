@@ -161,7 +161,7 @@ public class ActionBarController {
         final LayoutInflater inflater = LayoutInflater.from(mContext);
         mActionBarCustomView = inflater.inflate(R.layout.action_bar_custom_view, null);
         final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
-                ActionBar.LayoutParams.WRAP_CONTENT,
+                ActionBar.LayoutParams.MATCH_PARENT,
                 ActionBar.LayoutParams.MATCH_PARENT);
         customViewLayout.setMargins(0 , 0, 0, 0);
         mActionBar.setCustomView(mActionBarCustomView, customViewLayout);

@@ -16,8 +16,7 @@
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/search_box_width"
-    android:layout_height="match_parent"
+    style="@style/SearchBar"
     android:orientation="horizontal"
     >
     <SearchView
