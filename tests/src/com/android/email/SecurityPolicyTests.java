@@ -16,6 +16,13 @@
 
 package com.android.email;
 
+import android.app.admin.DevicePolicyManager;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.test.ProviderTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
+
 import com.android.email.provider.ContentCache;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
@@ -25,13 +32,6 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
 import com.android.emailcommon.service.LegacyPolicySet;
-
-import android.app.admin.DevicePolicyManager;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.test.ProviderTestCase2;
-import android.test.suitebuilder.annotation.MediumTest;
-import android.test.suitebuilder.annotation.SmallTest;
 
 /**
  * This is a series of unit tests for backup/restore of the SecurityPolicy class.
@@ -216,6 +216,51 @@ public class SecurityPolicyTests extends ProviderTestCase2<EmailProvider> {
         Policy p6out = mSecurityPolicy.computeAggregatePolicy();
         assertNotNull(p6out);
         assertTrue(p6out.mRequireEncryptionExternal);
+    }
+
+    private long assertAccountPolicyConsistent(long accountId, long oldKey) {
+        Account account = Account.restoreAccountWithId(mMockContext, accountId);
+        long policyKey = account.mPolicyKey;
+
+        assertTrue(policyKey > 0);
+
+        // Found a policy. Ensure it matches.
+        Policy policy = Policy.restorePolicyWithId(mMockContext, policyKey);
+        assertNotNull(policy);
+        assertEquals(account.mPolicyKey, policy.mId);
+        assertEquals(
+                accountId,
+                Policy.getAccountIdWithPolicyKey(mMockContext, policy.mId));
+
+        // Assert the old one isn't there.
+        if (oldKey > 0) {
+            assertNull("old policy not cleaned up",
+                    Policy.restorePolicyWithId(mMockContext, oldKey));
+        }
+
+        return policyKey;
+    }
+
+    @SmallTest
+    public void testSettingAccountPolicy() {
+        Account account = ProviderTestUtils.setupAccount("testaccount", true, mMockContext);
+        long accountId = account.mId;
+        Policy initial = setupPolicy(10, Policy.PASSWORD_MODE_SIMPLE, 0, 0, false, 0, 0, 0,
+                false, false, false);
+        Policy.setAccountPolicy(mMockContext, accountId, initial, null);
+
+        long oldKey = assertAccountPolicyConsistent(account.mId, 0);
+
+        Policy updated = setupPolicy(10, Policy.PASSWORD_MODE_SIMPLE, 0, 0, false, 0, 0, 0,
+                false, false, false);
+        Policy.setAccountPolicy(mMockContext, accountId, updated, null);
+        oldKey = assertAccountPolicyConsistent(account.mId, oldKey);
+
+        // Remove the policy
+        Policy.clearAccountPolicy(
+                mMockContext, Account.restoreAccountWithId(mMockContext, accountId));
+        assertNull("old policy not cleaned up",
+                Policy.restorePolicyWithId(mMockContext, oldKey));
     }
 
     /**
