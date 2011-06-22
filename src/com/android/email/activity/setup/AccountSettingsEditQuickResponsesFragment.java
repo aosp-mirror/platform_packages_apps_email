@@ -32,6 +32,7 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,14 +40,14 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 /**
  * Lists quick responses associated with the specified email account. Allows users to create,
  * edit, and delete quick responses. Owning activity must:
  * <ul>
- *   <li>Implement Callback to properly dismiss this fragment.</li>
+ *   <li>Launch this fragment using startPreferencePanel().</li>
  *   <li>Provide an Account as an argument named "account". This account's quick responses
  *   will be read and potentially modified.</li>
  * </ul>
@@ -58,20 +59,9 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
     private ListView mQuickResponsesView;
     private Account mAccount;
     private Context mContext;
-    private Callback mListen;
     private EmailAsyncTask.Tracker mTaskTracker;
 
-    /**
-     * Allows this fragment to properly dismiss itself via the Callback's implementation.
-     */
-    public interface Callback {
-        /**
-         * Dismisses the fragment.
-         */
-        public void onEditQuickResponsesDone();
-    }
-
-    // Helper class to place a TextView alongside "Delete" button in the ListView
+    // Helper class to place a TextView alongside "Delete" icon in the ListView
     // displaying the QuickResponses
     private static class ArrayAdapterWithButtons extends ArrayAdapter<QuickResponse> {
         private QuickResponse[] mQuickResponses;
@@ -133,9 +123,9 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
             convertView.setTag(mQuickResponses[position]);
             convertView.setOnClickListener(mOnEditListener);
 
-            Button deleteButton = (Button) convertView.findViewById(R.id.delete_button);
-            deleteButton.setTag(mQuickResponses[position]);
-            deleteButton.setOnClickListener(mOnDeleteListener);
+            ImageView deleteIcon = (ImageView) convertView.findViewById(R.id.delete_icon);
+            deleteIcon.setTag(mQuickResponses[position]);
+            deleteIcon.setOnClickListener(mOnDeleteListener);
 
             return convertView;
         }
@@ -201,7 +191,7 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
             } else {
                 adapter = new ArrayAdapter<QuickResponse>(
                         mContext,
-                        android.R.layout.simple_selectable_list_item,
+                        R.layout.insert_quick_response,
                         quickResponseItems
                         );
                 mQuickResponsesView.setOnItemClickListener(mListener);
@@ -213,11 +203,6 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        try {
-            mListen = (Callback) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement Callback");
-        }
     }
 
     @Override
@@ -277,7 +262,9 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.done) {
-            mListen.onEditQuickResponsesDone();
+            // since launched using startPreferencePanel, this is the proper way to end it
+            // for both tablets and phones
+            ((PreferenceActivity) getActivity()).finishPreferencePanel(this, 0, null);
         } else if (v.getId() == R.id.create_new) {
             EditQuickResponseDialog
                     .newInstance(null, mAccount.mId)
