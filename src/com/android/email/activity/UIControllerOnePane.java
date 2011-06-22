@@ -591,9 +591,9 @@ class UIControllerOnePane extends UIControllerBase {
      */
     @Override
     public long getMailboxSettingsMailboxId() {
-        // Mailbox settings is still experimental, and doesn't have to work on the phone.
-        Utility.showToast(mActivity, "STOPSHIP: Mailbox settings not supported on 1 pane");
-        return Mailbox.NO_MAILBOX;
+        return isMessageListInstalled()
+                ? getMessageListFragment().getMailboxId()
+                : Mailbox.NO_MAILBOX;
     }
 
     @Override protected boolean canSearch() {
