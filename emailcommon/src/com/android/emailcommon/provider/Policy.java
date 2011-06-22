@@ -15,8 +15,6 @@
  */
 
 package com.android.emailcommon.provider;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.admin.DevicePolicyManager;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
@@ -30,6 +28,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
+
+import com.android.emailcommon.utility.Utility;
 
 import java.util.ArrayList;
 
@@ -136,7 +136,7 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     public static long getAccountIdWithPolicyKey(Context context, long id) {
         return Utility.getFirstRowLong(context, Account.CONTENT_URI, Account.ID_PROJECTION,
                 AccountColumns.POLICY_KEY + "=?", new String[] {Long.toString(id)}, null,
-                Account.ID_PROJECTION_COLUMN);
+                Account.ID_PROJECTION_COLUMN, Account.NO_ACCOUNT);
     }
 
     // We override this method to insure that we never write invalid policy data to the provider
@@ -146,8 +146,17 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
         return super.save(context);
     }
 
-    static public void clearAccountPolicy(Context context, Account account) {
+    public static void clearAccountPolicy(Context context, Account account) {
         setAccountPolicy(context, account, null, null);
+    }
+
+    /**
+     * Convenience method for {@link #setAccountPolicy(Context, Account, Policy, String)}.
+     */
+    public static void setAccountPolicy(Context context, long accountId, Policy policy,
+            String securitySyncKey) {
+        setAccountPolicy(context, Account.restoreAccountWithId(context, accountId),
+                policy, securitySyncKey);
     }
 
     /**
@@ -159,7 +168,7 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
      * @param policy the policy to set, or null if we're clearing the policy
      * @param securitySyncKey the security sync key for this account (ignored if policy is null)
      */
-    static public void setAccountPolicy(Context context, Account account, Policy policy,
+    public static void setAccountPolicy(Context context, Account account, Policy policy,
             String securitySyncKey) {
         if (DEBUG_POLICY) {
             Log.d(TAG, "Set policy for account " + account.mDisplayName + ": " +
