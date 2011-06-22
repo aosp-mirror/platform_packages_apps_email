@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- See also values-xlarge for specializations for xlarge screens -->
+<!-- non-xlarge.  See also values-xlarge for specializations for xlarge screens -->
 <resources>
     <style name="EmailTheme" parent="@android:style/Theme.Holo.Light">
     </style>
@@ -121,5 +121,23 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+
+    <style name="message_view_text">
+        <item name="android:textSize">14dip</item>
+        <item name="android:textColor">@color/text_secondary_color</item>
+    </style>
+
+    <style name="message_view_horizontal_divider">
+        <item name="android:layout_height">1dip</item>
+        <item name="android:background">?android:attr/dividerHorizontal</item>
+    </style>
+
+    <style name="message_view_tab" parent="@android:style/Widget.Holo.Light.Tab">
+        <item name="android:layout_height">32dip</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">14dip</item>
+        <item name="android:textColor">@color/text_secondary_color</item>
+    </style>
+
 </resources>
 

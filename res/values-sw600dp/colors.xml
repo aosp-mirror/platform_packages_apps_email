@@ -15,10 +15,5 @@
 -->
 
 <resources>
-
     <color name="message_view_fogged_glass_color">#00000000</color>
-
-    <!-- Standard text colors -->
-    <color name="text_primary_color">#000000</color>
-    <color name="text_secondary_color">#666666</color>
 </resources>
