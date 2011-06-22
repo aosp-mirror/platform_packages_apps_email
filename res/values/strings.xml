@@ -1119,6 +1119,11 @@ save attachment.</string>
     <string name="position_of_count"><xliff:g example="1">%1$d</xliff:g> of <xliff:g
             example="12">%2$s</xliff:g></string>
 
+    <!-- Message shown during the first sync after an account is set up.  [CHAR LIMIT=NONE] -->
+    <string name="waitinf_for_sync_message_1">Waiting for sync</string>
+    <!-- Message shown during the first sync after an account is set up.  [CHAR LIMIT=NONE] -->
+    <string name="waitinf_for_sync_message_2">Your email will appear shortly.</string>
+
     <!-- Widget -->
     <!-- Instruction for how to move to different widget views [CHAR LIMIT=20] -->
     <string name="widget_other_views">Tap icon to change</string>

@@ -38,6 +38,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 
 /**
  * The Welcome activity initializes the application and starts {@link EmailActivity}, or launch
@@ -82,6 +83,8 @@ public class Welcome extends Activity {
     private static final String VIEW_MAILBOX_INTENT_URL_PATH = "/view/mailbox";
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
+
+    private View mWaitingForSyncView;
 
     // Account reconciler is started from AccountResolver, which we may run multiple times,
     // so remember if we did it already to prevent from running it twice.
@@ -172,6 +175,9 @@ public class Welcome extends Activity {
         super.onCreate(icicle);
         ActivityHelper.debugSetWindowFlags(this);
 
+        setContentView(R.layout.welcome);
+        mWaitingForSyncView = UiUtilities.getView(this, R.id.waiting_for_sync_message);
+
         // Reset the "accounts changed" notification, now that we're here
         Email.setNotifyUiAccountsChanged(false);
 
@@ -195,12 +201,22 @@ public class Welcome extends Activity {
 
     @Override
     protected void onStop() {
-        // The activity no longer visible, which means the user opened some other app.
-        // Just close self and not launch EmailActivity.
+        // Cancel all running tasks.
+        // (If it's stopping for configuration changes, we just re-do everything on the new
+        // instance)
         stopInboxLookup();
         mTaskTracker.cancellAllInterrupt();
+
         super.onStop();
-        finish();
+
+        if (!isChangingConfigurations()) {
+            // This means the user opened some other app.
+            // Just close self and not launch EmailActivity.
+            if (Email.DEBUG && Logging.DEBUG_LIFECYCLE) {
+                Log.d(Logging.LOG_TAG, "Welcome: Closing self...");
+            }
+            finish();
+        }
     }
 
     /**
@@ -238,6 +254,9 @@ public class Welcome extends Activity {
         mInboxFinder = new MailboxFinder(this, mAccountId, Mailbox.TYPE_INBOX,
                 mMailboxFinderCallback);
         mInboxFinder.startLookup();
+
+        // Show "your email will appear shortly"
+        mWaitingForSyncView.setVisibility(View.VISIBLE);
     }
 
     /**
