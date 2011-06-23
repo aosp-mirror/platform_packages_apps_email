@@ -299,6 +299,11 @@
     <!-- Mailbox list header for recent folders [CHAR LIMIT=30] -->
     <string name="mailbox_list_recent_mailboxes">Recent folders</string>
 
+    <!-- Announces the subject field for a message for users with accessibility requirements -->
+    <string name="message_subject_description">Subject</string>
+    <!-- Announces that a message has no sender or subject
+            to users with accessibility requirements -->
+    <string name="message_is_empty_description">No subject</string>
     <!-- Appears at the bottom of list of messages; user selects to load more messages from that folder. -->
     <string name="message_list_load_more_messages_action">Load more messages</string>
     <!--  The number of messages that are currently selected for various operations such as

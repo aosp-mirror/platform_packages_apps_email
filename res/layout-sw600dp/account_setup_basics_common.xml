@@ -50,6 +50,7 @@
                 android:id="@+id/account_email"
                 android:layout_width="@dimen/setup_credentials_input_width"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/account_setup_basics_email_label"
                 android:inputType="textEmailAddress"
                 android:imeOptions="actionNext" />
         </TableRow>
@@ -64,6 +65,7 @@
                 android:id="@+id/account_password"
                 android:layout_height="wrap_content"
                 android:layout_width="@dimen/setup_credentials_input_width"
+                android:contentDescription="@string/account_setup_basics_password_label"
                 android:inputType="textPassword"
                 android:imeOptions="actionDone"
                 android:nextFocusDown="@+id/next" />

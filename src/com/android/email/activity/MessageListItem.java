@@ -40,6 +40,7 @@ import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 
 /**
  * This custom View is the list item for the MessageList activity, and serves two purposes:
@@ -96,11 +97,14 @@ public class MessageListItem extends View {
     private static Bitmap sStateForwarded;
     private static Bitmap sStateRepliedAndForwarded;
     private static String sSubjectSnippetDivider;
+    private static String sSubjectDescription;
+    private static String sSubjectEmptyDescription;
 
     public String mSender;
     public CharSequence mText;
     public CharSequence mSnippet;
-    public String mSubject;
+    private String mSubject;
+    private String mSubjectAndDescription;
     private StaticLayout mSubjectLayout;
     public boolean mRead;
     public long mTimestamp;
@@ -135,6 +139,8 @@ public class MessageListItem extends View {
         mContext = context;
         if (!sInit) {
             Resources r = context.getResources();
+            sSubjectDescription = r.getString(R.string.message_subject_description).concat(", ");
+            sSubjectEmptyDescription = r.getString(R.string.message_is_empty_description);
             sSubjectSnippetDivider = r.getString(R.string.message_list_subject_snippet_divider);
             sTextSize =
                 r.getDimensionPixelSize(R.dimen.message_list_item_text_size);
@@ -172,6 +178,16 @@ public class MessageListItem extends View {
                 BitmapFactory.decodeResource(r, R.drawable.reply_all);
 
             sInit = true;
+        }
+    }
+
+    /**
+     * Sets message subject safely, ensuring the cache is invalidated.
+     */
+    public void setSubject(String subject) {
+        if (!subject.equals(mSubject)) {
+            mSubject = subject;
+            mSubjectAndDescription = null;
         }
     }
 
@@ -456,5 +472,32 @@ public class MessageListItem extends View {
         }
 
         return handled;
+    }
+
+    @Override
+    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
+        CharSequence contentDescription = getContentDescription(mContext);
+        if (!TextUtils.isEmpty(contentDescription)) {
+            event.setClassName(getClass().getName());
+            event.setPackageName(getContext().getPackageName());
+            event.setEnabled(true);
+            event.setContentDescription(contentDescription);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get message information to use for accessibility.
+     */
+    private CharSequence getContentDescription(Context context) {
+        if (mSubjectAndDescription == null) {
+            if (!TextUtils.isEmpty(mSubject)) {
+                mSubjectAndDescription = sSubjectDescription + mSubject;
+            } else {
+                mSubjectAndDescription = sSubjectEmptyDescription;
+            }
+        }
+        return mSubjectAndDescription;
     }
 }

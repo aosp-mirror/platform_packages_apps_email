@@ -29,6 +29,7 @@
         android:layout_height="24dip"
         android:layout_margin="6dip"
         android:baselineAlignBottom="true"
+        android:contentDescription="@string/reply_action"
         />
     <View
         android:layout_width="1dip"

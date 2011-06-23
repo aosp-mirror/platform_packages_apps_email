@@ -36,6 +36,7 @@
     <EditText
         android:id="@+id/account_email"
         android:hint="@string/account_setup_basics_email_label"
+        android:contentDescription="@string/account_setup_basics_email_label"
         android:inputType="textEmailAddress"
         android:imeOptions="actionNext"
         android:layout_below="@+id/instructions"
@@ -44,6 +45,7 @@
     <EditText
         android:id="@+id/account_password"
         android:hint="@string/account_setup_basics_password_label"
+        android:contentDescription="@string/account_setup_basics_password_label"
         android:inputType="textPassword"
         android:imeOptions="actionDone"
         android:layout_below="@+id/account_email"

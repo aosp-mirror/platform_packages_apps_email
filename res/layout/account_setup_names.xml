@@ -25,36 +25,38 @@
         android:layout_weight="1"
         android:orientation="vertical" >
         <TextView
-            android:text="@string/account_setup_names_headline"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:text="@string/account_setup_names_headline"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:attr/textColorPrimary" />
         <TextView
-            android:text="@string/account_setup_names_account_name_label"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:text="@string/account_setup_names_account_name_label"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary" />
         <EditText
             android:id="@+id/account_description"
-            android:inputType="textCapWords"
-            android:imeOptions="actionDone"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent" />
-        <TextView
-            android:id="@+id/account_name_label"
-            android:text="@string/account_setup_names_user_name_label"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:contentDescription="@string/account_setup_names_account_name_label"
+            android:inputType="textCapWords"
+            android:imeOptions="actionDone" />
+        <TextView
+            android:id="@+id/account_name_label"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="@string/account_setup_names_user_name_label"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorPrimary" />
         <EditText
             android:id="@+id/account_name"
-            android:inputType="textPersonName"
-            android:imeOptions="actionDone"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent" />
+            android:layout_width="match_parent"
+            android:contentDescription="@string/account_setup_names_user_name_label"
+            android:inputType="textPersonName"
+            android:imeOptions="actionDone" />
 
         <!-- TODO - quick placeholder - phone UX still TBD -->
         <Button

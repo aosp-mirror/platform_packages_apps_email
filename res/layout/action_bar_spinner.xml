@@ -18,6 +18,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="@dimen/account_spinner_width"
     android:layout_height="match_parent"
+    android:focusable="true"
     style="@android:style/Widget.Holo.Spinner"
     >
     <TextView

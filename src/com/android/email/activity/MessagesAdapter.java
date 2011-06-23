@@ -199,7 +199,7 @@ import java.util.Set;
         itemView.mTimestamp = cursor.getLong(COLUMN_DATE);
         itemView.mSender = cursor.getString(COLUMN_DISPLAY_NAME);
         itemView.mSnippet = cursor.getString(COLUMN_SNIPPET);
-        itemView.mSubject = cursor.getString(COLUMN_SUBJECT);
+        itemView.setSubject(cursor.getString(COLUMN_SUBJECT));
         itemView.mSnippetLineCount = MessageListItem.NEEDS_LAYOUT;
         itemView.mColorChipPaint =
             mShowColorChips ? mResourceHelper.getAccountColorPaint(accountId) : null;

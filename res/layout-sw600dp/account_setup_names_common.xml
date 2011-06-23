@@ -21,8 +21,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="@dimen/setup_item_inset_left"
-    android:paddingRight="@dimen/setup_item_inset_right"
-    >
+    android:paddingRight="@dimen/setup_item_inset_right" >
     <TextView
         android:id="@+id/account_description_label"
         android:layout_alignParentTop="true"
@@ -35,6 +34,7 @@
         android:layout_below="@+id/account_description_label"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:contentDescription="@string/account_setup_names_account_name_label"
         android:inputType="textCapWords"
         android:imeOptions="actionDone" />
     <TextView
@@ -50,6 +50,7 @@
         android:layout_below="@+id/account_name_label"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:contentDescription="@string/account_setup_names_user_name_label"
         android:inputType="textPersonName"
         android:imeOptions="actionDone" />
 </RelativeLayout>

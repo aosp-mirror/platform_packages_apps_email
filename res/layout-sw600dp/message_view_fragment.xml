@@ -95,6 +95,7 @@
             <ImageButton
                 android:id="@+id/reply"
                 android:layout_marginRight="16dip"
+                android:contentDescription="@string/reply_action"
                 android:src="@drawable/ic_reply"
                 android:visibility="gone"
                 style="@style/message_view_action_buttons"
@@ -102,6 +103,7 @@
             <ImageButton
                 android:id="@+id/reply_all"
                 android:layout_marginRight="16dip"
+                android:contentDescription="@string/reply_all_action"
                 android:src="@drawable/ic_reply_all"
                 android:visibility="gone"
                 style="@style/message_view_action_buttons"
@@ -109,6 +111,7 @@
             <ImageButton
                 android:id="@+id/forward"
                 android:layout_marginRight="16dip"
+                android:contentDescription="@string/forward_action"
                 android:src="@drawable/ic_forward"
                 android:visibility="gone"
                 style="@style/message_view_action_buttons"
