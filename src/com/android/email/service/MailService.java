@@ -16,22 +16,6 @@
 
 package com.android.email.service;
 
-import com.android.email.Controller;
-import com.android.email.Email;
-import com.android.email.Preferences;
-import com.android.email.SecurityPolicy;
-import com.android.email.SingleRunningTask;
-import com.android.email.provider.AccountBackupRestore;
-import com.android.emailcommon.AccountManagerTypes;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.AccountReconciler;
-import com.android.emailcommon.utility.EmailAsyncTask;
-import com.google.common.annotations.VisibleForTesting;
-
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
 import android.app.AlarmManager;
@@ -50,6 +34,22 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.android.email.Controller;
+import com.android.email.Email;
+import com.android.email.Preferences;
+import com.android.email.SecurityPolicy;
+import com.android.email.SingleRunningTask;
+import com.android.email.provider.AccountBackupRestore;
+import com.android.emailcommon.AccountManagerTypes;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.AccountReconciler;
+import com.android.emailcommon.utility.EmailAsyncTask;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -754,6 +754,7 @@ public class MailService extends Service {
             AccountManagerCallback<Bundle> callback) {
         Bundle options = new Bundle();
         HostAuth hostAuthRecv = HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
+        if (hostAuthRecv == null) return;
         // Set up username/password
         options.putString(EasAuthenticatorService.OPTIONS_USERNAME, account.mEmailAddress);
         options.putString(EasAuthenticatorService.OPTIONS_PASSWORD, hostAuthRecv.mPassword);
