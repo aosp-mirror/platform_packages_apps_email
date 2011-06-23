@@ -43,12 +43,12 @@ import java.util.List;
 
 /**
  * Base class for the UI controller.
- *
- * TODO Remove all the {@link MailboxFinder} stuff.  It's now done in {@link Welcome}.
  */
 abstract class UIControllerBase implements MailboxListFragment.Callback,
         MessageListFragment.Callback, MessageViewFragment.Callback  {
     static final boolean DEBUG_FRAGMENTS = false; // DO NOT SUBMIT WITH TRUE
+
+    static final String KEY_LIST_CONTEXT = "UIControllerBase.listContext";
 
     /** The owner activity */
     final EmailActivity mActivity;
@@ -201,6 +201,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             Log.d(Logging.LOG_TAG, this + " onSaveInstanceState");
         }
         mActionBarController.onSaveInstanceState(outState);
+        outState.putParcelable(KEY_LIST_CONTEXT, mListContext);
     }
 
     /**
@@ -211,6 +212,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             Log.d(Logging.LOG_TAG, this + " restoreInstanceState");
         }
         mActionBarController.onRestoreInstanceState(savedInstanceState);
+        mListContext = savedInstanceState.getParcelable(KEY_LIST_CONTEXT);
     }
 
     /**
