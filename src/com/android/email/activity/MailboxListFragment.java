@@ -16,18 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Controller;
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.RefreshManager;
-import com.android.email.provider.EmailProvider;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.Utility;
-import com.google.common.annotations.VisibleForTesting;
-
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
@@ -51,8 +39,19 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.android.email.Controller;
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.RefreshManager;
+import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
+
 import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * This fragment presents a list of mailboxes for a given account or the combined mailboxes.
@@ -148,8 +147,6 @@ import java.util.TimerTask;
  *   no views.
  * - Otherwise, make sure to check if the fragment has views with {@link #isViewCreated()}
  *   before touching any views.
- *
- * TODO Remove the nested folder navigation code during drag&drop.
  */
 public class MailboxListFragment extends ListFragment implements OnItemClickListener,
         OnDragListener {
@@ -161,9 +158,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
             = "MailboxListFragment.state.selected_mailbox_id";
     private static final String BUNDLE_LIST_STATE = "MailboxListFragment.state.listState";
     private static final boolean DEBUG_DRAG_DROP = false; // MUST NOT SUBMIT SET TO TRUE
-
-    /** While in drag-n-drop, amount of time before it auto expands; in ms */
-    private static final long AUTO_EXPAND_DELAY = 750L;
 
     /** No drop target is available where the user is currently hovering over */
     private static final int NO_DROP_TARGET = -1;
@@ -182,8 +176,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
 
     private final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
-    /** Timer to auto-expand folder lists during drag-n-drop */
-    private static final Timer sDragTimer = new Timer();
     /** Rectangle used for hit testing children */
     private static final Rect sTouchFrame = new Rect();
 
