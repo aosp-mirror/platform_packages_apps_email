@@ -18,11 +18,14 @@ package com.android.email;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.android.email.activity.EmailActivity;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.SearchParams;
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
 /**
@@ -30,7 +33,7 @@ import com.google.common.base.Preconditions;
  * This encapsulates the meta-data about the list of messages, which can either be the
  * {@link Mailbox} ID, or {@link SearchParams}.
  */
-public class MessageListContext {
+public class MessageListContext implements Parcelable {
 
     /**
      * The active account. Changing an account is a destructive enough operation that it warrants
@@ -121,4 +124,61 @@ public class MessageListContext {
     public long getMailboxId() {
         return mMailboxId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof MessageListContext)) {
+            return false;
+        }
+
+        MessageListContext om = (MessageListContext) o;
+        return mAccountId == om.mAccountId
+                && mMailboxId == om.mMailboxId
+                && Objects.equal(mSearchParams, om.mSearchParams);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mAccountId, mMailboxId, mSearchParams);
+    }
+
+    @Override
+    public String toString() {
+        return "[MessageListContext " + mAccountId + ":" + mMailboxId + ":" + mSearchParams + "]";
+    }
+
+
+    private MessageListContext(Parcel in) {
+        mAccountId = in.readLong();
+        mMailboxId = in.readLong();
+        mSearchParams = in.readParcelable(SearchParams.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mAccountId);
+        dest.writeLong(mMailboxId);
+        dest.writeParcelable(mSearchParams, flags);
+    }
+
+    public static Parcelable.Creator<MessageListContext> CREATOR =
+                new Parcelable.Creator<MessageListContext>() {
+        @Override
+        public MessageListContext createFromParcel(Parcel source) {
+            return new MessageListContext(source);
+        }
+
+        @Override
+        public MessageListContext[] newArray(int size) {
+            return new MessageListContext[size];
+        }
+    };
 }

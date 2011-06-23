@@ -20,6 +20,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.emailcommon.provider.Mailbox;
+import com.google.common.base.Objects;
 
 public class SearchParams implements Parcelable {
     public static final long ALL_MAILBOXES = Mailbox.NO_MAILBOX;
@@ -51,6 +52,33 @@ public class SearchParams implements Parcelable {
     public SearchParams(long mailboxId, String filter) {
         mMailboxId = mailboxId;
         mFilter = filter;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if ((o == null) || !(o instanceof SearchParams)) {
+            return false;
+        }
+
+        SearchParams os = (SearchParams) o;
+        return mMailboxId == os.mMailboxId
+                && mIncludeChildren == os.mIncludeChildren
+                && mFilter.equals(os.mFilter)
+                && mLimit == os.mLimit
+                && mOffset == os.mOffset;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(mMailboxId, mFilter, mOffset);
+    }
+
+    @Override
+    public String toString() {
+        return "[SearchParams " + mMailboxId + ":" + mFilter + " (" + mOffset + ", " + mLimit + "]";
     }
 
     @Override
