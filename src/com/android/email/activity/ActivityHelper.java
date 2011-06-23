@@ -122,6 +122,8 @@ public final class ActivityHelper {
      * NOTE: Currently, this only works if HW accel is *not* enabled via the manifest.
      */
     public static void debugSetWindowFlags(Activity activity) {
+        // STOPSHIP - re-enable hw acceleration when b/4886133 is fixed.
+        /*
         if (Email.sDebugInhibitGraphicsAcceleration) {
             // Clear the flag in the activity's window
             activity.getWindow().setFlags(0,
@@ -131,5 +133,6 @@ public final class ActivityHelper {
             activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         }
+        */
     }
 }
