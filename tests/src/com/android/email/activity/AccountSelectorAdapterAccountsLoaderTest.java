@@ -55,9 +55,9 @@ public class AccountSelectorAdapterAccountsLoaderTest extends LoaderTestCase {
                     true);
             AccountSelectorAdapter.CursorWithExtras result =
                     (AccountSelectorAdapter.CursorWithExtras) getLoaderResultSynchronously(l);
-            assertEquals(1, result.mAccountCount);
+            assertEquals(1, result.getAccountCount());
             assertEquals(2, result.getCount()); // +1 as the cursor has the header row
-            assertEquals(0, result.mRecentCount); // No recent in two-pane account spinner.
+            assertEquals(0, result.getRecentMailboxCount()); // No recent on two-pane.
         }
 
         final Account a2 = ProviderTestUtils.setupAccount("a2", true, mProviderContext);
@@ -67,9 +67,9 @@ public class AccountSelectorAdapterAccountsLoaderTest extends LoaderTestCase {
                     true);
             AccountSelectorAdapter.CursorWithExtras result =
                     (AccountSelectorAdapter.CursorWithExtras) getLoaderResultSynchronously(l);
-            assertEquals(3, result.mAccountCount);
+            assertEquals(3, result.getAccountCount());
             assertEquals(4, result.getCount()); // +1 as the cursor has the header row
-            assertEquals(0, result.mRecentCount); // No recent in two-pane account spinner.
+            assertEquals(0, result.getRecentMailboxCount()); // No recent on two-pane.
         }
     }
 }

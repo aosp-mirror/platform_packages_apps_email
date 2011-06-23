@@ -240,24 +240,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         public void onAccountSelected(long accountId);
 
         /**
-         * TODO Remove it.  The behavior is not well-defined.  (Won't get called when highlight is
-         *      disabled.)
-         *      It was added only to update the action bar with the current mailbox name and the
-         *      message count.  Remove it and make the action bar watch the mailbox by itself.
-         *
-         * Called when the list updates to propagate the current mailbox name and the unread count
-         * for it.
-         *
-         * Note the reason why it's separated from onMailboxSelected is because this needs to be
-         * reported when the unread count changes without changing the current mailbox.
-         *
-         * @param mailboxId ID for the selected mailbox.  It'll never be of a combined mailbox,
-         *     and the owner account ID is always the same as
-         *     {@link MailboxListFragment#getAccountId()}.
-         */
-        public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount);
-
-        /**
          * Called when the parent mailbox is changing.
          */
         public void onParentMailboxChanged();
@@ -268,8 +250,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         @Override public void onMailboxSelected(long accountId, long mailboxId,
                 boolean nestedNavigation) { }
         @Override public void onAccountSelected(long accountId) { }
-        @Override public void onCurrentMailboxUpdated(long mailboxId, String mailboxName,
-                int unreadCount) { }
         @Override
         public void onParentMailboxChanged() { }
     }
@@ -882,8 +862,6 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
         final ListView lv = getListView();
         boolean found = false;
-        String mailboxName = "";
-        int unreadCount = 0;
         if (mHighlightedMailboxId == Mailbox.NO_MAILBOX) {
             // No mailbox selected
             lv.clearChoices();
@@ -900,14 +878,10 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 if (ensureSelectionVisible) {
                     Utility.listViewSmoothScrollToPosition(getActivity(), lv, i);
                 }
-                mailboxName = mListAdapter.getDisplayName(mActivity, i);
-                unreadCount = mListAdapter.getUnreadCount(i);
                 break;
             }
         }
-        if (found) {
-            mCallback.onCurrentMailboxUpdated(mHighlightedMailboxId, mailboxName, unreadCount);
-        } else {
+        if (!found) {
             mHighlightedMailboxId = Mailbox.NO_MAILBOX;
         }
         return found;

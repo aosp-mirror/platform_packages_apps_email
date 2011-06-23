@@ -16,8 +16,6 @@
 
 package com.android.email.activity;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import com.android.email.Email;
 import com.android.email.FolderProperties;
 import com.android.email.R;
@@ -32,8 +30,7 @@ import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
-
-import java.util.ArrayList;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -51,6 +48,8 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 /**
  * Mailbox cursor adapter for the mailbox list fragment.
@@ -234,45 +233,6 @@ class MailboxFragmentAdapter extends CursorAdapter {
     }
 
     /**
-     * Returns the type of count to use for the given row.
-     */
-    private int getCountType(Cursor cursor) {
-        if (isAccountRow(cursor)) {
-            return COUNT_TYPE_UNREAD;
-        }
-        // otherwise, look at mailbox type to determine the count
-        switch (cursor.getInt(cursor.getColumnIndex(MailboxColumns.TYPE))) {
-            case Mailbox.TYPE_DRAFTS:
-            case Mailbox.TYPE_OUTBOX:
-                return COUNT_TYPE_TOTAL;
-            case Mailbox.TYPE_SENT:
-            case Mailbox.TYPE_TRASH:
-                return COUNT_TYPE_NO_COUNT;
-        }
-        return COUNT_TYPE_UNREAD;
-    }
-
-    /**
-     * Returns the unread count for the given row if the count type is {@link #COUNT_TYPE_UNREAD}.
-     * Otherwise, {@code 0}.
-     */
-    int getUnreadCount(int position) {
-        Cursor c = (Cursor) getItem(position);
-        if (getCountType(c) != COUNT_TYPE_UNREAD) {
-            return 0; // Don't have a unread count.
-        }
-        return c.getInt(c.getColumnIndex(MailboxColumns.UNREAD_COUNT));
-    }
-
-    /**
-     * Returns the display name for the given row.
-     */
-    String getDisplayName(Context context, int position) {
-        Cursor c = (Cursor) getItem(position);
-        return getDisplayName(context, c);
-    }
-
-    /**
      * Returns the ID of the given row. It may be a mailbox or account ID depending upon the
      * result of {@link #isAccountRow}.
      */
@@ -301,18 +261,17 @@ class MailboxFragmentAdapter extends CursorAdapter {
     }
 
     private static String getDisplayName(Context context, Cursor cursor) {
-        String name = null;
-        if (getRowType(cursor) == ROW_TYPE_MAILBOX) {
-            // If it's a mailbox (as opposed to account row in combined view), and of certain types,
-            // we use the predefined names.
-            final int type = getType(cursor);
-            final long mailboxId = getId(cursor);
-            name = FolderProperties.getInstance(context).getDisplayName(type, mailboxId);
+        final String name = cursor.getString(cursor.getColumnIndex(MailboxColumns.DISPLAY_NAME));
+        if (isAccountRow(cursor)) {
+            // Always use actual name
+            return name;
+        } else {
+            // Use this method for two purposes:
+            // - Set combined mailbox names
+            // - Rewrite special mailbox names (e.g. trash)
+            FolderProperties fp = FolderProperties.getInstance(context);
+            return fp.getDisplayName(getType(cursor), getId(cursor), name);
         }
-        if (name == null) {
-            name = cursor.getString(cursor.getColumnIndex(MailboxColumns.DISPLAY_NAME));
-        }
-        return name;
     }
 
     static long getId(Cursor cursor) {
@@ -394,16 +353,11 @@ class MailboxFragmentAdapter extends CursorAdapter {
         nameView.setText(getDisplayName(context, cursor));
         // Set count
         final int count;
-        switch (getCountType(cursor)) {
-            case COUNT_TYPE_UNREAD:
-                count = getUnreadCount(cursor);
-                break;
-            case COUNT_TYPE_TOTAL:
-                count = getMessageCount(cursor);
-                break;
-            default: // no count
-                count = 0;
-                break;
+        if (isAccountRow(cursor)) {
+            count = getUnreadCount(cursor);
+        } else {
+            FolderProperties fp = FolderProperties.getInstance(context);
+            count = fp.getMessageCount(type, getUnreadCount(cursor), getMessageCount(cursor));
         }
         final TextView countView = (TextView) view.findViewById(R.id.message_count);
 

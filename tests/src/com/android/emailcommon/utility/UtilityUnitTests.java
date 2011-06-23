@@ -17,7 +17,6 @@
 package com.android.emailcommon.utility;
 
 import com.android.email.DBTestHelper;
-import com.android.email.FolderProperties;
 import com.android.email.R;
 import com.android.email.TestUtils;
 import com.android.email.provider.ProviderTestUtils;
@@ -61,71 +60,6 @@ import java.util.Set;
  */
 @SmallTest
 public class UtilityUnitTests extends AndroidTestCase {
-    /**
-     * Tests of the syncronization of array and types of the display folder names
-     */
-    public void testGetDisplayName() {
-        Context context = getContext();
-        String expect, name;
-        expect = context.getString(R.string.mailbox_name_display_inbox);
-        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_INBOX);
-        assertEquals(expect, name);
-        expect = null;
-        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_MAIL);
-        assertEquals(expect, name);
-        expect = null;
-        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_PARENT);
-        assertEquals(expect, name);
-        expect = context.getString(R.string.mailbox_name_display_drafts);
-        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_DRAFTS);
-        assertEquals(expect, name);
-        expect = context.getString(R.string.mailbox_name_display_outbox);
-        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_OUTBOX);
-        assertEquals(expect, name);
-        expect = context.getString(R.string.mailbox_name_display_sent);
-        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_SENT);
-        assertEquals(expect, name);
-        expect = context.getString(R.string.mailbox_name_display_trash);
-        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_TRASH);
-        assertEquals(expect, name);
-        expect = context.getString(R.string.mailbox_name_display_junk);
-        name = FolderProperties.getInstance(context).getDisplayName(Mailbox.TYPE_JUNK);
-        assertEquals(expect, name);
-        // Testing illegal index
-        expect = null;
-        name = FolderProperties.getInstance(context).getDisplayName(8);
-        assertEquals(expect, name);
-    }
-
-    /**
-     * Confirm that all of the special icons are available and unique
-     */
-    public void testSpecialIcons() {
-        FolderProperties fp = FolderProperties.getInstance(mContext);
-
-        // Make sure they're available
-        Drawable inbox = fp.getIcon(Mailbox.TYPE_INBOX, -1, 0);
-        Drawable mail = fp.getIcon(Mailbox.TYPE_MAIL, -1, 0);
-        Drawable parent = fp.getIcon(Mailbox.TYPE_PARENT, -1, 0);
-        Drawable drafts = fp.getIcon(Mailbox.TYPE_DRAFTS, -1, 0);
-        Drawable outbox = fp.getIcon(Mailbox.TYPE_OUTBOX, -1, 0);
-        Drawable sent = fp.getIcon(Mailbox.TYPE_SENT, -1, 0);
-        Drawable trash = fp.getIcon(Mailbox.TYPE_TRASH, -1, 0);
-        Drawable junk = fp.getIcon(Mailbox.TYPE_JUNK, -1, 0);
-
-        // Make sure they're unique
-        Set<Drawable> set = new HashSet<Drawable>();
-        set.add(inbox);
-        set.add(parent);
-        set.add(drafts);
-        set.add(outbox);
-        set.add(sent);
-        set.add(trash);
-        set.add(junk);
-        assertEquals(7, set.size());
-
-        assertNull(mail);
-    }
 
     private static byte[] b(int... array) {
         return TestUtils.b(array);

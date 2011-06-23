@@ -16,21 +16,24 @@
 
 package com.android.email;
 
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 
 
 // TODO When the UI is settled, cache all strings/drawables
-// TODO When the UI is settled, write up tests
-// TODO When the UI is settled, remove backward-compatibility methods
 /**
  * Stores names and icons for system folders. System folders are those with special
  * meaning, such as Inbox, Drafts, Trash, etc... Although these folders may or may
  * not exist on the server, we want to ensure they are displayed in a very specific
  * manner.
+ *
+ * Some methods probably should belong to {@link Mailbox}, but as this class uses resources,
+ * we can't move them to emailcommon...
  */
 public class FolderProperties {
 
@@ -68,20 +71,10 @@ public class FolderProperties {
         return sInstance;
     }
 
-    // For backward compatibility.
-    public String getDisplayName(int type) {
-        return getDisplayName(type, -1);
-    }
-
-    // For backward compatibility.
-    public Drawable getSummaryMailboxIconIds(long id) {
-        return getIcon(-1, id, 0);
-    }
-
     /**
      * Lookup names of localized special mailboxes
      */
-    public String getDisplayName(int type, long mailboxId) {
+    private String getDisplayName(int type, long mailboxId) {
         // Special combined mailboxes
         int resId = 0;
 
@@ -103,6 +96,73 @@ public class FolderProperties {
             return mSpecialMailbox[type];
         }
         return null;
+    }
+
+    /**
+     * Return the display name for a mailbox for UI.  For normal mailboxes, it just returns
+     * {@code originalDisplayName}, but for special mailboxes (such as combined mailboxes) it
+     * returns a name obtained from the resource.
+     *
+     * @param mailboxType Such as {@link Mailbox#TYPE_INBOX}
+     * @param mailboxId ID of a mailbox.
+     * @param originalDisplayName Display name of the mailbox stored in the database.
+     */
+    public String getDisplayName(int mailboxType, long mailboxId, String originalDisplayName) {
+        String name = getDisplayName(mailboxType, mailboxId);
+        if (name != null) {
+            return name;
+        }
+        return originalDisplayName;
+    }
+
+    /**
+     * Same as {@link #getDisplayName(int, long, String)}, but gets information form a mailbox
+     * cursor.  The cursor must contain the following columns:
+     * {@link MailboxColumns#ID}, {@link MailboxColumns#TYPE} and
+     * {@link MailboxColumns#DISPLAY_NAME}.
+     */
+    public String getDisplayName(Cursor mailboxCursor) {
+        final Cursor c = mailboxCursor;
+        return getDisplayName(
+                c.getInt(c.getColumnIndex(MailboxColumns.TYPE)),
+                c.getLong(c.getColumnIndex(MailboxColumns.ID)),
+                c.getString(c.getColumnIndex(MailboxColumns.DISPLAY_NAME))
+                );
+    }
+
+    /**
+     * Return the message count which should be shown with a mailbox name.  Depending on
+     * the mailbox type, we change what to show.
+     *
+     * @param mailboxType Such as {@link Mailbox#TYPE_INBOX}
+     * @param unreadCount Count obtained from {@link MailboxColumns#UNREAD_COUNT}
+     * @param totalCount Count obtained from {@link MailboxColumns#MESSAGE_COUNT}
+     */
+    public int getMessageCount(int mailboxType, int unreadCount, int totalCount) {
+        switch (mailboxType) {
+            case Mailbox.TYPE_DRAFTS:
+            case Mailbox.TYPE_OUTBOX:
+                return totalCount;
+            case Mailbox.TYPE_SENT:
+            case Mailbox.TYPE_TRASH:
+                return 0; // We don't show a count for sent/trash.
+        }
+        return unreadCount;
+    }
+
+    /**
+     * Same as {@link #getMessageCount(int, int, int)}, but gets information form a mailbox
+     * cursor.  The cursor must contain the following columns:
+     * {@link MailboxColumns#TYPE}, {@link MailboxColumns#UNREAD_COUNT} and
+     * {@link MailboxColumns#MESSAGE_COUNT}.
+     */
+    public int getMessageCount(Cursor mailboxCursor) {
+        final Cursor c = mailboxCursor;
+        return getMessageCount(
+                c.getInt(c.getColumnIndex(MailboxColumns.TYPE)),
+                c.getInt(c.getColumnIndex(MailboxColumns.UNREAD_COUNT)),
+                c.getInt(c.getColumnIndex(MailboxColumns.MESSAGE_COUNT))
+                );
     }
 
     /**

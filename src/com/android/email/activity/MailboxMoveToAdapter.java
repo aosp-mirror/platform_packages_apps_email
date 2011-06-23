@@ -130,11 +130,8 @@ class MailboxMoveToAdapter extends CursorAdapter {
     private static String getDisplayText(Context context, Cursor cursor) {
         final int type = cursor.getInt(COLUMN_TYPE);
         final long mailboxId = cursor.getLong(COLUMN_ID);
-        String name = FolderProperties.getInstance(context).getDisplayName(type, mailboxId);
-        if (name == null) {
-            name = cursor.getString(COLUMN_MAILBOX_NAME);
-        }
-        return name;
+        return FolderProperties.getInstance(context).getDisplayName(type, mailboxId,
+                cursor.getString(COLUMN_MAILBOX_NAME));
     }
 
     /** Loader for the "move to mailbox" dialog. */

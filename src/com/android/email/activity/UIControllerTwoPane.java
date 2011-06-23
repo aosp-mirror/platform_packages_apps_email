@@ -63,20 +63,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     private final MessageOrderManagerCallback mMessageOrderManagerCallback =
         new MessageOrderManagerCallback();
 
-    /**
-     * The mailbox name selected on the mailbox list.
-     * Passed via {@link #onCurrentMailboxUpdated}.
-     */
-    private String mCurrentMailboxName;
-
-    /**
-     * The unread count for the mailbox selected on the mailbox list.
-     * Passed via {@link #onCurrentMailboxUpdated}.
-     *
-     * 0 if the mailbox doesn't have the concept of "unread".  e.g. Drafts.
-     */
-    private int mCurrentMailboxUnreadCount;
-
     public UIControllerTwoPane(EmailActivity activity) {
         super(activity);
     }
@@ -118,14 +104,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     @Override
     public void onAccountSelected(long accountId) {
         switchAccount(accountId);
-    }
-
-    // MailboxListFragment$Callback
-    @Override
-    public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount) {
-        mCurrentMailboxName = mailboxName;
-        mCurrentMailboxUnreadCount = unreadCount;
-        refreshActionBar();
     }
 
     // MailboxListFragment$Callback
@@ -822,19 +800,15 @@ class UIControllerTwoPane extends UIControllerBase implements
     }
 
     private class ActionBarControllerCallback implements ActionBarController.Callback {
-        @Override
-        public String getCurrentMailboxName() {
-            return mCurrentMailboxName;
-        }
-
-        @Override
-        public int getCurrentMailboxUnreadCount() {
-            return mCurrentMailboxUnreadCount;
-        }
 
         @Override
         public long getUIAccountId() {
             return UIControllerTwoPane.this.getUIAccountId();
+        }
+
+        @Override
+        public long getMailboxId() {
+            return UIControllerTwoPane.this.getMessageListMailboxId();
         }
 
         @Override

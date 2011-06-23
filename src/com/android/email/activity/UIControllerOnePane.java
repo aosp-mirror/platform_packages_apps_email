@@ -60,11 +60,6 @@ class UIControllerOnePane extends UIControllerBase {
 
     // MailboxListFragment.Callback
     @Override
-    public void onCurrentMailboxUpdated(long mailboxId, String mailboxName, int unreadCount) {
-    }
-
-    // MailboxListFragment.Callback
-    @Override
     public void onMailboxSelected(long accountId, long mailboxId, boolean nestedNavigation) {
         if (nestedNavigation) {
             return; // Nothing to do on 1-pane.
@@ -211,15 +206,6 @@ class UIControllerOnePane extends UIControllerBase {
             return false; // no mailbox name/unread count.
         }
 
-        @Override
-        public String getCurrentMailboxName() {
-            return null; // no mailbox name/unread count.
-        }
-
-        @Override
-        public int getCurrentMailboxUnreadCount() {
-            return 0; // no mailbox name/unread count.
-        }
 
         @Override
         public boolean shouldShowUp() {
@@ -230,6 +216,11 @@ class UIControllerOnePane extends UIControllerBase {
         @Override
         public long getUIAccountId() {
             return UIControllerOnePane.this.getUIAccountId();
+        }
+
+        @Override
+        public long getMailboxId() {
+            return UIControllerOnePane.this.getMailboxId();
         }
 
         @Override

@@ -19,6 +19,7 @@ package com.android.email.activity;
 import android.app.ActionBar;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
@@ -30,9 +31,13 @@ import android.view.View;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.android.email.FolderProperties;
 import com.android.email.R;
+import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 
 /**
@@ -63,6 +68,8 @@ public class ActionBarController {
 
     private static final int LOADER_ID_ACCOUNT_LIST
             = EmailActivity.ACTION_BAR_CONTROLLER_LOADER_ID_BASE + 0;
+    private static final int LOADER_ID_MAILBOX
+            = EmailActivity.ACTION_BAR_CONTROLLER_LOADER_ID_BASE + 1;
 
     private final Context mContext;
     private final LoaderManager mLoaderManager;
@@ -83,6 +90,9 @@ public class ActionBarController {
     /** The current account ID; used to determine if the account has changed. */
     private long mLastAccountIdForDirtyCheck = Account.NO_ACCOUNT;
 
+    /** The current mailbox ID; used to determine if the mailbox has changed. */
+    private long mLastMailboxIdForDirtyCheck = Mailbox.NO_MAILBOX;
+
     /** Either {@link #MODE_NORMAL} or {@link #MODE_SEARCH}. */
     private int mSearchMode = MODE_NORMAL;
 
@@ -102,16 +112,14 @@ public class ActionBarController {
          */
         public long getUIAccountId();
 
+        /**
+         * @return currently selected mailbox ID, or {@link Mailbox#NO_MAILBOX} if no mailbox is
+         * selected.
+         */
+        public long getMailboxId();
+
         /** @return true if the current mailbox name should be shown.  */
         public boolean shouldShowMailboxName();
-
-        /** @return current mailbox name */
-        public String getCurrentMailboxName();
-        /**
-         * @return unread count for the current mailbox.  (0 if the mailbox doesn't have the concept
-         *     of "unread"; e.g. Drafts)
-         */
-        public int getCurrentMailboxUnreadCount();
 
         /** @return the "UP" arrow should be shown. */
         public boolean shouldShowUp();
@@ -278,13 +286,7 @@ public class ActionBarController {
         } else {
             mMailboxNameContainer.setVisibility(mCallback.shouldShowMailboxName()
                     ? View.VISIBLE : View.GONE);
-            mMailboxNameView.setText(mCallback.getCurrentMailboxName());
         }
-
-        // Note on action bar, we show only "unread count".  Some mailboxes such as Outbox don't
-        // have the idea of "unread count", in which case we just omit the count.
-        mUnreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
-                    mCallback.getCurrentMailboxUnreadCount(), true));
 
         // Update the account list only when the account has changed.
         if (mLastAccountIdForDirtyCheck != mCallback.getUIAccountId()) {
@@ -295,6 +297,17 @@ public class ActionBarController {
                 loadAccounts();
             } else {
                 updateAccountList();
+            }
+        }
+
+        // Update current mailbox info
+        final long mailboxId = mCallback.getMailboxId();
+        if (mailboxId == Mailbox.NO_MAILBOX) {
+            clearMailboxInfo();
+        } else {
+            if (mLastMailboxIdForDirtyCheck != mailboxId) {
+                mLastMailboxIdForDirtyCheck = mailboxId;
+                loadMailboxInfo(mailboxId);
             }
         }
     }
@@ -345,7 +358,7 @@ public class ActionBarController {
             return;
         }
 
-        final int count = mAccountCursor.mAccountCount + mAccountCursor.mRecentCount;
+        final int count = mAccountCursor.getAccountCount() + mAccountCursor.getRecentMailboxCount();
         if (count == 0) {
             mCallback.onNoAccountsFound();
             return;
@@ -359,7 +372,7 @@ public class ActionBarController {
             ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
             if (selectedPosition >= 0) {
                 mAccountCursor.moveToPosition(selectedPosition);
-                ab.setTitle(AccountSelectorAdapter.getAccountDisplayName(mAccountCursor));
+                ab.setTitle(AccountSelectorAdapter.getDisplayName(mAccountCursor));
             }
             return;
         }
@@ -396,6 +409,47 @@ public class ActionBarController {
             }
             return true;
         }
+    }
+
+    private static final String[] MAILBOX_NAME_COUNT_PROJECTION = new String[] {
+        MailboxColumns.ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE,
+        MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT
+    };
+
+    private void loadMailboxInfo(final long mailboxId) {
+        clearMailboxInfo();
+        mLoaderManager.restartLoader(LOADER_ID_MAILBOX, null,
+                new LoaderCallbacks<Cursor>() {
+            @Override
+            public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+                return new ThrottlingCursorLoader(mContext,
+                        ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                        MAILBOX_NAME_COUNT_PROJECTION, null, null, null);
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+                // Update action bar
+                FolderProperties fp = FolderProperties.getInstance(mContext);
+                updateMailboxInfo(
+                        fp.getDisplayName(cursor),
+                        fp.getMessageCount(cursor)
+                        );
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Cursor> loader) {
+            }
+        });
+    }
+
+    private void clearMailboxInfo() {
+        updateMailboxInfo("", 0);
+    }
+
+    private void updateMailboxInfo(String mailboxName, int count) {
+        mMailboxNameView.setText(mailboxName);
+        mUnreadCountView.setText(UiUtilities.getMessageCountForUi(mContext, count, true));
     }
 
     private final SearchView.OnQueryTextListener mOnQueryText

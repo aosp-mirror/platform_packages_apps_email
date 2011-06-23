@@ -18,10 +18,12 @@ package com.android.email.activity;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import com.android.email.FolderProperties;
 import com.android.email.R;
 import com.android.email.data.ClosingMatrixCursor;
 import com.android.email.data.ThrottlingCursorLoader;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
@@ -46,8 +48,8 @@ import android.widget.TextView;
  * TODO Test it!
  */
 public class AccountSelectorAdapter extends CursorAdapter {
-    /** meta data column for an account's unread count */
-    private static final String UNREAD_COUNT = "unreadCount";
+    /** meta data column for an message count (unread or total, depending on row) */
+    private static final String MESSAGE_COUNT = "unreadCount";
     /** meta data column for the row type; used for display purposes */
     private static final String ROW_TYPE = "rowType";
     /** meta data position of the currently selected account in the drop-down list */
@@ -60,7 +62,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
     static final int UNKNOWN_POSITION = -1;
     /** Projection for account database query */
     private static final String[] ACCOUNT_PROJECTION = new String[] {
-        Account.ID,
+        EmailContent.RECORD_ID,
         Account.DISPLAY_NAME,
         Account.EMAIL_ADDRESS,
     };
@@ -70,10 +72,10 @@ public class AccountSelectorAdapter extends CursorAdapter {
      */
     private static final String[] ADAPTER_PROJECTION = new String[] {
         ROW_TYPE,
-        Account.ID,
+        EmailContent.RECORD_ID,
         Account.DISPLAY_NAME,
         Account.EMAIL_ADDRESS,
-        UNREAD_COUNT,
+        MESSAGE_COUNT,
         ACCOUNT_POSITION,
     };
 
@@ -140,7 +142,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
         if (c.getInt(c.getColumnIndex(ROW_TYPE)) == ROW_TYPE_HEADER) {
             view = mInflater.inflate(R.layout.account_selector_dropdown_header, parent, false);
             final TextView displayNameView = (TextView) view.findViewById(R.id.display_name);
-            final String displayName = getAccountDisplayName(c);
+            final String displayName = getDisplayName(c);
             displayNameView.setText(displayName);
         } else {
             view = mInflater.inflate(R.layout.account_selector_dropdown, parent, false);
@@ -148,7 +150,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
             final TextView emailAddressView = (TextView) view.findViewById(R.id.email_address);
             final TextView unreadCountView = (TextView) view.findViewById(R.id.unread_count);
 
-            final String displayName = getAccountDisplayName(position);
+            final String displayName = getDisplayName(position);
             final String emailAddress = getAccountEmailAddress(position);
 
             displayNameView.setText(displayName);
@@ -162,11 +164,11 @@ public class AccountSelectorAdapter extends CursorAdapter {
             }
 
             boolean isAccount = isAccountItem(position);
-            long id = getAccountId(c);
+            long id = getId(c);
             if (isAccount || id != Mailbox.NO_MAILBOX) {
                 unreadCountView.setVisibility(View.VISIBLE);
                 unreadCountView.setText(UiUtilities.getMessageCountForUi(mContext,
-                        getAccountUnreadCount(position), false));
+                        getAccountUnreadCount(position), true));
             } else {
                 unreadCountView.setVisibility(View.INVISIBLE);
             }
@@ -177,7 +179,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         TextView textView = (TextView) view.findViewById(R.id.display_name);
-        textView.setText(getAccountDisplayName(cursor));
+        textView.setText(getDisplayName(cursor));
     }
 
     @Override
@@ -216,9 +218,9 @@ public class AccountSelectorAdapter extends CursorAdapter {
         return (c.getLong(c.getColumnIndex(ROW_TYPE)) == ROW_TYPE_MAILBOX);
     }
 
-    private String getAccountDisplayName(int position) {
+    private String getDisplayName(int position) {
         final Cursor c = getCursor();
-        return c.moveToPosition(position) ? getAccountDisplayName(c) : null;
+        return c.moveToPosition(position) ? getDisplayName(c) : null;
     }
 
     private String getAccountEmailAddress(int position) {
@@ -228,7 +230,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
     private int getAccountUnreadCount(int position) {
         final Cursor c = getCursor();
-        return c.moveToPosition(position) ? getAccountUnreadCount(c) : 0;
+        return c.moveToPosition(position) ? getMessageCount(c) : 0;
     }
 
     int getAccountPosition(int position) {
@@ -236,13 +238,15 @@ public class AccountSelectorAdapter extends CursorAdapter {
         return c.moveToPosition(position) ? getAccountPosition(c) : UNKNOWN_POSITION;
     }
 
-    /** Returns the account ID extracted from the given cursor. */
-    private static long getAccountId(Cursor c) {
-        return c.getLong(c.getColumnIndex(Account.ID));
+    /**
+     * Returns the account/mailbox ID extracted from the given cursor.
+     */
+    private static long getId(Cursor c) {
+        return c.getLong(c.getColumnIndex(EmailContent.RECORD_ID));
     }
 
     /** Returns the account name extracted from the given cursor. */
-    static String getAccountDisplayName(Cursor cursor) {
+    static String getDisplayName(Cursor cursor) {
         return cursor.getString(cursor.getColumnIndex(Account.DISPLAY_NAME));
     }
 
@@ -251,9 +255,12 @@ public class AccountSelectorAdapter extends CursorAdapter {
         return cursor.getString(cursor.getColumnIndex(Account.EMAIL_ADDRESS));
     }
 
-    /** Returns the unread count extracted from the given cursor. */
-    private static int getAccountUnreadCount(Cursor cursor) {
-        return cursor.getInt(cursor.getColumnIndex(UNREAD_COUNT));
+    /**
+     * Returns the message count (unread or total, depending on row) extracted from the given
+     * cursor.
+     */
+    private static int getMessageCount(Cursor cursor) {
+        return cursor.getInt(cursor.getColumnIndex(MESSAGE_COUNT));
     }
 
     /** Returns the account position extracted from the given cursor. */
@@ -272,6 +279,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
         private final Context mContext;
         private final long mAccountId;
         private final boolean mUseTwoPane; // Injectable for test
+        private final FolderProperties mFolderProperties;
 
         @VisibleForTesting
         AccountsLoader(Context context, long accountId, boolean useTwoPane) {
@@ -280,6 +288,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
                     ORDER_BY);
             mContext = context;
             mAccountId = accountId;
+            mFolderProperties = FolderProperties.getInstance(mContext);
             mUseTwoPane = useTwoPane;
         }
 
@@ -311,7 +320,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 final long accountId = accountCursor.getLong(0);
                 final int unread = Mailbox.getUnreadCountByAccountAndMailboxType(
                         mContext, accountId, Mailbox.TYPE_INBOX);
-                final String name = getAccountDisplayName(accountCursor);
+                final String name = getDisplayName(accountCursor);
                 final String emailAddress = getAccountEmailAddress(accountCursor);
                 addRow(matrixCursor, ROW_TYPE_ACCOUNT, accountId, name, emailAddress, unread,
                     UNKNOWN_POSITION);
@@ -361,25 +370,22 @@ public class AccountSelectorAdapter extends CursorAdapter {
             }
             int recentCount = (recentMailboxes == null) ? 0 : recentMailboxes.size();
             matrixCursor.mRecentCount = recentCount;
-            if (recentCount > 0) {
+
+            if (!mUseTwoPane) {
+                // "Recent mailboxes" header
                 String mailboxHeader = mContext.getString(
-                    R.string.mailbox_list_account_selector_mailbox_header_fmt, emailAddress);
-                addRow(matrixCursor, ROW_TYPE_HEADER, 0L, mailboxHeader, null, 0, UNKNOWN_POSITION);
-                for (long mailboxId : recentMailboxes) {
-                    final int unread = Utility.getFirstRowInt(mContext,
-                            ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
-                            new String[] { MailboxColumns.UNREAD_COUNT }, null, null, null, 0);
-                    final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
-                    addRow(matrixCursor, ROW_TYPE_MAILBOX, mailboxId, mailbox.mDisplayName, null,
-                            unread, accountPosition);
-                }
-            } else if (!mUseTwoPane) {
-                // Add the header for 'show all folders'
-                String mailboxHeader = mContext.getString(
-                    R.string.mailbox_list_account_selector_mailbox_header_fmt, emailAddress);
+                        R.string.mailbox_list_account_selector_mailbox_header_fmt, emailAddress);
                 addRow(matrixCursor, ROW_TYPE_HEADER, 0L, mailboxHeader, null, 0, UNKNOWN_POSITION);
             }
+
+            if (recentCount > 0) {
+                for (long mailboxId : recentMailboxes) {
+                    addMailboxRow(matrixCursor, accountPosition, mailboxId);
+                }
+            }
+
             if (!mUseTwoPane) {
+                // TODO We need this for combined view too.
                 String name = mContext.getString(
                         R.string.mailbox_list_account_selector_show_all_folders);
                 addRow(matrixCursor, ROW_TYPE_MAILBOX, Mailbox.NO_MAILBOX, name, null, 0,
@@ -387,15 +393,33 @@ public class AccountSelectorAdapter extends CursorAdapter {
             }
         }
 
+
+        private static final String[] RECENT_MAILBOX_INFO_PROJECTION = new String[] {
+            MailboxColumns.ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE,
+            MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT
+        };
+
+        private void addMailboxRow(MatrixCursor matrixCursor, int accountPosition, long mailboxId) {
+            Cursor c = mContext.getContentResolver().query(
+                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
+                    RECENT_MAILBOX_INFO_PROJECTION, null, null, null);
+            if (!c.moveToFirst()) {
+                return;
+            }
+            addRow(matrixCursor, ROW_TYPE_MAILBOX, mailboxId,
+                    mFolderProperties.getDisplayName(c), null,
+                    mFolderProperties.getMessageCount(c), accountPosition);
+        }
+
         /** Adds a row to the given cursor */
         private void addRow(MatrixCursor cursor, int rowType, long id, String name,
-                String emailAddress, int unreadCount, int listPosition) {
+                String emailAddress, int messageCount, int listPosition) {
             cursor.newRow()
                 .add(rowType)
                 .add(id)
                 .add(name)
                 .add(emailAddress)
-                .add(unreadCount)
+                .add(messageCount)
                 .add(listPosition);
         }
     }
@@ -403,9 +427,9 @@ public class AccountSelectorAdapter extends CursorAdapter {
     /** Cursor with some extra meta data. */
     static class CursorWithExtras extends ClosingMatrixCursor {
         /** Number of account elements, including the combined account row. */
-        int mAccountCount;
+        private int mAccountCount;
         /** Number of recent mailbox elements */
-        int mRecentCount;
+        private int mRecentCount;
 
         private CursorWithExtras(String[] columnNames, Cursor innerCursor) {
             super(columnNames, innerCursor);
@@ -418,11 +442,19 @@ public class AccountSelectorAdapter extends CursorAdapter {
         int getPosition(long id) {
             moveToPosition(-1);
             while(moveToNext()) {
-                if (id == getAccountId(this)) {
+                if (id == getId(this)) {
                     return getPosition();
                 }
             }
             return UNKNOWN_POSITION;
+        }
+
+        public int getAccountCount() {
+            return mAccountCount;
+        }
+
+        public int getRecentMailboxCount() {
+            return mRecentCount;
         }
     }
 }
