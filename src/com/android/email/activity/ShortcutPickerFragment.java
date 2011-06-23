@@ -16,13 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
-
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.ListFragment;
@@ -34,15 +27,22 @@ import android.content.Loader;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
-import android.database.MergeCursor;
 import android.database.MatrixCursor.RowBuilder;
+import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.android.email.R;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
 
 /**
  * Fragment containing a list of accounts to show during shortcut creation.
@@ -52,18 +52,10 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public abstract class ShortcutPickerFragment extends ListFragment
         implements OnItemClickListener, LoaderCallbacks<Cursor> {
-    /** Allow all mailboxes in the mailbox list */
-    public static int FILTER_ALLOW_ALL    = 0;
-    /** Only allow an account's INBOX */
-    public static int FILTER_INBOX_ONLY   = 1 << 0;
-    /** Allow an "unread" mailbox; this is not affected by {@link #FILTER_INBOX_ONLY} */
-    public static int FILTER_ALLOW_UNREAD = 1 << 1;
-    /** Fragment argument to set filter values */
-    public static final String ARG_FILTER  = "ShortcutPickerFragment.filter";
-    /** The filter values; default to allow all mailboxes */
-    private Integer mFilter;
     /** Callback methods. Enclosing activities must implement to receive fragment notifications. */
     public static interface PickerCallback {
+        /** Builds a mailbox filter for the given account. See MailboxShortcutPickerFragment. */
+        public Integer buildFilter(Account account);
         /** Invoked when an account and mailbox have been selected. */
         public void onSelected(Account account, long mailboxId);
         /** Required data is missing; either the account and/or mailbox */
@@ -72,6 +64,7 @@ public abstract class ShortcutPickerFragment extends ListFragment
 
     /** A no-op callback */
     private final PickerCallback EMPTY_CALLBACK = new PickerCallback() {
+        @Override public Integer buildFilter(Account account) { return null; }
         @Override public void onSelected(Account account, long mailboxId){ getActivity().finish(); }
         @Override public void onMissingData(boolean missingAccount, boolean missingMailbox) { }
     };
@@ -120,20 +113,6 @@ public abstract class ShortcutPickerFragment extends ListFragment
 
     /** Returns the cursor columns to map into list */
     abstract String[] getFromColumns();
-
-    /** Returns the mailbox filter */
-    int getFilter() {
-        if (mFilter == null) {
-            Bundle args = getArguments();
-            if (args != null) {
-                mFilter = args.getInt(ARG_FILTER, FILTER_ALLOW_ALL);
-            } else {
-                // No arguments set on fragment, use a default value
-                mFilter = FILTER_ALLOW_ALL;
-            }
-        }
-        return mFilter;
-    }
 
     // TODO if we add meta-accounts to the database, remove this class entirely
     private static final class AccountPickerLoader extends CursorLoader {
@@ -233,11 +212,8 @@ public abstract class ShortcutPickerFragment extends ListFragment
         private void selectAccountCursor(Cursor cursor, boolean allowBack) {
             Account account = new Account();
             account.restore(cursor);
-            ShortcutPickerFragment fragment = new MailboxShortcutPickerFragment();
-            final Bundle args = new Bundle();
-            args.putParcelable(MailboxShortcutPickerFragment.ARG_ACCOUNT, account);
-            args.putInt(ARG_FILTER, getFilter());
-            fragment.setArguments(args);
+            ShortcutPickerFragment fragment = MailboxShortcutPickerFragment.newInstance(
+                    getActivity(), account, mCallback.buildFilter(account));
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
             transaction.replace(R.id.shortcut_list, fragment);
             if (allowBack) {
@@ -300,7 +276,16 @@ public abstract class ShortcutPickerFragment extends ListFragment
 
     /** Mailbox picker */
     public static class MailboxShortcutPickerFragment extends ShortcutPickerFragment {
+        /** Allow all mailboxes in the mailbox list */
+        public static int FILTER_ALLOW_ALL    = 0;
+        /** Only allow an account's INBOX */
+        public static int FILTER_INBOX_ONLY   = 1 << 0;
+        /** Allow an "unread" mailbox; this is not affected by {@link #FILTER_INBOX_ONLY} */
+        public static int FILTER_ALLOW_UNREAD = 1 << 1;
+        /** Fragment argument to set filter values */
+        static final String ARG_FILTER  = "MailboxShortcutPickerFragment.filter";
         static final String ARG_ACCOUNT = "MailboxShortcutPickerFragment.account";
+
         private final static String REAL_ID = "realId";
         private final static String[] MAILBOX_FROM_COLUMNS = new String[] {
             MailboxColumns.DISPLAY_NAME,
@@ -329,6 +314,30 @@ public abstract class ShortcutPickerFragment extends ListFragment
                     " AND " + MailboxColumns.TYPE + " = " + Mailbox.TYPE_INBOX;
         /** The currently selected account */
         private Account mAccount;
+        /** The filter values; default to allow all mailboxes */
+        private Integer mFilter;
+
+        /**
+         * Builds a mailbox shortcut picker for the given account.
+         */
+        public static MailboxShortcutPickerFragment newInstance(
+                Context context, Account account, Integer filter) {
+
+            MailboxShortcutPickerFragment fragment = new MailboxShortcutPickerFragment();
+            Bundle args = new Bundle();
+            args.putParcelable(ARG_ACCOUNT, account);
+            args.putInt(ARG_FILTER, filter);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        /** Returns the mailbox filter */
+        int getFilter() {
+            if (mFilter == null) {
+                mFilter = getArguments().getInt(ARG_FILTER, FILTER_ALLOW_ALL);
+            }
+            return mFilter;
+        }
 
         @Override
         public void onAttach(Activity activity) {

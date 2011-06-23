@@ -24,10 +24,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import com.android.email.R;
-import com.android.email.activity.ShortcutPickerFragment;
 import com.android.email.activity.ShortcutPickerFragment.AccountShortcutPickerFragment;
+import com.android.email.activity.ShortcutPickerFragment.MailboxShortcutPickerFragment;
 import com.android.email.activity.ShortcutPickerFragment.PickerCallback;
 import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
 
 /**
  * Activity to configure the Email widget.
@@ -62,11 +63,6 @@ public class WidgetConfiguration extends Activity implements OnClickListener, Pi
             // Load the account picking fragment if we haven't created a fragment yet
             // NOTE: do not add to history as this will be the first fragment in the flow
             AccountShortcutPickerFragment fragment = new AccountShortcutPickerFragment();
-            Bundle args = new Bundle();
-            args.putInt(ShortcutPickerFragment.ARG_FILTER,
-                ShortcutPickerFragment.FILTER_INBOX_ONLY
-                | ShortcutPickerFragment.FILTER_ALLOW_UNREAD);
-            fragment.setArguments(args);
             getFragmentManager().beginTransaction().add(R.id.shortcut_list, fragment).commit();
         }
     }
@@ -78,6 +74,20 @@ public class WidgetConfiguration extends Activity implements OnClickListener, Pi
                 finish();
                 break;
         }
+    }
+
+    @Override
+    public Integer buildFilter(Account account) {
+        if (!Account.isNormalAccount(account.mId)) {
+            return MailboxShortcutPickerFragment.FILTER_INBOX_ONLY
+                    | MailboxShortcutPickerFragment.FILTER_ALLOW_UNREAD;
+        }
+
+        // We can't synced non-Inbox mailboxes for non-EAS accounts, so they don't sync
+        // right now and it doesn't make sense to put them in a widget.
+        return HostAuth.SCHEME_EAS.equals(account.getProtocol(this))
+                ? MailboxShortcutPickerFragment.FILTER_ALLOW_ALL
+                : MailboxShortcutPickerFragment.FILTER_INBOX_ONLY;
     }
 
     @Override

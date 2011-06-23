@@ -16,13 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
-import com.android.email.activity.ShortcutPickerFragment.AccountShortcutPickerFragment;
-import com.android.email.activity.ShortcutPickerFragment.PickerCallback;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.Message;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,6 +23,14 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+
+import com.android.email.R;
+import com.android.email.activity.ShortcutPickerFragment.AccountShortcutPickerFragment;
+import com.android.email.activity.ShortcutPickerFragment.MailboxShortcutPickerFragment;
+import com.android.email.activity.ShortcutPickerFragment.PickerCallback;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
 
 /**
  * This class implements a launcher shortcut for directly accessing a single account.
@@ -74,6 +75,15 @@ public class ShortcutPicker extends Activity implements OnClickListener, PickerC
         }
     }
 
+    @Override
+    public Integer buildFilter(Account account) {
+        if (!Account.isNormalAccount(account.mId)) {
+            // Shortcuts for combined accounts can only be for inboxes.
+            return MailboxShortcutPickerFragment.FILTER_INBOX_ONLY;
+        }
+
+        return MailboxShortcutPickerFragment.FILTER_ALLOW_ALL;
+    }
 
     @Override
     public void onSelected(Account account, long mailboxId) {
