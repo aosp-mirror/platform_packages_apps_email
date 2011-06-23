@@ -34,9 +34,9 @@ import com.android.email.activity.setup.AccountSettings;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.Utility;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -592,22 +592,14 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         boolean isEas = false;
         boolean accountSearchable = false;
         long accountId = getActualAccountId();
-        // TODO: use the canSearch flag on the account when it's set properly.
         if (accountId > 0) {
-            // This should always hit the cache, and never hit the database.
-            String protocol = Account.getProtocol(mActivity, accountId);
-            if ("eas".equals(protocol)) {
-                Account account = Account.restoreAccountWithId(mActivity, accountId);
-                if (account != null) {
-                    // We should set a flag in the account indicating ability to handle search
-                    String protocolVersion = account.mProtocolVersion;
-                    if (Double.parseDouble(protocolVersion) >= 12.0) {
-                        accountSearchable = true;
-                    }
+            Account account = Account.restoreAccountWithId(mActivity, accountId);
+            if (account != null) {
+                String protocol = account.getProtocol(mActivity);
+                if (HostAuth.SCHEME_EAS.equals(protocol)) {
+                    isEas = true;
                 }
-                isEas = true;
-            } else if ("imap".equals(protocol)) {
-                accountSearchable = true;
+                accountSearchable = (account.mFlags & Account.FLAGS_SUPPORTS_SEARCH) != 0;
             }
         }
 

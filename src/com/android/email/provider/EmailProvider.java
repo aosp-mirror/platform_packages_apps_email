@@ -156,8 +156,9 @@ public class EmailProvider extends ContentProvider {
     // Version 23: Add column to mailbox table for time of last access
     // Version 24: Add column to hostauth table for client cert alias
     // Version 25: Added QuickResponse table
+    // Version 26: Update IMAP accounts to add FLAG_SUPPORTS_SEARCH flag
 
-    public static final int DATABASE_VERSION = 25;
+    public static final int DATABASE_VERSION = 26;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -1255,6 +1256,10 @@ public class EmailProvider extends ContentProvider {
             if (oldVersion == 24) {
                 upgradeFromVersion24ToVersion25(db);
                 oldVersion = 25;
+            }
+            if (oldVersion == 25) {
+                upgradeFromVersion25ToVersion26(db);
+                oldVersion = 26;
             }
         }
 
@@ -2437,6 +2442,54 @@ outer:
         } catch (SQLException e) {
             // Shouldn't be needed unless we're debugging and interrupt the process
             Log.w(TAG, "Exception upgrading EmailProvider.db from 24 to 25 " + e);
+        }
+    }
+
+
+    private static final String[] ID_FLAGS_RECV_PROJECTION =
+        new String[] {AccountColumns.ID, AccountColumns.FLAGS, AccountColumns.HOST_AUTH_KEY_RECV};
+    private static final int ID_FLAGS_RECV_COLUMN_ID = 0;
+    private static final int ID_FLAGS_RECV_COLUMN_FLAGS = 1;
+    private static final int ID_FLAGS_RECV_COLUMN_RECV = 2;
+
+    /** Upgrades the database from v25 to v26 by adding FLAG_SUPPORTS_SEARCH to IMAP accounts */
+    private static void upgradeFromVersion25ToVersion26(SQLiteDatabase db) {
+        try {
+            // Loop through accounts, looking for imap accounts
+            Cursor accountCursor = db.query(Account.TABLE_NAME, ID_FLAGS_RECV_PROJECTION, null,
+                    null, null, null, null);
+            ContentValues cv = new ContentValues();
+            try {
+                String[] hostAuthArgs = new String[1];
+                while (accountCursor.moveToNext()) {
+                    hostAuthArgs[0] = accountCursor.getString(ID_FLAGS_RECV_COLUMN_RECV);
+                    // Get the "receive" HostAuth for this account
+                    Cursor hostAuthCursor = db.query(HostAuth.TABLE_NAME,
+                            HostAuth.CONTENT_PROJECTION, HostAuth.RECORD_ID + "=?", hostAuthArgs,
+                            null, null, null);
+                    try {
+                        if (hostAuthCursor.moveToFirst()) {
+                            HostAuth hostAuth = new HostAuth();
+                            hostAuth.restore(hostAuthCursor);
+                            // If this is an imap account, add the search flag
+                            if (HostAuth.SCHEME_IMAP.equals(hostAuth.mProtocol)) {
+                                String id = accountCursor.getString(ID_FLAGS_RECV_COLUMN_ID);
+                                int flags = accountCursor.getInt(ID_FLAGS_RECV_COLUMN_FLAGS);
+                                cv.put(AccountColumns.FLAGS, flags | Account.FLAGS_SUPPORTS_SEARCH);
+                                db.update(Account.TABLE_NAME, cv, Account.RECORD_ID + "=?",
+                                        new String[] {id});
+                            }
+                        }
+                    } finally {
+                        hostAuthCursor.close();
+                    }
+                }
+            } finally {
+                accountCursor.close();
+            }
+        } catch (SQLException e) {
+            // Shouldn't be needed unless we're debugging and interrupt the process
+            Log.w(TAG, "Exception upgrading EmailProvider.db from 25 to 26 " + e);
         }
     }
 

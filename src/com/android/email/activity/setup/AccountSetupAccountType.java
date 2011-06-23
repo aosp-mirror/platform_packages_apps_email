@@ -107,6 +107,7 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         // Delete policy must be set explicitly, because IMAP does not provide a UI selection
         // for it. This logic needs to be followed in the auto setup flow as well.
         account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
+        account.mFlags |= Account.FLAGS_SUPPORTS_SEARCH;
         SetupData.setCheckSettingsMode(SetupData.CHECK_INCOMING | SetupData.CHECK_OUTGOING);
         AccountSetupIncoming.actionIncomingSettings(this, SetupData.getFlowMode(), account);
         finish();
