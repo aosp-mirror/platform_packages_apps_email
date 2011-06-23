@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
+import com.android.email.activity.setup.AccountSecurity;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
@@ -135,4 +136,10 @@ public final class ActivityHelper {
         }
         */
     }
+
+    public static void showSecurityHoldDialog(Activity callerActivity, long accountId) {
+        callerActivity.startActivity(
+                AccountSecurity.actionUpdateSecurityIntent(callerActivity, accountId, true));
+    }
+
 }

@@ -16,16 +16,6 @@
 
 package com.android.email.activity;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-
 import com.android.email.Email;
 import com.android.email.MessageListContext;
 import com.android.email.R;
@@ -37,6 +27,16 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -425,7 +425,11 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      */
     public final void switchAccount(long accountId) {
 
-        // STOPSHIP Do the security hold check here too.
+        if (Account.isSecurityHold(mActivity, accountId)) {
+            ActivityHelper.showSecurityHoldDialog(mActivity, accountId);
+            mActivity.finish();
+            return;
+        }
 
         if (accountId == getUIAccountId()) {
             // Do nothing if the account is already selected.  Not even going back to the inbox.

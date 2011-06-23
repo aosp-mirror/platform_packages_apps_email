@@ -19,7 +19,6 @@ package com.android.email.activity;
 import com.android.email.Email;
 import com.android.email.ExchangeUtils;
 import com.android.email.R;
-import com.android.email.activity.setup.AccountSecurity;
 import com.android.email.activity.setup.AccountSetupBasics;
 import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
@@ -407,8 +406,7 @@ public class Welcome extends Activity {
         public void onAccountSecurityHold(long accountId) {
             cleanUp();
 
-            startActivity(
-                    AccountSecurity.actionUpdateSecurityIntent(Welcome.this, accountId, true));
+            ActivityHelper.showSecurityHoldDialog(Welcome.this, accountId);
             finish();
         }
 
