@@ -394,7 +394,7 @@ class UIControllerOnePane extends UIControllerBase {
         if (messageId != Message.NO_MESSAGE) {
             showMessageView(messageId, accountChanging);
         } else {
-            showMessageList(listContext.mAccountId, listContext.getMailboxId(), accountChanging);
+            showMessageList(listContext, accountChanging);
         }
     }
 
@@ -426,8 +426,8 @@ class UIControllerOnePane extends UIControllerBase {
         showFragment(MailboxListFragment.newInstance(accountId, mailboxId, false), clearBackStack);
     }
 
-    private void showMessageList(long accountId, long mailboxId, boolean clearBackStack) {
-        showFragment(MessageListFragment.newInstance(accountId, mailboxId), clearBackStack);
+    private void showMessageList(MessageListContext listContext, boolean clearBackStack) {
+        showFragment(MessageListFragment.newInstance(listContext), clearBackStack);
     }
 
     private void showMessageView(long messageId, boolean clearBackStack) {

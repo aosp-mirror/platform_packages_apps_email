@@ -521,11 +521,9 @@ class UIControllerTwoPane extends UIControllerBase implements
             Log.d(Logging.LOG_TAG, this + " updateMessageList " + mListContext);
         }
 
-        long mailboxId = mListContext.getMailboxId();
-        if (mailboxId != getMessageListMailboxId()) {
+        if (mListContext.getMailboxId() != getMessageListMailboxId()) {
             removeMessageListFragment(ft);
-            ft.add(mThreePane.getMiddlePaneId(), MessageListFragment.newInstance(
-                    mListContext.mAccountId, mailboxId));
+            ft.add(mThreePane.getMiddlePaneId(), MessageListFragment.newInstance(mListContext));
         }
         if (clearDependentPane) {
             removeMessageViewFragment(ft);

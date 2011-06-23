@@ -16,20 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Controller;
-import com.android.email.Email;
-import com.android.email.NotificationController;
-import com.android.email.R;
-import com.android.email.RefreshManager;
-import com.android.email.provider.EmailProvider;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.Utility;
-import com.google.common.annotations.VisibleForTesting;
-
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
@@ -68,18 +54,25 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.email.Controller;
+import com.android.email.Email;
+import com.android.email.MessageListContext;
+import com.android.email.NotificationController;
+import com.android.email.R;
+import com.android.email.RefreshManager;
+import com.android.email.provider.EmailProvider;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
+
 import java.util.Set;
 
 /**
  * Message list.
- *
- * <p>This fragment uses two different loaders to load data.
- * <ul>
- *   <li>One to load {@link Account} and {@link Mailbox}, with {@link MailboxAccountLoader}.
- *   <li>The other to actually load messages.
- * </ul>
- * We run them sequentially.  i.e. First starts {@link MailboxAccountLoader}, and when it finishes
- * starts the other.
  *
  * See the class javadoc for {@link MailboxListFragment} for notes on {@link #getListView()} and
  * {@link #isViewCreated()}.
@@ -94,8 +87,7 @@ public class MessageListFragment extends ListFragment
     private static final int LOADER_ID_MESSAGES_LOADER = 1;
 
     /** Argument name(s) */
-    private static final String ARG_ACCOUNT_ID = "accountId";
-    private static final String ARG_MAILBOX_ID = "mailboxId";
+    private static final String ARG_LIST_CONTEXT = "listContext";
 
     // Controller access
     private Controller mController;
@@ -248,54 +240,27 @@ public class MessageListFragment extends ListFragment
      *
      * This fragment should be created only with this method.  (Arguments should always be set.)
      *
-     * @param accountId The ID of the account we want to view.
-     *         Pass {@link Account#ACCOUNT_ID_COMBINED_VIEW} for a combined mailbox.
-     * @param mailboxId The ID of the parent mailbox
+     * @param listContext The list context to show messages for
      */
-    public static MessageListFragment newInstance(long accountId, long mailboxId) {
-        // sanity check
-        if ((accountId == Account.NO_ACCOUNT) || (mailboxId == Mailbox.NO_MAILBOX)) {
-            throw new IllegalArgumentException();
-        }
-        if (accountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-            // must be a combined mailbox.
-            if (mailboxId >= 0) {
-                throw new IllegalArgumentException();
-            }
-        } else {
-            // must be a regular mailbox.
-            if (mailboxId <= 0) {
-                throw new IllegalArgumentException();
-            }
-        }
+    public static MessageListFragment newInstance(MessageListContext listContext) {
         final MessageListFragment instance = new MessageListFragment();
         final Bundle args = new Bundle();
-        args.putLong(ARG_ACCOUNT_ID, accountId);
-        args.putLong(ARG_MAILBOX_ID, mailboxId);
+        args.putParcelable(ARG_LIST_CONTEXT, listContext);
         instance.setArguments(args);
         return instance;
     }
 
     /**
-     * The account ID the mailbox is associated with. Do not use directly; instead, use
-     * {@link #getAccountId()}.
+     * The context describing the contents to be shown in the list.
+     * Do not use directly; instead, use the getters such as {@link #getAccountId()}.
      * <p><em>NOTE:</em> Although we cannot force these to be immutable using Java language
      * constructs, this <em>must</em> be considered immutable.
      */
-    private Long mImmutableAccountId;
-    /**
-     * We will display the messages contained by this mailbox. May be one of the special mailbox
-     * constants such as {@link Mailbox#QUERY_ALL_INBOXES} for combined views. Do NOT use directly;
-     * instead, use {@link #getMailboxId()}.
-     * <p><em>NOTE:</em> Although we cannot force these to be immutable using Java language
-     * constructs, this <em>must</em> be considered immutable.
-     */
-    private Long mImmutableMailboxId;
+    private MessageListContext mListContext;
 
     private void initializeArgCache() {
-        if (mImmutableAccountId != null) return;
-        mImmutableAccountId = getArguments().getLong(ARG_ACCOUNT_ID);
-        mImmutableMailboxId = getArguments().getLong(ARG_MAILBOX_ID);
+        if (mListContext != null) return;
+        mListContext = getArguments().getParcelable(ARG_LIST_CONTEXT);
     }
 
     /**
@@ -305,7 +270,7 @@ public class MessageListFragment extends ListFragment
      */
     public long getAccountId() {
         initializeArgCache();
-        return mImmutableAccountId;
+        return mListContext.mAccountId;
     }
 
     /**
@@ -313,7 +278,7 @@ public class MessageListFragment extends ListFragment
      */
     public long getMailboxId() {
         initializeArgCache();
-        return mImmutableMailboxId;
+        return mListContext.getMailboxId();
     }
 
     /**
@@ -1046,6 +1011,8 @@ public class MessageListFragment extends ListFragment
     }
 
     private void determineFooterMode() {
+        // TODO: do something different for searches.
+
         mListFooterMode = LIST_FOOTER_MODE_NONE;
         if ((mMailbox == null) || (mMailbox.mType == Mailbox.TYPE_OUTBOX)
                 || (mMailbox.mType == Mailbox.TYPE_DRAFTS)) {
