@@ -36,6 +36,7 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -485,6 +486,10 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     public final void open(final MessageListContext listContext, final long messageId) {
         mListContext = listContext;
         openInternal(listContext, messageId);
+
+        if (mListContext.isSearch()) {
+            mActionBarController.enterSearchMode(mListContext.getSearchParams().mFilter);
+        }
     }
 
     protected abstract void openInternal(
@@ -508,6 +513,8 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
 
     /**
      * Must be called from {@link Activity#onSearchRequested()}.
+     * This initiates the search entry mode - see {@link #onSearchSubmit} for when the search
+     * is actually submitted.
      */
     public void onSearchRequested() {
         mActionBarController.enterSearchMode(null);
@@ -516,6 +523,43 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     /** @return true if the search menu option should be enabled based on the current UI. */
     protected boolean canSearch() {
         return false;
+    }
+
+    /**
+     * Kicks off a search query, if the UI is in a state where a search is possible.
+     */
+    protected void onSearchSubmit(final String queryTerm) {
+        final long accountId = getUIAccountId();
+        if (!Account.isNormalAccount(accountId)) {
+            return; // Invalid account to search from.
+        }
+
+        // TODO: do a global search for EAS inbox.
+        // TODO: handle doing another search from a search result, in which case we should
+        //       search the original mailbox that was searched, and not search in the search mailbox
+        final long mailboxId = getMessageListMailboxId();
+
+        if (Email.DEBUG) {
+            Log.d(Logging.LOG_TAG, "Submitting search: " + queryTerm);
+        }
+
+        mActivity.startActivity(EmailActivity.createSearchIntent(
+                mActivity, accountId, mailboxId, queryTerm));
+
+
+        // TODO: this causes a slight flicker.
+        // A new instance of the activity will sit on top. When the user exits search and
+        // returns to this activity, the search box should not be open then.
+        mActionBarController.exitSearchMode();
+    }
+
+    /**
+     * Handles exiting of search entry mode.
+     */
+    protected void onSearchExit() {
+        if ((mListContext != null) && mListContext.isSearch()) {
+            mActivity.finish();
+        }
     }
 
     /**
@@ -664,25 +708,6 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         mActivity.invalidateOptionsMenu();
     }
 
-    /**
-     * Kicks off a search query, if the UI is in a state where a search is possible.
-     */
-    protected void onSearchSubmit(final String queryTerm) {
-        final long accountId = getUIAccountId();
-        if (!Account.isNormalAccount(accountId)) {
-            return; // Invalid account to search from.
-        }
-
-        // TODO: do a global search for EAS inbox.
-        final long mailboxId = getMessageListMailboxId();
-
-        if (Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "Submitting search: " + queryTerm);
-        }
-
-        mActivity.startActivity(EmailActivity.createSearchIntent(
-                mActivity, accountId, mailboxId, queryTerm));
-    }
 
     @Override
     public String toString() {

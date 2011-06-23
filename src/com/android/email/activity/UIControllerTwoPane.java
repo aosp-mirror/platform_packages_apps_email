@@ -881,7 +881,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
         @Override
         public void onSearchExit() {
-            // STOPSHIP If the activity is a "search" instance, finish() it.
+            UIControllerTwoPane.this.onSearchExit();
         }
     }
 }

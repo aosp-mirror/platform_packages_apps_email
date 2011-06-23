@@ -267,7 +267,7 @@ class UIControllerOnePane extends UIControllerBase {
 
         @Override
         public void onSearchExit() {
-            // STOPSHIP implement search
+            UIControllerOnePane.this.onSearchExit();
         }
     }
 
