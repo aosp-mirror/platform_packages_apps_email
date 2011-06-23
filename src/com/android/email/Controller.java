@@ -946,9 +946,6 @@ public class Controller {
                 ContentValues cv = new ContentValues();
                 // For now, use the actual query as the name of the mailbox
                 cv.put(Mailbox.DISPLAY_NAME, searchParams.mFilter);
-                // But use the server id of the actual mailbox we're searching; this allows full
-                // message loading to work normally (clever, huh?)
-                cv.put(MailboxColumns.SERVER_ID, actualMailbox.mServerId);
                 resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId),
                         cv, null, null);
             }
