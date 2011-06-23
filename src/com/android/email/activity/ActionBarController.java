@@ -221,6 +221,8 @@ public class ActionBarController {
         }
         if (!TextUtils.isEmpty(initialQueryTerm)) {
             mSearchView.setQuery(initialQueryTerm, false);
+        } else {
+            mSearchView.setQuery("", false);
         }
         mSearchMode = MODE_SEARCH;
 
@@ -228,13 +230,15 @@ public class ActionBarController {
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         mActionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
         mSearchContainer.setVisibility(View.VISIBLE);
+
+        // Focus on the search input box and throw up the IME if specified.
         // TODO: HACK. this is a workaround IME not popping up.
         mSearchView.setIconified(false);
 
         refresh();
     }
 
-    private void exitSearchMode() {
+    public void exitSearchMode() {
         if (!isInSearchMode()) {
             return;
         }

@@ -151,7 +151,9 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         Preconditions.checkArgument(Account.isNormalAccount(accountId),
                 "Can only search in normal accounts");
 
-        Intent i = IntentUtilities.createRestartAppIntent(fromActivity, EmailActivity.class);
+        // Note that a search doesn't use a restart intent, as we want another instance of
+        // the activity to sit on the stack for search.
+        Intent i = new Intent(fromActivity, EmailActivity.class);
         i.putExtra(EXTRA_ACCOUNT_ID, accountId);
         i.putExtra(EXTRA_MAILBOX_ID, mailboxId);
         i.putExtra(EXTRA_QUERY_STRING, query);
