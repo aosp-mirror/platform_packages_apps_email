@@ -1692,13 +1692,17 @@ public class EmailProvider extends ContentProvider {
                     // Find the account with "isDefault" set
                     Collection<Cursor> accounts = accountCache.values();
                     for (Cursor accountCursor: accounts) {
-                        boolean isDefault =
-                            accountCursor.getInt(Account.CONTENT_IS_DEFAULT_COLUMN) == 1;
-                        // We'll remember this one if it's the default or the first one we see
-                        if (isDefault || accountId == Account.NO_ACCOUNT) {
-                            accountId = accountCursor.getLong(Account.CONTENT_ID_COLUMN);
-                            // If it's the default, we're done
-                            if (isDefault) break;
+                        // For now, at least, we can have zero count cursors (e.g. if someone looks
+                        // up a non-existent id); we need to skip these
+                        if (accountCursor.moveToFirst()) {
+                            boolean isDefault =
+                                accountCursor.getInt(Account.CONTENT_IS_DEFAULT_COLUMN) == 1;
+                            // We'll remember this one if it's the default or the first one we see
+                            if (isDefault || accountId == Account.NO_ACCOUNT) {
+                                accountId = accountCursor.getLong(Account.CONTENT_ID_COLUMN);
+                                // If it's the default, we're done
+                                if (isDefault) break;
+                            }
                         }
                     }
                     // Return a cursor with an id projection
