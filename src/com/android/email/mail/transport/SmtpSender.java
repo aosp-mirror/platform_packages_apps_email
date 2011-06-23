@@ -16,6 +16,10 @@
 
 package com.android.email.mail.transport;
 
+import android.content.Context;
+import android.util.Base64;
+import android.util.Log;
+
 import com.android.email.Email;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Transport;
@@ -29,11 +33,8 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
 
-import android.content.Context;
-import android.util.Log;
-import android.util.Base64;
-
 import java.io.IOException;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 
 import javax.net.ssl.SSLException;
@@ -111,10 +112,18 @@ public class SmtpSender extends Sender {
             executeSimpleCommand(null);
 
             String localHost = "localhost";
-            // Try to get local address in the X.X.X.X format.
+            // Try to get local address in the proper format.
             InetAddress localAddress = mTransport.getLocalAddress();
             if (localAddress != null) {
-                localHost = localAddress.getHostAddress();
+                // Address Literal formatted in accordance to RFC2821 Sec. 4.1.3
+                StringBuilder sb = new StringBuilder();
+                sb.append('[');
+                if (localAddress instanceof Inet6Address) {
+                    sb.append("IPv6:");
+                }
+                sb.append(localAddress.getHostAddress());
+                sb.append(']');
+                localHost = sb.toString();
             }
             String result = executeSimpleCommand("EHLO " + localHost);
 
