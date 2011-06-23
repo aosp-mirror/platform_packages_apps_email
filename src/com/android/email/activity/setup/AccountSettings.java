@@ -64,8 +64,7 @@ import java.util.List;
  *       sense to use a loader for the accounts list, because it would provide better support for
  *       dealing with accounts being added/deleted and triggering the header reload.
  */
-public class AccountSettings extends PreferenceActivity
-        implements AccountSettingsEditQuickResponsesFragment.Callback {
+public class AccountSettings extends PreferenceActivity {
     /*
      * Intent to open account settings for account=1
         adb shell am start -a android.intent.action.EDIT \
@@ -653,14 +652,6 @@ public class AccountSettings extends PreferenceActivity
         } catch (Exception e) {
             Log.d(Logging.LOG_TAG, "Error while trying to invoke edit quick responses.", e);
         }
-    }
-
-    /**
-     * Implements AccountSettingsEditQuickResponsesFragment.Callback
-     */
-    @Override
-    public void onEditQuickResponsesDone() {
-        getFragmentManager().popBackStack();
     }
 
     /**
