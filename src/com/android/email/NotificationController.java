@@ -370,7 +370,7 @@ public class NotificationController {
      */
     @VisibleForTesting
     Notification createNewMessageNotification(long accountId, long mailboxId, long messageId,
-            int unseenMessageCount, boolean enableAudio) {
+            int unseenMessageCount, int unreadCount, boolean enableAudio) {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         if (account == null) {
             return null;
@@ -385,11 +385,16 @@ public class NotificationController {
         if (senderName == null) {
             senderName = ""; // Happens when a message has no from.
         }
-        final String subject = message.mSubject;
-        final Bitmap senderPhoto = getSenderPhoto(message);
-        final SpannableString title = getNewMessageTitle(senderName, account.mDisplayName);
+        final boolean multipleUnseen = unseenMessageCount > 1;
+        final Bitmap senderPhoto = multipleUnseen ? null : getSenderPhoto(message);
+        final SpannableString title = getNewMessageTitle(senderName, unseenMessageCount);
+        // TODO: add in display name on the second line for the text, once framework supports
+        // multiline texts.
+        final String text = multipleUnseen
+                ? account.mDisplayName
+                : message.mSubject;
         final Bitmap largeIcon = senderPhoto != null ? senderPhoto : mGenericSenderIcon;
-        final Integer number = unseenMessageCount > 1 ? unseenMessageCount : null;
+        final Integer number = unreadCount > 1 ? unreadCount : null;
         final Intent intent;
         if (unseenMessageCount >= 1) {
             intent = Welcome.createOpenMessageIntent(mContext, accountId, mailboxId, messageId);
@@ -397,36 +402,26 @@ public class NotificationController {
             intent = Welcome.createOpenAccountInboxIntent(mContext, accountId);
         }
 
-        Notification notification = createAccountNotification(account, null, title, subject,
+        Notification notification = createAccountNotification(account, null, title, text,
                 intent, largeIcon, number, enableAudio);
         return notification;
     }
 
     /**
-     * Creates a notification title for a new message. If there is only 1 email account, just
-     * show the sender name. Otherwise, show both the sender and the account name, but, grey
-     * out the account name.
+     * Creates a notification title for a new message. If there is only a single message,
+     * show the sender name. Otherwise, show "X new messages".
      */
     @VisibleForTesting
-    SpannableString getNewMessageTitle(String sender, String receiverDisplayName) {
-        final int numAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
-        if (numAccounts == 1) {
-            return new SpannableString(sender);
+    SpannableString getNewMessageTitle(String sender, int unseenCount) {
+        String title;
+        if (unseenCount > 1) {
+            title = String.format(
+                    mContext.getString(R.string.notification_multiple_new_messages_fmt),
+                    unseenCount);
         } else {
-            // "to [account name]"
-            String toAcccount = mContext.getResources().getString(R.string.notification_to_account,
-                    receiverDisplayName);
-            // "[Sender] to [account name]"
-            SpannableString senderToAccount = new SpannableString(sender + " " + toAcccount);
-
-            // "[Sender] to [account name]"
-            //           ^^^^^^^^^^^^^^^^^ <- Make this part gray
-            TextAppearanceSpan secondarySpan = new TextAppearanceSpan(
-                    mContext, R.style.notification_secondary_text);
-            senderToAccount.setSpan(secondarySpan, sender.length() + 1, senderToAccount.length(),
-                    0);
-            return senderToAccount;
+            title = sender;
         }
+        return new SpannableString(title);
     }
 
     /** Returns the system's current ringer mode */
@@ -636,8 +631,15 @@ public class NotificationController {
                         || (newMessageId != 0 && newMessageId != oldMessageId)) {
                     // Either the count or last message has changed; update the notification
                     boolean playAudio = (oldMessageCount == 0); // play audio on first notification
+
+                    int unreadCount = Utility.getFirstRowInt(
+                            mContext, ContentUris.withAppendedId(Mailbox.CONTENT_URI, mMailboxId),
+                            new String[] { MailboxColumns.UNREAD_COUNT },
+                            null, null, null, 0, 0);
+
                     Notification n = sInstance.createNewMessageNotification(
-                            mAccountId, mMailboxId, newMessageId, newMessageCount, playAudio);
+                            mAccountId, mMailboxId, newMessageId,
+                            newMessageCount, unreadCount, playAudio);
                     if (n != null) {
                         // Make the notification visible
                         sInstance.mNotificationManager.notify(
