@@ -51,7 +51,7 @@ public class AttachmentInfoDialog extends DialogFragment {
 
         // NOTE: Order here matters. There can be multiple reasons for denying an attachment,
         // so, we want to show the most important ones first (i.e. it's pointless to tell the
-        // user to connect to wi-fi to download a 30mb attachment that is suspeceted of being
+        // user to connect to wi-fi to download a 30mb attachment that is suspected of being
         // malware).
         if ((denyFlags & AttachmentInfo.DENY_MALWARE) != 0) {
             bodyText = res.getString(R.string.attachment_info_malware);
@@ -62,7 +62,7 @@ public class AttachmentInfoDialog extends DialogFragment {
         } else if ((denyFlags & AttachmentInfo.DENY_NOSIDELOAD) != 0) {
             bodyText = res.getString(R.string.attachment_info_sideload_disabled);
             actionText = res.getString(R.string.attachment_info_application_settings);
-            actionIntent = new Intent(Settings.ACTION_APPLICATION_SETTINGS);
+            actionIntent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
             actionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             actionIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         } else if ((denyFlags & AttachmentInfo.DENY_APKINSTALL) != 0) {
