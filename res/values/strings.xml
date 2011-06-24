@@ -192,6 +192,10 @@
     <string name="notification_to_account">to <xliff:g id="receiver_name"
             example="Main">%1$s</xliff:g></string>
 
+    <!-- Notification for multiple messages [CHAR LIMIT=60] -->
+    <string name="notification_multiple_new_messages_fmt">
+        <xliff:g example="2">%1$d</xliff:g> new messages</string>
+
     <!-- Name given to "all accounts" in the account picker for shortcuts and widget [CHAR LIMIT=20] -->
     <string name="account_name_display_all">All Accounts</string>
 

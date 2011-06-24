@@ -213,7 +213,7 @@ public class NotificationControllerTest extends AndroidTestCase {
         Mailbox b1 = ProviderTestUtils.setupMailbox("inbox", a1.mId, true, c, Mailbox.TYPE_INBOX);
         Message m1 = ProviderTestUtils.setupMessage("message", a1.mId, b1.mId, true, true, c);
 
-        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, m1.mId, 1, true);
+        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, m1.mId, 1, 1, true);
 
         assertEquals(R.drawable.stat_notify_email_generic, n.icon);
         assertEquals(mMockClock.mTime, n.when);
@@ -223,7 +223,7 @@ public class NotificationControllerTest extends AndroidTestCase {
         // TODO Check content -- how?
 
         // Case 2: 1 account, 2 unseen message
-        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, m1.mId, 2, true);
+        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, m1.mId, 2, 2, true);
 
         assertEquals(R.drawable.stat_notify_email_generic, n.icon);
         assertEquals(mMockClock.mTime, n.when);
@@ -247,27 +247,9 @@ public class NotificationControllerTest extends AndroidTestCase {
         m1.save(c);
 
         // This shouldn't crash.
-        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, m1.mId, 1, true);
+        n = mTarget.createNewMessageNotification(a1.mId, b1.mId, m1.mId, 1, 1, true);
 
         // Minimum test for the result
         assertEquals(R.drawable.stat_notify_email_generic, n.icon);
-    }
-
-    public void testGetNewMessageTitle() {
-        final Context c = mProviderContext;
-
-        // Case 1: 1 account
-        Account a1 = ProviderTestUtils.setupAccount("a1", true, c);
-
-        // Just check the content.  Ignore the spans.
-        String title = mTarget.getNewMessageTitle("*sender*", "*receiver*").toString();
-        assertEquals("*sender*", title);
-
-        // Case 1: 2 account
-        Account a2 = ProviderTestUtils.setupAccount("a1", true, c);
-
-        // Just check the content.  Ignore the spans.
-        title = mTarget.getNewMessageTitle("*sender*", "*receiver*").toString();
-        assertEquals("*sender* to *receiver*", title);
     }
 }
