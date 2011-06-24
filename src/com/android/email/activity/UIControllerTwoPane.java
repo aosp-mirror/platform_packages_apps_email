@@ -94,7 +94,7 @@ class UIControllerTwoPane extends UIControllerBase implements
     // MailboxListFragment$Callback
     @Override
     public void onMailboxSelected(long accountId, long mailboxId, boolean nestedNavigation) {
-        mListContext = MessageListContext.forMailbox(accountId, mailboxId);
+        setListContext(MessageListContext.forMailbox(accountId, mailboxId));
         if (getMessageListMailboxId() != mListContext.getMailboxId()) {
             updateMessageList(true);
         }
@@ -808,7 +808,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
         @Override
         public long getMailboxId() {
-            return UIControllerTwoPane.this.getMessageListMailboxId();
+            return getMessageListMailboxId();
         }
 
         @Override

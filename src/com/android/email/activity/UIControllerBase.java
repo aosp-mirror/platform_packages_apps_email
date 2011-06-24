@@ -16,6 +16,16 @@
 
 package com.android.email.activity;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+
 import com.android.email.Email;
 import com.android.email.MessageListContext;
 import com.android.email.R;
@@ -27,16 +37,7 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
-
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import com.google.common.base.Objects;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -87,6 +88,8 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      * The active context for the current MessageList.
      * In some UI layouts such as the one-pane view, the message list may not be visible, but is
      * on the backstack. This list context will still be accessible in those cases.
+     *
+     * Should be set using {@link #setListContext(MessageListContext)}.
      */
     protected MessageListContext mListContext;
 
@@ -490,12 +493,33 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      *     in the message list.
      */
     public final void open(final MessageListContext listContext, final long messageId) {
-        mListContext = listContext;
+        setListContext(listContext);
         openInternal(listContext, messageId);
 
-        if (mListContext.isSearch()) {
-            mActionBarController.enterSearchMode(mListContext.getSearchParams().mFilter);
+        if (listContext.isSearch()) {
+            mActionBarController.enterSearchMode(listContext.getSearchParams().mFilter);
         }
+    }
+
+    /**
+     * Sets the internal value of the list context for the message list.
+     */
+    protected void setListContext(MessageListContext listContext) {
+        if (Objects.equal(listContext, mListContext)) {
+            return;
+        }
+
+        // TODO: remove this when the search mailbox no longer shows up on the list
+        // Special case search. Since the search mailbox shows up in the mailbox list, the mailbox
+        // list can give us a callback to open that mailbox, and it will look like a normal
+        // mailbox open instead of a search, blowing away a perfectly good list context.
+        if (mListContext != null
+                && mListContext.isSearch()
+                && mListContext.getMailboxId() == listContext.getMailboxId()) {
+            return;
+        }
+
+        mListContext = listContext;
     }
 
     protected abstract void openInternal(
