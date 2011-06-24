@@ -418,6 +418,10 @@ public class ActionBarController {
 
     private void loadMailboxInfo(final long mailboxId) {
         clearMailboxInfo();
+        if (mailboxId < 0) {
+            // TODO FIXME
+            return; // Can't get combined mailbox name with this
+        }
         mLoaderManager.restartLoader(LOADER_ID_MAILBOX, null,
                 new LoaderCallbacks<Cursor>() {
             @Override
