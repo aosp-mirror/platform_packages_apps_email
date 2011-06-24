@@ -97,7 +97,7 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
     private static final String MAILBOX_TYPE_SELECTION =
             MailboxColumns.TYPE + " =?";
     /** Selection by server pathname for a given account */
-    private static final String PATH_AND_ACCOUNT_SELECTION =
+    public static final String PATH_AND_ACCOUNT_SELECTION =
         MailboxColumns.SERVER_ID + "=? and " + MailboxColumns.ACCOUNT_KEY + "=?";
 
     private static final String[] MAILBOX_SUM_OF_UNREAD_COUNT_PROJECTION = new String [] {

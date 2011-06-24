@@ -157,8 +157,9 @@ public class EmailProvider extends ContentProvider {
     // Version 24: Add column to hostauth table for client cert alias
     // Version 25: Added QuickResponse table
     // Version 26: Update IMAP accounts to add FLAG_SUPPORTS_SEARCH flag
+    // Version 27: Add protocolSearchInfo to Message table
 
-    public static final int DATABASE_VERSION = 26;
+    public static final int DATABASE_VERSION = 27;
 
     // Any changes to the database format *must* include update-in-place code.
     // Original version: 2
@@ -463,7 +464,8 @@ public class EmailProvider extends ContentProvider {
             + MessageColumns.BCC_LIST + " text, "
             + MessageColumns.REPLY_TO_LIST + " text, "
             + MessageColumns.MEETING_INFO + " text, "
-            + MessageColumns.SNIPPET + " text"
+            + MessageColumns.SNIPPET + " text, "
+            + MessageColumns.PROTOCOL_SEARCH_INFO + " text"
             + ");";
 
         // This String and the following String MUST have the same columns, except for the type
@@ -1260,6 +1262,20 @@ public class EmailProvider extends ContentProvider {
             if (oldVersion == 25) {
                 upgradeFromVersion25ToVersion26(db);
                 oldVersion = 26;
+            }
+            if (oldVersion == 26) {
+                try {
+                    db.execSQL("alter table " + Message.TABLE_NAME
+                            + " add column " + Message.PROTOCOL_SEARCH_INFO + " text;");
+                    db.execSQL("alter table " + Message.DELETED_TABLE_NAME
+                            + " add column " + Message.PROTOCOL_SEARCH_INFO +" text" + ";");
+                    db.execSQL("alter table " + Message.UPDATED_TABLE_NAME
+                            + " add column " + Message.PROTOCOL_SEARCH_INFO +" text" + ";");
+                } catch (SQLException e) {
+                    // Shouldn't be needed unless we're debugging and interrupt the process
+                    Log.w(TAG, "Exception upgrading EmailProvider.db from 26 to 27 " + e);
+                }
+                oldVersion = 27;
             }
         }
 

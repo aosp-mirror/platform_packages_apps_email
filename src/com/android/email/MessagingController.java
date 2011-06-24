@@ -23,6 +23,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Process;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.email.mail.Sender;
@@ -132,6 +133,14 @@ public class MessagingController implements Runnable {
     private boolean mBusy;
     private final Context mContext;
     private final Controller mController;
+
+    /**
+     * Simple cache for last search result mailbox by account and serverId, since the most common
+     * case will be repeated use of the same mailbox
+     */
+    private long mLastSearchAccountKey = Account.NO_ACCOUNT;
+    private String mLastSearchServerId = null;
+    private Mailbox mLastSearchRemoteMailbox = null;
 
     protected MessagingController(Context _context, Controller _controller) {
         mContext = _context.getApplicationContext();
@@ -280,6 +289,7 @@ public class MessagingController implements Runnable {
                             case Mailbox.TYPE_OUTBOX:
                             case Mailbox.TYPE_SENT:
                             case Mailbox.TYPE_TRASH:
+                            case Mailbox.TYPE_SEARCH:
                                 // Never, ever delete special mailboxes
                                 break;
                             default:
@@ -668,6 +678,10 @@ public class MessagingController implements Runnable {
                         localMessage.mMailboxKey = destMailboxId;
                         // We load 50k or so; maybe it's complete, maybe not...
                         int flag = EmailContent.Message.FLAG_LOADED_COMPLETE;
+                        // We store the serverId of the source mailbox into protocolSearchInfo
+                        // This will be used by loadMessageForView, etc. to use the proper remote
+                        // folder
+                        localMessage.mProtocolSearchInfo = mailbox.mServerId;
                         if (message.getSize() > Store.FETCH_BODY_SANE_SUGGESTED_SIZE) {
                             flag = EmailContent.Message.FLAG_LOADED_PARTIAL;
                         }
@@ -1058,6 +1072,45 @@ public class MessagingController implements Runnable {
     }
 
     /**
+     * Get the mailbox corresponding to the remote location of a message; this will normally be
+     * the mailbox whose _id is mailboxKey, except for search results, where we must look it up
+     * by serverId
+     * @param message the message in question
+     * @return the mailbox in which the message resides on the server
+     */
+    private Mailbox getRemoteMailboxForMessage(EmailContent.Message message) {
+        // If this is a search result, use the protocolSearchInfo field to get the server info
+        if (!TextUtils.isEmpty(message.mProtocolSearchInfo)) {
+            long accountKey = message.mAccountKey;
+            String protocolSearchInfo = message.mProtocolSearchInfo;
+            if (accountKey == mLastSearchAccountKey &&
+                    protocolSearchInfo.equals(mLastSearchServerId)) {
+                return mLastSearchRemoteMailbox;
+            }
+            Cursor c =  mContext.getContentResolver().query(Mailbox.CONTENT_URI,
+                    Mailbox.CONTENT_PROJECTION, Mailbox.PATH_AND_ACCOUNT_SELECTION,
+                    new String[] {protocolSearchInfo, Long.toString(accountKey)},
+                    null);
+            try {
+                if (c.moveToNext()) {
+                    Mailbox mailbox = new Mailbox();
+                    mailbox.restore(c);
+                    mLastSearchAccountKey = accountKey;
+                    mLastSearchServerId = protocolSearchInfo;
+                    mLastSearchRemoteMailbox = mailbox;
+                    return mailbox;
+                } else {
+                    return null;
+                }
+            } finally {
+                c.close();
+            }
+        } else {
+            return Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
+        }
+    }
+
+    /**
      * Scan for messages that are in the Message_Deletes table, look for differences that
      * we can deal with, and do the work.
      *
@@ -1075,8 +1128,6 @@ public class MessagingController implements Runnable {
         try {
             // Defer setting up the store until we know we need to access it
             Store remoteStore = null;
-            // Demand load mailbox (note order-by to reduce thrashing here)
-            Mailbox mailbox = null;
             // loop through messages marked as deleted
             while (deletes.moveToNext()) {
                 boolean deleteFromTrash = false;
@@ -1086,24 +1137,23 @@ public class MessagingController implements Runnable {
 
                 if (oldMessage != null) {
                     lastMessageId = oldMessage.mId;
-                    if (mailbox == null || mailbox.mId != oldMessage.mMailboxKey) {
-                        mailbox = Mailbox.restoreMailboxWithId(mContext, oldMessage.mMailboxKey);
-                        if (mailbox == null) {
-                            continue; // Mailbox removed. Move to the next message.
-                        }
+
+                    Mailbox mailbox = getRemoteMailboxForMessage(oldMessage);
+                    if (mailbox == null) {
+                        continue; // Mailbox removed. Move to the next message.
                     }
                     deleteFromTrash = mailbox.mType == Mailbox.TYPE_TRASH;
-                }
 
-                // Load the remote store if it will be needed
-                if (remoteStore == null && deleteFromTrash) {
-                    remoteStore = Store.getInstance(account, mContext, null);
-                }
+                    // Load the remote store if it will be needed
+                    if (remoteStore == null && deleteFromTrash) {
+                        remoteStore = Store.getInstance(account, mContext, null);
+                    }
 
-                // Dispatch here for specific change types
-                if (deleteFromTrash) {
-                    // Move message to trash
-                    processPendingDeleteFromTrash(remoteStore, account, mailbox, oldMessage);
+                    // Dispatch here for specific change types
+                    if (deleteFromTrash) {
+                        // Move message to trash
+                        processPendingDeleteFromTrash(remoteStore, account, mailbox, oldMessage);
+                    }
                 }
 
                 // Finally, delete the update
@@ -1111,7 +1161,6 @@ public class MessagingController implements Runnable {
                         oldMessage.mId);
                 resolver.delete(uri, null, null);
             }
-
         } catch (MessagingException me) {
             // Presumably an error here is an account connection failure, so there is
             // no point in continuing through the rest of the pending updates.
@@ -1266,11 +1315,9 @@ public class MessagingController implements Runnable {
                 EmailContent.Message newMessage =
                     EmailContent.Message.restoreMessageWithId(mContext, oldMessage.mId);
                 if (newMessage != null) {
-                    if (mailbox == null || mailbox.mId != newMessage.mMailboxKey) {
-                        mailbox = Mailbox.restoreMailboxWithId(mContext, newMessage.mMailboxKey);
-                        if (mailbox == null) {
-                            continue; // Mailbox removed. Move to the next message.
-                        }
+                    mailbox = Mailbox.restoreMailboxWithId(mContext, newMessage.mMailboxKey);
+                    if (mailbox == null) {
+                        continue; // Mailbox removed. Move to the next message.
                     }
                     if (oldMessage.mMailboxKey != newMessage.mMailboxKey) {
                         if (mailbox.mType == Mailbox.TYPE_TRASH) {
@@ -1382,23 +1429,15 @@ public class MessagingController implements Runnable {
     private void processPendingDataChange(Store remoteStore, Mailbox mailbox, boolean changeRead,
             boolean changeFlagged, boolean changeMailbox, EmailContent.Message oldMessage,
             final EmailContent.Message newMessage) throws MessagingException {
-        Mailbox newMailbox = null;
+        // New mailbox is the mailbox this message WILL be in (same as the one it WAS in if it isn't
+        // being moved
+        Mailbox newMailbox = mailbox;
+        // Mailbox is the original remote mailbox (the one we're acting on)
+        mailbox = getRemoteMailboxForMessage(oldMessage);
 
         // 0. No remote update if the message is local-only
         if (newMessage.mServerId == null || newMessage.mServerId.equals("")
                 || newMessage.mServerId.startsWith(LOCAL_SERVERID_PREFIX) || (mailbox == null)) {
-            return;
-        }
-
-        // 0.5 If the mailbox has changed, use the original mailbox for operations
-        // After any flag changes (which we execute in the original mailbox), we then
-        // copy the message to the new mailbox
-        if (changeMailbox) {
-            newMailbox = mailbox;
-            mailbox = Mailbox.restoreMailboxWithId(mContext, oldMessage.mMailboxKey);
-        }
-
-        if (mailbox == null) {
             return;
         }
 
@@ -1486,7 +1525,7 @@ public class MessagingController implements Runnable {
 
         // 1. Escape early if we can't find the local mailbox
         // TODO smaller projection here
-        Mailbox oldMailbox = Mailbox.restoreMailboxWithId(mContext, oldMessage.mMailboxKey);
+        Mailbox oldMailbox = getRemoteMailboxForMessage(oldMessage);
         if (oldMailbox == null) {
             // can't find old mailbox, it may have been deleted.  just return.
             return;
@@ -1784,7 +1823,6 @@ public class MessagingController implements Runnable {
                     }
 
                     // 2. Open the remote folder.
-                    // TODO all of these could be narrower projections
                     // TODO combine with common code in loadAttachment
                     Account account =
                         Account.restoreAccountWithId(mContext, message.mAccountKey);
@@ -1797,40 +1835,26 @@ public class MessagingController implements Runnable {
 
                     Store remoteStore =
                         Store.getInstance(account, mContext, null);
-                    Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
+                    String remoteServerId = mailbox.mServerId;
+                    // If this is a search result, use the protocolSearchInfo field to get the
+                    // correct remote location
+                    if (!TextUtils.isEmpty(message.mProtocolSearchInfo)) {
+                        remoteServerId = message.mProtocolSearchInfo;
+                    }
+                    Folder remoteFolder = remoteStore.getFolder(remoteServerId);
                     remoteFolder.open(OpenMode.READ_WRITE, null);
 
-                    // 3. Not supported, because IMAP & POP don't use it: structure prefetch
-//                  if (remoteStore.requireStructurePrefetch()) {
-//                  // For remote stores that require it, prefetch the message structure.
-//                  FetchProfile fp = new FetchProfile();
-//                  fp.add(FetchProfile.Item.STRUCTURE);
-//                  localFolder.fetch(new Message[] { message }, fp, null);
-//
-//                  ArrayList<Part> viewables = new ArrayList<Part>();
-//                  ArrayList<Part> attachments = new ArrayList<Part>();
-//                  MimeUtility.collectParts(message, viewables, attachments);
-//                  fp.clear();
-//                  for (Part part : viewables) {
-//                      fp.add(part);
-//                  }
-//
-//                  remoteFolder.fetch(new Message[] { message }, fp, null);
-//
-//                  // Store the updated message locally
-//                  localFolder.updateMessage((LocalMessage)message);
-
-                    // 4. Set up to download the entire message
-                    Message remoteMessage = remoteFolder.getMessage(message.mServerId);
+                    // 3. Set up to download the entire message
+                    Message remoteMessage = remoteFolder.getMessage(remoteServerId);
                     FetchProfile fp = new FetchProfile();
                     fp.add(FetchProfile.Item.BODY);
                     remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
 
-                    // 5. Write to provider
+                    // 4. Write to provider
                     copyOneMessageToProvider(remoteMessage, account, mailbox,
                             EmailContent.Message.FLAG_LOADED_COMPLETE);
 
-                    // 6. Notify UI
+                    // 5. Notify UI
                     mListeners.loadMessageForViewFinished(messageId);
 
                 } catch (MessagingException me) {

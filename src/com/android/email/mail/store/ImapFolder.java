@@ -601,7 +601,6 @@ class ImapFolder extends Folder {
                         // TODO Should we accept "RFC822" as well??
                         ImapString body = fetchList.getKeyedStringOrEmpty("BODY[]", true);
                         String bodyText = body.getString();
-                        Log.v(Logging.LOG_TAG, bodyText);
                         InputStream bodyStream = body.getAsStream();
                         message.parse(bodyStream);
                     }

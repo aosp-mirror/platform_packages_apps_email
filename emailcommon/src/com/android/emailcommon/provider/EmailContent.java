@@ -479,6 +479,11 @@ public abstract class EmailContent {
         public static final String MEETING_INFO = "meetingInfo";
         // A text "snippet" derived from the body of the message
         public static final String SNIPPET = "snippet";
+        // A column that can be used by sync adapters to store search-related information about
+        // a retrieved message (the messageKey for search results will be a TYPE_SEARCH mailbox
+        // and the sync adapter might, for example, need more information about the original source
+        // of the message)
+        public static final String PROTOCOL_SEARCH_INFO = "protocolSearchInfo";
     }
 
     public static final class Message extends EmailContent implements SyncColumns, MessageColumns {
@@ -523,6 +528,7 @@ public abstract class EmailContent {
         public static final int CONTENT_SERVER_TIMESTAMP_COLUMN = 19;
         public static final int CONTENT_MEETING_INFO_COLUMN = 20;
         public static final int CONTENT_SNIPPET_COLUMN = 21;
+        public static final int CONTENT_PROTOCOL_SEARCH_INFO_COLUMN = 22;
 
         public static final String[] CONTENT_PROJECTION = new String[] {
             RECORD_ID,
@@ -536,7 +542,7 @@ public abstract class EmailContent {
             MessageColumns.TO_LIST, MessageColumns.CC_LIST,
             MessageColumns.BCC_LIST, MessageColumns.REPLY_TO_LIST,
             SyncColumns.SERVER_TIMESTAMP, MessageColumns.MEETING_INFO,
-            MessageColumns.SNIPPET
+            MessageColumns.SNIPPET, MessageColumns.PROTOCOL_SEARCH_INFO
         };
 
         public static final int LIST_ID_COLUMN = 0;
@@ -669,6 +675,8 @@ public abstract class EmailContent {
 
         public String mSnippet;
 
+        public String mProtocolSearchInfo;
+
         // The following transient members may be used while building and manipulating messages,
         // but they are NOT persisted directly by EmailProvider
         transient public String mText;
@@ -678,6 +686,7 @@ public abstract class EmailContent {
         transient public long mSourceKey;
         transient public ArrayList<Attachment> mAttachments = null;
         transient public String mIntroText;
+
 
         // Values used in mFlagRead
         public static final int UNREAD = 0;
@@ -762,6 +771,7 @@ public abstract class EmailContent {
 
             values.put(MessageColumns.SNIPPET, mSnippet);
 
+            values.put(MessageColumns.PROTOCOL_SEARCH_INFO, mProtocolSearchInfo);
             return values;
         }
 
@@ -795,6 +805,7 @@ public abstract class EmailContent {
             mReplyTo = cursor.getString(CONTENT_REPLY_TO_COLUMN);
             mMeetingInfo = cursor.getString(CONTENT_MEETING_INFO_COLUMN);
             mSnippet = cursor.getString(CONTENT_SNIPPET_COLUMN);
+            mProtocolSearchInfo = cursor.getString(CONTENT_PROTOCOL_SEARCH_INFO_COLUMN);
         }
 
         public boolean update() {
