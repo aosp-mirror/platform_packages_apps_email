@@ -1011,14 +1011,15 @@ public class MessageListFragment extends ListFragment
     }
 
     private void determineFooterMode() {
-        // TODO: do something different for searches.
+        // TODO: Do something different for searches?
+        // We could, for example, indicate how many remain to be loaded, etc...
 
         mListFooterMode = LIST_FOOTER_MODE_NONE;
         if ((mMailbox == null) || (mMailbox.mType == Mailbox.TYPE_OUTBOX)
                 || (mMailbox.mType == Mailbox.TYPE_DRAFTS)) {
             return; // No footer
         }
-        if (!mIsEasAccount) {
+        if (!mIsEasAccount || (mMailbox.mType == Mailbox.TYPE_SEARCH)) {
             // IMAP, POP has "load more"
             mListFooterMode = LIST_FOOTER_MODE_MORE;
         }

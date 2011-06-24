@@ -665,7 +665,7 @@ public class Controller {
 
     /**
      * Increase the load count for a given mailbox, and trigger a refresh.  Applies only to
-     * IMAP and POP.
+     * IMAP and POP mailboxes, with the exception of the EAS search mailbox.
      *
      * @param mailboxId the mailbox
      */
@@ -919,6 +919,19 @@ public class Controller {
         final long searchMailboxId = searchMailbox.mId;
         // Save this away (per account)
         sSearchParamsMap.put(accountId, searchParams);
+
+        if (searchParams.mOffset == 0) {
+            // Delete existing contents of search mailbox
+            ContentResolver resolver = mContext.getContentResolver();
+            resolver.delete(Message.CONTENT_URI, Message.MAILBOX_KEY + "=" + searchMailboxId,
+                    null);
+            ContentValues cv = new ContentValues();
+            // For now, use the actual query as the name of the mailbox
+            cv.put(Mailbox.DISPLAY_NAME, searchParams.mFilter);
+            resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId),
+                    cv, null, null);
+        }
+
         IEmailService service = getServiceForAccount(accountId);
         if (service != null) {
             // Service implementation
@@ -936,18 +949,6 @@ public class Controller {
                 Log.e(Logging.LOG_TAG, "Unable to find mailbox " + searchParams.mMailboxId
                         + " to search in with " + searchParams);
                 return;
-            }
-
-            if (searchParams.mOffset == 0) {
-                // Delete existing contents of search mailbox
-                ContentResolver resolver = mContext.getContentResolver();
-                resolver.delete(Message.CONTENT_URI, Message.MAILBOX_KEY + "=" + searchMailboxId,
-                        null);
-                ContentValues cv = new ContentValues();
-                // For now, use the actual query as the name of the mailbox
-                cv.put(Mailbox.DISPLAY_NAME, searchParams.mFilter);
-                resolver.update(ContentUris.withAppendedId(Mailbox.CONTENT_URI, searchMailboxId),
-                        cv, null, null);
             }
             // Do the search
             if (Email.DEBUG) {
