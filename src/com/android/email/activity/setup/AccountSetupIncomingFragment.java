@@ -313,6 +313,10 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         String password = recvAuth.mPassword;
         if (password != null) {
             mPasswordView.setText(password);
+            // Since username is uneditable, focus on the next editable field
+            if (mSettingsMode) {
+                mPasswordView.requestFocus();
+            }
         }
 
         if (HostAuth.SCHEME_IMAP.equals(recvAuth.mProtocol)) {
