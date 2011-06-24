@@ -16,6 +16,13 @@
 
 package com.android.email;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
+
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeHeader;
@@ -36,13 +43,6 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.AttachmentUtilities;
 
 import org.apache.commons.io.IOUtils;
-
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -96,6 +96,9 @@ public class LegacyConversions {
             localMessage.mSubject = subject;
         }
         localMessage.mFlagRead = message.isSet(Flag.SEEN);
+        if (message.isSet(Flag.ANSWERED)) {
+            localMessage.mFlags |= EmailContent.Message.FLAG_REPLIED_TO;
+        }
 
         // Keep the message in the "unloaded" state until it has (at least) a display name.
         // This prevents early flickering of empty messages in POP download.

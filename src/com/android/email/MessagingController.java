@@ -103,6 +103,7 @@ public class MessagingController implements Runnable {
 
     private static final Flag[] FLAG_LIST_SEEN = new Flag[] { Flag.SEEN };
     private static final Flag[] FLAG_LIST_FLAGGED = new Flag[] { Flag.FLAGGED };
+    private static final Flag[] FLAG_LIST_ANSWERED = new Flag[] { Flag.ANSWERED };
 
     /**
      * We write this into the serverId field of messages that will never be upsynced.
@@ -388,10 +389,12 @@ public class MessagingController implements Runnable {
         private static final int COLUMN_FLAG_FAVORITE = 2;
         private static final int COLUMN_FLAG_LOADED = 3;
         private static final int COLUMN_SERVER_ID = 4;
+        private static final int COLUMN_FLAGS =  7;
         private static final String[] PROJECTION = new String[] {
             EmailContent.RECORD_ID,
             MessageColumns.FLAG_READ, MessageColumns.FLAG_FAVORITE, MessageColumns.FLAG_LOADED,
-            SyncColumns.SERVER_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY
+            SyncColumns.SERVER_ID, MessageColumns.MAILBOX_KEY, MessageColumns.ACCOUNT_KEY,
+            MessageColumns.FLAGS
         };
 
         final long mId;
@@ -399,6 +402,7 @@ public class MessagingController implements Runnable {
         final boolean mFlagFavorite;
         final int mFlagLoaded;
         final String mServerId;
+        final int mFlags;
 
         public LocalMessageInfo(Cursor c) {
             mId = c.getLong(COLUMN_ID);
@@ -406,6 +410,7 @@ public class MessagingController implements Runnable {
             mFlagFavorite = c.getInt(COLUMN_FLAG_FAVORITE) != 0;
             mFlagLoaded = c.getInt(COLUMN_FLAG_LOADED);
             mServerId = c.getString(COLUMN_SERVER_ID);
+            mFlags = c.getInt(COLUMN_FLAGS);
             // Note: mailbox key and account key not needed - they are projected for the SELECT
         }
     }
@@ -855,6 +860,7 @@ public class MessagingController implements Runnable {
         remoteFolder.fetch(remoteMessages, fp, null);
         boolean remoteSupportsSeen = false;
         boolean remoteSupportsFlagged = false;
+        boolean remoteSupportsAnswered = false;
         for (Flag flag : remoteFolder.getPermanentFlags()) {
             if (flag == Flag.SEEN) {
                 remoteSupportsSeen = true;
@@ -862,9 +868,12 @@ public class MessagingController implements Runnable {
             if (flag == Flag.FLAGGED) {
                 remoteSupportsFlagged = true;
             }
+            if (flag == Flag.ANSWERED) {
+                remoteSupportsAnswered = true;
+            }
         }
-        // Update the SEEN & FLAGGED (star) flags (if supported remotely - e.g. not for POP3)
-        if (remoteSupportsSeen || remoteSupportsFlagged) {
+        // Update SEEN/FLAGGED/ANSWERED (star) flags (if supported remotely - e.g. not for POP3)
+        if (remoteSupportsSeen || remoteSupportsFlagged || remoteSupportsAnswered) {
             for (Message remoteMessage : remoteMessages) {
                 LocalMessageInfo localMessageInfo = localMessageMap.get(remoteMessage.getUid());
                 if (localMessageInfo == null) {
@@ -876,12 +885,22 @@ public class MessagingController implements Runnable {
                 boolean localFlagged = localMessageInfo.mFlagFavorite;
                 boolean remoteFlagged = remoteMessage.isSet(Flag.FLAGGED);
                 boolean newFlagged = (remoteSupportsFlagged && (localFlagged != remoteFlagged));
-                if (newSeen || newFlagged) {
+                int localFlags = localMessageInfo.mFlags;
+                boolean localAnswered = (localFlags & EmailContent.Message.FLAG_REPLIED_TO) != 0;
+                boolean remoteAnswered = remoteMessage.isSet(Flag.ANSWERED);
+                boolean newAnswered = (remoteSupportsAnswered && (localAnswered != remoteAnswered));
+                if (newSeen || newFlagged || newAnswered) {
                     Uri uri = ContentUris.withAppendedId(
                             EmailContent.Message.CONTENT_URI, localMessageInfo.mId);
                     ContentValues updateValues = new ContentValues();
-                    updateValues.put(EmailContent.Message.FLAG_READ, remoteSeen);
-                    updateValues.put(EmailContent.Message.FLAG_FAVORITE, remoteFlagged);
+                    updateValues.put(MessageColumns.FLAG_READ, remoteSeen);
+                    updateValues.put(MessageColumns.FLAG_FAVORITE, remoteFlagged);
+                    if (remoteAnswered) {
+                        localFlags |= EmailContent.Message.FLAG_REPLIED_TO;
+                    } else {
+                        localFlags &= ~EmailContent.Message.FLAG_REPLIED_TO;
+                    }
+                    updateValues.put(MessageColumns.FLAGS, localFlags);
                     resolver.update(uri, updateValues, null, null);
                 }
             }
@@ -1307,6 +1326,7 @@ public class MessagingController implements Runnable {
                 boolean changeRead = false;
                 boolean changeFlagged = false;
                 boolean changeMailbox = false;
+                boolean changeAnswered = false;
 
                 EmailContent.Message oldMessage =
                     EmailContent.getContent(updates, EmailContent.Message.class);
@@ -1327,11 +1347,14 @@ public class MessagingController implements Runnable {
                     }
                     changeRead = oldMessage.mFlagRead != newMessage.mFlagRead;
                     changeFlagged = oldMessage.mFlagFavorite != newMessage.mFlagFavorite;
+                    changeAnswered = (oldMessage.mFlags & EmailContent.Message.FLAG_REPLIED_TO) !=
+                        (newMessage.mFlags & EmailContent.Message.FLAG_REPLIED_TO);
                }
 
                 // Load the remote store if it will be needed
                 if (remoteStore == null &&
-                        (changeMoveToTrash || changeRead || changeFlagged || changeMailbox)) {
+                        (changeMoveToTrash || changeRead || changeFlagged || changeMailbox ||
+                                changeAnswered)) {
                     remoteStore = Store.getInstance(account, mContext);
                 }
 
@@ -1340,9 +1363,9 @@ public class MessagingController implements Runnable {
                     // Move message to trash
                     processPendingMoveToTrash(remoteStore, account, mailbox, oldMessage,
                             newMessage);
-                } else if (changeRead || changeFlagged || changeMailbox) {
+                } else if (changeRead || changeFlagged || changeMailbox || changeAnswered) {
                     processPendingDataChange(remoteStore, mailbox, changeRead, changeFlagged,
-                            changeMailbox, oldMessage, newMessage);
+                            changeMailbox, changeAnswered, oldMessage, newMessage);
                 }
 
                 // Finally, delete the update
@@ -1426,8 +1449,9 @@ public class MessagingController implements Runnable {
      * @param newMessage the current version of the message
      */
     private void processPendingDataChange(Store remoteStore, Mailbox mailbox, boolean changeRead,
-            boolean changeFlagged, boolean changeMailbox, EmailContent.Message oldMessage,
-            final EmailContent.Message newMessage) throws MessagingException {
+            boolean changeFlagged, boolean changeMailbox, boolean changeAnswered,
+            EmailContent.Message oldMessage, final EmailContent.Message newMessage)
+            throws MessagingException {
         // New mailbox is the mailbox this message WILL be in (same as the one it WAS in if it isn't
         // being moved
         Mailbox newMailbox = mailbox;
@@ -1465,6 +1489,8 @@ public class MessagingController implements Runnable {
                     "Update for msg id=" + newMessage.mId
                     + " read=" + newMessage.mFlagRead
                     + " flagged=" + newMessage.mFlagFavorite
+                    + " answered="
+                    + ((newMessage.mFlags & EmailContent.Message.FLAG_REPLIED_TO) != 0)
                     + " new mailbox=" + newMessage.mMailboxKey);
         }
         Message[] messages = new Message[] { remoteMessage };
@@ -1473,6 +1499,10 @@ public class MessagingController implements Runnable {
         }
         if (changeFlagged) {
             remoteFolder.setFlags(messages, FLAG_LIST_FLAGGED, newMessage.mFlagFavorite);
+        }
+        if (changeAnswered) {
+            remoteFolder.setFlags(messages, FLAG_LIST_ANSWERED,
+                    (newMessage.mFlags & EmailContent.Message.FLAG_REPLIED_TO) != 0);
         }
         if (changeMailbox) {
             Folder toFolder = remoteStore.getFolder(newMailbox.mServerId);

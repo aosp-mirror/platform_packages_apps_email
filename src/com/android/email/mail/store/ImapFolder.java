@@ -62,7 +62,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 class ImapFolder extends Folder {
-    private final static Flag[] PERMANENT_FLAGS = { Flag.DELETED, Flag.SEEN, Flag.FLAGGED };
+    private final static Flag[] PERMANENT_FLAGS =
+        { Flag.DELETED, Flag.SEEN, Flag.FLAGGED, Flag.ANSWERED };
     private static final int COPY_BUFFER_SIZE = 16*1024;
 
     private final ImapStore mStore;
@@ -993,6 +994,8 @@ class ImapFolder extends Folder {
                     flagList.append(" " + ImapConstants.FLAG_DELETED);
                 } else if (flag == Flag.FLAGGED) {
                     flagList.append(" " + ImapConstants.FLAG_FLAGGED);
+                } else if (flag == Flag.ANSWERED) {
+                    flagList.append(" " + ImapConstants.FLAG_ANSWERED);
                 }
             }
             allFlags = flagList.substring(1);

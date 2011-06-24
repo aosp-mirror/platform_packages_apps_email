@@ -584,17 +584,9 @@ public class Controller {
         // If this is a reply/forward, indicate it as such on the source.
         long sourceKey = message.mSourceKey;
         if (sourceKey != Message.NO_MESSAGE) {
-            Message source = Message.restoreMessageWithId(mProviderContext, sourceKey);
-            if (source != null) {
-                boolean isReply = (message.mFlags & Message.FLAG_TYPE_REPLY) != 0;
-                int flagUpdate = isReply ? Message.FLAG_REPLIED_TO : Message.FLAG_FORWARDED;
-                uri = ContentUris.withAppendedId(Message.CONTENT_URI, sourceKey);
-                cv.clear();
-                cv.put(MessageColumns.FLAGS, source.mFlags | flagUpdate);
-                resolver.update(uri, cv, null, null);
-            } else {
-                Log.w(Logging.LOG_TAG, "Unable to find source message for a reply/forward");
-            }
+            boolean isReply = (message.mFlags & Message.FLAG_TYPE_REPLY) != 0;
+            int flagUpdate = isReply ? Message.FLAG_REPLIED_TO : Message.FLAG_FORWARDED;
+            setMessageAnsweredOrForwarded(sourceKey, flagUpdate);
         }
 
         sendPendingMessages(accountId);
@@ -872,6 +864,46 @@ public class Controller {
     }
 
     /**
+     * Update a message record and ping MessagingController, if necessary
+     *
+     * @param messageId the message to update
+     * @param cv the ContentValues used in the update
+     */
+    private void updateMessageSync(long messageId, ContentValues cv) {
+        Uri uri = ContentUris.withAppendedId(EmailContent.Message.SYNCED_CONTENT_URI, messageId);
+        mProviderContext.getContentResolver().update(uri, cv, null, null);
+
+        // Service runs automatically, MessagingController needs a kick
+        long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
+        if (accountId == Account.NO_ACCOUNT) return;
+        if (isMessagingController(accountId)) {
+            mLegacyController.processPendingActions(accountId);
+        }
+    }
+
+    /**
+     * Set the answered status of a message
+     *
+     * @param messageId the message to update
+     * @return the AsyncTask that will execute the changes (for testing only)
+     */
+    public void setMessageAnsweredOrForwarded(final long messageId,
+            final int flag) {
+        EmailAsyncTask.runAsyncParallel(new Runnable() {
+            public void run() {
+                Message msg = Message.restoreMessageWithId(mProviderContext, messageId);
+                if (msg == null) {
+                    Log.w(Logging.LOG_TAG, "Unable to find source message for a reply/forward");
+                    return;
+                }
+                ContentValues cv = new ContentValues();
+                cv.put(MessageColumns.FLAGS, msg.mFlags | flag);
+                updateMessageSync(messageId, cv);
+            }
+        });
+    }
+
+    /**
      * Set/clear the favorite status of a message
      *
      * @param messageId the message to update
@@ -897,18 +929,7 @@ public class Controller {
             public void run() {
                 ContentValues cv = new ContentValues();
                 cv.put(columnName, columnValue);
-                Uri uri = ContentUris.withAppendedId(
-                        EmailContent.Message.SYNCED_CONTENT_URI, messageId);
-                mProviderContext.getContentResolver().update(uri, cv, null, null);
-
-                // Service runs automatically, MessagingController needs a kick
-                long accountId = Account.getAccountIdForMessageId(mProviderContext, messageId);
-                if (accountId == -1) {
-                    return;
-                }
-                if (isMessagingController(accountId)) {
-                    mLegacyController.processPendingActions(accountId);
-                }
+                updateMessageSync(messageId, cv);
             }
         });
     }
