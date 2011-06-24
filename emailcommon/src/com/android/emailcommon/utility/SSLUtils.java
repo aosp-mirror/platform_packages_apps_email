@@ -45,7 +45,7 @@ public class SSLUtils {
      *
      * @param insecure if true, bypass all SSL certificate checks
      */
-    public synchronized static final SSLCertificateSocketFactory getSSLSocketFactory(
+    public synchronized static SSLCertificateSocketFactory getSSLSocketFactory(
             boolean insecure) {
         if (insecure) {
             if (sInsecureFactory == null) {
@@ -102,7 +102,6 @@ public class SSLUtils {
         return sb.toString();
     }
 
-    @SuppressWarnings("unused")
     private static abstract class StubKeyManager extends X509ExtendedKeyManager {
         @Override public abstract String chooseClientAlias(
                 String[] keyTypes, Principal[] issuers, Socket socket);
@@ -204,15 +203,19 @@ public class SSLUtils {
             }
 
             if (certificateChain == null || privateKey == null) {
-                throw new CertificateException(
-                        "Can't access certificate from keystore for alias [" + alias + "]");
+                throw new CertificateException("Can't access certificate from keystore");
             }
 
             return new KeyChainKeyManager(alias, certificateChain, privateKey);
         }
 
         private static void logError(String alias, String type, Exception ex) {
-            Log.e(TAG, "Unable to retrieve " + type + " for [" + alias + "] due to " + ex);
+            // Avoid logging PII when explicit logging is not on.
+            if (LOG_ENABLED) {
+                Log.e(TAG, "Unable to retrieve " + type + " for [" + alias + "] due to " + ex);
+            } else {
+                Log.e(TAG, "Unable to retrieve " + type + " due to " + ex);
+            }
         }
 
         private KeyChainKeyManager(
