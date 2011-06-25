@@ -16,16 +16,6 @@
 
 package com.android.email.activity;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-
 import com.android.email.Email;
 import com.android.email.MessageListContext;
 import com.android.email.R;
@@ -37,7 +27,18 @@ import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.Utility;
 import com.google.common.base.Objects;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -310,7 +311,16 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             return;
         }
         if (!mRemovedFragments.contains(fragment)) {
-            ft.remove(fragment);
+            // STOPSHIP Remove log/catch.  b/4905749.
+            Log.d(Logging.LOG_TAG, "Removing " + fragment);
+            try {
+                ft.remove(fragment);
+            } catch (RuntimeException ex) {
+                Log.e(Logging.LOG_TAG, "Got RuntimeException trying to remove fragment: "
+                        + fragment, ex);
+                Log.e(Logging.LOG_TAG, Utility.dumpFragment(fragment));
+                throw ex;
+            }
             addFragmentToRemovalList(fragment);
         }
     }

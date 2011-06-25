@@ -31,6 +31,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.ProviderUnavailableException;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -58,10 +59,13 @@ import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -1103,5 +1107,12 @@ public class Utility {
         StrictMode.setVmPolicy(enabled
                 ? new StrictMode.VmPolicy.Builder().detectAll().build()
                 : StrictMode.VmPolicy.LAX);
+    }
+
+    public static String dumpFragment(Fragment f) {
+        StringWriter sw = new StringWriter();
+        PrintWriter w = new PrintWriter(sw);
+        f.dump("", new FileDescriptor(), w, new String[0]);
+        return sw.toString();
     }
 }
