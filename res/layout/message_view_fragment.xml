@@ -127,42 +127,15 @@
                 </LinearLayout>
 
                 <!-- Addresses, timestamp, "show details" -->
-                <LinearLayout
+                <FrameLayout
+                    android:id="@+id/message_view_subheader"
                     android:layout_width="match_parent"
-                    android:layout_height="48dip"
-                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dip"
+                    android:layout_marginRight="16dip"
                     >
-                    <!-- To, Cc, Bcc addresses -->
-                    <TextView
-                        android:id="@+id/addresses"
-                        android:layout_width="0dip"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginLeft="24dip"
-                        android:singleLine="true"
-                        android:ellipsize="end"
-                        style="@style/message_view_text"
-                        />
-                    <TextView
-                        android:id="@+id/datetime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dip"
-                        android:singleLine="true"
-                        style="@style/message_view_text"
-                        />
-                    <!--  Set proper background to reflect selected state -->
-                    <ImageView
-                        android:id="@+id/show_details"
-                        android:src="@drawable/ic_menu_expander_minimized_holo_light"
-                        android:layout_width="32dip"
-                        android:layout_height="32dip"
-                        android:layout_marginLeft="4dip"
-                        android:layout_marginRight="16dip"
-                        android:gravity="center"
-                        android:background="?android:attr/selectableItemBackground"
-                        />
-                </LinearLayout>
+                    <include layout="@layout/message_view_subheader" />
+                </FrameLayout>
 
                 <!-- divider -->
                 <View

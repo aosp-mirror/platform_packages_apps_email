@@ -238,7 +238,8 @@ public class Address {
         StringBuffer sb = new StringBuffer(addresses[0].toString());
         for (int i = 1; i < addresses.length; i++) {
             sb.append(separator);
-            sb.append(addresses[i].toString());
+            // TODO: investigate why this .trim() is needed.
+            sb.append(addresses[i].toString().trim());
         }
         return sb.toString();
     }

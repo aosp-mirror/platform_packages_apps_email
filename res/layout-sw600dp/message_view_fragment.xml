@@ -179,58 +179,21 @@
         </LinearLayout>
 
         <!-- Addresses, timestamp  -->
-        <Button
-            android:id="@+id/show_details"
-            android:layout_width="wrap_content"
-            android:layout_height="48dip"
+        <FrameLayout
+            android:id="@+id/message_view_subheader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="32dip"
+            android:layout_marginRight="32dip"
             android:layout_below="@id/header_background"
-            android:layout_alignRight="@id/header_background"
-            android:layout_marginRight="14dip"
-            style="@android:style/Widget.Holo.Button.Borderless"
-            android:padding="0dip"
-            android:gravity="center_vertical"
-            android:text="@string/message_view_show_details"
-            android:textSize="14dip"
-            android:textColor="@color/text_ternary_color"
-            android:textStyle="bold"
-            android:singleLine="true"
-            />
-
-        <TextView
-            android:id="@+id/datetime"
-            android:layout_width="wrap_content"
-            android:layout_height="48dip"
-            android:layout_below="@id/header_background"
-            android:layout_alignRight="@id/header_background"
-            android:layout_toLeftOf="@id/show_details"
-            android:layout_marginRight="156dip"
-            android:gravity="center_vertical"
-            android:textSize="14dip"
-            android:textColor="@color/text_ternary_color"
-            android:singleLine="true"
-            />
-
-        <!-- To, Cc, Bcc addresses -->
-        <TextView
-            android:id="@+id/addresses"
-            android:layout_width="0dip"
-            android:layout_height="48dip"
-            android:layout_below="@id/header_background"
-            android:layout_alignLeft="@id/badge"
-            android:layout_toLeftOf="@id/datetime"
-            android:layout_marginRight="16dip"
-            android:layout_marginLeft="14dip"
-            android:gravity="center_vertical"
-            android:textSize="14dip"
-            android:textColor="@color/text_ternary_color"
-            android:singleLine="true"
-            android:ellipsize="end"
-            />
+            >
+            <include layout="@layout/message_view_subheader" />
+        </FrameLayout>
 
         <View
             android:id="@+id/address_divider"
             android:layout_width="0dip"
-            android:layout_below="@id/show_details"
+            android:layout_below="@id/message_view_subheader"
             android:layout_alignLeft="@id/badge"
             android:layout_alignRight="@id/header_background"
             style="@style/message_view_horizontal_divider"

@@ -120,7 +120,9 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private ImageView mSenderPresenceView;
     private View mMainView;
     private View mLoadingProgress;
-    private View mShowDetailsButton;
+    private View mDetailsCollapsed;
+    private View mDetailsExpanded;
+    private boolean mDetailsFilled;
 
     private TextView mMessageTab;
     private TextView mAttachmentTab;
@@ -144,8 +146,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
     // contains the HTML content as set in WebView.
     private String mHtmlTextWebView;
-
-    private boolean mResumed;
 
     private boolean mIsMessageLoadedForTest;
 
@@ -299,7 +299,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mSenderPresenceView = (ImageView) UiUtilities.getView(view, R.id.presence);
         mMainView = UiUtilities.getView(view, R.id.main_panel);
         mLoadingProgress = UiUtilities.getView(view, R.id.loading_progress);
-        mShowDetailsButton = UiUtilities.getView(view, R.id.show_details);
+        mDetailsCollapsed = UiUtilities.getView(view, R.id.sub_header_contents_collapsed);
+        mDetailsExpanded = UiUtilities.getView(view, R.id.sub_header_contents_expanded);
 
         mFromNameView.setOnClickListener(this);
         mFromAddressView.setOnClickListener(this);
@@ -316,7 +317,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mAttachmentTab.setOnClickListener(this);
         mShowPicturesTab.setOnClickListener(this);
         mInviteTab.setOnClickListener(this);
-        mShowDetailsButton.setOnClickListener(this);
+        mDetailsCollapsed.setOnClickListener(this);
+        mDetailsExpanded.setOnClickListener(this);
 
         mAttachmentsScroll = UiUtilities.getView(view, R.id.attachments_scroll);
         mInviteScroll = UiUtilities.getView(view, R.id.invite_scroll);
@@ -360,8 +362,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         super.onResume();
 
-        mResumed = true;
-
         // We might have comes back from other full-screen activities.  If so, we need to update
         // the attachment tab as system settings may have been updated that affect which
         // options are available to the user.
@@ -373,7 +373,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onPause");
         }
-        mResumed = false;
         super.onPause();
     }
 
@@ -890,20 +889,41 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
     }
 
-    private void onShowDetails() {
-        if (!isMessageOpen()) return;
-        String subject = mMessage.mSubject;
-        String date = formatDate(mMessage.mTimeStamp, true);
+    private void showDetails() {
+        if (!isMessageOpen()) {
+            return;
+        }
 
-        final String SEPARATOR = "\n";
-        String from = Address.toString(Address.unpack(mMessage.mFrom), SEPARATOR);
-        String to = Address.toString(Address.unpack(mMessage.mTo), SEPARATOR);
-        String cc = Address.toString(Address.unpack(mMessage.mCc), SEPARATOR);
-        String bcc = Address.toString(Address.unpack(mMessage.mBcc), SEPARATOR);
-        MessageViewMessageDetailsDialog dialog = MessageViewMessageDetailsDialog.newInstance(
-                getActivity(), subject, date, from, to, cc, bcc);
-        dialog.show(getActivity().getFragmentManager(), null);
+        if (!mDetailsFilled) {
+            String date = formatDate(mMessage.mTimeStamp, true);
+            final String SEPARATOR = "\n";
+            String to = Address.toString(Address.unpack(mMessage.mTo), SEPARATOR);
+            String cc = Address.toString(Address.unpack(mMessage.mCc), SEPARATOR);
+            String bcc = Address.toString(Address.unpack(mMessage.mBcc), SEPARATOR);
+            setDetailsRow(mDetailsExpanded, date, R.id.date, R.id.date_row);
+            setDetailsRow(mDetailsExpanded, to, R.id.to, R.id.to_row);
+            setDetailsRow(mDetailsExpanded, cc, R.id.cc, R.id.cc_row);
+            setDetailsRow(mDetailsExpanded, bcc, R.id.bcc, R.id.bcc_row);
+            mDetailsFilled = true;
+        }
+
+        mDetailsCollapsed.setVisibility(View.GONE);
+        mDetailsExpanded.setVisibility(View.VISIBLE);
     }
+
+    private void hideDetails() {
+        mDetailsCollapsed.setVisibility(View.VISIBLE);
+        mDetailsExpanded.setVisibility(View.GONE);
+    }
+
+    private static void setDetailsRow(View root, String text, int textViewId, int rowViewId) {
+        if (TextUtils.isEmpty(text)) {
+            root.findViewById(rowViewId).setVisibility(View.GONE);
+            return;
+        }
+        ((TextView) UiUtilities.getView(root, textViewId)).setText(text);
+    }
+
 
     @Override
     public void onClick(View view) {
@@ -944,8 +964,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
             case R.id.show_pictures:
                 onShowPicturesInHtml();
                 break;
-            case R.id.show_details:
-                onShowDetails();
+            case R.id.sub_header_contents_collapsed:
+                showDetails();
+                break;
+            case R.id.sub_header_contents_expanded:
+                hideDetails();
                 break;
         }
     }
