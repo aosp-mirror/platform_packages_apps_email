@@ -232,6 +232,11 @@ class MailboxFragmentAdapter extends CursorAdapter {
         return getRowType(cursor) == ROW_TYPE_ACCOUNT;
     }
 
+    /** Returns {@code true} if the current row is a header */
+    private static boolean isHeaderRow(Cursor cursor) {
+        return getRowType(cursor) == ROW_TYPE_HEADER;
+    }
+
     /**
      * Returns the ID of the given row. It may be a mailbox or account ID depending upon the
      * result of {@link #isAccountRow}.
@@ -262,7 +267,7 @@ class MailboxFragmentAdapter extends CursorAdapter {
 
     private static String getDisplayName(Context context, Cursor cursor) {
         final String name = cursor.getString(cursor.getColumnIndex(MailboxColumns.DISPLAY_NAME));
-        if (isAccountRow(cursor)) {
+        if (isHeaderRow(cursor) || isAccountRow(cursor)) {
             // Always use actual name
             return name;
         } else {
