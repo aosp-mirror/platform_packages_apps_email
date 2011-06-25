@@ -95,6 +95,9 @@ public class MessageListItem extends View {
     private static Bitmap sFavoriteIconOn;
     private static Bitmap sSelectedIconOn;
     private static Bitmap sSelectedIconOff;
+    private static Bitmap sStateReplied;
+    private static Bitmap sStateForwarded;
+    private static Bitmap sStateRepliedAndForwarded;
     private static String sSubjectSnippetDivider;
 
     public String mSender;
@@ -107,6 +110,8 @@ public class MessageListItem extends View {
     public boolean mHasAttachment = false;
     public boolean mHasInvite = true;
     public boolean mIsFavorite = false;
+    public boolean mHasBeenRepliedTo = false;
+    public boolean mHasBeenForwarded = false;
     /** {@link Paint} for account color chips.  null if no chips should be drawn.  */
     public Paint mColorChipPaint;
 
@@ -160,6 +165,14 @@ public class MessageListItem extends View {
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_off_normal_holo_light);
             sSelectedIconOn =
                 BitmapFactory.decodeResource(r, R.drawable.btn_check_on_normal_holo_light);
+
+            //TODO: put the actual drawables when they exist. these are temps for visibile testing.
+            sStateReplied =
+                BitmapFactory.decodeResource(r, R.drawable.reply);
+            sStateForwarded =
+                BitmapFactory.decodeResource(r, R.drawable.forward);
+            sStateRepliedAndForwarded =
+                BitmapFactory.decodeResource(r, R.drawable.reply_all);
 
             sInit = true;
         }
@@ -341,6 +354,18 @@ public class MessageListItem extends View {
         canvas.drawText(mFormattedSender, 0, mFormattedSender.length(),
                 mCoordinates.sendersX, mCoordinates.sendersY - mCoordinates.sendersAscent,
                 mRead ? sDefaultPaint : sBoldPaint);
+
+        // Draw the reply state. Draw nothing if neither replied nor forwarded.
+        if (mHasBeenRepliedTo && mHasBeenForwarded) {
+            canvas.drawBitmap(sStateReplied,
+                    mCoordinates.stateX, mCoordinates.stateY, sDefaultPaint);
+        } else if (mHasBeenRepliedTo) {
+            canvas.drawBitmap(sStateForwarded,
+                    mCoordinates.stateX, mCoordinates.stateY, sDefaultPaint);
+        } else if (mHasBeenForwarded) {
+            canvas.drawBitmap(sStateRepliedAndForwarded,
+                    mCoordinates.stateX, mCoordinates.stateY, sDefaultPaint);
+        }
 
         // Subject and snippet.
         sDefaultPaint.setTextSize(mCoordinates.subjectFontSize);

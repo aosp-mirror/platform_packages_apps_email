@@ -192,8 +192,10 @@ import java.util.Set;
         itemView.mAccountId = accountId;
         itemView.mRead = cursor.getInt(COLUMN_READ) != 0;
         itemView.mIsFavorite = cursor.getInt(COLUMN_FAVORITE) != 0;
-        itemView.mHasInvite =
-            (cursor.getInt(COLUMN_FLAGS) & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
+        final int flags = cursor.getInt(COLUMN_FLAGS);
+        itemView.mHasInvite = (flags & Message.FLAG_INCOMING_MEETING_INVITE) != 0;
+        itemView.mHasBeenRepliedTo = (flags & Message.FLAG_REPLIED_TO) != 0;
+        itemView.mHasBeenForwarded = (flags & Message.FLAG_FORWARDED) != 0;
         itemView.mHasAttachment = cursor.getInt(COLUMN_ATTACHMENTS) != 0;
         itemView.mTimestamp = cursor.getLong(COLUMN_DATE);
         itemView.mSender = cursor.getString(COLUMN_DISPLAY_NAME);
