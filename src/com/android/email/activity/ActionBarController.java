@@ -433,6 +433,10 @@ public class ActionBarController {
 
             @Override
             public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+                if (!cursor.moveToFirst()) {
+                    clearMailboxInfo();
+                    return;
+                }
                 // Update action bar
                 FolderProperties fp = FolderProperties.getInstance(mContext);
                 updateMailboxInfo(
