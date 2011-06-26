@@ -109,7 +109,9 @@ public class CertificateSelector extends LinearLayout implements
                 // "type". Just let them fail and select a different one if it doesn't match.
                 KeyChain.choosePrivateKeyAlias(
                         mActivity, this,
-                        null /* keytypes */, null /* issuers */, null /* host */, -1 /* port */);
+                        null /* keytypes */, null /* issuers */,
+                        null /* host */, -1 /* port */,
+                        null /* alias */);
             }
         }
     }
