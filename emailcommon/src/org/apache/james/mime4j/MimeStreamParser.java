@@ -157,12 +157,12 @@ public class MimeStreamParser {
                 parseBodyPart(tempIs);
                 tempIs.consume();
                 if (tempIs.parentEOF()) {
-                    if (log.isWarnEnabled()) {
-                        log.warn("Line " + rootStream.getLineNumber()
-                                + ": Body part ended prematurely. "
-                                + "Higher level boundary detected or "
-                                + "EOF reached.");
-                    }
+//                    if (log.isWarnEnabled()) {
+//                        log.warn("Line " + rootStream.getLineNumber()
+//                                + ": Body part ended prematurely. "
+//                                + "Higher level boundary detected or "
+//                                + "EOF reached.");
+//                    }
                     break;
                 }
             }
@@ -247,11 +247,11 @@ public class MimeStreamParser {
             prev = curr == '\r' ? prev : curr;
         }
 
-        if (curr == -1 && log.isWarnEnabled()) {
-            log.warn("Line " + rootStream.getLineNumber()
-                    + ": Unexpected end of headers detected. "
-                    + "Boundary detected in header or EOF reached.");
-        }
+//        if (curr == -1 && log.isWarnEnabled()) {
+//            log.warn("Line " + rootStream.getLineNumber()
+//                    + ": Unexpected end of headers detected. "
+//                    + "Boundary detected in header or EOF reached.");
+//        }
 
         int start = 0;
         int pos = 0;
