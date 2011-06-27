@@ -41,6 +41,8 @@ import android.widget.LinearLayout;
  * See {@link #isPaneCollapsible()} for details on the two modes.
  *
  * TODO Unit tests, when UX is settled.
+ *
+ * TODO onVisiblePanesChanged() should be called *AFTER* the animation, not before.
  */
 public class ThreePaneLayout extends LinearLayout implements View.OnClickListener {
     private static final boolean ANIMATION_DEBUG = false; // DON'T SUBMIT WITH true
@@ -555,6 +557,18 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
             for (View v : mViewsVisible) {
                 v.setVisibility(View.VISIBLE);
             }
+
+            // TODO These things, making invisible views and calling the visible pane changed
+            // callback, should really be done in onAnimationEnd.
+            // However, because we may want to initiate a fragment transaction in the callback but
+            // by the time animation is done, the activity may be stopped (by user's HOME press),
+            // it's not easy to get right.  For now, we just do this before the animation.
+            for (View v : mViewsInvisible) {
+                v.setVisibility(View.INVISIBLE);
+            }
+            for (View v : mViewsGone) {
+                v.setVisibility(View.GONE);
+            }
             mCallback.onVisiblePanesChanged(mPreviousVisiblePanes);
         }
 
@@ -575,13 +589,6 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                 return; // But they shouldn't be hidden when cancelled.
             }
             log("end");
-            for (View v : mViewsInvisible) {
-                v.setVisibility(View.INVISIBLE);
-            }
-            for (View v : mViewsGone) {
-                v.setVisibility(View.GONE);
-            }
-            mCallback.onVisiblePanesChanged(mPreviousVisiblePanes);
         }
     }
 
