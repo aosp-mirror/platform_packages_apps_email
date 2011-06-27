@@ -23,11 +23,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.VendorPolicyLoader;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
+import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.HostAuth;
 
@@ -66,7 +66,7 @@ public class AccountSetupAccountType extends AccountSetupActivity implements OnC
         // TODO If we decide to exclude the Exchange option in POP_IMAP mode, use the following line
         // instead of the line that follows it
         //if (ExchangeUtils.isExchangeAvailable(this) && flowMode != SetupData.FLOW_MODE_POP_IMAP) {
-        if (ExchangeUtils.isExchangeAvailable(this)) {
+        if (EmailServiceUtils.isExchangeAvailable(this)) {
             exchangeButton.setOnClickListener(this);
             exchangeButton.setVisibility(View.VISIBLE);
             if (VendorPolicyLoader.getInstance(this).useAlternateExchangeStrings()) {

@@ -36,10 +36,10 @@ import android.widget.CheckBox;
 import android.widget.Spinner;
 
 import com.android.email.Email;
-import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.activity.ActivityHelper;
 import com.android.email.activity.UiUtilities;
+import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -364,7 +364,7 @@ public class AccountSetupOptions extends AccountSetupActivity implements OnClick
                 AccountSettingsUtils.commitSettings(context, account);
                 // Start up services based on new account(s)
                 Email.setServicesEnabledSync(context);
-                ExchangeUtils.startExchangeService(context);
+                EmailServiceUtils.startExchangeService(context);
                 // Move to final setup screen
                 AccountSetupNames.actionSetNames(context);
                 finish();

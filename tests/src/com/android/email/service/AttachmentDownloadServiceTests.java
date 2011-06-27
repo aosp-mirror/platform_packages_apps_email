@@ -18,10 +18,10 @@ package com.android.email.service;
 
 import com.android.email.AccountTestCase;
 import com.android.email.EmailConnectivityManager;
-import com.android.email.ExchangeUtils.NullEmailService;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.email.service.AttachmentDownloadService.DownloadRequest;
 import com.android.email.service.AttachmentDownloadService.DownloadSet;
+import com.android.email.service.EmailServiceUtils.NullEmailService;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Attachment;
 import com.android.emailcommon.provider.EmailContent.Message;

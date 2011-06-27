@@ -16,19 +16,6 @@
 
 package com.android.email.service;
 
-import com.android.email.Email;
-import com.android.email.ExchangeUtils;
-import com.android.email.Preferences;
-import com.android.email.SecurityPolicy;
-import com.android.email.VendorPolicyLoader;
-import com.android.email.activity.setup.AccountSettings;
-import com.android.email.mail.Store;
-import com.android.email.widget.WidgetManager;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.HostAuth;
-
 import android.accounts.AccountManager;
 import android.app.IntentService;
 import android.content.ComponentName;
@@ -41,6 +28,17 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
+
+import com.android.email.Email;
+import com.android.email.Preferences;
+import com.android.email.SecurityPolicy;
+import com.android.email.VendorPolicyLoader;
+import com.android.email.activity.setup.AccountSettings;
+import com.android.email.mail.Store;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.HostAuth;
 
 /**
  * The service that really handles broadcast intents on a worker thread.
@@ -146,7 +144,7 @@ public class EmailBroadcastProcessorService extends IntentService {
         enableComponentsIfNecessary();
 
         // Starts the service for Exchange, if supported.
-        ExchangeUtils.startExchangeService(this);
+        EmailServiceUtils.startExchangeService(this);
     }
 
     private void performOneTimeInitialization() {
@@ -161,8 +159,6 @@ public class EmailBroadcastProcessorService extends IntentService {
                 setComponentEnabled(EasAuthenticatorServiceAlternate.class, true);
                 setComponentEnabled(EasAuthenticatorService.class, false);
             }
-
-            ExchangeUtils.enableEasCalendarSync(this);
         }
 
         if (progress < 2) {
@@ -224,6 +220,6 @@ public class EmailBroadcastProcessorService extends IntentService {
 
         // If the exchange service wasn't already running, starting it will cause exchange account
         // reconciliation to be performed.  The service stops itself it there are no EAS accounts.
-        ExchangeUtils.startExchangeService(this);
+        EmailServiceUtils.startExchangeService(this);
     }
 }

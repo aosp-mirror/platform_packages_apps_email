@@ -17,9 +17,9 @@
 package com.android.email.activity;
 
 import com.android.email.Email;
-import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSetupBasics;
+import com.android.email.service.EmailServiceUtils;
 import com.android.email.service.MailService;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -185,7 +185,7 @@ public class Welcome extends Activity {
         // already been started
         // When the service starts, it reconciles EAS accounts.
         // TODO More completely separate ExchangeService from Email app
-        ExchangeUtils.startExchangeService(this);
+        EmailServiceUtils.startExchangeService(this);
 
         // Extract parameters from the intent.
         final Intent intent = getIntent();

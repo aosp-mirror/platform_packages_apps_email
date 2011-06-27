@@ -17,7 +17,6 @@
 package com.android.email.service;
 
 import com.android.email.Email;
-import com.android.email.ExchangeUtils;
 import com.android.email.NotificationController;
 import com.android.email.ResourceHelper;
 import com.android.email.VendorPolicyLoader;
@@ -83,7 +82,7 @@ public class AccountService extends Service {
                     @Override
                     public void run() {
                         // Make sure the service is properly running (re: lifecycle)
-                        ExchangeUtils.startExchangeService(mContext);
+                        EmailServiceUtils.startExchangeService(mContext);
                         // Send current logging flags
                         Email.updateLoggingFlags(mContext);
                     }});

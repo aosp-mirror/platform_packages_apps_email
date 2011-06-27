@@ -34,6 +34,7 @@ import android.util.Log;
 import com.android.email.mail.Store;
 import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.email.provider.AccountBackupRestore;
+import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.Api;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.AuthenticationFailedException;
@@ -317,7 +318,7 @@ public class Controller {
      * Generally this should be called by anybody who changes Email.DEBUG
      */
     public void serviceLogging(int debugFlags) {
-        IEmailService service = ExchangeUtils.getExchangeService(mContext, mServiceCallback);
+        IEmailService service = EmailServiceUtils.getExchangeService(mContext, mServiceCallback);
         try {
             service.setLogging(debugFlags);
         } catch (RemoteException e) {
@@ -1041,7 +1042,7 @@ public class Controller {
     }
 
     private IEmailService getExchangeEmailService() {
-        return ExchangeUtils.getExchangeService(mContext, mServiceCallback);
+        return EmailServiceUtils.getExchangeService(mContext, mServiceCallback);
     }
 
     /**
