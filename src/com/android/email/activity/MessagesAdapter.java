@@ -16,18 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
-import com.android.email.ResourceHelper;
-import com.android.email.data.ThrottlingCursorLoader;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.TextUtilities;
-import com.android.emailcommon.utility.Utility;
-
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
@@ -38,6 +26,22 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+
+import com.android.email.Controller;
+import com.android.email.Email;
+import com.android.email.MessageListContext;
+import com.android.email.ResourceHelper;
+import com.android.email.data.ThrottlingCursorLoader;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.TextUtilities;
+import com.android.emailcommon.utility.Utility;
+import com.google.common.base.Preconditions;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -259,16 +263,17 @@ import java.util.Set;
      *
      * @return always of {@link CursorWithExtras}.
      */
-    public static Loader<Cursor> createLoader(Context context, long mailboxId) {
+    public static Loader<Cursor> createLoader(Context context, MessageListContext listContext) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "MessagesAdapter createLoader mailboxId=" + mailboxId);
+            Log.d(Logging.LOG_TAG, "MessagesAdapter createLoader listContext=" + listContext);
         }
-        return new MessagesCursorLoader(context, mailboxId);
-
+        return listContext.isSearch()
+                ? new SearchCursorLoader(context, listContext)
+                : new MessagesCursorLoader(context, listContext.getMailboxId());
     }
 
-    static private class MessagesCursorLoader extends ThrottlingCursorLoader {
-        private final Context mContext;
+    private static class MessagesCursorLoader extends ThrottlingCursorLoader {
+        protected final Context mContext;
         private final long mMailboxId;
 
         public MessagesCursorLoader(Context context, long mailboxId) {
@@ -332,6 +337,43 @@ import java.util.Set;
             final int countAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
             return new CursorWithExtras(baseCursor, found, account, mailbox, isEasAccount,
                     isRefreshable, countAccounts);
+        }
+    }
+
+    /**
+     * A special loader used to perform a search.
+     */
+    private static class SearchCursorLoader extends MessagesCursorLoader {
+        private final MessageListContext mListContext;
+        private boolean mResultCountAvailable = false;
+
+        public SearchCursorLoader(Context context, MessageListContext listContext) {
+            super(context, listContext.getMailboxId());
+            Preconditions.checkArgument(listContext.isSearch());
+            mListContext = listContext;
+        }
+
+        @Override
+        public Cursor loadInBackground() {
+            if (mResultCountAvailable) {
+                return super.loadInBackground();
+            }
+
+            // The search results info hasn't even been loaded yet, so the Controller has not yet
+            // initialized the search mailbox properly. Kick off the search first.
+            Controller controller = Controller.getInstance(mContext);
+            try {
+                // TODO: wire through search count information and pad it into the cursor returned
+                // so that the caller knows how many is in the entire result set.
+                controller.searchMessages(mListContext.mAccountId, mListContext.getSearchParams());
+            } catch (MessagingException e) {
+                // TODO: handle.
+            }
+
+            mResultCountAvailable = true;
+
+            // Return whatever the super would do, now that we know the results are ready.
+            return super.loadInBackground();
         }
     }
 }
