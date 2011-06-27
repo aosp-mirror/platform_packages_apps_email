@@ -397,8 +397,15 @@ save attachment.</string>
         <item quantity="other">Attachments <xliff:g id="num_attachment" example="3" >%1$d</xliff:g>
             </item>
     </plurals>
-    <!--Button on the message view screen to show the embedded pictures [CHAR LIMIT=16] -->
+    <!-- Button on the message view screen to show the embedded pictures [CHAR LIMIT=16] -->
     <string name="message_view_show_pictures_action">Show pictures</string>
+    <!-- Button on the message view screen to always show pictures from the given
+         sender [CHAR LIMIT=32] -->
+    <string name="message_view_always_show_pictures_button">Always show</string>
+    <!-- Prompt on the message view screen whether or not to always show pictures from the
+         given sender [CHAR LIMIT=80] -->
+    <string name="message_view_always_show_pictures_prompt"
+        >Always show pictures from this sender?</string>
     <!-- Calendar invitation, label of the button to open in calendar [CHAR LIMIT=24] -->
     <string name="message_view_invite_view">View in Calendar</string>
     <!-- String shown with a calendar invitation. -->

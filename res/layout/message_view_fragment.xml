@@ -196,6 +196,27 @@
                         android:layout_width="wrap_content"
                         style="@style/message_view_tab"
                         />
+                    <RelativeLayout
+                        android:id="@+id/always_show_pictures_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        >
+                        <Button
+                            android:id="@+id/always_show_pictures_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:text="@string/message_view_always_show_pictures_button" />
+                        <TextView
+                            android:id="@+id/always_show_pictures_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@+id/always_show_pictures_button"
+                            android:layout_centerVertical="true"
+                            android:text="@string/message_view_always_show_pictures_prompt" />
+                    </RelativeLayout>
                 </LinearLayout>
                 <View
                     android:layout_width="match_parent"

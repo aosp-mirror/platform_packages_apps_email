@@ -280,6 +280,27 @@
                         android:drawableRight="@drawable/ic_show_images_holo_light"
                         android:drawablePadding="8dip"
                         />
+                    <RelativeLayout
+                        android:id="@+id/always_show_pictures_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone"
+                        >
+                        <Button
+                            android:id="@+id/always_show_pictures_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_alignParentRight="true"
+                            android:text="@string/message_view_always_show_pictures_button" />
+                        <TextView
+                            android:id="@+id/always_show_pictures_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_toLeftOf="@+id/always_show_pictures_button"
+                            android:text="@string/message_view_always_show_pictures_prompt" />
+                    </RelativeLayout>
                     <View
                         android:layout_width="16dip"
                         android:layout_height="0dip"
