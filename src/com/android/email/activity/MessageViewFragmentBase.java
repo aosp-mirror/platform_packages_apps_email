@@ -1907,8 +1907,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     }
 
     private boolean shouldShowImagesFor(String senderEmail) {
-        // TODO: read from prefs.
-        return false;
+        return Preferences.getPreferences(getActivity()).shouldShowImagesFor(senderEmail);
     }
 
     private void setShowImagesForSender() {
@@ -1917,7 +1916,12 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         // Force redraw of the container.
         updateTabs(mTabFlags);
 
-        // TODO: write to prefs.
+        Address[] fromList = Address.unpack(mMessage.mFrom);
+        Preferences prefs = Preferences.getPreferences(getActivity());
+        for (Address sender : fromList) {
+            String email = sender.getAddress();
+            prefs.setSenderAsTrusted(email);
+        }
     }
 
     public boolean isMessageLoadedForTest() {

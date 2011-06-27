@@ -16,12 +16,18 @@
 
 package com.android.email;
 
-import com.android.emailcommon.Logging;
-
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.emailcommon.Logging;
+import com.google.common.annotations.VisibleForTesting;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.HashSet;
 import java.util.UUID;
 
 public class Preferences {
@@ -42,6 +48,7 @@ public class Preferences {
     private static final String AUTO_ADVANCE_DIRECTION = "autoAdvance";
     private static final String TEXT_ZOOM = "textZoom";
     private static final String BACKGROUND_ATTACHMENTS = "backgroundAttachments";
+    private static final String TRUSTED_SENDERS = "trustedSenders";
 
     public static final int AUTO_ADVANCE_NEWER = 0;
     public static final int AUTO_ADVANCE_OLDER = 1;
@@ -60,7 +67,14 @@ public class Preferences {
 
     private static Preferences sPreferences;
 
-    final SharedPreferences mSharedPreferences;
+    private final SharedPreferences mSharedPreferences;
+
+    /**
+     * A set of trusted senders for whom images and external resources should automatically be
+     * loaded for.
+     * Lazilly created.
+     */
+    private HashSet<String> mTrustedSenders = null;
 
     private Preferences(Context context) {
         mSharedPreferences = context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
@@ -181,7 +195,50 @@ public class Preferences {
         mSharedPreferences.edit().putBoolean(BACKGROUND_ATTACHMENTS, allowed).apply();
     }
 
-    public void save() {
+    /**
+     * Determines whether or not a sender should be trusted and images should automatically be
+     * shown for messages by that sender.
+     */
+    public boolean shouldShowImagesFor(String email) {
+        if (mTrustedSenders == null) {
+            try {
+                mTrustedSenders = parseEmailSet(mSharedPreferences.getString(TRUSTED_SENDERS, ""));
+            } catch (JSONException e) {
+                // Something went wrong, and the data is corrupt. Just clear it to be safe.
+                Log.w(Logging.LOG_TAG, "Trusted sender set corrupted. Clearing");
+                mSharedPreferences.edit().putString(TRUSTED_SENDERS, "").apply();
+                mTrustedSenders = new HashSet<String>();
+            }
+        }
+        return mTrustedSenders.contains(email);
+    }
+
+    /**
+     * Marks a sender as trusted so that images from that sender will automatically be shown.
+     */
+    public void setSenderAsTrusted(String email) {
+        if (!mTrustedSenders.contains(email)) {
+            mTrustedSenders.add(email);
+            mSharedPreferences
+                    .edit()
+                    .putString(TRUSTED_SENDERS, packEmailSet(mTrustedSenders))
+                    .apply();
+        }
+    }
+
+    HashSet<String> parseEmailSet(String serialized) throws JSONException {
+        HashSet<String> result = new HashSet<String>();
+        if (!TextUtils.isEmpty(serialized)) {
+            JSONArray arr = new JSONArray(serialized);
+            for (int i = 0, len = arr.length(); i < len; i++) {
+                result.add((String) arr.get(i));
+            }
+        }
+        return result;
+    }
+
+    String packEmailSet(HashSet<String> set) {
+        return new JSONArray(set).toString();
     }
 
     public void clear() {
