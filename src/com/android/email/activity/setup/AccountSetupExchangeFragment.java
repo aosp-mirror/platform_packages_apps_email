@@ -17,11 +17,11 @@
 package com.android.email.activity.setup;
 
 import com.android.email.Email;
-import com.android.email.ExchangeUtils;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
 import com.android.email.mail.Store;
 import com.android.email.provider.AccountBackupRestore;
+import com.android.email.service.EmailServiceUtils;
 import com.android.email.view.CertificateSelector;
 import com.android.emailcommon.Device;
 import com.android.emailcommon.Logging;
@@ -336,7 +336,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
         account.mHostAuthSend.update(mContext, account.mHostAuthSend.toContentValues());
         // For EAS, notify ExchangeService that the password has changed
         try {
-            ExchangeUtils.getExchangeService(mContext, null).hostChanged(account.mId);
+            EmailServiceUtils.getExchangeService(mContext, null).hostChanged(account.mId);
         } catch (RemoteException e) {
             // Nothing to be done if this fails
         }

@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.email;
-
-import com.android.emailcommon.Api;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.service.EmailServiceProxy;
-import com.android.emailcommon.service.IEmailService;
-import com.android.emailcommon.service.IEmailServiceCallback;
-import com.android.emailcommon.service.SearchParams;
+package com.android.email.service;
 
 import android.app.Service;
 import android.content.Context;
@@ -30,45 +23,54 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.android.emailcommon.Api;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.service.IEmailService;
+import com.android.emailcommon.service.IEmailServiceCallback;
+import com.android.emailcommon.service.SearchParams;
+
 /**
- * Utility functions for Exchange support.
+ * Utility functions for EmailService support.
  */
-public class ExchangeUtils {
+public class EmailServiceUtils {
     /**
-     * Starts the service for Exchange, if supported.
+     * Starts an EmailService by name
      */
-    public static void startExchangeService(Context context) {
-        context.startService(new Intent(EmailServiceProxy.EXCHANGE_INTENT));
+    public static void startService(Context context, String intentAction) {
+        context.startService(new Intent(intentAction));
     }
 
     /**
-     * Returns an {@link IEmailService} for the Exchange service, if supported.  Otherwise it'll
-     * return an empty {@link IEmailService} implementation.
+     * Returns an {@link IEmailService} for the service; otherwise returns an empty
+     * {@link IEmailService} implementation.
      *
      * @param context
      * @param callback Object to get callback, or can be null
      */
+    public static IEmailService getService(Context context, String intentAction,
+            IEmailServiceCallback callback) {
+        return new EmailServiceProxy(context, intentAction, callback);
+    }
+
+    /**
+     * Determine if the EmailService is available
+     */
+    public static boolean isServiceAvailable(Context context, String intentAction) {
+        return new EmailServiceProxy(context, intentAction, null).test();
+    }
+
+    public static void startExchangeService(Context context) {
+        startService(context, EmailServiceProxy.EXCHANGE_INTENT);
+    }
+
     public static IEmailService getExchangeService(Context context,
             IEmailServiceCallback callback) {
-        return new EmailServiceProxy(context, EmailServiceProxy.EXCHANGE_INTENT, callback);
+        return getService(context, EmailServiceProxy.EXCHANGE_INTENT, callback);
     }
 
-    /**
-     * Determine if the Exchange package is loaded
-     *
-     * TODO: This should be dynamic and data-driven for all account types, not just hardcoded
-     * like this.
-     */
     public static boolean isExchangeAvailable(Context context) {
-        return new EmailServiceProxy(context, EmailServiceProxy.EXCHANGE_INTENT, null).test();
-    }
-
-    /**
-     * Enable calendar sync for all the existing exchange accounts, and post a notification if any.
-     */
-    public static void enableEasCalendarSync(Context context) {
-        // *** TODO: Is this still necessary?
-        //new CalendarSyncEnabler(context).enableEasCalendarSync();
+        return isServiceAvailable(context, EmailServiceProxy.EXCHANGE_INTENT);
     }
 
     /**

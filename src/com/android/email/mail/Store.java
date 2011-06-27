@@ -236,7 +236,9 @@ public abstract class Store {
         return true;
     }
 
-    public abstract Folder getFolder(String name) throws MessagingException;
+    public Folder getFolder(String name) throws MessagingException {
+        return null;
+    }
 
     /**
      * Updates the local list of mailboxes according to what is located on the remote server.
@@ -245,7 +247,9 @@ public abstract class Store {
      * @return The set of remote folders
      * @throws MessagingException If there was a problem connecting to the remote server
      */
-    public abstract Folder[] updateFolders() throws MessagingException;
+    public Folder[] updateFolders() throws MessagingException {
+        return null;
+    }
 
     public abstract Bundle checkSettings() throws MessagingException;
 

@@ -16,32 +16,23 @@
 
 package com.android.email.mail.store;
 
-import com.android.email.ExchangeUtils;
+import android.content.Context;
+import android.os.Bundle;
+import android.os.RemoteException;
+
 import com.android.email.mail.Store;
-import com.android.emailcommon.mail.Folder;
+import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.os.RemoteException;
-import android.text.TextUtils;
-
-import java.util.HashMap;
-
 /**
- * Our Exchange service does not use the sender/store model.  This class exists for exactly two
- * purposes, (1) to provide a hook for checking account connections, and (2) to return
- * "AccountSetupExchange.class" for getSettingActivityClass().
+ * Our Exchange service does not use the sender/store model.
  */
 public class ExchangeStore extends Store {
-    public static final String LOG_TAG = "ExchangeStore";
-    @SuppressWarnings("hiding")
-    private final ExchangeTransport mTransport;
+    private final HostAuth mHostAuth;
 
     /**
      * Static named constructor.
@@ -56,122 +47,26 @@ public class ExchangeStore extends Store {
      */
     private ExchangeStore(Account account, Context context, PersistentDataCallbacks callbacks)
             throws MessagingException {
-        mTransport = ExchangeTransport.getInstance(account, context);
+        mContext = context;
+        mHostAuth = account.getOrCreateHostAuthRecv(mContext);
     }
 
     @Override
     public Bundle checkSettings() throws MessagingException {
-        return mTransport.checkSettings();
-    }
-
-    @Override
-    public Folder getFolder(String name) {
-        return null;
-    }
-
-    @Override
-    public Folder[] updateFolders() {
-        return null;
-    }
-
-    /**
-     * Get class of SettingActivity for this Store class.
-     * @return Activity class that has class method actionEditIncomingSettings()
-     */
-    @Override
-    public Class<? extends android.app.Activity> getSettingActivityClass() {
-        return com.android.email.activity.setup.AccountSetupExchange.class;
-    }
-
-    /**
-     * Inform MessagingController that messages sent via EAS will be placed in the Sent folder
-     * automatically (server-side) and don't need to be uploaded.
-     * @return always false for EAS (assuming server-side copy is supported)
-     */
-    @Override
-    public boolean requireCopyMessageToSentFolder() {
-        return false;
-    }
-
-    public static class ExchangeTransport {
-        private final Context mContext;
-        private HostAuth mHostAuth;
-
-        private static final HashMap<Long, ExchangeTransport> sHostAuthToInstanceMap =
-            new HashMap<Long, ExchangeTransport>();
-
-        /**
-         * Public factory.  The transport should be a singleton
-         */
-        public synchronized static ExchangeTransport getInstance(Account account, Context context)
-                throws MessagingException {
-            HostAuth hostAuth = HostAuth.restoreHostAuthWithId(context, account.mHostAuthKeyRecv);
-            if (hostAuth == null) {
-                hostAuth = new HostAuth();
-            }
-            final long storeKey = hostAuth.mId;
-            ExchangeTransport transport = sHostAuthToInstanceMap.get(storeKey);
-            if (transport == null) {
-                transport = new ExchangeTransport(account, context);
-                // Only cache a saved HostAuth key
-                if (storeKey != EmailContent.NOT_SAVED) {
-                    sHostAuthToInstanceMap.put(storeKey, transport);
-                }
-            }
-            return transport;
-        }
-
-        /**
-         * Private constructor - use public factory.
-         */
-        private ExchangeTransport(Account account, Context context) throws MessagingException {
-            mContext = context.getApplicationContext();
-            setAccount(account);
-        }
-
-        private void setAccount(final Account account) throws MessagingException {
-            HostAuth recvAuth = account.getOrCreateHostAuthRecv(mContext);
-            if (recvAuth == null || !STORE_SCHEME_EAS.equalsIgnoreCase(recvAuth.mProtocol)) {
-                throw new MessagingException("Unsupported protocol");
-            }
-            if (recvAuth.mAddress == null) {
-                throw new MessagingException("host not specified");
-            }
-            if (!TextUtils.isEmpty(recvAuth.mDomain)) {
-                recvAuth.mDomain = recvAuth.mDomain.substring(1);
-            }
-            recvAuth.mPort = 80;
-            if ((recvAuth.mFlags & HostAuth.FLAG_SSL) != 0) {
-                recvAuth.mPort = 443;
-            }
-
-            String[] userInfoParts = recvAuth.getLogin();
-            if (userInfoParts != null) {
-                if (TextUtils.isEmpty(userInfoParts[0]) || TextUtils.isEmpty(userInfoParts[1])) {
-                    throw new MessagingException("user name and password not specified");
-                }
-            } else {
-                throw new MessagingException("user information not specifed");
-            }
-            mHostAuth = recvAuth;
-        }
-
         /**
          * Here's where we check the settings for EAS.
          * @throws MessagingException if we can't authenticate the account
          */
-        public Bundle checkSettings() throws MessagingException {
-            try {
-                IEmailService svc = ExchangeUtils.getExchangeService(mContext, null);
-                // Use a longer timeout for the validate command.  Note that the instanceof check
-                // shouldn't be necessary; we'll do it anyway, just to be safe
-                if (svc instanceof EmailServiceProxy) {
-                    ((EmailServiceProxy)svc).setTimeout(90);
-                }
-                return svc.validate(mHostAuth);
-            } catch (RemoteException e) {
-                throw new MessagingException("Call to validate generated an exception", e);
+        try {
+            IEmailService svc = EmailServiceUtils.getExchangeService(mContext, null);
+            // Use a longer timeout for the validate command.  Note that the instanceof check
+            // shouldn't be necessary; we'll do it anyway, just to be safe
+            if (svc instanceof EmailServiceProxy) {
+                ((EmailServiceProxy)svc).setTimeout(90);
             }
+            return svc.validate(mHostAuth);
+        } catch (RemoteException e) {
+            throw new MessagingException("Call to validate generated an exception", e);
         }
     }
 
@@ -182,9 +77,15 @@ public class ExchangeStore extends Store {
     @Override
     public Bundle autoDiscover(Context context, String username, String password) {
         try {
-            return ExchangeUtils.getExchangeService(context, null).autoDiscover(username, password);
+            return EmailServiceUtils.getExchangeService(context, null).autoDiscover(
+                    username, password);
         } catch (RemoteException e) {
             return null;
         }
+    }
+
+    @Override
+    public Class<? extends android.app.Activity> getSettingActivityClass() {
+        return com.android.email.activity.setup.AccountSetupExchange.class;
     }
 }
