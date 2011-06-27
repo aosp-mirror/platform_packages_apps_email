@@ -431,12 +431,12 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     /**
      * Show the default view for the given account.
      *
-     * No-op if the given account is already selected.
-     *
      * @param accountId ID of the account to load.  Can be {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
      *     Must never be {@link Account#NO_ACCOUNT}.
+     * @param forceShowInbox If {@code false} and the given account is already selected, do nothing.
+     *        If {@code false}, we always change the view even if the account is selected.
      */
-    public final void switchAccount(long accountId) {
+    public final void switchAccount(long accountId, boolean forceShowInbox) {
 
         if (Account.isSecurityHold(mActivity, accountId)) {
             ActivityHelper.showSecurityHoldDialog(mActivity, accountId);
@@ -444,7 +444,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             return;
         }
 
-        if (accountId == getUIAccountId()) {
+        if (accountId == getUIAccountId() && !forceShowInbox) {
             // Do nothing if the account is already selected.  Not even going back to the inbox.
             return;
         }

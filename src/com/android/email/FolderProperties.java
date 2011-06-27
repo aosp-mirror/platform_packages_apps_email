@@ -71,10 +71,7 @@ public class FolderProperties {
         return sInstance;
     }
 
-    /**
-     * Lookup names of localized special mailboxes
-     */
-    private String getDisplayName(int type, long mailboxId) {
+    public String getCombinedMailboxName(long mailboxId) {
         // Special combined mailboxes
         int resId = 0;
 
@@ -91,11 +88,19 @@ public class FolderProperties {
         if (resId != 0) {
             return mContext.getString(resId);
         }
-
-        if (type < mSpecialMailbox.length) {
-            return mSpecialMailbox[type];
-        }
         return null;
+    }
+
+    /**
+     * Lookup names of localized special mailboxes
+     */
+    private String getDisplayName(int type, long mailboxId) {
+        String name = getCombinedMailboxName(mailboxId);
+
+        if ((name == null) && (type < mSpecialMailbox.length)) {
+            name = mSpecialMailbox[type];
+        }
+        return name;
     }
 
     /**

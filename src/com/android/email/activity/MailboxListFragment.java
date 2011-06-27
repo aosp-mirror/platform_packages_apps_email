@@ -191,6 +191,11 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     private long mHighlightedMailboxId;
 
     /**
+     * Becomes {@code true} once we determine which mailbox to use as the parent.
+     */
+    private boolean mParentDetermined;
+
+    /**
      * ID of the mailbox that should be highlighted when the next cursor is loaded.
      */
     private long mNextHighlightedMailboxId = Mailbox.NO_MAILBOX;
@@ -551,7 +556,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
     /**
      * @return {@code true} if top-level mailboxes are shown.  {@code false} otherwise.
      */
-    public boolean isRoot() {
+    private boolean isRoot() {
         return mParentMailboxId == Mailbox.NO_MAILBOX;
     }
 
@@ -578,6 +583,19 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 getEnableHighlight(), mParentMailboxId, mHighlightedMailboxId, callback
                 ).cancelPreviousAndExecuteParallel((Void[]) null);
         return true;
+    }
+
+    /**
+     * @return {@code true} if the fragment is showing nested mailboxes and we can go one level up.
+     *         {@code false} otherwise, meaning we're showing the top level mailboxes *OR*
+     *         we're still loading initial data and we can't determine if we're going to show
+     *         top-level or not.
+     */
+    public boolean canNavigateUp() {
+        if (!mParentDetermined) {
+            return false; // We can't determine yet...
+        }
+        return !isRoot();
     }
 
     /**
@@ -781,6 +799,8 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
                 mListAdapter.swapCursor(null);
                 setListShown(false);
             } else {
+                mParentDetermined = true; // Okay now we're sure which mailbox is the parent.
+
                 mListAdapter.swapCursor(cursor);
                 setListShown(true);
 

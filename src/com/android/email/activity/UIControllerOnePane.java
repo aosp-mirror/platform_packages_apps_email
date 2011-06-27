@@ -55,7 +55,9 @@ class UIControllerOnePane extends UIControllerBase {
     // MailboxListFragment.Callback
     @Override
     public void onAccountSelected(long accountId) {
-        switchAccount(accountId);
+        // It's from combined view, so "forceShowInbox" doesn't really matter.
+        // (We're always switching accounts.)
+        switchAccount(accountId, true);
     }
 
     // MailboxListFragment.Callback
@@ -94,7 +96,7 @@ class UIControllerOnePane extends UIControllerBase {
     // MessageListFragment.Callback
     @Override
     public void onMailboxNotFound() {
-        switchAccount(getUIAccountId());
+        switchAccount(getUIAccountId(), true);
     }
 
     // MessageListFragment.Callback
@@ -202,15 +204,26 @@ class UIControllerOnePane extends UIControllerBase {
     // This is all temporary as we'll have a different action bar controller for 1-pane.
     private class ActionBarControllerCallback implements ActionBarController.Callback {
         @Override
-        public boolean shouldShowMailboxName() {
-            return false; // no mailbox name/unread count.
+        public int getTitleMode() {
+            if (isMailboxListInstalled()) {
+                return TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL;
+            }
+            // TODO Return TITLE_MODE_MESSAGE_SUBJECT if isMessageViewInstalled()
+            return TITLE_MODE_ACCOUNT_WITH_MAILBOX;
         }
 
+        public String getMessageSubject() {
+            if (isMessageViewInstalled()) {
+                return "TODO: Return current message subject here";
+            } else {
+                return null;
+            }
+        }
 
         @Override
         public boolean shouldShowUp() {
             return isMessageViewInstalled()
-                     || (isMailboxListInstalled() && !getMailboxListFragment().isRoot());
+                     || (isMailboxListInstalled() && getMailboxListFragment().canNavigateUp());
         }
 
         @Override
@@ -224,11 +237,11 @@ class UIControllerOnePane extends UIControllerBase {
         }
 
         @Override
-        public void onMailboxSelected(long mailboxId) {
+        public void onMailboxSelected(long accountId, long mailboxId) {
             if (mailboxId == Mailbox.NO_MAILBOX) {
                 showAllMailboxes();
             } else {
-                openMailbox(getUIAccountId(), mailboxId);
+                openMailbox(accountId, mailboxId);
             }
         }
 
@@ -239,7 +252,7 @@ class UIControllerOnePane extends UIControllerBase {
 
         @Override
         public void onAccountSelected(long accountId) {
-            switchAccount(accountId);
+            switchAccount(accountId, true); // Always go to inbox
         }
 
         @Override
@@ -434,7 +447,8 @@ class UIControllerOnePane extends UIControllerBase {
      */
     private void commitFragmentTransaction(FragmentTransaction ft) {
         if (!ft.isEmpty()) {
-            ft.commit();
+            // STOPSHIP Don't use AllowingStateLoss.  See b/4519430
+            ft.commitAllowingStateLoss();
             mFragmentManager.executePendingTransactions();
         }
     }

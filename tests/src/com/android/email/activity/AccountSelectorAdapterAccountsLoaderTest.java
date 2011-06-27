@@ -52,7 +52,7 @@ public class AccountSelectorAdapterAccountsLoaderTest extends LoaderTestCase {
         {
             // Only 1 account -- no combined view row.
             Loader<Cursor> l = new AccountSelectorAdapter.AccountsLoader(mProviderContext, 0L,
-                    true);
+                    0L, true);
             AccountSelectorAdapter.CursorWithExtras result =
                     (AccountSelectorAdapter.CursorWithExtras) getLoaderResultSynchronously(l);
             assertEquals(1, result.getAccountCount());
@@ -64,7 +64,7 @@ public class AccountSelectorAdapterAccountsLoaderTest extends LoaderTestCase {
         {
             // 2 accounts -- with combined view row, so returns 3 account rows.
             Loader<Cursor> l = new AccountSelectorAdapter.AccountsLoader(mProviderContext, 0L,
-                    true);
+                    0L, true);
             AccountSelectorAdapter.CursorWithExtras result =
                     (AccountSelectorAdapter.CursorWithExtras) getLoaderResultSynchronously(l);
             assertEquals(3, result.getAccountCount());

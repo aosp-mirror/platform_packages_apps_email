@@ -1160,6 +1160,9 @@ save attachment.</string>
     <!-- The hint used in the search box when searching a single mailbox [CHAR LIMIT=35] -->
     <string name="search_mailbox_hint">Search <xliff:g example="Inbox">%1$s</xliff:g></string>
 
+    <!-- Title shown on the action bar on the mailbox list screen. [CHAR LIMIT=16] -->
+    <string name="action_bar_mailbox_list_title">Folders</string>
+
     <!-- STOPSHIP Temporary UI DO NOT TRANSLATE-->
     <!-- In Mailbox setings, label for email check frequency selector -->
     <string name="mailbox_options_check_frequency_label">Folder check frequency</string>
