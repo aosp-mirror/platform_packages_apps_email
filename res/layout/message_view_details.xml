@@ -14,95 +14,82 @@
      limitations under the License.
 -->
 
-<ScrollView
+<TableLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_toLeftOf="@+id/show_details"
+    android:orientation="vertical"
+    android:stretchColumns="2"
+    android:shrinkColumns="2"
     >
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:stretchColumns="2"
-        android:shrinkColumns="2"
+    <TableRow
+        android:id="@+id/date_row"
         >
-        <TableRow
-            android:id="@+id/subject_row"
+        <TextView
+            android:layout_column="1"
+            android:text="@string/message_view_date_label"
+            style="@style/message_details_label"
+            />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             >
-            <TextView
-                android:layout_column="1"
-                android:text="@string/message_view_subject_label"
-                style="@style/message_details_label"
-                />
-            <TextView
-                android:id="@+id/subject"
-                style="@style/message_details_value"
-                />
-        </TableRow>
-        <TableRow
-            android:id="@+id/from_row"
-            >
-            <TextView
-                android:layout_column="1"
-                android:text="@string/message_view_from_label"
-                style="@style/message_details_label"
-                />
-            <TextView
-                android:id="@+id/from"
-                style="@style/message_details_value"
-                />
-        </TableRow>
-        <TableRow
-            android:id="@+id/date_row"
-            >
-            <TextView
-                android:layout_column="1"
-                android:text="@string/message_view_date_label"
-                style="@style/message_details_label"
+            <ImageView
+                android:id="@+id/show_details"
+                android:src="@drawable/ic_menu_expander_maximized_holo_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
                 />
             <TextView
                 android:id="@+id/date"
+                android:layout_toLeftOf="@+id/show_details"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 style="@style/message_details_value"
                 />
-        </TableRow>
-        <TableRow
-            android:id="@+id/to_row"
-            >
-            <TextView
-                android:layout_column="1"
-                android:text="@string/message_view_to_label"
-                style="@style/message_details_label"
-                />
-            <TextView
-                android:id="@+id/to"
-                style="@style/message_details_value"
-                />
-        </TableRow>
-        <TableRow
-            android:id="@+id/cc_row"
-            >
-            <TextView
-                android:layout_column="1"
-                android:text="@string/message_view_cc_label"
-                style="@style/message_details_label"
-                />
-            <TextView
-                android:id="@+id/cc"
-                style="@style/message_details_value"
-                />
-        </TableRow>
-        <TableRow
-            android:id="@+id/bcc_row"
-            >
-            <TextView
-                android:layout_column="1"
-                android:text="@string/message_view_bcc_label"
-                style="@style/message_details_label"
-                />
-            <TextView
-                android:id="@+id/bcc"
-                style="@style/message_details_value"
-                />
-        </TableRow>
-    </TableLayout>
-</ScrollView>
+        </RelativeLayout>
+    </TableRow>
+    <TableRow
+        android:id="@+id/to_row"
+        >
+        <TextView
+            android:layout_column="1"
+            android:text="@string/message_view_to_label"
+            style="@style/message_details_label"
+            />
+        <TextView
+            android:id="@+id/to"
+            style="@style/message_details_value"
+            />
+    </TableRow>
+    <TableRow
+        android:id="@+id/cc_row"
+        >
+        <TextView
+            android:layout_column="1"
+            android:text="@string/message_view_cc_label"
+            style="@style/message_details_label"
+            />
+        <TextView
+            android:id="@+id/cc"
+            style="@style/message_details_value"
+            />
+    </TableRow>
+    <TableRow
+        android:id="@+id/bcc_row"
+        >
+        <TextView
+            android:layout_column="1"
+            android:text="@string/message_view_bcc_label"
+            style="@style/message_details_label"
+            />
+        <TextView
+            android:id="@+id/bcc"
+            style="@style/message_details_value"
+            />
+    </TableRow>
+</TableLayout>
