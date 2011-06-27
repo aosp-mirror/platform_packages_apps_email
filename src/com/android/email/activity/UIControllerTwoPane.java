@@ -44,10 +44,7 @@ import java.util.Set;
  * so that we can easily switch between synchronous and asynchronous transactions.
  */
 class UIControllerTwoPane extends UIControllerBase implements
-        ThreePaneLayout.Callback,
-        MailboxListFragment.Callback,
-        MessageListFragment.Callback,
-        MessageViewFragment.Callback {
+        ThreePaneLayout.Callback {
     @VisibleForTesting
     static final int MAILBOX_REFRESH_MIN_INTERVAL = 30 * 1000; // in milliseconds
 
@@ -75,8 +72,6 @@ class UIControllerTwoPane extends UIControllerBase implements
     // ThreePaneLayoutCallback
     @Override
     public void onVisiblePanesChanged(int previousVisiblePanes) {
-        refreshActionBar();
-
         // If the right pane is gone, remove the message view.
         final int visiblePanes = mThreePane.getVisiblePanes();
 
@@ -89,6 +84,7 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (isMessageListInstalled()) {
             getMessageListFragment().onHidden((visiblePanes & ThreePaneLayout.PANE_MIDDLE) == 0);
         }
+        refreshActionBar();
     }
 
     // MailboxListFragment$Callback
@@ -103,7 +99,9 @@ class UIControllerTwoPane extends UIControllerBase implements
     // MailboxListFragment$Callback
     @Override
     public void onAccountSelected(long accountId) {
-        switchAccount(accountId);
+        // It's from combined view, so "forceShowInbox" doesn't really matter.
+        // (We're always switching accounts.)
+        switchAccount(accountId, true);
     }
 
     // MailboxListFragment$Callback
@@ -427,7 +425,8 @@ class UIControllerTwoPane extends UIControllerBase implements
             Log.d(Logging.LOG_TAG, this + " commitFragmentTransaction: " + ft);
         }
         if (!ft.isEmpty()) {
-            ft.commit();
+            // STOPSHIP Don't use AllowingStateLoss.  See b/4519430
+            ft.commitAllowingStateLoss();
             mFragmentManager.executePendingTransactions();
         }
     }
@@ -818,12 +817,12 @@ class UIControllerTwoPane extends UIControllerBase implements
 
         @Override
         public void onAccountSelected(long accountId) {
-            switchAccount(accountId);
+            switchAccount(accountId, false);
         }
 
         @Override
-        public void onMailboxSelected(long mailboxId) {
-            openMailbox(getUIAccountId(), mailboxId);
+        public void onMailboxSelected(long accountId, long mailboxId) {
+            openMailbox(accountId, mailboxId);
         }
 
         @Override
@@ -833,9 +832,32 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
 
         @Override
-        public boolean shouldShowMailboxName() {
-            // Show when the left pane is hidden.
-            return (mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_LEFT) == 0;
+        public int getTitleMode() {
+            final int visiblePanes = mThreePane.getVisiblePanes();
+            if ((mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_LEFT) != 0) {
+                // Mailbox list visible
+                return TITLE_MODE_ACCOUNT_NAME_ONLY;
+            }
+            if ((mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_MIDDLE) != 0) {
+                // Message list + message view
+                return TITLE_MODE_ACCOUNT_WITH_MAILBOX;
+            }
+            if ((mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_RIGHT) != 0) {
+                // Message view only (message list collapsed)
+                // TODO return TITLE_MODE_MESSAGE_SUBJECT
+                return TITLE_MODE_ACCOUNT_WITH_MAILBOX;
+            }
+
+            // Shouldn't happen, but just in case
+            return TITLE_MODE_ACCOUNT_NAME_ONLY;
+        }
+
+        public String getMessageSubject() {
+            if (isMessageViewInstalled()) {
+                return "TODO: Return current message subject here";
+            } else {
+                return null;
+            }
         }
 
         @Override
@@ -843,7 +865,7 @@ class UIControllerTwoPane extends UIControllerBase implements
             final int visiblePanes = mThreePane.getVisiblePanes();
             final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
             return leftPaneHidden
-                    || (isMailboxListInstalled() && !getMailboxListFragment().isRoot());
+                    || (isMailboxListInstalled() && getMailboxListFragment().canNavigateUp());
         }
 
         @Override

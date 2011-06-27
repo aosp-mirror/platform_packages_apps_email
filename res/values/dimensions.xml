@@ -53,7 +53,8 @@
     <dimen name="setup_item_inset_left">0dip</dimen>
     <dimen name="setup_item_inset_right">0dip</dimen>
 
-    <dimen name="account_spinner_dropdown_account_name_max_width">352dip</dimen>
+    <dimen name="account_spinner_width">250dip</dimen>
+    <dimen name="account_spinner_dropdown_width">300dip</dimen>
 
     <!-- MessageListItem -->
     <dimen name="senders_font_size">14sp</dimen>

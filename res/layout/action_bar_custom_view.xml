@@ -26,8 +26,8 @@
     android:layout_height="0dip"
     >
     <include
-        android:id="@+id/current_mailbox_container"
-        layout="@layout/action_bar_current_mailbox"
+        android:id="@+id/account_spinner"
+        layout="@layout/action_bar_spinner"
         android:visibility="gone"
         />
     <include

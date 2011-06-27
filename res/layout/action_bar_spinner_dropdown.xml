@@ -17,6 +17,8 @@
 <!--
     Not a RelativeLayout - we want to hide @id/email_address at runtime and then @id/display_name
     should be center-vertical
+
+    Popup width is set at runtime from @dimen/account_spinner_dropdown_width
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -25,12 +27,11 @@
     android:orientation="horizontal"
     >
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dip"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:maxWidth="@dimen/account_spinner_dropdown_account_name_max_width"
         android:orientation="vertical"
         android:gravity="center|left"
         >
@@ -38,14 +39,12 @@
             android:id="@+id/display_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxWidth="@dimen/account_spinner_dropdown_account_name_max_width"
             style="@style/action_bar_account_name"
             />
         <TextView
             android:id="@+id/email_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxWidth="@dimen/account_spinner_dropdown_account_name_max_width"
             style="@style/action_bar_account_name_secondary"
             />
     </LinearLayout>

@@ -16,29 +16,28 @@
 
 package com.android.email.activity;
 
+import com.android.email.R;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.Utility;
+
 import android.app.ActionBar;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListPopupWindow;
+import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
-
-import com.android.email.FolderProperties;
-import com.android.email.R;
-import com.android.email.data.ThrottlingCursorLoader;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.Mailbox;
 
 /**
  * Manages the account name and the custom view part on the action bar.
@@ -68,25 +67,29 @@ public class ActionBarController {
 
     private static final int LOADER_ID_ACCOUNT_LIST
             = EmailActivity.ACTION_BAR_CONTROLLER_LOADER_ID_BASE + 0;
-    private static final int LOADER_ID_MAILBOX
-            = EmailActivity.ACTION_BAR_CONTROLLER_LOADER_ID_BASE + 1;
 
     private final Context mContext;
     private final LoaderManager mLoaderManager;
     private final ActionBar mActionBar;
 
+    /** "Folders" label shown with account name on 1-pane mailbox list */
+    private final String mAllFoldersLabel;
+
     private final View mActionBarCustomView;
-    private final View mMailboxNameContainer;
-    private final TextView mMailboxNameView;
-    private final TextView mUnreadCountView;
+    private final View mAccountSpinner;
+    private final TextView mAccountSpinnerLine1View;
+    private final TextView mAccountSpinnerLine2View;
+    private final TextView mAccountSpinnerCountView;
+
     private final View mSearchContainer;
     private final SearchView mSearchView;
 
-    private final ActionBarNavigationCallback mActionBarNavigationCallback =
-        new ActionBarNavigationCallback();
+    private final AccountDropdownPopup mAccountDropdown;
 
     private final AccountSelectorAdapter mAccountsSelectorAdapter;
-    private AccountSelectorAdapter.CursorWithExtras mAccountCursor;
+
+    private AccountSelectorAdapter.CursorWithExtras mCursor;
+
     /** The current account ID; used to determine if the account has changed. */
     private long mLastAccountIdForDirtyCheck = Account.NO_ACCOUNT;
 
@@ -103,6 +106,20 @@ public class ActionBarController {
     }
 
     public interface Callback {
+        /** Values for {@link #getTitleMode}.  Show only account name */
+        public static final int TITLE_MODE_ACCOUNT_NAME_ONLY = 0;
+        /** Show the current account name with "Folders" */
+        public static final int TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL = 1;
+        /** Show the current account name and the current mailbox name */
+        public static final int TITLE_MODE_ACCOUNT_WITH_MAILBOX = 2;
+        /**
+         * Show the current message subject.  Actual subject is obtained via
+         * {@link #getMessageSubject()}.
+         *
+         * NOT IMPLEMENTED YET
+         */
+        public static final int TITLE_MODE_MESSAGE_SUBJECT = 3;
+
         /** @return true if an account is selected. */
         public boolean isAccountSelected();
 
@@ -118,8 +135,13 @@ public class ActionBarController {
          */
         public long getMailboxId();
 
-        /** @return true if the current mailbox name should be shown.  */
-        public boolean shouldShowMailboxName();
+        /**
+         * @return constants such as {@link #TITLE_MODE_ACCOUNT_NAME_ONLY}.
+         */
+        public int getTitleMode();
+
+        /** @see #TITLE_MODE_MESSAGE_SUBJECT */
+        public String getMessageSubject();
 
         /** @return the "UP" arrow should be shown. */
         public boolean shouldShowUp();
@@ -132,10 +154,12 @@ public class ActionBarController {
 
         /**
          * Invoked when a recent mailbox is selected on the account spinner.
+         *
+         * @param accountId ID of the selected account, or {@link Account#ACCOUNT_ID_COMBINED_VIEW}.
          * @param mailboxId The ID of the selected mailbox, or {@link Mailbox#NO_MAILBOX} if the
          *          special option "show all mailboxes" was selected.
          */
-        public void onMailboxSelected(long mailboxId);
+        public void onMailboxSelected(long accountId, long mailboxId);
 
         /** Called when no accounts are found in the database. */
         public void onNoAccountsFound();
@@ -159,42 +183,58 @@ public class ActionBarController {
         mLoaderManager = loaderManager;
         mActionBar = actionBar;
         mCallback = callback;
+        mAllFoldersLabel = mContext.getResources().getString(
+                R.string.action_bar_mailbox_list_title);
         mAccountsSelectorAdapter = new AccountSelectorAdapter(mContext);
 
-        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE
-                | ActionBar.DISPLAY_SHOW_HOME
-                | ActionBar.DISPLAY_SHOW_CUSTOM);
+        // Configure action bar.
+        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_CUSTOM);
 
         // Prepare the custom view
         final LayoutInflater inflater = LayoutInflater.from(mContext);
         mActionBarCustomView = inflater.inflate(R.layout.action_bar_custom_view, null);
         final ActionBar.LayoutParams customViewLayout = new ActionBar.LayoutParams(
-                ActionBar.LayoutParams.MATCH_PARENT,
+                ActionBar.LayoutParams.WRAP_CONTENT,
                 ActionBar.LayoutParams.MATCH_PARENT);
-        customViewLayout.setMargins(0 , 0, 0, 0);
+        customViewLayout.setMargins(0, 0, 0, 0);
         mActionBar.setCustomView(mActionBarCustomView, customViewLayout);
 
-        // Mailbox name / unread count
-        mMailboxNameContainer = UiUtilities.getView(mActionBarCustomView,
-                R.id.current_mailbox_container);
-        mMailboxNameView = UiUtilities.getView(mMailboxNameContainer, R.id.mailbox_name);
-        mUnreadCountView = UiUtilities.getView(mMailboxNameContainer, R.id.unread_count);
+        // Account spinner
+        mAccountSpinner = UiUtilities.getView(mActionBarCustomView, R.id.account_spinner);
+
+        mAccountSpinnerLine1View = UiUtilities.getView(mActionBarCustomView, R.id.spinner_line_1);
+        mAccountSpinnerLine2View = UiUtilities.getView(mActionBarCustomView, R.id.spinner_line_2);
+        mAccountSpinnerCountView = UiUtilities.getView(mActionBarCustomView, R.id.spinner_count);
 
         // Search
         mSearchContainer = UiUtilities.getView(mActionBarCustomView, R.id.search_container);
         mSearchView = UiUtilities.getView(mSearchContainer, R.id.search_view);
         mSearchView.setSubmitButtonEnabled(true);
         mSearchView.setOnQueryTextListener(mOnQueryText);
+
+        // Account dropdown
+        mAccountDropdown = new AccountDropdownPopup(mContext);
+        mAccountDropdown.setAdapter(mAccountsSelectorAdapter);
+
+        mAccountSpinner.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                if (mAccountsSelectorAdapter.getCount() > 0) {
+                    mAccountDropdown.show();
+                }
+            }
+        });
     }
 
     /** Must be called from {@link UIControllerBase#onActivityCreated()} */
     public void onActivityCreated() {
-        loadAccounts();
         refresh();
     }
 
     /** Must be called from {@link UIControllerBase#onActivityDestroy()} */
     public void onActivityDestroy() {
+        if (mAccountDropdown.isShowing()) {
+            mAccountDropdown.dismiss();
+        }
     }
 
     /** Must be called from {@link UIControllerBase#onSaveInstanceState} */
@@ -234,11 +274,6 @@ public class ActionBarController {
         }
         mSearchMode = MODE_SEARCH;
 
-        // Need to force it to mode "standard" to hide it.
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        mActionBar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
-        mSearchContainer.setVisibility(View.VISIBLE);
-
         // Focus on the search input box and throw up the IME if specified.
         // TODO: HACK. this is a workaround IME not popping up.
         mSearchView.setIconified(false);
@@ -251,11 +286,6 @@ public class ActionBarController {
             return;
         }
         mSearchMode = MODE_NORMAL;
-        mSearchContainer.setVisibility(View.GONE);
-        mActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
-
-        // Force update of account list when we exit search.
-        updateAccountList();
 
         refresh();
         mCallback.onSearchExit();
@@ -277,187 +307,141 @@ public class ActionBarController {
 
     /** Refreshes the action bar display. */
     public void refresh() {
+        // The actual work is in refreshInernal(), but we don't call it directly here, because:
+        // 1. refresh() is called very often.
+        // 2. to avoid nested fragment transaction.
+        //    refresh is often called during a fragment transaction, but updateTitle() may call
+        //    a callback which would initiate another fragment transaction.
+        final Handler h = Utility.getMainThreadHandler();
+        h.removeCallbacks(mRefreshRunnable);
+        h.post(mRefreshRunnable);
+    }
+
+    private final Runnable mRefreshRunnable = new Runnable() {
+        @Override public void run() {
+            refreshInernal();
+        }
+    };
+    private void refreshInernal() {
         final boolean showUp = isInSearchMode() || mCallback.shouldShowUp();
         mActionBar.setDisplayOptions(showUp
                 ? ActionBar.DISPLAY_HOME_AS_UP : 0, ActionBar.DISPLAY_HOME_AS_UP);
 
-        if (isInSearchMode()) {
-            mMailboxNameContainer.setVisibility(View.GONE);
-        } else {
-            mMailboxNameContainer.setVisibility(mCallback.shouldShowMailboxName()
-                    ? View.VISIBLE : View.GONE);
-        }
-
-        // Update the account list only when the account has changed.
-        if (mLastAccountIdForDirtyCheck != mCallback.getUIAccountId()) {
-            mLastAccountIdForDirtyCheck = mCallback.getUIAccountId();
-            // If the selected account changes, reload the cursor to update the recent mailboxes
-            if (mLastAccountIdForDirtyCheck != Account.NO_ACCOUNT) {
-                mLoaderManager.destroyLoader(LOADER_ID_ACCOUNT_LIST);
-                loadAccounts();
-            } else {
-                updateAccountList();
-            }
-        }
-
-        // Update current mailbox info
+        final long accountId = mCallback.getUIAccountId();
         final long mailboxId = mCallback.getMailboxId();
-        if (mailboxId == Mailbox.NO_MAILBOX) {
-            clearMailboxInfo();
-        } else {
-            if (mLastMailboxIdForDirtyCheck != mailboxId) {
-                mLastMailboxIdForDirtyCheck = mailboxId;
-                loadMailboxInfo(mailboxId);
+        if ((mLastAccountIdForDirtyCheck != accountId)
+                || (mLastMailboxIdForDirtyCheck != mailboxId)) {
+            mLastAccountIdForDirtyCheck = accountId;
+            mLastMailboxIdForDirtyCheck = mailboxId;
+
+            if (accountId != Account.NO_ACCOUNT) {
+                loadAccountMailboxInfo(accountId, mailboxId);
             }
         }
+
+        updateTitle();
     }
 
     /**
-     * Load account cursor, and update the action bar.
+     * Load account/mailbox info, and account/recent mailbox list.
      */
-    private void loadAccounts() {
-        mLoaderManager.initLoader(LOADER_ID_ACCOUNT_LIST, null,
+    private void loadAccountMailboxInfo(final long accountId, final long mailboxId) {
+        mLoaderManager.restartLoader(LOADER_ID_ACCOUNT_LIST, null,
                 new LoaderCallbacks<Cursor>() {
             @Override
             public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                return AccountSelectorAdapter.createLoader(mContext, mCallback.getUIAccountId());
+                return AccountSelectorAdapter.createLoader(mContext, accountId, mailboxId);
             }
 
             @Override
             public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-                mAccountCursor = (AccountSelectorAdapter.CursorWithExtras) data;
-                updateAccountList();
+                mCursor = (AccountSelectorAdapter.CursorWithExtras) data;
+                updateTitle();
             }
 
             @Override
             public void onLoaderReset(Loader<Cursor> loader) {
-                mAccountCursor = null;
-                updateAccountList();
+                mCursor = null;
+                updateTitle();
             }
         });
     }
 
     /**
-     * Called when the LOADER_ID_ACCOUNT_LIST loader loads the data.  Update the account spinner
-     * on the action bar.
+     * Update the "title" part.
      */
-    private void updateAccountList() {
-        mAccountsSelectorAdapter.swapCursor(mAccountCursor);
+    private void updateTitle() {
+        mAccountsSelectorAdapter.swapCursor(mCursor);
 
-        if (mSearchMode == MODE_SEARCH) {
-            // In search mode, so we don't care about the account list - it'll get updated when
-            // it goes visible again.
+        if (mCursor == null) {
+            // Initial load not finished.
+            mActionBarCustomView.setVisibility(View.GONE);
             return;
         }
+        mActionBarCustomView.setVisibility(View.VISIBLE);
 
-        final ActionBar ab = mActionBar;
-        if (mAccountCursor == null) {
-            // Cursor not ready or closed.
-            ab.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
-            ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            return;
-        }
-
-        final int count = mAccountCursor.getAccountCount() + mAccountCursor.getRecentMailboxCount();
-        if (count == 0) {
+        if (mCursor.getAccountCount() == 0) {
             mCallback.onNoAccountsFound();
             return;
         }
 
-        // If only one account, don't show the drop down.
-        int selectedPosition = mAccountCursor.getPosition(mCallback.getUIAccountId());
-        if (count == 1) {
-            // Show the account name as the title.
-            ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
-            ab.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            if (selectedPosition >= 0) {
-                mAccountCursor.moveToPosition(selectedPosition);
-                ab.setTitle(AccountSelectorAdapter.getDisplayName(mAccountCursor));
-            }
+        if ((mCursor.getAccountId() != Account.NO_ACCOUNT) && !mCursor.accountExists()) {
+            // Accoutn specified, but not exists.  Switch to the default account.
+            mCallback.onAccountSelected(Account.getDefaultAccountId(mContext));
+
+            // STOPSHIP If in search mode, we should close the activity.  Probably
+            // we should jsut call onSearchExit() instead?
             return;
         }
 
-        // Update the drop down list.
-        if (ab.getNavigationMode() != ActionBar.NAVIGATION_MODE_LIST) {
-            ab.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
-            ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            ab.setListNavigationCallbacks(mAccountsSelectorAdapter, mActionBarNavigationCallback);
+        if (mSearchMode == MODE_SEARCH) {
+            // In search mode, so we don't care about the account list - it'll get updated when
+            // it goes visible again.
+            mAccountSpinner.setVisibility(View.GONE);
+            mSearchContainer.setVisibility(View.VISIBLE);
+            return;
         }
-        // Find the currently selected account, and select it.
-        if (selectedPosition >= 0) {
-            ab.setSelectedNavigationItem(selectedPosition);
+
+        final int mTitleMode = mCallback.getTitleMode();
+
+        // TODO Handle TITLE_MODE_MESSAGE_SUBJECT
+
+        // Account spinner visible.
+        mAccountSpinner.setVisibility(View.VISIBLE);
+        mSearchContainer.setVisibility(View.GONE);
+
+        // Get mailbox name
+        final String mailboxName;
+        if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL) {
+            mailboxName = mAllFoldersLabel;
+        } else if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_MAILBOX) {
+            mailboxName = mCursor.getMailboxDisplayName();
+        } else {
+            mailboxName = null;
         }
-    }
 
-    private class ActionBarNavigationCallback implements ActionBar.OnNavigationListener {
-        @Override
-        public boolean onNavigationItemSelected(int itemPosition, long itemId) {
-            if (mAccountsSelectorAdapter.isAccountItem(itemPosition)
-                    && itemId != mCallback.getUIAccountId()) {
-                mCallback.onAccountSelected(itemId);
-            } else if (mAccountsSelectorAdapter.isMailboxItem(itemPosition)) {
-                mCallback.onMailboxSelected(itemId);
-                // We need to update the selection, otherwise the user is unable to select the
-                // recent folder a second time w/o first selecting another item in the spinner
-                int selectedPosition = mAccountsSelectorAdapter.getAccountPosition(itemPosition);
-                if (selectedPosition != AccountSelectorAdapter.UNKNOWN_POSITION) {
-                    mActionBar.setSelectedNavigationItem(selectedPosition);
-                }
-            } else {
-                Log.i(Logging.LOG_TAG,
-                        "Invalid type selected in ActionBarController at index " + itemPosition);
-            }
-            return true;
+        if (TextUtils.isEmpty(mailboxName)) {
+            mAccountSpinnerLine1View.setText(mCursor.getAccountDisplayName());
+
+            // Only here we change the visibility of line 2, so line 1 will be vertically-centered.
+            mAccountSpinnerLine2View.setVisibility(View.GONE);
+        } else {
+            mAccountSpinnerLine1View.setText(mailboxName);
+            mAccountSpinnerLine2View.setVisibility(View.VISIBLE); // Make sure it's visible again.
+            mAccountSpinnerLine2View.setText(mCursor.getAccountDisplayName());
         }
-    }
+        mAccountSpinnerCountView.setText(UiUtilities.getMessageCountForUi(
+                mContext, mCursor.getMailboxMessageCount(), true));
 
-    private static final String[] MAILBOX_NAME_COUNT_PROJECTION = new String[] {
-        MailboxColumns.ID, MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE,
-        MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT
-    };
+        boolean spinnerEnabled = (mCursor.getAccountCount() + mCursor.getRecentMailboxCount()) > 1;
 
-    private void loadMailboxInfo(final long mailboxId) {
-        clearMailboxInfo();
-        if (mailboxId < 0) {
-            // TODO FIXME
-            return; // Can't get combined mailbox name with this
+        if (spinnerEnabled) {
+            mAccountSpinner.setClickable(true);
+        } else {
+            mAccountSpinner.setClickable(false);
+            // TODO There's nothing to select -- we should remove the spinner triangle.
+            // (The small triangle shown at the right bottom corner)
         }
-        mLoaderManager.restartLoader(LOADER_ID_MAILBOX, null,
-                new LoaderCallbacks<Cursor>() {
-            @Override
-            public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-                return new ThrottlingCursorLoader(mContext,
-                        ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
-                        MAILBOX_NAME_COUNT_PROJECTION, null, null, null);
-            }
-
-            @Override
-            public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-                if (!cursor.moveToFirst()) {
-                    clearMailboxInfo();
-                    return;
-                }
-                // Update action bar
-                FolderProperties fp = FolderProperties.getInstance(mContext);
-                updateMailboxInfo(
-                        fp.getDisplayName(cursor),
-                        fp.getMessageCount(cursor)
-                        );
-            }
-
-            @Override
-            public void onLoaderReset(Loader<Cursor> loader) {
-            }
-        });
-    }
-
-    private void clearMailboxInfo() {
-        updateMailboxInfo("", 0);
-    }
-
-    private void updateMailboxInfo(String mailboxName, int count) {
-        mMailboxNameView.setText(mailboxName);
-        mUnreadCountView.setText(UiUtilities.getMessageCountForUi(mContext, count, true));
     }
 
     private final SearchView.OnQueryTextListener mOnQueryText
@@ -475,4 +459,44 @@ public class ActionBarController {
         }
     };
 
+    private void onAccountSpinnerItemClicked(int position) {
+        if (mAccountsSelectorAdapter == null) { // just in case...
+            return;
+        }
+        final long accountId = mAccountsSelectorAdapter.getAccountId(position);
+
+        if (mAccountsSelectorAdapter.isAccountItem(position)) {
+            mCallback.onAccountSelected(accountId);
+        } else if (mAccountsSelectorAdapter.isMailboxItem(position)) {
+            mCallback.onMailboxSelected(accountId,
+                    mAccountsSelectorAdapter.getId(position));
+        }
+    }
+
+    // Based on Spinner.DropdownPopup
+    private class AccountDropdownPopup extends ListPopupWindow {
+        public AccountDropdownPopup(Context context) {
+            super(context);
+
+            setAnchorView(mAccountSpinner);
+            setModal(true);
+            setPromptPosition(POSITION_PROMPT_ABOVE);
+            setOnItemClickListener(new OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                    onAccountSpinnerItemClicked(position);
+                    dismiss();
+                }
+            });
+        }
+
+        @Override
+        public void show() {
+            setWidth(mContext.getResources().getDimensionPixelSize(
+                    R.dimen.account_spinner_dropdown_width));
+            setInputMethodMode(ListPopupWindow.INPUT_METHOD_NOT_NEEDED);
+            super.show();
+            // List view is instantiated in super.show(), so we need to do this after...
+            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        }
+    }
 }
