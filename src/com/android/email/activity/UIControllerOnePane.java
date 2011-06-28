@@ -16,12 +16,6 @@
 
 package com.android.email.activity;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
-
 import com.android.email.Email;
 import com.android.email.MessageListContext;
 import com.android.email.R;
@@ -29,6 +23,12 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
 
 import java.util.Set;
 
@@ -394,11 +394,12 @@ class UIControllerOnePane extends UIControllerBase {
             Log.i(Logging.LOG_TAG, this + " open " + listContext + " messageId=" + messageId);
         }
 
-        final boolean accountChanging = (getUIAccountId() != listContext.mAccountId);
         if (messageId != Message.NO_MESSAGE) {
-            showMessageView(messageId, accountChanging);
+            long accountId = listContext.mAccountId;
+            long mailboxId = listContext.getMailboxId();
+            showFragment(MessageViewFragment.newInstance(accountId, mailboxId, messageId));
         } else {
-            showMessageList(listContext, accountChanging);
+            showFragment(MessageListFragment.newInstance(listContext));
         }
     }
 
@@ -419,26 +420,15 @@ class UIControllerOnePane extends UIControllerBase {
     }
 
     /**
-     * Remove currently installed {@link Fragment} (1-pane has only one at most), or no-op if none
-     *         exists.
+     * Show the mailbox list.
+     *
+     * This is the only way to open the mailbox list on 1-pane.
+     * {@link #open(MessageListContext, long)} will only open either the message list or the
+     * message view.
      */
-    private void removeInstalledFragment(FragmentTransaction ft) {
-        removeFragment(ft, getInstalledFragment());
-    }
-
-    private void showMailboxList(long accountId, long mailboxId, boolean clearBackStack) {
-        showFragment(MailboxListFragment.newInstance(accountId, mailboxId, false), clearBackStack);
-    }
-
-    private void showMessageList(MessageListContext listContext, boolean clearBackStack) {
-        showFragment(MessageListFragment.newInstance(listContext), clearBackStack);
-    }
-
-    private void showMessageView(long messageId, boolean clearBackStack) {
-        long accountId = mListContext.mAccountId;
-        long mailboxId = mListContext.getMailboxId();
-        showFragment(MessageViewFragment.newInstance(accountId, mailboxId, messageId),
-                clearBackStack);
+    private void openMailboxList(long accountId) {
+        setListContext(null);
+        showFragment(MailboxListFragment.newInstance(accountId, Mailbox.NO_MAILBOX, false));
     }
 
     /**
@@ -458,19 +448,13 @@ class UIControllerOnePane extends UIControllerBase {
      * {@link FragmentTransaction#remove} it) and {@link FragmentTransaction#add} {@code fragment}.
      *
      * @param fragment {@link Fragment} to be added.
-     * @param clearBackStack set {@code true} to remove the currently installed fragment.
-     *        {@code false} to push it into the backstack.
      *
      *  TODO Delay-call the whole method and use the synchronous transaction.
      */
-    private void showFragment(Fragment fragment, boolean clearBackStack) {
+    private void showFragment(Fragment fragment) {
         if (DEBUG_FRAGMENTS) {
-            if (clearBackStack) {
-                Log.i(Logging.LOG_TAG, this + " backstack: [clear] showing " + fragment);
-            } else {
-                Log.i(Logging.LOG_TAG, this + " backstack: [push] " + getInstalledFragment()
-                        + " -> " + fragment);
-            }
+            Log.i(Logging.LOG_TAG, this + " backstack: [push] " + getInstalledFragment()
+                    + " -> " + fragment);
         }
         final FragmentTransaction ft = mFragmentManager.beginTransaction();
         if (mPreviousFragment != null) {
@@ -481,14 +465,18 @@ class UIControllerOnePane extends UIControllerBase {
             removeFragment(ft, mPreviousFragment);
             mPreviousFragment = null;
         }
-        // Remove or push the current one
-        if (clearBackStack) {
-            // Really remove the currently installed one.
-            removeInstalledFragment(ft);
-        }  else {
-            // Instead of removing, detach the current one and push into our back stack.
-            mPreviousFragment = getInstalledFragment();
-            if (mPreviousFragment != null) {
+        // Remove the current fragment or push it into the backstack.
+        final Fragment installed = getInstalledFragment();
+        if (installed != null) {
+            if (installed instanceof MessageViewFragment) {
+                // Message view should never be pushed to the backstack.
+                if (DEBUG_FRAGMENTS) {
+                    Log.d(Logging.LOG_TAG, this + " showFragment: removing " + installed);
+                }
+                ft.remove(installed);
+            } else {
+                // Other fragments should be pushed.
+                mPreviousFragment = installed;
                 if (DEBUG_FRAGMENTS) {
                     Log.d(Logging.LOG_TAG, this + " showFragment: detaching " + mPreviousFragment);
                 }
@@ -513,9 +501,8 @@ class UIControllerOnePane extends UIControllerBase {
         if (mPreviousFragment == null) {
             return false; // Nothing in the back stack
         }
-        // Never go back to Message View
         if (mPreviousFragment instanceof MessageViewFragment) {
-            return false;
+            throw new IllegalStateException("Message view should never be in backstack");
         }
         final Fragment installed = getInstalledFragment();
         if (installed == null) {
@@ -566,6 +553,16 @@ class UIControllerOnePane extends UIControllerBase {
                     + mPreviousFragment);
         }
         removeFragment(ft, installed);
+
+        // Restore listContext.
+        if (mPreviousFragment instanceof MailboxListFragment) {
+            setListContext(null);
+        } else if (mPreviousFragment instanceof MessageListFragment) {
+            setListContext(((MessageListFragment) mPreviousFragment).getListContext());
+        } else {
+            throw new IllegalStateException("Message view should never be in backstack");
+        }
+
         ft.attach(mPreviousFragment);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
         mPreviousFragment = null;
@@ -578,10 +575,7 @@ class UIControllerOnePane extends UIControllerBase {
             return; // Can happen because of asynchronous fragment transactions.
         }
 
-        // Don't use open(account, NO_MAILBOX, NO_MESSAGE).  This is used to open the default
-        // view, which is Inbox on the message list.  (There's actually no way to open the mainbox
-        // list with open(long,long,long))
-        showMailboxList(getUIAccountId(), Mailbox.NO_MAILBOX, false);
+        openMailboxList(getUIAccountId());
     }
 
     /*

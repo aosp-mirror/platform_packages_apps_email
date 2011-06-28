@@ -84,7 +84,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
         Account.DISPLAY_NAME,
         Account.EMAIL_ADDRESS,
         MESSAGE_COUNT,
-        ACCOUNT_POSITION,
+        ACCOUNT_POSITION, // TODO Probably we don't really need this
         ACCOUNT_ID,
     };
 
@@ -306,7 +306,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
             final CursorWithExtras resultCursor
                     = new CursorWithExtras(ADAPTER_PROJECTION, accountsCursor);
             final int accountPosition = addAccountsToCursor(resultCursor, accountsCursor);
-            addRecentsToCursor(resultCursor, accountPosition);
+            addMailboxesToCursor(resultCursor, accountPosition);
 
             resultCursor.setAccountMailboxInfo(getContext(), mAccountId, mMailboxId);
             return resultCursor;
@@ -356,13 +356,20 @@ public class AccountSelectorAdapter extends CursorAdapter {
         }
 
         /**
-         * Adds the recent mailbox list to the given cursor.
+         * Adds the recent mailbox list / "show all folders" to the given cursor.
+         *
          * @param matrixCursor the cursor to add the list to
          * @param accountPosition the cursor position of the currently selected account
          */
-        private void addRecentsToCursor(CursorWithExtras matrixCursor, int accountPosition) {
-            if (mAccountId <= 0L || mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
-                // Currently selected account isn't usable for our purposes
+        private void addMailboxesToCursor(CursorWithExtras matrixCursor, int accountPosition) {
+            if (mAccountId == Account.NO_ACCOUNT) {
+                return; // Account not selected
+            }
+            if (mAccountId == Account.ACCOUNT_ID_COMBINED_VIEW) {
+                if (!mUseTwoPane) {
+                    // TODO We may want a header for this to separate it from the account list
+                    addShowAllFoldersRow(matrixCursor, accountPosition);
+                }
                 return;
             }
             String emailAddress = null;
@@ -393,12 +400,15 @@ public class AccountSelectorAdapter extends CursorAdapter {
             }
 
             if (!mUseTwoPane) {
-                // TODO We need this for combined view too.
-                String name = mContext.getString(
-                        R.string.mailbox_list_account_selector_show_all_folders);
-                addRow(matrixCursor, ROW_TYPE_MAILBOX, Mailbox.NO_MAILBOX, name, null, 0,
-                        accountPosition, mAccountId);
+                addShowAllFoldersRow(matrixCursor, accountPosition);
             }
+        }
+
+        private void addShowAllFoldersRow(CursorWithExtras matrixCursor, int accountPosition) {
+            String name = mContext.getString(
+                    R.string.mailbox_list_account_selector_show_all_folders);
+            addRow(matrixCursor, ROW_TYPE_MAILBOX, Mailbox.NO_MAILBOX, name, null, 0,
+                    accountPosition, mAccountId);
         }
 
 

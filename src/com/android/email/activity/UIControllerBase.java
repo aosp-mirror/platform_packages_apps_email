@@ -529,6 +529,9 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             return;
         }
 
+        if (Email.DEBUG && Logging.DEBUG_LIFECYCLE) {
+            Log.i(Logging.LOG_TAG, this + " setListContext: " + listContext);
+        }
         mListContext = listContext;
     }
 
