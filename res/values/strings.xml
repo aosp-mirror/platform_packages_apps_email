@@ -1160,6 +1160,10 @@ save attachment.</string>
     <!-- The hint used in the search box when searching a single mailbox [CHAR LIMIT=35] -->
     <string name="search_mailbox_hint">Search <xliff:g example="Inbox">%1$s</xliff:g></string>
 
+    <!-- The title above the messages list when showing search results. [CHAR LIMIT=50] -->
+    <string name="search_header_text_fmt"
+          >Search results for \"<xliff:g example="search query">%1$s</xliff:g>\"</string>
+
     <!-- Title shown on the action bar on the mailbox list screen. [CHAR LIMIT=16] -->
     <string name="action_bar_mailbox_list_title">Folders</string>
 

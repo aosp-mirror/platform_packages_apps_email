@@ -104,6 +104,9 @@ public class MessageListFragment extends ListFragment
     private View mListFooterProgress;
     private View mListPanel;
     private View mNoMessagesPanel;
+    private ViewGroup mSearchHeader;
+    private TextView mSearchHeaderText;
+    private TextView mSearchHeaderCount;
 
     private static final int LIST_FOOTER_MODE_NONE = 0;
     private static final int LIST_FOOTER_MODE_MORE = 1;
@@ -325,8 +328,11 @@ public class MessageListFragment extends ListFragment
         }
         // Use a custom layout, which includes the original layout with "send messages" panel.
         View root = inflater.inflate(R.layout.message_list_fragment,null);
-        mListPanel = root.findViewById(R.id.list_panel);
-        mNoMessagesPanel = root.findViewById(R.id.no_messages_panel);
+        mListPanel = UiUtilities.getView(root, R.id.list_panel);
+        mNoMessagesPanel = UiUtilities.getView(root, R.id.no_messages_panel);
+        mSearchHeader = UiUtilities.getView(root, R.id.search_header);
+        mSearchHeaderText = UiUtilities.getView(mSearchHeader, R.id.search_header_text);
+        mSearchHeaderCount = UiUtilities.getView(mSearchHeader, R.id.search_count);
         mIsViewCreated = true;
         return root;
     }
@@ -356,7 +362,6 @@ public class MessageListFragment extends ListFragment
         lv.setOnTouchListener(this);
         lv.setItemsCanFocus(false);
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-
 
         mListFooterView = getActivity().getLayoutInflater().inflate(
                 R.layout.message_list_item_footer, lv, false);
@@ -1015,6 +1020,22 @@ public class MessageListFragment extends ListFragment
         updateSelectionMode();
     }
 
+    private void updateSearchHeader(Cursor searchResultsCursor) {
+        MessageListContext listContext = getListContext();
+        if (!listContext.isSearch() || searchResultsCursor == null) {
+            mSearchHeader.setVisibility(View.GONE);
+            return;
+        }
+
+        mSearchHeader.setVisibility(View.VISIBLE);
+        String header = String.format(
+                mActivity.getString(R.string.search_header_text_fmt),
+                listContext.getSearchParams().mFilter);
+        mSearchHeaderText.setText(header);
+        // TODO: populate the count with the info from the cursor.
+        mSearchHeaderCount.setText(null);
+    }
+
     private void determineFooterMode() {
         // TODO: Do something different for searches?
         // We could, for example, indicate how many remain to be loaded, etc...
@@ -1124,6 +1145,7 @@ public class MessageListFragment extends ListFragment
         // Clear the list. (ListFragment will show the "Loading" animation)
         showNoMessageText(false);
         showSendCommand(false);
+        updateSearchHeader(null);
 
         // Start loading...
         final LoaderManager lm = getLoaderManager();
@@ -1193,6 +1215,7 @@ public class MessageListFragment extends ListFragment
             mListAdapter.setShowColorChips(isCombinedMailbox() && mCountTotalAccounts > 1);
 
             // Various post processing...
+            updateSearchHeader(cursor);
             autoRefreshStaleMailbox();
             addFooterView();
             updateSelectionMode();
