@@ -590,10 +590,10 @@ public class MessagingController implements Runnable {
         }
     }
 
-    public void searchMailbox(long accountId, SearchParams searchParams, long destMailboxId)
+    public int searchMailbox(long accountId, SearchParams searchParams, long destMailboxId)
             throws MessagingException {
         try {
-            searchMailboxImpl(accountId, searchParams, destMailboxId);
+            return searchMailboxImpl(accountId, searchParams, destMailboxId);
         } finally {
             // Tell UI that we're done loading any search results (no harm calling this even if we
             // encountered an error or never sent a "started" message)
@@ -601,7 +601,7 @@ public class MessagingController implements Runnable {
         }
     }
 
-    private void searchMailboxImpl(long accountId, SearchParams searchParams,
+    private int searchMailboxImpl(long accountId, SearchParams searchParams,
             final long destMailboxId) throws MessagingException {
         final Account account = Account.restoreAccountWithId(mContext, accountId);
         final Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, searchParams.mMailboxId);
@@ -609,7 +609,7 @@ public class MessagingController implements Runnable {
         if (account == null || mailbox == null || destMailbox == null) {
             Log.d(Logging.LOG_TAG, "Attempted search for " + searchParams
                     + " but account or mailbox information was missing");
-            return;
+            return 0;
         }
 
         // Tell UI that we're loading messages
@@ -645,10 +645,11 @@ public class MessagingController implements Runnable {
             sortableMessages = sSearchResults.get(accountId);
         }
 
-        int numSearchResults = sortableMessages.length;
-        int numToLoad = Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
+        final int numSearchResults = sortableMessages.length;
+        final int numToLoad =
+            Math.min(numSearchResults - searchParams.mOffset, searchParams.mLimit);
         if (numToLoad <= 0) {
-            return;
+            return 0;
         }
 
         final ArrayList<Message> messageList = new ArrayList<Message>();
@@ -700,6 +701,7 @@ public class MessagingController implements Runnable {
             public void loadAttachmentProgress(int progress) {
             }
         });
+        return numSearchResults;
     }
 
 
