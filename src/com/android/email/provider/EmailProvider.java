@@ -71,6 +71,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EmailProvider extends ContentProvider {
@@ -849,40 +850,61 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    private HashMap<Long, HashMap<Integer, Long>> mMailboxTypeMap =
+    private final HashMap<Long, HashMap<Integer, Long>> mMailboxTypeMap =
         new HashMap<Long, HashMap<Integer, Long>>();
 
-    private synchronized HashMap<Integer, Long> getOrCreateAccountMailboxTypeMap(long accountId) {
-        HashMap<Integer, Long> accountMailboxTypeMap = mMailboxTypeMap.get(accountId);
-        if (accountMailboxTypeMap == null) {
-            accountMailboxTypeMap = new HashMap<Integer, Long>();
-            mMailboxTypeMap.put(accountId, accountMailboxTypeMap);
+    private HashMap<Integer, Long> getOrCreateAccountMailboxTypeMap(long accountId) {
+        synchronized(mMailboxTypeMap) {
+            HashMap<Integer, Long> accountMailboxTypeMap = mMailboxTypeMap.get(accountId);
+            if (accountMailboxTypeMap == null) {
+                accountMailboxTypeMap = new HashMap<Integer, Long>();
+                mMailboxTypeMap.put(accountId, accountMailboxTypeMap);
+            }
+            return accountMailboxTypeMap;
         }
-        return accountMailboxTypeMap;
     }
 
-    private synchronized void addToMailboxTypeMap(Cursor c) {
+    private void addToMailboxTypeMap(Cursor c) {
         long accountId = c.getLong(Mailbox.CONTENT_ACCOUNT_KEY_COLUMN);
         int type = c.getInt(Mailbox.CONTENT_TYPE_COLUMN);
-        HashMap<Integer, Long> accountMailboxTypeMap = getOrCreateAccountMailboxTypeMap(accountId);
-        accountMailboxTypeMap.put(type, c.getLong(Mailbox.CONTENT_ID_COLUMN));
+        synchronized(mMailboxTypeMap) {
+            HashMap<Integer, Long> accountMailboxTypeMap =
+                getOrCreateAccountMailboxTypeMap(accountId);
+            accountMailboxTypeMap.put(type, c.getLong(Mailbox.CONTENT_ID_COLUMN));
+        }
+    }
+
+    private long getMailboxIdFromMailboxTypeMap(long accountId, int type) {
+        synchronized(mMailboxTypeMap) {
+            HashMap<Integer, Long> accountMap = mMailboxTypeMap.get(accountId);
+            long mailboxId = -1;
+            if (accountMap != null) {
+                mailboxId = accountMap.get(type);
+            }
+            return mailboxId;
+        }
     }
 
     private void preCacheData() {
-        mMailboxTypeMap.clear();
+        synchronized(mMailboxTypeMap) {
+            mMailboxTypeMap.clear();
 
-        // Pre-cache accounts, host auth's, policies, and special mailboxes
-        preCacheTable(Account.CONTENT_URI, Account.CONTENT_PROJECTION, null);
-        preCacheTable(HostAuth.CONTENT_URI, HostAuth.CONTENT_PROJECTION, null);
-        preCacheTable(Policy.CONTENT_URI, Policy.CONTENT_PROJECTION, null);
-        preCacheTable(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION, MAILBOX_PRE_CACHE_SELECTION);
+            // Pre-cache accounts, host auth's, policies, and special mailboxes
+            preCacheTable(Account.CONTENT_URI, Account.CONTENT_PROJECTION, null);
+            preCacheTable(HostAuth.CONTENT_URI, HostAuth.CONTENT_PROJECTION, null);
+            preCacheTable(Policy.CONTENT_URI, Policy.CONTENT_PROJECTION, null);
+            preCacheTable(Mailbox.CONTENT_URI, Mailbox.CONTENT_PROJECTION,
+                    MAILBOX_PRE_CACHE_SELECTION);
 
-        // Create a map from account,type to a mailbox
-        Map<String, Cursor> snapshot = mCacheMailbox.getSnapshot();
-        Collection<Cursor> values = snapshot.values();
-        if (values != null) {
-            for (Cursor c: values) {
-                addToMailboxTypeMap(c);
+            // Create a map from account,type to a mailbox
+            Map<String, Cursor> snapshot = mCacheMailbox.getSnapshot();
+            Collection<Cursor> values = snapshot.values();
+            if (values != null) {
+                for (Cursor c: values) {
+                    if (c.moveToFirst()) {
+                        addToMailboxTypeMap(c);
+                    }
+                }
             }
         }
     }
@@ -1732,15 +1754,12 @@ public class EmailProvider extends ContentProvider {
                     return mc;
                 case MAILBOX_ID_FROM_ACCOUNT_AND_TYPE:
                     // Get accountId and type and find the mailbox in our map
-                    accountId = Long.parseLong(uri.getPathSegments().get(1));
-                    int type = Integer.parseInt(uri.getPathSegments().get(2));
-                    HashMap<Integer, Long> accountMap = mMailboxTypeMap.get(accountId);
-                    mc = new MatrixCursor(EmailContent.ID_PROJECTION);
-                    Long mailboxId = null;
-                    if (accountMap != null) {
-                        mailboxId = accountMap.get(type);
-                    }
+                    List<String> pathSegments = uri.getPathSegments();
+                    accountId = Long.parseLong(pathSegments.get(1));
+                    int type = Integer.parseInt(pathSegments.get(2));
+                    long mailboxId = getMailboxIdFromMailboxTypeMap(accountId, type);
                     // Return a cursor with an id projection
+                    mc = new MatrixCursor(EmailContent.ID_PROJECTION);
                     mc.addRow(new Object[] {mailboxId});
                     return mc;
                 case BODY:
