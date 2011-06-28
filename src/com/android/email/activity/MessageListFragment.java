@@ -288,6 +288,11 @@ public class MessageListFragment extends ListFragment
         return getMailboxId() < 0;
     }
 
+    public MessageListContext getListContext() {
+        initializeArgCache();
+        return mListContext;
+    }
+
     @Override
     public void onAttach(Activity activity) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -1033,7 +1038,6 @@ public class MessageListFragment extends ListFragment
         }
         determineFooterMode();
         if (mListFooterMode != LIST_FOOTER_MODE_NONE) {
-
             lv.addFooterView(mListFooterView);
             lv.setAdapter(mListAdapter);
 
@@ -1134,13 +1138,13 @@ public class MessageListFragment extends ListFragment
 
         @Override
         public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            final long mailboxId = getMailboxId();
+            final MessageListContext listContext = getListContext();
             if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, MessageListFragment.this
-                        + " onCreateLoader(messages) mailboxId=" + mailboxId);
+                        + " onCreateLoader(messages) listContext=" + listContext);
             }
             mIsFirstLoad = true;
-            return MessagesAdapter.createLoader(getActivity(), mailboxId);
+            return MessagesAdapter.createLoader(getActivity(), listContext);
         }
 
         @Override
@@ -1149,8 +1153,7 @@ public class MessageListFragment extends ListFragment
                 Log.d(Logging.LOG_TAG, MessageListFragment.this
                         + " onLoadFinished(messages) mailboxId=" + getMailboxId());
             }
-            MessagesAdapter.CursorWithExtras cursor =
-                    (MessagesAdapter.CursorWithExtras) c;
+            MessagesAdapter.CursorWithExtras cursor = (MessagesAdapter.CursorWithExtras) c;
 
             if (!cursor.mIsFound) {
                 mCallback.onMailboxNotFound();
@@ -1195,7 +1198,7 @@ public class MessageListFragment extends ListFragment
             updateSelectionMode();
             showSendCommandIfNecessary();
             showNoMessageText((cursor.getCount() == 0)
-                    && (mListFooterMode == LIST_FOOTER_MODE_NONE));
+                    && (getListContext().isSearch() || (mListFooterMode == LIST_FOOTER_MODE_NONE)));
 
             // We want to make visible the selection only for the first load.
             // Re-load caused by content changed events shouldn't scroll the list.

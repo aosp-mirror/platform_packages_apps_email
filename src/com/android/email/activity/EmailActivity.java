@@ -208,21 +208,6 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
         final MessageListContext viewContext = MessageListContext.forIntent(this, intent);
         final long messageId = intent.getLongExtra(EXTRA_MESSAGE_ID, Message.NO_MESSAGE);
 
-        if (viewContext.isSearch()) {
-            EmailAsyncTask.runAsyncParallel(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Controller controller = Controller.getInstance(EmailActivity.this);
-                        controller.searchMessages(
-                                viewContext.mAccountId, viewContext.getSearchParams());
-                    } catch (MessagingException e) {
-                        // TODO: handle.
-                        Log.e(Logging.LOG_TAG, "Got exception while searching " + e);
-                    }
-                }});
-        }
-
         mUIController.open(viewContext, messageId);
     }
 
