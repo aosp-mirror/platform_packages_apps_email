@@ -19,6 +19,7 @@ package com.android.email.activity;
 import com.android.email.R;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.DelayedOperations;
 import com.android.emailcommon.utility.Utility;
 
 import android.app.ActionBar;
@@ -71,6 +72,7 @@ public class ActionBarController {
     private final Context mContext;
     private final LoaderManager mLoaderManager;
     private final ActionBar mActionBar;
+    private final DelayedOperations mDelayedOperations;
 
     /** "Folders" label shown with account name on 1-pane mailbox list */
     private final String mAllFoldersLabel;
@@ -183,6 +185,7 @@ public class ActionBarController {
         mLoaderManager = loaderManager;
         mActionBar = actionBar;
         mCallback = callback;
+        mDelayedOperations = new DelayedOperations(Utility.getMainThreadHandler());
         mAllFoldersLabel = mContext.getResources().getString(
                 R.string.action_bar_mailbox_list_title);
         mAccountsSelectorAdapter = new AccountSelectorAdapter(mContext);
@@ -239,6 +242,7 @@ public class ActionBarController {
 
     /** Must be called from {@link UIControllerBase#onSaveInstanceState} */
     public void onSaveInstanceState(Bundle outState) {
+        mDelayedOperations.removeCallbacks(); // Remove all pending operations
         outState.putInt(BUNDLE_KEY_MODE, mSearchMode);
     }
 
@@ -312,9 +316,8 @@ public class ActionBarController {
         // 2. to avoid nested fragment transaction.
         //    refresh is often called during a fragment transaction, but updateTitle() may call
         //    a callback which would initiate another fragment transaction.
-        final Handler h = Utility.getMainThreadHandler();
-        h.removeCallbacks(mRefreshRunnable);
-        h.post(mRefreshRunnable);
+        mDelayedOperations.removeCallbacks(mRefreshRunnable);
+        mDelayedOperations.post(mRefreshRunnable);
     }
 
     private final Runnable mRefreshRunnable = new Runnable() {
