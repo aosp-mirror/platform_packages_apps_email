@@ -912,11 +912,11 @@ public class Controller {
      * @param searchParams the parameters for this search
      * @throws MessagingException
      */
-    public void searchMessages(final long accountId, final SearchParams searchParams)
+    public int searchMessages(final long accountId, final SearchParams searchParams)
             throws MessagingException {
         // Find/create our search mailbox
         Mailbox searchMailbox = getSearchMailbox(accountId);
-        if (searchMailbox == null) return;
+        if (searchMailbox == null) return 0;
         final long searchMailboxId = searchMailbox.mId;
         // Save this away (per account)
         sSearchParamsMap.put(accountId, searchParams);
@@ -937,11 +937,12 @@ public class Controller {
         if (service != null) {
             // Service implementation
             try {
-                service.searchMessages(accountId, searchParams, searchMailboxId);
+                return service.searchMessages(accountId, searchParams, searchMailboxId);
             } catch (RemoteException e) {
                 // TODO Change exception handling to be consistent with however this method
                 // is implemented for other protocols
                 Log.e("searchMessages", "RemoteException", e);
+                return 0;
             }
         } else {
             // This is the actual mailbox we'll be searching
@@ -949,13 +950,13 @@ public class Controller {
             if (actualMailbox == null) {
                 Log.e(Logging.LOG_TAG, "Unable to find mailbox " + searchParams.mMailboxId
                         + " to search in with " + searchParams);
-                return;
+                return 0;
             }
             // Do the search
             if (Email.DEBUG) {
                 Log.d(Logging.LOG_TAG, "Search: " + searchParams.mFilter);
             }
-            mLegacyController.searchMailbox(accountId, searchParams, searchMailboxId);
+            return mLegacyController.searchMailbox(accountId, searchParams, searchMailboxId);
         }
     }
 
