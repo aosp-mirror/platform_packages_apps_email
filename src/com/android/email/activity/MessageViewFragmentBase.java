@@ -130,6 +130,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
     private TextView mInviteTab;
     // It is not really a tab, but looks like one of them.
     private TextView mShowPicturesTab;
+    private ViewGroup mAlwaysShowPicturesContainer;
     private Button mAlwaysShowPicturesButton;
 
     private View mAttachmentsScroll;
@@ -313,6 +314,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         mAttachmentTab = UiUtilities.getView(view, R.id.show_attachments);
         mShowPicturesTab = UiUtilities.getView(view, R.id.show_pictures);
         mAlwaysShowPicturesButton = UiUtilities.getView(view, R.id.always_show_pictures_button);
+        mAlwaysShowPicturesContainer = UiUtilities.getView(
+                view, R.id.always_show_pictures_container);
         // Invite is only used in MessageViewFragment, but visibility is controlled here.
         mInviteTab = UiUtilities.getView(view, R.id.show_invite);
 
@@ -558,6 +561,11 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
      */
     private void updateTabs(int tabFlags) {
         mTabFlags = tabFlags;
+
+        if (getView() == null) {
+            return;
+        }
+
         boolean messageTabVisible = (tabFlags & (TAB_FLAGS_HAS_INVITE | TAB_FLAGS_HAS_ATTACHMENT))
                 != 0;
         makeVisible(mMessageTab, messageTabVisible);
@@ -575,7 +583,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         // Hide the entire section if no tabs are visible.
         makeVisible(mTabSection, isVisible(mMessageTab) || isVisible(mInviteTab)
                 || isVisible(mAttachmentTab) || isVisible(mShowPicturesTab)
-                || isVisible(UiUtilities.getView(getView(), R.id.always_show_pictures_container)));
+                || isVisible(mAlwaysShowPicturesContainer));
 
         // Restore previously selected tab after rotation
         if (mRestoredTab != TAB_NONE && isVisible(getTabViewForFlag(mRestoredTab))) {
