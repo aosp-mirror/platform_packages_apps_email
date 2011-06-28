@@ -877,10 +877,11 @@ public class EmailProvider extends ContentProvider {
     private long getMailboxIdFromMailboxTypeMap(long accountId, int type) {
         synchronized(mMailboxTypeMap) {
             HashMap<Integer, Long> accountMap = mMailboxTypeMap.get(accountId);
-            long mailboxId = -1;
+            Long mailboxId = null;
             if (accountMap != null) {
                 mailboxId = accountMap.get(type);
             }
+            if (mailboxId == null) return Mailbox.NO_MAILBOX;
             return mailboxId;
         }
     }
