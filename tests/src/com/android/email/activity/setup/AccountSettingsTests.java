@@ -16,10 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.mail.Store;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
-
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +24,9 @@ import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
 
 import java.net.URISyntaxException;
 
@@ -38,7 +37,7 @@ import java.net.URISyntaxException;
  * TODO: These cannot run in the single-pane mode, and need to be refactored into single-pane
  *       and multi-pane versions.  Until then, they are all disabled.
  *
- * To execute:  runtest -c com.android.email.activity.setup.AccountSettingsXLTests email
+ * To execute:  runtest -c com.android.email.activity.setup.AccountSettingsTests email
  */
 @MediumTest
 public class AccountSettingsTests extends ActivityInstrumentationTestCase2<AccountSettings> {
@@ -111,12 +110,6 @@ public class AccountSettingsTests extends ActivityInstrumentationTestCase2<Accou
      * Test that EAS accounts are displayed with a push option
      */
     public void disable_testPushOptionEAS() throws Throwable {
-        // This test should only be run if EAS is supported
-        if (Store.StoreInfo.getStoreInfo("eas", getInstrumentation().getTargetContext())
-                == null) {
-            return;
-        }
-
         Intent i = getTestIntent("Name", "eas://user:password@server.com",
                 "eas://user:password@server.com");
         setActivityIntent(i);

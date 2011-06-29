@@ -151,7 +151,7 @@ public class Pop3Store extends Store {
 
     @Override
     public Folder[] updateFolders() {
-        Mailbox mailbox = getMailboxForPath(mContext, mAccount.mId, POP3_MAILBOX_NAME);
+        Mailbox mailbox = Mailbox.getMailboxForPath(mContext, mAccount.mId, POP3_MAILBOX_NAME);
         updateMailbox(mailbox, mAccount.mId, POP3_MAILBOX_NAME, '\0', true, Mailbox.TYPE_INBOX);
         // Force the parent key to be "no mailbox" for the mail POP3 mailbox
         mailbox.mParentKey = Mailbox.NO_MAILBOX;

@@ -254,6 +254,18 @@ public class Mailbox extends EmailContent implements SyncColumns, MailboxColumns
         }
     }
 
+    /**
+     * Returns a {@link Mailbox} for the given path. If the path is not in the database, a new
+     * mailbox will be created.
+     */
+    public static Mailbox getMailboxForPath(Context context, long accountId, String path) {
+        Mailbox mailbox = restoreMailboxForPath(context, accountId, path);
+        if (mailbox == null) {
+            mailbox = new Mailbox();
+        }
+        return mailbox;
+    }
+
     @Override
     public void restore(Cursor cursor) {
         mBaseUri = CONTENT_URI;

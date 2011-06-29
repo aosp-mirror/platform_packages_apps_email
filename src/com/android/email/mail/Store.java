@@ -17,12 +17,13 @@
 package com.android.email.mail;
 
 import android.content.Context;
-import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.android.email.Email;
-import com.android.email.R;
+import com.android.email.mail.store.ExchangeStore;
+import com.android.email.mail.store.ImapStore;
+import com.android.email.mail.store.Pop3Store;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.Folder;
 import com.android.emailcommon.mail.MessagingException;
@@ -32,21 +33,13 @@ import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.google.common.annotations.VisibleForTesting;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 /**
- * Store is the access point for an email message store. It's location can be
- * local or remote and no specific protocol is defined. Store is intended to
- * loosely model in combination the JavaMail classes javax.mail.Store and
- * javax.mail.Folder along with some additional functionality to improve
- * performance on mobile devices. Implementations of this class should focus on
- * making as few network connections as possible.
+ * Store is the legacy equivalent of the Account class
  */
 public abstract class Store {
-
     /**
      * A global suggestion to Store implementors on how much of the body
      * should be returned on FetchProfile.Item.BODY_SANE requests.
@@ -55,12 +48,20 @@ public abstract class Store {
 
     @VisibleForTesting
     static final HashMap<HostAuth, Store> sStores = new HashMap<HostAuth, Store>();
-
     protected Context mContext;
     protected Account mAccount;
     protected Transport mTransport;
     protected String mUsername;
     protected String mPassword;
+
+    static final HashMap<String, Class<? extends Store>> sStoreClasses =
+        new HashMap<String, Class<? extends Store>>();
+
+    {
+        sStoreClasses.put(HostAuth.SCHEME_EAS, ExchangeStore.class);
+        sStoreClasses.put(HostAuth.SCHEME_IMAP, ImapStore.class);
+        sStoreClasses.put(HostAuth.SCHEME_POP3, Pop3Store.class);
+    }
 
     /**
      * Static named constructor.  It should be overrode by extending class.
@@ -69,83 +70,6 @@ public abstract class Store {
     static Store newInstance(Account account, Context context) throws MessagingException {
         throw new MessagingException("Store#newInstance: Unknown scheme in "
                 + account.mDisplayName);
-    }
-
-    private static Store instantiateStore(String className, Account account, Context context)
-        throws MessagingException {
-        Object o = null;
-        try {
-            Class<?> c = Class.forName(className);
-            // and invoke "newInstance" class method and instantiate store object.
-            java.lang.reflect.Method m =
-                c.getMethod("newInstance", Account.class, Context.class);
-            // TODO Do the stores _really need a context? Is there a way to not pass it along?
-            o = m.invoke(null, account, context);
-        } catch (Exception e) {
-            Log.d(Logging.LOG_TAG, String.format(
-                    "exception %s invoking method %s#newInstance(Account, Context) for %s",
-                    e.toString(), className, account.mDisplayName));
-            throw new MessagingException("can not instantiate Store for " + account.mDisplayName);
-        }
-        if (!(o instanceof Store)) {
-            throw new MessagingException(
-                    account.mDisplayName + ": " + className + " create incompatible object");
-        }
-        return (Store) o;
-    }
-
-    /**
-     * Look up descriptive information about a particular type of store.
-     */
-    public static class StoreInfo {
-        public String mScheme;
-        public String mClassName;
-        public boolean mPushSupported = false;
-        public int mVisibleLimitDefault;
-        public int mVisibleLimitIncrement;
-        public int mAccountInstanceLimit;
-
-        // TODO cache result for performance - silly to keep reading the XML
-        public static StoreInfo getStoreInfo(String scheme, Context context) {
-            StoreInfo result = getStoreInfo(R.xml.stores_product, scheme, context);
-            if (result == null) {
-                result = getStoreInfo(R.xml.stores, scheme, context);
-            }
-            return result;
-        }
-
-        public static StoreInfo getStoreInfo(int resourceId, String scheme, Context context) {
-            try {
-                XmlResourceParser xml = context.getResources().getXml(resourceId);
-                int xmlEventType;
-                // walk through stores.xml file.
-                while ((xmlEventType = xml.next()) != XmlResourceParser.END_DOCUMENT) {
-                    if (xmlEventType == XmlResourceParser.START_TAG &&
-                            "store".equals(xml.getName())) {
-                        String xmlScheme = xml.getAttributeValue(null, "scheme");
-                        if (scheme != null && scheme.startsWith(xmlScheme)) {
-                            StoreInfo result = new StoreInfo();
-                            result.mScheme = xmlScheme;
-                            result.mClassName = xml.getAttributeValue(null, "class");
-                            result.mPushSupported = xml.getAttributeBooleanValue(
-                                    null, "push", false);
-                            result.mVisibleLimitDefault = xml.getAttributeIntValue(
-                                    null, "visibleLimitDefault", Email.VISIBLE_LIMIT_DEFAULT);
-                            result.mVisibleLimitIncrement = xml.getAttributeIntValue(
-                                    null, "visibleLimitIncrement", Email.VISIBLE_LIMIT_INCREMENT);
-                            result.mAccountInstanceLimit = xml.getAttributeIntValue(
-                                    null, "accountInstanceLimit", -1);
-                            return result;
-                        }
-                    }
-                }
-            } catch (XmlPullParserException e) {
-                // ignore
-            } catch (IOException e) {
-                // ignore
-            }
-            return null;
-        }
     }
 
     /**
@@ -167,20 +91,22 @@ public abstract class Store {
         Store store = sStores.get(hostAuth);
         if (store == null) {
             Context appContext = context.getApplicationContext();
-            StoreInfo info = StoreInfo.getStoreInfo(hostAuth.mProtocol, context);
-            if (info != null) {
-                store = instantiateStore(info.mClassName, account, appContext);
+            Class<? extends Store> klass = sStoreClasses.get(hostAuth.mProtocol);
+            try {
+                // invoke "newInstance" class method
+                Method m = klass.getMethod("newInstance", Account.class, Context.class);
+                store = (Store)m.invoke(null, account, appContext);
+            } catch (Exception e) {
+                Log.d(Logging.LOG_TAG, String.format(
+                        "exception %s invoking method %s#newInstance(Account, Context) for %s",
+                        e.toString(), klass.getName(), account.mDisplayName));
+                throw new MessagingException("Can't instantiate Store for " + account.mDisplayName);
             }
-            // Don't cache this unless it's we've got a saved HostAUth
-            if (store != null && (hostAuth.mId != EmailContent.NOT_SAVED)) {
+            // Don't cache this unless it's we've got a saved HostAuth
+            if (hostAuth.mId != EmailContent.NOT_SAVED) {
                 sStores.put(hostAuth, store);
             }
         }
-
-        if (store == null) {
-            throw new MessagingException("Cannot find store for account " + account.mDisplayName);
-        }
-
         return store;
     }
 
@@ -236,13 +162,6 @@ public abstract class Store {
     public abstract Bundle checkSettings() throws MessagingException;
 
     /**
-     * Delete Store and its corresponding resources.
-     * @throws MessagingException
-     */
-    public void delete() throws MessagingException {
-    }
-
-    /**
      * Handle discovery of account settings using only the user's email address and password
      * @param context the context of the caller
      * @param emailAddress the email address of the exchange user
@@ -253,18 +172,6 @@ public abstract class Store {
     public Bundle autoDiscover(Context context, String emailAddress, String password)
             throws MessagingException {
         return null;
-    }
-
-    /**
-     * Returns a {@link Mailbox} for the given path. If the path is not in the database, a new
-     * mailbox will be created.
-     */
-    protected static Mailbox getMailboxForPath(Context context, long accountId, String path) {
-        Mailbox mailbox = Mailbox.restoreMailboxForPath(context, accountId, path);
-        if (mailbox == null) {
-            mailbox = new Mailbox();
-        }
-        return mailbox;
     }
 
     /**

@@ -20,8 +20,6 @@ import android.content.Context;
 import android.test.ProviderTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
 
-import com.android.email.Email;
-import com.android.email.mail.Store.StoreInfo;
 import com.android.email.provider.EmailProvider;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.mail.MessagingException;
@@ -52,32 +50,6 @@ public class StoreTests extends ProviderTestCase2<EmailProvider> {
 
     public StoreTests(Class<EmailProvider> providerClass, String providerAuthority) {
         super(EmailProvider.class, EmailContent.AUTHORITY);
-    }
-
-    public void testGetStoreInfo() {
-        StoreInfo testInfo;
-
-        // POP3
-        testInfo = Store.StoreInfo.getStoreInfo("pop3", mContext);
-        assertNotNull(testInfo);
-        assertNotNull(testInfo.mScheme);
-        assertNotNull(testInfo.mClassName);
-        assertFalse(testInfo.mPushSupported);
-        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, testInfo.mVisibleLimitDefault);
-        assertEquals(Email.VISIBLE_LIMIT_INCREMENT, testInfo.mVisibleLimitIncrement);
-
-        // IMAP
-        testInfo = Store.StoreInfo.getStoreInfo("imap", mContext);
-        assertNotNull(testInfo);
-        assertNotNull(testInfo.mScheme);
-        assertNotNull(testInfo.mClassName);
-        assertFalse(testInfo.mPushSupported);
-        assertEquals(Email.VISIBLE_LIMIT_DEFAULT, testInfo.mVisibleLimitDefault);
-        assertEquals(Email.VISIBLE_LIMIT_INCREMENT, testInfo.mVisibleLimitIncrement);
-
-        // Unknown
-        testInfo = Store.StoreInfo.getStoreInfo("unknownscheme", mContext);
-        assertNull(testInfo);
     }
 
     public void testGetInstance() throws MessagingException {
