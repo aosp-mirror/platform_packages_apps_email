@@ -49,6 +49,7 @@ import com.android.emailcommon.mail.Part;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -90,7 +91,7 @@ class ImapFolder extends Folder {
     public void open(OpenMode mode, PersistentDataCallbacks callbacks)
             throws MessagingException {
         try {
-            if (isOpenForTest()) {
+            if (isOpen()) {
                 if (mMode == mode) {
                     // Make sure the connection is valid.
                     // If it's not we'll close it down and continue on to get a new one.
@@ -140,7 +141,8 @@ class ImapFolder extends Folder {
     }
 
     @Override
-    public boolean isOpenForTest() {
+    @VisibleForTesting
+    public boolean isOpen() {
         return mExists && mConnection != null;
     }
 
@@ -1059,7 +1061,7 @@ class ImapFolder extends Folder {
     }
 
     private void checkOpen() throws MessagingException {
-        if (!isOpenForTest()) {
+        if (!isOpen()) {
             throw new MessagingException("Folder " + mName + " is not open.");
         }
     }

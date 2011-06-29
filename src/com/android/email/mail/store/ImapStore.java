@@ -91,14 +91,6 @@ public class ImapStore extends Store {
             new ConcurrentLinkedQueue<ImapConnection>();
 
     /**
-     * Cache of ImapFolder objects. ImapFolders are attached to a given folder on the server
-     * and as long as their associated connection remains open they are reusable between
-     * requests. This cache lets us make sure we always reuse, if possible, for a given
-     * folder name.
-     */
-    private final HashMap<String, ImapFolder> mFolderCache = new HashMap<String, ImapFolder>();
-
-    /**
      * Static named constructor.
      */
     public static Store newInstance(Account account, Context context) throws MessagingException {
@@ -320,15 +312,7 @@ public class ImapStore extends Store {
 
     @Override
     public Folder getFolder(String name) {
-        ImapFolder folder;
-        synchronized (mFolderCache) {
-            folder = mFolderCache.get(name);
-            if (folder == null) {
-                folder = new ImapFolder(this, name);
-                mFolderCache.put(name, folder);
-            }
-        }
-        return folder;
+        return new ImapFolder(this, name);
     }
 
     /**

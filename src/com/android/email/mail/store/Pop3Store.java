@@ -933,7 +933,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public boolean isOpenForTest() {
+        public boolean isOpen() {
             return mTransport.isOpen();
         }
 
