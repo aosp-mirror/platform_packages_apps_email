@@ -1039,16 +1039,27 @@ public class MessageListFragment extends ListFragment
     }
 
     private void determineFooterMode() {
-        // TODO: Do something different for searches?
-        // We could, for example, indicate how many remain to be loaded, etc...
-
         mListFooterMode = LIST_FOOTER_MODE_NONE;
-        if ((mMailbox == null) || (mMailbox.mType == Mailbox.TYPE_OUTBOX)
+        if ((mMailbox == null)
+                || (mMailbox.mType == Mailbox.TYPE_OUTBOX)
                 || (mMailbox.mType == Mailbox.TYPE_DRAFTS)) {
             return; // No footer
         }
-        if (!mIsEasAccount || (mMailbox.mType == Mailbox.TYPE_SEARCH)) {
-            // IMAP, POP has "load more"
+        if (mMailbox.mType == Mailbox.TYPE_SEARCH) {
+            // Determine how many results have been loaded.
+            Cursor c = mListAdapter.getCursor();
+            if (c == null || c.isClosed()) {
+                // Unknown yet - don't do anything.
+                return;
+            }
+            int total = ((SearchResultsCursor) c).getResultsCount();
+            int loaded = c.getCount();
+
+            if (loaded < total) {
+                mListFooterMode = LIST_FOOTER_MODE_MORE;
+            }
+        } else if (!mIsEasAccount) {
+            // IMAP, POP has "load more" for regular mailboxes.
             mListFooterMode = LIST_FOOTER_MODE_MORE;
         }
     }

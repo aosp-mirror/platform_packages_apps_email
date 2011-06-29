@@ -363,6 +363,10 @@ import java.util.Set;
             mResultsCount = resultsCount;
         }
 
+        /**
+         * @return the total number of results that match the given search query. Note that
+         *     there may not be that many items loaded in the cursor yet.
+         */
         public int getResultsCount() {
             return mResultsCount;
         }
