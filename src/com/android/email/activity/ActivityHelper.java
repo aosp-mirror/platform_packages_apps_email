@@ -16,6 +16,14 @@
 
 package com.android.email.activity;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.provider.Browser;
+import android.view.WindowManager;
+
 import com.android.email.Controller;
 import com.android.email.Email;
 import com.android.email.R;
@@ -24,14 +32,6 @@ import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
-
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.provider.Browser;
-import android.view.WindowManager;
 
 /**
  * Various methods that are used by both 1-pane and 2-pane activities.
@@ -123,8 +123,6 @@ public final class ActivityHelper {
      * NOTE: Currently, this only works if HW accel is *not* enabled via the manifest.
      */
     public static void debugSetWindowFlags(Activity activity) {
-        // STOPSHIP - re-enable hw acceleration when b/4886133 is fixed.
-        /*
         if (Email.sDebugInhibitGraphicsAcceleration) {
             // Clear the flag in the activity's window
             activity.getWindow().setFlags(0,
@@ -134,7 +132,6 @@ public final class ActivityHelper {
             activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         }
-        */
     }
 
     public static void showSecurityHoldDialog(Activity callerActivity, long accountId) {

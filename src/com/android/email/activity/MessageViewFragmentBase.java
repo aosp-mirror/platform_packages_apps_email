@@ -290,6 +290,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
         final View view = inflater.inflate(R.layout.message_view_fragment, container, false);
 
+        cleanupDetachedViews();
+
         mSubjectView = (TextView) UiUtilities.getView(view, R.id.subject);
         mFromNameView = (TextView) UiUtilities.getView(view, R.id.from_name);
         mFromAddressView = (TextView) UiUtilities.getView(view, R.id.from_address);
@@ -399,10 +401,20 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         UiUtilities.uninstallFragment(this);
         mController.removeResultCallback(mControllerCallback);
         cancelAllTasks();
-        mMessageContentView.destroy();
-        mMessageContentView = null;
+
+        // We should clean up the Webview here, but it can't release resources until it is
+        // actually removed from the view tree.
 
         super.onDestroyView();
+    }
+
+    private void cleanupDetachedViews() {
+        // WebView cleanup must be done after it leaves the rendering tree, according to
+        // its contract
+        if (mMessageContentView != null) {
+            mMessageContentView.destroy();
+            mMessageContentView = null;
+        }
     }
 
     @Override
@@ -410,6 +422,8 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onDestroy");
         }
+
+        cleanupDetachedViews();
         super.onDestroy();
     }
 
