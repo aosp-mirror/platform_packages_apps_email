@@ -60,6 +60,7 @@ import com.android.email.MessageListContext;
 import com.android.email.NotificationController;
 import com.android.email.R;
 import com.android.email.RefreshManager;
+import com.android.email.activity.MessagesAdapter.SearchResultsCursor;
 import com.android.email.provider.EmailProvider;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -1020,20 +1021,21 @@ public class MessageListFragment extends ListFragment
         updateSelectionMode();
     }
 
-    private void updateSearchHeader(Cursor searchResultsCursor) {
+    private void updateSearchHeader(Cursor cursor) {
         MessageListContext listContext = getListContext();
-        if (!listContext.isSearch() || searchResultsCursor == null) {
+        if (!listContext.isSearch() || cursor == null) {
             mSearchHeader.setVisibility(View.GONE);
             return;
         }
 
+        SearchResultsCursor searchCursor = (SearchResultsCursor) cursor;
         mSearchHeader.setVisibility(View.VISIBLE);
         String header = String.format(
                 mActivity.getString(R.string.search_header_text_fmt),
                 listContext.getSearchParams().mFilter);
         mSearchHeaderText.setText(header);
-        // TODO: populate the count with the info from the cursor.
-        mSearchHeaderCount.setText(null);
+        mSearchHeaderCount.setText(UiUtilities.getMessageCountForUi(
+                mActivity, searchCursor.getResultsCount(), false /* replaceZeroWithBlank */));
     }
 
     private void determineFooterMode() {
@@ -1175,7 +1177,7 @@ public class MessageListFragment extends ListFragment
                 Log.d(Logging.LOG_TAG, MessageListFragment.this
                         + " onLoadFinished(messages) mailboxId=" + getMailboxId());
             }
-            MessagesAdapter.CursorWithExtras cursor = (MessagesAdapter.CursorWithExtras) c;
+            MessagesAdapter.MessagesCursor cursor = (MessagesAdapter.MessagesCursor) c;
 
             if (!cursor.mIsFound) {
                 mCallback.onMailboxNotFound();

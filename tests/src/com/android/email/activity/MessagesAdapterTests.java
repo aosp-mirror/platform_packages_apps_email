@@ -16,14 +16,14 @@
 
 package com.android.email.activity;
 
+import android.content.Context;
+import android.test.LoaderTestCase;
+
 import com.android.email.DBTestHelper;
 import com.android.email.MessageListContext;
 import com.android.email.provider.ProviderTestUtils;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Mailbox;
-
-import android.content.Context;
-import android.test.LoaderTestCase;
 
 public class MessagesAdapterTests extends LoaderTestCase {
     // Account ID that's probably not in the database.
@@ -57,8 +57,8 @@ public class MessagesAdapterTests extends LoaderTestCase {
         return box.mId;
     }
 
-    private MessagesAdapter.CursorWithExtras getLoaderResult(long accountId, long mailboxId) {
-        return (MessagesAdapter.CursorWithExtras) getLoaderResultSynchronously(
+    private MessagesAdapter.MessagesCursor getLoaderResult(long accountId, long mailboxId) {
+        return (MessagesAdapter.MessagesCursor) getLoaderResultSynchronously(
                 MessagesAdapter.createLoader(
                         mProviderContext,
                         MessageListContext.forMailbox(accountId, mailboxId)));
@@ -71,7 +71,7 @@ public class MessagesAdapterTests extends LoaderTestCase {
         final long accountId = createAccount(false);
         final long mailboxId = createMailbox(accountId, Mailbox.TYPE_MAIL);
 
-        MessagesAdapter.CursorWithExtras result = getLoaderResult(accountId, mailboxId);
+        MessagesAdapter.MessagesCursor result = getLoaderResult(accountId, mailboxId);
         assertTrue(result.mIsFound);
         assertEquals(accountId, result.mAccount.mId);
         assertEquals(mailboxId, result.mMailbox.mId);
@@ -86,7 +86,7 @@ public class MessagesAdapterTests extends LoaderTestCase {
         final long accountId = createAccount(true);
         final long mailboxId = createMailbox(accountId, Mailbox.TYPE_MAIL);
 
-        MessagesAdapter.CursorWithExtras result = getLoaderResult(accountId, mailboxId);
+        MessagesAdapter.MessagesCursor result = getLoaderResult(accountId, mailboxId);
         assertTrue(result.mIsFound);
         assertEquals(accountId, result.mAccount.mId);
         assertEquals(mailboxId, result.mMailbox.mId);
@@ -101,7 +101,7 @@ public class MessagesAdapterTests extends LoaderTestCase {
         final long accountId = createAccount(false);
         final long mailboxId = createMailbox(accountId, Mailbox.TYPE_DRAFTS);
 
-        MessagesAdapter.CursorWithExtras result = getLoaderResult(accountId, mailboxId);
+        MessagesAdapter.MessagesCursor result = getLoaderResult(accountId, mailboxId);
         assertTrue(result.mIsFound);
         assertEquals(accountId, result.mAccount.mId);
         assertEquals(mailboxId, result.mMailbox.mId);
@@ -113,7 +113,7 @@ public class MessagesAdapterTests extends LoaderTestCase {
      * Mailbox not found.
      */
     public void testMailboxNotFound() {
-        MessagesAdapter.CursorWithExtras result = getLoaderResult(
+        MessagesAdapter.MessagesCursor result = getLoaderResult(
                 createAccount(false), NO_SUCH_MAILBOX_ID);
         assertFalse(result.mIsFound);
         assertNull(result.mAccount);
@@ -128,7 +128,7 @@ public class MessagesAdapterTests extends LoaderTestCase {
     public void testAccountNotFound() {
         final long mailboxId = createMailbox(NO_SUCH_ACCOUNT_ID, Mailbox.TYPE_MAIL);
 
-        MessagesAdapter.CursorWithExtras result = getLoaderResult(NO_SUCH_ACCOUNT_ID, mailboxId);
+        MessagesAdapter.MessagesCursor result = getLoaderResult(NO_SUCH_ACCOUNT_ID, mailboxId);
         assertFalse(result.mIsFound);
         assertNull(result.mAccount);
         assertNull(result.mMailbox);
@@ -140,7 +140,7 @@ public class MessagesAdapterTests extends LoaderTestCase {
      * Magic mailbox.  (always found)
      */
     public void testMagicMailbox() {
-        MessagesAdapter.CursorWithExtras result = getLoaderResult(
+        MessagesAdapter.MessagesCursor result = getLoaderResult(
                 Account.ACCOUNT_ID_COMBINED_VIEW, Mailbox.QUERY_ALL_INBOXES);
         assertTrue(result.mIsFound);
         assertNull(result.mAccount);

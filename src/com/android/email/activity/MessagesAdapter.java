@@ -102,7 +102,7 @@ import java.util.Set;
     /**
      * The actual return type from the loader.
      */
-    public static class CursorWithExtras extends CursorWrapper {
+    public static class MessagesCursor extends CursorWrapper {
         /**  Whether the mailbox is found. */
         public final boolean mIsFound;
         /** {@link Account} that owns the mailbox.  Null for combined mailboxes. */
@@ -116,7 +116,7 @@ import java.util.Set;
         /** the number of accounts currently configured. */
         public final int mCountTotalAccounts;
 
-        private CursorWithExtras(Cursor cursor,
+        private MessagesCursor(Cursor cursor,
                 boolean found, Account account, Mailbox mailbox, boolean isEasAccount,
                 boolean isRefreshable, int countTotalAccounts) {
             super(cursor);
@@ -261,7 +261,7 @@ import java.util.Set;
     /**
      * Creates the loader for {@link MessageListFragment}.
      *
-     * @return always of {@link CursorWithExtras}.
+     * @return always of {@link MessagesCursor}.
      */
     public static Loader<Cursor> createLoader(Context context, MessageListContext listContext) {
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
@@ -335,8 +335,40 @@ import java.util.Set;
                 }
             }
             final int countAccounts = EmailContent.count(mContext, Account.CONTENT_URI);
-            return new CursorWithExtras(baseCursor, found, account, mailbox, isEasAccount,
+            return wrapCursor(baseCursor, found, account, mailbox, isEasAccount,
                     isRefreshable, countAccounts);
+        }
+
+        /**
+         * Wraps a basic cursor containing raw messages with information about the context of
+         * the list that's being loaded, such as the account and the mailbox the messages
+         * are for.
+         * Subclasses may extend this to wrap with additional data.
+         */
+        protected Cursor wrapCursor(Cursor cursor,
+                boolean found, Account account, Mailbox mailbox, boolean isEasAccount,
+                boolean isRefreshable, int countTotalAccounts) {
+            return new MessagesCursor(cursor, found, account, mailbox, isEasAccount,
+                    isRefreshable, countTotalAccounts);
+        }
+    }
+
+    public static class SearchResultsCursor extends MessagesCursor {
+        private final int mResultsCount;
+        private SearchResultsCursor(Cursor cursor,
+                boolean found, Account account, Mailbox mailbox, boolean isEasAccount,
+                boolean isRefreshable, int countTotalAccounts, int resultsCount) {
+            super(cursor, found, account, mailbox, isEasAccount,
+                    isRefreshable, countTotalAccounts);
+            mResultsCount = resultsCount;
+        }
+
+        public int getResultsCount() {
+            return mResultsCount;
+        }
+
+        public boolean hasResults() {
+            return getResultsCount() == 0;
         }
     }
 
@@ -345,7 +377,7 @@ import java.util.Set;
      */
     private static class SearchCursorLoader extends MessagesCursorLoader {
         private final MessageListContext mListContext;
-        private boolean mResultCountAvailable = false;
+        private int mResultsCount = -1;
 
         public SearchCursorLoader(Context context, MessageListContext listContext) {
             super(context, listContext.getMailboxId());
@@ -355,7 +387,8 @@ import java.util.Set;
 
         @Override
         public Cursor loadInBackground() {
-            if (mResultCountAvailable) {
+            if (mResultsCount >= 0) {
+                // Result count known - the initial search meta data must have completed.
                 return super.loadInBackground();
             }
 
@@ -363,17 +396,22 @@ import java.util.Set;
             // initialized the search mailbox properly. Kick off the search first.
             Controller controller = Controller.getInstance(mContext);
             try {
-                // TODO: wire through search count information and pad it into the cursor returned
-                // so that the caller knows how many is in the entire result set.
-                controller.searchMessages(mListContext.mAccountId, mListContext.getSearchParams());
+                mResultsCount = controller.searchMessages(
+                        mListContext.mAccountId, mListContext.getSearchParams());
             } catch (MessagingException e) {
-                // TODO: handle.
             }
 
-            mResultCountAvailable = true;
-
             // Return whatever the super would do, now that we know the results are ready.
+            // After this point, it should behave as a normal mailbox load for messages.
             return super.loadInBackground();
+        }
+
+        @Override
+        protected Cursor wrapCursor(Cursor cursor,
+                boolean found, Account account, Mailbox mailbox, boolean isEasAccount,
+                boolean isRefreshable, int countTotalAccounts) {
+            return new SearchResultsCursor(cursor, found, account, mailbox, isEasAccount,
+                    isRefreshable, countTotalAccounts, mResultsCount);
         }
     }
 }
