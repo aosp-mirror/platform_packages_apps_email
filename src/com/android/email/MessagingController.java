@@ -258,7 +258,7 @@ public class MessagingController implements Runnable {
                 Cursor localFolderCursor = null;
                 try {
                     // Step 1: Get remote mailboxes
-                    Store store = Store.getInstance(account, mContext, null);
+                    Store store = Store.getInstance(account, mContext);
                     Folder[] remoteFolders = store.updateFolders();
                     HashSet<String> remoteFolderNames = new HashSet<String>();
                     for (int i = 0, count = remoteFolders.length; i < count; i++) {
@@ -615,7 +615,7 @@ public class MessagingController implements Runnable {
         // Tell UI that we're loading messages
         mListeners.synchronizeMailboxStarted(accountId, destMailbox.mId);
 
-        Store remoteStore = Store.getInstance(account, mContext, null);
+        Store remoteStore = Store.getInstance(account, mContext);
         Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
         remoteFolder.open(OpenMode.READ_WRITE, null);
 
@@ -761,7 +761,7 @@ public class MessagingController implements Runnable {
 
         // 2.  Open the remote folder and create the remote folder if necessary
 
-        Store remoteStore = Store.getInstance(account, mContext, null);
+        Store remoteStore = Store.getInstance(account, mContext);
         Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
 
         /*
@@ -1023,8 +1023,7 @@ public class MessagingController implements Runnable {
         put("processPendingActions", null, new Runnable() {
             public void run() {
                 try {
-                    Account account =
-                        Account.restoreAccountWithId(mContext, accountId);
+                    Account account = Account.restoreAccountWithId(mContext, accountId);
                     if (account == null) {
                         return;
                     }
@@ -1148,7 +1147,7 @@ public class MessagingController implements Runnable {
 
                     // Load the remote store if it will be needed
                     if (remoteStore == null && deleteFromTrash) {
-                        remoteStore = Store.getInstance(account, mContext, null);
+                        remoteStore = Store.getInstance(account, mContext);
                     }
 
                     // Dispatch here for specific change types
@@ -1219,8 +1218,7 @@ public class MessagingController implements Runnable {
                     while (upsyncs1.moveToNext()) {
                         // Load the remote store if it will be needed
                         if (remoteStore == null) {
-                            remoteStore =
-                                Store.getInstance(account, mContext, null);
+                            remoteStore = Store.getInstance(account, mContext);
                         }
                         // Load the mailbox if it will be needed
                         if (mailbox == null) {
@@ -1249,8 +1247,7 @@ public class MessagingController implements Runnable {
                     while (upsyncs2.moveToNext()) {
                         // Load the remote store if it will be needed
                         if (remoteStore == null) {
-                            remoteStore =
-                                Store.getInstance(account, mContext, null);
+                            remoteStore = Store.getInstance(account, mContext);
                         }
                         // Load the mailbox if it will be needed
                         if (mailbox == null) {
@@ -1335,7 +1332,7 @@ public class MessagingController implements Runnable {
                 // Load the remote store if it will be needed
                 if (remoteStore == null &&
                         (changeMoveToTrash || changeRead || changeFlagged || changeMailbox)) {
-                    remoteStore = Store.getInstance(account, mContext, null);
+                    remoteStore = Store.getInstance(account, mContext);
                 }
 
                 // Dispatch here for specific change types
@@ -1826,17 +1823,14 @@ public class MessagingController implements Runnable {
 
                     // 2. Open the remote folder.
                     // TODO combine with common code in loadAttachment
-                    Account account =
-                        Account.restoreAccountWithId(mContext, message.mAccountKey);
-                    Mailbox mailbox =
-                        Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
+                    Account account = Account.restoreAccountWithId(mContext, message.mAccountKey);
+                    Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, message.mMailboxKey);
                     if (account == null || mailbox == null) {
                         mListeners.loadMessageForViewFailed(messageId, "null account or mailbox");
                         return;
                     }
 
-                    Store remoteStore =
-                        Store.getInstance(account, mContext, null);
+                    Store remoteStore = Store.getInstance(account, mContext);
                     String remoteServerId = mailbox.mServerId;
                     // If this is a search result, use the protocolSearchInfo field to get the
                     // correct remote location
@@ -1895,10 +1889,8 @@ public class MessagingController implements Runnable {
 
                     // 2. Open the remote folder.
                     // TODO all of these could be narrower projections
-                    Account account =
-                        Account.restoreAccountWithId(mContext, accountId);
-                    Mailbox mailbox =
-                        Mailbox.restoreMailboxWithId(mContext, mailboxId);
+                    Account account = Account.restoreAccountWithId(mContext, accountId);
+                    Mailbox mailbox = Mailbox.restoreMailboxWithId(mContext, mailboxId);
                     EmailContent.Message message =
                         EmailContent.Message.restoreMessageWithId(mContext, messageId);
 
@@ -1910,8 +1902,7 @@ public class MessagingController implements Runnable {
                         return;
                     }
 
-                    Store remoteStore =
-                        Store.getInstance(account, mContext, null);
+                    Store remoteStore = Store.getInstance(account, mContext);
                     Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
                     remoteFolder.open(OpenMode.READ_WRITE, null);
 
@@ -2007,7 +1998,7 @@ public class MessagingController implements Runnable {
             mListeners.sendPendingMessagesStarted(account.mId, -1);
 
             Sender sender = Sender.getInstance(mContext, account);
-            Store remoteStore = Store.getInstance(account, mContext, null);
+            Store remoteStore = Store.getInstance(account, mContext);
             boolean requireMoveMessageToSentFolder = remoteStore.requireCopyMessageToSentFolder();
             ContentValues moveToSentValues = null;
             if (requireMoveMessageToSentFolder) {
@@ -2098,8 +2089,7 @@ public class MessagingController implements Runnable {
                 // here if we somehow don't have a sent folder, but this should never happen
                 // because the call to sendMessage() would have built one previously.
                 long inboxId = -1;
-                Account account =
-                    Account.restoreAccountWithId(mContext, accountId);
+                Account account = Account.restoreAccountWithId(mContext, accountId);
                 if (account != null) {
                     long sentboxId = Mailbox.findMailboxOfType(mContext, accountId,
                             Mailbox.TYPE_SENT);

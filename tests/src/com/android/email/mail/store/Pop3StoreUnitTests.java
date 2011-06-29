@@ -65,8 +65,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         testAuth.setLogin("user", "password");
         testAuth.setConnection("pop3", "server", 999);
         testAccount.mHostAuthRecv = testAuth;
-        mStore = (Pop3Store) Pop3Store.newInstance(
-                testAccount, getInstrumentation().getContext(), null);
+        mStore = (Pop3Store) Pop3Store.newInstance(testAccount, getInstrumentation().getContext());
         mFolder = (Pop3Store.Pop3Folder) mStore.getFolder("INBOX");
     }
 

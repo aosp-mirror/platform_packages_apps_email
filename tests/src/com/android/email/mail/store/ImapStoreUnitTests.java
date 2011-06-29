@@ -154,7 +154,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         testAuth.setLogin("user", "password");
         testAuth.setConnection("imap", "server", 999);
         testAccount.mHostAuthRecv = testAuth;
-        mStore = (ImapStore) ImapStore.newInstance(testAccount, mTestContext, null);
+        mStore = (ImapStore) ImapStore.newInstance(testAccount, mTestContext);
         mFolder = (ImapFolder) mStore.getFolder(FOLDER_NAME);
         resetTag();
     }
@@ -350,7 +350,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         testAuth.setConnection("imap", "server", 999);
         testAccount = new Account();
         testAccount.mHostAuthRecv = testAuth;
-        ImapStore testStore1A = (ImapStore) ImapStore.newInstance(testAccount, mTestContext, null);
+        ImapStore testStore1A = (ImapStore) ImapStore.newInstance(testAccount, mTestContext);
 
         // store 1b
         testAuth = new HostAuth();
@@ -358,7 +358,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         testAuth.setConnection("imap", "server", 999);
         testAccount = new Account();
         testAccount.mHostAuthRecv = testAuth;
-        ImapStore testStore1B = (ImapStore) ImapStore.newInstance(testAccount, mTestContext, null);
+        ImapStore testStore1B = (ImapStore) ImapStore.newInstance(testAccount, mTestContext);
 
         // store 2
         testAuth = new HostAuth();
@@ -366,7 +366,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         testAuth.setConnection("imap", "server", 999);
         testAccount = new Account();
         testAccount.mHostAuthRecv = testAuth;
-        ImapStore testStore2 = (ImapStore) ImapStore.newInstance(testAccount, mTestContext, null);
+        ImapStore testStore2 = (ImapStore) ImapStore.newInstance(testAccount, mTestContext);
 
         String capabilities = CAPABILITY_RESPONSE.flatten();
         String id1a = ImapStore.getImapId(mTestContext, "user1", "host-name", capabilities);

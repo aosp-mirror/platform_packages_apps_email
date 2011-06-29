@@ -16,6 +16,14 @@
 
 package com.android.email.mail.store;
 
+import android.content.Context;
+import android.os.Build;
+import android.os.Bundle;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
+import android.util.Base64;
+import android.util.Log;
+
 import com.android.email.LegacyConversions;
 import com.android.email.Preferences;
 import com.android.email.VendorPolicyLoader;
@@ -39,14 +47,6 @@ import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.Utility;
 import com.beetstra.jutf7.CharsetProvider;
 import com.google.common.annotations.VisibleForTesting;
-
-import android.content.Context;
-import android.os.Build;
-import android.os.Bundle;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,8 +101,7 @@ public class ImapStore extends Store {
     /**
      * Static named constructor.
      */
-    public static Store newInstance(Account account, Context context,
-            PersistentDataCallbacks callbacks) throws MessagingException {
+    public static Store newInstance(Account account, Context context) throws MessagingException {
         return new ImapStore(context, account);
     }
 

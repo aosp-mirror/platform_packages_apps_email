@@ -16,17 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Controller;
-import com.android.email.R;
-import com.android.email.activity.ActivityHelper;
-import com.android.email.activity.IntentUtilities;
-import com.android.email.mail.Sender;
-import com.android.email.mail.Store;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,6 +35,17 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.android.email.Controller;
+import com.android.email.R;
+import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.IntentUtilities;
+import com.android.email.mail.Sender;
+import com.android.email.mail.Store;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.utility.Utility;
 
 import java.util.List;
 
@@ -661,7 +661,7 @@ public class AccountSettings extends PreferenceActivity {
      */
     public void onIncomingSettings(Account account) {
         try {
-            Store store = Store.getInstance(account, getApplication(), null);
+            Store store = Store.getInstance(account, getApplication());
             if (store != null) {
                 Class<? extends android.app.Activity> setting = store.getSettingActivityClass();
                 if (setting != null) {
