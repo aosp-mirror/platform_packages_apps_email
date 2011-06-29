@@ -16,19 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.Email;
-import com.android.email.R;
-import com.android.email.activity.UiUtilities;
-import com.android.email.mail.Store;
-import com.android.email.provider.AccountBackupRestore;
-import com.android.email.service.EmailServiceUtils;
-import com.android.email.view.CertificateSelector;
-import com.android.emailcommon.Device;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -44,6 +31,18 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.android.email.Email;
+import com.android.email.R;
+import com.android.email.activity.UiUtilities;
+import com.android.email.provider.AccountBackupRestore;
+import com.android.email.service.EmailServiceUtils;
+import com.android.email.view.CertificateSelector;
+import com.android.emailcommon.Device;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 import java.io.IOException;
 
@@ -86,7 +85,7 @@ public class AccountSetupExchangeFragment extends AccountServerBaseFragment
             mCacheLoginCredential = savedInstanceState.getString(STATE_KEY_CREDENTIAL);
             mLoaded = savedInstanceState.getBoolean(STATE_KEY_LOADED, false);
         }
-        mBaseScheme = Store.STORE_SCHEME_EAS;
+        mBaseScheme = HostAuth.SCHEME_EAS;
     }
 
     @Override

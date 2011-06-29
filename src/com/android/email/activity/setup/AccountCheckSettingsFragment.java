@@ -509,7 +509,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                 // Return "real" AD results
                 HostAuth auth = new HostAuth();
                 auth.setLogin("user", "password");
-                auth.setConnection(Store.STORE_SCHEME_EAS, "testserver.com", 0);
+                auth.setConnection(HostAuth.SCHEME_EAS, "testserver.com", 0);
                 return new AutoDiscoverResults(false, auth);
             }
             if (isCancelled()) return null;

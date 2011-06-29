@@ -106,7 +106,7 @@ public class ImapStore extends Store {
         mAccount = account;
 
         HostAuth recvAuth = account.getOrCreateHostAuthRecv(context);
-        if (recvAuth == null || !STORE_SCHEME_IMAP.equalsIgnoreCase(recvAuth.mProtocol)) {
+        if (recvAuth == null || !HostAuth.SCHEME_IMAP.equalsIgnoreCase(recvAuth.mProtocol)) {
             throw new MessagingException("Unsupported protocol");
         }
         // defaults, which can be changed by security modifiers

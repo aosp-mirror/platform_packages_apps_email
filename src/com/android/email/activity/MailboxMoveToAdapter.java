@@ -16,16 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
-import com.android.email.FolderProperties;
-import com.android.email.data.ThrottlingCursorLoader;
-import com.android.email.mail.Store;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.Utility;
-
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
@@ -35,6 +25,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
+
+import com.android.email.Email;
+import com.android.email.FolderProperties;
+import com.android.email.data.ThrottlingCursorLoader;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.Utility;
 
 /**
  * Cursor adapter for the "move to mailbox" dialog.
@@ -148,7 +148,7 @@ class MailboxMoveToAdapter extends CursorAdapter {
         public Cursor loadInBackground() {
             // TODO Create a common way to store the fully qualified path name for all account types
             final String protocol = Account.getProtocol(getContext(), mAccountId);
-            if (Store.STORE_SCHEME_EAS.equals(protocol)) {
+            if (HostAuth.SCHEME_EAS.equals(protocol)) {
                 // For EAS accounts; use the display name
                 setProjection(MOVE_TO_PROJECTION_DISPLAY_NAME);
                 setSortOrder(MOVE_TO_ORDER_BY_DISPLAY_NAME);
