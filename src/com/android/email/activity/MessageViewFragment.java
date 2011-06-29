@@ -47,8 +47,6 @@ import android.widget.ImageView;
 public class MessageViewFragment extends MessageViewFragmentBase
         implements CheckBox.OnCheckedChangeListener, MoveMessageToDialog.Callback {
     /** Argument name(s) */
-    private static final String ARG_OPENER_ACCOUNT_ID = "accountId";
-    private static final String ARG_OPENER_MAILBOX_ID = "mailboxId";
     private static final String ARG_MESSAGE_ID = "messageId";
 
     private ImageView mFavoriteIcon;
@@ -132,32 +130,14 @@ public class MessageViewFragment extends MessageViewFragmentBase
      *
      * This fragment should be created only with this method.  (Arguments should always be set.)
      *
-     * @param openerAccountId account ID that's used in the UI that opened this fragment.
-     *        The primary use is for the back navigation to determine which mailbox to show.
-     *
-     *        Note this is not necessarily the same ID as the actual account ID for the message.
-     *        If a message is opened on the combined view, the caller probably want to pass
-     *        {@link Account#ACCOUNT_ID_COMBINED_VIEW} so that back will navigate to the
-     *        combined view.
-     *
-     * @param openerMailboxId mailbox ID that's used in the UI that opened this fragment.
-     *        The primary use is for the back navigation to determine which mailbox to show.
-     *
-     *        Note this is not necessarily the same ID as the actual mailbox ID for the message.
-     *        If a message is opened on the combined view, the caller probably want to pass
-     *        a combined mailbox ID so that back will navigate to it.
-     *
      * @param messageId ID of the message to open
      */
-    public static MessageViewFragment newInstance(long openerAccountId, long openerMailboxId,
-            long messageId) {
+    public static MessageViewFragment newInstance(long messageId) {
         if (messageId == Message.NO_MESSAGE) {
             throw new IllegalArgumentException();
         }
         final MessageViewFragment instance = new MessageViewFragment();
         final Bundle args = new Bundle();
-        args.putLong(ARG_OPENER_ACCOUNT_ID, openerAccountId);
-        args.putLong(ARG_OPENER_MAILBOX_ID, openerMailboxId);
         args.putLong(ARG_MESSAGE_ID, messageId);
         instance.setArguments(args);
         return instance;
@@ -170,14 +150,10 @@ public class MessageViewFragment extends MessageViewFragmentBase
      * constructs, this <em>must</em> be considered immutable.
      */
     private Long mImmutableMessageId;
-    private Long mImmutableOpenerAccountId;
-    private Long mImmutableOpenerMailboxId;
 
     private void initializeArgCache() {
         if (mImmutableMessageId != null) return;
         mImmutableMessageId = getArguments().getLong(ARG_MESSAGE_ID);
-        mImmutableOpenerAccountId = getArguments().getLong(ARG_OPENER_ACCOUNT_ID);
-        mImmutableOpenerMailboxId = getArguments().getLong(ARG_OPENER_MAILBOX_ID);
     }
 
     /**
@@ -186,22 +162,6 @@ public class MessageViewFragment extends MessageViewFragmentBase
     public long getMessageId() {
         initializeArgCache();
         return mImmutableMessageId;
-    }
-
-    /**
-     * @return the account ID passed to {@link #newInstance}.  Safe to call even before onCreate.
-     */
-    public long getOpenerAccountId() {
-        initializeArgCache();
-        return mImmutableOpenerAccountId;
-    }
-
-    /**
-     * @return the mailbox ID passed to {@link #newInstance}.  Safe to call even before onCreate.
-     */
-    public long getOpenerMailboxId() {
-        initializeArgCache();
-        return mImmutableOpenerMailboxId;
     }
 
     @Override
