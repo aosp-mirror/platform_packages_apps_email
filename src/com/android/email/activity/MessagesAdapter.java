@@ -354,12 +354,15 @@ import java.util.Set;
     }
 
     public static class SearchResultsCursor extends MessagesCursor {
+        private final Mailbox mSearchedMailbox;
         private final int mResultsCount;
         private SearchResultsCursor(Cursor cursor,
                 boolean found, Account account, Mailbox mailbox, boolean isEasAccount,
-                boolean isRefreshable, int countTotalAccounts, int resultsCount) {
+                boolean isRefreshable, int countTotalAccounts,
+                Mailbox searchedMailbox, int resultsCount) {
             super(cursor, found, account, mailbox, isEasAccount,
                     isRefreshable, countTotalAccounts);
+            mSearchedMailbox = searchedMailbox;
             mResultsCount = resultsCount;
         }
 
@@ -369,6 +372,10 @@ import java.util.Set;
          */
         public int getResultsCount() {
             return mResultsCount;
+        }
+
+        public Mailbox getSearchedMailbox() {
+            return mSearchedMailbox;
         }
 
         public boolean hasResults() {
@@ -382,6 +389,7 @@ import java.util.Set;
     private static class SearchCursorLoader extends MessagesCursorLoader {
         private final MessageListContext mListContext;
         private int mResultsCount = -1;
+        private Mailbox mSearchedMailbox = null;
 
         public SearchCursorLoader(Context context, MessageListContext listContext) {
             super(context, listContext.getMailboxId());
@@ -394,6 +402,11 @@ import java.util.Set;
             if (mResultsCount >= 0) {
                 // Result count known - the initial search meta data must have completed.
                 return super.loadInBackground();
+            }
+
+            if (mSearchedMailbox == null) {
+                mSearchedMailbox = Mailbox.restoreMailboxWithId(
+                        mContext, mListContext.getSearchedMailbox());
             }
 
             // The search results info hasn't even been loaded yet, so the Controller has not yet
@@ -415,7 +428,7 @@ import java.util.Set;
                 boolean found, Account account, Mailbox mailbox, boolean isEasAccount,
                 boolean isRefreshable, int countTotalAccounts) {
             return new SearchResultsCursor(cursor, found, account, mailbox, isEasAccount,
-                    isRefreshable, countTotalAccounts, mResultsCount);
+                    isRefreshable, countTotalAccounts, mSearchedMailbox, mResultsCount);
         }
     }
 }

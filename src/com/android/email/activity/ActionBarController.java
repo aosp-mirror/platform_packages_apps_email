@@ -16,19 +16,12 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.utility.DelayedOperations;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.ActionBar;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -41,6 +34,12 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.android.email.R;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.DelayedOperations;
+import com.android.emailcommon.utility.Utility;
+
 /**
  * Manages the account name and the custom view part on the action bar.
  *
@@ -49,8 +48,6 @@ import android.widget.TextView;
  *
  * TODO Stop using the action bar spinner and create our own spinner as a custom view.
  *      (so we'll be able to just hide it, etc.)
- *
- * TODO Update search hint somehow
  */
 public class ActionBarController {
     private static final String BUNDLE_KEY_MODE = "ActionBarController.BUNDLE_KEY_MODE";
@@ -180,6 +177,11 @@ public class ActionBarController {
         public void onNoAccountsFound();
 
         /**
+         * Retrieves the hint text to be shown for when a search entry is being made.
+         */
+        public String getSearchHint();
+
+        /**
          * Called when a search is submitted.
          *
          * @param queryTerm query string
@@ -226,7 +228,7 @@ public class ActionBarController {
         // Search
         mSearchContainer = UiUtilities.getView(mActionBarCustomView, R.id.search_container);
         mSearchView = UiUtilities.getView(mSearchContainer, R.id.search_view);
-        mSearchView.setSubmitButtonEnabled(true);
+        mSearchView.setSubmitButtonEnabled(false);
         mSearchView.setOnQueryTextListener(mOnQueryText);
 
         // Account dropdown
@@ -290,6 +292,8 @@ public class ActionBarController {
         } else {
             mSearchView.setQuery("", false);
         }
+        mSearchView.setQueryHint(mCallback.getSearchHint());
+
         mSearchMode = MODE_SEARCH;
 
         // Focus on the search input box and throw up the IME if specified.

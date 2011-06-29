@@ -16,7 +16,18 @@
 
 package com.android.email.activity;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+
 import com.android.email.Email;
+import com.android.email.FolderProperties;
 import com.android.email.MessageListContext;
 import com.android.email.R;
 import com.android.email.RefreshManager;
@@ -29,16 +40,6 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.base.Objects;
-
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -560,12 +561,69 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      * is actually submitted.
      */
     public void onSearchRequested() {
-        mActionBarController.enterSearchMode(null);
+        if (isMessageListReady()) {
+            mActionBarController.enterSearchMode(null);
+        }
     }
 
-    /** @return true if the search menu option should be enabled based on the current UI. */
-    protected boolean canSearch() {
-        return false;
+    /**
+     * @return Whether or not a message list is ready and has its initial meta data loaded.
+     */
+    protected boolean isMessageListReady() {
+        return isMessageListInstalled() && getMessageListFragment().hasDataLoaded();
+    }
+
+    /**
+     * Determines the mailbox to search, if a search was to be initiated now.
+     * This will return {@code null} if the UI is not focused on any particular mailbox to search
+     * on.
+     */
+    private Mailbox getSearchableMailbox() {
+        if (!isMessageListReady()) {
+            return null;
+        }
+        MessageListFragment messageList = getMessageListFragment();
+
+        // If already in a search, future searches will search the original mailbox.
+        return mListContext.isSearch()
+                ? messageList.getSearchedMailbox()
+                : messageList.getMailbox();
+    }
+
+    // TODO: this logic probably needs to be tested in the backends as well, so it may be nice
+    // to consolidate this to a centralized place, so that they don't get out of sync.
+    /**
+     * @return whether or not this account should do a global search instead when a user
+     *     initiates a search on the given mailbox.
+     */
+    private static boolean shouldDoGlobalSearch(Account account, Mailbox mailbox) {
+        return ((account.mFlags & Account.FLAGS_SUPPORTS_GLOBAL_SEARCH) != 0)
+                && (mailbox.mType == Mailbox.TYPE_INBOX);
+    }
+
+    /**
+     * Retrieves the hint text to be shown for when a search entry is being made.
+     */
+    protected String getSearchHint() {
+        if (!isMessageListReady()) {
+            return "";
+        }
+        Account account = getMessageListFragment().getAccount();
+        Mailbox mailbox = getSearchableMailbox();
+
+        if (mailbox == null) {
+            return "";
+        }
+
+        if (shouldDoGlobalSearch(account, mailbox)) {
+            return mActivity.getString(R.string.search_hint);
+        }
+
+        // Regular mailbox, or IMAP - search within that mailbox.
+        String mailboxName = FolderProperties.getInstance(mActivity).getDisplayName(mailbox);
+        return String.format(
+                mActivity.getString(R.string.search_mailbox_hint),
+                mailboxName);
     }
 
     /**
@@ -577,13 +635,15 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             return; // Invalid account to search from.
         }
 
-        // TODO: do a global search for EAS inbox.
-        // TODO: handle doing another search from a search result, in which case we should
-        //       search the original mailbox that was searched, and not search in the search mailbox
-        final long mailboxId = getMessageListMailboxId();
+        Mailbox searchableMailbox = getSearchableMailbox();
+        if (searchableMailbox == null) {
+            return;
+        }
+        final long mailboxId = searchableMailbox.mId;
 
         if (Email.DEBUG) {
-            Log.d(Logging.LOG_TAG, "Submitting search: " + queryTerm);
+            Log.d(Logging.LOG_TAG,
+                    "Submitting search: [" + queryTerm + "] in mailboxId=" + mailboxId);
         }
 
         mActivity.startActivity(EmailActivity.createSearchIntent(
@@ -647,7 +707,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         }
 
         // TODO: Should use an isSyncable call to prevent drafts/outbox from allowing this
-        menu.findItem(R.id.search).setVisible(accountSearchable && canSearch());
+        menu.findItem(R.id.search).setVisible(accountSearchable && isMessageListReady());
         menu.findItem(R.id.sync_lookback).setVisible(isEas);
         menu.findItem(R.id.sync_frequency).setVisible(isEas);
 

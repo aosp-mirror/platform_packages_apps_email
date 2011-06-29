@@ -120,6 +120,8 @@ public class MessageListFragment extends ListFragment
 
     private Account mAccount;
     private Mailbox mMailbox;
+    /** The original mailbox being searched, if this list is showing search results. */
+    private Mailbox mSearchedMailbox;
     private boolean mIsEasAccount;
     private boolean mIsRefreshable;
     private int mCountTotalAccounts;
@@ -295,6 +297,35 @@ public class MessageListFragment extends ListFragment
     public MessageListContext getListContext() {
         initializeArgCache();
         return mListContext;
+    }
+
+    /**
+     * @return Whether or not initial data is loaded in this list.
+     */
+    public boolean hasDataLoaded() {
+        return mCountTotalAccounts > 0;
+    }
+
+    /**
+     * @return The account object, when known. Null if not yet known.
+     */
+    public Account getAccount() {
+        return mAccount;
+    }
+
+    /**
+     * @return The mailbox where the messages belong in, when known. Null if not yet known.
+     */
+    public Mailbox getMailbox() {
+        return mMailbox;
+    }
+
+    /**
+     * @return The mailbox being searched, when known. Null if not yet known or if not a search
+     *    result.
+     */
+    public Mailbox getSearchedMailbox() {
+        return mSearchedMailbox;
     }
 
     @Override
@@ -1217,9 +1248,11 @@ public class MessageListFragment extends ListFragment
 
             // If this is a search mailbox, set the query; otherwise, clear it
             if (mMailbox != null && mMailbox.mType == Mailbox.TYPE_SEARCH) {
-                mListAdapter.setQuery(mMailbox.mDisplayName);
+                mListAdapter.setQuery(getListContext().getSearchParams().mFilter);
+                mSearchedMailbox = ((SearchResultsCursor) c).getSearchedMailbox();
             } else {
                 mListAdapter.setQuery(null);
+                mSearchedMailbox = null;
             }
 
             // Update the list
@@ -1257,6 +1290,10 @@ public class MessageListFragment extends ListFragment
                         + " onLoaderReset(messages)");
             }
             mListAdapter.swapCursor(null);
+            mAccount = null;
+            mMailbox = null;
+            mSearchedMailbox = null;
+            mCountTotalAccounts = 0;
         }
     }
 

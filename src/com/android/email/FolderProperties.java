@@ -16,13 +16,13 @@
 
 package com.android.email;
 
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.Mailbox;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.Mailbox;
 
 
 // TODO When the UI is settled, cache all strings/drawables
@@ -133,6 +133,10 @@ public class FolderProperties {
                 c.getLong(c.getColumnIndex(MailboxColumns.ID)),
                 c.getString(c.getColumnIndex(MailboxColumns.DISPLAY_NAME))
                 );
+    }
+
+    public String getDisplayName(Mailbox mailbox) {
+        return getDisplayName(mailbox.mType, mailbox.mId, mailbox.mDisplayName);
     }
 
     /**

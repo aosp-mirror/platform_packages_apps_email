@@ -671,12 +671,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         return false;
     }
 
-    @Override
-    protected boolean canSearch() {
-        // Search is always enabled on two-pane. (if the account supports it)
-        return true;
-    }
-
     /**
      * Handles the "refresh" option item.  Opens the settings activity.
      * TODO used by experimental code in the activity -- otherwise can be private.
@@ -866,6 +860,11 @@ class UIControllerTwoPane extends UIControllerBase implements
             final boolean leftPaneHidden = ((visiblePanes & ThreePaneLayout.PANE_LEFT) == 0);
             return leftPaneHidden
                     || (isMailboxListInstalled() && getMailboxListFragment().canNavigateUp());
+        }
+
+        @Override
+        public String getSearchHint() {
+            return UIControllerTwoPane.this.getSearchHint();
         }
 
         @Override

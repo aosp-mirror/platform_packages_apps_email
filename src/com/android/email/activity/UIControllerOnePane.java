@@ -16,6 +16,12 @@
 
 package com.android.email.activity;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
+
 import com.android.email.Email;
 import com.android.email.MessageListContext;
 import com.android.email.R;
@@ -23,12 +29,6 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
-
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
 
 import java.util.Set;
 
@@ -259,6 +259,14 @@ class UIControllerOnePane extends UIControllerBase {
         public void onNoAccountsFound() {
             Welcome.actionStart(mActivity);
             mActivity.finish();
+        }
+
+        @Override
+        public String getSearchHint() {
+            if (!isMessageListInstalled()) {
+                return null;
+            }
+            return UIControllerOnePane.this.getSearchHint();
         }
 
         @Override
@@ -586,11 +594,6 @@ class UIControllerOnePane extends UIControllerBase {
         return isMessageListInstalled()
                 ? getMessageListFragment().getMailboxId()
                 : Mailbox.NO_MAILBOX;
-    }
-
-    @Override
-    protected boolean canSearch() {
-        return isMessageListInstalled();
     }
 
     @Override
