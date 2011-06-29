@@ -18,13 +18,14 @@ package com.android.email.activity;
 
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.utility.EmailAsyncTask;
+import com.android.emailcommon.utility.EmailAsyncTask.Tracker;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Handler;
 
 /**
@@ -138,7 +139,7 @@ public class MessageOrderManager {
      */
     /* package */ void startQuery() {
         mLoadMessageListTask = new LoadMessageListTask();
-        mLoadMessageListTask.execute();
+        mLoadMessageListTask.executeParallel();
     }
 
     private void cancelTask() {
@@ -264,32 +265,27 @@ public class MessageOrderManager {
     /**
      * Task to open a Cursor on a worker thread.
      */
-    private class LoadMessageListTask extends AsyncTask<Void, Void, Cursor> {
-        @Override
-        protected Cursor doInBackground(Void... params) {
-            Cursor c = openNewCursor();
-            if (isCancelled()) {
-                c.close();
-                c = null;
-            }
-            return c;
+    private class LoadMessageListTask extends EmailAsyncTask<Void, Void, Cursor> {
+        public LoadMessageListTask() {
+            super(null);
         }
 
         @Override
-        protected void onCancelled() {
+        protected Cursor doInBackground(Void... params) {
+            return openNewCursor();
+        }
+
+        @Override
+        protected void onCancelled(Cursor cursor) {
+            if (cursor != null) {
+                cursor.close();
+            }
             onCursorOpenDone(null);
         }
 
         @Override
         protected void onPostExecute(Cursor cursor) {
-            if (mClosed || isCancelled()) { // Is this really necessary??
-                if (cursor != null) {
-                    cursor.close();
-                }
-                onCancelled();
-            } else {
-                onCursorOpenDone(cursor);
-            }
+            onCursorOpenDone(cursor);
         }
     }
 

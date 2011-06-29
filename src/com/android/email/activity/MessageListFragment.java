@@ -762,7 +762,7 @@ public class MessageListFragment extends ListFragment
 
         @Override
         protected void onPostExecute(Integer type) {
-            if (isCancelled() || type == null) {
+            if (type == null) {
                 return;
             }
             mCallback.onMessageOpen(mMessageId, mMessageMailboxId, getMailboxId(), type);

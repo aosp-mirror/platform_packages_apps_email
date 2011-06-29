@@ -442,6 +442,15 @@ public class Utility {
     }
 
     /**
+     * Cancel an {@link EmailAsyncTask}.  If it's already running, it'll be interrupted.
+     */
+    public static void cancelTaskInterrupt(EmailAsyncTask<?, ?, ?> task) {
+        if (task != null) {
+            task.cancel(true);
+        }
+    }
+
+    /**
      * Cancel an {@link AsyncTask}.
      *
      * @param mayInterruptIfRunning <tt>true</tt> if the thread executing this

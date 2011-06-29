@@ -23,10 +23,10 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 
@@ -97,7 +97,7 @@ public class MailboxFinder {
         }
         mStarted = true;
         mTask = new FindMailboxTask(true);
-        mTask.execute();
+        mTask.executeParallel();
     }
 
     /**
@@ -141,7 +141,7 @@ public class MailboxFinder {
             } else if (progress == 100) {
                 // Mailbox list updated, look for mailbox again...
                 mTask = new FindMailboxTask(false);
-                mTask.execute();
+                mTask.executeParallel();
             }
         }
     }
@@ -150,7 +150,7 @@ public class MailboxFinder {
      * Async task for finding a single mailbox by type.  If a mailbox of a type is not found,
      * and {@code okToRecurse} is true, we update the mailbox list and try looking again.
      */
-    private class FindMailboxTask extends AsyncTask<Void, Void, Long> {
+    private class FindMailboxTask extends EmailAsyncTask<Void, Void, Long> {
         private final boolean mOkToRecurse;
 
         private static final int RESULT_MAILBOX_FOUND = 0;
@@ -165,6 +165,7 @@ public class MailboxFinder {
          * Special constructor to cache some local info
          */
         public FindMailboxTask(boolean okToRecurse) {
+            super(null);
             mOkToRecurse = okToRecurse;
         }
 
@@ -200,9 +201,6 @@ public class MailboxFinder {
 
         @Override
         protected void onPostExecute(Long mailboxId) {
-            if (isCancelled()) {
-                return;
-            }
             switch (mResult) {
                 case RESULT_ACCOUNT_SECURITY_HOLD:
                     Log.w(Logging.LOG_TAG, "MailboxFinder: Account security hold.");

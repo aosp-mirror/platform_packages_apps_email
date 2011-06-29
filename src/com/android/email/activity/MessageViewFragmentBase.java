@@ -1059,9 +1059,6 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected void onPostExecute(Message message) {
-            if (isCancelled()) {
-                return;
-            }
             if (message == null) {
                 resetView();
                 mCallback.onMessageNotExists();
@@ -1157,7 +1154,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
 
         @Override
         protected void onPostExecute(String[] results) {
-            if (results == null || isCancelled()) {
+            if (results == null) {
                 if (mErrorLoadingMessageBody) {
                     Utility.showToast(getActivity(), R.string.error_loading_message_body);
                 }
@@ -1190,7 +1187,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         @Override
         protected void onPostExecute(Attachment[] attachments) {
             try {
-                if (isCancelled() || attachments == null) {
+                if (attachments == null) {
                     return;
                 }
                 boolean htmlChanged = false;

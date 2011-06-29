@@ -742,7 +742,7 @@ class UIControllerTwoPane extends UIControllerBase implements
          */
         @Override
         protected void onPostExecute(Boolean isCurrentMailboxRefreshable) {
-            if (isCancelled() || isCurrentMailboxRefreshable == null) {
+            if (isCurrentMailboxRefreshable == null) {
                 return;
             }
             if (isCurrentMailboxRefreshable) {
