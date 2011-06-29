@@ -98,11 +98,6 @@ class MailboxFragmentAdapter extends CursorAdapter {
     /** Header */
     private static final int ROW_TYPE_HEADER = 4;
 
-    /** The type of count to use. Different mailboxes have different counts. */
-    private static final int COUNT_TYPE_UNREAD = 0;
-    private static final int COUNT_TYPE_TOTAL = 1;
-    private static final int COUNT_TYPE_NO_COUNT = 2;
-
     /** The type of data contained in the cursor row. */
     private static final String ROW_TYPE = "rowType";
     /** The original ID of the cursor row. May be negative. */
@@ -145,26 +140,27 @@ class MailboxFragmentAdapter extends CursorAdapter {
     private static final String ALL_MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
             " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
     /** All system mailboxes for an account */
-    private static final String SYSTEM_MAILBOX_SELECTION = ALL_MAILBOX_SELECTION +
-            " AND " + MailboxColumns.TYPE + "!=" + Mailbox.TYPE_MAIL;
+    private static final String SYSTEM_MAILBOX_SELECTION = ALL_MAILBOX_SELECTION
+            + " AND " + MailboxColumns.TYPE + "!=" + Mailbox.TYPE_MAIL
+            + " AND " + MailboxColumns.TYPE + "!=" + Mailbox.TYPE_SEARCH;
     /** All mailboxes with the given parent */
-    private static final String USER_MAILBOX_SELECTION_WITH_PARENT = ALL_MAILBOX_SELECTION +
-            " AND " + MailboxColumns.PARENT_KEY + "=?" +
-            " AND " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_MAIL;
+    private static final String USER_MAILBOX_SELECTION_WITH_PARENT = ALL_MAILBOX_SELECTION
+            + " AND " + MailboxColumns.PARENT_KEY + "=?"
+            + " AND " + MailboxColumns.TYPE + "=" + Mailbox.TYPE_MAIL;
     /** Selection for a specific mailbox */
-    private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?" +
-            " AND " + MailboxColumns.ID + "=?";
+    private static final String MAILBOX_SELECTION = MailboxColumns.ACCOUNT_KEY + "=?"
+            + " AND " + MailboxColumns.ID + "=?";
 
-    private static final String MAILBOX_ORDER_BY = "CASE " + MailboxColumns.TYPE +
-            " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0" +
-            " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN 1" +
-            " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN 2" +
-            " WHEN " + Mailbox.TYPE_SENT    + " THEN 3" +
-            " WHEN " + Mailbox.TYPE_TRASH   + " THEN 4" +
-            " WHEN " + Mailbox.TYPE_JUNK    + " THEN 5" +
+    private static final String MAILBOX_ORDER_BY = "CASE " + MailboxColumns.TYPE
+            + " WHEN " + Mailbox.TYPE_INBOX   + " THEN 0"
+            + " WHEN " + Mailbox.TYPE_DRAFTS  + " THEN 1"
+            + " WHEN " + Mailbox.TYPE_OUTBOX  + " THEN 2"
+            + " WHEN " + Mailbox.TYPE_SENT    + " THEN 3"
+            + " WHEN " + Mailbox.TYPE_TRASH   + " THEN 4"
+            + " WHEN " + Mailbox.TYPE_JUNK    + " THEN 5"
             // Other mailboxes (i.e. of Mailbox.TYPE_MAIL) are shown in alphabetical order.
-            " ELSE 10 END" +
-            " ," + MailboxColumns.DISPLAY_NAME;
+            + " ELSE 10 END"
+            + " ," + MailboxColumns.DISPLAY_NAME;
 
     /** View is of a "normal" row */
     private static final int ITEM_VIEW_TYPE_NORMAL = 0;
