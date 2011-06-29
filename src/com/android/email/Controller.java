@@ -268,7 +268,7 @@ public class Controller {
             m = new Mailbox();
             m.mAccountKey = accountId;
             m.mServerId = SEARCH_MAILBOX_SERVER_ID;
-            m.mFlagVisible = true;
+            m.mFlagVisible = false;
             m.mDisplayName = SEARCH_MAILBOX_SERVER_ID;
             m.mSyncInterval = Mailbox.CHECK_INTERVAL_NEVER;
             m.mType = Mailbox.TYPE_SEARCH;
@@ -898,14 +898,14 @@ public class Controller {
 
     private static final HashMap<Long, SearchParams> sSearchParamsMap =
         new HashMap<Long, SearchParams>();
-    
+
     public void searchMore(long accountId) throws MessagingException {
         SearchParams params = sSearchParamsMap.get(accountId);
         if (params == null) return;
         params.mOffset += params.mLimit;
         searchMessages(accountId, params);
     }
-    
+
     /**
      * Search for messages on the (IMAP) server; do not call this on the UI thread!
      * @param accountId the id of the account to be searched

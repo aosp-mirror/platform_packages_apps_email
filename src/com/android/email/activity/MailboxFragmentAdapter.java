@@ -141,8 +141,7 @@ class MailboxFragmentAdapter extends CursorAdapter {
             " AND " + Mailbox.USER_VISIBLE_MAILBOX_SELECTION;
     /** All system mailboxes for an account */
     private static final String SYSTEM_MAILBOX_SELECTION = ALL_MAILBOX_SELECTION
-            + " AND " + MailboxColumns.TYPE + "!=" + Mailbox.TYPE_MAIL
-            + " AND " + MailboxColumns.TYPE + "!=" + Mailbox.TYPE_SEARCH;
+            + " AND " + MailboxColumns.TYPE + "!=" + Mailbox.TYPE_MAIL;
     /** All mailboxes with the given parent */
     private static final String USER_MAILBOX_SELECTION_WITH_PARENT = ALL_MAILBOX_SELECTION
             + " AND " + MailboxColumns.PARENT_KEY + "=?"
