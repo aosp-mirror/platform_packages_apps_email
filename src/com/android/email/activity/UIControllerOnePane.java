@@ -16,12 +16,6 @@
 
 package com.android.email.activity;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
-
 import com.android.email.Email;
 import com.android.email.MessageListContext;
 import com.android.email.R;
@@ -29,6 +23,15 @@ import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
+
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import java.util.Set;
 
@@ -42,7 +45,8 @@ import java.util.Set;
  * so that we can easily switch between synchronous and asynchronous transactions.
  *
  * Major TODOs
- * - TODO Newer/Older for message view
+ * - TODO Remove MessageViewFragment.opener account/mailbox ID, and use the list context instead.
+ *
  * - TODO Implement callbacks
  */
 class UIControllerOnePane extends UIControllerBase {
@@ -155,24 +159,6 @@ class UIControllerOnePane extends UIControllerBase {
 
     // MessageViewFragment.Callback
     @Override
-    public void onBeforeMessageGone() {
-        // TODO Auto-generated method stub
-    }
-
-    // MessageViewFragment.Callback
-    @Override
-    public void onMessageSetUnread() {
-        // TODO Auto-generated method stub
-    }
-
-    // MessageViewFragment.Callback
-    @Override
-    public void onRespondedToInvite(int response) {
-        // TODO Auto-generated method stub
-    }
-
-    // MessageViewFragment.Callback
-    @Override
     public void onLoadMessageError(String errorMessage) {
         // TODO Auto-generated method stub
     }
@@ -186,18 +172,6 @@ class UIControllerOnePane extends UIControllerBase {
     // MessageViewFragment.Callback
     @Override
     public void onLoadMessageStarted() {
-        // TODO Auto-generated method stub
-    }
-
-    // MessageViewFragment.Callback
-    @Override
-    public void onMessageNotExists() {
-        // TODO Auto-generated method stub
-    }
-
-    // MessageViewFragment.Callback
-    @Override
-    public void onMessageShown() {
         // TODO Auto-generated method stub
     }
 
@@ -319,16 +293,6 @@ class UIControllerOnePane extends UIControllerBase {
     }
 
     @Override
-    public void onActivityViewReady() {
-        super.onActivityViewReady();
-    }
-
-    @Override
-    public void onActivityCreated() {
-        super.onActivityCreated();
-    }
-
-    @Override
     public long getUIAccountId() {
         // Get it from the visible fragment.
         if (isMailboxListInstalled()) {
@@ -403,14 +367,11 @@ class UIControllerOnePane extends UIControllerBase {
         }
 
         if (messageId != Message.NO_MESSAGE) {
-            long accountId = listContext.mAccountId;
-            long mailboxId = listContext.getMailboxId();
-            showFragment(MessageViewFragment.newInstance(accountId, mailboxId, messageId));
+            openMessage(messageId);
         } else {
             showFragment(MessageListFragment.newInstance(listContext));
         }
     }
-
 
     /**
      * @return currently installed {@link Fragment} (1-pane has only one at most), or null if none
@@ -439,6 +400,12 @@ class UIControllerOnePane extends UIControllerBase {
         showFragment(MailboxListFragment.newInstance(accountId, Mailbox.NO_MAILBOX, false));
     }
 
+    private void openMessage(long messageId) {
+        long accountId = mListContext.mAccountId;
+        long mailboxId = mListContext.getMailboxId();
+        showFragment(MessageViewFragment.newInstance(accountId, mailboxId, messageId));
+    }
+
     /**
      * Use this instead of {@link FragmentTransaction#commit}.  We may switch to the asynchronous
      * transaction some day.
@@ -460,42 +427,50 @@ class UIControllerOnePane extends UIControllerBase {
      *  TODO Delay-call the whole method and use the synchronous transaction.
      */
     private void showFragment(Fragment fragment) {
-        if (DEBUG_FRAGMENTS) {
-            Log.i(Logging.LOG_TAG, this + " backstack: [push] " + getInstalledFragment()
-                    + " -> " + fragment);
-        }
         final FragmentTransaction ft = mFragmentManager.beginTransaction();
-        if (mPreviousFragment != null) {
-            if (DEBUG_FRAGMENTS) {
-                Log.d(Logging.LOG_TAG, this + " showFragment: destroying previous fragment "
-                        + mPreviousFragment);
-            }
-            removeFragment(ft, mPreviousFragment);
-            mPreviousFragment = null;
-        }
-        // Remove the current fragment or push it into the backstack.
         final Fragment installed = getInstalledFragment();
-        if (installed != null) {
-            if (installed instanceof MessageViewFragment) {
-                // Message view should never be pushed to the backstack.
+        if ((installed instanceof MessageViewFragment)
+                && (fragment instanceof MessageViewFragment)) {
+            // Newer/older navigation, auto-advance, etc.
+            // In this case we want to keep the backstack untouched, so that after back navigation
+            // we can restore the message list, including scroll position and batch selection.
+        } else {
+            if (DEBUG_FRAGMENTS) {
+                Log.i(Logging.LOG_TAG, this + " backstack: [push] " + getInstalledFragment()
+                        + " -> " + fragment);
+            }
+            if (mPreviousFragment != null) {
                 if (DEBUG_FRAGMENTS) {
-                    Log.d(Logging.LOG_TAG, this + " showFragment: removing " + installed);
+                    Log.d(Logging.LOG_TAG, this + " showFragment: destroying previous fragment "
+                            + mPreviousFragment);
                 }
-                ft.remove(installed);
-            } else {
-                // Other fragments should be pushed.
-                mPreviousFragment = installed;
-                if (DEBUG_FRAGMENTS) {
-                    Log.d(Logging.LOG_TAG, this + " showFragment: detaching " + mPreviousFragment);
+                removeFragment(ft, mPreviousFragment);
+                mPreviousFragment = null;
+            }
+            // Remove the current fragment or push it into the backstack.
+            if (installed != null) {
+                if (installed instanceof MessageViewFragment) {
+                    // Message view should never be pushed to the backstack.
+                    if (DEBUG_FRAGMENTS) {
+                        Log.d(Logging.LOG_TAG, this + " showFragment: removing " + installed);
+                    }
+                    ft.remove(installed);
+                } else {
+                    // Other fragments should be pushed.
+                    mPreviousFragment = installed;
+                    if (DEBUG_FRAGMENTS) {
+                        Log.d(Logging.LOG_TAG, this + " showFragment: detaching "
+                                + mPreviousFragment);
+                    }
+                    ft.detach(mPreviousFragment);
                 }
-                ft.detach(mPreviousFragment);
             }
         }
-        // Add the new one
+        // Show the new one
         if (DEBUG_FRAGMENTS) {
-            Log.d(Logging.LOG_TAG, this + " showFragment: adding " + fragment);
+            Log.d(Logging.LOG_TAG, this + " showFragment: replacing with " + fragment);
         }
-        ft.add(R.id.fragment_placeholder, fragment);
+        ft.replace(R.id.fragment_placeholder, fragment);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         commitFragmentTransaction(ft);
     }
@@ -586,6 +561,18 @@ class UIControllerOnePane extends UIControllerBase {
         openMailboxList(getUIAccountId());
     }
 
+    @Override
+    protected void installMailboxListFragment(MailboxListFragment fragment) {
+        stopMessageOrderManager();
+        super.installMailboxListFragment(fragment);
+    }
+
+    @Override
+    protected void installMessageListFragment(MessageListFragment fragment) {
+        stopMessageOrderManager();
+        super.installMessageListFragment(fragment);
+    }
+
     /*
      * STOPSHIP Remove this -- see the base class method.
      */
@@ -594,6 +581,43 @@ class UIControllerOnePane extends UIControllerBase {
         return isMessageListInstalled()
                 ? getMessageListFragment().getMailboxId()
                 : Mailbox.NO_MAILBOX;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu) {
+        // First, let the base class do what it has to do.
+        super.onPrepareOptionsMenu(inflater, menu);
+
+        // Then override
+        final boolean messageViewVisible = isMessageViewInstalled();
+        menu.findItem(R.id.search).setVisible(!messageViewVisible);
+        menu.findItem(R.id.compose).setVisible(!messageViewVisible);
+        menu.findItem(R.id.refresh).setVisible(!messageViewVisible);
+        menu.findItem(R.id.account_settings).setVisible(!messageViewVisible);
+        menu.findItem(R.id.sync_frequency).setVisible(!messageViewVisible);
+        menu.findItem(R.id.sync_lookback).setVisible(!messageViewVisible);
+        if (messageViewVisible) {
+            final MessageOrderManager om = getMessageOrderManager();
+            menu.findItem(R.id.newer).setVisible(true);
+            menu.findItem(R.id.older).setVisible(true);
+            // orderManager shouldn't be null when the message view is installed, but just in case..
+            menu.findItem(R.id.newer).setEnabled((om != null) && om.canMoveToNewer());
+            menu.findItem(R.id.older).setEnabled((om != null) && om.canMoveToOlder());
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.newer:
+                moveToNewer();
+                return true;
+            case R.id.older:
+                moveToOlder();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -626,5 +650,13 @@ class UIControllerOnePane extends UIControllerBase {
         } else {
             return mRefreshManager.isMailboxListRefreshing(getActualAccountId());
         }
+    }
+
+    @Override protected void navigateToMessage(long messageId) {
+        openMessage(messageId);
+    }
+
+    @Override protected void updateNavigationArrows() {
+        refreshActionBar();
     }
 }

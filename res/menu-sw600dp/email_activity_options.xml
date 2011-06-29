@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2011 The Android Open Source Project
+<!-- Copyright (C) 2010 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- Email activity menu options for the phone -->
+<!-- Email activity menu options for the tablet -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
@@ -41,19 +41,14 @@
         android:icon="@drawable/ic_menu_refresh_holo_light"
         android:showAsAction="ifRoom"
     />
-    <!-- Note the order; we want to show them to the right of delete/move -->
+    <!-- Newer/older are not menu items on tablet, but we have them here to keep compatibility
+         with the phone menu. -->
     <item
         android:id="@+id/newer"
-        android:orderInCategory="1500"
-        android:icon="@drawable/menu_item_newer"
-        android:showAsAction="always"
         android:visible="false"
     />
     <item
         android:id="@+id/older"
-        android:orderInCategory="1600"
-        android:icon="@drawable/menu_item_older"
-        android:showAsAction="always"
         android:visible="false"
     />
     <item

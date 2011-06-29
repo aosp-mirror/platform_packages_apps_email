@@ -133,12 +133,6 @@ public class MessageFileView extends Activity implements MessageViewFragmentBase
     }
 
     @Override
-    public void onMessageShown() {
-        // Not important for EMLs
-    }
-
-
-    @Override
     public void onLoadMessageStarted() {
         // Not important for EMLs
     }

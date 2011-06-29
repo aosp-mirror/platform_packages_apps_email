@@ -18,9 +18,10 @@ package com.android.email.activity;
 
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
-import com.android.emailcommon.utility.EmailAsyncTask.Tracker;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.base.Preconditions;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -81,6 +82,7 @@ public class MessageOrderManager {
     }
 
     public MessageOrderManager(Context context, long mailboxId, Callback callback) {
+        Preconditions.checkArgument(mailboxId != Mailbox.NO_MAILBOX);
         mContext = context.getApplicationContext();
         mContentResolver = mContext.getContentResolver();
         mMailboxId = mailboxId;
