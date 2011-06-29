@@ -509,7 +509,7 @@ public class EmailActivity extends Activity implements View.OnClickListener, Fra
                     }
 
                     @Override
-                    protected void onPostExecute(String accountName) {
+                    protected void onSuccess(String accountName) {
                         String message =
                             MessagingExceptionStrings.getErrorString(EmailActivity.this, result);
                         if (!TextUtils.isEmpty(accountName)) {

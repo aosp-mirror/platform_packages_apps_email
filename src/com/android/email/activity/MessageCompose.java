@@ -984,7 +984,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         @Override
-        protected void onPostExecute(Object[] results) {
+        protected void onSuccess(Object[] results) {
             if ((results == null) || (results.length != 3)) {
                 mCallback.onLoadFailed();
                 return;
@@ -1023,7 +1023,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
             }
 
             @Override
-            protected void onPostExecute(Attachment[] attachments) {
+            protected void onSuccess(Attachment[] attachments) {
                 if (attachments == null) {
                     attachments = new Attachment[0];
                 }
@@ -1296,7 +1296,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         }
 
         @Override
-        protected void onPostExecute(Long draftId) {
+        protected void onSuccess(Long draftId) {
             // Note that send or save tasks are always completed, even if the activity
             // finishes earlier.
             sActiveSaveTasks.remove(mTaskId);

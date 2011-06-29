@@ -200,7 +200,7 @@ public class MailboxFinder {
         }
 
         @Override
-        protected void onPostExecute(Long mailboxId) {
+        protected void onSuccess(Long mailboxId) {
             switch (mResult) {
                 case RESULT_ACCOUNT_SECURITY_HOLD:
                     Log.w(Logging.LOG_TAG, "MailboxFinder: Account security hold.");

@@ -29,9 +29,11 @@ import java.util.concurrent.Executor;
  * Modeled after {@link AsyncTask}; the basic usage is the same, with extra features:
  * - Bulk cancellation of multiple tasks.  This is mainly used by UI to cancel pending tasks
  *   in onDestroy() or similar places.
- * - More features to come...
+ * - Instead of {@link AsyncTask#onPostExecute}, it has {@link #onSuccess(Object)}, as the
+ *   regular {@link AsyncTask#onPostExecute} is a bit hard to predict when it'll be called and
+ *   whel it won't.
  *
- * Note this class isn't 100% compatible to the regular {@link AsyncTask}, e.g. it lacks
+ * Note this class is missing some of the {@link AsyncTask} features, e.g. it lacks
  * {@link AsyncTask#onProgressUpdate}.  Add these when necessary.
  */
 public abstract class EmailAsyncTask<Params, Progress, Result> {
@@ -125,11 +127,16 @@ public abstract class EmailAsyncTask<Params, Progress, Result> {
         @Override
         public void onPostExecute(Result2 result) {
             mOwner.unregisterSelf();
-            mOwner.onPostExecute(result);
+            if (mOwner.mCancelled) {
+                mOwner.onCancelled(result);
+            } else {
+                mOwner.onSuccess(result);
+            }
         }
     }
 
     private final InnerTask<Params, Progress, Result> mInnerTask;
+    private volatile boolean mCancelled;
 
     public EmailAsyncTask(Tracker tracker) {
         mTracker = tracker;
@@ -150,16 +157,23 @@ public abstract class EmailAsyncTask<Params, Progress, Result> {
 
 
     /** @see AsyncTask#cancel(boolean) */
-    public final boolean cancel(boolean mayInterruptIfRunning) {
-        return mInnerTask.cancel(mayInterruptIfRunning);
+    public final void cancel(boolean mayInterruptIfRunning) {
+        mCancelled = true;
+        mInnerTask.cancel(mayInterruptIfRunning);
     }
 
     /** @see AsyncTask#onCancelled */
     protected void onCancelled(Result result) {
     }
 
-    /** @see AsyncTask#onPostExecute */
-    protected void onPostExecute(Result result) {
+    /**
+     * Similar to {@link AsyncTask#onPostExecute}, but this will never be executed if
+     * {@link #cancel(boolean)} has been called before its execution, even if
+     * {@link #doInBackground(Object...)} has completed when cancelled.
+     *
+     * @see AsyncTask#onPostExecute
+     */
+    protected void onSuccess(Result result) {
     }
 
     /**
@@ -244,11 +258,6 @@ public abstract class EmailAsyncTask<Params, Progress, Result> {
      */
     public final Result get() throws InterruptedException, ExecutionException {
         return mInnerTask.get();
-    }
-
-    /** @see AsyncTask#isCancelled */
-    public final boolean isCancelled() {
-        return mInnerTask.isCancelled();
     }
 
     /* package */ final Result callDoInBackgroundForTest(Params... params) {

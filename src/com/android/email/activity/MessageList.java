@@ -49,7 +49,7 @@ public class MessageList extends Activity {
             }
 
             @Override
-            protected void onPostExecute(Long accountId) {
+            protected void onSuccess(Long accountId) {
                 if ((accountId == null) || (accountId == Account.NO_ACCOUNT)) {
                     // Account deleted?
                     Utility.showToast(me, R.string.toast_account_not_found);

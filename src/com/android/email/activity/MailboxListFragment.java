@@ -673,7 +673,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         }
 
         @Override
-        protected void onPostExecute(Long[] result) {
+        protected void onSuccess(Long[] result) {
             mCallback.onResult(result[0], result[1], result[2]);
         }
     }

@@ -858,7 +858,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
                     return null;
                 }
                 @Override
-                protected void onPostExecute(Void result) {
+                protected void onSuccess(Void result) {
                     // If the timeout completes and the attachment has not loaded, show cancel
                     if (!attachment.loaded) {
                         attachment.cancelButton.setVisibility(View.VISIBLE);
@@ -1058,7 +1058,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
 
         @Override
-        protected void onPostExecute(Message message) {
+        protected void onSuccess(Message message) {
             if (message == null) {
                 resetView();
                 mCallback.onMessageNotExists();
@@ -1092,7 +1092,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
 
         @Override
-        protected void onPostExecute(Message message) {
+        protected void onSuccess(Message message) {
             if (message == null || message.mMailboxKey != mMessage.mMailboxKey) {
                 // Message deleted or moved.
                 mCallback.onMessageNotExists();
@@ -1153,7 +1153,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
 
         @Override
-        protected void onPostExecute(String[] results) {
+        protected void onSuccess(String[] results) {
             if (results == null) {
                 if (mErrorLoadingMessageBody) {
                     Utility.showToast(getActivity(), R.string.error_loading_message_body);
@@ -1185,7 +1185,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
 
         @Override
-        protected void onPostExecute(Attachment[] attachments) {
+        protected void onSuccess(Attachment[] attachments) {
             try {
                 if (attachments == null) {
                     return;
@@ -1903,7 +1903,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         }
 
         @Override
-        protected void onPostExecute(Bitmap result) {
+        protected void onSuccess(Bitmap result) {
             if (result == null) {
                 return;
             }

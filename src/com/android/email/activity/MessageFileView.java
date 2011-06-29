@@ -113,7 +113,7 @@ public class MessageFileView extends Activity implements MessageViewFragmentBase
         }
 
         @Override
-        protected void onPostExecute(String filename) {
+        protected void onSuccess(String filename) {
             if (filename == null) {
                 return;
             }
