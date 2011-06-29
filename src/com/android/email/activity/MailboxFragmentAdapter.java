@@ -467,11 +467,12 @@ class MailboxFragmentAdapter extends CursorAdapter {
         row.add(accountId);
     }
 
-    private static void addCombinedMailboxRow(MatrixCursor cursor, long id, int mailboxType,
-            int count, boolean showAlways) {
+    private static void addCombinedMailboxRow(Context context, MatrixCursor cursor, long id,
+            int mailboxType, boolean showAlways) {
         if (id >= 0) {
             throw new IllegalArgumentException(); // Must be QUERY_ALL_*, which are all negative
         }
+        int count = FolderProperties.getInstance(context).getMessageCountForCombinedMailbox(id);
         if (showAlways || (count > 0)) {
             addMailboxRow(
                     cursor, id, "", mailboxType, count, count, ROW_TYPE_MAILBOX, Mailbox.FLAG_NONE,
@@ -563,9 +564,8 @@ class MailboxFragmentAdapter extends CursorAdapter {
                 int accountStarredCount = Message.getFavoriteMessageCount(mContext, mAccountId);
                 if (accountStarredCount > 0) {
                     // Only add "Starred", if there is at least one starred message
-                    final int totalStarredCount = Message.getFavoriteMessageCount(mContext);
-                    addCombinedMailboxRow(starredCursor, Mailbox.QUERY_ALL_FAVORITES,
-                            Mailbox.TYPE_MAIL, totalStarredCount, true);
+                    addCombinedMailboxRow(mContext, starredCursor, Mailbox.QUERY_ALL_FAVORITES,
+                            Mailbox.TYPE_MAIL, true);
                 }
                 returnCursor = new MergeCursor(new Cursor[] {
                         starredCursor, systemMailboxCursor, recentCursor, headerCursor,
@@ -615,23 +615,19 @@ class MailboxFragmentAdapter extends CursorAdapter {
         }
 
         @VisibleForTesting
-        static MatrixCursor buildCombinedMailboxes(Context context, Cursor innerCursor) {
+        static MatrixCursor buildCombinedMailboxes(Context c, Cursor innerCursor) {
             MatrixCursor cursor = new ClosingMatrixCursor(MATRIX_PROJECTION, innerCursor);
             // Combined inbox -- show unread count
-            addCombinedMailboxRow(cursor, Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX,
-                    Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX), true);
+            addCombinedMailboxRow(c, cursor, Mailbox.QUERY_ALL_INBOXES, Mailbox.TYPE_INBOX, true);
 
             // Favorite (starred) -- show # of favorites
-            addCombinedMailboxRow(cursor, Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL,
-                    Message.getFavoriteMessageCount(context), false);
+            addCombinedMailboxRow(c, cursor, Mailbox.QUERY_ALL_FAVORITES, Mailbox.TYPE_MAIL, false);
 
             // Drafts -- show # of drafts
-            addCombinedMailboxRow(cursor, Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS,
-                    Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS), false);
+            addCombinedMailboxRow(c, cursor, Mailbox.QUERY_ALL_DRAFTS, Mailbox.TYPE_DRAFTS, false);
 
             // Outbox -- # of outstanding messages
-            addCombinedMailboxRow(cursor, Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX,
-                    Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX), false);
+            addCombinedMailboxRow(c, cursor, Mailbox.QUERY_ALL_OUTBOX, Mailbox.TYPE_OUTBOX, false);
 
             return cursor;
         }

@@ -17,6 +17,7 @@
 package com.android.email.activity;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 
 import com.android.email.FolderProperties;
 import com.android.email.R;
@@ -495,11 +496,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 // We need to treat ACCOUNT_ID_COMBINED_VIEW specially...
                 mAccountExists = true;
                 mAccountDisplayName = getCombinedViewDisplayName(context);
-                mMailboxDisplayName = FolderProperties.getInstance(context)
-                        .getCombinedMailboxName(mMailboxId);
-
-                // TODO Would be nicer to show message count for combined mailboxes too..
-                mMailboxMessageCount = 0;
+                setCombinedMailboxInfo(context, mailboxId);
                 return;
             }
 
@@ -517,6 +514,13 @@ public class AccountSelectorAdapter extends CursorAdapter {
             if (mMailboxId == Mailbox.NO_MAILBOX) {
                 return;
             }
+            // Combined mailbox?
+            // Unfortunately this can happen even when account != ACCOUNT_ID_COMBINED_VIEW,
+            // when you open "starred" on 2-pane on non-combined view.
+            if (mMailboxId < 0) {
+                setCombinedMailboxInfo(context, mailboxId);
+                return;
+            }
 
             // Get mailbox info
             final ContentResolver r = context.getContentResolver();
@@ -532,6 +536,15 @@ public class AccountSelectorAdapter extends CursorAdapter {
             } finally {
                 mailboxCursor.close();
             }
+        }
+
+        private void setCombinedMailboxInfo(Context context, long mailboxId) {
+            Preconditions.checkState(mailboxId < -1, "Not combined mailbox");
+            mMailboxDisplayName = FolderProperties.getInstance(context)
+                    .getCombinedMailboxName(mMailboxId);
+
+            mMailboxMessageCount = FolderProperties.getInstance(context)
+                    .getMessageCountForCombinedMailbox(mailboxId);
         }
 
         /**

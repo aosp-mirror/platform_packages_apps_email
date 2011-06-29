@@ -16,13 +16,15 @@
 
 package com.android.email;
 
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
+import com.google.common.base.Preconditions;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
-
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.Mailbox;
 
 
 // TODO When the UI is settled, cache all strings/drawables
@@ -172,6 +174,24 @@ public class FolderProperties {
                 c.getInt(c.getColumnIndex(MailboxColumns.UNREAD_COUNT)),
                 c.getInt(c.getColumnIndex(MailboxColumns.MESSAGE_COUNT))
                 );
+    }
+
+    public int getMessageCountForCombinedMailbox(long mailboxId) {
+        Preconditions.checkState(mailboxId < -1L);
+        if ((mailboxId == Mailbox.QUERY_ALL_INBOXES)
+                || (mailboxId == Mailbox.QUERY_ALL_UNREAD)) {
+            return Mailbox.getUnreadCountByMailboxType(mContext, Mailbox.TYPE_INBOX);
+
+        } else if (mailboxId == Mailbox.QUERY_ALL_FAVORITES) {
+            return Message.getFavoriteMessageCount(mContext);
+
+        } else if (mailboxId == Mailbox.QUERY_ALL_DRAFTS) {
+            return Mailbox.getMessageCountByMailboxType(mContext, Mailbox.TYPE_DRAFTS);
+
+        } else if (mailboxId == Mailbox.QUERY_ALL_OUTBOX) {
+            return Mailbox.getMessageCountByMailboxType(mContext, Mailbox.TYPE_OUTBOX);
+        }
+        throw new IllegalStateException("Invalid mailbox ID");
     }
 
     /**
