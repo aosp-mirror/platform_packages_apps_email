@@ -31,7 +31,6 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.android.email.mail.Store;
 import com.android.email.mail.store.Pop3Store.Pop3Message;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.email.service.EmailServiceUtils;
@@ -1094,16 +1093,6 @@ public class Controller {
             final Account account = Account.restoreAccountWithId(context, accountId);
             if (account == null) {
                 return; // Already deleted?
-            }
-
-            try {
-                // Remove the store instance from cache
-                Store oldStore = Store.removeInstance(account, context);
-                if (oldStore != null) {
-                    oldStore.delete();   // If the store was removed, delete it
-                }
-            } catch (MessagingException e) {
-                Log.w(Logging.LOG_TAG, "Failed to delete store", e);
             }
 
             Uri uri = ContentUris.withAppendedId(

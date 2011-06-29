@@ -16,11 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.R;
-import com.android.email.mail.Store;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
-
 import android.content.Context;
 import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
@@ -29,6 +24,10 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+
+import com.android.email.R;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
 
 import java.net.URISyntaxException;
 
@@ -82,12 +81,6 @@ public class AccountSetupOptionsTests
      */
     public void testPushOptionEAS()
             throws URISyntaxException {
-        // This test should only be run if EAS is supported
-        if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext())
-                == null) {
-            return;
-        }
-
         Intent i = getTestIntent("Name", "eas://user:password@server.com");
         this.setActivityIntent(i);
 
@@ -118,11 +111,6 @@ public class AccountSetupOptionsTests
      */
     public void testBackgroundAttachmentsEas()
             throws URISyntaxException {
-        // This test should only be run if EAS is supported
-        if (Store.StoreInfo.getStoreInfo("eas", this.getInstrumentation().getTargetContext())
-                == null) {
-            return;
-        }
         checkBackgroundAttachments("eas://user:password@server.com", true);
     }
 

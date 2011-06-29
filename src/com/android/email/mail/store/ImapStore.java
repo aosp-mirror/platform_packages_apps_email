@@ -353,7 +353,7 @@ public class ImapStore extends Store {
     private ImapFolder addMailbox(Context context, long accountId, String mailboxPath,
             char delimiter, boolean selectable) {
         ImapFolder folder = (ImapFolder) getFolder(mailboxPath);
-        Mailbox mailbox = getMailboxForPath(context, accountId, mailboxPath);
+        Mailbox mailbox = Mailbox.getMailboxForPath(context, accountId, mailboxPath);
         if (mailbox.isSaved()) {
             // existing mailbox
             // mailbox retrieved from database; save hash _before_ updating fields
