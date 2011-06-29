@@ -28,8 +28,9 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,6 +80,7 @@ public class ActionBarController {
 
     private final View mActionBarCustomView;
     private final View mAccountSpinner;
+    private final Drawable mAccountSpinnerDefaultBackground;
     private final TextView mAccountSpinnerLine1View;
     private final TextView mAccountSpinnerLine2View;
     private final TextView mAccountSpinnerCountView;
@@ -107,16 +109,27 @@ public class ActionBarController {
         public long getTargetMailboxId();
     }
 
+    private static final int TITLE_MODE_SPINNER_ENABLED = 0x10;
+
     public interface Callback {
         /** Values for {@link #getTitleMode}.  Show only account name */
-        public static final int TITLE_MODE_ACCOUNT_NAME_ONLY = 0;
-        /** Show the current account name with "Folders" */
+        public static final int TITLE_MODE_ACCOUNT_NAME_ONLY = 0 | TITLE_MODE_SPINNER_ENABLED;
+
+        /**
+         * Show the current account name with "Folders"
+         * The account spinner will be disabled in this mode.
+         */
         public static final int TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL = 1;
-        /** Show the current account name and the current mailbox name */
-        public static final int TITLE_MODE_ACCOUNT_WITH_MAILBOX = 2;
+
+        /**
+         * Show the current account name and the current mailbox name.
+         */
+        public static final int TITLE_MODE_ACCOUNT_WITH_MAILBOX = 2 | TITLE_MODE_SPINNER_ENABLED;
         /**
          * Show the current message subject.  Actual subject is obtained via
          * {@link #getMessageSubject()}.
+         *
+         * The account spinner will be disabled in this mode.
          *
          * NOT IMPLEMENTED YET
          */
@@ -204,6 +217,7 @@ public class ActionBarController {
 
         // Account spinner
         mAccountSpinner = UiUtilities.getView(mActionBarCustomView, R.id.account_spinner);
+        mAccountSpinnerDefaultBackground = mAccountSpinner.getBackground();
 
         mAccountSpinnerLine1View = UiUtilities.getView(mActionBarCustomView, R.id.spinner_line_1);
         mAccountSpinnerLine2View = UiUtilities.getView(mActionBarCustomView, R.id.spinner_line_2);
@@ -405,7 +419,7 @@ public class ActionBarController {
             return;
         }
 
-        final int mTitleMode = mCallback.getTitleMode();
+        final int titleMode = mCallback.getTitleMode();
 
         // TODO Handle TITLE_MODE_MESSAGE_SUBJECT
 
@@ -415,9 +429,9 @@ public class ActionBarController {
 
         // Get mailbox name
         final String mailboxName;
-        if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL) {
+        if (titleMode == Callback.TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL) {
             mailboxName = mAllFoldersLabel;
-        } else if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_MAILBOX) {
+        } else if (titleMode == Callback.TITLE_MODE_ACCOUNT_WITH_MAILBOX) {
             mailboxName = mCursor.getMailboxDisplayName();
         } else {
             mailboxName = null;
@@ -436,14 +450,20 @@ public class ActionBarController {
         mAccountSpinnerCountView.setText(UiUtilities.getMessageCountForUi(
                 mContext, mCursor.getMailboxMessageCount(), true));
 
-        boolean spinnerEnabled = (mCursor.getAccountCount() + mCursor.getRecentMailboxCount()) > 1;
+        boolean spinnerEnabled =
+            ((titleMode & TITLE_MODE_SPINNER_ENABLED) != 0)
+            && (mCursor.getAccountCount() + mCursor.getRecentMailboxCount()) > 1;
 
         if (spinnerEnabled) {
-            mAccountSpinner.setClickable(true);
+            if (!mAccountSpinner.isEnabled()) {
+                mAccountSpinner.setEnabled(true);
+                mAccountSpinner.setBackgroundDrawable(mAccountSpinnerDefaultBackground);
+            }
         } else {
-            mAccountSpinner.setClickable(false);
-            // TODO There's nothing to select -- we should remove the spinner triangle.
-            // (The small triangle shown at the right bottom corner)
+            if (mAccountSpinner.isEnabled()) {
+                mAccountSpinner.setEnabled(false);
+                mAccountSpinner.setBackgroundDrawable(null);
+            }
         }
     }
 
