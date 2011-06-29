@@ -35,7 +35,6 @@ import android.widget.TextView;
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.activity.UiUtilities;
-import com.android.email.mail.Store;
 import com.android.email.provider.AccountBackupRestore;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
@@ -285,10 +284,10 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         if (mConfigured) return;
         Account account = SetupData.getAccount();
         mBaseScheme = account.mHostAuthRecv.mProtocol;
-        if (Store.STORE_SCHEME_POP3.equals(mBaseScheme)) {
+        if (HostAuth.SCHEME_POP3.equals(mBaseScheme)) {
             mServerLabelView.setText(R.string.account_setup_incoming_pop_server_label);
             mImapPathPrefixSectionView.setVisibility(View.GONE);
-        } else if (Store.STORE_SCHEME_IMAP.equals(mBaseScheme)) {
+        } else if (HostAuth.SCHEME_IMAP.equals(mBaseScheme)) {
             mServerLabelView.setText(R.string.account_setup_incoming_imap_server_label);
             mDeletePolicyLabelView.setVisibility(View.GONE);
             mDeletePolicyView.setVisibility(View.GONE);
@@ -316,12 +315,12 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
             mPasswordView.setText(password);
         }
 
-        if (Store.STORE_SCHEME_IMAP.equals(recvAuth.mProtocol)) {
+        if (HostAuth.SCHEME_IMAP.equals(recvAuth.mProtocol)) {
             String prefix = recvAuth.mDomain;
             if (prefix != null && prefix.length() > 0) {
                 mImapPathPrefixView.setText(prefix.substring(1));
             }
-        } else if (!Store.STORE_SCHEME_POP3.equals(recvAuth.mProtocol)) {
+        } else if (!HostAuth.SCHEME_POP3.equals(recvAuth.mProtocol)) {
             // Account must either be IMAP or POP3
             throw new Error("Unknown account type: " + recvAuth.mProtocol);
         }
@@ -375,7 +374,7 @@ public class AccountSetupIncomingFragment extends AccountServerBaseFragment {
         int securityType = (Integer)((SpinnerOption)mSecurityTypeView.getSelectedItem()).value;
         boolean useSsl = ((securityType & HostAuth.FLAG_SSL) != 0);
         int port = useSsl ? IMAP_PORT_SSL : IMAP_PORT_NORMAL;     // default to IMAP
-        if (Store.STORE_SCHEME_POP3.equals(mBaseScheme)) {
+        if (HostAuth.SCHEME_POP3.equals(mBaseScheme)) {
             port = useSsl ? POP3_PORT_SSL : POP3_PORT_NORMAL;
         }
         return port;

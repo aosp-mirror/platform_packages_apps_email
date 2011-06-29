@@ -48,18 +48,6 @@ import java.util.HashMap;
 public abstract class Store {
 
     /**
-     * String constants for known store schemes.
-     */
-    public static final String STORE_SCHEME_IMAP = HostAuth.SCHEME_IMAP;
-    public static final String STORE_SCHEME_POP3 = HostAuth.SCHEME_POP3;
-    public static final String STORE_SCHEME_EAS = HostAuth.SCHEME_EAS;
-    public static final String STORE_SCHEME_LOCAL = "local";
-
-    public static final String STORE_SECURITY_SSL = "+ssl";
-    public static final String STORE_SECURITY_TLS = "+tls";
-    public static final String STORE_SECURITY_TRUST_CERTIFICATES = "+trustallcerts";
-
-    /**
      * A global suggestion to Store implementors on how much of the body
      * should be returned on FetchProfile.Item.BODY_SANE requests.
      */

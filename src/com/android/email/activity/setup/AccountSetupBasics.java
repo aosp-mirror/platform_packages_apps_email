@@ -16,20 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.EmailAddressValidator;
-import com.android.email.R;
-import com.android.email.VendorPolicyLoader;
-import com.android.email.activity.ActivityHelper;
-import com.android.email.activity.UiUtilities;
-import com.android.email.activity.Welcome;
-import com.android.email.activity.setup.AccountSettingsUtils.Provider;
-import com.android.email.mail.Store;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.utility.Utility;
-
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -54,6 +40,19 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.email.EmailAddressValidator;
+import com.android.email.R;
+import com.android.email.VendorPolicyLoader;
+import com.android.email.activity.ActivityHelper;
+import com.android.email.activity.UiUtilities;
+import com.android.email.activity.Welcome;
+import com.android.email.activity.setup.AccountSettingsUtils.Provider;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.utility.Utility;
 
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
@@ -602,13 +601,13 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         String protocol = account.mHostAuthRecv.mProtocol;
         // Set sync and delete policies for specific inbound account types
-        if (Store.STORE_SCHEME_IMAP.equals(protocol)) {
+        if (HostAuth.SCHEME_IMAP.equals(protocol)) {
             // Delete policy must be set explicitly, because IMAP does not provide a UI selection
             // for it. This logic needs to be followed in the auto setup flow as well.
             account.setDeletePolicy(Account.DELETE_POLICY_ON_DELETE);
         }
 
-        if (Store.STORE_SCHEME_EAS.equals(protocol)) {
+        if (HostAuth.SCHEME_EAS.equals(protocol)) {
             account.setSyncInterval(Account.CHECK_INTERVAL_PUSH);
         } else {
             account.setSyncInterval(DEFAULT_ACCOUNT_CHECK_INTERVAL);
