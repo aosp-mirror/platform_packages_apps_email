@@ -91,7 +91,7 @@ public class StoreTests extends ProviderTestCase2<EmailProvider> {
         testAuth.mProtocol = "pop3";
         testAccount.save(mMockContext);
 
-        testStore = Store.getInstance(testAccount, getContext(), null);
+        testStore = Store.getInstance(testAccount, getContext());
         assertEquals(1, Store.sStores.size());
         assertSame(testStore, Store.sStores.get(testAccount.mId));
         Store.sStores.clear();
@@ -103,7 +103,7 @@ public class StoreTests extends ProviderTestCase2<EmailProvider> {
         testAuth.mAddress = "imap.google.com";
         testAuth.mProtocol = "imap";
         testAccount.save(mMockContext);
-        testStore = Store.getInstance(testAccount, getContext(), null);
+        testStore = Store.getInstance(testAccount, getContext());
         assertEquals(1, Store.sStores.size());
         assertSame(testStore, Store.sStores.get(testAccount.mId));
         Store.sStores.clear();
@@ -114,7 +114,7 @@ public class StoreTests extends ProviderTestCase2<EmailProvider> {
         testAuth.mAddress = "unknown.google.com";
         testAuth.mProtocol = "unknown";
         try {
-            testStore = Store.getInstance(testAccount, getContext(), null);
+            testStore = Store.getInstance(testAccount, getContext());
             fail("Store#getInstance() should have thrown an exception");
         } catch (MessagingException expected) {
         }

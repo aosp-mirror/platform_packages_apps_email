@@ -16,17 +16,6 @@
 
 package com.android.email.activity.setup;
 
-import com.android.email.R;
-import com.android.email.mail.Sender;
-import com.android.email.mail.Store;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.mail.MessagingException;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Policy;
-import com.android.emailcommon.service.EmailServiceProxy;
-import com.android.emailcommon.utility.Utility;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -40,6 +29,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.android.email.R;
+import com.android.email.mail.Sender;
+import com.android.email.mail.Store;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.mail.MessagingException;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Policy;
+import com.android.emailcommon.service.EmailServiceProxy;
+import com.android.emailcommon.utility.Utility;
 
 /**
  * Check incoming or outgoing settings, or perform autodiscovery.
@@ -420,7 +420,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     if (isCancelled()) return null;
                     publishProgress(STATE_CHECK_AUTODISCOVER);
                     Log.d(Logging.LOG_TAG, "Begin auto-discover for " + mCheckEmail);
-                    Store store = Store.getInstance(mAccount, mContext, null);
+                    Store store = Store.getInstance(mAccount, mContext);
                     Bundle result = store.autoDiscover(mContext, mCheckEmail, mCheckPassword);
                     // Result will be one of:
                     //  null: remote exception - proceed to manual setup
@@ -448,7 +448,7 @@ public class AccountCheckSettingsFragment extends Fragment {
                     if (isCancelled()) return null;
                     Log.d(Logging.LOG_TAG, "Begin check of incoming email settings");
                     publishProgress(STATE_CHECK_INCOMING);
-                    Store store = Store.getInstance(mAccount, mContext, null);
+                    Store store = Store.getInstance(mAccount, mContext);
                     Bundle bundle = store.checkSettings();
                     int resultCode = MessagingException.UNSPECIFIED_EXCEPTION;
                     if (bundle != null) {

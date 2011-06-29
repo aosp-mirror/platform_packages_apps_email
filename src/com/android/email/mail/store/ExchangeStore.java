@@ -17,75 +17,39 @@
 package com.android.email.mail.store;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.os.RemoteException;
 
 import com.android.email.mail.Store;
 import com.android.email.service.EmailServiceUtils;
 import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.IEmailService;
 
 /**
  * Our Exchange service does not use the sender/store model.
  */
-public class ExchangeStore extends Store {
-    private final HostAuth mHostAuth;
+public class ExchangeStore extends ServiceStore {
 
     /**
      * Static named constructor.
      */
-    public static Store newInstance(Account account, Context context,
-            PersistentDataCallbacks callbacks) throws MessagingException {
-        return new ExchangeStore(account, context, callbacks);
+    public static Store newInstance(Account account, Context context) throws MessagingException {
+        return new ExchangeStore(account, context);
     }
 
     /**
      * Creates a new store for the given account.
      */
-    private ExchangeStore(Account account, Context context, PersistentDataCallbacks callbacks)
-            throws MessagingException {
-        mContext = context;
-        mHostAuth = account.getOrCreateHostAuthRecv(mContext);
-    }
-
-    @Override
-    public Bundle checkSettings() throws MessagingException {
-        /**
-         * Here's where we check the settings for EAS.
-         * @throws MessagingException if we can't authenticate the account
-         */
-        try {
-            IEmailService svc = EmailServiceUtils.getExchangeService(mContext, null);
-            // Use a longer timeout for the validate command.  Note that the instanceof check
-            // shouldn't be necessary; we'll do it anyway, just to be safe
-            if (svc instanceof EmailServiceProxy) {
-                ((EmailServiceProxy)svc).setTimeout(90);
-            }
-            return svc.validate(mHostAuth);
-        } catch (RemoteException e) {
-            throw new MessagingException("Call to validate generated an exception", e);
-        }
-    }
-
-    /**
-     * We handle AutoDiscover for Exchange 2007 (and later) here, wrapping the EmailService call.
-     * The service call returns a HostAuth and we return null if there was a service issue
-     */
-    @Override
-    public Bundle autoDiscover(Context context, String username, String password) {
-        try {
-            return EmailServiceUtils.getExchangeService(context, null).autoDiscover(
-                    username, password);
-        } catch (RemoteException e) {
-            return null;
-        }
+    public ExchangeStore(Account account, Context context) throws MessagingException {
+        super(account, context);
     }
 
     @Override
     public Class<? extends android.app.Activity> getSettingActivityClass() {
         return com.android.email.activity.setup.AccountSetupExchange.class;
+    }
+
+    @Override
+    protected IEmailService getService() {
+        return EmailServiceUtils.getExchangeService(mContext, null);
     }
 }

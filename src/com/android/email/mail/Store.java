@@ -78,14 +78,12 @@ public abstract class Store {
      * Static named constructor.  It should be overrode by extending class.
      * Because this method will be called through reflection, it can not be protected.
      */
-    public static Store newInstance(Account account, Context context,
-            PersistentDataCallbacks callbacks) throws MessagingException {
+    static Store newInstance(Account account, Context context) throws MessagingException {
         throw new MessagingException("Store#newInstance: Unknown scheme in "
                 + account.mDisplayName);
     }
 
-    private static Store instantiateStore(String className, Account account, Context context,
-            PersistentDataCallbacks callbacks)
+    private static Store instantiateStore(String className, Account account, Context context)
         throws MessagingException {
         Object o = null;
         try {
@@ -95,7 +93,7 @@ public abstract class Store {
                 c.getMethod("newInstance", Account.class, Context.class,
                         PersistentDataCallbacks.class);
             // TODO Do the stores _really need a context? Is there a way to not pass it along?
-            o = m.invoke(null, account, context, callbacks);
+            o = m.invoke(null, account, context);
         } catch (Exception e) {
             Log.d(Logging.LOG_TAG, String.format(
                     "exception %s invoking method %s#newInstance(Account, Context) for %s",
@@ -176,23 +174,20 @@ public abstract class Store {
      * @return an initialized store of the appropriate class
      * @throws MessagingException If the store cannot be obtained or if the account is invalid.
      */
-    public synchronized static Store getInstance(Account account, Context context,
-            PersistentDataCallbacks callbacks) throws MessagingException {
+    public synchronized static Store getInstance(Account account, Context context)
+            throws MessagingException {
         HostAuth hostAuth = account.getOrCreateHostAuthRecv(context);
         Store store = sStores.get(hostAuth);
         if (store == null) {
             Context appContext = context.getApplicationContext();
             StoreInfo info = StoreInfo.getStoreInfo(hostAuth.mProtocol, context);
             if (info != null) {
-                store = instantiateStore(info.mClassName, account, appContext, callbacks);
+                store = instantiateStore(info.mClassName, account, appContext);
             }
             // Don't cache this unless it's we've got a saved HostAUth
             if (store != null && (hostAuth.mId != EmailContent.NOT_SAVED)) {
                 sStores.put(hostAuth, store);
             }
-        } else {
-            // update the callbacks, which may have been null at creation time.
-            store.setPersistentDataCallbacks(callbacks);
         }
 
         if (store == null) {
