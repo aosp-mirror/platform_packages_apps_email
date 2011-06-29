@@ -73,8 +73,6 @@ public class EmailAsyncTaskTests extends AndroidTestCase {
         tracker.cancellAllInterrupt();
 
         // Check if they're canceled
-        assertTrue(task2.isCancelled());
-        assertTrue(task4.isCancelled());
         assertEquals(0, tracker.getTaskCountForTest());
     }
 
@@ -137,7 +135,7 @@ public class EmailAsyncTaskTests extends AndroidTestCase {
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onSuccess(String result) {
             mOnPostExecuteArg = result;
         }
     }

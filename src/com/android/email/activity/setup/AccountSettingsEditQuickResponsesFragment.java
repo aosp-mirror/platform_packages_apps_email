@@ -180,7 +180,7 @@ public class AccountSettingsEditQuickResponsesFragment extends Fragment
         }
 
         @Override
-        protected void onPostExecute(QuickResponse[] quickResponseItems) {
+        protected void onSuccess(QuickResponse[] quickResponseItems) {
             ArrayAdapter<QuickResponse> adapter;
             if (mIsEditable) {
                     adapter = new ArrayAdapterWithButtons(

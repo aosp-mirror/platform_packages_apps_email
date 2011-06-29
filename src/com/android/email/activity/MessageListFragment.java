@@ -761,7 +761,7 @@ public class MessageListFragment extends ListFragment
         }
 
         @Override
-        protected void onPostExecute(Integer type) {
+        protected void onSuccess(Integer type) {
             if (type == null) {
                 return;
             }

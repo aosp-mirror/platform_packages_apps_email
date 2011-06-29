@@ -344,7 +344,7 @@ public class Welcome extends Activity {
         }
 
         @Override
-        protected void onPostExecute(Void noResult) {
+        protected void onSuccess(Void noResult) {
             final Activity activity = Welcome.this;
 
             if (mStartAccountSetup) {

@@ -284,7 +284,7 @@ public class MessageOrderManager {
         }
 
         @Override
-        protected void onPostExecute(Cursor cursor) {
+        protected void onSuccess(Cursor cursor) {
             onCursorOpenDone(cursor);
         }
     }

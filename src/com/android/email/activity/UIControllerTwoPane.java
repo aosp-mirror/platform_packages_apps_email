@@ -741,7 +741,7 @@ class UIControllerTwoPane extends UIControllerBase implements
          * Do the actual refresh.
          */
         @Override
-        protected void onPostExecute(Boolean isCurrentMailboxRefreshable) {
+        protected void onSuccess(Boolean isCurrentMailboxRefreshable) {
             if (isCurrentMailboxRefreshable == null) {
                 return;
             }

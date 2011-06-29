@@ -291,7 +291,7 @@ public class FindParentMailboxTaskTest extends AndroidTestCase {
                 highlightedMailboxId, result);
 
         // Can't execute an async task on the test thread, so emulate execution...
-        task.onPostExecute(task.doInBackground((Void[]) null));
+        task.onSuccess(task.doInBackground((Void[]) null));
 
         assertEquals("parent", expectedNextParent, result.mNextParentMailboxId);
         assertEquals("highlighted", expectedNextHighlighted, result.mNextHighlightedMailboxId);
