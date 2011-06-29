@@ -16,6 +16,14 @@
 
 package com.android.email.mail.store;
 
+import android.content.Context;
+import android.os.Build;
+import android.os.Bundle;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
+import android.util.Base64;
+import android.util.Log;
+
 import com.android.email.LegacyConversions;
 import com.android.email.Preferences;
 import com.android.email.VendorPolicyLoader;
@@ -39,14 +47,6 @@ import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.utility.Utility;
 import com.beetstra.jutf7.CharsetProvider;
 import com.google.common.annotations.VisibleForTesting;
-
-import android.content.Context;
-import android.os.Build;
-import android.os.Bundle;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,14 +89,6 @@ public class ImapStore extends Store {
 
     private final ConcurrentLinkedQueue<ImapConnection> mConnectionPool =
             new ConcurrentLinkedQueue<ImapConnection>();
-
-    /**
-     * Cache of ImapFolder objects. ImapFolders are attached to a given folder on the server
-     * and as long as their associated connection remains open they are reusable between
-     * requests. This cache lets us make sure we always reuse, if possible, for a given
-     * folder name.
-     */
-    private final HashMap<String, ImapFolder> mFolderCache = new HashMap<String, ImapFolder>();
 
     /**
      * Static named constructor.
@@ -321,15 +313,7 @@ public class ImapStore extends Store {
 
     @Override
     public Folder getFolder(String name) {
-        ImapFolder folder;
-        synchronized (mFolderCache) {
-            folder = mFolderCache.get(name);
-            if (folder == null) {
-                folder = new ImapFolder(this, name);
-                mFolderCache.put(name, folder);
-            }
-        }
-        return folder;
+        return new ImapFolder(this, name);
     }
 
     /**

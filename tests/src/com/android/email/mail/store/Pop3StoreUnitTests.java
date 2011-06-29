@@ -403,7 +403,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -445,7 +445,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -488,7 +488,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -540,7 +540,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -587,7 +587,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -646,7 +646,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -693,7 +693,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // NOTE: everything from here down is copied from testOneUnread() and should be consolidated
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);
@@ -742,7 +742,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // test is, can we recover?  So I'll try a new connection, without the failure.
 
         // confirm that we're closed at this point
-        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpenForTest());
+        assertFalse("folder should be 'closed' after an IOError", mFolder.isOpen());
 
         // and confirm that the next connection will be OK
         checkOneUnread(mockTransport);

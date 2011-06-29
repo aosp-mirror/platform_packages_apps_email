@@ -76,7 +76,7 @@ public abstract class Folder {
      * @return True if further commands are not expected to have to open the
      *         connection.
      */
-    public abstract boolean isOpenForTest();
+    public abstract boolean isOpen();
 
     /**
      * Returns the mode the folder was opened with. This may be different than the mode the open
