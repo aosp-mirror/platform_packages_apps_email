@@ -170,7 +170,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
 
         // try to open it
         setupOpenFolder(mockTransport, 0, null);
-        mFolder.open(OpenMode.READ_ONLY, null);
+        mFolder.open(OpenMode.READ_ONLY);
     }
 
     /**
@@ -226,7 +226,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // And watch it fail
         try {
             Pop3Store.Pop3Folder folder = mStore.new Pop3Folder("INBOX");
-            folder.open(OpenMode.READ_WRITE, null);
+            folder.open(OpenMode.READ_WRITE);
             fail("Should have thrown exception");
         } catch (MessagingException me) {
             // Expected - continue.
@@ -344,7 +344,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         MockTransport mockTransport = openAndInjectMockTransport();
 
         setupOpenFolder(mockTransport, 2, null);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         // check message count
         assertEquals(2, mFolder.getMessageCount());
 
@@ -468,7 +468,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
 
         // openFolderWithMessage(mockTransport);
         setupOpenFolder(mockTransport, 6000, null);
-        mFolder.open(OpenMode.READ_ONLY, null);
+        mFolder.open(OpenMode.READ_ONLY);
         assertEquals(6000, mFolder.getMessageCount());
 
         // index the message(s) - it should fail, because our stream is broken
@@ -731,7 +731,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
         // like openFolderWithMessage(mockTransport) but with a broken STAT report (empty response)
         setupOpenFolder(mockTransport, -1, null);
         try {
-            mFolder.open(OpenMode.READ_ONLY, null);
+            mFolder.open(OpenMode.READ_ONLY);
             fail("Broken STAT should cause open() to throw.");
         } catch(MessagingException me) {
             // success
@@ -874,7 +874,7 @@ public class Pop3StoreUnitTests extends InstrumentationTestCase {
     private void openFolderWithMessage(MockTransport mockTransport) throws MessagingException {
         // try to open it
         setupOpenFolder(mockTransport, 1, null);
-        mFolder.open(OpenMode.READ_ONLY, null);
+        mFolder.open(OpenMode.READ_ONLY);
 
         // check message count
         assertEquals(1, mFolder.getMessageCount());

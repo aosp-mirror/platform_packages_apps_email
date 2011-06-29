@@ -108,7 +108,7 @@ public class MockFolder extends Folder {
     }
 
     @Override
-    public void open(OpenMode mode, PersistentDataCallbacks callbacks) {
+    public void open(OpenMode mode) {
     }
 
     @Override

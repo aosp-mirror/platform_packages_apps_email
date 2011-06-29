@@ -90,8 +90,7 @@ public abstract class Store {
             Class<?> c = Class.forName(className);
             // and invoke "newInstance" class method and instantiate store object.
             java.lang.reflect.Method m =
-                c.getMethod("newInstance", Account.class, Context.class,
-                        PersistentDataCallbacks.class);
+                c.getMethod("newInstance", Account.class, Context.class);
             // TODO Do the stores _really need a context? Is there a way to not pass it along?
             o = m.invoke(null, account, context);
         } catch (Exception e) {
@@ -253,37 +252,6 @@ public abstract class Store {
      * @throws MessagingException
      */
     public void delete() throws MessagingException {
-    }
-
-    /**
-     * If a Store intends to implement callbacks, it should be prepared to update them
-     * via overriding this method.  They may not be available at creation time (in which case they
-     * will be passed in as null.
-     * @param callbacks The updated provider of store callbacks
-     */
-    protected void setPersistentDataCallbacks(PersistentDataCallbacks callbacks) {
-    }
-
-    /**
-     * Callback interface by which a Store can read and write persistent data.
-     * TODO This needs to be made more generic & flexible
-     */
-    public interface PersistentDataCallbacks {
-
-        /**
-         * Provides a small place for Stores to store persistent data.
-         * @param key identifier for the data (e.g. "sync.key" or "folder.id")
-         * @param value The data to persist.  All data must be encoded into a string,
-         * so use base64 or some other encoding if necessary.
-         */
-        public void setPersistentString(String key, String value);
-
-        /**
-         * @param key identifier for the data (e.g. "sync.key" or "folder.id")
-         * @param defaultValue The data to return if no data was ever saved for this store
-         * @return the data saved by the Store, or null if never set.
-         */
-        public String getPersistentString(String key, String defaultValue);
     }
 
     /**

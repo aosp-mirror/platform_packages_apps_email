@@ -14,7 +14,7 @@
 }
 
 -keepclasseswithmembers class * {
-  public *** newInstance(com.android.emailcommon.provider.Account, android.content.Context, com.android.email.mail.Store$PersistentDataCallbacks);
+  public *** newInstance(com.android.emailcommon.provider.Account, android.content.Context);
 }
 
 -keepclasseswithmembers class android.content.SharedPreferences$Editor {

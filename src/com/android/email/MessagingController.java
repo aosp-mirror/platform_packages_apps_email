@@ -617,7 +617,7 @@ public class MessagingController implements Runnable {
 
         Store remoteStore = Store.getInstance(account, mContext);
         Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
-        remoteFolder.open(OpenMode.READ_WRITE, null);
+        remoteFolder.open(OpenMode.READ_WRITE);
 
         SortableMessage[] sortableMessages = new SortableMessage[0];
         if (searchParams.mOffset == 0) {
@@ -781,7 +781,7 @@ public class MessagingController implements Runnable {
         }
 
         // 3, Open the remote folder. This pre-loads certain metadata like message count.
-        remoteFolder.open(OpenMode.READ_WRITE, null);
+        remoteFolder.open(OpenMode.READ_WRITE);
 
         // 4. Trash any remote messages that are marked as trashed locally.
         // TODO - this comment was here, but no code was here.
@@ -1450,7 +1450,7 @@ public class MessagingController implements Runnable {
         if (!remoteFolder.exists()) {
             return;
         }
-        remoteFolder.open(OpenMode.READ_WRITE, null);
+        remoteFolder.open(OpenMode.READ_WRITE);
         if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
             return;
         }
@@ -1560,7 +1560,7 @@ public class MessagingController implements Runnable {
             return;
         }
 
-        remoteFolder.open(OpenMode.READ_WRITE, null);
+        remoteFolder.open(OpenMode.READ_WRITE);
         if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
             remoteFolder.close(false);
             return;
@@ -1588,7 +1588,7 @@ public class MessagingController implements Runnable {
             /*
              * Because remoteTrashFolder may be new, we need to explicitly open it
              */
-            remoteTrashFolder.open(OpenMode.READ_WRITE, null);
+            remoteTrashFolder.open(OpenMode.READ_WRITE);
             if (remoteTrashFolder.getMode() != OpenMode.READ_WRITE) {
                 remoteFolder.close(false);
                 remoteTrashFolder.close(false);
@@ -1646,7 +1646,7 @@ public class MessagingController implements Runnable {
             return;
         }
 
-        remoteTrashFolder.open(OpenMode.READ_WRITE, null);
+        remoteTrashFolder.open(OpenMode.READ_WRITE);
         if (remoteTrashFolder.getMode() != OpenMode.READ_WRITE) {
             remoteTrashFolder.close(false);
             return;
@@ -1705,7 +1705,7 @@ public class MessagingController implements Runnable {
                 return false;
             }
         }
-        remoteFolder.open(OpenMode.READ_WRITE, null);
+        remoteFolder.open(OpenMode.READ_WRITE);
         if (remoteFolder.getMode() != OpenMode.READ_WRITE) {
             return false;
         }
@@ -1838,7 +1838,7 @@ public class MessagingController implements Runnable {
                         remoteServerId = message.mProtocolSearchInfo;
                     }
                     Folder remoteFolder = remoteStore.getFolder(remoteServerId);
-                    remoteFolder.open(OpenMode.READ_WRITE, null);
+                    remoteFolder.open(OpenMode.READ_WRITE);
 
                     // 3. Set up to download the entire message
                     Message remoteMessage = remoteFolder.getMessage(remoteServerId);
@@ -1904,7 +1904,7 @@ public class MessagingController implements Runnable {
 
                     Store remoteStore = Store.getInstance(account, mContext);
                     Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
-                    remoteFolder.open(OpenMode.READ_WRITE, null);
+                    remoteFolder.open(OpenMode.READ_WRITE);
 
                     // 3. Generate a shell message in which to retrieve the attachment,
                     // and a shell BodyPart for the attachment.  Then glue them together.

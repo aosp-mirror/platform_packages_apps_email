@@ -99,7 +99,7 @@ public class ImapStore extends Store {
 
     /**
      * Creates a new store for the given account. Always use
-     * {@link #newInstance(Account, Context, PersistentDataCallbacks)} to create an IMAP store.
+     * {@link #newInstance(Account, Context)} to create an IMAP store.
      */
     private ImapStore(Context context, Account account) throws MessagingException {
         mContext = context;

@@ -179,7 +179,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
 
         // try to open it
         setupOpenFolder(mockTransport);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         // TODO: inject specific facts in the initial folder SELECT and check them here
     }
@@ -221,7 +221,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 getNextTag(true) + " oK [" + "rEAD-wRITE" + "] " +
                         FOLDER_ENCODED + " selected. (Success)"});
 
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         assertTrue(mockTransport.isTlsStarted());
     }
 
@@ -415,7 +415,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 " \"os\" \"sunos\" \"os-version\" \"5.5\"" +
                 " \"support-url\" \"mailto:cyrus-bugs+@andrew.cmu.edu\")",
                 "oK"}, "rEAD-wRITE");
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
     }
 
     /**
@@ -428,7 +428,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         setupOpenFolder(mockTransport, new String[] {
                 "* iD nIL",
                 "oK [iD] bad-char-%"}, "rEAD-wRITE");
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
     }
 
     /**
@@ -440,7 +440,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         // try to open it
         setupOpenFolder(mockTransport, new String[] {
                 "bAD unknown command bad-char-%"}, "rEAD-wRITE");
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
     }
 
     /**
@@ -453,7 +453,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
 
         // try to open it
         setupOpenFolder(mockTransport, null, "rEAD-wRITE");
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
     }
 
     /**
@@ -471,7 +471,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 "* ID( \"name\" \"Godaddy IMAP\" \"version\" \"3.1.0\")",
                 "oK"}, "rEAD-wRITE");
         try {
-            mFolder.open(OpenMode.READ_WRITE, null);
+            mFolder.open(OpenMode.READ_WRITE);
             fail("Expected MessagingException");
         } catch (MessagingException expected) {
         }
@@ -504,7 +504,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
 
         // Now open the folder.  Although the server indicates ID in the capabilities,
         // we are not expecting the store to send the ID command (to this particular server).
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
     }
 
     /**
@@ -720,7 +720,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testReadWrite() throws MessagingException {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock, "rEAD-WRITE");
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         assertEquals(OpenMode.READ_WRITE, mFolder.getMode());
     }
 
@@ -731,7 +731,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testReadOnly() throws MessagingException {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock, "rEAD-ONLY");
-        mFolder.open(OpenMode.READ_ONLY, null);
+        mFolder.open(OpenMode.READ_ONLY);
         assertEquals(OpenMode.READ_ONLY, mFolder.getMode());
     }
 
@@ -746,7 +746,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 new String[] {
                 "* sTATUS \"" + FOLDER_ENCODED + "\" (uNSEEN 2)",
                 getNextTag(true) + " oK STATUS completed"});
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         int unreadCount = mFolder.getUnreadMessageCount();
         assertEquals("getUnreadMessageCount with quoted string", 2, unreadCount);
     }
@@ -763,7 +763,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 "* sTATUS {5}",
                 FOLDER_ENCODED + " (uNSEEN 10)",
                 getNextTag(true) + " oK STATUS completed"});
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         int unreadCount = mFolder.getUnreadMessageCount();
         assertEquals("getUnreadMessageCount with literal string", 10, unreadCount);
     }
@@ -771,7 +771,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testFetchFlagEnvelope() throws MessagingException {
         final MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         final Message message = mFolder.createMessage("1");
 
         final FetchProfile fp = new FetchProfile();
@@ -812,7 +812,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testFetchBodyStructureSimple() throws Exception {
         final MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         final Message message = mFolder.createMessage("1");
 
         final FetchProfile fp = new FetchProfile();
@@ -851,7 +851,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testFetchBodyStructureMultipart() throws Exception {
         final MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         final Message message = mFolder.createMessage("1");
 
         final FetchProfile fp = new FetchProfile();
@@ -973,7 +973,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testFetchBodySane() throws MessagingException {
         final MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         final Message message = mFolder.createMessage("1");
 
         final FetchProfile fp = new FetchProfile();
@@ -996,7 +996,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testFetchBody() throws MessagingException {
         final MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         final Message message = mFolder.createMessage("1");
 
         final FetchProfile fp = new FetchProfile();
@@ -1019,7 +1019,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testFetchAttachment() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         final Message message = mFolder.createMessage("1");
 
         final FetchProfile fp = new FetchProfile();
@@ -1069,7 +1069,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testNilMessage() throws MessagingException {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         // Prepare to pull structure and peek body text - this is like the "large message"
         // loop in MessagingController.synchronizeMailboxGeneric()
@@ -1126,7 +1126,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testExcessFetchResult() throws MessagingException {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         // Create a message, and make sure it's not "SEEN".
         Message message1 = mFolder.createMessage("1");
@@ -1187,7 +1187,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testAppendMessages() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         ImapMessage message = prepareForAppendTest(mock, "oK [aPPENDUID 1234567 13] (Success)");
 
@@ -1203,7 +1203,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testAppendMessagesNoAppendUid() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         ImapMessage message = prepareForAppendTest(mock, "OK Success");
 
@@ -1237,7 +1237,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testAppendFailure() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         ImapMessage message = prepareForAppendTest(mock, "NO No space left on the server.");
         assertEquals("initial uid", message.getUid());
@@ -1461,7 +1461,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 getNextTag(true) + " nO no such mailbox"
                 });
         try {
-            folder.open(OpenMode.READ_WRITE, null);
+            folder.open(OpenMode.READ_WRITE);
             fail();
         } catch (MessagingException expected) {
         }
@@ -1474,7 +1474,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 getNextTag(true) + " oK [rEAD-wRITE]"
                 });
 
-        folder.open(OpenMode.READ_WRITE, null);
+        folder.open(OpenMode.READ_WRITE);
         assertTrue(folder.exists());
         assertEquals(1, folder.getMessageCount());
         assertEquals(OpenMode.READ_WRITE, folder.getMode());
@@ -1491,7 +1491,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 getNextTag(true) + " oK [rEAD-oNLY]"
                 });
 
-        folder.open(OpenMode.READ_WRITE, null);
+        folder.open(OpenMode.READ_WRITE);
         assertTrue(folder.exists());
         assertEquals(2, folder.getMessageCount());
         assertEquals(OpenMode.READ_ONLY, folder.getMode());
@@ -1504,7 +1504,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
                 getNextTag(true) + " oK selected"
                 });
 
-        folder.open(OpenMode.READ_WRITE, null);
+        folder.open(OpenMode.READ_WRITE);
         assertTrue(folder.exists());
         assertEquals(15, folder.getMessageCount());
         assertEquals(OpenMode.READ_WRITE, folder.getMode());
@@ -1568,7 +1568,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     private void setupCopyMessages(boolean withUidPlus) throws Exception {
         mCopyMock = openAndInjectMockTransport();
         setupOpenFolder(mCopyMock, new String[] {"* iD nIL", "oK"}, "rEAD-wRITE", withUidPlus);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         mCopyToFolder = mStore.getFolder("\u65E5\u672C\u8A9E");
         Message m1 = mFolder.createMessage("11");
@@ -1797,7 +1797,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testGetUnreadMessageCount() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         mock.expect(getNextTag(false) + " STATUS \\\"" + FOLDER_ENCODED + "\\\" \\(UNSEEN\\)",
                 new String[] {
@@ -1811,7 +1811,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testExpunge() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         mock.expect(getNextTag(false) + " EXPUNGE",
                 new String[] {
@@ -1826,7 +1826,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testSetFlags() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         Message[] messages = new Message[] {
                 mFolder.createMessage("11"),
@@ -1855,7 +1855,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testSearchForUids() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         // Single results
         mock.expect(
@@ -1916,7 +1916,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testGetMessage() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         // Found
         mock.expect(
@@ -1940,7 +1940,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testGetMessages1() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         // Found
         mock.expect(
@@ -1969,7 +1969,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testGetMessages2() throws Exception {
         MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
 
         // No command will be sent
         checkMessageUids(new String[] {"3", "4", "5"},
@@ -2098,7 +2098,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
             "* OK [UIDNEXT 449625]",
             "* NO [ALERT] Mailbox is at 98% of quota",
             getNextTag(true) + " OK [READ-WRITE] Completed"});
-        folder.open(OpenMode.READ_WRITE, null); // shouldn't crash.
+        folder.open(OpenMode.READ_WRITE); // shouldn't crash.
         assertEquals(6406, folder.getMessageCount());
     }
 
@@ -2108,7 +2108,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
     public void testFetchBodyStructureMalformed() throws Exception {
         final MockTransport mock = openAndInjectMockTransport();
         setupOpenFolder(mock);
-        mFolder.open(OpenMode.READ_WRITE, null);
+        mFolder.open(OpenMode.READ_WRITE);
         final Message message = mFolder.createMessage("1");
 
         final FetchProfile fp = new FetchProfile();
@@ -2176,7 +2176,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
             "* OK [UNSEEN 0]",
             "* OK [UIDNEXT 1]",
             getNextTag(true) + " OK [READ-WRITE] " + FOLDER_1});
-        folders[2].open(OpenMode.READ_WRITE, null);
+        folders[2].open(OpenMode.READ_WRITE);
         folders[2].close(false);
 
         expectNoop(mock, true);
@@ -2188,7 +2188,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
             "* OK [UNSEEN 0]",
             "* OK [UIDNEXT 1]",
             getNextTag(true) + " OK [READ-WRITE] " + FOLDER_2});
-        folders[1].open(OpenMode.READ_WRITE, null);
+        folders[1].open(OpenMode.READ_WRITE);
         folders[1].close(false);
     }
 
@@ -2209,7 +2209,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
         try {
             final MockTransport mockTransport = openAndInjectMockTransport();
             setupOpenFolder(mockTransport);
-            mFolder.open(OpenMode.READ_WRITE, null);
+            mFolder.open(OpenMode.READ_WRITE);
 
             target.run(mockTransport);
 
@@ -2304,7 +2304,7 @@ public class ImapStoreUnitTests extends InstrumentationTestCase {
             public void run(MockTransport mockTransport) throws Exception {
                 mockTransport.expectIOException();
                 final Folder folder = mStore.getFolder("test");
-                folder.open(OpenMode.READ_WRITE, null);
+                folder.open(OpenMode.READ_WRITE);
             }
         });
     }

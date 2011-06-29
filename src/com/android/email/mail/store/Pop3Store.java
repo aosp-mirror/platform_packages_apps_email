@@ -179,7 +179,7 @@ public class Pop3Store extends Store {
             folder.close(false);
         }
         try {
-            folder.open(OpenMode.READ_WRITE, null);
+            folder.open(OpenMode.READ_WRITE);
             bundle = folder.checkSettings();
         } finally {
             folder.close(false);    // false == don't expunge anything
@@ -240,8 +240,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
-        public synchronized void open(OpenMode mode, PersistentDataCallbacks callbacks)
-                throws MessagingException {
+        public synchronized void open(OpenMode mode) throws MessagingException {
             if (mTransport.isOpen()) {
                 return;
             }
@@ -909,7 +908,7 @@ public class Pop3Store extends Store {
          */
         private String executeSensitiveCommand(String command, String sensitiveReplacement)
                 throws IOException, MessagingException {
-            open(OpenMode.READ_WRITE, null);
+            open(OpenMode.READ_WRITE);
 
             if (command != null) {
                 mTransport.writeLine(command, sensitiveReplacement);

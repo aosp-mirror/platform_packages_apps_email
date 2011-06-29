@@ -61,7 +61,7 @@ public abstract class Folder {
      * time and when close() is called.  This is only used for remote stores - should be null
      * for LocalStore.LocalFolder.
      */
-    public abstract void open(OpenMode mode, PersistentDataCallbacks callbacks)
+    public abstract void open(OpenMode mode)
             throws MessagingException;
 
     /**
@@ -174,58 +174,11 @@ public abstract class Folder {
     public FolderRole getRole() {
         return FolderRole.UNKNOWN;
     }
-    
-    /**
-     * This function will be called after the messaging controller has called 
-     * getPersonalNamespaces() and has created a matching LocalFolder object.  This can
-     * be used as a trigger for the folder to write back any folder-specific persistent data using
-     * callbacks.
-     * 
-     * This is not abstract because most folders do not require this functionality and do not
-     * need to implement it.
-     */
-    public void localFolderSetupComplete(Folder localFolder) {
-        // Do nothing - return immediately
-    }
 
     /**
      * Create an empty message of the appropriate type for the Folder.
      */
     public abstract Message createMessage(String uid) throws MessagingException;
-
-    /**
-     * Callback interface by which a Folder can read and write persistent data.
-     * TODO This needs to be made more generic & flexible
-     */
-    public interface PersistentDataCallbacks {
-        
-        /**
-         * Provides keyed storage of strings.  Should be used for per-folder data.  Do not use for
-         * per-message data.
-         * @param key identifier for the data (e.g. "sync.key" or "folder.id")
-         * @param value Data to persist.  All data must be encoded into a string,
-         * so use base64 or some other encoding if necessary.
-         */
-        public void setPersistentString(String key, String value);
-
-        /**
-         * @param key identifier for the data of interest
-         * @return the data saved by the Folder, or defaultValue if never set.
-         */
-        public String getPersistentString(String key, String defaultValue);
-        
-        /**
-         * In a single transaction:  Set a key/value pair for the folder, and bulk set or clear
-         * message flags.  Typically used at the beginning or conclusion of a bulk sync operation.
-         * 
-         * @param key if non-null, the transaction will set this folder persistent value
-         * @param value the value that will be stored for the key
-         * @param setFlags if non-null, flag(s) will be set for all messages in the folder
-         * @param clearFlags if non-null, flag(s) will be cleared for all messages in the folder
-         */
-        public void setPersistentStringAndMessageFlags(String key, String value,
-                Flag[] setFlags, Flag[] clearFlags) throws MessagingException;
-    }
 
     /**
      * Callback interface by which a folder can report UID changes caused by certain operations.

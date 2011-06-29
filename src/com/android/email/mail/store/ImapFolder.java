@@ -88,7 +88,7 @@ class ImapFolder extends Folder {
     }
 
     @Override
-    public void open(OpenMode mode, PersistentDataCallbacks callbacks)
+    public void open(OpenMode mode)
             throws MessagingException {
         try {
             if (isOpen()) {
@@ -303,7 +303,7 @@ class ImapFolder extends Folder {
                 ImapFolder newFolder = (ImapFolder)folder;
                 try {
                     // Temporarily select the destination folder
-                    newFolder.open(OpenMode.READ_WRITE, null);
+                    newFolder.open(OpenMode.READ_WRITE);
                     // Do the search(es) ...
                     for (Message m : messages) {
                         String searchString = "HEADER Message-Id \"" + m.getMessageId() + "\"";
