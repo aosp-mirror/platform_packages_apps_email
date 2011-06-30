@@ -19,8 +19,10 @@ package com.android.email.activity;
 import com.android.emailcommon.provider.EmailContent;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.utility.DelayedOperations;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import android.content.ContentResolver;
@@ -56,6 +58,7 @@ public class MessageOrderManager {
     private final long mMailboxId;
     private final ContentObserver mObserver;
     private final Callback mCallback;
+    private final DelayedOperations mDelayedOperations;
 
     private LoadMessageListTask mLoadMessageListTask;
     private Cursor mCursor;
@@ -81,12 +84,56 @@ public class MessageOrderManager {
         public void onMessageNotFound();
     }
 
+    /**
+     * Wrapper for {@link Callback}, which uses {@link DelayedOperations#post(Runnable)} to
+     * kick callbacks rather than calling them directly.  This is used to avoid the "nested fragment
+     * transaction" exception.  e.g. {@link #moveTo} is often called during a fragment transaction,
+     * and if the message no longer exists we call {@link #onMessageNotFound}, which most probably
+     * triggers another fragment transaction.
+     */
+    private class PostingCallback implements Callback {
+        private final Callback mOriginal;
+
+        private PostingCallback(Callback original) {
+            mOriginal = original;
+        }
+
+        private final Runnable mOnMessagesChangedRunnable = new Runnable() {
+            @Override public void run() {
+                mOriginal.onMessagesChanged();
+            }
+        };
+
+        @Override
+        public void onMessagesChanged() {
+            mDelayedOperations.post(mOnMessagesChangedRunnable);
+        }
+
+        private final Runnable mOnMessageNotFoundRunnable = new Runnable() {
+            @Override public void run() {
+                mOriginal.onMessageNotFound();
+            }
+        };
+
+        @Override
+        public void onMessageNotFound() {
+            mDelayedOperations.post(mOnMessageNotFoundRunnable);
+        }
+    }
+
     public MessageOrderManager(Context context, long mailboxId, Callback callback) {
+        this(context, mailboxId, callback, new DelayedOperations(Utility.getMainThreadHandler()));
+    }
+
+    @VisibleForTesting
+    MessageOrderManager(Context context, long mailboxId, Callback callback,
+            DelayedOperations delayedOperations) {
         Preconditions.checkArgument(mailboxId != Mailbox.NO_MAILBOX);
         mContext = context.getApplicationContext();
         mContentResolver = mContext.getContentResolver();
+        mDelayedOperations = delayedOperations;
         mMailboxId = mailboxId;
-        mCallback = callback;
+        mCallback = new PostingCallback(callback);
         mObserver = new ContentObserver(getHandlerForContentObserver()) {
                 @Override public void onChange(boolean selfChange) {
                     if (mClosed) {
@@ -173,6 +220,7 @@ public class MessageOrderManager {
      */
     public void close() {
         mClosed = true;
+        mDelayedOperations.removeCallbacks();
         cancelTask();
         closeCursor();
     }
