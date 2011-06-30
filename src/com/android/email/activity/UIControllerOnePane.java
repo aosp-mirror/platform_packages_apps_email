@@ -45,8 +45,6 @@ import java.util.Set;
  * so that we can easily switch between synchronous and asynchronous transactions.
  *
  * Major TODOs
- * - TODO Remove MessageViewFragment.opener account/mailbox ID, and use the list context instead.
- *
  * - TODO Implement callbacks
  */
 class UIControllerOnePane extends UIControllerBase {
@@ -294,26 +292,18 @@ class UIControllerOnePane extends UIControllerBase {
 
     @Override
     public long getUIAccountId() {
-        // Get it from the visible fragment.
+        if (mListContext != null) {
+            return mListContext.mAccountId;
+        }
         if (isMailboxListInstalled()) {
             return getMailboxListFragment().getAccountId();
-        }
-        if (isMessageListInstalled()) {
-            return getMessageListFragment().getAccountId();
-        }
-        if (isMessageViewInstalled()) {
-            return getMessageViewFragment().getOpenerAccountId();
         }
         return Account.NO_ACCOUNT;
     }
 
     private long getMailboxId() {
-        // Get it from the visible fragment.
-        if (isMessageListInstalled()) {
-            return getMessageListFragment().getMailboxId();
-        }
-        if (isMessageViewInstalled()) {
-            return getMessageViewFragment().getOpenerMailboxId();
+        if (mListContext != null) {
+            return mListContext.getMailboxId();
         }
         return Mailbox.NO_MAILBOX;
     }
@@ -352,8 +342,7 @@ class UIControllerOnePane extends UIControllerBase {
             if (DEBUG_FRAGMENTS) {
                 Log.d(Logging.LOG_TAG, this + " Back: Message view -> Message List");
             }
-            openMailbox(getMessageViewFragment().getOpenerAccountId(),
-                    getMessageViewFragment().getOpenerMailboxId());
+            openMailbox(mListContext.mAccountId, mListContext.getMailboxId());
             return true;
         }
         return false;
@@ -401,9 +390,7 @@ class UIControllerOnePane extends UIControllerBase {
     }
 
     private void openMessage(long messageId) {
-        long accountId = mListContext.mAccountId;
-        long mailboxId = mListContext.getMailboxId();
-        showFragment(MessageViewFragment.newInstance(accountId, mailboxId, messageId));
+        showFragment(MessageViewFragment.newInstance(messageId));
     }
 
     /**

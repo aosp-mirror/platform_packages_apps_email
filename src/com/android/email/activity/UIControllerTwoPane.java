@@ -463,8 +463,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
         removeMessageViewFragment(ft);
 
-        ft.add(mThreePane.getRightPaneId(), MessageViewFragment.newInstance(
-                getUIAccountId(), getMessageListMailboxId(), messageId));
+        ft.add(mThreePane.getRightPaneId(), MessageViewFragment.newInstance(messageId));
     }
 
     /**
