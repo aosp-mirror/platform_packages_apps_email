@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import com.android.email.Email;
 import com.android.email.FolderProperties;
 import com.android.email.MessageListContext;
+import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.activity.setup.AccountSettings;
@@ -40,6 +41,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -58,6 +60,10 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     final FragmentManager mFragmentManager;
 
     protected final ActionBarController mActionBarController;
+
+    private MessageOrderManager mOrderManager;
+    private final MessageOrderManagerCallback mMessageOrderManagerCallback =
+            new MessageOrderManagerCallback();
 
     final EmailAsyncTask.Tracker mTaskTracker = new EmailAsyncTask.Tracker();
 
@@ -156,6 +162,9 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityStart");
         }
+        if (isMessageViewInstalled()) {
+            updateMessageOrderManager();
+        }
     }
 
     /**
@@ -184,6 +193,7 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         if (Logging.DEBUG_LIFECYCLE && Email.DEBUG) {
             Log.d(Logging.LOG_TAG, this + " onActivityStop");
         }
+        stopMessageOrderManager();
     }
 
     /**
@@ -218,6 +228,30 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         }
         mActionBarController.onRestoreInstanceState(savedInstanceState);
         mListContext = savedInstanceState.getParcelable(KEY_LIST_CONTEXT);
+    }
+
+    // MessageViewFragment$Callback
+    @Override
+    public void onMessageSetUnread() {
+        doAutoAdvance();
+    }
+
+    // MessageViewFragment$Callback
+    @Override
+    public void onMessageNotExists() {
+        doAutoAdvance();
+    }
+
+    // MessageViewFragment$Callback
+    @Override
+    public void onRespondedToInvite(int response) {
+        doAutoAdvance();
+    }
+
+    // MessageViewFragment$Callback
+    @Override
+    public void onBeforeMessageGone() {
+        doAutoAdvance();
     }
 
     /**
@@ -257,6 +291,8 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     protected void installMessageViewFragment(MessageViewFragment fragment) {
         mMessageViewFragment = fragment;
         mMessageViewFragment.setCallback(this);
+
+        updateMessageOrderManager();
         refreshActionBar();
     }
 
@@ -803,6 +839,101 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
         mActivity.invalidateOptionsMenu();
     }
 
+    protected final MessageOrderManager getMessageOrderManager() {
+        return mOrderManager;
+    }
+
+    /** Perform "auto-advance. */
+    protected final void doAutoAdvance() {
+        switch (Preferences.getPreferences(mActivity).getAutoAdvanceDirection()) {
+            case Preferences.AUTO_ADVANCE_NEWER:
+                if (moveToNewer()) return;
+                break;
+            case Preferences.AUTO_ADVANCE_OLDER:
+                if (moveToOlder()) return;
+                break;
+        }
+        if (isMessageViewInstalled()) { // We really should have the message view but just in case
+            // Go back to mailbox list.
+            // Use onBackPressed(), so we'll restore the message view state, such as scroll
+            // position.
+            // Also make sure to pass false to isSystemBackKey, so on two-pane we don't go back
+            // to the collapsed mode.
+            onBackPressed(true);
+        }
+    }
+
+    /**
+     * Subclass must implement it to enable/disable the newer/older buttons.
+     */
+    protected abstract void updateNavigationArrows();
+
+    protected final boolean moveToOlder() {
+        if ((mOrderManager != null) && mOrderManager.moveToOlder()) {
+            navigateToMessage(mOrderManager.getCurrentMessageId());
+            return true;
+        }
+        return false;
+    }
+
+    protected final boolean moveToNewer() {
+        if ((mOrderManager != null) && mOrderManager.moveToNewer()) {
+            navigateToMessage(mOrderManager.getCurrentMessageId());
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Called when the user taps newer/older.  Subclass must implement it to open the specified
+     * message.
+     *
+     * It's a bit different from just showing the message view fragment; on one-pane we show the
+     * message view fragment but don't want to change back state.
+     */
+    protected abstract void navigateToMessage(long messageId);
+
+    /**
+     * Potentially create a new {@link MessageOrderManager}; if it's not already started or if
+     * the account has changed, and sync it to the current message.
+     */
+    private void updateMessageOrderManager() {
+        if (!isMessageViewInstalled()) {
+            return;
+        }
+        Preconditions.checkNotNull(mListContext);
+
+        final long mailboxId = mListContext.getMailboxId();
+        if (mOrderManager == null || mOrderManager.getMailboxId() != mailboxId) {
+            stopMessageOrderManager();
+            mOrderManager =
+                new MessageOrderManager(mActivity, mailboxId, mMessageOrderManagerCallback);
+        }
+        mOrderManager.moveTo(getMessageId());
+        updateNavigationArrows();
+    }
+
+    /**
+     * Stop {@link MessageOrderManager}.
+     */
+    protected final void stopMessageOrderManager() {
+        if (mOrderManager != null) {
+            mOrderManager.close();
+            mOrderManager = null;
+        }
+    }
+
+    private class MessageOrderManagerCallback implements MessageOrderManager.Callback {
+        @Override
+        public void onMessagesChanged() {
+            updateNavigationArrows();
+        }
+
+        @Override
+        public void onMessageNotFound() {
+            doAutoAdvance();
+        }
+    }
 
     @Override
     public String toString() {

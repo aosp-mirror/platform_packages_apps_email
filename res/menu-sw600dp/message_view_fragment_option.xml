@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2011 The Android Open Source Project
+<!-- Copyright (C) 2010 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,34 +14,28 @@
      limitations under the License.
 -->
 
+<!-- Message view menu options for the tablet -->
+
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/send"
+        android:id="@+id/move"
         android:orderInCategory="1000"
-        android:title="@string/send_action"
-        android:showAsAction="ifRoom|withText"
-        android:icon="@drawable/ic_menu_send_holo_light"
-        android:alphabeticShortcut="s"
+        android:title="@string/move_action"
+        android:icon="@drawable/ic_menu_move_to_holo_light"
+        android:showAsAction="ifRoom"
     />
     <item
-        android:id="@+id/save"
+        android:id="@+id/delete"
         android:orderInCategory="1100"
-        android:title="@string/save_draft_action"
-        android:showAsAction="ifRoom"
-        android:alphabeticShortcut="d"
-    />
-    <item
-        android:id="@+id/discard"
-        android:orderInCategory="1200"
-        android:title="@string/discard_action"
-        android:showAsAction="ifRoom"
+        android:title="@string/delete_action"
         android:icon="@drawable/ic_menu_trash_holo_light"
-        android:alphabeticShortcut="q"
+        android:showAsAction="ifRoom"
     />
     <item
-        android:id="@+id/show_quick_text_list_dialog"
-        android:orderInCategory="1300"
-        android:title="@string/show_quick_text_list_dialog_action"
-        android:alphabeticShortcut="r"
+        android:id="@+id/mark_as_unread"
+        android:orderInCategory="1200"
+        android:title="@string/mark_as_unread_action"
+        android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_menu_mark_unread_holo_light"
     />
 </menu>

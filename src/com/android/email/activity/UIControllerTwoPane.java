@@ -56,10 +56,6 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     private MessageCommandButtonView mMessageCommandButtons;
 
-    private MessageOrderManager mOrderManager;
-    private final MessageOrderManagerCallback mMessageOrderManagerCallback =
-        new MessageOrderManagerCallback();
-
     public UIControllerTwoPane(EmailActivity activity) {
         super(activity);
     }
@@ -118,7 +114,7 @@ class UIControllerTwoPane extends UIControllerBase implements
             MessageCompose.actionEditDraft(mActivity, messageId);
         } else {
             if (getMessageId() != messageId) {
-                updateMessageView(messageId);
+                navigateToMessage(messageId);
                 mThreePane.showRightPane();
             }
         }
@@ -147,8 +143,9 @@ class UIControllerTwoPane extends UIControllerBase implements
             return;
         }
 
+        final MessageOrderManager orderManager = getMessageOrderManager();
         int autoAdvanceDir = Preferences.getPreferences(mActivity).getAutoAdvanceDirection();
-        if ((autoAdvanceDir == Preferences.AUTO_ADVANCE_MESSAGE_LIST) || (mOrderManager == null)) {
+        if ((autoAdvanceDir == Preferences.AUTO_ADVANCE_MESSAGE_LIST) || (orderManager == null)) {
             if (affectedMessages.contains(getMessageId())) {
                 goBackToMailbox();
             }
@@ -158,23 +155,23 @@ class UIControllerTwoPane extends UIControllerBase implements
         // Navigate to the first unselected item in the appropriate direction.
         switch (autoAdvanceDir) {
             case Preferences.AUTO_ADVANCE_NEWER:
-                while (affectedMessages.contains(mOrderManager.getCurrentMessageId())) {
-                    if (!mOrderManager.moveToNewer()) {
+                while (affectedMessages.contains(orderManager.getCurrentMessageId())) {
+                    if (!orderManager.moveToNewer()) {
                         goBackToMailbox();
                         return;
                     }
                 }
-                updateMessageView(mOrderManager.getCurrentMessageId());
+                navigateToMessage(orderManager.getCurrentMessageId());
                 break;
 
             case Preferences.AUTO_ADVANCE_OLDER:
-                while (affectedMessages.contains(mOrderManager.getCurrentMessageId())) {
-                    if (!mOrderManager.moveToOlder()) {
+                while (affectedMessages.contains(orderManager.getCurrentMessageId())) {
+                    if (!orderManager.moveToOlder()) {
                         goBackToMailbox();
                         return;
                     }
                 }
-                updateMessageView(mOrderManager.getCurrentMessageId());
+                navigateToMessage(orderManager.getCurrentMessageId());
                 break;
         }
     }
@@ -207,29 +204,11 @@ class UIControllerTwoPane extends UIControllerBase implements
         // STOPSHIP Restore the saved mailbox list
     }
 
-    // MessageViewFragment$Callback
-    @Override
-    public void onMessageShown() {
-        updateMessageOrderManager();
-        updateNavigationArrows();
-    }
 
     // MessageViewFragment$Callback
     @Override
     public boolean onUrlInMessageClicked(String url) {
         return ActivityHelper.openUrlInMessage(mActivity, url, getActualAccountId());
-    }
-
-    // MessageViewFragment$Callback
-    @Override
-    public void onMessageSetUnread() {
-        goBackToMailbox();
-    }
-
-    // MessageViewFragment$Callback
-    @Override
-    public void onMessageNotExists() {
-        goBackToMailbox();
     }
 
     // MessageViewFragment$Callback
@@ -249,20 +228,8 @@ class UIControllerTwoPane extends UIControllerBase implements
 
     // MessageViewFragment$Callback
     @Override
-    public void onRespondedToInvite(int response) {
-        onCurrentMessageGone();
-    }
-
-    // MessageViewFragment$Callback
-    @Override
     public void onCalendarLinkClicked(long epochEventStartTime) {
         ActivityHelper.openCalendar(mActivity, epochEventStartTime);
-    }
-
-    // MessageViewFragment$Callback
-    @Override
-    public void onBeforeMessageGone() {
-        onCurrentMessageGone();
     }
 
     // MessageViewFragment$Callback
@@ -344,41 +311,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         return getActualAccountId() != Account.NO_ACCOUNT;
     }
 
-    /**
-     * Called by the host activity at the end of {@link Activity#onCreate}.
-     */
-    @Override
-    public void onActivityCreated() {
-        super.onActivityCreated();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void onActivityStart() {
-        super.onActivityStart();
-        if (isMessageViewInstalled()) {
-            updateMessageOrderManager();
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void onActivityPause() {
-        super.onActivityPause();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void onActivityStop() {
-        stopMessageOrderManager();
-        super.onActivityStop();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void onActivityDestroy() {
-        super.onActivityDestroy();
-    }
 
     /** {@inheritDoc} */
     @Override
@@ -410,12 +342,6 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
     }
 
-    @Override
-    protected void uninstallMessageViewFragment() {
-        // Don't need it when there's no message view.
-        stopMessageOrderManager();
-        super.uninstallMessageViewFragment();
-    }
 
     /**
      * Commit a {@link FragmentTransaction}.
@@ -544,7 +470,7 @@ class UIControllerTwoPane extends UIControllerBase implements
     /**
      * Shortcut to call {@link #updateMessageView(FragmentTransaction, long)} and commit.
      */
-    private void updateMessageView(long messageId) {
+    @Override protected void navigateToMessage(long messageId) {
         FragmentTransaction ft = mFragmentManager.beginTransaction();
         updateMessageView(ft, messageId);
         commitFragmentTransaction(ft);
@@ -558,6 +484,7 @@ class UIControllerTwoPane extends UIControllerBase implements
         if (isMessageListInstalled()) {
             getMessageListFragment().setSelectedMessage(Message.NO_MESSAGE);
         }
+        stopMessageOrderManager();
     }
 
     private class CommandButtonCallback implements MessageCommandButtonView.Callback {
@@ -572,87 +499,19 @@ class UIControllerTwoPane extends UIControllerBase implements
         }
     }
 
-    private void onCurrentMessageGone() {
-        switch (Preferences.getPreferences(mActivity).getAutoAdvanceDirection()) {
-            case Preferences.AUTO_ADVANCE_NEWER:
-                if (moveToNewer()) return;
-                break;
-            case Preferences.AUTO_ADVANCE_OLDER:
-                if (moveToOlder()) return;
-                break;
-        }
-        // Last message in the box or AUTO_ADVANCE_MESSAGE_LIST.  Go back to message list.
-        goBackToMailbox();
-    }
-
-    /**
-     * Potentially create a new {@link MessageOrderManager}; if it's not already started or if
-     * the account has changed, and sync it to the current message.
-     */
-    private void updateMessageOrderManager() {
-        if (!isMessageViewInstalled()) {
-            return;
-        }
-        final long mailboxId = getMessageListMailboxId();
-        if (mOrderManager == null || mOrderManager.getMailboxId() != mailboxId) {
-            stopMessageOrderManager();
-            mOrderManager =
-                new MessageOrderManager(mActivity, mailboxId, mMessageOrderManagerCallback);
-        }
-        mOrderManager.moveTo(getMessageId());
-    }
-
-    private class MessageOrderManagerCallback implements MessageOrderManager.Callback {
-        @Override
-        public void onMessagesChanged() {
-            updateNavigationArrows();
-        }
-
-        @Override
-        public void onMessageNotFound() {
-            // Current message gone.
-            goBackToMailbox();
-        }
-    }
-
-    /**
-     * Stop {@link MessageOrderManager}.
-     */
-    private void stopMessageOrderManager() {
-        if (mOrderManager != null) {
-            mOrderManager.close();
-            mOrderManager = null;
-        }
-    }
-
     /**
      * Disable/enable the move-to-newer/older buttons.
      */
-    private void updateNavigationArrows() {
-        if (mOrderManager == null) {
+    @Override protected void updateNavigationArrows() {
+        final MessageOrderManager orderManager = getMessageOrderManager();
+        if (orderManager == null) {
             // shouldn't happen, but just in case
             mMessageCommandButtons.enableNavigationButtons(false, false, 0, 0);
         } else {
             mMessageCommandButtons.enableNavigationButtons(
-                    mOrderManager.canMoveToNewer(), mOrderManager.canMoveToOlder(),
-                    mOrderManager.getCurrentPosition(), mOrderManager.getTotalMessageCount());
+                    orderManager.canMoveToNewer(), orderManager.canMoveToOlder(),
+                    orderManager.getCurrentPosition(), orderManager.getTotalMessageCount());
         }
-    }
-
-    private boolean moveToOlder() {
-        if ((mOrderManager != null) && mOrderManager.moveToOlder()) {
-            updateMessageView(mOrderManager.getCurrentMessageId());
-            return true;
-        }
-        return false;
-    }
-
-    private boolean moveToNewer() {
-        if ((mOrderManager != null) && mOrderManager.moveToNewer()) {
-            updateMessageView(mOrderManager.getCurrentMessageId());
-            return true;
-        }
-        return false;
     }
 
     /** {@inheritDoc} */
