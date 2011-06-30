@@ -57,7 +57,7 @@ public abstract class Store {
     static final HashMap<String, Class<? extends Store>> sStoreClasses =
         new HashMap<String, Class<? extends Store>>();
 
-    {
+    static {
         sStoreClasses.put(HostAuth.SCHEME_EAS, ExchangeStore.class);
         sStoreClasses.put(HostAuth.SCHEME_IMAP, ImapStore.class);
         sStoreClasses.put(HostAuth.SCHEME_POP3, Pop3Store.class);
