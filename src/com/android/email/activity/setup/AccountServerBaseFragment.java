@@ -159,6 +159,14 @@ public abstract class AccountServerBaseFragment extends Fragment
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+
+        // Ensure that we don't have any callbacks at this point.
+        mCallback = EmptyCallback.INSTANCE;
+    }
+
+    @Override
     public void onPause() {
         // Hide the soft keyboard if we lose focus
         InputMethodManager imm =
