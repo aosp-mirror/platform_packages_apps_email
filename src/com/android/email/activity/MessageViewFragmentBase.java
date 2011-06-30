@@ -469,7 +469,7 @@ public abstract class MessageViewFragmentBase extends Fragment implements View.O
         return mCallback;
     }
 
-    protected final Message getMessage() {
+    public final Message getMessage() {
         return mMessage;
     }
 

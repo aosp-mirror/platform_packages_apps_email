@@ -100,6 +100,9 @@ public class ActionBarController {
     /** Either {@link #MODE_NORMAL} or {@link #MODE_SEARCH}. */
     private int mSearchMode = MODE_NORMAL;
 
+    /** The current title mode, which should be one of {@code Callback TITLE_MODE_*} */
+    private int mTitleMode;
+
     public final Callback mCallback;
 
     public interface SearchContext {
@@ -127,8 +130,6 @@ public class ActionBarController {
          * {@link #getMessageSubject()}.
          *
          * The account spinner will be disabled in this mode.
-         *
-         * NOT IMPLEMENTED YET
          */
         public static final int TITLE_MODE_MESSAGE_SUBJECT = 3;
 
@@ -279,6 +280,14 @@ public class ActionBarController {
     }
 
     /**
+     * @return Whether or not the search bar should be shown. This is a function of whether or not a
+     *     search is active, and if the current layout supports it.
+     */
+    private boolean shouldShowSearchBar() {
+        return isInSearchMode() && (mTitleMode != Callback.TITLE_MODE_MESSAGE_SUBJECT);
+    }
+
+    /**
      * Show the search box.
      *
      * @param initialQueryTerm if non-empty, set to the search box.
@@ -320,7 +329,7 @@ public class ActionBarController {
      * <code>false</code> if it's caused by the "home" icon click on the action bar.
      */
     public boolean onBackPressed(boolean isSystemBackKey) {
-        if (isInSearchMode()) {
+        if (shouldShowSearchBar()) {
             exitSearchMode();
             return true;
         }
@@ -415,17 +424,15 @@ public class ActionBarController {
             return;
         }
 
-        if (mSearchMode == MODE_SEARCH) {
-            // In search mode, so we don't care about the account list - it'll get updated when
-            // it goes visible again.
+        mTitleMode = mCallback.getTitleMode();
+
+        if (shouldShowSearchBar()) {
+            // In search mode, the search box is a replacement of the account spinner, so ignore
+            // the work needed to update that. It will get updated when it goes visible again.
             mAccountSpinner.setVisibility(View.GONE);
             mSearchContainer.setVisibility(View.VISIBLE);
             return;
         }
-
-        final int titleMode = mCallback.getTitleMode();
-
-        // TODO Handle TITLE_MODE_MESSAGE_SUBJECT
 
         // Account spinner visible.
         mAccountSpinner.setVisibility(View.VISIBLE);
@@ -433,10 +440,12 @@ public class ActionBarController {
 
         // Get mailbox name
         final String mailboxName;
-        if (titleMode == Callback.TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL) {
+        if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL) {
             mailboxName = mAllFoldersLabel;
-        } else if (titleMode == Callback.TITLE_MODE_ACCOUNT_WITH_MAILBOX) {
+        } else if (mTitleMode == Callback.TITLE_MODE_ACCOUNT_WITH_MAILBOX) {
             mailboxName = mCursor.getMailboxDisplayName();
+        } else if (mTitleMode == Callback.TITLE_MODE_MESSAGE_SUBJECT) {
+            mailboxName = mCallback.getMessageSubject();
         } else {
             mailboxName = null;
         }
@@ -455,7 +464,7 @@ public class ActionBarController {
                 mContext, mCursor.getMailboxMessageCount(), true));
 
         boolean spinnerEnabled =
-            ((titleMode & TITLE_MODE_SPINNER_ENABLED) != 0)
+            ((mTitleMode & TITLE_MODE_SPINNER_ENABLED) != 0)
             && (mCursor.getAccountCount() + mCursor.getRecentMailboxCount()) > 1;
 
         if (spinnerEnabled) {

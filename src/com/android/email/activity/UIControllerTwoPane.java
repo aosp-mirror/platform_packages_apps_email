@@ -516,13 +516,29 @@ class UIControllerTwoPane extends UIControllerBase implements
     /** {@inheritDoc} */
     @Override
     public boolean onBackPressed(boolean isSystemBackKey) {
-        // Super's method has precedence.  Must call it first.
-        if (super.onBackPressed(isSystemBackKey)) {
-            return true;
+        if (!mThreePane.isPaneCollapsible()) {
+            if (mActionBarController.onBackPressed(isSystemBackKey)) {
+                return true;
+            }
+
+            if (mThreePane.showLeftPane()) {
+                return true;
+            }
+        } else {
+            // If it's not the system back key, always attempt to uncollapse the left pane first.
+            if (!isSystemBackKey && mThreePane.uncollapsePane()) {
+                return true;
+            }
+
+            if (mActionBarController.onBackPressed(isSystemBackKey)) {
+                return true;
+            }
+
+            if (mThreePane.showLeftPane()) {
+                return true;
+            }
         }
-        if (mThreePane.onBackPressed(isSystemBackKey)) {
-            return true;
-        }
+
         if (isMailboxListInstalled() && getMailboxListFragment().navigateUp()) {
             return true;
         }
@@ -689,24 +705,15 @@ class UIControllerTwoPane extends UIControllerBase implements
             if ((mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_LEFT) != 0) {
                 // Mailbox list visible
                 return TITLE_MODE_ACCOUNT_NAME_ONLY;
-            }
-            if ((mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_MIDDLE) != 0) {
-                // Message list + message view
+            } else {
+                // Mailbox list hidden
                 return TITLE_MODE_ACCOUNT_WITH_MAILBOX;
             }
-            if ((mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_RIGHT) != 0) {
-                // Message view only (message list collapsed)
-                // TODO return TITLE_MODE_MESSAGE_SUBJECT
-                return TITLE_MODE_ACCOUNT_WITH_MAILBOX;
-            }
-
-            // Shouldn't happen, but just in case
-            return TITLE_MODE_ACCOUNT_NAME_ONLY;
         }
 
         public String getMessageSubject() {
-            if (isMessageViewInstalled()) {
-                return "TODO: Return current message subject here";
+            if (isMessageViewInstalled() && getMessageViewFragment().isMessageOpen()) {
+                return getMessageViewFragment().getMessage().mSubject;
             } else {
                 return null;
             }

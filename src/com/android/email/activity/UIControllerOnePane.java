@@ -16,14 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.Email;
-import com.android.email.MessageListContext;
-import com.android.email.R;
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.Mailbox;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -32,6 +24,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.android.email.Email;
+import com.android.email.MessageListContext;
+import com.android.email.R;
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.Mailbox;
 
 import java.util.Set;
 
@@ -180,13 +180,15 @@ class UIControllerOnePane extends UIControllerBase {
             if (isMailboxListInstalled()) {
                 return TITLE_MODE_ACCOUNT_WITH_ALL_FOLDERS_LABEL;
             }
-            // TODO Return TITLE_MODE_MESSAGE_SUBJECT if isMessageViewInstalled()
+            if (isMessageViewInstalled()) {
+                return TITLE_MODE_MESSAGE_SUBJECT;
+            }
             return TITLE_MODE_ACCOUNT_WITH_MAILBOX;
         }
 
         public String getMessageSubject() {
-            if (isMessageViewInstalled()) {
-                return "TODO: Return current message subject here";
+            if (isMessageViewInstalled() && getMessageViewFragment().isMessageOpen()) {
+                return getMessageViewFragment().getMessage().mSubject;
             } else {
                 return null;
             }
@@ -314,8 +316,8 @@ class UIControllerOnePane extends UIControllerBase {
             // This is VERY important -- no check for DEBUG_LIFECYCLE
             Log.d(Logging.LOG_TAG, this + " onBackPressed: " + isSystemBackKey);
         }
-        // Super's method has precedence.  Must call it first.
-        if (super.onBackPressed(isSystemBackKey)) {
+        // The action bar controller has precedence.  Must call it first.
+        if (mActionBarController.onBackPressed(isSystemBackKey)) {
             return true;
         }
         // If the mailbox list is shown and showing a nested mailbox, let it navigate up first.

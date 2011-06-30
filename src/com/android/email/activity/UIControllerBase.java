@@ -578,18 +578,10 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     /**
      * Performs the back action.
      *
-     * NOTE The method in the base class has precedence.  Subclasses overriding this method MUST
-     * call super's method first.
-     *
      * @param isSystemBackKey <code>true</code> if the system back key was pressed.
      * <code>false</code> if it's caused by the "home" icon click on the action bar.
      */
-    public boolean onBackPressed(boolean isSystemBackKey) {
-        if (mActionBarController.onBackPressed(isSystemBackKey)) {
-            return true;
-        }
-        return false;
-    }
+    public abstract boolean onBackPressed(boolean isSystemBackKey);
 
     /**
      * Must be called from {@link Activity#onSearchRequested()}.

@@ -16,9 +16,6 @@
 
 package com.android.email.activity;
 
-import com.android.email.R;
-import com.android.emailcommon.Logging;
-
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
@@ -33,6 +30,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.LinearLayout;
+
+import com.android.email.R;
+import com.android.emailcommon.Logging;
 
 /**
  * The "three pane" layout used on tablet.
@@ -229,7 +229,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     /**
      * Return whether or not the left pane should be collapsible.
      */
-    private boolean isPaneCollapsible() {
+    public boolean isPaneCollapsible() {
         return mFoggedGlass != null;
     }
 
@@ -276,39 +276,24 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     /**
      * Handles the back event.
      *
-     * @param isSystemBackKey set true if the system back key is pressed, rather than the home
-     * icon on action bar.
-     * @return true if the event is handled.
      */
-    public boolean onBackPressed(boolean isSystemBackKey) {
+    public boolean uncollapsePane() {
         if (!isPaneCollapsible()) {
-            switch (mPaneState) {
-            case STATE_RIGHT_VISIBLE:
-                changePaneState(STATE_LEFT_VISIBLE, true); // Close the right pane
-                return true;
-            }
-        } else {
-            switch (mPaneState) {
-                case STATE_RIGHT_VISIBLE:
-                    if (isSystemBackKey) {
-                        changePaneState(STATE_LEFT_VISIBLE, true);
-                    } else {
-                        changePaneState(STATE_MIDDLE_EXPANDED, true);
-                    }
-                    return true;
-                case STATE_MIDDLE_EXPANDED:
-                    changePaneState(STATE_LEFT_VISIBLE, true);
-                    return true;
-                }
+            return false;
         }
+
+        if (mPaneState == STATE_RIGHT_VISIBLE) {
+            return changePaneState(STATE_MIDDLE_EXPANDED, true);
+        }
+
         return false;
     }
 
     /**
      * Show the left most pane.  (i.e. mailbox list)
      */
-    public void showLeftPane() {
-        changePaneState(STATE_LEFT_VISIBLE, true);
+    public boolean showLeftPane() {
+        return changePaneState(STATE_LEFT_VISIBLE, true);
     }
 
     /**
@@ -327,11 +312,11 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
     /**
      * Show the right most pane.  (i.e. message view)
      */
-    public void showRightPane() {
-        changePaneState(STATE_RIGHT_VISIBLE, true);
+    public boolean showRightPane() {
+        return changePaneState(STATE_RIGHT_VISIBLE, true);
     }
 
-    private void changePaneState(int newState, boolean animate) {
+    private boolean changePaneState(int newState, boolean animate) {
         if (!isPaneCollapsible() && (newState == STATE_MIDDLE_EXPANDED)) {
             newState = STATE_RIGHT_VISIBLE;
         }
@@ -340,10 +325,10 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
             // layout properly.
             // Just remember the new state and return.
             mInitialPaneState = newState;
-            return;
+            return false;
         }
         if (newState == mPaneState) {
-            return;
+            return false;
         }
         // Just make sure the first transition doesn't animate.
         if (mPaneState == STATE_UNINITIALIZED) {
@@ -425,6 +410,7 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
                 PropertyValuesHolder.ofInt(PROP_MESSAGE_LIST_WIDTH,
                         getCurrentMessageListWidth(), expectedMessageListWidth)
                 );
+        return true;
     }
 
     /**
