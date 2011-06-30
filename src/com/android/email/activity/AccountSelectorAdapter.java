@@ -480,7 +480,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
         private String mMailboxDisplayName;
         private int mMailboxMessageCount;
 
-        private CursorWithExtras(String[] columnNames, Cursor innerCursor) {
+        @VisibleForTesting
+        CursorWithExtras(String[] columnNames, Cursor innerCursor) {
             super(columnNames, innerCursor);
         }
 
@@ -495,7 +496,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
         /**
          * Set the current account/mailbox info.
          */
-        private void setAccountMailboxInfo(Context context, long accountId, long mailboxId) {
+        @VisibleForTesting
+        void setAccountMailboxInfo(Context context, long accountId, long mailboxId) {
             mAccountId = accountId;
             mMailboxId = mailboxId;
 
@@ -504,7 +506,9 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 // We need to treat ACCOUNT_ID_COMBINED_VIEW specially...
                 mAccountExists = true;
                 mAccountDisplayName = getCombinedViewDisplayName(context);
-                setCombinedMailboxInfo(context, mailboxId);
+                if (mailboxId != Mailbox.NO_MAILBOX) {
+                    setCombinedMailboxInfo(context, mailboxId);
+                }
                 return;
             }
 
@@ -551,8 +555,8 @@ public class AccountSelectorAdapter extends CursorAdapter {
             mMailboxDisplayName = FolderProperties.getInstance(context)
                     .getCombinedMailboxName(mMailboxId);
 
-            mMailboxMessageCount = FolderProperties.getInstance(context)
-                    .getMessageCountForCombinedMailbox(mailboxId);
+            mMailboxMessageCount = FolderProperties.getMessageCountForCombinedMailbox(
+                    context, mailboxId);
         }
 
         /**

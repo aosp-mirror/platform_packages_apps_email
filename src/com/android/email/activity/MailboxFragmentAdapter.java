@@ -472,7 +472,7 @@ class MailboxFragmentAdapter extends CursorAdapter {
         if (id >= 0) {
             throw new IllegalArgumentException(); // Must be QUERY_ALL_*, which are all negative
         }
-        int count = FolderProperties.getInstance(context).getMessageCountForCombinedMailbox(id);
+        int count = FolderProperties.getMessageCountForCombinedMailbox(context, id);
         if (showAlways || (count > 0)) {
             addMailboxRow(
                     cursor, id, "", mailboxType, count, count, ROW_TYPE_MAILBOX, Mailbox.FLAG_NONE,

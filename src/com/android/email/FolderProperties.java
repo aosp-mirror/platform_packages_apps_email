@@ -176,20 +176,26 @@ public class FolderProperties {
                 );
     }
 
-    public int getMessageCountForCombinedMailbox(long mailboxId) {
+    /**
+     * @return message count to show for the UI for a combined inbox.
+     *
+     * Note this method doesn't use mContext so we can inject a mock context for provider
+     * access.  So it's static.
+     */
+    public static int getMessageCountForCombinedMailbox(Context context, long mailboxId) {
         Preconditions.checkState(mailboxId < -1L);
         if ((mailboxId == Mailbox.QUERY_ALL_INBOXES)
                 || (mailboxId == Mailbox.QUERY_ALL_UNREAD)) {
-            return Mailbox.getUnreadCountByMailboxType(mContext, Mailbox.TYPE_INBOX);
+            return Mailbox.getUnreadCountByMailboxType(context, Mailbox.TYPE_INBOX);
 
         } else if (mailboxId == Mailbox.QUERY_ALL_FAVORITES) {
-            return Message.getFavoriteMessageCount(mContext);
+            return Message.getFavoriteMessageCount(context);
 
         } else if (mailboxId == Mailbox.QUERY_ALL_DRAFTS) {
-            return Mailbox.getMessageCountByMailboxType(mContext, Mailbox.TYPE_DRAFTS);
+            return Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_DRAFTS);
 
         } else if (mailboxId == Mailbox.QUERY_ALL_OUTBOX) {
-            return Mailbox.getMessageCountByMailboxType(mContext, Mailbox.TYPE_OUTBOX);
+            return Mailbox.getMessageCountByMailboxType(context, Mailbox.TYPE_OUTBOX);
         }
         throw new IllegalStateException("Invalid mailbox ID");
     }
