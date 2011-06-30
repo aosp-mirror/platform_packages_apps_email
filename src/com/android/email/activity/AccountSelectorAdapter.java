@@ -31,6 +31,7 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.Utility;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -385,7 +386,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
                 // Do not display recent mailboxes in the account spinner for the two pane view
                 recentMailboxes = mailboxManager.getMostRecent(mAccountId, mUseTwoPane);
             }
-            int recentCount = (recentMailboxes == null) ? 0 : recentMailboxes.size();
+            final int recentCount = (recentMailboxes == null) ? 0 : recentMailboxes.size();
             matrixCursor.mRecentCount = recentCount;
 
             if (!mUseTwoPane) {
@@ -395,9 +396,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
             }
 
             if (recentCount > 0) {
-                for (long mailboxId : recentMailboxes) {
-                    addMailboxRow(matrixCursor, accountPosition, mailboxId);
-                }
+                addMailboxRows(matrixCursor, accountPosition, recentMailboxes);
             }
 
             if (!mUseTwoPane) {
@@ -418,16 +417,23 @@ public class AccountSelectorAdapter extends CursorAdapter {
             MailboxColumns.UNREAD_COUNT, MailboxColumns.MESSAGE_COUNT
         };
 
-        private void addMailboxRow(MatrixCursor matrixCursor, int accountPosition, long mailboxId) {
+        private void addMailboxRows(MatrixCursor matrixCursor, int accountPosition,
+                Collection<Long> mailboxIds) {
             Cursor c = mContext.getContentResolver().query(
-                    ContentUris.withAppendedId(Mailbox.CONTENT_URI, mailboxId),
-                    RECENT_MAILBOX_INFO_PROJECTION, null, null, null);
-            if (!c.moveToFirst()) {
-                return;
+                    Mailbox.CONTENT_URI, RECENT_MAILBOX_INFO_PROJECTION,
+                    Utility.buildInSelection(MailboxColumns.ID, mailboxIds), null,
+                    RecentMailboxManager.RECENT_MAILBOXES_SORT_ORDER);
+            try {
+                c.moveToPosition(-1);
+                while (c.moveToNext()) {
+                    addRow(matrixCursor, ROW_TYPE_MAILBOX,
+                            c.getLong(c.getColumnIndex(MailboxColumns.ID)),
+                            mFolderProperties.getDisplayName(c), null,
+                            mFolderProperties.getMessageCount(c), accountPosition, mAccountId);
+                }
+            } finally {
+                c.close();
             }
-            addRow(matrixCursor, ROW_TYPE_MAILBOX, mailboxId,
-                    mFolderProperties.getDisplayName(c), null,
-                    mFolderProperties.getMessageCount(c), accountPosition, mAccountId);
         }
 
         private void addHeaderRow(MatrixCursor cursor, String name) {

@@ -525,4 +525,20 @@ public class UtilityUnitTests extends AndroidTestCase {
         assertFalse(Utility.isServerNameValid("$"));
         assertFalse(Utility.isServerNameValid("  "));
     }
+
+    private static Collection<Long> toColleciton(long... values) {
+        ArrayList<Long> ret = new ArrayList<Long>();
+        for (long v : values) {
+            ret.add(v);
+        }
+        return ret;
+    }
+
+    public void testBuildInSelection() {
+        assertEquals("", Utility.buildInSelection("c", null));
+        assertEquals("", Utility.buildInSelection("c", toColleciton()));
+        assertEquals("c in (1)", Utility.buildInSelection("c", toColleciton(1)));
+        assertEquals("c in (1,2)", Utility.buildInSelection("c", toColleciton(1, 2)));
+        assertEquals("c in (1,2,-500)", Utility.buildInSelection("c", toColleciton(1, 2, -500)));
+    }
 }

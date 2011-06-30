@@ -39,6 +39,8 @@ public class RecentMailboxManager {
     @VisibleForTesting
     static RecentMailboxManager sInstance;
 
+    public static String RECENT_MAILBOXES_SORT_ORDER = MailboxColumns.DISPLAY_NAME;
+
     /** The maximum number of results to retrieve */
     private static final int LIMIT_RESULTS = 5;
     /** Query to find the top most recent mailboxes */
@@ -101,7 +103,7 @@ public class RecentMailboxManager {
             EmailContent.ID_PROJECTION,
             selection,
             new String[] { Long.toString(accountId), Integer.toString(LIMIT_RESULTS) },
-            MailboxColumns.DISPLAY_NAME);
+            RECENT_MAILBOXES_SORT_ORDER);
         try {
             while (cursor.moveToNext()) {
                 returnList.add(cursor.getLong(EmailContent.ID_PROJECTION_COLUMN));

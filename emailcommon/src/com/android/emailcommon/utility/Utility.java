@@ -1124,4 +1124,27 @@ public class Utility {
         f.dump("", new FileDescriptor(), w, new String[0]);
         return sw.toString();
     }
+
+    /**
+     * Builds an "in" expression for SQLite.
+     *
+     * e.g. "ID" + 1,2,3 -> "ID in (1,2,3)".  If {@code values} is empty or null, it returns an
+     * empty string.
+     */
+    public static String buildInSelection(String columnName, Collection<? extends Number> values) {
+        if ((values == null) || (values.size() == 0)) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(columnName);
+        sb.append(" in (");
+        String sep = "";
+        for (Number n : values) {
+            sb.append(sep);
+            sb.append(n.toString());
+            sep = ",";
+        }
+        sb.append(')');
+        return sb.toString();
+    }
 }
