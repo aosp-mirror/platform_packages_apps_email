@@ -348,15 +348,14 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
             return;
         }
         if (!mRemovedFragments.contains(fragment)) {
-            // STOPSHIP Remove log/catch.  b/4905749.
+            // STOPSHIP Remove log/catch.  b/4905749 - b/4981556
             Log.d(Logging.LOG_TAG, "Removing " + fragment);
             try {
                 ft.remove(fragment);
-            } catch (RuntimeException ex) {
-                Log.e(Logging.LOG_TAG, "Got RuntimeException trying to remove fragment: "
-                        + fragment, ex);
+            } catch (IllegalStateException ex) {
+                Log.e(Logging.LOG_TAG, "Swalling IllegalStateException due to known bug for "
+                        + " fragment: " + fragment, ex);
                 Log.e(Logging.LOG_TAG, Utility.dumpFragment(fragment));
-                throw ex;
             }
             addFragmentToRemovalList(fragment);
         }
