@@ -160,7 +160,7 @@ public class AccountSecurity extends Activity {
                 }
                 finish();
             }
-        }.execute();
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**

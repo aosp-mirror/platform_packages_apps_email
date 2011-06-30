@@ -218,7 +218,8 @@ public abstract class AccountServerBaseFragment extends Fragment
      */
     protected void startDuplicateTaskCheck(long accountId, String checkHost, String checkLogin,
             int checkSettingsMode) {
-        new DuplicateCheckTask(accountId, checkHost, checkLogin, checkSettingsMode).execute();
+        new DuplicateCheckTask(accountId, checkHost, checkLogin, checkSettingsMode)
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**
@@ -329,7 +330,7 @@ public abstract class AccountServerBaseFragment extends Fragment
                 // Signal to owning activity that a settings check completed
                 mCallback.onCheckSettingsComplete(settingsResult, SetupData.getFlowMode());
             }
-        }.execute();
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**

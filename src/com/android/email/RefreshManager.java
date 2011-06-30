@@ -21,6 +21,7 @@ import com.android.emailcommon.mail.MessagingException;
 import com.android.emailcommon.utility.Utility;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 
@@ -283,7 +284,8 @@ public class RefreshManager {
         if (LOG_ENABLED) {
             Log.d(Logging.LOG_TAG, "sendPendingMessagesForAllAccounts");
         }
-        new SendPendingMessagesForAllAccountsImpl().execute();
+        new SendPendingMessagesForAllAccountsImpl()
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private class SendPendingMessagesForAllAccountsImpl extends Utility.ForEachAccount {

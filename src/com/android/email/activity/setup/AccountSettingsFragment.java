@@ -308,7 +308,8 @@ public class AccountSettingsFragment extends PreferenceFragment {
      */
     public void startLoadingAccount(long accountId) {
         Utility.cancelTaskInterrupt(mLoadAccountTask);
-        mLoadAccountTask = new LoadAccountTask().execute(accountId);
+        mLoadAccountTask = new LoadAccountTask().executeOnExecutor(
+                AsyncTask.THREAD_POOL_EXECUTOR, accountId);
     }
 
     /**

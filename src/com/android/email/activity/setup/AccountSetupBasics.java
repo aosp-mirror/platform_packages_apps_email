@@ -208,7 +208,7 @@ public class AccountSetupBasics extends AccountSetupActivity
 
         // If there are one or more accounts already in existence, then display
         // the "use as default" checkbox (it defaults to hidden).
-        new DisplayCheckboxTask().execute();
+        new DisplayCheckboxTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
         boolean manualButtonDisplayed = true;
         boolean alternateStrings = false;
@@ -436,7 +436,8 @@ public class AccountSetupBasics extends AccountSetupActivity
 
             // Stop here if the login credentials duplicate an existing account
             // Launch an Async task to do the work
-            new DuplicateCheckTask(this, recvAuth.mAddress, mProvider.incomingUsername).execute();
+            new DuplicateCheckTask(this, recvAuth.mAddress, mProvider.incomingUsername)
+                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } catch (URISyntaxException e) {
             /*
              * If there is some problem with the URI we give up and go on to manual setup.
