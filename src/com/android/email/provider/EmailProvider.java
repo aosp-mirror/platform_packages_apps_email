@@ -786,6 +786,25 @@ public class EmailProvider extends ContentProvider {
     private SQLiteDatabase mDatabase;
     private SQLiteDatabase mBodyDatabase;
 
+    /**
+     * Orphan record deletion utility.  Generates a sqlite statement like:
+     *  delete from <table> where <column> not in (select <foreignColumn> from <foreignTable>)
+     * @param db the EmailProvider database
+     * @param table the table whose orphans are to be removed
+     * @param column the column deletion will be based on
+     * @param foreignColumn the column in the foreign table whose absence will trigger the deletion
+     * @param foreignTable the foreign table
+     */
+    @VisibleForTesting
+    void deleteUnlinked(SQLiteDatabase db, String table, String column, String foreignColumn,
+            String foreignTable) {
+        int count = db.delete(table, column + " not in (select " + foreignColumn + " from " +
+                foreignTable + ")", null);
+        if (count > 0) {
+            Log.w(TAG, "Found " + count + " orphaned row(s) in " + table);
+        }
+    }
+
     @VisibleForTesting
     synchronized SQLiteDatabase getDatabase(Context context) {
         // Always return the cached database, if we've got one
@@ -811,15 +830,26 @@ public class EmailProvider extends ContentProvider {
         // Restore accounts if the database is corrupted...
         restoreIfNeeded(context, mDatabase);
 
+        if (Email.DEBUG) {
+            Log.d(TAG, "Deleting orphans...");
+        }
         // Check for any orphaned Messages in the updated/deleted tables
-        deleteOrphans(mDatabase, Message.UPDATED_TABLE_NAME);
-        deleteOrphans(mDatabase, Message.DELETED_TABLE_NAME);
+        deleteMessageOrphans(mDatabase, Message.UPDATED_TABLE_NAME);
+        deleteMessageOrphans(mDatabase, Message.DELETED_TABLE_NAME);
+        // Delete orphaned mailboxes/messages/policies (account no longer exists)
+        deleteUnlinked(mDatabase, Mailbox.TABLE_NAME, MailboxColumns.ACCOUNT_KEY, AccountColumns.ID,
+                Account.TABLE_NAME);
+        deleteUnlinked(mDatabase, Message.TABLE_NAME, MessageColumns.ACCOUNT_KEY, AccountColumns.ID,
+                Account.TABLE_NAME);
+        deleteUnlinked(mDatabase, Policy.TABLE_NAME, PolicyColumns.ID, AccountColumns.POLICY_KEY,
+                Account.TABLE_NAME);
+
         if (Email.DEBUG) {
             Log.d(TAG, "EmailProvider pre-caching...");
         }
         preCacheData();
         if (Email.DEBUG) {
-            Log.d(TAG, "Pre-caching finished.");
+            Log.d(TAG, "EmailProvider ready.");
         }
         return mDatabase;
     }
@@ -959,7 +989,7 @@ public class EmailProvider extends ContentProvider {
         }
     }
 
-    /*package*/ static void deleteOrphans(SQLiteDatabase database, String tableName) {
+    /*package*/ static void deleteMessageOrphans(SQLiteDatabase database, String tableName) {
         if (database != null) {
             // We'll look at all of the items in the table; there won't be many typically
             Cursor c = database.query(tableName, ORPHANS_PROJECTION, null, null, null, null, null);
@@ -1808,17 +1838,6 @@ public class EmailProvider extends ContentProvider {
                         }
                         c = db.query(tableName, projection, whereWithId(id, selection),
                                 selectionArgs, null, null, sortOrder, limit);
-                        if (Email.DEBUG) {
-                            switch(match) {
-                                case ACCOUNT_ID:
-                                case HOSTAUTH_ID:
-                                case POLICY_ID:
-                                case MAILBOX_ID:
-                                    Log.w(Logging.LOG_TAG,
-                                            "==== UNCACHED read of " + tableName + ", id = " + id);
-                                    break;
-                             }
-                        }
                         if (cache != null) {
                             c = cache.putCursor(c, id, projection, token);
                         }
