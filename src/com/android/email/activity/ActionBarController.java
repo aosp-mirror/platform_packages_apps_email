@@ -464,8 +464,7 @@ public class ActionBarController {
                 mContext, mCursor.getMailboxMessageCount(), true));
 
         boolean spinnerEnabled =
-            ((mTitleMode & TITLE_MODE_SPINNER_ENABLED) != 0)
-            && (mCursor.getAccountCount() + mCursor.getRecentMailboxCount()) > 1;
+            ((mTitleMode & TITLE_MODE_SPINNER_ENABLED) != 0) && mCursor.shouldEnableSpinner();
 
         if (spinnerEnabled) {
             if (!mAccountSpinner.isEnabled()) {

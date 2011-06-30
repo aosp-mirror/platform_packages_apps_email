@@ -405,6 +405,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
         }
 
         private void addShowAllFoldersRow(CursorWithExtras matrixCursor, int accountPosition) {
+            matrixCursor.mHasShowAllFolders = true;
             String name = mContext.getString(
                     R.string.mailbox_list_account_selector_show_all_folders);
             addRow(matrixCursor, ROW_TYPE_MAILBOX, Mailbox.NO_MAILBOX, name, null, 0,
@@ -462,6 +463,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
         private int mAccountCount;
         /** Number of recent mailbox elements */
         private int mRecentCount;
+        private boolean mHasShowAllFolders;
 
         private boolean mAccountExists;
 
@@ -573,6 +575,14 @@ public class AccountSelectorAdapter extends CursorAdapter {
 
         public int getRecentMailboxCount() {
             return mRecentCount;
+        }
+
+        /**
+         * @return true if the cursor has more than one selectable item so we should enable the
+         *     spinner.
+         */
+        public boolean shouldEnableSpinner() {
+            return mHasShowAllFolders || (mAccountCount + mRecentCount > 1);
         }
 
         public long getAccountId() {
