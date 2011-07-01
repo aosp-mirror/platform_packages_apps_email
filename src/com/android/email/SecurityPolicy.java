@@ -35,7 +35,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -99,7 +98,6 @@ public class SecurityPolicy {
      *  password expiration         take the min (strongest mode)
      *  password complex chars      take the max (strongest mode)
      *  encryption                  take the max (logical or)
-     *  encryption (external)       take the max (logical or)
      *
      * @return a policy representing the strongest aggregate.  If no policy sets are defined,
      * a lightweight "nothing required" policy will be returned.  Never null.
@@ -117,6 +115,10 @@ public class SecurityPolicy {
         aggregate.mMaxScreenLockTime = Integer.MAX_VALUE;
         aggregate.mRequireRemoteWipe = false;
         aggregate.mRequireEncryption = false;
+
+        // This can never be supported at this time. It exists only for historic reasons where
+        // this was able to be supported prior to the introduction of proper removable storage
+        // support for external storage.
         aggregate.mRequireEncryptionExternal = false;
 
         Cursor c = mContext.getContentResolver().query(Policy.CONTENT_URI,
@@ -153,7 +155,6 @@ public class SecurityPolicy {
                 }
                 aggregate.mRequireRemoteWipe |= policy.mRequireRemoteWipe;
                 aggregate.mRequireEncryption |= policy.mRequireEncryption;
-                aggregate.mRequireEncryptionExternal |= policy.mRequireEncryptionExternal;
                 aggregate.mDontAllowCamera |= policy.mDontAllowCamera;
                 policiesFound = true;
             }
@@ -240,13 +241,6 @@ public class SecurityPolicy {
                 return false;
             }
         }
-        if (policy.mRequireEncryptionExternal) {
-            // At this time, we only support "external encryption" when it is provided by virtue
-            // of emulating the external storage inside an encrypted device.
-            if (!policy.mRequireEncryption) return false;
-            if (Environment.isExternalStorageRemovable()) return false;
-            if (!Environment.isExternalStorageEmulated()) return false;
-        }
 
         // If we ever support devices that can't disable cameras for any reason, we should
         // indicate as such in the mDontAllowCamera policy
@@ -272,14 +266,6 @@ public class SecurityPolicy {
             int encryptionStatus = getDPM().getStorageEncryptionStatus();
             if (encryptionStatus == DevicePolicyManager.ENCRYPTION_STATUS_UNSUPPORTED) {
                 policy.mRequireEncryption = false;
-            }
-        }
-        // At this time, we only support "external encryption" when it is provided by virtue
-        // of emulating the external storage inside an encrypted device.
-        if (policy.mRequireEncryptionExternal) {
-            if (Environment.isExternalStorageRemovable()
-                    || !Environment.isExternalStorageEmulated()) {
-                policy.mRequireEncryptionExternal = false;
             }
         }
 
@@ -425,11 +411,6 @@ public class SecurityPolicy {
                     reasons |= INACTIVE_NEED_ENCRYPTION;
                 }
             }
-            // TODO: If we ever support external storage encryption as a first-class feature,
-            // it will need to be checked here.  For now, if there is a policy request for
-            // external storage encryption, it's sufficient that we've activated internal
-            // storage encryption.
-
             // password failures are counted locally - no test required here
             // no check required for remote wipe (it's supported, if we're the admin)
 
@@ -485,10 +466,6 @@ public class SecurityPolicy {
 
             // encryption required
             dpm.setStorageEncryption(mAdminName, aggregatePolicy.mRequireEncryption);
-            // TODO: If we ever support external storage encryption as a first-class feature,
-            // it will need to be set here.  For now, if there is a policy request for
-            // external storage encryption, it's sufficient that we've activated internal
-            // storage encryption.
         }
     }
 
