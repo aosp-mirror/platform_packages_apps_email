@@ -196,8 +196,10 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
      * @param intent The intent to be used when launching the activity
      */
     private void setActivityIntent(RemoteViews views, int buttonId, Intent intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // just in case intent comes without it
         PendingIntent pendingIntent =
-                PendingIntent.getActivity(mContext, 0, intent, 0);
+                PendingIntent.getActivity(mContext, (int) mAccountId, intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
         views.setOnClickPendingIntent(buttonId, pendingIntent);
     }
 
@@ -309,8 +311,11 @@ public class EmailWidget implements RemoteViewsService.RemoteViewsFactory,
             views.setViewVisibility(R.id.message_list, View.VISIBLE);
             views.setViewVisibility(R.id.tap_to_configure, View.GONE);
             // Create click intent for "compose email" target
-            intent = MessageCompose.getMessageComposeIntent(mContext, -1);
+            intent = MessageCompose.getMessageComposeIntent(mContext, mAccountId);
             setActivityIntent(views, R.id.widget_compose, intent);
+            // Create click intent for logo to open inbox
+            intent = Welcome.createOpenAccountInboxIntent(mContext, mAccountId);
+            setActivityIntent(views, R.id.widget_logo, intent);
         } else {
             // TODO This really should never happen ... probably can remove the else block
             // Hide compose icon & show "touch to configure" text
