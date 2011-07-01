@@ -862,7 +862,7 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
         final long id = mListAdapter.getId(position);
         if (mListAdapter.isAccountRow(position)) {
             mCallback.onAccountSelected(id);
-        } else {
+        } else if (mListAdapter.isMailboxRow(position)) {
             // Save account-id.  (Need to do this before startLoading() below, which will destroy
             // the current loader and make the mListAdapter lose the cursor.
             // Note, don't just use getAccountId().  A mailbox may tied to a different account ID
