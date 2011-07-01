@@ -391,17 +391,28 @@ public class MailboxListFragment extends ListFragment implements OnItemClickList
      * Set {@link #mParentMailboxId} and {@link #mHighlightedMailboxId} from the fragment arguments.
      */
     private void setInitialParentAndHighlight() {
+        final long initialMailboxId = getInitialCurrentMailboxId();
         if (getAccountId() == Account.ACCOUNT_ID_COMBINED_VIEW) {
             // For the combined view, always show the top-level, but highlight the "current".
             mParentMailboxId = Mailbox.NO_MAILBOX;
         } else {
-            // Otherwise, try using the "current" as the "parent" (and also highlight it).
-            // If it has no children, we go up in onLoadFinished().
-            mParentMailboxId = getInitialCurrentMailboxId();
+            // Inbox needs special care.
+            // Note we can't get the mailbox type on the UI thread but this method *can* be used...
+            final long inboxId = Mailbox.findMailboxOfType(getActivity(), getAccountId(),
+                    Mailbox.TYPE_INBOX);
+            if (initialMailboxId == inboxId) {
+                // If Inbox is set as the initial current, we show the top level mailboxes
+                // with inbox highlighted.
+                mParentMailboxId = Mailbox.NO_MAILBOX;
+            } else {
+                // Otherwise, try using the "current" as the "parent" (and also highlight it).
+                // If it has no children, we go up in onLoadFinished().
+                mParentMailboxId = initialMailboxId;
+            }
         }
         // Highlight the mailbox of interest
         if (getEnableHighlight()) {
-            mHighlightedMailboxId = getInitialCurrentMailboxId();
+            mHighlightedMailboxId = initialMailboxId;
         }
     }
 
