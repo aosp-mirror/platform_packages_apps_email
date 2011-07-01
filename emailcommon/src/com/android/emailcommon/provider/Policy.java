@@ -30,6 +30,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 
@@ -153,6 +154,7 @@ public final class Policy extends EmailContent implements EmailContent.PolicyCol
     /**
      * Convenience method for {@link #setAccountPolicy(Context, Account, Policy, String)}.
      */
+    @VisibleForTesting
     public static void setAccountPolicy(Context context, long accountId, Policy policy,
             String securitySyncKey) {
         setAccountPolicy(context, Account.restoreAccountWithId(context, accountId),

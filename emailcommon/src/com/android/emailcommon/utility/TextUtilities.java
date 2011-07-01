@@ -16,6 +16,8 @@
 
 package com.android.emailcommon.utility;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import android.graphics.Color;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -509,6 +511,7 @@ public class TextUtilities {
      * @param query the search terms
      * @return HTML text with the search terms highlighted
      */
+    @VisibleForTesting
     public static String highlightTermsInHtml(String text, String query) {
         try {
             return highlightTerms(text, query, true).toString();

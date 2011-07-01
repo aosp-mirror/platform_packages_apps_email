@@ -32,6 +32,7 @@ import android.os.RemoteException;
 
 import com.android.emailcommon.utility.TextUtilities;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -376,6 +377,7 @@ public abstract class EmailContent {
             }
         }
 
+        @VisibleForTesting
         public static long restoreBodySourceKey(Context context, long messageId) {
             return Utility.getFirstRowLong(context, Body.CONTENT_URI,
                     Body.PROJECTION_SOURCE_KEY,

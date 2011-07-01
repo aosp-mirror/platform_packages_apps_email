@@ -40,6 +40,7 @@ import com.android.emailcommon.service.EmailServiceProxy;
 import com.android.emailcommon.service.SearchParams;
 import com.android.emailcommon.utility.LoggingInputStream;
 import com.android.emailcommon.utility.Utility;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -932,6 +933,7 @@ public class Pop3Store extends Store {
         }
 
         @Override
+        @VisibleForTesting
         public boolean isOpen() {
             return mTransport.isOpen();
         }

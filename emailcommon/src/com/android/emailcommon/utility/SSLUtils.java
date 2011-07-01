@@ -16,6 +16,8 @@
 
 package com.android.emailcommon.utility;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import android.content.Context;
 import android.net.SSLCertificateSocketFactory;
 import android.security.KeyChain;
@@ -80,6 +82,7 @@ public class SSLUtils {
      *
      * This does not ensure that the first character is a letter (which is required by the RFC).
      */
+    @VisibleForTesting
     public static String escapeForSchemeName(String s) {
         // According to the RFC, scheme names are case-insensitive.
         s = s.toLowerCase();
