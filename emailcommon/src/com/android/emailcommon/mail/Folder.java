@@ -17,6 +17,7 @@
 package com.android.emailcommon.mail;
 
 import com.android.emailcommon.service.SearchParams;
+import com.google.common.annotations.VisibleForTesting;
 
 
 public abstract class Folder {
@@ -27,7 +28,7 @@ public abstract class Folder {
     public enum FolderType {
         HOLDS_FOLDERS, HOLDS_MESSAGES,
     }
-    
+
     /**
      * Identifiers of "special" folders.
      */
@@ -36,7 +37,7 @@ public abstract class Folder {
         TRASH,
         SENT,
         DRAFTS,
-        
+
         OUTBOX,     // Local folders only - not used in remote Stores
         OTHER,      // this folder has no specific role
         UNKNOWN     // the role of this folder is unknown
@@ -76,6 +77,7 @@ public abstract class Folder {
      * @return True if further commands are not expected to have to open the
      *         connection.
      */
+    @VisibleForTesting
     public abstract boolean isOpen();
 
     /**
@@ -127,14 +129,14 @@ public abstract class Folder {
     /**
      * Return a set of messages based on the state of the flags.
      * Note: Not typically implemented in remote stores, so not abstract.
-     * 
+     *
      * @param setFlags The flags that should be set for a message to be selected (can be null)
      * @param clearFlags The flags that should be clear for a message to be selected (can be null)
      * @param listener
      * @return A list of messages matching the desired flag states.
      * @throws MessagingException
      */
-    public Message[] getMessages(Flag[] setFlags, Flag[] clearFlags, 
+    public Message[] getMessages(Flag[] setFlags, Flag[] clearFlags,
             MessageRetrievalListener listener) throws MessagingException {
         throw new MessagingException("Not implemented");
     }
@@ -166,10 +168,10 @@ public abstract class Folder {
      * (such as inbox, draft, sent, or trash).  Stores that do not implement this
      * feature can be used - the account UI will provide default strings.  To
      * let the server identify specific folder roles, simply override this method.
-     * 
+     *
      * @return The server- or protocol- specific role for this folder.  If some roles are known
      * but this is not one of them, return FolderRole.OTHER.  If roles are unsupported here,
-     * return FolderRole.UNKNOWN.  
+     * return FolderRole.UNKNOWN.
      */
     public FolderRole getRole() {
         return FolderRole.UNKNOWN;

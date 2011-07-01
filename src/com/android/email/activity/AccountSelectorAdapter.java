@@ -577,6 +577,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
             return mAccountCount;
         }
 
+        @VisibleForTesting
         public int getRecentMailboxCount() {
             return mRecentCount;
         }
@@ -597,6 +598,7 @@ public class AccountSelectorAdapter extends CursorAdapter {
             return mAccountDisplayName;
         }
 
+        @VisibleForTesting
         public long getMailboxId() {
             return mMailboxId;
         }

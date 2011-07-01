@@ -395,6 +395,7 @@ class ImapFolder extends Folder {
     }
 
     @Override
+    @VisibleForTesting
     public Message getMessage(String uid) throws MessagingException {
         checkOpen();
 
@@ -413,6 +414,7 @@ class ImapFolder extends Folder {
      * TODO: Properly quote the filter
      */
     @Override
+    @VisibleForTesting
     public Message[] getMessages(SearchParams params, MessageRetrievalListener listener)
             throws MessagingException {
         String filter = params.mFilter;
@@ -432,6 +434,7 @@ class ImapFolder extends Folder {
     }
 
     @Override
+    @VisibleForTesting
     public Message[] getMessages(int start, int end, MessageRetrievalListener listener)
             throws MessagingException {
         if (start < 1 || end < 1 || end < start) {
@@ -442,6 +445,7 @@ class ImapFolder extends Folder {
     }
 
     @Override
+    @VisibleForTesting
     public Message[] getMessages(String[] uids, MessageRetrievalListener listener)
             throws MessagingException {
         if (uids == null) {
