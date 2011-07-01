@@ -56,6 +56,12 @@ public class MessageListItemCoordinates {
     int checkmarkWidthIncludingMargins;
     int checkmarkHeightIncludingMargins;
 
+    // Reply and forward state.
+    int stateX;
+    int stateY;
+    int stateWidthIncludingMargins;
+    int stateHeightIncludingMargins;
+
     // Star.
     int starX;
     int starY;
@@ -268,6 +274,11 @@ public class MessageListItemCoordinates {
             coordinates.starX = getX(star);
             coordinates.starY = getY(star);
             coordinates.starWidthIncludingMargins = getWidth(star, true);
+
+            View state = view.findViewById(R.id.reply_state);
+            coordinates.stateX = getX(state);
+            coordinates.stateY = getY(state);
+            coordinates.stateWidthIncludingMargins = getWidth(state, true);
 
             TextView senders = (TextView) view.findViewById(R.id.senders);
             coordinates.sendersX = getX(senders);

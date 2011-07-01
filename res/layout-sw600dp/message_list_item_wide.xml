@@ -42,6 +42,14 @@
         android:text="@string/long_string"
         android:textSize="@dimen/wide_senders_font_size"
         android:lines="1" />
+    <ImageView
+        android:id="@+id/reply_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/reply" />
     <TextView
         android:id="@+id/subject"
         android:layout_width="0dip"
