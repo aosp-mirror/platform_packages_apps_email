@@ -16,14 +16,15 @@
 
 package com.android.emailcommon.utility;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import android.content.Context;
 import android.net.SSLCertificateSocketFactory;
 import android.security.KeyChain;
 import android.security.KeyChainException;
 import android.util.Log;
 
+import com.google.common.annotations.VisibleForTesting;
+
+import java.net.InetAddress;
 import java.net.Socket;
 import java.security.Principal;
 import java.security.PrivateKey;
@@ -137,35 +138,46 @@ public class SSLUtils {
     }
 
     /**
-     * A dummy {@link KeyManager} which throws a {@link CertificateRequestedException} if the
-     * server requests a certificate.
+     * A dummy {@link KeyManager} which keeps track of the last time a server has requested
+     * a client certificate.
      */
     public static class TrackingKeyManager extends StubKeyManager {
+        private volatile long mLastTimeCertRequested = 0L;
+
         @Override
         public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
             if (LOG_ENABLED) {
+                InetAddress address = socket.getInetAddress();
                 Log.i(TAG, "TrackingKeyManager: requesting a client cert alias for "
-                        + Arrays.toString(keyTypes));
+                        + address.getCanonicalHostName());
             }
-            throw new CertificateRequestedException();
+            mLastTimeCertRequested = System.currentTimeMillis();
+            return null;
         }
 
         @Override
         public X509Certificate[] getCertificateChain(String alias) {
+            if (LOG_ENABLED) {
+                Log.i(TAG, "TrackingKeyManager: returning a null cert chain");
+            }
             return null;
         }
 
         @Override
         public PrivateKey getPrivateKey(String alias) {
+            if (LOG_ENABLED) {
+                Log.i(TAG, "TrackingKeyManager: returning a null private key");
+            }
             return null;
         }
-    }
 
-    /**
-     * An exception indicating that a server requested a client certificate but none was
-     * available to be presented.
-     */
-    public static class CertificateRequestedException extends RuntimeException {
+        /**
+         * @return the last time that this {@link KeyManager} detected a request by a server
+         *     for a client certificate (in millis since epoch).
+         */
+        public long getLastCertReqTime() {
+            return mLastTimeCertRequested;
+        }
     }
 
     /**

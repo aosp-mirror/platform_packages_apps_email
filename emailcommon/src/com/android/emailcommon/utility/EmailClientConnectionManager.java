@@ -17,6 +17,10 @@
 
 package com.android.emailcommon.utility;
 
+import android.content.Context;
+import android.net.SSLCertificateSocketFactory;
+import android.util.Log;
+
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.utility.SSLUtils.KeyChainKeyManager;
 import com.android.emailcommon.utility.SSLUtils.TrackingKeyManager;
@@ -26,10 +30,6 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpParams;
-
-import android.content.Context;
-import android.net.SSLCertificateSocketFactory;
-import android.util.Log;
 
 import java.security.cert.CertificateException;
 
@@ -44,10 +44,17 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
     private static final boolean LOG_ENABLED = false;
 
     /**
+     * A {@link KeyManager} to track client certificate requests from servers.
+     */
+    private final TrackingKeyManager mTrackingKeyManager;
+
+    /**
      * Not publicly instantiable except via {@link #newInstance(HttpParams)}
      */
-    private EmailClientConnectionManager(HttpParams params, SchemeRegistry registry) {
+    private EmailClientConnectionManager(
+            HttpParams params, SchemeRegistry registry, TrackingKeyManager keyManager) {
         super(params, registry);
+        mTrackingKeyManager = keyManager;
     }
 
     public static EmailClientConnectionManager newInstance(HttpParams params) {
@@ -64,7 +71,7 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
         registry.register(new Scheme("httpts",
                 SSLUtils.getHttpSocketFactory(true /*insecure*/, keyManager), 443));
 
-        return new EmailClientConnectionManager(params, registry);
+        return new EmailClientConnectionManager(params, registry, keyManager);
     }
 
     /**
@@ -128,5 +135,14 @@ public class EmailClientConnectionManager extends ThreadSafeClientConnManager {
             String clientCertAlias, boolean trustAllServerCerts) {
         String safeAlias = SSLUtils.escapeForSchemeName(clientCertAlias);
         return (trustAllServerCerts ? "httpts" : "https") + "+clientCert+" + safeAlias;
+    }
+
+    /**
+     * @param since A timestamp in millis from epoch from which to check
+     * @return whether or not this connection manager has detected any unsatisfied requests for
+     *     a client SSL certificate by any servers
+     */
+    public synchronized boolean hasDetectedUnsatisfiedCertReq(long since) {
+        return mTrackingKeyManager.getLastCertReqTime() >= since;
     }
 }
