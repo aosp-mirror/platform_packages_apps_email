@@ -43,6 +43,7 @@ import com.android.emailcommon.provider.EmailContent.BodyColumns;
 import com.android.emailcommon.provider.EmailContent.MailboxColumns;
 import com.android.emailcommon.provider.EmailContent.Message;
 import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.EmailContent.PolicyColumns;
 import com.android.emailcommon.provider.HostAuth;
 import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.provider.Policy;
@@ -953,9 +954,9 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         assertEquals(6, EmailContent.count(context, Message.DELETED_CONTENT_URI, null, null));
 
         // Delete the orphans
-        EmailProvider.deleteOrphans(EmailProvider.getReadableDatabase(context),
+        EmailProvider.deleteMessageOrphans(EmailProvider.getReadableDatabase(context),
                 Message.DELETED_TABLE_NAME);
-        EmailProvider.deleteOrphans(EmailProvider.getReadableDatabase(context),
+        EmailProvider.deleteMessageOrphans(EmailProvider.getReadableDatabase(context),
                 Message.UPDATED_TABLE_NAME);
 
         // There should now be 4 messages in each of the deleted and updated tables again
@@ -2458,5 +2459,70 @@ public class ProviderTests extends ProviderTestCase2<EmailProvider> {
         } finally {
             cleanupTestAccountManagerAccounts(accountManager);
         }
+    }
+
+    public void testCleanupOrphans() {
+        EmailProvider ep = getProvider();
+        SQLiteDatabase db = ep.getDatabase(mMockContext);
+
+        Account a = ProviderTestUtils.setupAccount("account1", true, mMockContext);
+        // Mailbox a1 and a3 won't have a valid account
+        Mailbox a1 = createTypeMailbox(mMockContext, -1, Mailbox.TYPE_INBOX);
+        Mailbox a2 = createTypeMailbox(mMockContext, a.mId, Mailbox.TYPE_MAIL);
+        Mailbox a3 = createTypeMailbox(mMockContext, -1, Mailbox.TYPE_DRAFTS);
+        Mailbox a4 = createTypeMailbox(mMockContext, a.mId, Mailbox.TYPE_SENT);
+        Mailbox a5 = createTypeMailbox(mMockContext, a.mId, Mailbox.TYPE_TRASH);
+        // Mailbox ax isn't even saved; use an obviously invalid id
+        Mailbox ax = new Mailbox();
+        ax.mId = 69105;
+
+        // Message mt2 is an orphan, as is mt4
+        Message m1 = createMessage(mMockContext, a1, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message m2 = createMessage(mMockContext, a2, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message m3 = createMessage(mMockContext, a3, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message m4 = createMessage(mMockContext, a4, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message m5 = createMessage(mMockContext, a5, true, false, Message.FLAG_LOADED_COMPLETE);
+        Message mx = createMessage(mMockContext, ax, true, false, Message.FLAG_LOADED_COMPLETE);
+
+        // Two orphan policies
+        Policy p1 = new Policy();
+        p1.save(mMockContext);
+        Policy p2 = new Policy();
+        p2.save(mMockContext);
+        Policy p3 = new Policy();
+        Policy.setAccountPolicy(mMockContext, a.mId, p3, "0");
+
+        // We don't want anything cached or the tests below won't work.  Note that
+        // deleteUnlinked is only called by EmailProvider when the caches are empty
+        ContentCache.invalidateAllCaches();
+        // Delete orphaned mailboxes/messages/policies
+        ep.deleteUnlinked(db, Mailbox.TABLE_NAME, MailboxColumns.ACCOUNT_KEY, AccountColumns.ID,
+                Account.TABLE_NAME);
+        ep.deleteUnlinked(db, Message.TABLE_NAME, MessageColumns.ACCOUNT_KEY, AccountColumns.ID,
+                Account.TABLE_NAME);
+        ep.deleteUnlinked(db, Policy.TABLE_NAME, PolicyColumns.ID, AccountColumns.POLICY_KEY,
+                Account.TABLE_NAME);
+
+        // Make sure the orphaned mailboxes are gone
+        assertNull(Mailbox.restoreMailboxWithId(mMockContext, a1.mId));
+        assertNotNull(Mailbox.restoreMailboxWithId(mMockContext, a2.mId));
+        assertNull(Mailbox.restoreMailboxWithId(mMockContext, a3.mId));
+        assertNotNull(Mailbox.restoreMailboxWithId(mMockContext, a4.mId));
+        assertNotNull(Mailbox.restoreMailboxWithId(mMockContext, a5.mId));
+        assertNull(Mailbox.restoreMailboxWithId(mMockContext, ax.mId));
+
+        // Make sure orphaned messages are gone
+        assertNull(Message.restoreMessageWithId(mMockContext, m1.mId));
+        assertNotNull(Message.restoreMessageWithId(mMockContext, m2.mId));
+        assertNull(Message.restoreMessageWithId(mMockContext, m3.mId));
+        assertNotNull(Message.restoreMessageWithId(mMockContext, m4.mId));
+        assertNotNull(Message.restoreMessageWithId(mMockContext, m5.mId));
+        assertNull(Message.restoreMessageWithId(mMockContext, mx.mId));
+
+        // Make sure orphaned policies are gone
+        assertNull(Policy.restorePolicyWithId(mMockContext, p1.mId));
+        assertNull(Policy.restorePolicyWithId(mMockContext, p2.mId));
+        a = Account.restoreAccountWithId(mMockContext, a.mId);
+        assertNotNull(Policy.restorePolicyWithId(mMockContext, a.mPolicyKey));
     }
 }

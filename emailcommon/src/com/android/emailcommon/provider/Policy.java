@@ -40,7 +40,7 @@ import java.util.ArrayList;
  */
 public final class Policy extends EmailContent implements EmailContent.PolicyColumns, Parcelable {
     // STOPSHIP Change to false after a few days of debugging
-    public static final boolean DEBUG_POLICY = true;  // DO NOT SUBMIT WITH THIS SET TO FALSE
+    public static final boolean DEBUG_POLICY = false;  // DO NOT SUBMIT WITH THIS SET TO TRUE
     public static final String TAG = "Email/Policy";
 
     public static final String TABLE_NAME = "Policy";
