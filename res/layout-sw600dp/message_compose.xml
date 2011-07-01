@@ -74,12 +74,8 @@
                             style="@style/message_compose_header_field_label"
                             android:text="@string/message_compose_to_label"
                             />
-                        <com.android.email.activity.AddressTextView
-                            android:id="@+id/to"
-                            style="@style/message_compose_header_field_value"
-                            android:inputType="textEmailAddress"
-                            android:imeOptions="actionNext"
-                            />
+                        <include android:id="@+id/to"
+                            layout="@layout/address_text_view"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -98,12 +94,8 @@
                                 style="@style/message_compose_header_field_label"
                                 android:text="@string/message_compose_cc_label"
                                 />
-                            <com.android.email.activity.AddressTextView
-                                android:id="@+id/cc"
-                                style="@style/message_compose_header_field_value"
-                                android:inputType="textEmailAddress"
-                                android:imeOptions="actionNext"
-                                />
+                            <include android:id="@+id/cc"
+                                layout="@layout/address_text_view"/>
                         </LinearLayout>
 
                         <!-- bcc: -->
@@ -115,12 +107,8 @@
                                 style="@style/message_compose_header_field_label"
                                 android:text="@string/message_compose_bcc_label"
                                 />
-                            <com.android.email.activity.AddressTextView
-                                android:id="@+id/bcc"
-                                style="@style/message_compose_header_field_value"
-                                android:inputType="textEmailAddress"
-                                android:imeOptions="actionNext"
-                                />
+                            <include android:id="@+id/bcc"
+                                layout="@layout/address_text_view"/>
                         </LinearLayout>
                     </LinearLayout>
 
