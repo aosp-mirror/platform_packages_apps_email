@@ -166,7 +166,8 @@ public class AccountSettings extends PreferenceActivity {
             if (ACTION_ACCOUNT_MANAGER_ENTRY.equals(i.getAction())) {
                 // This case occurs if we're changing account settings from Settings -> Accounts
                 mGetAccountIdFromAccountTask =
-                    (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask().execute(i);
+                        (GetAccountIdFromAccountTask) new GetAccountIdFromAccountTask()
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, i);
             } else {
                 // Otherwise, we're called from within the Email app and look for our extras
                 mRequestedAccountId = IntentUtilities.getAccountIdFromIntent(i);
@@ -348,7 +349,8 @@ public class AccountSettings extends PreferenceActivity {
         if (hasHeaders()) {
             Utility.cancelTaskInterrupt(mLoadAccountListTask);
             mLoadAccountListTask = (LoadAccountListTask)
-                    new LoadAccountListTask().execute(mDeletingAccountId);
+                    new LoadAccountListTask().executeOnExecutor(
+                            AsyncTask.THREAD_POOL_EXECUTOR, mDeletingAccountId);
         }
     }
 

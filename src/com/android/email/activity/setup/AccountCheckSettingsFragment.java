@@ -158,7 +158,7 @@ public class AccountCheckSettingsFragment extends Fragment {
             Account checkAccount = SetupData.getAccount();
             mAccountCheckTask = (AccountCheckTask)
                     new AccountCheckTask(checkMode, checkAccount)
-                    .execute();
+                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
 

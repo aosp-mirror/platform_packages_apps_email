@@ -50,7 +50,6 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     private EditText mName;
     private View mAccountNameLabel;
     private Button mNextButton;
-    private boolean mNextPressed = false;
     private boolean mEasAccount = false;
 
     public static void actionSetNames(Activity fromActivity) {
@@ -122,13 +121,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.next:
-                // Don't allow this more than once (we do some work in an async thread before
-                // finish()'ing the Activity, which allows this code to potentially be
-                // executed multiple times.
-                if (!mNextPressed) {
-                    onNext();
-                }
-                mNextPressed = true;
+                onNext();
                 break;
         }
     }
@@ -154,7 +147,7 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
      */
     @Override
     public void onBackPressed() {
-        if (!mNextPressed) {
+        if (mNextButton.isEnabled()) {
             finishActivity();
         }
     }
@@ -180,6 +173,8 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
      * and other steps to finish the creation of the account.
      */
     private void onNext() {
+        mNextButton.setEnabled(false); // Protect against double-tap.
+
         // Update account object from UI
         Account account = SetupData.getAccount();
         String description = mDescription.getText().toString().trim();
@@ -189,7 +184,9 @@ public class AccountSetupNames extends AccountSetupActivity implements OnClickLi
         account.setSenderName(mName.getText().toString().trim());
 
         // Launch async task for final commit work
-        new FinalSetupTask(account).execute();
+        // Sicne it's a write task, use the serial executor so even if we ran the task twice
+        // with different values the result would be consistent.
+        new FinalSetupTask(account).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
     }
 
     /**
