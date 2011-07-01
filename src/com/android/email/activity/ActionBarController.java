@@ -42,12 +42,6 @@ import com.android.emailcommon.utility.Utility;
 
 /**
  * Manages the account name and the custom view part on the action bar.
- *
- * TODO Show current mailbox name/unread count on the account spinner
- *      -- and remove mMailboxNameContainer.
- *
- * TODO Stop using the action bar spinner and create our own spinner as a custom view.
- *      (so we'll be able to just hide it, etc.)
  */
 public class ActionBarController {
     private static final String BUNDLE_KEY_MODE = "ActionBarController.BUNDLE_KEY_MODE";
@@ -416,11 +410,13 @@ public class ActionBarController {
         }
 
         if ((mCursor.getAccountId() != Account.NO_ACCOUNT) && !mCursor.accountExists()) {
-            // Accoutn specified, but not exists.  Switch to the default account.
-            mCallback.onAccountSelected(Account.getDefaultAccountId(mContext));
+            // Account specified, but does not exist.
+            if (isInSearchMode()) {
+                exitSearchMode();
+            }
 
-            // STOPSHIP If in search mode, we should close the activity.  Probably
-            // we should jsut call onSearchExit() instead?
+            // Switch to the default account.
+            mCallback.onAccountSelected(Account.getDefaultAccountId(mContext));
             return;
         }
 
