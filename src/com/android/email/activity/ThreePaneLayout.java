@@ -273,6 +273,16 @@ public class ThreePaneLayout extends LinearLayout implements View.OnClickListene
         return ret;
     }
 
+    public boolean isLeftPaneVisible() {
+        return mLeftPane.getVisibility() == View.VISIBLE;
+    }
+    public boolean isMiddlePaneVisible() {
+        return mMiddlePane.getVisibility() == View.VISIBLE;
+    }
+    public boolean isRightPaneVisible() {
+        return mRightPane.getVisibility() == View.VISIBLE;
+    }
+
     /**
      * Handles the back event.
      *
