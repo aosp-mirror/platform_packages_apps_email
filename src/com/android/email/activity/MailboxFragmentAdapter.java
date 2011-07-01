@@ -89,7 +89,6 @@ class MailboxFragmentAdapter extends CursorAdapter {
     private static final int ROW_TYPE_MAILBOX = 0;
     /** Account "mailboxes" in the combined view */
     private static final int ROW_TYPE_ACCOUNT = 1;
-    // STOPSHIP Need to determine if these types are sufficient for nested folders
     // The following types are used when drilling into a mailbox
     /** The current mailbox */
     private static final int ROW_TYPE_CURMAILBOX = 2;
@@ -114,7 +113,6 @@ class MailboxFragmentAdapter extends CursorAdapter {
             MailboxColumns.DISPLAY_NAME, MailboxColumns.TYPE, MailboxColumns.UNREAD_COUNT,
             MailboxColumns.MESSAGE_COUNT, ROW_TYPE_MAILBOX + " AS " + ROW_TYPE,
             MailboxColumns.FLAGS, MailboxColumns.ACCOUNT_KEY };
-    // STOPSHIP May need to adjust sub-folder projection depending upon final UX
     /**
      * Projection used to retrieve immediate children for a mailbox. The columns need to
      * be identical to those in {@link #PROJECTION}. We are only changing the constant
