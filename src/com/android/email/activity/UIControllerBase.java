@@ -33,6 +33,7 @@ import com.android.email.Preferences;
 import com.android.email.R;
 import com.android.email.RefreshManager;
 import com.android.email.activity.setup.AccountSettings;
+import com.android.email.activity.setup.MailboxSettings;
 import com.android.emailcommon.Logging;
 import com.android.emailcommon.provider.Account;
 import com.android.emailcommon.provider.EmailContent.Message;
@@ -735,8 +736,9 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
 
         // TODO: Should use an isSyncable call to prevent drafts/outbox from allowing this
         menu.findItem(R.id.search).setVisible(accountSearchable && isMessageListReady());
-        menu.findItem(R.id.sync_lookback).setVisible(isEas);
-        menu.findItem(R.id.sync_frequency).setVisible(isEas);
+        // TODO Show only for syncable mailbox as well.
+        menu.findItem(R.id.mailbox_settings).setVisible(isEas
+                && (getMailboxSettingsMailboxId() != Mailbox.NO_MAILBOX));
 
         return true;
     }
@@ -761,6 +763,12 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
                 return onAccountSettings();
             case R.id.search:
                 onSearchRequested();
+                return true;
+            case R.id.mailbox_settings:
+                final long mailboxId = getMailboxSettingsMailboxId();
+                if (mailboxId != Mailbox.NO_MAILBOX) {
+                    MailboxSettings.start(mActivity, mailboxId);
+                }
                 return true;
         }
         return false;
@@ -797,18 +805,14 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
 
 
     /**
-     * STOPSHIP For experimental UI.  Remove this.
-     *
      * @return mailbox ID for "mailbox settings" option.
      */
-    public abstract long getMailboxSettingsMailboxId();
+    protected abstract long getMailboxSettingsMailboxId();
 
     /**
-     * STOPSHIP For experimental UI.  Make it abstract protected.
-     *
      * Performs "refesh".
      */
-    public abstract void onRefresh();
+    protected abstract void onRefresh();
 
     /**
      * @return true if refresh is in progress for the current mailbox.

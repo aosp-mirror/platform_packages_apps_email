@@ -562,11 +562,8 @@ class UIControllerOnePane extends UIControllerBase {
         super.installMessageListFragment(fragment);
     }
 
-    /*
-     * STOPSHIP Remove this -- see the base class method.
-     */
     @Override
-    public long getMailboxSettingsMailboxId() {
+    protected long getMailboxSettingsMailboxId() {
         return isMessageListInstalled()
                 ? getMessageListFragment().getMailboxId()
                 : Mailbox.NO_MAILBOX;
@@ -579,13 +576,13 @@ class UIControllerOnePane extends UIControllerBase {
 
         // Then override
         final boolean messageViewVisible = isMessageViewInstalled();
-        menu.findItem(R.id.search).setVisible(!messageViewVisible);
-        menu.findItem(R.id.compose).setVisible(!messageViewVisible);
-        menu.findItem(R.id.refresh).setVisible(!messageViewVisible);
-        menu.findItem(R.id.account_settings).setVisible(!messageViewVisible);
-        menu.findItem(R.id.sync_frequency).setVisible(!messageViewVisible);
-        menu.findItem(R.id.sync_lookback).setVisible(!messageViewVisible);
         if (messageViewVisible) {
+            menu.findItem(R.id.search).setVisible(false);
+            menu.findItem(R.id.compose).setVisible(false);
+            menu.findItem(R.id.refresh).setVisible(false);
+            menu.findItem(R.id.account_settings).setVisible(false);
+            menu.findItem(R.id.mailbox_settings).setVisible(false);
+
             final MessageOrderManager om = getMessageOrderManager();
             menu.findItem(R.id.newer).setVisible(true);
             menu.findItem(R.id.older).setVisible(true);
@@ -618,7 +615,7 @@ class UIControllerOnePane extends UIControllerBase {
     }
 
     @Override
-    public void onRefresh() {
+    protected void onRefresh() {
         if (!isRefreshEnabled()) {
             return;
         }
