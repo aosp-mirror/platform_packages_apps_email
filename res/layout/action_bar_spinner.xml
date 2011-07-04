@@ -53,11 +53,9 @@
     </LinearLayout>
     <TextView
         android:id="@+id/spinner_count"
+        style="@style/action_bar_unread_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dip"
-        android:textSize="16dip"
-        android:textColor="@color/text_primary_color"
         android:singleLine="true"
         android:ellipsize="none"
         android:gravity="center"
