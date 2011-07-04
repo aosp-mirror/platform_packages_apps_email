@@ -43,8 +43,7 @@ import java.util.Set;
  * Note: Always use {@link #commitFragmentTransaction} to operate fragment transactions,
  * so that we can easily switch between synchronous and asynchronous transactions.
  */
-class UIControllerTwoPane extends UIControllerBase implements
-        ThreePaneLayout.Callback {
+class UIControllerTwoPane extends UIControllerBase implements ThreePaneLayout.Callback {
     @VisibleForTesting
     static final int MAILBOX_REFRESH_MIN_INTERVAL = 30 * 1000; // in milliseconds
 
@@ -186,8 +185,9 @@ class UIControllerTwoPane extends UIControllerBase implements
     public boolean onDragStarted() {
         Log.w(Logging.LOG_TAG, "Drag started");
 
-        if ((mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_LEFT) == 0) {
-            // Mailbox list hidden.  D&D not allowed.
+        if (((mListContext != null) && mListContext.isSearch())
+                || !mThreePane.isLeftPaneVisible()) {
+            // D&D not allowed.
             return false;
         }
 
@@ -701,8 +701,7 @@ class UIControllerTwoPane extends UIControllerBase implements
 
         @Override
         public int getTitleMode() {
-            final int visiblePanes = mThreePane.getVisiblePanes();
-            if ((mThreePane.getVisiblePanes() & ThreePaneLayout.PANE_LEFT) != 0) {
+            if (mThreePane.isLeftPaneVisible()) {
                 // Mailbox list visible
                 return TITLE_MODE_ACCOUNT_NAME_ONLY;
             } else {
