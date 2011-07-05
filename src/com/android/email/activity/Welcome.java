@@ -16,6 +16,17 @@
 
 package com.android.email.activity;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+
 import com.android.email.Email;
 import com.android.email.R;
 import com.android.email.activity.setup.AccountSetupBasics;
@@ -29,15 +40,6 @@ import com.android.emailcommon.provider.Mailbox;
 import com.android.emailcommon.utility.EmailAsyncTask;
 import com.android.emailcommon.utility.Utility;
 import com.google.common.annotations.VisibleForTesting;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
 
 /**
  * The Welcome activity initializes the application and starts {@link EmailActivity}, or launch
@@ -174,12 +176,6 @@ public class Welcome extends Activity {
         super.onCreate(icicle);
         ActivityHelper.debugSetWindowFlags(this);
 
-        setContentView(R.layout.welcome);
-        mWaitingForSyncView = UiUtilities.getView(this, R.id.waiting_for_sync_message);
-
-        // Reset the "accounts changed" notification, now that we're here
-        Email.setNotifyUiAccountsChanged(false);
-
         // Because the app could be reloaded (for debugging, etc.), we need to make sure that
         // ExchangeService gets a chance to start.  There is no harm to starting it if it has
         // already been started
@@ -196,6 +192,9 @@ public class Welcome extends Activity {
         UiUtilities.setDebugPaneMode(getDebugPaneMode(intent));
 
         startAccountResolver();
+
+        // Reset the "accounts changed" notification, now that we're here
+        Email.setNotifyUiAccountsChanged(false);
     }
 
     @Override
@@ -254,8 +253,11 @@ public class Welcome extends Activity {
                 mMailboxFinderCallback);
         mInboxFinder.startLookup();
 
-        // Show "your email will appear shortly"
-        mWaitingForSyncView.setVisibility(View.VISIBLE);
+        // Show "your email will appear shortly" message.
+        mWaitingForSyncView = LayoutInflater.from(this).inflate(
+                R.layout.waiting_for_sync_message, null);
+        addContentView(mWaitingForSyncView, new LayoutParams(
+                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
     }
 
     /**

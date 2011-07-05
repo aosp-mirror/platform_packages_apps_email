@@ -26,14 +26,12 @@
         android:id="@+id/error_message"
         android:layout_width="match_parent"
         android:layout_height="@dimen/error_message_height"
-        android:paddingLeft="78dip"
-        android:paddingRight="78dip"
+        android:paddingLeft="8dip"
+        android:paddingRight="8dip"
         android:gravity="left|center_vertical"
-        android:textSize="16dip"
-        android:textColor="#000"
         android:singleLine="true"
         android:ellipsize="end"
-        android:background="#ffff66"
+        android:background="@color/error_bar_background"
         />
     <FrameLayout
         android:id="@+id/fragment_placeholder"

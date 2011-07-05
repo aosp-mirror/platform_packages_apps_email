@@ -60,4 +60,6 @@
     <color name="widget_light_text_color">#ff666666</color>
 
     <color name="message_view_info_back_color">#deecfa</color>
+
+    <color name="error_bar_background">#ffff66</color>
 </resources>

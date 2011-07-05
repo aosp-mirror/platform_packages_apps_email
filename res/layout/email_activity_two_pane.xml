@@ -33,7 +33,7 @@
         android:textColor="#000"
         android:singleLine="true"
         android:ellipsize="end"
-        android:background="#ffff66"
+        android:background="@color/error_bar_background"
         />
 
     <include
