@@ -101,18 +101,38 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      */
     protected MessageListContext mListContext;
 
-    private final RefreshManager.Listener mRefreshListener
-            = new RefreshManager.Listener() {
+    private class RefreshListener implements RefreshManager.Listener {
+        private MenuItem mRefreshIcon;
+
         @Override
         public void onMessagingError(final long accountId, long mailboxId, final String message) {
-            refreshActionBar();
+            updateRefreshIcon();
         }
 
         @Override
         public void onRefreshStatusChanged(long accountId, long mailboxId) {
-            refreshActionBar();
+            updateRefreshIcon();
+        }
+
+        void setRefreshIcon(MenuItem icon) {
+            mRefreshIcon = icon;
+            updateRefreshIcon();
+        }
+
+        private void updateRefreshIcon() {
+            if (mRefreshIcon == null) {
+                return;
+            }
+
+            if (isRefreshInProgress()) {
+                mRefreshIcon.setActionView(R.layout.action_bar_indeterminate_progress);
+            } else {
+                mRefreshIcon.setActionView(null);
+            }
         }
     };
+
+    private final RefreshListener mRefreshListener = new RefreshListener();
 
     public UIControllerBase(EmailActivity activity) {
         mActivity = activity;
@@ -277,6 +297,11 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
     protected void installMailboxListFragment(MailboxListFragment fragment) {
         mMailboxListFragment = fragment;
         mMailboxListFragment.setCallback(this);
+
+        // TODO: consolidate this refresh with the one that the Fragment itself does. since
+        // the fragment calls setHasOptionsMenu(true) - it invalidates when it gets attached.
+        // However the timing is slightly different and leads to a delay in update if this isn't
+        // here - investigate why. same for the other installs.
         refreshActionBar();
     }
 
@@ -704,18 +729,14 @@ abstract class UIControllerBase implements MailboxListFragment.Callback,
      * Handles the {@link android.app.Activity#onPrepareOptionsMenu} callback.
      */
     public boolean onPrepareOptionsMenu(MenuInflater inflater, Menu menu) {
-
         // Update the refresh button.
         MenuItem item = menu.findItem(R.id.refresh);
         if (isRefreshEnabled()) {
             item.setVisible(true);
-            if (isRefreshInProgress()) {
-                item.setActionView(R.layout.action_bar_indeterminate_progress);
-            } else {
-                item.setActionView(null);
-            }
+            mRefreshListener.setRefreshIcon(item);
         } else {
             item.setVisible(false);
+            mRefreshListener.setRefreshIcon(null);
         }
 
         // Deal with protocol-specific menu options.
