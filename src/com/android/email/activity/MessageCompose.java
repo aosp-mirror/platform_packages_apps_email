@@ -1162,8 +1162,8 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
         // Use the Intent to set flags saying this message is a reply or a forward and save the
         // unique id of the source message
         if (mSource != null && mQuotedTextBar.getVisibility() == View.VISIBLE) {
-            // If the quote bar is visible; this must either be a reply or forward
             message.mSourceKey = mSource.mId;
+            // If the quote bar is visible; this must either be a reply or forward
             // Get the body of the source message here
             message.mHtmlReply = mSource.mHtml;
             message.mTextReply = mSource.mText;
@@ -1195,8 +1195,9 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                 mDraft.mIntroText = null;
                 mDraft.mTextReply = null;
                 mDraft.mHtmlReply = null;
-                mDraft.mSourceKey = 0;
-                mDraft.mFlags &= ~Message.FLAG_TYPE_MASK;
+
+                // Note that mSourceKey is not cleared out as this is still considered a
+                // reply/forward.
             }
         }
     }
@@ -1282,7 +1283,7 @@ public class MessageCompose extends Activity implements OnClickListener, OnFocus
                         Utility.showToast(MessageCompose.this,
                                 R.string.message_view_attachment_background_load);
                     }
-                    mController.sendMessage(mDraft.mId, mDraft.mAccountKey);
+                    mController.sendMessage(mDraft);
 
                     ArrayList<CharSequence> addressTexts = new ArrayList<CharSequence>();
                     addressTexts.add(mToView.getText());

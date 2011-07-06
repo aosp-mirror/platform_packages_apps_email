@@ -294,6 +294,12 @@ public abstract class EmailContent {
         public String mTextContent;
         public String mHtmlReply;
         public String mTextReply;
+
+        /**
+         * Points to the ID of the message being replied to or forwarded. Will always be set,
+         * even if {@link #mHtmlReply} and {@link #mTextReply} are null (indicating the user doesn't
+         * want to include quoted text.
+         */
         public long mSourceKey;
         public String mIntroText;
 
@@ -680,7 +686,7 @@ public abstract class EmailContent {
         public String mProtocolSearchInfo;
 
         // The following transient members may be used while building and manipulating messages,
-        // but they are NOT persisted directly by EmailProvider
+        // but they are NOT persisted directly by EmailProvider. See Body for related fields.
         transient public String mText;
         transient public String mHtml;
         transient public String mTextReply;

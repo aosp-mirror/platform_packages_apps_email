@@ -93,8 +93,6 @@ public class Controller {
     /*package*/ static final String SEARCH_MAILBOX_SERVER_ID = "__search_mailbox__";
     private static final String WHERE_TYPE_ATTACHMENT =
         MailboxColumns.TYPE + "=" + Mailbox.TYPE_ATTACHMENT;
-    private static final String WHERE_TYPE_SEARCH =
-        MailboxColumns.TYPE + "=" + Mailbox.TYPE_SEARCH;
     private static final String WHERE_MAILBOX_KEY = MessageColumns.MAILBOX_KEY + "=?";
 
     private static final String[] MESSAGEID_TO_ACCOUNTID_PROJECTION = new String[] {
@@ -554,15 +552,19 @@ public class Controller {
      * Send a message:
      * - move the message to Outbox (the message is assumed to be in Drafts).
      * - EAS service will take it from there
+     * - mark reply/forward state in source message (if any)
      * - trigger send for POP/IMAP
-     * @param messageId the id of the message to send
+     * @param message the fully populated Message (usually retrieved from the Draft box). Note that
+     *     all transient fields (e.g. Body related fields) are also expected to be fully loaded
      */
-    public void sendMessage(long messageId, long accountId) {
+    public void sendMessage(Message message) {
         ContentResolver resolver = mProviderContext.getContentResolver();
-        if (accountId == -1) {
+        long accountId = message.mAccountKey;
+        long messageId = message.mId;
+        if (accountId == Account.NO_ACCOUNT) {
             accountId = lookupAccountForMessage(messageId);
         }
-        if (accountId == -1) {
+        if (accountId == Account.NO_ACCOUNT) {
             // probably the message was not found
             if (Logging.LOGD) {
                 Email.log("no account found for message " + messageId);
@@ -576,8 +578,24 @@ public class Controller {
         cv.put(EmailContent.MessageColumns.MAILBOX_KEY, outboxId);
 
         // does this need to be SYNCED_CONTENT_URI instead?
-        Uri uri = ContentUris.withAppendedId(EmailContent.Message.CONTENT_URI, messageId);
+        Uri uri = ContentUris.withAppendedId(Message.CONTENT_URI, messageId);
         resolver.update(uri, cv, null, null);
+
+        // If this is a reply/forward, indicate it as such on the source.
+        long sourceKey = message.mSourceKey;
+        if (sourceKey != Message.NO_MESSAGE) {
+            Message source = Message.restoreMessageWithId(mProviderContext, sourceKey);
+            if (source != null) {
+                boolean isReply = (message.mFlags & Message.FLAG_TYPE_REPLY) != 0;
+                int flagUpdate = isReply ? Message.FLAG_REPLIED_TO : Message.FLAG_FORWARDED;
+                uri = ContentUris.withAppendedId(Message.CONTENT_URI, sourceKey);
+                cv.clear();
+                cv.put(MessageColumns.FLAGS, source.mFlags | flagUpdate);
+                resolver.update(uri, cv, null, null);
+            } else {
+                Log.w(Logging.LOG_TAG, "Unable to find source message for a reply/forward");
+            }
+        }
 
         sendPendingMessages(accountId);
     }

@@ -76,9 +76,6 @@ public class MessageListItem extends View {
         init(context);
     }
 
-    // Narrow mode shows sender/snippet and time/favorite stacked to save real estate; due to this,
-    // it is also somewhat taller
-    private static final int MODE_NARROW = MessageListItemCoordinates.NARROW_MODE;
     // Wide mode shows sender, snippet, time, and favorite spread out across the screen
     private static final int MODE_WIDE = MessageListItemCoordinates.WIDE_MODE;
     // Sentinel indicating that the view needs layout
@@ -357,13 +354,13 @@ public class MessageListItem extends View {
 
         // Draw the reply state. Draw nothing if neither replied nor forwarded.
         if (mHasBeenRepliedTo && mHasBeenForwarded) {
-            canvas.drawBitmap(sStateReplied,
+            canvas.drawBitmap(sStateRepliedAndForwarded,
                     mCoordinates.stateX, mCoordinates.stateY, sDefaultPaint);
         } else if (mHasBeenRepliedTo) {
-            canvas.drawBitmap(sStateForwarded,
+            canvas.drawBitmap(sStateReplied,
                     mCoordinates.stateX, mCoordinates.stateY, sDefaultPaint);
         } else if (mHasBeenForwarded) {
-            canvas.drawBitmap(sStateRepliedAndForwarded,
+            canvas.drawBitmap(sStateForwarded,
                     mCoordinates.stateX, mCoordinates.stateY, sDefaultPaint);
         }
 
