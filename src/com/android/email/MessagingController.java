@@ -1871,7 +1871,7 @@ public class MessagingController implements Runnable {
                     remoteFolder.open(OpenMode.READ_WRITE);
 
                     // 3. Set up to download the entire message
-                    Message remoteMessage = remoteFolder.getMessage(remoteServerId);
+                    Message remoteMessage = remoteFolder.getMessage(message.mServerId);
                     FetchProfile fp = new FetchProfile();
                     fp.add(FetchProfile.Item.BODY);
                     remoteFolder.fetch(new Message[] { remoteMessage }, fp, null);
