@@ -33,8 +33,11 @@
     <string name="delete_action" msgid="8421026208288857155">"刪除"</string>
     <string name="forward_action" msgid="669174181042344116">"轉寄"</string>
     <string name="done_action" msgid="7497990549515580249">"完成"</string>
+    <string name="create_action" msgid="3062715563215392251">"建立新回應"</string>
+    <string name="delete_quick_response_action" msgid="3076922270182841978">"刪除"</string>
     <string name="discard_action" msgid="6532206074859505968">"捨棄"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"儲存草稿"</string>
+    <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"插入快速回應"</string>
     <string name="read_action" msgid="4701484794504781686">"標示為已讀取"</string>
     <string name="unread_action" msgid="6280399049357552826">"標示為未讀取"</string>
     <string name="set_star_action" msgid="4660317166196258160">"標上星號"</string>
@@ -71,6 +74,7 @@
     <item quantity="other" msgid="2723797835410343458">"於 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 個帳戶"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"收件者：<xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> 封新郵件"</string>
     <string name="account_name_display_all" msgid="4041817500580342035">"所有帳戶"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> 個帳戶"</item>
@@ -98,7 +102,7 @@
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"合併檢視"</string>
     <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"顯示所有資料夾"</string>
     <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"帳戶"</string>
-    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="2191566450514579559">"最近使用的信箱 (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
+    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"最近使用的資料夾 (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"所有資料夾"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"最近使用的資料夾"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"載入更多郵件"</string>
@@ -124,6 +128,7 @@
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"您必須新增至少一位收件者。"</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"部分電子郵件地址無效。"</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"檔案過大，超過附件大小限制。"</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"插入快速回應"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g>以及其他 <xliff:g id="NUMBER">%2$d</xliff:g> 位"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"收件者："</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"副本："</string>
@@ -149,6 +154,8 @@
     <item quantity="other" msgid="974463163535515223">"附件 (<xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g>)"</item>
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"顯示圖片"</string>
+    <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"永遠顯示"</string>
+    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"永遠顯示這位寄件者所傳送的圖片？"</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"於日曆中查看"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"日曆邀請"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"您要參加嗎？"</string>
@@ -273,10 +280,8 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"網域\\使用者名稱"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"使用安全連線 (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"接受所有安全資料傳輸層 (SSL) 憑證"</string>
-    <!-- no translation found for account_setup_exchange_use_certificate (8690682770083161349) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_remove_certificate (5633249155510301766) -->
-    <skip />
+    <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"使用用戶端憑證"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"移除"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"行動裝置 ID"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"帳戶設定"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"帳戶選項"</string>
@@ -307,10 +312,8 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"使用者名稱或密碼不正確。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"無法安全地連線至伺服器。"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"無法安全地連線至伺服器。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_certificate_required (7425428621499591492) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
-    <skip />
+    <string name="account_setup_failed_certificate_required" msgid="7425428621499591492">"需要使用者憑證才能連線至伺服器。"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"憑證無效或無法使用。"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"伺服器傳回錯誤，請檢查您的使用者名稱和密碼，然後再試一次。"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"無法連線至伺服器。"</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"無法連線至伺服器。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -359,8 +362,12 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"帳戶名稱"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"您的姓名"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"簽名檔"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"快速回應"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"編輯您撰寫電子郵件時經常插入的文字"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"在送出的郵件後面附加文字"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知設定"</string>
+    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"編輯快速回應"</string>
+    <string name="save_action" msgid="1988862706623227093">"儲存"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"同步處理聯絡人"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"同步處理此帳戶的聯絡人"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"同步處理日曆"</string>
@@ -381,7 +388,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"移除帳戶"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"電子郵件帳戶"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"選取帳戶"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"選取信箱"</string>
+    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"選取資料夾"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"找不到帳戶，帳戶可能已遭移除。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"只有部分包含 POP 存取功能的「Plus」帳戶能與這個程式連線。如果您輸入的電子郵件地址和密碼無誤，卻仍無法登入，表示您可能尚未購買「Plus」帳戶。請啟動網頁瀏覽器，以存取這些電子郵件帳戶。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"在設定此電子郵件帳戶前，請先造訪 T-Online 網站，並設定 POP3 電子郵件收發功能的密碼。"</string>
@@ -418,6 +425,8 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"最大"</string>
     <string name="position_of_count" msgid="7989353140376877792">"第 <xliff:g id="ID_1">%1$d</xliff:g> 封，共 <xliff:g id="ID_2">%2$s</xliff:g> 封"</string>
+    <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"正在等待同步處理"</string>
+    <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"您的電子郵件很快就會顯示。"</string>
     <string name="widget_other_views" msgid="2265335608760083337">"輕按圖示即可變更"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"整合式收件匣"</string>
     <string name="widget_unread" msgid="4404711399009077833">"未讀取"</string>
@@ -426,7 +435,8 @@
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"輕觸即可進行設定"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"搜尋電子郵件"</string>
-    <!-- no translation found for search_mailbox_hint (7854987729678942790) -->
-    <skip />
-    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"信箱檢查回顧"</string>
+    <string name="search_mailbox_hint" msgid="7854987729678942790">"搜尋<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="search_header_text_fmt" msgid="3857004638127418247">"「<xliff:g id="ID_1">%1$s</xliff:g>」的搜尋結果"</string>
+    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"資料夾"</string>
+    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"資料夾檢查回顧"</string>
 </resources>

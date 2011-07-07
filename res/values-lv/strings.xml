@@ -33,8 +33,11 @@
     <string name="delete_action" msgid="8421026208288857155">"Dzēst"</string>
     <string name="forward_action" msgid="669174181042344116">"Pārsūtīt"</string>
     <string name="done_action" msgid="7497990549515580249">"Gatavs"</string>
+    <string name="create_action" msgid="3062715563215392251">"Izveidot jaunu"</string>
+    <string name="delete_quick_response_action" msgid="3076922270182841978">"Dzēst"</string>
     <string name="discard_action" msgid="6532206074859505968">"Atmest"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Saglabāt melnr."</string>
+    <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Ievietot ātro atbildi"</string>
     <string name="read_action" msgid="4701484794504781686">"Atzīmēt kā izlasītu"</string>
     <string name="unread_action" msgid="6280399049357552826">"Atzīmēt kā nelasītu"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Atzīmēt ar zvaigznīti"</string>
@@ -71,6 +74,7 @@
     <item quantity="other" msgid="2723797835410343458">"<xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> kontā(-os)"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"kam: <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> jauns(-i) ziņojums(-i)"</string>
     <string name="account_name_display_all" msgid="4041817500580342035">"Visi konti"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> konts"</item>
@@ -98,7 +102,7 @@
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Kombinētais skatījums"</string>
     <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Rādīt visas mapes"</string>
     <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"Konti"</string>
-    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="2191566450514579559">"Pēdējās pastkastes (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
+    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Jaunākās mapes (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Visas mapes"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Jaunākās mapes"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Ielādēt vairāk ziņojumu"</string>
@@ -124,6 +128,7 @@
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Jāpievieno vismaz viens adresāts."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Dažas e-pasta adreses nav derīgas."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Failu nevar pievienot, jo tas ir pārāk liels."</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Ātrās atbildes ievietošana"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> un citas personas (<xliff:g id="NUMBER">%2$d</xliff:g>)"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Kam:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kopija:"</string>
@@ -149,6 +154,8 @@
     <item quantity="other" msgid="974463163535515223">"<xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g> pielikumi"</item>
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Rādīt attēlus"</string>
+    <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Rādīt vienmēr"</string>
+    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"Vai vienmēr rādīt šī sūtītāja attēlus?"</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Skatīt kalendārā"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Kalendāra ielūgums"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Vai apmeklēsiet?"</string>
@@ -273,10 +280,8 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Domēns\\lietotājvārds"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Lietot drošu savienojumu (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Pieņemt visus SSL sertifikātus"</string>
-    <!-- no translation found for account_setup_exchange_use_certificate (8690682770083161349) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_remove_certificate (5633249155510301766) -->
-    <skip />
+    <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Izmantot klienta sertifikātu"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Noņemt"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"Mobilās ierīces ID"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Konta iestatījumi"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Konta iespējas"</string>
@@ -307,10 +312,8 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Lietotājvārds vai parole nav pareiza."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Nevar izveidot drošu savienojumu ar serveri."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Nevar izveidot drošu savienojumu ar serveri."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_certificate_required (7425428621499591492) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
-    <skip />
+    <string name="account_setup_failed_certificate_required" msgid="7425428621499591492">"Lai izveidotu savienojumu ar serveri, ir nepieciešams lietotāja sertifikāts."</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"Sertifikāts nav derīgs vai nav pieejams."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"Serveris reaģēja ar kļūdu; lūdzu, pārbaudiet savu lietotājvārdu un paroli un mēģiniet vēlreiz."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Nevar izveidot savienojumu ar serveri."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Nevar izveidot savienojumu ar serveri."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -359,8 +362,12 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Konta nosaukums"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Jūsu vārds"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Paraksts"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Ātrās atbildes"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Rediģējiet tekstu, kuru bieži ievietojat e-pasta ziņojumos."</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Pievienot tekstu nosūtītajiem ziņojumiem"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Paziņojumu iestatījumi"</string>
+    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Ātrās atbildes rediģēšana"</string>
+    <string name="save_action" msgid="1988862706623227093">"Saglabāt"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Sinhron. kontaktp."</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sinhron. kontaktpersonas šim kontam"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Sinhron. kalendāru"</string>
@@ -381,7 +388,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Noņemt kontu"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-pasta k."</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Atlasīt kontu"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"Pastkastes atlase"</string>
+    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Mapes atlase"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Konts nav atrasts. Iespējams, tas ir noņemts."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Tikai dažiem “Plus” kontiem ir POP piekļuve, kas ļauj šai programmai izveidot savienojumu. Ja nevarat pierakstīties, izmantojot pareizu e-pasta adresi un paroli, iespējams, jums nav apmaksāta “Plus” konta. Lūdzu, palaidiet tīmekļa pārlūkprogrammu, lai piekļūtu šiem pasta kontiem."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Pirms šī e-pasta konta iestatīšana, lūdzu, apmeklējiet T-Online vietni un izveidojiet POP3 e-pasta piekļuvei paredzētu paroli."</string>
@@ -418,6 +425,8 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Liels"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Milzīgs"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> no <xliff:g id="ID_2">%2$s</xliff:g>"</string>
+    <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Gaida sinhronizāciju"</string>
+    <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"E-pasta saturs drīz tiks parādīts."</string>
     <string name="widget_other_views" msgid="2265335608760083337">"Lai main., piesk. ik."</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Kombinētā iesūtne"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Nelasītie"</string>
@@ -426,7 +435,8 @@
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Pieskarieties, lai konfigurētu"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Meklējiet e-pastu"</string>
-    <!-- no translation found for search_mailbox_hint (7854987729678942790) -->
-    <skip />
-    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Pastkastes satura retrospektīva skatīšana"</string>
+    <string name="search_mailbox_hint" msgid="7854987729678942790">"Meklējiet <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="search_header_text_fmt" msgid="3857004638127418247">"Meklēšanas rezultāti vaicājumam “<xliff:g id="ID_1">%1$s</xliff:g>”"</string>
+    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Mapes"</string>
+    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Mapes satura retrospektīva skatīšana"</string>
 </resources>
