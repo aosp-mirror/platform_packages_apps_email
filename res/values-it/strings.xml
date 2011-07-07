@@ -33,8 +33,11 @@
     <string name="delete_action" msgid="8421026208288857155">"Elimina"</string>
     <string name="forward_action" msgid="669174181042344116">"Inoltra"</string>
     <string name="done_action" msgid="7497990549515580249">"Fine"</string>
+    <string name="create_action" msgid="3062715563215392251">"Crea nuova"</string>
+    <string name="delete_quick_response_action" msgid="3076922270182841978">"Elimina"</string>
     <string name="discard_action" msgid="6532206074859505968">"Elimina"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Salva bozza"</string>
+    <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Inserisci risposta rapida"</string>
     <string name="read_action" msgid="4701484794504781686">"Segna come già letto"</string>
     <string name="unread_action" msgid="6280399049357552826">"Segna come da leggere"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Aggiungi a Speciali"</string>
@@ -71,6 +74,7 @@
     <item quantity="other" msgid="2723797835410343458">"in <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> account"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"a <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> nuovi messaggi"</string>
     <string name="account_name_display_all" msgid="4041817500580342035">"Tutti gli account"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> account"</item>
@@ -98,7 +102,7 @@
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Visualizzazione combinata"</string>
     <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Visualizza tutte le cartelle"</string>
     <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"Account"</string>
-    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="2191566450514579559">"Caselle postali recenti (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
+    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Cartelle recenti (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Tutte le cartelle"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Cartelle recenti"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Carica ulteriori messaggi"</string>
@@ -124,6 +128,7 @@
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Devi aggiungere almeno un destinatario."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Alcuni indirizzi email non sono validi."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"File troppo grande. Impossibile allegarlo."</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Inserisci risposta rapida"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> e <xliff:g id="NUMBER">%2$d</xliff:g> altri"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"In:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
@@ -149,6 +154,8 @@
     <item quantity="other" msgid="974463163535515223">"Allegati <xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g>"</item>
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Mostra immagini"</string>
+    <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Mostra sempre"</string>
+    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"Mostrare sempre le immagini da questo mittente?"</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Visualizza in Calendario"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Invito Calendario"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Parteciperai?"</string>
@@ -273,10 +280,8 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Dominio/nome utente"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Utilizza connessione sicura (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Accetta tutti i certificati SSL"</string>
-    <!-- no translation found for account_setup_exchange_use_certificate (8690682770083161349) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_remove_certificate (5633249155510301766) -->
-    <skip />
+    <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Usa certificato client"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Rimuovi"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID dispositivo mobile"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Impostazioni account"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Opzioni account"</string>
@@ -307,10 +312,8 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Nome utente o password errata."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Impossibile connettersi correttamente al server."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Impossibile connettersi correttamente al server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_certificate_required (7425428621499591492) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
-    <skip />
+    <string name="account_setup_failed_certificate_required" msgid="7425428621499591492">"Per connettersi al server è necessario un certificato utente."</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"Certificato non valido o non accessibile."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"Il server ha risposto con un errore. Controlla nome utente e password e riprova."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Impossibile connettersi al server."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Impossibile connettersi al server."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -359,8 +362,12 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Nome account"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Nome"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Firma"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Risposte rapide"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Modifica il testo che inserisci spesso quando componi le email"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Aggiungi testo ai messaggi inviati"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Impostazioni notifiche"</string>
+    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Modifica risposta rapida"</string>
+    <string name="save_action" msgid="1988862706623227093">"Salva"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Sincronizza contatti"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Sincronizza i contatti per questo account"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Sincronizza calendario"</string>
@@ -381,7 +388,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Rimuovi account"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Account email"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Seleziona un account"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"Selez. casella posta"</string>
+    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Seleziona una cartella"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Account non trovato. Potrebbe essere stato rimosso."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Solo alcuni account \"Plus\" includono l\'accesso POP che consente la connessione del programma. Se non riesci ad accedere con l\'indirizzo email e la password corretti, potresti non disporre di un account \"Plus\" a pagamento. Avvia il browser web per avere accesso a questi account di posta."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Prima di impostare questo account email, visita il sito web T-Online e crea una password per l\'accesso email POP3."</string>
@@ -418,6 +425,8 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Grandi"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Molto grandi"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> di <xliff:g id="ID_2">%2$s</xliff:g>"</string>
+    <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"In attesa di sincronizzazione"</string>
+    <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"Le email verranno visualizzate tra poco."</string>
     <string name="widget_other_views" msgid="2265335608760083337">"Icona per modificare"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Posta in arr. combinata"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Da leggere"</string>
@@ -426,7 +435,8 @@
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Tocca per configurare"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Cerca email"</string>
-    <!-- no translation found for search_mailbox_hint (7854987729678942790) -->
-    <skip />
-    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Mailbox check lookback"</string>
+    <string name="search_mailbox_hint" msgid="7854987729678942790">"Cerca in <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="search_header_text_fmt" msgid="3857004638127418247">"Risultati di ricerca per \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
+    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Cartelle"</string>
+    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Loopback controllo cartella"</string>
 </resources>

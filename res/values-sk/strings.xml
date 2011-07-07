@@ -33,8 +33,11 @@
     <string name="delete_action" msgid="8421026208288857155">"Odstrániť"</string>
     <string name="forward_action" msgid="669174181042344116">"Poslať ďalej"</string>
     <string name="done_action" msgid="7497990549515580249">"Hotovo"</string>
+    <string name="create_action" msgid="3062715563215392251">"Vytvoriť novú"</string>
+    <string name="delete_quick_response_action" msgid="3076922270182841978">"Odstrániť"</string>
     <string name="discard_action" msgid="6532206074859505968">"Zahodiť"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Uložiť koncept"</string>
+    <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Vložiť rýchlu odpoveď"</string>
     <string name="read_action" msgid="4701484794504781686">"Označiť ako prečítané"</string>
     <string name="unread_action" msgid="6280399049357552826">"Označiť ako neprečítané"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Pridať hviezdičku"</string>
@@ -71,6 +74,7 @@
     <item quantity="other" msgid="2723797835410343458">"v <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> účtoch"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"adresát: <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"Nové správy: <xliff:g id="ID_1">%1$d</xliff:g>"</string>
     <string name="account_name_display_all" msgid="4041817500580342035">"Všetky účty"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"Počet účtov: <xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g>"</item>
@@ -98,7 +102,7 @@
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Kombinované zobrazenie"</string>
     <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Zobraziť všetky priečinky"</string>
     <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"Účty"</string>
-    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="2191566450514579559">"Nedávne e-mailové schránky (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
+    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Nedávne priečinky (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Všetky priečinky"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Nedávne priečinky"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Načítať ďalšie správy"</string>
@@ -124,6 +128,7 @@
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Musíte pridať aspoň jedného príjemcu."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Niektoré e-mailové adresy sú neplatné."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Súbor nie je možné priložiť, pretože je príliš veľký."</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Vložiť rýchlu odpoveď"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> a ešte <xliff:g id="NUMBER">%2$d</xliff:g> ďalších"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Komu:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Kópia:"</string>
@@ -149,6 +154,8 @@
     <item quantity="other" msgid="974463163535515223">"Prílohy <xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g>"</item>
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Zobraziť obrázky"</string>
+    <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Vždy zobraziť"</string>
+    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"Vždy zobrazovať obrázky od tohto odosielateľa?"</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Zobraziť v Kalendári"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Pozvánka z kalendára"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Zúčastníte sa?"</string>
@@ -273,10 +280,8 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Doména\\Používateľské meno"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Použiť zabezpečené pripojenie (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Prijímať všetky certifikáty protokolu SSL"</string>
-    <!-- no translation found for account_setup_exchange_use_certificate (8690682770083161349) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_remove_certificate (5633249155510301766) -->
-    <skip />
+    <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Použite certifikát klienta"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Odstrániť"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID mobilného zariadenia"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Nastavenia účtu"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Možnosti účtu"</string>
@@ -307,10 +312,8 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Používateľské meno alebo heslo nie je správne."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Nepodarilo sa bezpečne pripojiť k serveru."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Nepodarilo sa bezpečne pripojiť k serveru."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_certificate_required (7425428621499591492) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
-    <skip />
+    <string name="account_setup_failed_certificate_required" msgid="7425428621499591492">"Na pripojenie k serveru je potrebný certifikát používateľa."</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"Certifikát je neplatný alebo neprístupný."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"Server odpovedal s chybou. Skontrolujte používateľské meno a heslo a skúste to znova."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Nepodarilo sa pripojiť k serveru."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Nepodarilo sa pripojiť k serveru."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -359,8 +362,12 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Názov účtu"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Vaše meno"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Podpis"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Rýchle odpovede"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Upraviť text, ktorý často vkladáte pri písaní e-mailov."</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Text pripojiť k odosielaným správam"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Nastavenia upozornení"</string>
+    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Upraviť rýchlu odpoveď"</string>
+    <string name="save_action" msgid="1988862706623227093">"Uložiť"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Synchr. kontakty"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Synchr. kontakty pre tento účet."</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Synchr. kalendár"</string>
@@ -381,7 +388,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Odstrániť účet"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"E-mail. účet"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Výber účtu"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"Výber schránky"</string>
+    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Výber priečinka"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Účet sa nenašiel. Je možné, že bol odstránený."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Prístup prostredníctvom protokolu POP, umožňujúci pripojenie tohto programu, obsahujú iba niektoré účty Plus. Ak sa nemôžete prihlásiť so správnou e-mailovou adresou a heslom, pravdepodobne nemáte platený účet Plus. Ak chcete pristupovať k týmto poštovým účtom, vykonajte to prostredníctvom webového prehliadača."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Pred nastavením tohto e-mailového účtu navštívte webové stránky T-Online a vytvorte heslo pre e-mailový prístup POP3."</string>
@@ -418,6 +425,8 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Veľké"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Veľmi veľké"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> z <xliff:g id="ID_2">%2$s</xliff:g>"</string>
+    <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Prebieha synchronizácia"</string>
+    <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"Váš e-mail sa zobrazí čoskoro."</string>
     <string name="widget_other_views" msgid="2265335608760083337">"Zmeňte klepnutím na ikonu"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Doručená pošta (všetky)"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Neprečítané"</string>
@@ -426,7 +435,8 @@
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Dotykom spustíte konfiguráciu"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Hľadať e-mail"</string>
-    <!-- no translation found for search_mailbox_hint (7854987729678942790) -->
-    <skip />
-    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Spätná kontrola e-mailovej schránky"</string>
+    <string name="search_mailbox_hint" msgid="7854987729678942790">"Hľadať v priečinku <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="search_header_text_fmt" msgid="3857004638127418247">"Výsledky vyhľadávania pre „<xliff:g id="ID_1">%1$s</xliff:g>“"</string>
+    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Priečinky"</string>
+    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Spätná kontrola priečinka"</string>
 </resources>

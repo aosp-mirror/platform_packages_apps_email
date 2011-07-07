@@ -25,7 +25,7 @@
     <string name="debug_title" msgid="5175710493691536719">"Gỡ lỗi"</string>
     <string name="next_action" msgid="3931301986364184415">"Tiếp theo"</string>
     <string name="okay_action" msgid="8365197396795675617">"OK"</string>
-    <string name="cancel_action" msgid="6967435583794021865">"Huỷ"</string>
+    <string name="cancel_action" msgid="6967435583794021865">"Hủy"</string>
     <string name="previous_action" msgid="5181616311579820981">"Trước"</string>
     <string name="send_action" msgid="1729766205562446418">"Gửi"</string>
     <string name="reply_action" msgid="4262472229221507619">"Trả lời"</string>
@@ -33,8 +33,11 @@
     <string name="delete_action" msgid="8421026208288857155">"Xoá"</string>
     <string name="forward_action" msgid="669174181042344116">"Chuyển tiếp"</string>
     <string name="done_action" msgid="7497990549515580249">"Xong"</string>
-    <string name="discard_action" msgid="6532206074859505968">"Huỷ"</string>
+    <string name="create_action" msgid="3062715563215392251">"Tạo mới"</string>
+    <string name="delete_quick_response_action" msgid="3076922270182841978">"Xóa"</string>
+    <string name="discard_action" msgid="6532206074859505968">"Hủy"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"Lưu thư nháp"</string>
+    <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"Chèn trả lời nhanh"</string>
     <string name="read_action" msgid="4701484794504781686">"Đánh dấu là đã đọc"</string>
     <string name="unread_action" msgid="6280399049357552826">"Đánh dấu là chưa đọc"</string>
     <string name="set_star_action" msgid="4660317166196258160">"Thêm dấu sao"</string>
@@ -71,6 +74,7 @@
     <item quantity="other" msgid="2723797835410343458">"trong <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> tài khoản"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"tới <xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> tin nhắn mới"</string>
     <string name="account_name_display_all" msgid="4041817500580342035">"Tất cả tài khoản"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> tài khoản"</item>
@@ -98,7 +102,7 @@
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"Chế độ xem tổng hợp"</string>
     <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"Hiển thị tất cả thư mục"</string>
     <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"Tài khoản"</string>
-    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="2191566450514579559">"Các hộp thư gần đây(<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
+    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"Thư mục gần đây (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"Tất cả thư mục"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"Thư mục gần đây"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"Tải tin nhắn khác"</string>
@@ -124,6 +128,7 @@
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"Bạn phải thêm ít nhất một người nhận."</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"Một số địa chỉ email không hợp lệ."</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"Tệp quá lớn để có thể đính kèm."</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"Chèn trả lời nhanh"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g> và <xliff:g id="NUMBER">%2$d</xliff:g> người khác"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"Tới:"</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"Cc:"</string>
@@ -149,6 +154,8 @@
     <item quantity="other" msgid="974463163535515223">"Phần đính kèm:<xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g>"</item>
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"Hiển thị ảnh"</string>
+    <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"Luôn hiển thị"</string>
+    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"Luôn hiển thị ảnh từ người gửi này?"</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"Xem trong Lịch"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"Thư mời Lịch"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"Bạn có tham gia không?"</string>
@@ -183,7 +190,7 @@
     <item quantity="one" msgid="710742672464447084">"Tin nhắn đã bị xoá."</item>
     <item quantity="other" msgid="6574961322865652255">"Tin nhắn đã bị xoá."</item>
   </plurals>
-    <string name="message_discarded_toast" msgid="3891461729325584026">"Tin nhắn đã bị huỷ."</string>
+    <string name="message_discarded_toast" msgid="3891461729325584026">"Tin nhắn đã bị hủy."</string>
     <string name="message_saved_toast" msgid="8443125659172627665">"Tin nhắn đã được lưu dưới dạng tin nháp."</string>
     <string name="message_view_display_attachment_toast" msgid="6096315816776330821">"Không thể hiển thị tệp đính kèm này."</string>
     <string name="message_view_load_attachment_failed_toast" msgid="342798484092215350">"Không thể tải tệp đính kèm \" <xliff:g id="FILENAME">%s</xliff:g>\"."</string>
@@ -235,7 +242,7 @@
     <string name="account_setup_check_settings_check_outgoing_msg" msgid="4033015234096725343">"Đang kiểm tra cài đặt máy chủ thư đi..."</string>
     <string name="account_setup_names_title" msgid="8483517350241119291">"Thiết lập tài khoản"</string>
     <string name="account_setup_names_headline" msgid="2413440250372658881">"Tài khoản của bạn đã được thiết lập và email đang được gửi!"</string>
-    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Đặt tên cho tài khoản này (tuỳ chọn)"</string>
+    <string name="account_setup_names_account_name_label" msgid="8033895024273259196">"Đặt tên cho tài khoản này (tùy chọn)"</string>
     <string name="account_setup_names_user_name_label" msgid="8967410178488604770">"Tên bạn (được hiển thị trong tin nhắn đi)"</string>
     <string name="account_setup_names_user_name_empty_error" msgid="1251952000604599298">"Không được để trống trường này"</string>
     <string name="account_setup_account_type_title" msgid="7156551693961182124">"Thiết lập tài khoản"</string>
@@ -258,7 +265,7 @@
     <string name="account_setup_incoming_delete_policy_never_label" msgid="3222897501875871041">"Chưa bao giờ"</string>
     <string name="account_setup_incoming_delete_policy_delete_label" msgid="222216840911785631">"Khi tôi xoá khỏi Hộp thư đến"</string>
     <string name="account_setup_incoming_imap_path_prefix_label" msgid="401167247072926810">"Tiền tố đường dẫn IMAP"</string>
-    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Tuỳ chọn"</string>
+    <string name="account_setup_incoming_imap_path_prefix_hint" msgid="9190845919067906033">"Tùy chọn"</string>
     <string name="account_setup_outgoing_title" msgid="7208495965665711539">"Thiết lập tài khoản"</string>
     <string name="account_setup_outgoing_headline" msgid="2025001060935366394">"Cài đặt máy chủ thư đi"</string>
     <string name="account_setup_outgoing_smtp_server_label" msgid="6035137446691195177">"Máy chủ SMTP"</string>
@@ -273,10 +280,8 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"Tên miền\\Tên người dùng"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"Sử dụng kết nối bảo mật (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"Chấp nhận tất cả chứng chỉ SSL"</string>
-    <!-- no translation found for account_setup_exchange_use_certificate (8690682770083161349) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_remove_certificate (5633249155510301766) -->
-    <skip />
+    <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"Sử dụng chứng chỉ ứng dụng khách"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"Xóa"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"ID Thiết bị di động"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"Cài đặt tài khoản"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"Tùy chọn tài khoản"</string>
@@ -307,10 +312,8 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"Tên người dùng hoặc mật khẩu không chính xác."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"Không thể kết nối an toàn với máy chủ."</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"Không thể kết nối an toàn với máy chủ."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_certificate_required (7425428621499591492) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
-    <skip />
+    <string name="account_setup_failed_certificate_required" msgid="7425428621499591492">"Cần có chứng chỉ người dùng để kết nối với máy chủ."</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"Chứng chỉ không hợp lệ hoặc không thể truy cập."</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"Máy chủ trả về lỗi; vui lòng kiểm tra tên người dùng và mật khẩu và thử lại."</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"Không thể kết nối với máy chủ."</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"Không thể kết nối với máy chủ."\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -359,8 +362,12 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"Tên tài khoản"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"Tên bạn"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"Chữ ký"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"Trả lời nhanh"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"Chỉnh sửa văn bản mà bạn thường xuyên chèn khi soạn email"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"Thêm văn bản vào tin nhắn bạn gửi"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"Cài đặt thông báo"</string>
+    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"Chỉnh sửa trả lời nhanh"</string>
+    <string name="save_action" msgid="1988862706623227093">"Lưu"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"Đồng bộ hóa Danh bạ"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"Đồng bộ hóa danh bạ cho tài khoản này"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"Đồng bộ hóa lịch"</string>
@@ -381,7 +388,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"Xóa tài khoản"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"Tài khoản email"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"Chọn tài khoản"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"Chọn hộp thư"</string>
+    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"Chọn thư mục"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"Không tìm thấy tài khoản. Tài khoản có thể đã bị xóa."</string>
     <string name="provider_note_live" msgid="3584841823811425060">"Chỉ một số tài khoản \"Plus\" mới có quyền truy cập POP nhằm cho phép chương trình này kết nối. Nếu bạn không thể đăng nhập bằng địa chỉ email và mật khẩu chính xác của mình, bạn có thể không có tài khoản \"Plus\" trả tiền. Vui lòng khởi chạy trình duyệt Web để yêu cầu quyền truy cập vào các tài khoản thư này."</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"Trước khi thiết lập tài khoản email này, vui lòng truy cập trang Web T-Online và tạo mật khẩu để truy cập email POP3."</string>
@@ -418,6 +425,8 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"Lớn"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"Rất lớn"</string>
     <string name="position_of_count" msgid="7989353140376877792">"<xliff:g id="ID_1">%1$d</xliff:g> trong tổng số <xliff:g id="ID_2">%2$s</xliff:g>"</string>
+    <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"Đang đợi đồng bộ hóa"</string>
+    <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"Email của bạn sẽ xuất hiện trong chốc lát."</string>
     <string name="widget_other_views" msgid="2265335608760083337">"Bấm vào biểu tượng để thay đổi"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"Hộp thư đến kết hợp"</string>
     <string name="widget_unread" msgid="4404711399009077833">"Chưa đọc"</string>
@@ -426,7 +435,8 @@
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"Chạm để định cấu hình"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"Tìm kiếm email"</string>
-    <!-- no translation found for search_mailbox_hint (7854987729678942790) -->
-    <skip />
-    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"Xem lại kiểm tra hộp thư"</string>
+    <string name="search_mailbox_hint" msgid="7854987729678942790">"Tìm kiếm trong <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="search_header_text_fmt" msgid="3857004638127418247">"Kết quả tìm kiếm cho \"<xliff:g id="ID_1">%1$s</xliff:g>\""</string>
+    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"Thư mục"</string>
+    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"Xem lại kiểm tra thư mục"</string>
 </resources>

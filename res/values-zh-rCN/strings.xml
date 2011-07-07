@@ -33,8 +33,11 @@
     <string name="delete_action" msgid="8421026208288857155">"删除"</string>
     <string name="forward_action" msgid="669174181042344116">"转发"</string>
     <string name="done_action" msgid="7497990549515580249">"完成"</string>
+    <string name="create_action" msgid="3062715563215392251">"新建"</string>
+    <string name="delete_quick_response_action" msgid="3076922270182841978">"删除"</string>
     <string name="discard_action" msgid="6532206074859505968">"放弃"</string>
     <string name="save_draft_action" msgid="6413714270991417223">"保存草稿"</string>
+    <string name="show_quick_text_list_dialog_action" msgid="4136018559611145202">"插入快速回复"</string>
     <string name="read_action" msgid="4701484794504781686">"标记为已读"</string>
     <string name="unread_action" msgid="6280399049357552826">"标记为未读"</string>
     <string name="set_star_action" msgid="4660317166196258160">"加注星标"</string>
@@ -71,6 +74,7 @@
     <item quantity="other" msgid="2723797835410343458">"在 <xliff:g id="NUMBER_ACCOUNTS">%d</xliff:g> 个帐户中"</item>
   </plurals>
     <string name="notification_to_account" msgid="2078557719010667913">"收件人：<xliff:g id="RECEIVER_NAME">%1$s</xliff:g>"</string>
+    <string name="notification_multiple_new_messages_fmt" msgid="2606649762841566104">"<xliff:g id="ID_1">%1$d</xliff:g> 封新邮件"</string>
     <string name="account_name_display_all" msgid="4041817500580342035">"所有帐户"</string>
   <plurals name="number_of_accounts">
     <item quantity="one" msgid="6343953132237244947">"<xliff:g id="NUM_ACCOUNTS">%1$d</xliff:g> 个帐户"</item>
@@ -98,7 +102,7 @@
     <string name="mailbox_list_account_selector_combined_view" msgid="1556327299894225044">"合并的视图"</string>
     <string name="mailbox_list_account_selector_show_all_folders" msgid="4185052839366909439">"显示所有文件夹"</string>
     <string name="mailbox_list_account_selector_account_header" msgid="4261295503836387876">"帐户"</string>
-    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="2191566450514579559">"近期访问的邮箱 (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
+    <string name="mailbox_list_account_selector_mailbox_header_fmt" msgid="3320144348694625092">"最近访问的文件夹 (<xliff:g id="EMAIL_ADDRESS">%s</xliff:g>)"</string>
     <string name="mailbox_list_user_mailboxes" msgid="484260487104726379">"所有文件夹"</string>
     <string name="mailbox_list_recent_mailboxes" msgid="8922653040520361032">"近期文件夹"</string>
     <string name="message_list_load_more_messages_action" msgid="7428302707908825692">"载入更多邮件"</string>
@@ -124,6 +128,7 @@
     <string name="message_compose_error_no_recipients" msgid="4903715888250785486">"必须至少添加一个收件人。"</string>
     <string name="message_compose_error_invalid_email" msgid="1817633338629885643">"某些电子邮件地址无效。"</string>
     <string name="message_compose_attachment_size" msgid="4401081828287333647">"文件太大，无法附加。"</string>
+    <string name="message_compose_insert_quick_response_list_title" msgid="5314107302508728189">"插入快速回复"</string>
     <string name="message_compose_display_name" msgid="6415258924917140704">"<xliff:g id="NAME">%1$s</xliff:g>以及其他 <xliff:g id="NUMBER">%2$d</xliff:g> 人"</string>
     <string name="message_view_to_label" msgid="6485191743265527381">"收件人："</string>
     <string name="message_view_cc_label" msgid="6322992216371163122">"抄送："</string>
@@ -149,6 +154,8 @@
     <item quantity="other" msgid="974463163535515223">"<xliff:g id="NUM_ATTACHMENT">%1$d</xliff:g> 个附件"</item>
   </plurals>
     <string name="message_view_show_pictures_action" msgid="5059936981743072545">"显示图片"</string>
+    <string name="message_view_always_show_pictures_button" msgid="6523810929103546865">"总是显示"</string>
+    <string name="message_view_always_show_pictures_prompt" msgid="3305231364331259741">"总是显示来自此发件人的图片？"</string>
     <string name="message_view_invite_view" msgid="5521032519960111675">"在日历中查看"</string>
     <string name="message_view_invite_title" msgid="5024473745902772299">"日历邀请"</string>
     <string name="message_view_invite_text" msgid="1212799906603873708">"参加吗？"</string>
@@ -273,10 +280,8 @@
     <string name="account_setup_exchange_username_label" msgid="6517176180828983060">"域名\\用户名"</string>
     <string name="account_setup_exchange_ssl_label" msgid="6704105469083211236">"采用安全连接 (SSL)"</string>
     <string name="account_setup_exchange_trust_certificates_label" msgid="6232880757633882678">"接受所有 SSL 证书"</string>
-    <!-- no translation found for account_setup_exchange_use_certificate (8690682770083161349) -->
-    <skip />
-    <!-- no translation found for account_setup_exchange_remove_certificate (5633249155510301766) -->
-    <skip />
+    <string name="account_setup_exchange_use_certificate" msgid="8690682770083161349">"使用客户端证书"</string>
+    <string name="account_setup_exchange_remove_certificate" msgid="5633249155510301766">"删除"</string>
     <string name="account_setup_exchange_device_id_label" msgid="1646827333223157658">"移动设备 ID"</string>
     <string name="account_setup_options_title" msgid="9016600767888846051">"帐户设置"</string>
     <string name="account_setup_options_headline" msgid="4181274232835368085">"帐户选项"</string>
@@ -307,10 +312,8 @@
     <string name="account_setup_failed_dlg_auth_message_fmt" msgid="8598560266430207606">"用户名或密码不正确。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
     <string name="account_setup_failed_dlg_certificate_message" msgid="961843413600482906">"无法安全地连接到服务器。"</string>
     <string name="account_setup_failed_dlg_certificate_message_fmt" msgid="2609150986774736900">"无法安全地连接到服务器。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
-    <!-- no translation found for account_setup_failed_certificate_required (7425428621499591492) -->
-    <skip />
-    <!-- no translation found for account_setup_failed_certificate_inaccessible (4343495223208675649) -->
-    <skip />
+    <string name="account_setup_failed_certificate_required" msgid="7425428621499591492">"需要拥有用户证书才能连接到服务器。"</string>
+    <string name="account_setup_failed_certificate_inaccessible" msgid="4343495223208675649">"证书无效或无法访问。"</string>
     <string name="account_setup_failed_check_credentials_message" msgid="1364052504743821082">"服务器返回了包含错误讯息的响应，请检查您的用户名和密码，然后重试。"</string>
     <string name="account_setup_failed_dlg_server_message" msgid="1828270369532779265">"无法连接到服务器。"</string>
     <string name="account_setup_failed_dlg_server_message_fmt" msgid="5956976504788732779">"无法连接到服务器。"\n"(<xliff:g id="ERROR">%s</xliff:g>)"</string>
@@ -359,8 +362,12 @@
     <string name="account_settings_description_label" msgid="8894815221204511715">"帐户名称"</string>
     <string name="account_settings_name_label" msgid="8186406122590008449">"您的姓名"</string>
     <string name="account_settings_signature_label" msgid="4091969938785803201">"签名"</string>
+    <string name="account_settings_edit_quick_responses_label" msgid="3106019627675996480">"快速回复"</string>
+    <string name="account_settings_edit_quick_responses_summary" msgid="5284435342418252369">"编辑撰写电子邮件时经常插入的文本"</string>
     <string name="account_settings_signature_hint" msgid="7262183168962779403">"在您发送的邮件中附加文本"</string>
     <string name="account_settings_notifications" msgid="1042620094281375043">"通知设置"</string>
+    <string name="edit_quick_response_dialog" msgid="4322494050816995390">"编辑快速回复"</string>
+    <string name="save_action" msgid="1988862706623227093">"保存"</string>
     <string name="account_settings_sync_contacts_enable" msgid="7338813435392098842">"同步联系人"</string>
     <string name="account_settings_sync_contacts_summary" msgid="816919452270997919">"同步此帐户的联系人"</string>
     <string name="account_settings_sync_calendar_enable" msgid="3039820725699412208">"同步日历"</string>
@@ -381,7 +388,7 @@
     <string name="account_settings_delete_account_label" msgid="4889158717472601718">"删除帐户"</string>
     <string name="account_shortcut_picker_name" msgid="1994861845225243190">"电子邮件帐户"</string>
     <string name="account_shortcut_picker_title" msgid="8799411733165525683">"选择帐户"</string>
-    <string name="mailbox_shortcut_picker_title" msgid="252224234897876714">"选择一个邮箱"</string>
+    <string name="mailbox_shortcut_picker_title" msgid="4152973927804882131">"选择文件夹"</string>
     <string name="toast_account_not_found" msgid="2483831308629565584">"未找到帐户。该帐户可能已删除。"</string>
     <string name="provider_note_live" msgid="3584841823811425060">"只有某些“Plus”帐户支持 POP 访问而允许此程序进行连接。如果您使用正确的电子邮件地址和密码无法登录，则可能还未开通付费的“Plus”帐户。请启动网络浏览器以获取对这些邮件帐户的访问权限。"</string>
     <string name="provider_note_t_online" msgid="1973701903400232774">"在设置此电子邮件帐户之前，请访问 T-Online 网站，为访问 POP3 电子邮件创建密码。"</string>
@@ -418,6 +425,8 @@
     <string name="general_preference_text_zoom_large" msgid="6874323663381586918">"大"</string>
     <string name="general_preference_text_zoom_huge" msgid="4270503132355963031">"超大"</string>
     <string name="position_of_count" msgid="7989353140376877792">"第 <xliff:g id="ID_1">%1$d</xliff:g> 封，共 <xliff:g id="ID_2">%2$s</xliff:g> 封"</string>
+    <string name="waitinf_for_sync_message_1" msgid="1393719303955128036">"正在等待同步"</string>
+    <string name="waitinf_for_sync_message_2" msgid="8850585407012152631">"稍后将显示您的电子邮件。"</string>
     <string name="widget_other_views" msgid="2265335608760083337">"点按图标可进行更改"</string>
     <string name="widget_all_mail" msgid="4352573990283094963">"合并的收件箱"</string>
     <string name="widget_unread" msgid="4404711399009077833">"未读邮件"</string>
@@ -426,7 +435,8 @@
     <string name="widget_touch_to_configure" msgid="3272115577715211268">"触摸可进行配置"</string>
     <string name="more_than_999" msgid="8704425397397918798">"999+"</string>
     <string name="search_hint" msgid="2200412192574686497">"搜索电子邮件"</string>
-    <!-- no translation found for search_mailbox_hint (7854987729678942790) -->
-    <skip />
-    <string name="mailbox_options_lookback_label" msgid="1207031465051138008">"邮箱检查回顾"</string>
+    <string name="search_mailbox_hint" msgid="7854987729678942790">"搜索<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="search_header_text_fmt" msgid="3857004638127418247">"关于“<xliff:g id="ID_1">%1$s</xliff:g>”的搜索结果"</string>
+    <string name="action_bar_mailbox_list_title" msgid="7484457755531286333">"文件夹"</string>
+    <string name="mailbox_options_lookback_label" msgid="8578791177958723989">"文件夹检查回顾"</string>
 </resources>
