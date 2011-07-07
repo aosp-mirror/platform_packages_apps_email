@@ -16,20 +16,6 @@
 
 package com.android.emailcommon.utility;
 
-import com.android.emailcommon.Logging;
-import com.android.emailcommon.provider.Account;
-import com.android.emailcommon.provider.EmailContent;
-import com.android.emailcommon.provider.EmailContent.AccountColumns;
-import com.android.emailcommon.provider.EmailContent.Attachment;
-import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
-import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
-import com.android.emailcommon.provider.EmailContent.MailboxColumns;
-import com.android.emailcommon.provider.EmailContent.Message;
-import com.android.emailcommon.provider.EmailContent.MessageColumns;
-import com.android.emailcommon.provider.HostAuth;
-import com.android.emailcommon.provider.Mailbox;
-import com.android.emailcommon.provider.ProviderUnavailableException;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.ContentResolver;
@@ -56,6 +42,20 @@ import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.emailcommon.Logging;
+import com.android.emailcommon.provider.Account;
+import com.android.emailcommon.provider.EmailContent;
+import com.android.emailcommon.provider.EmailContent.AccountColumns;
+import com.android.emailcommon.provider.EmailContent.Attachment;
+import com.android.emailcommon.provider.EmailContent.AttachmentColumns;
+import com.android.emailcommon.provider.EmailContent.HostAuthColumns;
+import com.android.emailcommon.provider.EmailContent.MailboxColumns;
+import com.android.emailcommon.provider.EmailContent.Message;
+import com.android.emailcommon.provider.EmailContent.MessageColumns;
+import com.android.emailcommon.provider.HostAuth;
+import com.android.emailcommon.provider.Mailbox;
+import com.android.emailcommon.provider.ProviderUnavailableException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -119,12 +119,17 @@ public class Utility {
     }
 
     public final static boolean arrayContains(Object[] a, Object o) {
+        int index = arrayIndex(a, o);
+        return (index >= 0);
+    }
+
+    public final static int arrayIndex(Object[] a, Object o) {
         for (int i = 0, count = a.length; i < count; i++) {
             if (a[i].equals(o)) {
-                return true;
+                return i;
             }
         }
-        return false;
+        return -1;
     }
 
     /**

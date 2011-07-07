@@ -21,6 +21,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Process;
 import android.text.TextUtils;
@@ -29,6 +30,7 @@ import android.util.Log;
 import com.android.email.mail.Sender;
 import com.android.email.mail.Store;
 import com.android.emailcommon.Logging;
+import com.android.emailcommon.TrafficFlags;
 import com.android.emailcommon.internet.MimeBodyPart;
 import com.android.emailcommon.internet.MimeHeader;
 import com.android.emailcommon.internet.MimeMultipart;
@@ -256,6 +258,7 @@ public class MessagingController implements Runnable {
             // content synchronization (addition AND removal) since each store will likely need
             // to implement it's own, unique synchronization methodology.
             public void run() {
+                TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
                 Cursor localFolderCursor = null;
                 try {
                     // Step 1: Get remote mailboxes
@@ -348,6 +351,7 @@ public class MessagingController implements Runnable {
      */
     private void synchronizeMailboxSynchronous(final Account account,
             final Mailbox folder) {
+        TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
         mListeners.synchronizeMailboxStarted(account.mId, folder.mId);
         if ((folder.mFlags & Mailbox.FLAG_HOLDS_MAIL) == 0) {
             // We don't hold messages, so, nothing to synchronize
@@ -1078,6 +1082,7 @@ public class MessagingController implements Runnable {
      */
     private void processPendingActionsSynchronous(Account account)
            throws MessagingException {
+        TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
         ContentResolver resolver = mContext.getContentResolver();
         String[] accountIdArgs = new String[] { Long.toString(account.mId) };
 
@@ -1859,6 +1864,7 @@ public class MessagingController implements Runnable {
                         mListeners.loadMessageForViewFailed(messageId, "null account or mailbox");
                         return;
                     }
+                    TrafficStats.setThreadStatsTag(TrafficFlags.getSyncFlags(mContext, account));
 
                     Store remoteStore = Store.getInstance(account, mContext);
                     String remoteServerId = mailbox.mServerId;
@@ -1931,6 +1937,8 @@ public class MessagingController implements Runnable {
                                 background);
                         return;
                     }
+                    TrafficStats.setThreadStatsTag(
+                            TrafficFlags.getAttachmentFlags(mContext, account));
 
                     Store remoteStore = Store.getInstance(account, mContext);
                     Folder remoteFolder = remoteStore.getFolder(mailbox.mServerId);
@@ -2008,6 +2016,7 @@ public class MessagingController implements Runnable {
      */
     public void sendPendingMessagesSynchronous(final Account account,
             long sentFolderId) {
+        TrafficStats.setThreadStatsTag(TrafficFlags.getSmtpFlags(mContext, account));
         NotificationController nc = NotificationController.getInstance(mContext);
         // 1.  Loop through all messages in the account's outbox
         long outboxId = Mailbox.findMailboxOfType(mContext, account.mId, Mailbox.TYPE_OUTBOX);
