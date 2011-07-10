@@ -220,9 +220,12 @@ class MailboxFragmentAdapter extends CursorAdapter {
         return isAccountRow((Cursor) getItem(position));
     }
 
-    /** Returns {@code true} if the specified row is a mailbox. */
+    /**
+     * Returns {@code true} if the specified row is a mailbox.
+     * ({@link #ROW_TYPE_MAILBOX}, {@link #ROW_TYPE_CURMAILBOX} and {@link #ROW_TYPE_SUBMAILBOX})
+     */
     boolean isMailboxRow(int position) {
-        return isMailboxrRow((Cursor) getItem(position));
+        return isMailboxRow((Cursor) getItem(position));
     }
 
     /** Returns {@code true} if the current row is of an account in the combined view. */
@@ -235,9 +238,12 @@ class MailboxFragmentAdapter extends CursorAdapter {
         return getRowType(cursor) == ROW_TYPE_HEADER;
     }
 
-    /** Returns {@code true} if the current row is a mailbox */
-    private static boolean isMailboxrRow(Cursor cursor) {
-        return getRowType(cursor) == ROW_TYPE_MAILBOX;
+    /**
+     * Returns {@code true} if the current row is a mailbox.
+     * ({@link #ROW_TYPE_MAILBOX}, {@link #ROW_TYPE_CURMAILBOX} and {@link #ROW_TYPE_SUBMAILBOX})
+     */
+    private static boolean isMailboxRow(Cursor cursor) {
+        return !(isAccountRow(cursor) || isHeaderRow(cursor));
     }
 
     /**
